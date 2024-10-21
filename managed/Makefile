@@ -37,7 +37,6 @@ clean:                          ## Remove generated files
 
 release:                        ## Build pmm-managed release binaries
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
-	$(PMM_RELEASE_PATH)/pmm-managed --version
 
 release-starlark:
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-managed-starlark/...

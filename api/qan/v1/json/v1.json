@@ -33,6 +33,20 @@
               "description": "GetFilteredMetricsNamesRequest contains period for which we need filters.",
               "type": "object",
               "properties": {
+                "period_start_from": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 0
+                },
+                "period_start_to": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 1
+                },
+                "main_metric_name": {
+                  "type": "string",
+                  "x-order": 2
+                },
                 "labels": {
                   "type": "array",
                   "items": {
@@ -53,20 +67,6 @@
                     }
                   },
                   "x-order": 3
-                },
-                "main_metric_name": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "period_start_from": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 0
-                },
-                "period_start_to": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 1
                 }
               }
             }
@@ -91,19 +91,19 @@
                           "description": "Values is label values and main metric percent and per second.",
                           "type": "object",
                           "properties": {
-                            "main_metric_per_sec": {
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 2
+                            "value": {
+                              "type": "string",
+                              "x-order": 0
                             },
                             "main_metric_percent": {
                               "type": "number",
                               "format": "float",
                               "x-order": 1
                             },
-                            "value": {
-                              "type": "string",
-                              "x-order": 0
+                            "main_metric_per_sec": {
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 2
                             }
                           }
                         },
@@ -126,6 +126,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -136,13 +140,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -197,6 +197,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -207,13 +211,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -239,12 +239,15 @@
               "description": "ReportRequest defines filtering of metrics report for db server or other dimentions.",
               "type": "object",
               "properties": {
-                "columns": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 4
+                "period_start_from": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 0
+                },
+                "period_start_to": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 1
                 },
                 "group_by": {
                   "type": "string",
@@ -271,6 +274,22 @@
                   },
                   "x-order": 3
                 },
+                "columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
+                },
+                "order_by": {
+                  "type": "string",
+                  "x-order": 5
+                },
+                "offset": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 6
+                },
                 "limit": {
                   "type": "integer",
                   "format": "int64",
@@ -279,25 +298,6 @@
                 "main_metric": {
                   "type": "string",
                   "x-order": 8
-                },
-                "offset": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 6
-                },
-                "order_by": {
-                  "type": "string",
-                  "x-order": 5
-                },
-                "period_start_from": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 0
-                },
-                "period_start_to": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 1
                 },
                 "search": {
                   "type": "string",
@@ -314,15 +314,20 @@
               "description": "ReportReply is list of reports per quieryids, hosts etc.",
               "type": "object",
               "properties": {
-                "limit": {
+                "total_rows": {
                   "type": "integer",
                   "format": "int64",
-                  "x-order": 2
+                  "x-order": 0
                 },
                 "offset": {
                   "type": "integer",
                   "format": "int64",
                   "x-order": 1
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 2
                 },
                 "rows": {
                   "type": "array",
@@ -330,22 +335,18 @@
                     "description": "Row define metrics for selected dimention.",
                     "type": "object",
                     "properties": {
-                      "database": {
-                        "type": "string",
-                        "x-order": 2
+                      "rank": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
                       },
                       "dimension": {
                         "type": "string",
                         "x-order": 1
                       },
-                      "fingerprint": {
+                      "database": {
                         "type": "string",
-                        "x-order": 5
-                      },
-                      "load": {
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 8
+                        "x-order": 2
                       },
                       "metrics": {
                         "type": "object",
@@ -357,40 +358,40 @@
                               "description": "Stat is statistics of specific metric.",
                               "type": "object",
                               "properties": {
-                                "avg": {
+                                "rate": {
                                   "type": "number",
                                   "format": "float",
-                                  "x-order": 6
+                                  "x-order": 0
                                 },
                                 "cnt": {
                                   "type": "number",
                                   "format": "float",
                                   "x-order": 1
                                 },
-                                "max": {
+                                "sum": {
                                   "type": "number",
                                   "format": "float",
-                                  "x-order": 4
+                                  "x-order": 2
                                 },
                                 "min": {
                                   "type": "number",
                                   "format": "float",
                                   "x-order": 3
                                 },
+                                "max": {
+                                  "type": "number",
+                                  "format": "float",
+                                  "x-order": 4
+                                },
                                 "p99": {
                                   "type": "number",
                                   "format": "float",
                                   "x-order": 5
                                 },
-                                "rate": {
+                                "avg": {
                                   "type": "number",
                                   "format": "float",
-                                  "x-order": 0
-                                },
-                                "sum": {
-                                  "type": "number",
-                                  "format": "float",
-                                  "x-order": 2
+                                  "x-order": 6
                                 },
                                 "sum_per_sec": {
                                   "type": "number",
@@ -404,362 +405,34 @@
                         },
                         "x-order": 3
                       },
-                      "num_queries": {
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 6
-                      },
-                      "qps": {
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 7
-                      },
-                      "rank": {
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 0
-                      },
                       "sparkline": {
                         "type": "array",
                         "items": {
                           "description": "Point contains values that represents abscissa (time) and ordinate (volume etc.)\nof every point in a coordinate system of Sparklines.",
                           "type": "object",
                           "properties": {
+                            "point": {
+                              "description": "The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.",
+                              "type": "integer",
+                              "format": "int64",
+                              "x-order": 0
+                            },
+                            "time_frame": {
+                              "description": "Duration beetween two points.",
+                              "type": "integer",
+                              "format": "int64",
+                              "x-order": 1
+                            },
+                            "timestamp": {
+                              "description": "Time of point in format RFC3339.",
+                              "type": "string",
+                              "x-order": 2
+                            },
                             "load": {
                               "description": "load is query_time / time_range.",
                               "type": "number",
                               "format": "float",
                               "x-order": 3
-                            },
-                            "m_blk_read_time_sum_per_sec": {
-                              "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 53
-                            },
-                            "m_blk_write_time_sum_per_sec": {
-                              "description": "Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 54
-                            },
-                            "m_bytes_sent_sum_per_sec": {
-                              "description": "The number of bytes sent to all clients.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 21
-                            },
-                            "m_cpu_sys_time_sum_per_sec": {
-                              "description": "Total time system spent in query.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 56
-                            },
-                            "m_cpu_user_time_sum_per_sec": {
-                              "description": "Total time user spent in query.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 55
-                            },
-                            "m_docs_returned_sum_per_sec": {
-                              "description": "The number of returned documents.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 40
-                            },
-                            "m_docs_scanned_sum_per_sec": {
-                              "description": "The number of scanned documents.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 42
-                            },
-                            "m_filesort_on_disk_sum_per_sec": {
-                              "description": "The filesort was performed on disk.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 31
-                            },
-                            "m_filesort_sum_per_sec": {
-                              "description": "The query used a filesort.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 30
-                            },
-                            "m_full_join_sum_per_sec": {
-                              "description": "The query performed a full join (a join without indexes).",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 27
-                            },
-                            "m_full_scan_sum_per_sec": {
-                              "description": "The query performed a full table scan.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 26
-                            },
-                            "m_innodb_io_r_bytes_sum_per_sec": {
-                              "description": "Similar to innodb_IO_r_ops, but the unit is bytes.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 15
-                            },
-                            "m_innodb_io_r_ops_sum_per_sec": {
-                              "description": "Counts the number of page read operations scheduled.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 14
-                            },
-                            "m_innodb_io_r_wait_sum_per_sec": {
-                              "description": "Shows how long (in seconds) it took InnoDB to actually read the data from storage.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 16
-                            },
-                            "m_innodb_pages_distinct_sum_per_sec": {
-                              "description": "Counts approximately the number of unique pages the query accessed.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 19
-                            },
-                            "m_innodb_queue_wait_sum_per_sec": {
-                              "description": "Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 18
-                            },
-                            "m_innodb_rec_lock_wait_sum_per_sec": {
-                              "description": "Shows how long (in seconds) the query waited for row locks.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 17
-                            },
-                            "m_local_blks_dirtied_sum_per_sec": {
-                              "description": "Total number of local blocks dirtied by the statement.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 49
-                            },
-                            "m_local_blks_hit_sum_per_sec": {
-                              "description": "Total number of local block cache hits by the statement.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 47
-                            },
-                            "m_local_blks_read_sum_per_sec": {
-                              "description": "Total number of local blocks read by the statement.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 48
-                            },
-                            "m_local_blks_written_sum_per_sec": {
-                              "description": "Total number of local blocks written by the statement.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 50
-                            },
-                            "m_lock_time_sum_per_sec": {
-                              "description": "The time to acquire locks in seconds.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 8
-                            },
-                            "m_merge_passes_sum_per_sec": {
-                              "description": "The number of merge passes that the sort algorithm has had to do.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 13
-                            },
-                            "m_no_good_index_used_sum_per_sec": {
-                              "description": "The number of queries without good index.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 39
-                            },
-                            "m_no_index_used_sum_per_sec": {
-                              "description": "The number of queries without index.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 38
-                            },
-                            "m_plan_time_sum_per_sec": {
-                              "description": "Plan time in per seconds.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 61
-                            },
-                            "m_plans_calls_sum_per_sec": {
-                              "description": "Total number of planned calls.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 57
-                            },
-                            "m_qc_hit_sum_per_sec": {
-                              "description": "Query Cache hits.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 25
-                            },
-                            "m_query_length_sum_per_sec": {
-                              "description": "Shows how long the query is.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 20
-                            },
-                            "m_query_time_sum_per_sec": {
-                              "description": "The statement execution time in seconds.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 7
-                            },
-                            "m_response_length_sum_per_sec": {
-                              "description": "The response length of the query result in bytes.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 41
-                            },
-                            "m_rows_affected_sum_per_sec": {
-                              "description": "Number of rows changed - UPDATE, DELETE, INSERT.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 11
-                            },
-                            "m_rows_examined_sum_per_sec": {
-                              "description": "Number of rows scanned - SELECT.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 10
-                            },
-                            "m_rows_read_sum_per_sec": {
-                              "description": "The number of rows read from tables.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 12
-                            },
-                            "m_rows_sent_sum_per_sec": {
-                              "description": "The number of rows sent to the client.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 9
-                            },
-                            "m_select_full_range_join_sum_per_sec": {
-                              "description": "The number of joins that used a range search on a reference table.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 32
-                            },
-                            "m_select_range_check_sum_per_sec": {
-                              "description": "The number of joins without keys that check for key usage after each row.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 34
-                            },
-                            "m_select_range_sum_per_sec": {
-                              "description": "The number of joins that used ranges on the first table.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 33
-                            },
-                            "m_shared_blks_dirtied_sum_per_sec": {
-                              "description": "Total number of shared blocks dirtied by the statement.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 45
-                            },
-                            "m_shared_blks_hit_sum_per_sec": {
-                              "description": "Total number of shared block cache hits by the statement.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 43
-                            },
-                            "m_shared_blks_read_sum_per_sec": {
-                              "description": "Total number of shared blocks read by the statement.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 44
-                            },
-                            "m_shared_blks_written_sum_per_sec": {
-                              "description": "Total number of shared blocks written by the statement.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 46
-                            },
-                            "m_sort_range_sum_per_sec": {
-                              "description": "The number of sorts that were done using ranges.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 35
-                            },
-                            "m_sort_rows_sum_per_sec": {
-                              "description": "The number of sorted rows.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 36
-                            },
-                            "m_sort_scan_sum_per_sec": {
-                              "description": "The number of sorts that were done by scanning the table.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 37
-                            },
-                            "m_temp_blks_read_sum_per_sec": {
-                              "description": "Total number of temp blocks read by the statement.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 51
-                            },
-                            "m_temp_blks_written_sum_per_sec": {
-                              "description": "Total number of temp blocks written by the statement.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 52
-                            },
-                            "m_tmp_disk_tables_sum_per_sec": {
-                              "description": "Number of temporary tables created on disk for the query.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 23
-                            },
-                            "m_tmp_table_on_disk_sum_per_sec": {
-                              "description": "The querys temporary table was stored on disk.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 29
-                            },
-                            "m_tmp_table_sizes_sum_per_sec": {
-                              "description": "Total Size in bytes for all temporary tables used in the query.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 24
-                            },
-                            "m_tmp_table_sum_per_sec": {
-                              "description": "The query created an implicit internal temporary table.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 28
-                            },
-                            "m_tmp_tables_sum_per_sec": {
-                              "description": "Number of temporary tables created on memory for the query.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 22
-                            },
-                            "m_wal_bytes_sum_per_sec": {
-                              "description": "Total bytes of WAL (Write-ahead logging) records.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 60
-                            },
-                            "m_wal_fpi_sum_per_sec": {
-                              "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 59
-                            },
-                            "m_wal_records_sum_per_sec": {
-                              "description": "Total number of WAL (Write-ahead logging) records.",
-                              "type": "number",
-                              "format": "float",
-                              "x-order": 58
                             },
                             "num_queries_per_sec": {
                               "description": "number of queries in bucket.",
@@ -779,35 +452,386 @@
                               "format": "float",
                               "x-order": 6
                             },
-                            "point": {
-                              "description": "The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.",
-                              "type": "integer",
-                              "format": "int64",
-                              "x-order": 0
+                            "m_query_time_sum_per_sec": {
+                              "description": "The statement execution time in seconds.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 7
                             },
-                            "time_frame": {
-                              "description": "Duration beetween two points.",
-                              "type": "integer",
-                              "format": "int64",
-                              "x-order": 1
+                            "m_lock_time_sum_per_sec": {
+                              "description": "The time to acquire locks in seconds.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 8
                             },
-                            "timestamp": {
-                              "description": "Time of point in format RFC3339.",
-                              "type": "string",
-                              "x-order": 2
+                            "m_rows_sent_sum_per_sec": {
+                              "description": "The number of rows sent to the client.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 9
+                            },
+                            "m_rows_examined_sum_per_sec": {
+                              "description": "Number of rows scanned - SELECT.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 10
+                            },
+                            "m_rows_affected_sum_per_sec": {
+                              "description": "Number of rows changed - UPDATE, DELETE, INSERT.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 11
+                            },
+                            "m_rows_read_sum_per_sec": {
+                              "description": "The number of rows read from tables.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 12
+                            },
+                            "m_merge_passes_sum_per_sec": {
+                              "description": "The number of merge passes that the sort algorithm has had to do.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 13
+                            },
+                            "m_innodb_io_r_ops_sum_per_sec": {
+                              "description": "Counts the number of page read operations scheduled.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 14
+                            },
+                            "m_innodb_io_r_bytes_sum_per_sec": {
+                              "description": "Similar to innodb_IO_r_ops, but the unit is bytes.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 15
+                            },
+                            "m_innodb_io_r_wait_sum_per_sec": {
+                              "description": "Shows how long (in seconds) it took InnoDB to actually read the data from storage.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 16
+                            },
+                            "m_innodb_rec_lock_wait_sum_per_sec": {
+                              "description": "Shows how long (in seconds) the query waited for row locks.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 17
+                            },
+                            "m_innodb_queue_wait_sum_per_sec": {
+                              "description": "Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 18
+                            },
+                            "m_innodb_pages_distinct_sum_per_sec": {
+                              "description": "Counts approximately the number of unique pages the query accessed.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 19
+                            },
+                            "m_query_length_sum_per_sec": {
+                              "description": "Shows how long the query is.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 20
+                            },
+                            "m_bytes_sent_sum_per_sec": {
+                              "description": "The number of bytes sent to all clients.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 21
+                            },
+                            "m_tmp_tables_sum_per_sec": {
+                              "description": "Number of temporary tables created on memory for the query.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 22
+                            },
+                            "m_tmp_disk_tables_sum_per_sec": {
+                              "description": "Number of temporary tables created on disk for the query.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 23
+                            },
+                            "m_tmp_table_sizes_sum_per_sec": {
+                              "description": "Total Size in bytes for all temporary tables used in the query.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 24
+                            },
+                            "m_qc_hit_sum_per_sec": {
+                              "description": "Query Cache hits.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 25
+                            },
+                            "m_full_scan_sum_per_sec": {
+                              "description": "The query performed a full table scan.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 26
+                            },
+                            "m_full_join_sum_per_sec": {
+                              "description": "The query performed a full join (a join without indexes).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 27
+                            },
+                            "m_tmp_table_sum_per_sec": {
+                              "description": "The query created an implicit internal temporary table.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 28
+                            },
+                            "m_tmp_table_on_disk_sum_per_sec": {
+                              "description": "The querys temporary table was stored on disk.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 29
+                            },
+                            "m_filesort_sum_per_sec": {
+                              "description": "The query used a filesort.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 30
+                            },
+                            "m_filesort_on_disk_sum_per_sec": {
+                              "description": "The filesort was performed on disk.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 31
+                            },
+                            "m_select_full_range_join_sum_per_sec": {
+                              "description": "The number of joins that used a range search on a reference table.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 32
+                            },
+                            "m_select_range_sum_per_sec": {
+                              "description": "The number of joins that used ranges on the first table.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 33
+                            },
+                            "m_select_range_check_sum_per_sec": {
+                              "description": "The number of joins without keys that check for key usage after each row.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 34
+                            },
+                            "m_sort_range_sum_per_sec": {
+                              "description": "The number of sorts that were done using ranges.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 35
+                            },
+                            "m_sort_rows_sum_per_sec": {
+                              "description": "The number of sorted rows.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 36
+                            },
+                            "m_sort_scan_sum_per_sec": {
+                              "description": "The number of sorts that were done by scanning the table.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 37
+                            },
+                            "m_no_index_used_sum_per_sec": {
+                              "description": "The number of queries without index.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 38
+                            },
+                            "m_no_good_index_used_sum_per_sec": {
+                              "description": "The number of queries without good index.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 39
+                            },
+                            "m_docs_returned_sum_per_sec": {
+                              "description": "The number of returned documents.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 40
+                            },
+                            "m_response_length_sum_per_sec": {
+                              "description": "The response length of the query result in bytes.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 41
+                            },
+                            "m_docs_scanned_sum_per_sec": {
+                              "description": "The number of scanned documents.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 42
+                            },
+                            "m_shared_blks_hit_sum_per_sec": {
+                              "description": "Total number of shared block cache hits by the statement.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 43
+                            },
+                            "m_shared_blks_read_sum_per_sec": {
+                              "description": "Total number of shared blocks read by the statement.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 44
+                            },
+                            "m_shared_blks_dirtied_sum_per_sec": {
+                              "description": "Total number of shared blocks dirtied by the statement.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 45
+                            },
+                            "m_shared_blks_written_sum_per_sec": {
+                              "description": "Total number of shared blocks written by the statement.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 46
+                            },
+                            "m_shared_blk_read_time_sum_per_sec": {
+                              "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 47
+                            },
+                            "m_shared_blk_write_time_sum_per_sec": {
+                              "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 48
+                            },
+                            "m_local_blk_read_time_sum_per_sec": {
+                              "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 49
+                            },
+                            "m_local_blk_write_time_sum_per_sec": {
+                              "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 50
+                            },
+                            "m_local_blks_hit_sum_per_sec": {
+                              "description": "Total number of local block cache hits by the statement.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 51
+                            },
+                            "m_local_blks_read_sum_per_sec": {
+                              "description": "Total number of local blocks read by the statement.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 52
+                            },
+                            "m_local_blks_dirtied_sum_per_sec": {
+                              "description": "Total number of local blocks dirtied by the statement.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 53
+                            },
+                            "m_local_blks_written_sum_per_sec": {
+                              "description": "Total number of local blocks written by the statement.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 54
+                            },
+                            "m_temp_blks_read_sum_per_sec": {
+                              "description": "Total number of temp blocks read by the statement.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 55
+                            },
+                            "m_temp_blks_written_sum_per_sec": {
+                              "description": "Total number of temp blocks written by the statement.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 56
+                            },
+                            "m_blk_read_time_sum_per_sec": {
+                              "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 57
+                            },
+                            "m_blk_write_time_sum_per_sec": {
+                              "description": "Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 58
+                            },
+                            "m_cpu_user_time_sum_per_sec": {
+                              "description": "Total time user spent in query.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 59
+                            },
+                            "m_cpu_sys_time_sum_per_sec": {
+                              "description": "Total time system spent in query.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 60
+                            },
+                            "m_plans_calls_sum_per_sec": {
+                              "description": "Total number of planned calls.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 61
+                            },
+                            "m_wal_records_sum_per_sec": {
+                              "description": "Total number of WAL (Write-ahead logging) records.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 62
+                            },
+                            "m_wal_fpi_sum_per_sec": {
+                              "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 63
+                            },
+                            "m_wal_bytes_sum_per_sec": {
+                              "description": "Total bytes of WAL (Write-ahead logging) records.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 64
+                            },
+                            "m_plan_time_sum_per_sec": {
+                              "description": "Plan time in per seconds.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 65
                             }
                           }
                         },
                         "x-order": 4
+                      },
+                      "fingerprint": {
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "num_queries": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 6
+                      },
+                      "qps": {
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 7
+                      },
+                      "load": {
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 8
                       }
                     }
                   },
                   "x-order": 3
-                },
-                "total_rows": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 0
                 }
               }
             }
@@ -822,6 +846,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -832,13 +860,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -890,6 +914,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -900,13 +928,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -932,13 +956,13 @@
               "description": "QueryExistsRequest check if provided query exists or not.",
               "type": "object",
               "properties": {
-                "query": {
-                  "type": "string",
-                  "x-order": 1
-                },
                 "serviceid": {
                   "type": "string",
                   "x-order": 0
+                },
+                "query": {
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -968,6 +992,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -978,13 +1006,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1010,6 +1034,16 @@
               "description": "GetQueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
+                "period_start_from": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 0
+                },
+                "period_start_to": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 1
+                },
                 "filter_by": {
                   "description": "dimension value: ex: queryid - 1D410B4BE5060972.",
                   "type": "string",
@@ -1045,16 +1079,6 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 5
-                },
-                "period_start_from": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 0
-                },
-                "period_start_to": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 1
                 }
               }
             }
@@ -1077,10 +1101,6 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "example_metrics": {
-                        "type": "string",
-                        "x-order": 6
-                      },
                       "example_type": {
                         "description": "ExampleType is a type of query example selected for this query class in given period of time.",
                         "type": "string",
@@ -1094,10 +1114,6 @@
                         ],
                         "x-order": 1
                       },
-                      "explain_fingerprint": {
-                        "type": "string",
-                        "x-order": 4
-                      },
                       "is_truncated": {
                         "type": "integer",
                         "format": "int64",
@@ -1108,13 +1124,17 @@
                         "format": "int64",
                         "x-order": 3
                       },
+                      "explain_fingerprint": {
+                        "type": "string",
+                        "x-order": 4
+                      },
                       "query_id": {
                         "type": "string",
                         "x-order": 5
                       },
-                      "schema": {
+                      "example_metrics": {
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 6
                       },
                       "service_id": {
                         "type": "string",
@@ -1123,6 +1143,10 @@
                       "service_type": {
                         "type": "string",
                         "x-order": 8
+                      },
+                      "schema": {
+                        "type": "string",
+                        "x-order": 9
                       },
                       "tables": {
                         "type": "array",
@@ -1148,6 +1172,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1158,13 +1186,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1190,13 +1214,13 @@
               "description": "SchemaByQueryIDRequest returns schema for given query ID and service ID.",
               "type": "object",
               "properties": {
-                "query_id": {
-                  "type": "string",
-                  "x-order": 1
-                },
                 "service_id": {
                   "type": "string",
                   "x-order": 0
+                },
+                "query_id": {
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -1226,6 +1250,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1236,13 +1264,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1268,13 +1292,13 @@
               "description": "ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.",
               "type": "object",
               "properties": {
-                "query_id": {
-                  "type": "string",
-                  "x-order": 1
-                },
                 "serviceid": {
                   "type": "string",
                   "x-order": 0
+                },
+                "query_id": {
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -1309,6 +1333,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1319,13 +1347,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1351,6 +1375,16 @@
               "description": "GetHistogramRequest defines filtering by time range, labels and queryid.",
               "type": "object",
               "properties": {
+                "period_start_from": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 0
+                },
+                "period_start_to": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 1
+                },
                 "labels": {
                   "type": "array",
                   "items": {
@@ -1371,16 +1405,6 @@
                     }
                   },
                   "x-order": 2
-                },
-                "period_start_from": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 0
-                },
-                "period_start_to": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 1
                 },
                 "queryid": {
                   "type": "string",
@@ -1403,14 +1427,14 @@
                     "description": "HistogramItem represents one item in histogram.",
                     "type": "object",
                     "properties": {
+                      "range": {
+                        "type": "string",
+                        "x-order": 0
+                      },
                       "frequency": {
                         "type": "integer",
                         "format": "int64",
                         "x-order": 1
-                      },
-                      "range": {
-                        "type": "string",
-                        "x-order": 0
                       }
                     }
                   },
@@ -1429,6 +1453,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1439,13 +1467,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1471,16 +1495,6 @@
               "description": "GetLabelsRequest defines filtering of object detail's labels for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
-                "filter_by": {
-                  "description": "dimension value: ex: queryid - 1D410B4BE5060972.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "group_by": {
-                  "description": "one of dimension: queryid | host ...",
-                  "type": "string",
-                  "x-order": 3
-                },
                 "period_start_from": {
                   "type": "string",
                   "format": "date-time",
@@ -1490,6 +1504,16 @@
                   "type": "string",
                   "format": "date-time",
                   "x-order": 1
+                },
+                "filter_by": {
+                  "description": "dimension value: ex: queryid - 1D410B4BE5060972.",
+                  "type": "string",
+                  "x-order": 2
+                },
+                "group_by": {
+                  "description": "one of dimension: queryid | host ...",
+                  "type": "string",
+                  "x-order": 3
                 }
               }
             }
@@ -1532,6 +1556,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -1542,13 +1570,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -1574,6 +1598,16 @@
               "description": "GetMetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
+                "period_start_from": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 0
+                },
+                "period_start_to": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 1
+                },
                 "filter_by": {
                   "description": "dimension value: ex: queryid - 1D410B4BE5060972.",
                   "type": "string",
@@ -1583,13 +1617,6 @@
                   "description": "one of dimension: queryid | host ...",
                   "type": "string",
                   "x-order": 3
-                },
-                "include_only_fields": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 5
                 },
                 "labels": {
                   "type": "array",
@@ -1612,15 +1639,12 @@
                   },
                   "x-order": 4
                 },
-                "period_start_from": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 0
-                },
-                "period_start_to": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 1
+                "include_only_fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 5
                 },
                 "totals": {
                   "type": "boolean",
@@ -1638,90 +1662,41 @@
               "description": "GetMetricsResponse defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
-                "fingerprint": {
-                  "type": "string",
-                  "x-order": 4
-                },
-                "metadata": {
-                  "description": "GetSlecetedQueryMetadataResponse consists selected query metadata to show in details for given query ID.",
-                  "type": "object",
-                  "properties": {
-                    "cluster": {
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "database": {
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "environment": {
-                      "type": "string",
-                      "x-order": 8
-                    },
-                    "node_id": {
-                      "type": "string",
-                      "x-order": 9
-                    },
-                    "node_name": {
-                      "type": "string",
-                      "x-order": 10
-                    },
-                    "node_type": {
-                      "type": "string",
-                      "x-order": 11
-                    },
-                    "replication_set": {
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "schema": {
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "type": "string",
-                      "x-order": 7
-                    },
-                    "service_name": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "service_type": {
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "username": {
-                      "type": "string",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 5
-                },
                 "metrics": {
                   "type": "object",
                   "additionalProperties": {
                     "description": "MetricValues is statistics of specific metric.",
                     "type": "object",
                     "properties": {
-                      "avg": {
+                      "rate": {
                         "type": "number",
                         "format": "float",
-                        "x-order": 5
+                        "x-order": 0
                       },
                       "cnt": {
                         "type": "number",
                         "format": "float",
                         "x-order": 1
                       },
-                      "max": {
+                      "sum": {
                         "type": "number",
                         "format": "float",
-                        "x-order": 4
+                        "x-order": 2
                       },
                       "min": {
                         "type": "number",
                         "format": "float",
                         "x-order": 3
+                      },
+                      "max": {
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 4
+                      },
+                      "avg": {
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 5
                       },
                       "p99": {
                         "type": "number",
@@ -1732,20 +1707,17 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 7
-                      },
-                      "rate": {
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 0
-                      },
-                      "sum": {
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 2
                       }
                     }
                   },
                   "x-order": 0
+                },
+                "text_metrics": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 1
                 },
                 "sparkline": {
                   "type": "array",
@@ -1753,341 +1725,28 @@
                     "description": "Point contains values that represents abscissa (time) and ordinate (volume etc.)\nof every point in a coordinate system of Sparklines.",
                     "type": "object",
                     "properties": {
+                      "point": {
+                        "description": "The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "time_frame": {
+                        "description": "Duration beetween two points.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 1
+                      },
+                      "timestamp": {
+                        "description": "Time of point in format RFC3339.",
+                        "type": "string",
+                        "x-order": 2
+                      },
                       "load": {
                         "description": "load is query_time / time_range.",
                         "type": "number",
                         "format": "float",
                         "x-order": 3
-                      },
-                      "m_blk_read_time_sum_per_sec": {
-                        "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 53
-                      },
-                      "m_blk_write_time_sum_per_sec": {
-                        "description": "Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 54
-                      },
-                      "m_bytes_sent_sum_per_sec": {
-                        "description": "The number of bytes sent to all clients.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 21
-                      },
-                      "m_cpu_sys_time_sum_per_sec": {
-                        "description": "Total time system spent in query.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 56
-                      },
-                      "m_cpu_user_time_sum_per_sec": {
-                        "description": "Total time user spent in query.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 55
-                      },
-                      "m_docs_returned_sum_per_sec": {
-                        "description": "The number of returned documents.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 40
-                      },
-                      "m_docs_scanned_sum_per_sec": {
-                        "description": "The number of scanned documents.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 42
-                      },
-                      "m_filesort_on_disk_sum_per_sec": {
-                        "description": "The filesort was performed on disk.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 31
-                      },
-                      "m_filesort_sum_per_sec": {
-                        "description": "The query used a filesort.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 30
-                      },
-                      "m_full_join_sum_per_sec": {
-                        "description": "The query performed a full join (a join without indexes).",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 27
-                      },
-                      "m_full_scan_sum_per_sec": {
-                        "description": "The query performed a full table scan.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 26
-                      },
-                      "m_innodb_io_r_bytes_sum_per_sec": {
-                        "description": "Similar to innodb_IO_r_ops, but the unit is bytes.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 15
-                      },
-                      "m_innodb_io_r_ops_sum_per_sec": {
-                        "description": "Counts the number of page read operations scheduled.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 14
-                      },
-                      "m_innodb_io_r_wait_sum_per_sec": {
-                        "description": "Shows how long (in seconds) it took InnoDB to actually read the data from storage.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 16
-                      },
-                      "m_innodb_pages_distinct_sum_per_sec": {
-                        "description": "Counts approximately the number of unique pages the query accessed.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 19
-                      },
-                      "m_innodb_queue_wait_sum_per_sec": {
-                        "description": "Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 18
-                      },
-                      "m_innodb_rec_lock_wait_sum_per_sec": {
-                        "description": "Shows how long (in seconds) the query waited for row locks.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 17
-                      },
-                      "m_local_blks_dirtied_sum_per_sec": {
-                        "description": "Total number of local blocks dirtied by the statement.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 49
-                      },
-                      "m_local_blks_hit_sum_per_sec": {
-                        "description": "Total number of local block cache hits by the statement.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 47
-                      },
-                      "m_local_blks_read_sum_per_sec": {
-                        "description": "Total number of local blocks read by the statement.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 48
-                      },
-                      "m_local_blks_written_sum_per_sec": {
-                        "description": "Total number of local blocks written by the statement.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 50
-                      },
-                      "m_lock_time_sum_per_sec": {
-                        "description": "The time to acquire locks in seconds.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 8
-                      },
-                      "m_merge_passes_sum_per_sec": {
-                        "description": "The number of merge passes that the sort algorithm has had to do.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 13
-                      },
-                      "m_no_good_index_used_sum_per_sec": {
-                        "description": "The number of queries without good index.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 39
-                      },
-                      "m_no_index_used_sum_per_sec": {
-                        "description": "The number of queries without index.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 38
-                      },
-                      "m_plan_time_sum_per_sec": {
-                        "description": "Plan time in per seconds.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 61
-                      },
-                      "m_plans_calls_sum_per_sec": {
-                        "description": "Total number of planned calls.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 57
-                      },
-                      "m_qc_hit_sum_per_sec": {
-                        "description": "Query Cache hits.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 25
-                      },
-                      "m_query_length_sum_per_sec": {
-                        "description": "Shows how long the query is.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 20
-                      },
-                      "m_query_time_sum_per_sec": {
-                        "description": "The statement execution time in seconds.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 7
-                      },
-                      "m_response_length_sum_per_sec": {
-                        "description": "The response length of the query result in bytes.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 41
-                      },
-                      "m_rows_affected_sum_per_sec": {
-                        "description": "Number of rows changed - UPDATE, DELETE, INSERT.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 11
-                      },
-                      "m_rows_examined_sum_per_sec": {
-                        "description": "Number of rows scanned - SELECT.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 10
-                      },
-                      "m_rows_read_sum_per_sec": {
-                        "description": "The number of rows read from tables.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 12
-                      },
-                      "m_rows_sent_sum_per_sec": {
-                        "description": "The number of rows sent to the client.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 9
-                      },
-                      "m_select_full_range_join_sum_per_sec": {
-                        "description": "The number of joins that used a range search on a reference table.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 32
-                      },
-                      "m_select_range_check_sum_per_sec": {
-                        "description": "The number of joins without keys that check for key usage after each row.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 34
-                      },
-                      "m_select_range_sum_per_sec": {
-                        "description": "The number of joins that used ranges on the first table.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 33
-                      },
-                      "m_shared_blks_dirtied_sum_per_sec": {
-                        "description": "Total number of shared blocks dirtied by the statement.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 45
-                      },
-                      "m_shared_blks_hit_sum_per_sec": {
-                        "description": "Total number of shared block cache hits by the statement.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 43
-                      },
-                      "m_shared_blks_read_sum_per_sec": {
-                        "description": "Total number of shared blocks read by the statement.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 44
-                      },
-                      "m_shared_blks_written_sum_per_sec": {
-                        "description": "Total number of shared blocks written by the statement.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 46
-                      },
-                      "m_sort_range_sum_per_sec": {
-                        "description": "The number of sorts that were done using ranges.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 35
-                      },
-                      "m_sort_rows_sum_per_sec": {
-                        "description": "The number of sorted rows.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 36
-                      },
-                      "m_sort_scan_sum_per_sec": {
-                        "description": "The number of sorts that were done by scanning the table.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 37
-                      },
-                      "m_temp_blks_read_sum_per_sec": {
-                        "description": "Total number of temp blocks read by the statement.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 51
-                      },
-                      "m_temp_blks_written_sum_per_sec": {
-                        "description": "Total number of temp blocks written by the statement.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 52
-                      },
-                      "m_tmp_disk_tables_sum_per_sec": {
-                        "description": "Number of temporary tables created on disk for the query.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 23
-                      },
-                      "m_tmp_table_on_disk_sum_per_sec": {
-                        "description": "The querys temporary table was stored on disk.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 29
-                      },
-                      "m_tmp_table_sizes_sum_per_sec": {
-                        "description": "Total Size in bytes for all temporary tables used in the query.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 24
-                      },
-                      "m_tmp_table_sum_per_sec": {
-                        "description": "The query created an implicit internal temporary table.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 28
-                      },
-                      "m_tmp_tables_sum_per_sec": {
-                        "description": "Number of temporary tables created on memory for the query.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 22
-                      },
-                      "m_wal_bytes_sum_per_sec": {
-                        "description": "Total bytes of WAL (Write-ahead logging) records.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 60
-                      },
-                      "m_wal_fpi_sum_per_sec": {
-                        "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 59
-                      },
-                      "m_wal_records_sum_per_sec": {
-                        "description": "Total number of WAL (Write-ahead logging) records.",
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 58
                       },
                       "num_queries_per_sec": {
                         "description": "number of queries in bucket.",
@@ -2107,33 +1766,363 @@
                         "format": "float",
                         "x-order": 6
                       },
-                      "point": {
-                        "description": "The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 0
+                      "m_query_time_sum_per_sec": {
+                        "description": "The statement execution time in seconds.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 7
                       },
-                      "time_frame": {
-                        "description": "Duration beetween two points.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 1
+                      "m_lock_time_sum_per_sec": {
+                        "description": "The time to acquire locks in seconds.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 8
                       },
-                      "timestamp": {
-                        "description": "Time of point in format RFC3339.",
-                        "type": "string",
-                        "x-order": 2
+                      "m_rows_sent_sum_per_sec": {
+                        "description": "The number of rows sent to the client.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 9
+                      },
+                      "m_rows_examined_sum_per_sec": {
+                        "description": "Number of rows scanned - SELECT.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 10
+                      },
+                      "m_rows_affected_sum_per_sec": {
+                        "description": "Number of rows changed - UPDATE, DELETE, INSERT.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 11
+                      },
+                      "m_rows_read_sum_per_sec": {
+                        "description": "The number of rows read from tables.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 12
+                      },
+                      "m_merge_passes_sum_per_sec": {
+                        "description": "The number of merge passes that the sort algorithm has had to do.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 13
+                      },
+                      "m_innodb_io_r_ops_sum_per_sec": {
+                        "description": "Counts the number of page read operations scheduled.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 14
+                      },
+                      "m_innodb_io_r_bytes_sum_per_sec": {
+                        "description": "Similar to innodb_IO_r_ops, but the unit is bytes.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 15
+                      },
+                      "m_innodb_io_r_wait_sum_per_sec": {
+                        "description": "Shows how long (in seconds) it took InnoDB to actually read the data from storage.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 16
+                      },
+                      "m_innodb_rec_lock_wait_sum_per_sec": {
+                        "description": "Shows how long (in seconds) the query waited for row locks.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 17
+                      },
+                      "m_innodb_queue_wait_sum_per_sec": {
+                        "description": "Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 18
+                      },
+                      "m_innodb_pages_distinct_sum_per_sec": {
+                        "description": "Counts approximately the number of unique pages the query accessed.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 19
+                      },
+                      "m_query_length_sum_per_sec": {
+                        "description": "Shows how long the query is.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 20
+                      },
+                      "m_bytes_sent_sum_per_sec": {
+                        "description": "The number of bytes sent to all clients.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 21
+                      },
+                      "m_tmp_tables_sum_per_sec": {
+                        "description": "Number of temporary tables created on memory for the query.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 22
+                      },
+                      "m_tmp_disk_tables_sum_per_sec": {
+                        "description": "Number of temporary tables created on disk for the query.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 23
+                      },
+                      "m_tmp_table_sizes_sum_per_sec": {
+                        "description": "Total Size in bytes for all temporary tables used in the query.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 24
+                      },
+                      "m_qc_hit_sum_per_sec": {
+                        "description": "Query Cache hits.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 25
+                      },
+                      "m_full_scan_sum_per_sec": {
+                        "description": "The query performed a full table scan.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 26
+                      },
+                      "m_full_join_sum_per_sec": {
+                        "description": "The query performed a full join (a join without indexes).",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 27
+                      },
+                      "m_tmp_table_sum_per_sec": {
+                        "description": "The query created an implicit internal temporary table.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 28
+                      },
+                      "m_tmp_table_on_disk_sum_per_sec": {
+                        "description": "The querys temporary table was stored on disk.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 29
+                      },
+                      "m_filesort_sum_per_sec": {
+                        "description": "The query used a filesort.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 30
+                      },
+                      "m_filesort_on_disk_sum_per_sec": {
+                        "description": "The filesort was performed on disk.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 31
+                      },
+                      "m_select_full_range_join_sum_per_sec": {
+                        "description": "The number of joins that used a range search on a reference table.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 32
+                      },
+                      "m_select_range_sum_per_sec": {
+                        "description": "The number of joins that used ranges on the first table.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 33
+                      },
+                      "m_select_range_check_sum_per_sec": {
+                        "description": "The number of joins without keys that check for key usage after each row.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 34
+                      },
+                      "m_sort_range_sum_per_sec": {
+                        "description": "The number of sorts that were done using ranges.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 35
+                      },
+                      "m_sort_rows_sum_per_sec": {
+                        "description": "The number of sorted rows.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 36
+                      },
+                      "m_sort_scan_sum_per_sec": {
+                        "description": "The number of sorts that were done by scanning the table.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 37
+                      },
+                      "m_no_index_used_sum_per_sec": {
+                        "description": "The number of queries without index.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 38
+                      },
+                      "m_no_good_index_used_sum_per_sec": {
+                        "description": "The number of queries without good index.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 39
+                      },
+                      "m_docs_returned_sum_per_sec": {
+                        "description": "The number of returned documents.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 40
+                      },
+                      "m_response_length_sum_per_sec": {
+                        "description": "The response length of the query result in bytes.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 41
+                      },
+                      "m_docs_scanned_sum_per_sec": {
+                        "description": "The number of scanned documents.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 42
+                      },
+                      "m_shared_blks_hit_sum_per_sec": {
+                        "description": "Total number of shared block cache hits by the statement.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 43
+                      },
+                      "m_shared_blks_read_sum_per_sec": {
+                        "description": "Total number of shared blocks read by the statement.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 44
+                      },
+                      "m_shared_blks_dirtied_sum_per_sec": {
+                        "description": "Total number of shared blocks dirtied by the statement.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 45
+                      },
+                      "m_shared_blks_written_sum_per_sec": {
+                        "description": "Total number of shared blocks written by the statement.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 46
+                      },
+                      "m_shared_blk_read_time_sum_per_sec": {
+                        "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 47
+                      },
+                      "m_shared_blk_write_time_sum_per_sec": {
+                        "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 48
+                      },
+                      "m_local_blk_read_time_sum_per_sec": {
+                        "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 49
+                      },
+                      "m_local_blk_write_time_sum_per_sec": {
+                        "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 50
+                      },
+                      "m_local_blks_hit_sum_per_sec": {
+                        "description": "Total number of local block cache hits by the statement.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 51
+                      },
+                      "m_local_blks_read_sum_per_sec": {
+                        "description": "Total number of local blocks read by the statement.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 52
+                      },
+                      "m_local_blks_dirtied_sum_per_sec": {
+                        "description": "Total number of local blocks dirtied by the statement.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 53
+                      },
+                      "m_local_blks_written_sum_per_sec": {
+                        "description": "Total number of local blocks written by the statement.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 54
+                      },
+                      "m_temp_blks_read_sum_per_sec": {
+                        "description": "Total number of temp blocks read by the statement.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 55
+                      },
+                      "m_temp_blks_written_sum_per_sec": {
+                        "description": "Total number of temp blocks written by the statement.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 56
+                      },
+                      "m_blk_read_time_sum_per_sec": {
+                        "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 57
+                      },
+                      "m_blk_write_time_sum_per_sec": {
+                        "description": "Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 58
+                      },
+                      "m_cpu_user_time_sum_per_sec": {
+                        "description": "Total time user spent in query.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 59
+                      },
+                      "m_cpu_sys_time_sum_per_sec": {
+                        "description": "Total time system spent in query.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 60
+                      },
+                      "m_plans_calls_sum_per_sec": {
+                        "description": "Total number of planned calls.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 61
+                      },
+                      "m_wal_records_sum_per_sec": {
+                        "description": "Total number of WAL (Write-ahead logging) records.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 62
+                      },
+                      "m_wal_fpi_sum_per_sec": {
+                        "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 63
+                      },
+                      "m_wal_bytes_sum_per_sec": {
+                        "description": "Total bytes of WAL (Write-ahead logging) records.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 64
+                      },
+                      "m_plan_time_sum_per_sec": {
+                        "description": "Plan time in per seconds.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 65
                       }
                     }
                   },
                   "x-order": 2
-                },
-                "text_metrics": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "x-order": 1
                 },
                 "totals": {
                   "type": "object",
@@ -2141,25 +2130,35 @@
                     "description": "MetricValues is statistics of specific metric.",
                     "type": "object",
                     "properties": {
-                      "avg": {
+                      "rate": {
                         "type": "number",
                         "format": "float",
-                        "x-order": 5
+                        "x-order": 0
                       },
                       "cnt": {
                         "type": "number",
                         "format": "float",
                         "x-order": 1
                       },
-                      "max": {
+                      "sum": {
                         "type": "number",
                         "format": "float",
-                        "x-order": 4
+                        "x-order": 2
                       },
                       "min": {
                         "type": "number",
                         "format": "float",
                         "x-order": 3
+                      },
+                      "max": {
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 4
+                      },
+                      "avg": {
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 5
                       },
                       "p99": {
                         "type": "number",
@@ -2170,20 +2169,69 @@
                         "type": "number",
                         "format": "float",
                         "x-order": 7
-                      },
-                      "rate": {
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 0
-                      },
-                      "sum": {
-                        "type": "number",
-                        "format": "float",
-                        "x-order": 2
                       }
                     }
                   },
                   "x-order": 3
+                },
+                "fingerprint": {
+                  "type": "string",
+                  "x-order": 4
+                },
+                "metadata": {
+                  "description": "GetSlecetedQueryMetadataResponse consists selected query metadata to show in details for given query ID.",
+                  "type": "object",
+                  "properties": {
+                    "service_name": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "database": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "schema": {
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "username": {
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "replication_set": {
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "cluster": {
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "service_type": {
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "service_id": {
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "environment": {
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "node_id": {
+                      "type": "string",
+                      "x-order": 9
+                    },
+                    "node_name": {
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "node_type": {
+                      "type": "string",
+                      "x-order": 11
+                    }
+                  },
+                  "x-order": 5
                 }
               }
             }
@@ -2198,6 +2246,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -2208,13 +2260,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }

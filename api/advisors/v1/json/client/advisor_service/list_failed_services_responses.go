@@ -7,6 +7,7 @@ package advisor_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type ListFailedServicesOK struct {
 	Payload *ListFailedServicesOKBody
 }
 
+// IsSuccess returns true when this list failed services Ok response has a 2xx status code
+func (o *ListFailedServicesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list failed services Ok response has a 3xx status code
+func (o *ListFailedServicesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list failed services Ok response has a 4xx status code
+func (o *ListFailedServicesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list failed services Ok response has a 5xx status code
+func (o *ListFailedServicesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list failed services Ok response a status code equal to that given
+func (o *ListFailedServicesOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the list failed services Ok response
+func (o *ListFailedServicesOK) Code() int {
+	return 200
+}
+
 func (o *ListFailedServicesOK) Error() string {
-	return fmt.Sprintf("[GET /v1/advisors/failedServices][%d] listFailedServicesOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors/failedServices][%d] listFailedServicesOk %s", 200, payload)
+}
+
+func (o *ListFailedServicesOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors/failedServices][%d] listFailedServicesOk %s", 200, payload)
 }
 
 func (o *ListFailedServicesOK) GetPayload() *ListFailedServicesOKBody {
@@ -94,13 +131,44 @@ type ListFailedServicesDefault struct {
 	Payload *ListFailedServicesDefaultBody
 }
 
+// IsSuccess returns true when this list failed services default response has a 2xx status code
+func (o *ListFailedServicesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list failed services default response has a 3xx status code
+func (o *ListFailedServicesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list failed services default response has a 4xx status code
+func (o *ListFailedServicesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list failed services default response has a 5xx status code
+func (o *ListFailedServicesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list failed services default response a status code equal to that given
+func (o *ListFailedServicesDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the list failed services default response
 func (o *ListFailedServicesDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *ListFailedServicesDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/advisors/failedServices][%d] ListFailedServices default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors/failedServices][%d] ListFailedServices default %s", o._statusCode, payload)
+}
+
+func (o *ListFailedServicesDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors/failedServices][%d] ListFailedServices default %s", o._statusCode, payload)
 }
 
 func (o *ListFailedServicesDefault) GetPayload() *ListFailedServicesDefaultBody {
@@ -190,6 +258,11 @@ func (o *ListFailedServicesDefaultBody) ContextValidate(ctx context.Context, for
 func (o *ListFailedServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListFailedServices default" + "." + "details" + "." + strconv.Itoa(i))
@@ -229,6 +302,80 @@ swagger:model ListFailedServicesDefaultBodyDetailsItems0
 type ListFailedServicesDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// list failed services default body details items0
+	ListFailedServicesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *ListFailedServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv ListFailedServicesDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.ListFailedServicesDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o ListFailedServicesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.ListFailedServicesDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.ListFailedServicesDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this list failed services default body details items0
@@ -325,6 +472,11 @@ func (o *ListFailedServicesOKBody) ContextValidate(ctx context.Context, formats 
 func (o *ListFailedServicesOKBody) contextValidateResult(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Result); i++ {
 		if o.Result[i] != nil {
+
+			if swag.IsZero(o.Result[i]) { // not required
+				return nil
+			}
+
 			if err := o.Result[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listFailedServicesOk" + "." + "result" + "." + strconv.Itoa(i))

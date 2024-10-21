@@ -528,10 +528,14 @@ func fillPostgreSQL(mb *qanv1.MetricsBucket, bp *agentv1.MetricsBucket_PostgreSQ
 	mb.MTempBlksWrittenCnt = bp.MTempBlksWrittenCnt
 	mb.MTempBlksWrittenSum = bp.MTempBlksWrittenSum
 
-	mb.MBlkReadTimeCnt = bp.MBlkReadTimeCnt
-	mb.MBlkReadTimeSum = bp.MBlkReadTimeSum
-	mb.MBlkWriteTimeCnt = bp.MBlkWriteTimeCnt
-	mb.MBlkWriteTimeSum = bp.MBlkWriteTimeSum
+	mb.MSharedBlkReadTimeCnt = bp.MSharedBlkReadTimeCnt
+	mb.MSharedBlkReadTimeSum = bp.MSharedBlkReadTimeSum
+	mb.MSharedBlkWriteTimeCnt = bp.MSharedBlkWriteTimeCnt
+	mb.MSharedBlkWriteTimeSum = bp.MSharedBlkWriteTimeSum
+	mb.MLocalBlkReadTimeCnt = bp.MLocalBlkReadTimeCnt
+	mb.MLocalBlkReadTimeSum = bp.MLocalBlkReadTimeSum
+	mb.MLocalBlkWriteTimeCnt = bp.MLocalBlkWriteTimeCnt
+	mb.MLocalBlkWriteTimeSum = bp.MLocalBlkWriteTimeSum
 
 	mb.MCpuSysTimeCnt = bp.MCpuSysTimeCnt
 	mb.MCpuSysTimeSum = bp.MCpuSysTimeSum

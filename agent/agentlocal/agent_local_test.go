@@ -46,7 +46,7 @@ func TestServerStatus(t *testing.T) {
 		var supervisor mockSupervisor
 		supervisor.Test(t)
 		supervisor.On("AgentsList").Return(agentInfo)
-		var client mockClient
+		client := &mockClient{}
 		client.Test(t)
 		client.On("GetServerConnectMetadata").Return(&agentv1.ServerConnectMetadata{
 			AgentRunsOnNodeID: "00000000-0000-4000-8000-000000000003",
@@ -61,7 +61,7 @@ func TestServerStatus(t *testing.T) {
 				Password: "password",
 			},
 		})
-		return agentInfo, &supervisor, &client, cfgStorage
+		return agentInfo, &supervisor, client, cfgStorage
 	}
 
 	t.Run("without network info", func(t *testing.T) {
