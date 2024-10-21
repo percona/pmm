@@ -7,6 +7,7 @@ package qan_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -58,8 +59,44 @@ type GetReportOK struct {
 	Payload *GetReportOKBody
 }
 
+// IsSuccess returns true when this get report Ok response has a 2xx status code
+func (o *GetReportOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get report Ok response has a 3xx status code
+func (o *GetReportOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get report Ok response has a 4xx status code
+func (o *GetReportOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get report Ok response has a 5xx status code
+func (o *GetReportOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get report Ok response a status code equal to that given
+func (o *GetReportOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get report Ok response
+func (o *GetReportOK) Code() int {
+	return 200
+}
+
 func (o *GetReportOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/metrics:getReport][%d] getReportOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/metrics:getReport][%d] getReportOk %s", 200, payload)
+}
+
+func (o *GetReportOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/metrics:getReport][%d] getReportOk %s", 200, payload)
 }
 
 func (o *GetReportOK) GetPayload() *GetReportOKBody {
@@ -95,13 +132,44 @@ type GetReportDefault struct {
 	Payload *GetReportDefaultBody
 }
 
+// IsSuccess returns true when this get report default response has a 2xx status code
+func (o *GetReportDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get report default response has a 3xx status code
+func (o *GetReportDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get report default response has a 4xx status code
+func (o *GetReportDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get report default response has a 5xx status code
+func (o *GetReportDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get report default response a status code equal to that given
+func (o *GetReportDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the get report default response
 func (o *GetReportDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *GetReportDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/metrics:getReport][%d] GetReport default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/metrics:getReport][%d] GetReport default %s", o._statusCode, payload)
+}
+
+func (o *GetReportDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/metrics:getReport][%d] GetReport default %s", o._statusCode, payload)
 }
 
 func (o *GetReportDefault) GetPayload() *GetReportDefaultBody {
@@ -246,6 +314,11 @@ func (o *GetReportBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 func (o *GetReportBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Labels); i++ {
 		if o.Labels[i] != nil {
+
+			if swag.IsZero(o.Labels[i]) { // not required
+				return nil
+			}
+
 			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
@@ -350,6 +423,11 @@ func (o *GetReportDefaultBody) ContextValidate(ctx context.Context, formats strf
 func (o *GetReportDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetReport default" + "." + "details" + "." + strconv.Itoa(i))
@@ -389,6 +467,80 @@ swagger:model GetReportDefaultBodyDetailsItems0
 type GetReportDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// get report default body details items0
+	GetReportDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *GetReportDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv GetReportDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.GetReportDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o GetReportDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.GetReportDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.GetReportDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this get report default body details items0
@@ -494,6 +646,11 @@ func (o *GetReportOKBody) ContextValidate(ctx context.Context, formats strfmt.Re
 func (o *GetReportOKBody) contextValidateRows(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Rows); i++ {
 		if o.Rows[i] != nil {
+
+			if swag.IsZero(o.Rows[i]) { // not required
+				return nil
+			}
+
 			if err := o.Rows[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getReportOk" + "." + "rows" + "." + strconv.Itoa(i))
@@ -662,6 +819,11 @@ func (o *GetReportOKBodyRowsItems0) contextValidateMetrics(ctx context.Context, 
 func (o *GetReportOKBodyRowsItems0) contextValidateSparkline(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Sparkline); i++ {
 		if o.Sparkline[i] != nil {
+
+			if swag.IsZero(o.Sparkline[i]) { // not required
+				return nil
+			}
+
 			if err := o.Sparkline[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("sparkline" + "." + strconv.Itoa(i))
@@ -752,6 +914,11 @@ func (o *GetReportOKBodyRowsItems0MetricsAnon) ContextValidate(ctx context.Conte
 
 func (o *GetReportOKBodyRowsItems0MetricsAnon) contextValidateStats(ctx context.Context, formats strfmt.Registry) error {
 	if o.Stats != nil {
+
+		if swag.IsZero(o.Stats) { // not required
+			return nil
+		}
+
 		if err := o.Stats.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("stats")
@@ -987,6 +1154,18 @@ type GetReportOKBodyRowsItems0SparklineItems0 struct {
 
 	// Total number of shared blocks written by the statement.
 	MSharedBlksWrittenSumPerSec float32 `json:"m_shared_blks_written_sum_per_sec,omitempty"`
+
+	// Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MSharedBlkReadTimeSumPerSec float32 `json:"m_shared_blk_read_time_sum_per_sec,omitempty"`
+
+	// Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MSharedBlkWriteTimeSumPerSec float32 `json:"m_shared_blk_write_time_sum_per_sec,omitempty"`
+
+	// Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MLocalBlkReadTimeSumPerSec float32 `json:"m_local_blk_read_time_sum_per_sec,omitempty"`
+
+	// Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+	MLocalBlkWriteTimeSumPerSec float32 `json:"m_local_blk_write_time_sum_per_sec,omitempty"`
 
 	// Total number of local block cache hits by the statement.
 	MLocalBlksHitSumPerSec float32 `json:"m_local_blks_hit_sum_per_sec,omitempty"`
