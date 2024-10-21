@@ -13,6 +13,8 @@ export interface LatestInfo {
   version: string;
   tag: string;
   timestamp: string | null;
+  releaseNotesText: string;
+  releaseNotesUrl: string;
 }
 
 export interface GetUpdatesResponse {
@@ -52,4 +54,17 @@ export enum UpdateStatus {
   Checking = 'checking',
   UpToDate = 'up-to-date',
   UpdateClients = 'update-clients',
+}
+
+export interface GetChangeLogItem {
+  version: string;
+  tag: string;
+  timestamp: string;
+  releaseNotesUrl: string;
+  releaseNotesText: string;
+}
+
+export interface GetChangeLogsResponse {
+  updates: GetChangeLogItem[];
+  lastCheck: string;
 }

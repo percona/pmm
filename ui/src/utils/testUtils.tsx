@@ -24,6 +24,8 @@ export const wrapWithUpdatesProvider = (
           version: '3.0.0',
           tag: '',
           timestamp: null,
+          releaseNotesText: '',
+          releaseNotesUrl: '',
         },
         updateAvailable: false,
         latestNewsUrl: 'https://per.co.na/pmm/3.0.0',
