@@ -7,6 +7,7 @@ package nodes_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type ListNodesOK struct {
 	Payload *ListNodesOKBody
 }
 
+// IsSuccess returns true when this list nodes Ok response has a 2xx status code
+func (o *ListNodesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list nodes Ok response has a 3xx status code
+func (o *ListNodesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list nodes Ok response has a 4xx status code
+func (o *ListNodesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list nodes Ok response has a 5xx status code
+func (o *ListNodesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list nodes Ok response a status code equal to that given
+func (o *ListNodesOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the list nodes Ok response
+func (o *ListNodesOK) Code() int {
+	return 200
+}
+
 func (o *ListNodesOK) Error() string {
-	return fmt.Sprintf("[GET /v1/inventory/nodes][%d] listNodesOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/nodes][%d] listNodesOk %s", 200, payload)
+}
+
+func (o *ListNodesOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/nodes][%d] listNodesOk %s", 200, payload)
 }
 
 func (o *ListNodesOK) GetPayload() *ListNodesOKBody {
@@ -94,13 +131,44 @@ type ListNodesDefault struct {
 	Payload *ListNodesDefaultBody
 }
 
+// IsSuccess returns true when this list nodes default response has a 2xx status code
+func (o *ListNodesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list nodes default response has a 3xx status code
+func (o *ListNodesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list nodes default response has a 4xx status code
+func (o *ListNodesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list nodes default response has a 5xx status code
+func (o *ListNodesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list nodes default response a status code equal to that given
+func (o *ListNodesDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the list nodes default response
 func (o *ListNodesDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *ListNodesDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/inventory/nodes][%d] ListNodes default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/nodes][%d] ListNodes default %s", o._statusCode, payload)
+}
+
+func (o *ListNodesDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/inventory/nodes][%d] ListNodes default %s", o._statusCode, payload)
 }
 
 func (o *ListNodesDefault) GetPayload() *ListNodesDefaultBody {
@@ -190,6 +258,11 @@ func (o *ListNodesDefaultBody) ContextValidate(ctx context.Context, formats strf
 func (o *ListNodesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
@@ -229,6 +302,80 @@ swagger:model ListNodesDefaultBodyDetailsItems0
 type ListNodesDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// list nodes default body details items0
+	ListNodesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *ListNodesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv ListNodesDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.ListNodesDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o ListNodesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.ListNodesDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.ListNodesDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this list nodes default body details items0
@@ -473,6 +620,11 @@ func (o *ListNodesOKBody) ContextValidate(ctx context.Context, formats strfmt.Re
 func (o *ListNodesOKBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Generic); i++ {
 		if o.Generic[i] != nil {
+
+			if swag.IsZero(o.Generic[i]) { // not required
+				return nil
+			}
+
 			if err := o.Generic[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listNodesOk" + "." + "generic" + "." + strconv.Itoa(i))
@@ -490,6 +642,11 @@ func (o *ListNodesOKBody) contextValidateGeneric(ctx context.Context, formats st
 func (o *ListNodesOKBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Container); i++ {
 		if o.Container[i] != nil {
+
+			if swag.IsZero(o.Container[i]) { // not required
+				return nil
+			}
+
 			if err := o.Container[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listNodesOk" + "." + "container" + "." + strconv.Itoa(i))
@@ -507,6 +664,11 @@ func (o *ListNodesOKBody) contextValidateContainer(ctx context.Context, formats 
 func (o *ListNodesOKBody) contextValidateRemote(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Remote); i++ {
 		if o.Remote[i] != nil {
+
+			if swag.IsZero(o.Remote[i]) { // not required
+				return nil
+			}
+
 			if err := o.Remote[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listNodesOk" + "." + "remote" + "." + strconv.Itoa(i))
@@ -524,6 +686,11 @@ func (o *ListNodesOKBody) contextValidateRemote(ctx context.Context, formats str
 func (o *ListNodesOKBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.RemoteRDS); i++ {
 		if o.RemoteRDS[i] != nil {
+
+			if swag.IsZero(o.RemoteRDS[i]) { // not required
+				return nil
+			}
+
 			if err := o.RemoteRDS[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listNodesOk" + "." + "remote_rds" + "." + strconv.Itoa(i))
@@ -541,6 +708,11 @@ func (o *ListNodesOKBody) contextValidateRemoteRDS(ctx context.Context, formats 
 func (o *ListNodesOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.RemoteAzureDatabase); i++ {
 		if o.RemoteAzureDatabase[i] != nil {
+
+			if swag.IsZero(o.RemoteAzureDatabase[i]) { // not required
+				return nil
+			}
+
 			if err := o.RemoteAzureDatabase[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listNodesOk" + "." + "remote_azure_database" + "." + strconv.Itoa(i))

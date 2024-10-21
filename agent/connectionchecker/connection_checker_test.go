@@ -232,7 +232,7 @@ func TestConnectionChecker(t *testing.T) {
 				assert.Empty(t, resp.Error)
 			} else {
 				require.NotEmpty(t, resp.Error)
-				assert.Regexp(t, `^`+tt.expectedErr+`$`, resp.Error)
+				assert.Regexp(t, `(?i)^`+tt.expectedErr+`$`, resp.Error)
 			}
 		})
 	}
