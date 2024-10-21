@@ -1,3 +1,3 @@
 export interface ReleaseNotesProps {
-    content: string;
+  content: string;
 }
