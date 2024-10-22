@@ -68,6 +68,7 @@
         - /var/log/clickhouse-server
         - /var/log/nginx
         - /var/lib/pgsql
+        - /srv/pmm-encryption.key
 
     - name: Remove users created by installers
       user:
