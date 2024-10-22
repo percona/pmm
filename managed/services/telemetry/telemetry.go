@@ -18,7 +18,6 @@ package telemetry
 
 import (
 	"context"
-	"encoding/hex"
 	"strings"
 	"sync"
 	"time"
@@ -348,24 +347,19 @@ func (s *Service) makeMetric(ctx context.Context) (*reporter.GenericReport, erro
 		return nil, err
 	}
 
-	var serverIDToUse string
+	var serverID string
 	if useServerID {
-		serverIDToUse = strings.ReplaceAll(settings.PMMServerID, "-", "")
+		serverID = settings.PMMServerID
 	} else {
-		serverIDToUse = settings.Telemetry.UUID
+		serverID = settings.Telemetry.UUID
 	}
 
-	serverID, err := hex.DecodeString(serverIDToUse)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to decode UUID %s", serverIDToUse)
-	}
 	_, distMethod, _ := s.dus.GetDistributionMethodAndOS()
 
-	eventID := uuid.New()
 	return &reporter.GenericReport{
-		Id:         string(eventID[:]),
+		Id:         uuid.New().String(),
 		CreateTime: timestamppb.New(time.Now()),
-		InstanceId: string(serverID),
+		InstanceId: uuid.MustParse(serverID).String(),
 		Metrics: []*reporter.GenericReport_Metric{
 			{Key: "PMMServerVersion", Value: s.pmmVersion},
 			{Key: "UpDuration", Value: durationpb.New(time.Since(s.start)).String()},
@@ -380,9 +374,7 @@ func generateUUID() (string, error) {
 		return "", errors.Wrap(err, "can't generate UUID")
 	}
 
-	// Old telemetry IDs have only 32 chars in the table but UUIDs + "-" = 36
-	cleanUUID := strings.ReplaceAll(uuid.String(), "-", "")
-	return cleanUUID, nil
+	return uuid.String(), nil
 }
 
 func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) error {
