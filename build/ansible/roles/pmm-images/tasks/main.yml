@@ -29,8 +29,9 @@
   yum:
     name:
       - python3-pip
-      - python3-psycopg2
+      - python3-psycopg2 # Python PostgreSQL database adapter
       - rsync
+    state: latest
 
 - name: Create groups
   group:
