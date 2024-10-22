@@ -357,9 +357,10 @@ func (s *Service) makeMetric(ctx context.Context) (*reporter.GenericReport, erro
 	_, distMethod, _ := s.dus.GetDistributionMethodAndOS()
 
 	return &reporter.GenericReport{
-		Id:         uuid.New().String(),
-		CreateTime: timestamppb.New(time.Now()),
-		InstanceId: uuid.MustParse(serverID).String(),
+		Id:            uuid.New().String(),
+		CreateTime:    timestamppb.New(time.Now()),
+		InstanceId:    uuid.MustParse(serverID).String(),
+		ProductFamily: reporter.ProductFamily_PRODUCT_FAMILY_PMM,
 		Metrics: []*reporter.GenericReport_Metric{
 			{Key: "PMMServerVersion", Value: s.pmmVersion},
 			{Key: "UpDuration", Value: durationpb.New(time.Since(s.start)).String()},
