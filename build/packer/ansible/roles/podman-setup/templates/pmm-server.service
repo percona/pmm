@@ -14,7 +14,7 @@ RestartSec=20
 ExecStart=/usr/bin/podman run \
     --volume /home/admin/volume/srv:/srv \
     --volume /home/admin/.ssh/:/home/pmm/.ssh/ \
-    --volume /home/admin/.config/:/home/pmm/config/  \
+    --volume /home/admin/.config/systemd/user/:/home/pmm/update/  \
     --rm --replace=true --name %N \
     --env-file=/home/admin/.config/systemd/user/pmm-server.env \
     --net pmm_default \
