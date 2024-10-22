@@ -7,6 +7,7 @@ package server_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type ChangeSettingsOK struct {
 	Payload *ChangeSettingsOKBody
 }
 
+// IsSuccess returns true when this change settings Ok response has a 2xx status code
+func (o *ChangeSettingsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this change settings Ok response has a 3xx status code
+func (o *ChangeSettingsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this change settings Ok response has a 4xx status code
+func (o *ChangeSettingsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this change settings Ok response has a 5xx status code
+func (o *ChangeSettingsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this change settings Ok response a status code equal to that given
+func (o *ChangeSettingsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the change settings Ok response
+func (o *ChangeSettingsOK) Code() int {
+	return 200
+}
+
 func (o *ChangeSettingsOK) Error() string {
-	return fmt.Sprintf("[PUT /v1/server/settings][%d] changeSettingsOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/server/settings][%d] changeSettingsOk %s", 200, payload)
+}
+
+func (o *ChangeSettingsOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/server/settings][%d] changeSettingsOk %s", 200, payload)
 }
 
 func (o *ChangeSettingsOK) GetPayload() *ChangeSettingsOKBody {
@@ -94,13 +131,44 @@ type ChangeSettingsDefault struct {
 	Payload *ChangeSettingsDefaultBody
 }
 
+// IsSuccess returns true when this change settings default response has a 2xx status code
+func (o *ChangeSettingsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this change settings default response has a 3xx status code
+func (o *ChangeSettingsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this change settings default response has a 4xx status code
+func (o *ChangeSettingsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this change settings default response has a 5xx status code
+func (o *ChangeSettingsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this change settings default response a status code equal to that given
+func (o *ChangeSettingsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the change settings default response
 func (o *ChangeSettingsDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *ChangeSettingsDefault) Error() string {
-	return fmt.Sprintf("[PUT /v1/server/settings][%d] ChangeSettings default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/server/settings][%d] ChangeSettings default %s", o._statusCode, payload)
+}
+
+func (o *ChangeSettingsDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/server/settings][%d] ChangeSettings default %s", o._statusCode, payload)
 }
 
 func (o *ChangeSettingsDefault) GetPayload() *ChangeSettingsDefaultBody {
@@ -266,6 +334,11 @@ func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt
 
 func (o *ChangeSettingsBody) contextValidateAdvisorRunIntervals(ctx context.Context, formats strfmt.Registry) error {
 	if o.AdvisorRunIntervals != nil {
+
+		if swag.IsZero(o.AdvisorRunIntervals) { // not required
+			return nil
+		}
+
 		if err := o.AdvisorRunIntervals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "advisor_run_intervals")
@@ -281,6 +354,11 @@ func (o *ChangeSettingsBody) contextValidateAdvisorRunIntervals(ctx context.Cont
 
 func (o *ChangeSettingsBody) contextValidateAWSPartitions(ctx context.Context, formats strfmt.Registry) error {
 	if o.AWSPartitions != nil {
+
+		if swag.IsZero(o.AWSPartitions) { // not required
+			return nil
+		}
+
 		if err := o.AWSPartitions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "aws_partitions")
@@ -296,6 +374,11 @@ func (o *ChangeSettingsBody) contextValidateAWSPartitions(ctx context.Context, f
 
 func (o *ChangeSettingsBody) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "metrics_resolutions")
@@ -399,6 +482,11 @@ func (o *ChangeSettingsDefaultBody) ContextValidate(ctx context.Context, formats
 func (o *ChangeSettingsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangeSettings default" + "." + "details" + "." + strconv.Itoa(i))
@@ -549,6 +637,134 @@ type ChangeSettingsDefaultBodyDetailsItems0 struct {
 	// Schemes other than `http`, `https` (or the empty scheme) might be
 	// used with implementation specific semantics.
 	AtType string `json:"@type,omitempty"`
+
+	// change settings default body details items0
+	ChangeSettingsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *ChangeSettingsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// A URL/resource name that uniquely identifies the type of the serialized
+		// protocol buffer message. This string must contain at least
+		// one "/" character. The last segment of the URL's path must represent
+		// the fully qualified name of the type (as in
+		// `path/google.protobuf.Duration`). The name should be in a canonical form
+		// (e.g., leading "." is not accepted).
+		//
+		// In practice, teams usually precompile into the binary all types that they
+		// expect it to use in the context of Any. However, for URLs which use the
+		// scheme `http`, `https`, or no scheme, one can optionally set up a type
+		// server that maps type URLs to message definitions as follows:
+		//
+		// * If no scheme is provided, `https` is assumed.
+		// * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+		//   value in binary format, or produce an error.
+		// * Applications are allowed to cache lookup results based on the
+		//   URL, or have them precompiled into a binary to avoid any
+		//   lookup. Therefore, binary compatibility needs to be preserved
+		//   on changes to types. (Use versioned type names to manage
+		//   breaking changes.)
+		//
+		// Note: this functionality is not currently available in the official
+		// protobuf release, and it is not used for type URLs beginning with
+		// type.googleapis.com. As of May 2023, there are no widely used type server
+		// implementations and no plans to implement one.
+		//
+		// Schemes other than `http`, `https` (or the empty scheme) might be
+		// used with implementation specific semantics.
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv ChangeSettingsDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.ChangeSettingsDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o ChangeSettingsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// A URL/resource name that uniquely identifies the type of the serialized
+		// protocol buffer message. This string must contain at least
+		// one "/" character. The last segment of the URL's path must represent
+		// the fully qualified name of the type (as in
+		// `path/google.protobuf.Duration`). The name should be in a canonical form
+		// (e.g., leading "." is not accepted).
+		//
+		// In practice, teams usually precompile into the binary all types that they
+		// expect it to use in the context of Any. However, for URLs which use the
+		// scheme `http`, `https`, or no scheme, one can optionally set up a type
+		// server that maps type URLs to message definitions as follows:
+		//
+		// * If no scheme is provided, `https` is assumed.
+		// * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+		//   value in binary format, or produce an error.
+		// * Applications are allowed to cache lookup results based on the
+		//   URL, or have them precompiled into a binary to avoid any
+		//   lookup. Therefore, binary compatibility needs to be preserved
+		//   on changes to types. (Use versioned type names to manage
+		//   breaking changes.)
+		//
+		// Note: this functionality is not currently available in the official
+		// protobuf release, and it is not used for type URLs beginning with
+		// type.googleapis.com. As of May 2023, there are no widely used type server
+		// implementations and no plans to implement one.
+		//
+		// Schemes other than `http`, `https` (or the empty scheme) might be
+		// used with implementation specific semantics.
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.ChangeSettingsDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.ChangeSettingsDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this change settings default body details items0
@@ -637,6 +853,11 @@ func (o *ChangeSettingsOKBody) ContextValidate(ctx context.Context, formats strf
 
 func (o *ChangeSettingsOKBody) contextValidateSettings(ctx context.Context, formats strfmt.Registry) error {
 	if o.Settings != nil {
+
+		if swag.IsZero(o.Settings) { // not required
+			return nil
+		}
+
 		if err := o.Settings.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeSettingsOk" + "." + "settings")
@@ -801,6 +1022,11 @@ func (o *ChangeSettingsOKBodySettings) ContextValidate(ctx context.Context, form
 
 func (o *ChangeSettingsOKBodySettings) contextValidateAdvisorRunIntervals(ctx context.Context, formats strfmt.Registry) error {
 	if o.AdvisorRunIntervals != nil {
+
+		if swag.IsZero(o.AdvisorRunIntervals) { // not required
+			return nil
+		}
+
 		if err := o.AdvisorRunIntervals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "advisor_run_intervals")
@@ -816,6 +1042,11 @@ func (o *ChangeSettingsOKBodySettings) contextValidateAdvisorRunIntervals(ctx co
 
 func (o *ChangeSettingsOKBodySettings) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "metrics_resolutions")

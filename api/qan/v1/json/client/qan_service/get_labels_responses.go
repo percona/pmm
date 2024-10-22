@@ -7,6 +7,7 @@ package qan_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -58,8 +59,44 @@ type GetLabelsOK struct {
 	Payload *GetLabelsOKBody
 }
 
+// IsSuccess returns true when this get labels Ok response has a 2xx status code
+func (o *GetLabelsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get labels Ok response has a 3xx status code
+func (o *GetLabelsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get labels Ok response has a 4xx status code
+func (o *GetLabelsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get labels Ok response has a 5xx status code
+func (o *GetLabelsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get labels Ok response a status code equal to that given
+func (o *GetLabelsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get labels Ok response
+func (o *GetLabelsOK) Code() int {
+	return 200
+}
+
 func (o *GetLabelsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan:getLabels][%d] getLabelsOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/qan:getLabels][%d] getLabelsOk %s", 200, payload)
+}
+
+func (o *GetLabelsOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/qan:getLabels][%d] getLabelsOk %s", 200, payload)
 }
 
 func (o *GetLabelsOK) GetPayload() *GetLabelsOKBody {
@@ -95,13 +132,44 @@ type GetLabelsDefault struct {
 	Payload *GetLabelsDefaultBody
 }
 
+// IsSuccess returns true when this get labels default response has a 2xx status code
+func (o *GetLabelsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get labels default response has a 3xx status code
+func (o *GetLabelsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get labels default response has a 4xx status code
+func (o *GetLabelsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get labels default response has a 5xx status code
+func (o *GetLabelsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get labels default response a status code equal to that given
+func (o *GetLabelsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the get labels default response
 func (o *GetLabelsDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *GetLabelsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/qan:getLabels][%d] GetLabels default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/qan:getLabels][%d] GetLabels default %s", o._statusCode, payload)
+}
+
+func (o *GetLabelsDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/qan:getLabels][%d] GetLabels default %s", o._statusCode, payload)
 }
 
 func (o *GetLabelsDefault) GetPayload() *GetLabelsDefaultBody {
@@ -277,6 +345,11 @@ func (o *GetLabelsDefaultBody) ContextValidate(ctx context.Context, formats strf
 func (o *GetLabelsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetLabels default" + "." + "details" + "." + strconv.Itoa(i))
@@ -316,6 +389,80 @@ swagger:model GetLabelsDefaultBodyDetailsItems0
 type GetLabelsDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// get labels default body details items0
+	GetLabelsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *GetLabelsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv GetLabelsDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.GetLabelsDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o GetLabelsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.GetLabelsDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.GetLabelsDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this get labels default body details items0

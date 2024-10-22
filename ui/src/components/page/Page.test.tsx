@@ -1,7 +1,7 @@
 import { screen, render } from '@testing-library/react';
 import { Page } from './Page';
 import { TestWrapper } from 'utils/testWrapper';
-import { UserContext } from 'contexts/user/user.context';
+import { UserContext } from 'contexts/user';
 import { OrgRole } from 'types/user.types';
 import { Messages } from './Page.messages';
 

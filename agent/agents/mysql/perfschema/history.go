@@ -43,8 +43,12 @@ func newHistoryCache(typ historyMap, retain time.Duration, sizeLimit uint, l *lo
 	return &historyCache{c}, err
 }
 
-func getHistory(q *reform.Querier) (historyMap, error) {
-	rows, err := q.SelectRows(eventsStatementsHistoryView, "WHERE DIGEST IS NOT NULL AND SQL_TEXT IS NOT NULL")
+func getHistory(q *reform.Querier, long *bool) (historyMap, error) {
+	view := eventsStatementsHistoryView
+	if long != nil && *long {
+		view = eventsStatementsHistoryLongView
+	}
+	rows, err := q.SelectRows(view, "WHERE DIGEST IS NOT NULL AND SQL_TEXT IS NOT NULL")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to query events_statements_history")
 	}
