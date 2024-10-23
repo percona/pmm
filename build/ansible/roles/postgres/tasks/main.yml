@@ -18,6 +18,8 @@
       - percona-postgresql14
       - python3-psycopg2 # Python PostgreSQL database adapter
     state: installed
+    nobest: true
+    skip_broken: true    
 
 - name: Create a socket directory for Postgres
   file:
@@ -72,9 +74,16 @@
     db: pmm-managed
     name: pmm-managed
     password: "md5da757ec3e22c6d86a2bb8e70307fa937"
-    priv: "ALL"
+    # priv: "ALL" # deprecated, see a separate task below
     expires: infinity
     state: present
+
+- name: Grant ALL privileges to pmm-managed user
+  postgresql_privs:
+    db: pmm-managed
+    privs: ALL
+    type: database
+    role: pmm-managed
 
 - name: Create pg_stat_statements extension
   postgresql_ext:

@@ -1,11 +1,8 @@
 ---
-# We use percona-release package to install the gpg keys and ppg-14
-# To workaround the package's incompatibility with RHEL9, we have to disable the gpg verification :(
-- name: Add percona-release package
-  yum:
-    name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    state: installed
-    disable_gpg_check: yes
+- name: Import Percona GPG key
+  rpm_key:
+    state: present
+    key: https://repo.percona.com/yum/PERCONA-PACKAGING-KEY
 
 - name: List installed gpg keys
   command: ls -la /etc/pki/rpm-gpg
@@ -30,6 +27,7 @@
     name:
       - python3-pip
       - rsync
+      - findutils
     state: latest
 
 - name: Create groups
