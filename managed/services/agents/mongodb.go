@@ -110,9 +110,6 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 		if !pmmAgentVersion.Less(v2_42_0) && collectAll { // >= 2.42.0
 			args = append(args, "--collector.currentopmetrics")
 		}
-		if !pmmAgentVersion.Less(v2_43_0) { // >= 2.43.0, enable by default
-			args = append(args, "--collector.fcv")
-		}
 		if !pmmAgentVersion.Less(v2_43_0) { // >= 2.43.0, enable pbm collector by default
 			args = append(args, "--collector.pbm")
 		}

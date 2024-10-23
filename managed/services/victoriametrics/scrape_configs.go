@@ -400,13 +400,11 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 		}
 		return r, nil
 	}
-	hrOptions := []string{
+	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, []string{
 		"diagnosticdata",
 		"replicasetstatus",
 		"topmetrics",
-	}
-	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.DisabledCollectors)
-	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, hrOptions)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -428,13 +426,9 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 			defaultCollectors = append(defaultCollectors, "currentopmetrics")
 		}
 		if !params.pmmAgentVersion.Less(version.MustParse("2.43.0-0")) {
-			defaultCollectors = append(defaultCollectors, "fcv")
-		}
-		if !params.pmmAgentVersion.Less(version.MustParse("2.43.0-0")) {
 			defaultCollectors = append(defaultCollectors, "pbm")
 		}
 
-		defaultCollectors = collectors.FilterOutCollectors("", defaultCollectors, params.agent.DisabledCollectors)
 		lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, defaultCollectors)
 		if err != nil {
 			return nil, err
