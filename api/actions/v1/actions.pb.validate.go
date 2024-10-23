@@ -35,6 +35,9 @@ var (
 	_ = sort.Sort
 )
 
+// define the regex for a UUID once up-front
+var _actions_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on GetActionRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -57,10 +60,11 @@ func (m *GetActionRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetActionId()) < 1 {
-		err := GetActionRequestValidationError{
+	if err := m._validateUuid(m.GetActionId()); err != nil {
+		err = GetActionRequestValidationError{
 			field:  "ActionId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -70,6 +74,14 @@ func (m *GetActionRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetActionRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetActionRequest) _validateUuid(uuid string) error {
+	if matched := _actions_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -282,10 +294,11 @@ func (m *StartMySQLExplainActionParams) validate(all bool) error {
 
 	// no validation rules for PmmAgentId
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMySQLExplainActionParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = StartMySQLExplainActionParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -299,6 +312,14 @@ func (m *StartMySQLExplainActionParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return StartMySQLExplainActionParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *StartMySQLExplainActionParams) _validateUuid(uuid string) error {
+	if matched := _actions_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -510,10 +531,11 @@ func (m *StartMySQLExplainJSONActionParams) validate(all bool) error {
 
 	// no validation rules for PmmAgentId
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMySQLExplainJSONActionParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = StartMySQLExplainJSONActionParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -527,6 +549,14 @@ func (m *StartMySQLExplainJSONActionParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return StartMySQLExplainJSONActionParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *StartMySQLExplainJSONActionParams) _validateUuid(uuid string) error {
+	if matched := _actions_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -742,10 +772,11 @@ func (m *StartMySQLExplainTraditionalJSONActionParams) validate(all bool) error 
 
 	// no validation rules for PmmAgentId
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMySQLExplainTraditionalJSONActionParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = StartMySQLExplainTraditionalJSONActionParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -759,6 +790,14 @@ func (m *StartMySQLExplainTraditionalJSONActionParams) validate(all bool) error 
 
 	if len(errors) > 0 {
 		return StartMySQLExplainTraditionalJSONActionParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *StartMySQLExplainTraditionalJSONActionParams) _validateUuid(uuid string) error {
+	if matched := _actions_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -976,10 +1015,11 @@ func (m *StartMySQLShowCreateTableActionParams) validate(all bool) error {
 
 	// no validation rules for PmmAgentId
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMySQLShowCreateTableActionParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = StartMySQLShowCreateTableActionParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -1002,6 +1042,14 @@ func (m *StartMySQLShowCreateTableActionParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return StartMySQLShowCreateTableActionParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *StartMySQLShowCreateTableActionParams) _validateUuid(uuid string) error {
+	if matched := _actions_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1216,10 +1264,11 @@ func (m *StartMySQLShowTableStatusActionParams) validate(all bool) error {
 
 	// no validation rules for PmmAgentId
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMySQLShowTableStatusActionParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = StartMySQLShowTableStatusActionParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -1242,6 +1291,14 @@ func (m *StartMySQLShowTableStatusActionParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return StartMySQLShowTableStatusActionParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *StartMySQLShowTableStatusActionParams) _validateUuid(uuid string) error {
+	if matched := _actions_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1455,10 +1512,11 @@ func (m *StartMySQLShowIndexActionParams) validate(all bool) error {
 
 	// no validation rules for PmmAgentId
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMySQLShowIndexActionParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = StartMySQLShowIndexActionParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -1481,6 +1539,14 @@ func (m *StartMySQLShowIndexActionParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return StartMySQLShowIndexActionParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *StartMySQLShowIndexActionParams) _validateUuid(uuid string) error {
+	if matched := _actions_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1693,10 +1759,11 @@ func (m *StartPostgreSQLShowCreateTableActionParams) validate(all bool) error {
 
 	// no validation rules for PmmAgentId
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartPostgreSQLShowCreateTableActionParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = StartPostgreSQLShowCreateTableActionParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -1719,6 +1786,14 @@ func (m *StartPostgreSQLShowCreateTableActionParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return StartPostgreSQLShowCreateTableActionParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *StartPostgreSQLShowCreateTableActionParams) _validateUuid(uuid string) error {
+	if matched := _actions_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1934,10 +2009,11 @@ func (m *StartPostgreSQLShowIndexActionParams) validate(all bool) error {
 
 	// no validation rules for PmmAgentId
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartPostgreSQLShowIndexActionParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = StartPostgreSQLShowIndexActionParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -1960,6 +2036,14 @@ func (m *StartPostgreSQLShowIndexActionParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return StartPostgreSQLShowIndexActionParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *StartPostgreSQLShowIndexActionParams) _validateUuid(uuid string) error {
+	if matched := _actions_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -2173,10 +2257,11 @@ func (m *StartMongoDBExplainActionParams) validate(all bool) error {
 
 	// no validation rules for PmmAgentId
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartMongoDBExplainActionParamsValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = StartMongoDBExplainActionParamsValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -2197,6 +2282,14 @@ func (m *StartMongoDBExplainActionParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return StartMongoDBExplainActionParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *StartMongoDBExplainActionParams) _validateUuid(uuid string) error {
+	if matched := _actions_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -3265,10 +3358,11 @@ func (m *CancelActionRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetActionId()) < 1 {
-		err := CancelActionRequestValidationError{
+	if err := m._validateUuid(m.GetActionId()); err != nil {
+		err = CancelActionRequestValidationError{
 			field:  "ActionId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -3278,6 +3372,14 @@ func (m *CancelActionRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return CancelActionRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *CancelActionRequest) _validateUuid(uuid string) error {
+	if matched := _actions_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
