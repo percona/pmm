@@ -29,9 +29,8 @@
   yum:
     name:
       - python3-pip
-      - python3.11-pip
-      - python3.11-psycopg2
       - rsync
+    state: latest
 
 - name: Create groups
   group:
@@ -144,3 +143,30 @@
     state: touch
     owner: pmm
     group: pmm
+
+# Launch pmm-managed-init first as it may update supervisord configuration on start
+- name: Generate new supervisor config
+  command: pmm-managed-init
+  register: managed_init_result
+  changed_when: True
+
+- name: Disable pmm-update-perform-init
+  ini_file:
+    path: /etc/supervisord.d/pmm.ini
+    section: program:pmm-update-perform-init
+    option: autostart
+    value: "false"
+
+# During build time, this will be the first start of supervisord.
+- name: Start supervisord
+  shell: supervisord -c /etc/supervisord.conf &
+
+- name: Run initialization playbook
+  include_role:
+    name: initialization  
+
+- name: Check supervisord logs
+  shell: sleep 10 && tail -n 200 /srv/logs/supervisord.log
+
+- name: Check grafana logs
+  shell: cat /srv/logs/grafana.log
