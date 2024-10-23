@@ -27,7 +27,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const (
@@ -171,11 +171,11 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrap(err, "failed to wait backup restore completion")
 	}
 
-	send(&agentpb.JobResult{
+	send(&agentv1.JobResult{
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
-		Result: &agentpb.JobResult_MongodbRestoreBackup{
-			MongodbRestoreBackup: &agentpb.JobResult_MongoDBRestoreBackup{},
+		Result: &agentv1.JobResult_MongodbRestoreBackup{
+			MongodbRestoreBackup: &agentv1.JobResult_MongoDBRestoreBackup{},
 		},
 	})
 

@@ -50,8 +50,8 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
-	"github.com/percona/pmm/api/agentlocalpb"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/version"
 )
@@ -79,7 +79,7 @@ type Server struct {
 	reload          chan struct{}
 	reloadCloseOnce sync.Once
 
-	agentlocalpb.UnimplementedAgentLocalServer
+	agentlocal.UnimplementedAgentLocalServiceServer
 }
 
 // NewServer creates new server.
@@ -136,18 +136,18 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 }
 
 // Status returns current pmm-agent status.
-func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*agentlocalpb.StatusResponse, error) { //nolint:revive
+func (s *Server) Status(ctx context.Context, req *agentlocal.StatusRequest) (*agentlocal.StatusResponse, error) { //nolint:revive
 	connected := true
 	md := s.client.GetServerConnectMetadata()
 	if md == nil {
 		connected = false
-		md = &agentpb.ServerConnectMetadata{}
+		md = &agentv1.ServerConnectMetadata{}
 	}
 	upTime := s.client.GetConnectionUpTime()
-	var serverInfo *agentlocalpb.ServerInfo
+	var serverInfo *agentlocal.ServerInfo
 	cfg := s.cfg.Get()
 	if u := cfg.Server.URL(); u != nil {
-		serverInfo = &agentlocalpb.ServerInfo{
+		serverInfo = &agentlocal.ServerInfo{
 			Url:         u.String(),
 			InsecureTls: cfg.Server.InsecureTLS,
 			Connected:   connected,
@@ -167,7 +167,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 
 	agentsInfo := s.supervisor.AgentsList()
 
-	return &agentlocalpb.StatusResponse{
+	return &agentlocal.StatusResponse{
 		AgentId:          cfg.ID,
 		RunsOnNodeId:     md.AgentRunsOnNodeID,
 		NodeName:         md.NodeName,
@@ -184,7 +184,7 @@ func roundFloat(upTime float32, numAfterDot int) float32 {
 }
 
 // Reload reloads pmm-agent and its configuration.
-func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*agentlocalpb.ReloadResponse, error) { //nolint:revive
+func (s *Server) Reload(ctx context.Context, req *agentlocal.ReloadRequest) (*agentlocal.ReloadResponse, error) { //nolint:revive
 	// sync errors with setup command
 
 	if _, err := s.cfg.Reload(s.l); err != nil {
@@ -196,7 +196,7 @@ func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*
 	})
 
 	// client may or may not receive this response due to server shutdown
-	return &agentlocalpb.ReloadResponse{}, nil
+	return &agentlocal.ReloadResponse{}, nil
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -205,7 +205,7 @@ func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) {
 	l.Debugf("Starting gRPC server on http://%s/ ...", listener.Addr().String())
 
 	gRPCServer := grpc.NewServer()
-	agentlocalpb.RegisterAgentLocalServer(gRPCServer, s)
+	agentlocal.RegisterAgentLocalServiceServer(gRPCServer, s)
 
 	if s.cfg.Get().Debug {
 		l.Debug("Reflection and channelz are enabled.")
@@ -311,7 +311,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock(),
 	}
-	if err := agentlocalpb.RegisterAgentLocalHandlerFromEndpoint(ctx, proxyMux, grpcAddress, opts); err != nil {
+	if err := agentlocal.RegisterAgentLocalServiceHandlerFromEndpoint(ctx, proxyMux, grpcAddress, opts); err != nil {
 		l.Panic(err)
 	}
 
@@ -348,7 +348,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 
 // check interfaces.
 var (
-	_ agentlocalpb.AgentLocalServer = (*Server)(nil)
+	_ agentlocal.AgentLocalServiceServer = (*Server)(nil)
 )
 
 // addData add data to zip file.

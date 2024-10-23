@@ -22,8 +22,8 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	mongodb "github.com/percona/pmm/api/managementpb/json/client/mongo_db"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 const (
@@ -40,7 +40,7 @@ Service name: {{ .Service.ServiceName }}
 `)
 
 type addMongoDBResult struct {
-	Service *mongodb.AddMongoDBOKBodyService `json:"service"`
+	Service *mservice.AddServiceOKBodyMongodbService `json:"service"`
 }
 
 func (res *addMongoDBResult) Result() {}
@@ -159,51 +159,53 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &mongodb.AddMongoDBParams{
-		Body: mongodb.AddMongoDBBody{
-			NodeID:         cmd.NodeID,
-			ServiceName:    serviceName,
-			Address:        host,
-			Socket:         socket,
-			Port:           int64(port),
-			ExposeExporter: cmd.ExposeExporter,
-			PMMAgentID:     cmd.PMMAgentID,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			Username:       cmd.Username,
-			Password:       cmd.Password,
-			AgentPassword:  cmd.AgentPassword,
+	params := &mservice.AddServiceParams{
+		Body: mservice.AddServiceBody{
+			Mongodb: &mservice.AddServiceParamsBodyMongodb{
+				NodeID:         cmd.NodeID,
+				ServiceName:    serviceName,
+				Address:        host,
+				Socket:         socket,
+				Port:           int64(port),
+				ExposeExporter: cmd.ExposeExporter,
+				PMMAgentID:     cmd.PMMAgentID,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				Username:       cmd.Username,
+				Password:       cmd.Password,
+				AgentPassword:  cmd.AgentPassword,
 
-			QANMongodbProfiler: cmd.QuerySource == MongodbQuerySourceProfiler,
+				QANMongodbProfiler: cmd.QuerySource == MongodbQuerySourceProfiler,
 
-			CustomLabels:                  customLabels,
-			SkipConnectionCheck:           cmd.SkipConnectionCheck,
-			MaxQueryLength:                cmd.MaxQueryLength,
-			TLS:                           cmd.TLS,
-			TLSSkipVerify:                 cmd.TLSSkipVerify,
-			TLSCertificateKey:             tlsCertificateKey,
-			TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
-			TLSCa:                         tlsCa,
-			AuthenticationMechanism:       cmd.AuthenticationMechanism,
-			AuthenticationDatabase:        cmd.AuthenticationDatabase,
+				CustomLabels:                  customLabels,
+				SkipConnectionCheck:           cmd.SkipConnectionCheck,
+				MaxQueryLength:                cmd.MaxQueryLength,
+				TLS:                           cmd.TLS,
+				TLSSkipVerify:                 cmd.TLSSkipVerify,
+				TLSCertificateKey:             tlsCertificateKey,
+				TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
+				TLSCa:                         tlsCa,
+				AuthenticationMechanism:       cmd.AuthenticationMechanism,
+				AuthenticationDatabase:        cmd.AuthenticationDatabase,
 
-			MetricsMode: pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+				MetricsMode: pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 
-			EnableAllCollectors: cmd.EnableAllCollectors,
-			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-			StatsCollections:    commands.ParseDisableCollectors(cmd.StatsCollections),
-			CollectionsLimit:    cmd.CollectionsLimit,
-			LogLevel:            &cmd.AddLogLevel,
+				EnableAllCollectors: cmd.EnableAllCollectors,
+				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+				StatsCollections:    commands.ParseDisableCollectors(cmd.StatsCollections),
+				CollectionsLimit:    cmd.CollectionsLimit,
+				LogLevel:            &cmd.AddLogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.MongoDB.AddMongoDB(params)
+	resp, err := client.Default.ManagementService.AddService(params)
 	if err != nil {
 		return nil, err
 	}
 
 	return &addMongoDBResult{
-		Service: resp.Payload.Service,
+		Service: resp.Payload.Mongodb.Service,
 	}, nil
 }

@@ -19,9 +19,9 @@ Property names are shared between API calls, database columns, and label values 
 
 **GenericNode** represents a bare metal server or virtual machine. Properties:
 
-- `node_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/node_id/<uuid>".
+- `node_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `node_name` (required, label). User-defined name, unique across all Nodes, can be changed.
-- `machine_id` (optional, label). Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified. Value format: "/machine_id/<machine-id>".
+- `machine_id` (optional, label). Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified. Value format: "<machine-id>".
 - `distro` (optional). Linux distribution (if any). Can be changed.
 - `node_model` (optional). String containing an extra description for the node type, like "db.t2.medium".
 - `region` (optional). Node's AWS region.
@@ -30,10 +30,10 @@ Property names are shared between API calls, database columns, and label values 
 
 **ContainerNode** represents a Docker container. Properties:
 
-- `node_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/node_id/<uuid>".
+- `node_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `node_name` (required, label). User-defined name, unique across all Nodes, can be changed.
 - `address` (required) DNS hostname or IP address.
-- `machine_id` (optional, label). Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed. Value format: "/machine_id/<machine-id>".
+- `machine_id` (optional, label). Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed. Value format: "<machine-id>".
 - `container_id` (optional, label). Container identifier. If specified, must be a unique Docker container identifier. Can't be changed. Value format: "/docker/<containerID>" (compatible with cAdvisor).
 - `container_name` (optional, label). Container name. Can be changed.
 - `node_model` (optional). String containing an extra description for the node type, like "db.t2.medium"
@@ -43,7 +43,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **RemoteNode** represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes. Properties:
 
-- `node_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/node_id/<uuid>".
+- `node_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `node_name` (required, label). User-defined name, unique across all Nodes, can be changed.
 - `address` (required). Node DNS hostname or IP address.
 - `node_model` (optional). String containing an extra description for the node type, like "db.t2.medium"
@@ -53,7 +53,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **RemoteAmazonRDSNode** represents a Remote Node for Amazon RDS. Agents can't run on Remote RDS Nodes. Properties:
 
-- `node_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/node_id/<uuid>".
+- `node_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `node_name` (required, label). User-defined name, unique across all Nodes, can be changed.
 - `address` (required). Node DNS hostname or IP address.
 - `node_model` (optional). String containing an extra description for the node type, like "db.t2.medium"
@@ -65,7 +65,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **MySQLService** represents a generic MySQL instance. Always runs on a single Generic, Container, or Remote Node. Properties:
 
-- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/service_id/<uuid>".
+- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `service_name` (required, label). Unique across all Services user-defined name, can be changed.
 - `node_id` (required, label). Node identifier where this instance runs. Can be changed – service can be moved to another Node.
 - `address` (optional). Access address (DNS name or IP). Required if unix_socket is absent. Can be changed.
@@ -78,7 +78,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **MongoDBService** represents a generic MongoDB instance. Properties:
 
-- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/service_id/<uuid>".
+- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `service_name` (required, label). Unique across all Services user-defined name, can be changed.
 - `node_id` (required, label). Node identifier where this instance runs. Can be changed – service can be moved to another Node.
 - `address` (required). Access address (DNS name or IP). Required if unix_socket is absent. Can be changed.
@@ -90,7 +90,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **PostgreSQLService** represents a generic PostgreSQL instance. Properties:
 
-- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/service_id/<uuid>".
+- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `service_name` (required, label). Unique across all Services user-defined name, can be changed.
 - `node_id` (required, label). Node identifier where this instance runs. Can be changed – service can be moved to another Node.
 - `address` (required). Access address (DNS name or IP). Required if unix_socket is absent. Can be changed.
@@ -102,7 +102,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **ProxySQLService** represents a generic ProxySQL instance. Properties:
 
-- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/service_id/<uuid>".
+- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `service_name` (required, label). Unique across all Services user-defined name, can be changed.
 - `node_id` (required, label). Node identifier where this instance runs. Can be changed – service can be moved to another Node.
 - `address` (required). Access address (DNS name or IP). Required if unix_socket is absent. Can be changed.
@@ -114,7 +114,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **ExternalService** represents a generic External service instance. It's a service which are not supported by PMM as first class citizen. It can be any service. Properties:
 
-- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "/service_id/<uuid>".
+- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `service_name` (required, label). Unique across all Services user-defined name.
 - `node_id` (required, label). Node identifier where this instance runs.
 - `environment` (optional) Environment name
@@ -126,21 +126,21 @@ Property names are shared between API calls, database columns, and label values 
 
 **PMMAgent** runs on Generic on Container Node. Properties:
 
-- `agent_id` (required). Unique randomly generated instance identifier, can't be changed. Value format: "/agent_id/<uuid>".
+- `agent_id` (required). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `runs_on_node_id` (required). Node identifier where this instance runs. Can't be changed.
 - `custom_labels` (optional). key/value pairs of custom assigned labels.
 
 **NodeExporter** runs on Generic on Container Node and exposes its metrics. Properties:
 
-- `agent_id (required). Unique randomly generated instance identifier, can't be changed. Value format: "/agent_id/<uuid>".
-- `pmm_agent_id. (required) PMM agent id controlling this exporter. Value format: "/agent_id/<uuid>".
+- `agent_id (required). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
+- `pmm_agent_id. (required) PMM agent id controlling this exporter. Value format: "<uuid>".
 - `AgentStatus. Current exporter status. See statuses list below.
 - `custom_labels (optional). key/value pairs of custom assigned labels.
 - `listen_port. Listen port for scraping metrics.
 
 **MySQLdExporter** runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics. Properties:
 
-- `agent_id` (required). Unique randomly generated instance identifier, can't be changed. Value format: "/agent_id/<uuid>".
+- `agent_id` (required). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `pmm_agent_id` (required). The pmm-agent identifier which runs this instance.
 - `service_id` (required). Service identifier. Can't be changed.
 - `username` (required). MySQL username for scraping metrics.
@@ -158,7 +158,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **MongoDBExporter** runs on Generic or Container Node and exposes MongoDB Service metrics.
 
-- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "/agent_id/<uuid>".
+- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
 - `service_id` (required) Service identifier.
 - `username` MongoDB authentication user
@@ -171,7 +171,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **PostgresExporter** runs on Generic or Container Node and exposes PostgreSQL Service metrics.
 
-- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "/agent_id/<uuid>".
+- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
 - `service_id` (required) Service identifier.
 - `username` MongoDB authentication user
@@ -184,7 +184,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **ProxySQLExporter** runs on Generic or Container Node and exposes ProxySQL Service metrics.
 
-- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "/agent_id/<uuid>".
+- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
 - `service_id` (required) Service identifier.
 - `username` MongoDB authentication user
@@ -197,7 +197,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **QANMySQLPerformanceSchemaAgent** runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 
-- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "/agent_id/<uuid>".
+- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
 - `service_id` (required) Service identifier.
 - `username` MongoDB authentication user
@@ -210,7 +210,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **QANMySQLSlowLogAgent** runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 
-- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "/agent_id/<uuid>".
+- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
 - `service_id` (required) Service identifier.
 - `username` MongoDB authentication user
@@ -224,7 +224,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **QANMongoDBProfilerAgent** runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 
-- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "/agent_id/<uuid>".
+- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
 - `service_id` (required) Service identifier.
 - `username` MongoDB authentication user
@@ -236,7 +236,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **QANPostgreSQLPGStatementsAgent** runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 
-- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "/agent_id/<uuid>".
+- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
 - `service_id` (required) Service identifier.
 - `username` MongoDB authentication user
@@ -248,7 +248,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **RDSExporter** runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics. Properties:
 
-- `agent_id` (required). Unique randomly generated instance identifier, can't be changed. Value format: "/agent_id/<uuid>".
+- `agent_id` (required). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
 - `node_id` (required). Node identifier where this instance runs. Can be changed – this Agent can be safely moved to the other Node.
 - `aws_access_key` AWS Access Key.
@@ -260,7 +260,7 @@ Property names are shared between API calls, database columns, and label values 
 
 **ExternalExporter** runs on any Node type, including Remote Node. Properties:
 
-- `agent_id` (required). Unique randomly generated instance identifier, can't be changed. Value format: "/agent_id/<uuid>".
+- `agent_id` (required). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `runs_on_node_id` (required). Node identifier where this instance runs, if known to PMM.
 - `service_id` (optional). Service identifier.
 - `username` HTTP basic auth username for metrics collection.

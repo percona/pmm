@@ -27,7 +27,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const mongoDBExplainActionType = "mongodb-explain"
@@ -35,7 +35,7 @@ const mongoDBExplainActionType = "mongodb-explain"
 type mongodbExplainAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_MongoDBExplainParams
+	params  *agentv1.StartActionRequest_MongoDBExplainParams
 	dsn     string
 }
 
@@ -51,7 +51,7 @@ type explain struct {
 var errCannotExplain = fmt.Errorf("cannot explain this type of query")
 
 // NewMongoDBExplainAction creates a MongoDB EXPLAIN query Action.
-func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MongoDBExplainParams, tempDir string) (Action, error) {
+func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MongoDBExplainParams, tempDir string) (Action, error) {
 	dsn, err := templates.RenderDSN(params.Dsn, params.TextFiles, filepath.Join(tempDir, mongoDBExplainActionType, id))
 	if err != nil {
 		return nil, errors.WithStack(err)

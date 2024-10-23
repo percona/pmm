@@ -28,14 +28,11 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
-	"github.com/percona/pmm/version"
 )
-
-var sericeInfoBrokerPMMVersion = version.MustParse("2.40.99")
 
 // ServiceInfoBroker helps query various information from services.
 type ServiceInfoBroker struct {
@@ -50,18 +47,18 @@ func NewServiceInfoBroker(r *Registry) *ServiceInfoBroker {
 }
 
 // ServiceInfoRequest creates a ServiceInfoRequest for a given service.
-func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentpb.ServiceInfoRequest, error) {
-	var request *agentpb.ServiceInfoRequest
+func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentv1.ServiceInfoRequest, error) {
+	var request *agentv1.ServiceInfoRequest
 
 	pmmAgentVersion := models.ExtractPmmAgentVersionFromAgent(q, agent)
 	switch service.ServiceType {
 	case models.MySQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
-		request = &agentpb.ServiceInfoRequest{
-			Type:    inventorypb.ServiceType_MYSQL_SERVICE,
+		request = &agentv1.ServiceInfoRequest{
+			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
-			TextFiles: &agentpb.TextFiles{
+			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
 				TemplateRightDelim: tdp.Right,
@@ -74,12 +71,12 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		if err != nil {
 			return nil, err
 		}
-		request = &agentpb.ServiceInfoRequest{
-			Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
+		request = &agentv1.ServiceInfoRequest{
+			Type: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported},
 				nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
-			TextFiles: &agentpb.TextFiles{
+			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
 				TemplateRightDelim: tdp.Right,
@@ -87,19 +84,19 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		}
 	case models.MongoDBServiceType:
 		tdp := agent.TemplateDelimiters(service)
-		request = &agentpb.ServiceInfoRequest{
-			Type:    inventorypb.ServiceType_MONGODB_SERVICE,
+		request = &agentv1.ServiceInfoRequest{
+			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
-			TextFiles: &agentpb.TextFiles{
+			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
 				TemplateRightDelim: tdp.Right,
 			},
 		}
 	case models.ProxySQLServiceType:
-		request = &agentpb.ServiceInfoRequest{
-			Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
+		request = &agentv1.ServiceInfoRequest{
+			Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 		}
@@ -109,8 +106,8 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 			return nil, err
 		}
 
-		request = &agentpb.ServiceInfoRequest{
-			Type:    inventorypb.ServiceType_EXTERNAL_SERVICE,
+		request = &agentv1.ServiceInfoRequest{
+			Type:    inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE,
 			Dsn:     exporterURL,
 			Timeout: durationpb.New(3 * time.Second),
 		}
@@ -120,8 +117,8 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 			return nil, err
 		}
 
-		request = &agentpb.ServiceInfoRequest{
-			Type:    inventorypb.ServiceType_HAPROXY_SERVICE,
+		request = &agentv1.ServiceInfoRequest{
+			Type:    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 			Dsn:     exporterURL,
 			Timeout: durationpb.New(3 * time.Second),
 		}
@@ -147,15 +144,6 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	}
 
 	pmmAgentID := pointer.GetString(agent.PMMAgentID)
-	isSibSupported, err := isServiceInfoBrokerSupported(q, pmmAgentID)
-	if err != nil {
-		return err
-	}
-
-	if !isSibSupported {
-		return nil
-	}
-
 	pmmAgent, err := c.r.get(pmmAgentID)
 	if err != nil {
 		return err
@@ -166,9 +154,9 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		return err
 	}
 
-	var sanitizedDSN string
+	sanitizedDSN := request.Dsn
 	for _, word := range redactWords(agent) {
-		sanitizedDSN = strings.ReplaceAll(request.Dsn, word, "****")
+		sanitizedDSN = strings.ReplaceAll(sanitizedDSN, word, "****")
 	}
 	l.Infof("ServiceInfoRequest: type: %s, DSN: %s timeout: %s.", request.Type, sanitizedDSN, request.Timeout)
 
@@ -178,9 +166,9 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	}
 	l.Infof("ServiceInfo response: %+v.", resp)
 
-	sInfo, ok := resp.(*agentpb.ServiceInfoResponse)
+	sInfo, ok := resp.(*agentv1.ServiceInfoResponse)
 	if !ok {
-		return status.Error(codes.Internal, "failed to cast response to *agentpb.ServiceInfoResponse")
+		return status.Error(codes.Internal, "failed to cast response to *agentv1.ServiceInfoResponse")
 	}
 
 	msg := sInfo.Error
@@ -194,9 +182,11 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	case models.MySQLServiceType:
 		agent.TableCount = &sInfo.TableCount
 		l.Debugf("Updating table count: %d.", sInfo.TableCount)
-		if err = q.Update(agent); err != nil {
+		encryptedAgent := models.EncryptAgent(*agent)
+		if err = q.Update(&encryptedAgent); err != nil {
 			return errors.Wrap(err, "failed to update table count")
 		}
+
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.PostgreSQLServiceType:
 		if agent.PostgreSQLOptions == nil {
@@ -218,9 +208,11 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		agent.PostgreSQLOptions.DatabaseCount = int32(databaseCount - excludedDatabaseCount)
 
 		l.Debugf("Updating PostgreSQL options, database count: %d.", agent.PostgreSQLOptions.DatabaseCount)
-		if err = q.Update(agent); err != nil {
+		encryptedAgent := models.EncryptAgent(*agent)
+		if err = q.Update(&encryptedAgent); err != nil {
 			return errors.Wrap(err, "failed to update database count")
 		}
+
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.MongoDBServiceType,
 		models.ProxySQLServiceType:
@@ -232,10 +224,10 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	}
 }
 
-func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentpb.AgentResponsePayload, service *models.Service) error {
+func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentv1.AgentResponsePayload, service *models.Service) error {
 	l := logger.Get(ctx)
 
-	version := resp.(*agentpb.ServiceInfoResponse).Version //nolint:forcetypeassert
+	version := resp.(*agentv1.ServiceInfoResponse).Version //nolint:forcetypeassert
 	if version == "" {
 		return nil
 	}
@@ -247,21 +239,4 @@ func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentpb.A
 	}
 
 	return nil
-}
-
-// isServiceInfoBrokerSupported checks if PMM Agent supports ServiceInfoBroker.
-func isServiceInfoBrokerSupported(q *reform.Querier, pmmAgentID string) (bool, error) {
-	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
-	if err != nil {
-		return false, fmt.Errorf("failed to get PMM Agent: %w", err)
-	}
-	pmmAgentVersion, err := version.Parse(*pmmAgent.Version)
-	if err != nil {
-		return false, fmt.Errorf("failed to parse PMM agent version %q: %w", *pmmAgent.Version, err)
-	}
-
-	if pmmAgentVersion.Less(sericeInfoBrokerPMMVersion) {
-		return false, nil
-	}
-	return true, nil
 }

@@ -32,7 +32,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/version"
 )
 
@@ -217,16 +217,16 @@ func TestQueryExplain(t *testing.T) {
 	})
 }
 
-func prepareParams(t *testing.T, query string) *agentpb.StartActionRequest_MongoDBExplainParams {
+func prepareParams(t *testing.T, query string) *agentv1.StartActionRequest_MongoDBExplainParams {
 	t.Helper()
 
-	return &agentpb.StartActionRequest_MongoDBExplainParams{
+	return &agentv1.StartActionRequest_MongoDBExplainParams{
 		Dsn:   tests.GetTestMongoDBDSN(t),
 		Query: query,
 	}
 }
 
-func runExplain(ctx context.Context, t *testing.T, params *agentpb.StartActionRequest_MongoDBExplainParams) {
+func runExplain(ctx context.Context, t *testing.T, params *agentv1.StartActionRequest_MongoDBExplainParams) {
 	t.Helper()
 
 	big, err := rand.Int(rand.Reader, big.NewInt(27))
@@ -239,7 +239,7 @@ func runExplain(ctx context.Context, t *testing.T, params *agentpb.StartActionRe
 	require.NotEmpty(t, string(res))
 }
 
-func runExplainExpectError(ctx context.Context, t *testing.T, params *agentpb.StartActionRequest_MongoDBExplainParams) {
+func runExplainExpectError(ctx context.Context, t *testing.T, params *agentv1.StartActionRequest_MongoDBExplainParams) {
 	t.Helper()
 
 	big, err := rand.Int(rand.Reader, big.NewInt(27))
@@ -265,7 +265,7 @@ func TestMongoDBExplain(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("Valid MongoDB query", func(t *testing.T) {
-		params := &agentpb.StartActionRequest_MongoDBExplainParams{
+		params := &agentv1.StartActionRequest_MongoDBExplainParams{
 			Dsn:   tests.GetTestMongoDBDSN(t),
 			Query: `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
 		}
@@ -274,7 +274,7 @@ func TestMongoDBExplain(t *testing.T) {
 		require.NoError(t, err)
 
 		res, err := ex.Run(ctx)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
 		want := map[string]interface{}{
 			"indexFilterSet": false,
@@ -282,22 +282,38 @@ func TestMongoDBExplain(t *testing.T) {
 			"parsedQuery": map[string]interface{}{
 				"k": map[string]interface{}{"$lte": map[string]interface{}{"$numberInt": "1"}},
 			},
-			"plannerVersion": map[string]interface{}{"$numberInt": "1"},
-			"rejectedPlans":  []interface{}{},
-			"winningPlan":    map[string]interface{}{"stage": "EOF"},
+			"rejectedPlans": []interface{}{},
+			"winningPlan":   map[string]interface{}{"stage": "EOF"},
+		}
+		mongoDBVersion := tests.MongoDBVersion(t, client)
+
+		switch {
+		case mongoDBVersion.Major < 5:
+			want["plannerVersion"] = map[string]interface{}{"$numberInt": "1"}
+		case mongoDBVersion.Major < 8:
+			want["maxIndexedAndSolutionsReached"] = false
+			want["maxIndexedOrSolutionsReached"] = false
+			want["maxScansToExplodeReached"] = false
+		case mongoDBVersion.Major == 8:
+			want["maxIndexedAndSolutionsReached"] = false
+			want["maxIndexedOrSolutionsReached"] = false
+			want["maxScansToExplodeReached"] = false
+			want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
+			want["winningPlan"] = map[string]interface{}{"stage": "EOF", "isCached": false}
+			want["prunedSimilarIndexes"] = false
 		}
 
 		explainM := make(map[string]interface{})
 		err = json.Unmarshal(res, &explainM)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 		queryPlanner, ok := explainM["queryPlanner"]
-		assert.Equal(t, ok, true)
+		assert.True(t, ok)
 		assert.NotEmpty(t, queryPlanner)
 		assert.Equal(t, want, queryPlanner)
 	})
 }
 
-// These tests are based on PMM-2.0 tests. The previous ones are inherited from PMM 1/Toolkit.
+// These tests are based on v3 tests. The previous ones are inherited from PMM 1/Toolkit.
 func TestNewMongoDBExplain(t *testing.T) {
 	database := "sbtest"
 	id := "abcd1234"
@@ -321,8 +337,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 			in: "distinct.json",
 		},
 		{
-			in:         "aggregate.json",
-			minVersion: "3.4.0",
+			in: "aggregate.json",
 		},
 		{
 			in: "count.json",
@@ -331,21 +346,11 @@ func TestNewMongoDBExplain(t *testing.T) {
 			in: "find_and_modify.json",
 		},
 	}
-	mongoDBVersion := tests.MongoDBVersion(t, client)
 	for _, tf := range testFiles {
-		// Not all MongoDB versions allow explaining all commands
-		if tf.minVersion != "" {
-			c, err := lessThan(tf.minVersion, mongoDBVersion)
-			require.NoError(t, err)
-			if c {
-				continue
-			}
-		}
-
 		t.Run(tf.in, func(t *testing.T) {
 			query, err := os.ReadFile(filepath.Join("testdata/", filepath.Clean(tf.in)))
 			assert.NoError(t, err)
-			params := &agentpb.StartActionRequest_MongoDBExplainParams{
+			params := &agentv1.StartActionRequest_MongoDBExplainParams{
 				Dsn:   tests.GetTestMongoDBDSN(t),
 				Query: string(query),
 			}

@@ -1,7 +1,7 @@
 ---
 title: Logs
 slug: "logs"
-category: 626badcabbc59c02acc1a540
+category: 66acab7b0bf230001846b5e2
 ---
 Download the logs and components configuration to troubleshoot any issues with the PMM Server.
 
@@ -27,7 +27,7 @@ The downloaded logs package contains the following structure:
 {
   "codes": [
     {
-      "code": "# tree\n├── alertmanager.ini\n├── alertmanager.log\n├── clickhouse-server.err.log\n├── clickhouse-server.log\n├── clickhouse-server.startup.log\n├── client\n│   ├── list.txt\n│   ├── pmm-admin-version.txt\n│   ├── pmm-agent-config.yaml\n│   ├── pmm-agent-version.txt\n│   └── status.json\n├── cron.log\n├── dashboard-upgrade.log\n├── dbaas-controller.log\n├── grafana.log\n├── installed.json\n├── nginx.conf\n├── nginx.log\n├── nginx.startup.log\n├── pmm-agent.log\n├── pmm-agent.yaml\n├── pmm-managed.log\n├── pmm-ssl.conf\n├── pmm-update-perform-init.log\n├── pmm-update-perform.log\n├── pmm-version.txt\n├── pmm.conf\n├── pmm.ini\n├── postgresql.log\n├── postgresql.startup.log\n├── prometheus.base.yml\n├── prometheus.log\n├── qan-api2.ini\n├── qan-api2.log\n├── supervisorctl_status.log\n├── supervisord.conf\n├── supervisord.log\n├── systemctl_status.log\n├── victoriametrics-promscrape.yml\n├── victoriametrics.ini\n├── victoriametrics.log\n├── victoriametrics_targets.json\n├── vmalert.ini\n└── vmalert.log",
+      "code": "# tree\n├── clickhouse-server.err.log\n├── clickhouse-server.log\n├── clickhouse-server.startup.log\n├── client\n│   ├── list.txt\n│   ├── pmm-admin-version.txt\n│   ├── pmm-agent-config.yaml\n│   ├── pmm-agent-version.txt\n│   └── status.json\n├── cron.log\n├── dashboard-upgrade.log\n├── grafana.log\n├── installed.json\n├── nginx.conf\n├── nginx.log\n├── nginx.startup.log\n├── pmm-agent.log\n├── pmm-agent.yaml\n├── pmm-managed.log\n├── pmm-ssl.conf\n├── pmm-update-perform-init.log\n├── pmm-update-perform.log\n├── pmm-version.txt\n├── pmm.conf\n├── pmm.ini\n├── postgresql.log\n├── postgresql.startup.log\n├── prometheus.base.yml\n├── prometheus.log\n├── qan-api2.ini\n├── qan-api2.log\n├── supervisorctl_status.log\n├── supervisord.conf\n├── supervisord.log\n├── systemctl_status.log\n├── victoriametrics-promscrape.yml\n├── victoriametrics.ini\n├── victoriametrics.log\n├── victoriametrics_targets.json\n├── vmalert.ini\n└── vmalert.log",
       "language": "text"
     }
   ]

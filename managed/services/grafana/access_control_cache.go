@@ -64,7 +64,7 @@ func (a *accessControl) reload() (bool, error) {
 		return false, err
 	}
 
-	a.enabled = settings.AccessControl.Enabled
+	a.enabled = settings.IsAccessControlEnabled()
 	a.lastUpdated = time.Now()
 
 	return a.enabled, nil

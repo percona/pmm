@@ -22,37 +22,18 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
 
-// HAProxyService HAProxy Management Service.
-type HAProxyService struct {
-	db    *reform.DB
-	vmdb  prometheusService
-	state agentsStateUpdater
-	cc    connectionChecker
-
-	managementpb.UnimplementedHAProxyServer
-}
-
-// NewHAProxyService creates new HAProxy Management Service.
-func NewHAProxyService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker) *HAProxyService {
-	return &HAProxyService{
-		db:    db,
-		vmdb:  vmdb,
-		state: state,
-		cc:    cc,
-	}
-}
-
 // AddHAProxy adds an HAProxy service based on the provided request.
-func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAProxyRequest) (*managementpb.AddHAProxyResponse, error) {
-	res := &managementpb.AddHAProxyResponse{}
+func (s *ManagementService) addHAProxy(ctx context.Context, req *managementv1.AddHAProxyServiceParams) (*managementv1.AddServiceResponse, error) {
 	var pmmAgentID *string
-	if e := e.db.InTransaction(func(tx *reform.TX) error {
+	haproxy := &managementv1.HAProxyServiceResult{}
+
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		if req.Address == "" && req.AddNode != nil {
 			return status.Error(codes.InvalidArgument, "address can't be empty for add node request.")
 		}
@@ -77,13 +58,13 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.HAProxyService) //nolint:forcetypeassert
+		haproxy.Service = invService.(*inventoryv1.HAProxyService) //nolint:forcetypeassert
 
-		if req.MetricsMode == managementpb.MetricsMode_AUTO {
+		if req.MetricsMode == managementv1.MetricsMode_METRICS_MODE_UNSPECIFIED {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.NodeId)
 			switch {
 			case err != nil || len(agentIDs) != 1:
-				req.MetricsMode = managementpb.MetricsMode_PULL
+				req.MetricsMode = managementv1.MetricsMode_METRICS_MODE_PULL
 			default:
 				req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, agentIDs[0].AgentID)
 				if err != nil {
@@ -109,7 +90,7 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 		}
 
 		if !req.SkipConnectionCheck {
-			if err = e.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}
@@ -118,19 +99,28 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 		if err != nil {
 			return err
 		}
-		res.ExternalExporter = agent.(*inventorypb.ExternalExporter) //nolint:forcetypeassert
+		haproxy.ExternalExporter = agent.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
 		pmmAgentID = row.PMMAgentID
 
 		return nil
-	}); e != nil {
-		return nil, e
+	})
+
+	if errTx != nil {
+		return nil, errTx
 	}
-	// we have to trigger after transaction
+	// we have to trigger updates once the transaction completes
 	if pmmAgentID != nil {
 		// It's required to regenerate victoriametrics config file.
-		e.state.RequestStateUpdate(ctx, *pmmAgentID)
+		s.state.RequestStateUpdate(ctx, *pmmAgentID)
 	} else {
-		e.vmdb.RequestConfigurationUpdate()
+		s.vmdb.RequestConfigurationUpdate()
 	}
+
+	res := &managementv1.AddServiceResponse{
+		Service: &managementv1.AddServiceResponse_Haproxy{
+			Haproxy: haproxy,
+		},
+	}
+
 	return res, nil
 }

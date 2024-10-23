@@ -21,7 +21,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"io/fs"
 	"net/url"
 	"os"
@@ -38,13 +37,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/utils/pdeathsig"
-	"github.com/percona/pmm/version"
 )
 
 const (
@@ -63,18 +59,15 @@ const (
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
 type Service struct {
-	configDir          string
-	supervisorctlPath  string
-	gRPCMessageMaxSize uint32
-	l                  *logrus.Entry
-	pmmUpdateCheck     *PMMUpdateChecker
+	configDir         string
+	supervisorctlPath string
+	l                 *logrus.Entry
 
 	eventsM    sync.Mutex
 	subs       map[chan *event]sub
 	lastEvents map[string]eventType
 
-	pmmUpdatePerformLogM sync.Mutex
-	supervisordConfigsM  sync.Mutex
+	supervisordConfigsM sync.Mutex
 
 	vmParams *models.VictoriaMetricsParams
 	pgParams *models.PGParams
@@ -88,52 +81,26 @@ type sub struct {
 
 // values from supervisord configuration.
 const (
-	pmmUpdatePerformProgram = "pmm-update-perform"
-	pmmUpdatePerformLog     = "/srv/logs/pmm-update-perform.log"
-	pmmConfig               = "/etc/supervisord.d/pmm.ini"
+	pmmConfig = "/etc/supervisord.d/pmm.ini"
 )
 
 // New creates new service.
-func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, params *models.Params, gRPCMessageMaxSize uint32) *Service {
+func New(configDir string, params *models.Params) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
-		configDir:          configDir,
-		supervisorctlPath:  path,
-		gRPCMessageMaxSize: gRPCMessageMaxSize,
-		l:                  logrus.WithField("component", "supervisord"),
-		pmmUpdateCheck:     pmmUpdateCheck,
-		subs:               make(map[chan *event]sub),
-		lastEvents:         make(map[string]eventType),
-		vmParams:           params.VMParams,
-		pgParams:           params.PGParams,
-		haParams:           params.HAParams,
+		configDir:         configDir,
+		supervisorctlPath: path,
+		l:                 logrus.WithField("component", "supervisord"),
+		subs:              make(map[chan *event]sub),
+		lastEvents:        make(map[string]eventType),
+		vmParams:          params.VMParams,
+		pgParams:          params.PGParams,
+		haParams:          params.HAParams,
 	}
 }
 
 // Run reads supervisord's log (maintail) and sends events to subscribers.
 func (s *Service) Run(ctx context.Context) {
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
-		// pre-set installed packages info to cache it.
-		s.pmmUpdateCheck.Installed(ctx)
-
-		// Do not check for updates for the first 10 minutes.
-		// That solves PMM Server building problems when we start pmm-managed.
-		// TODO https://jira.percona.com/browse/PMM-4429
-		sleepCtx, sleepCancel := context.WithTimeout(ctx, 10*time.Minute)
-		<-sleepCtx.Done()
-		sleepCancel()
-		if ctx.Err() != nil {
-			return
-		}
-
-		s.pmmUpdateCheck.run(ctx)
-	}()
-	defer wg.Wait()
-
 	if s.supervisorctlPath == "" {
 		s.l.Errorf("supervisorctl not found, updates are disabled.")
 		return
@@ -210,21 +177,6 @@ func (s *Service) Run(ctx context.Context) {
 	}
 }
 
-// InstalledPMMVersion returns currently installed PMM version information.
-func (s *Service) InstalledPMMVersion(ctx context.Context) *version.PackageInfo {
-	return s.pmmUpdateCheck.Installed(ctx)
-}
-
-// LastCheckUpdatesResult returns last PMM update check result and last check time.
-func (s *Service) LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCheckResult, time.Time) {
-	return s.pmmUpdateCheck.checkResult(ctx)
-}
-
-// ForceCheckUpdates forces check for PMM updates. Result can be obtained via LastCheckUpdatesResult.
-func (s *Service) ForceCheckUpdates(ctx context.Context) error {
-	return s.pmmUpdateCheck.check(ctx)
-}
-
 func (s *Service) subscribe(program string, eventTypes ...eventType) chan *event {
 	ch := make(chan *event, 1)
 	s.eventsM.Lock()
@@ -249,66 +201,6 @@ func (s *Service) supervisorctl(args ...string) ([]byte, error) {
 	return b, errors.Wrapf(err, "%s failed", cmdLine)
 }
 
-// StartUpdate starts pmm-update-perform supervisord program with some preparations.
-// It returns initial log file offset.
-func (s *Service) StartUpdate() (uint32, error) {
-	if s.UpdateRunning() {
-		return 0, status.Errorf(codes.FailedPrecondition, "Update is already running.")
-	}
-
-	// We need to remove and reopen log file for UpdateStatus API to be able to read it without it being rotated.
-	// Additionally, SIGUSR2 is expected by our Ansible playbook.
-
-	s.pmmUpdatePerformLogM.Lock()
-	defer s.pmmUpdatePerformLogM.Unlock()
-
-	// remove existing log file
-	err := os.Remove(pmmUpdatePerformLog)
-	if err != nil && errors.Is(err, fs.ErrNotExist) {
-		err = nil
-	}
-	if err != nil {
-		s.l.Warn(err)
-	}
-
-	// send SIGUSR2 to supervisord and wait for it to reopen log file
-	ch := s.subscribe("supervisord", logReopen)
-	b, err := s.supervisorctl("pid")
-	if err != nil {
-		return 0, err
-	}
-	pid, err := strconv.Atoi(strings.TrimSpace(string(b)))
-	if err != nil {
-		return 0, errors.WithStack(err)
-	}
-	p, err := os.FindProcess(pid)
-	if err != nil {
-		return 0, errors.WithStack(err)
-	}
-	if err = p.Signal(unix.SIGUSR2); err != nil {
-		s.l.Warnf("Failed to send SIGUSR2: %s", err)
-	}
-	s.l.Debug("Waiting for log reopen...")
-	<-ch
-
-	var offset uint32
-	fi, err := os.Stat(pmmUpdatePerformLog)
-	switch {
-	case err == nil:
-		if fi.Size() != 0 {
-			s.l.Warnf("Unexpected log file size: %+v", fi)
-		}
-		offset = uint32(fi.Size())
-	case errors.Is(err, fs.ErrNotExist):
-		// that's expected as we remove this file above
-	default:
-		s.l.Warn(err)
-	}
-
-	_, err = s.supervisorctl("start", pmmUpdatePerformProgram)
-	return offset, err
-}
-
 // parseStatus parses `supervisorctl status <name>` output, returns true if <name> is running,
 // false if definitely not, and nil if status can't be determined.
 func parseStatus(status string) *bool {
@@ -325,11 +217,6 @@ func parseStatus(status string) *bool {
 		}
 	}
 	return nil
-}
-
-// UpdateRunning returns true if pmm-update-perform is not done yet.
-func (s *Service) UpdateRunning() bool {
-	return s.programRunning(pmmUpdatePerformProgram)
 }
 
 // UpdateRunning returns true if given supervisord program is running or being restarted,
@@ -367,42 +254,6 @@ func (s *Service) programRunning(program string) bool {
 	}
 }
 
-// UpdateLog returns some lines and a new offset from pmm-update-perform log starting from the given offset.
-// It may return zero lines and the same offset. Caller is expected to handle this.
-func (s *Service) UpdateLog(offset uint32) ([]string, uint32, error) {
-	s.pmmUpdatePerformLogM.Lock()
-	defer s.pmmUpdatePerformLogM.Unlock()
-
-	f, err := os.Open(pmmUpdatePerformLog)
-	if err != nil {
-		return nil, 0, errors.WithStack(err)
-	}
-	defer f.Close() //nolint:errcheck,gosec,nolintlint
-
-	if _, err = f.Seek(int64(offset), io.SeekStart); err != nil {
-		return nil, 0, errors.WithStack(err)
-	}
-
-	lines := make([]string, 0, 10)
-	reader := bufio.NewReader(f)
-	newOffset := offset
-	for {
-		line, err := reader.ReadString('\n')
-		if err == nil {
-			newOffset += uint32(len(line))
-			if newOffset-offset > s.gRPCMessageMaxSize {
-				return lines, newOffset - uint32(len(line)), nil
-			}
-			lines = append(lines, strings.TrimSuffix(line, "\n"))
-			continue
-		}
-		if err == io.EOF {
-			err = nil
-		}
-		return lines, newOffset, errors.WithStack(err)
-	}
-}
-
 // reload asks supervisord to reload configuration.
 func (s *Service) reload(name string) error {
 	if _, err := s.supervisorctl("reread"); err != nil {
@@ -422,13 +273,11 @@ func getValueFromENV(envName string, defaultValue string) string {
 
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
-	clickhouseDatabase := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
-	clickhouseAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-	clickhouseDataSourceAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
-	clickhousePoolSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE", "")
-	clickhouseBlockSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "")
+	clickhouseDatabase := getValueFromENV("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
+	clickhouseAddr := getValueFromENV("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
+	clickhouseDataSourceAddr := getValueFromENV("PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
-	vmSearchDisableCache := getValueFromENV("VM_search_disableCache", strconv.FormatBool(!settings.VictoriaMetrics.CacheEnabled))
+	vmSearchDisableCache := getValueFromENV("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
 	vmSearchMaxQueryLen := getValueFromENV("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
 	vmSearchLatencyOffset := getValueFromENV("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
 	vmSearchMaxUniqueTimeseries := getValueFromENV("VM_search_maxUniqueTimeseries", defaultVMSearchMaxUniqueTimeseries)
@@ -453,13 +302,10 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
 		"VMURL":                        s.vmParams.URL(),
 		"ExternalVM":                   s.vmParams.ExternalVM(),
-		"PerconaTestDbaas":             settings.DBaaS.Enabled,
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
 		"ClickhouseAddr":               clickhouseAddr,
 		"ClickhouseDataSourceAddr":     clickhouseDataSourceAddr,
 		"ClickhouseDatabase":           clickhouseDatabase,
-		"ClickhousePoolSize":           clickhousePoolSize,
-		"ClickhouseBlockSize":          clickhouseBlockSize,
 		"ClickhouseHost":               clickhouseAddrPair[0],
 		"ClickhousePort":               clickhouseAddrPair[1],
 	}
@@ -492,47 +338,12 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		templateParams["PerconaSSODetails"] = nil
 	}
 
-	if err := addAlertManagerParams(settings.AlertManagerURL, templateParams); err != nil {
-		return nil, errors.Wrap(err, "cannot add AlertManagerParams to supervisor template")
-	}
-
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, templateParams); err != nil {
 		return nil, errors.Wrapf(err, "failed to render template %q", tmpl.Name())
 	}
 	b := append([]byte("; Managed by pmm-managed. DO NOT EDIT.\n"), buf.Bytes()...)
 	return b, nil
-}
-
-// addAlertManagerParams parses alertManagerURL
-// and extracts url, username and password from it to templateParams.
-func addAlertManagerParams(alertManagerURL string, templateParams map[string]interface{}) error {
-	templateParams["AlertmanagerURL"] = "http://127.0.0.1:9093/alertmanager"
-	templateParams["AlertManagerUser"] = ""
-	templateParams["AlertManagerPassword"] = ""
-	if alertManagerURL == "" {
-		return nil
-	}
-	u, err := url.Parse(alertManagerURL)
-	if err != nil {
-		return errors.Wrap(err, "cannot parse AlertManagerURL")
-	}
-	if u.Opaque != "" || u.Host == "" {
-		return errors.Errorf("AlertmanagerURL parsed incorrectly as %#v", u)
-	}
-	password, _ := u.User.Password()
-	n := url.URL{
-		Scheme:   u.Scheme,
-		Host:     u.Host,
-		Path:     u.Path,
-		RawQuery: u.RawQuery,
-		Fragment: u.Fragment,
-	}
-	templateParams["AlertManagerUser"] = fmt.Sprintf(",%s", u.User.Username())
-	templateParams["AlertManagerPassword"] = fmt.Sprintf(",%s", strconv.Quote(password))
-	templateParams["AlertmanagerURL"] = fmt.Sprintf("http://127.0.0.1:9093/alertmanager,%s", n.String())
-
-	return nil
 }
 
 // addPostgresParams adds pmm-server postgres database params to template config for grafana.
@@ -561,8 +372,8 @@ func (s *Service) addClusterParams(templateParams map[string]interface{}) {
 		}
 		templateParams["HANodes"] = strings.Join(nodes, ",")
 	}
-	//- GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
-	//- GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
+	// - GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
+	// - GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.
@@ -610,7 +421,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	return true, nil
 }
 
-// UpdateConfiguration updates Prometheus, Alertmanager, Grafana and qan-api2 configurations, restarting them if needed.
+// UpdateConfiguration updates VictoriaMetrics, Grafana and qan-api2 configurations, restarting them if needed.
 func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error {
 	if s.supervisorctlPath == "" {
 		s.l.Errorf("supervisorctl not found, configuration updates are disabled.")
@@ -667,38 +478,6 @@ func (s *Service) StopSupervisedService(serviceName string) error {
 
 //nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
-{{define "dbaas-controller"}}
-[program:dbaas-controller]
-priority = 6
-command = /usr/sbin/dbaas-controller
-user = pmm
-autorestart = {{ .PerconaTestDbaas }}
-autostart = {{ .PerconaTestDbaas }}
-startretries = 10
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/dbaas-controller.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
-{{define "prometheus"}}
-[program:prometheus]
-command = /bin/echo Prometheus is substituted by VictoriaMetrics
-user = pmm
-autorestart = false
-autostart = false
-startretries = 10
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/prometheus.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
 
 {{define "victoriametrics"}}
 {{- if not .ExternalVM }}
@@ -719,7 +498,6 @@ command =
 		--search.logSlowQueryDuration={{ .VMSearchLogSlowQueryDuration }}
 		--search.maxQueryDuration={{ .VMSearchMaxQueryDuration }}
 		--promscrape.streamParse={{ .VMPromscrapeStreamParse }}
-		--prometheusDataPath=/srv/prometheus/data
 		--http.pathPrefix=/prometheus
 		--envflag.enable
 		--envflag.prefix=VM_
@@ -742,16 +520,12 @@ redirect_stderr = true
 priority = 7
 command =
 	/usr/sbin/vmalert
-		--notifier.url="{{ .AlertmanagerURL }}"
-		--notifier.basicAuth.password='{{ .AlertManagerPassword }}'
-		--notifier.basicAuth.username="{{ .AlertManagerUser }}"
 		--external.url={{ .VMURL }}
 		--datasource.url={{ .VMURL }}
 		--remoteRead.url={{ .VMURL }}
 		--remoteRead.ignoreRestoreErrors=false
 		--remoteWrite.url={{ .VMURL }}
 		--rule=/srv/prometheus/rules/*.yml
-		--rule=/etc/ia/rules/*.yml
 		--httpListenAddr={{ .InterfaceToBind }}:8880
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}
@@ -791,30 +565,6 @@ stdout_logfile_backups = 3
 redirect_stderr = true
 {{end}}
 
-{{define "alertmanager"}}
-[program:alertmanager]
-priority = 8
-command =
-	/usr/sbin/alertmanager
-		--config.file=/etc/alertmanager.yml
-		--storage.path=/srv/alertmanager/data
-		--data.retention={{ .DataRetentionHours }}h
-		--web.external-url=http://localhost:9093/alertmanager/
-		--web.listen-address={{ .InterfaceToBind }}:9093
-		--cluster.listen-address=""
-user = pmm
-autorestart = true
-autostart = true
-startretries = 1000
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 10
-stdout_logfile = /srv/logs/alertmanager.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
 {{define "qan-api2"}}
 [program:qan-api2]
 priority = 13
@@ -822,10 +572,10 @@ command =
 	/usr/sbin/percona-qan-api2
 		--data-retention={{ .DataRetentionDays }}
 environment =
-	PERCONA_TEST_PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
-	PERCONA_TEST_PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
-{{ if .ClickhousePoolSize }}	PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE={{ .ClickhousePoolSize }},{{- end}}
-{{ if .ClickhouseBlockSize }}	PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE={{ .ClickhouseBlockSize }}{{- end}}
+	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
+	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
+
+
 user = pmm
 autorestart = true
 autostart = true
@@ -862,17 +612,17 @@ command =
         cfg:default.auth.oauth_allow_insecure_email_lookup="true"
         {{- end}}
 environment =
-    PERCONA_TEST_POSTGRES_ADDR="{{ .PostgresAddr }}",
-    PERCONA_TEST_POSTGRES_DBNAME="{{ .PostgresDBName }}",
-    PERCONA_TEST_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
-    PERCONA_TEST_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
-    PERCONA_TEST_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
-    PERCONA_TEST_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
-    PERCONA_TEST_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
-    PERCONA_TEST_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
-    PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
-    PERCONA_TEST_PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
-    PERCONA_TEST_PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
+    PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
+    PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
+    PMM_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
+    PMM_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
+    PMM_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
+    PMM_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
+    PMM_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
+    PMM_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
+    PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
+    PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
+    PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     {{- if .PerconaSSODetails}}
     GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
     {{- end}}
@@ -881,7 +631,7 @@ environment =
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_PEERS="{{ .HANodes }}"
     {{- end}}
-user = grafana
+user = pmm
 directory = /usr/share/grafana
 autorestart = true
 autostart = true

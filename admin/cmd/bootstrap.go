@@ -131,7 +131,7 @@ func getDefaultKongOptions(appName string) []kong.Option {
 
 	var defaultMachineID string
 	if nodeinfo.MachineID != "" {
-		defaultMachineID = "/machine_id/" + nodeinfo.MachineID
+		defaultMachineID = nodeinfo.MachineID
 	}
 
 	mysqlQuerySources := []string{

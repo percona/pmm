@@ -25,7 +25,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const mongoDBQueryAdminCommandActionType = "mongodb-query-admincommand"
@@ -34,6 +34,7 @@ type mongodbQueryAdmincommandAction struct {
 	id      string
 	timeout time.Duration
 	dsn     string
+	files   *agentv1.TextFiles //nolint:unused
 	command string
 	arg     interface{}
 }
@@ -43,7 +44,7 @@ func NewMongoDBQueryAdmincommandAction(
 	id string,
 	timeout time.Duration,
 	dsn string,
-	files *agentpb.TextFiles,
+	files *agentv1.TextFiles,
 	command string,
 	arg interface{},
 	tempDir string,
@@ -104,7 +105,7 @@ func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error
 	}
 
 	data := []map[string]interface{}{doc}
-	return agentpb.MarshalActionQueryDocsResult(data)
+	return agentv1.MarshalActionQueryDocsResult(data)
 }
 
 func (a *mongodbQueryAdmincommandAction) sealed() {}

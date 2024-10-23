@@ -399,11 +399,11 @@ func TestAgentHelpers(t *testing.T) {
 
 		agent, err = models.RemoveAgent(q, "A0", models.RemoveRestrict)
 		assert.Nil(t, agent)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "A0" not found.`), err)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID A0 not found.`), err)
 
 		agent, err = models.RemoveAgent(q, "A1", models.RemoveRestrict)
 		assert.Nil(t, agent)
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `pmm-agent with ID "A1" has agents.`), err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `pmm-agent with ID A1 has agents.`), err)
 
 		expected := &models.Agent{
 			AgentID:      "A1",
@@ -416,7 +416,7 @@ func TestAgentHelpers(t *testing.T) {
 		assert.Equal(t, expected, agent)
 		assert.NoError(t, err)
 		_, err = models.FindAgentByID(q, "A1")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "A1" not found.`), err)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID A1 not found.`), err)
 	})
 
 	t.Run("FindPMMAgentsForNode", func(t *testing.T) {

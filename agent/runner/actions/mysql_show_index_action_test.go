@@ -27,7 +27,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/version"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestMySQLShowIndex(t *testing.T) {
@@ -43,7 +43,7 @@ func TestMySQLShowIndex(t *testing.T) {
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLShowIndexParams{
+		params := &agentv1.StartActionRequest_MySQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "city",
 		}
@@ -89,22 +89,19 @@ func TestMySQLShowIndex(t *testing.T) {
 			assert.Equal(t, []interface{}{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[1])
 			assert.Equal(t, []interface{}{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", ""}, actual[2])
 
-		case mySQLVersion.String() == "8.0":
+		default: // >= MySQL 8.0
 			assert.Equal(t, []interface{}{
 				"Table", "Non_unique", "Key_name", "Seq_in_index", "Column_name", "Collation", "Cardinality",
 				"Sub_part", "Packed", "Null", "Index_type", "Comment", "Index_comment", "Visible", "Expression",
 			}, actual[0])
 			assert.Equal(t, []interface{}{"city", float64(0), "PRIMARY", float64(1), "ID", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[1])
 			assert.Equal(t, []interface{}{"city", float64(1), "CountryCode", float64(1), "CountryCode", "A", "CARDINALITY", nil, nil, "", "BTREE", "", "", "YES", nil}, actual[2])
-
-		default:
-			t.Fatal("Unhandled version.")
 		}
 	})
 
 	t.Run("Error", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLShowIndexParams{
+		params := &agentv1.StartActionRequest_MySQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "no_such_table",
 		}
@@ -118,7 +115,7 @@ func TestMySQLShowIndex(t *testing.T) {
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLShowIndexParams{
+		params := &agentv1.StartActionRequest_MySQLShowIndexParams{
 			Dsn:   dsn,
 			Table: `city"; DROP TABLE city; --`,
 		}

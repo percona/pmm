@@ -2,8 +2,7 @@
 	"queryExamples": [
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
-			"exampleFormat": "EXAMPLE",
-			"exampleType": "RANDOM",
+			"exampleType": "EXAMPLE_TYPE_RANDOM",
 			"queryId": "B305F6354FA21F2A",
 			"serviceId": "service_id1",
 			"serviceType": "service_type1",
@@ -14,8 +13,7 @@
 		},
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
-			"exampleFormat": "EXAMPLE",
-			"exampleType": "RANDOM",
+			"exampleType": "EXAMPLE_TYPE_RANDOM",
 			"queryId": "B305F6354FA21F2A",
 			"serviceId": "service_id1",
 			"serviceType": "service_type1",
@@ -26,8 +24,7 @@
 		},
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
-			"exampleFormat": "EXAMPLE",
-			"exampleType": "RANDOM",
+			"exampleType": "EXAMPLE_TYPE_RANDOM",
 			"queryId": "B305F6354FA21F2A",
 			"serviceId": "service_id1",
 			"serviceType": "service_type1",
@@ -38,8 +35,7 @@
 		},
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
-			"exampleFormat": "EXAMPLE",
-			"exampleType": "RANDOM",
+			"exampleType": "EXAMPLE_TYPE_RANDOM",
 			"queryId": "B305F6354FA21F2A",
 			"serviceId": "service_id1",
 			"serviceType": "service_type1",
@@ -50,8 +46,7 @@
 		},
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
-			"exampleFormat": "EXAMPLE",
-			"exampleType": "RANDOM",
+			"exampleType": "EXAMPLE_TYPE_RANDOM",
 			"queryId": "B305F6354FA21F2A",
 			"serviceId": "service_id1",
 			"serviceType": "service_type1",

@@ -19,14 +19,12 @@ This project is built from several repositories:
 
 * [percona/pmm](https://github.com/percona/pmm/tree/main/api)
 * [percona-platform/saas](https://github.com/percona-platform/saas)
-* [percona-platform/dbaas-api](https://github.com/percona-platform/dbaas-api)
 
 ### PMM Server
 
 #### Backends
 
 * [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/main/admin)
-* [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller) exposes a simplified API for managing Percona Kubernetes Operators.
 * [percona/qan-api](https://github.com/percona/pmm/tree/main/qan-api2) query analytics API
 * [percona/pmm-update](https://github.com/percona/pmm/tree/main/update) is a tool for updating packages and OS configuration for PMM
 
@@ -182,7 +180,7 @@ Once your PR is created, please do the following:
 
 PMM is quite a complex project, it consists of many different repos described above. A Feature Build (FB) is a way to put everything together, build all components, run tests and, finally, build client and server containers.
 
-Please see: [How to create a feature build](https://github.com/Percona-Lab/pmm-submodules/blob/PMM-2.0/README.md#how-to-create-a-feature-build)
+Please see: [How to create a feature build](https://github.com/Percona-Lab/pmm-submodules/blob/v3/README.md#how-to-create-a-feature-build)
 
 ### The Goals of Feature Builds
 

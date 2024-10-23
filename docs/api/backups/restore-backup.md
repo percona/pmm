@@ -2,7 +2,7 @@
 title: Restore from a backup
 slug: restorebackup
 excerpt: This endpoint allows to restore a database from a previously made backup.
-category: 66aa56507e69ed004a736efe
+category: 66acac6024b4bc0022d980f3
 ---
 
 PMM can backup the monitored services.
@@ -21,8 +21,8 @@ curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
      --header 'Content-Type: application/json' \
      --data '
 {
-     "service_id": "/service_id/XXXXX",
-     "artifact_id": "/location_id/XXXXX",
+     "service_id": "40499c38-522d-4ed1-ab3f-8a099684f46d",
+     "artifact_id": "ff582c9d-49ea-437c-9f3a-362c57e7ad38",
      "pitr_timestamp": "2023-09-09T10:02:25.998"
 }
 '

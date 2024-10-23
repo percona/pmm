@@ -215,7 +215,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	case models.MySQLServiceType:
 		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig, params.Folder)
 	case models.MongoDBServiceType:
-		err = s.jobsService.StartMongoDBBackupJob(svc, job.ID, job.PMMAgentID, 0, name, dbConfig,
+		err = s.jobsService.StartMongoDBBackupJob(svc, job.ID, job.PMMAgentID, 0, name,
 			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, params.Folder)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
@@ -458,7 +458,6 @@ func (s *Service) startRestoreJob(params *restoreJobParams) error {
 			0,
 			params.ArtifactName,
 			params.pbmBackupName,
-			params.DBConfig,
 			params.DataModel,
 			locationConfig,
 			params.PITRTimestamp,

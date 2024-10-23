@@ -42,18 +42,21 @@ export PMM_RELEASE_BRANCH=""
 cd src/github.com/percona/pmm/managed
 make release
 
+cd ../ui
+make release
 
 %install
 install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_datadir}/%{name}
+install -d -p %{buildroot}%{_datadir}/pmm-ui
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
 install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-starlark
 
 cd src/github.com/percona/pmm
 cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
-
+cp -pa ./ui/dist/. %{buildroot}%{_datadir}/pmm-ui
 
 %files
 %license src/%{provider}/LICENSE
@@ -62,9 +65,12 @@ cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
 %{_sbindir}/pmm-managed-init
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
-
+%{_datadir}/pmm-ui
 
 %changelog
+* Fri Mar 22 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 3.0.0-1
+- PMM-11231 add pmm ui
+
 * Thu Jul 28 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 2.30.0-1
 - PMM-10036 migrate to monorepo
 
