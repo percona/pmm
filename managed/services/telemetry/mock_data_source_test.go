@@ -5,7 +5,7 @@ package telemetry
 import (
 	context "context"
 
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	genericv1 "github.com/percona/saas/gen/telemetry/generic"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -51,23 +51,23 @@ func (_m *mockDataSource) Enabled() bool {
 }
 
 // FetchMetrics provides a mock function with given fields: ctx, config
-func (_m *mockDataSource) FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
+func (_m *mockDataSource) FetchMetrics(ctx context.Context, config Config) ([]*genericv1.GenericReport_Metric, error) {
 	ret := _m.Called(ctx, config)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchMetrics")
 	}
 
-	var r0 []*pmmv1.ServerMetric_Metric
+	var r0 []*genericv1.GenericReport_Metric
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, Config) ([]*pmmv1.ServerMetric_Metric, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, Config) ([]*genericv1.GenericReport_Metric, error)); ok {
 		return rf(ctx, config)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, Config) []*pmmv1.ServerMetric_Metric); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, Config) []*genericv1.GenericReport_Metric); ok {
 		r0 = rf(ctx, config)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*pmmv1.ServerMetric_Metric)
+			r0 = ret.Get(0).([]*genericv1.GenericReport_Metric)
 		}
 	}
 
