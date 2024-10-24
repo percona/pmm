@@ -31,8 +31,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/pkg/flags"
 )
 
 // UpgradeCommand is used by Kong for CLI flags and commands.

@@ -26,6 +26,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/api/inventory/v1/types"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
@@ -134,7 +135,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		IsAwsSecretKeySet:              pointer.GetString(agent.AWSSecretKey) != "",
 		IsPasswordSet:                  pointer.GetString(agent.Password) != "",
 		ListenPort:                     uint32(pointer.GetUint16(agent.ListenPort)),
-		LogLevel:                       pointer.GetString(agent.LogLevel),
+		LogLevel:                       types.LogLevelAPIValue(agent.LogLevel),
 		MaxQueryLength:                 agent.MaxQueryLength,
 		MaxQueryLogSize:                agent.MaxQueryLogSize,
 		MetricsPath:                    pointer.GetString(agent.MetricsPath),
