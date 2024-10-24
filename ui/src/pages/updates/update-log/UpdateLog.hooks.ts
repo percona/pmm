@@ -17,7 +17,7 @@ export const useUpdateLog = (authToken: string) => {
 
       return getUpdateStatus({ authToken, logOffset });
     },
-    refetchInterval: 500,
+    refetchInterval: ({ state }) => (state.data?.done ? 0 : 1000),
   });
 
   useEffect(() => {
