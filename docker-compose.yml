@@ -30,6 +30,8 @@ services:
       - DBAAS_DBAAS_OP_CHANNEL=${DBAAS_DBAAS_OP_CHANNEL}
       - DBAAS_ALLOW_UNSUPPORTED_OPERATORS=${DBAAS_ALLOW_UNSUPPORTED_OPERATORS:-0}
       - PERCONA_TEST_DBAAS_PMM_CLIENT=${PERCONA_TEST_DBAAS_PMM_CLIENT}
+      - GF_RENDERING_SERVER_URL=http://renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=https://pmm-server:8443/graph/
       # - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
       # - PERCONA_TEST_PLATFORM_INSECURE=1
       # - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
@@ -100,6 +102,13 @@ services:
     #     chmod 600 /tmp/certs/*
     #     /opt/entrypoint.sh
     #   "
+
+  renderer:
+    image: grafana/grafana-image-renderer:latest
+    networks:
+      - ${NETWORK:-default}
+    ports:
+      - 8081:8081
 
   # PMM with external DBs
   ch:
