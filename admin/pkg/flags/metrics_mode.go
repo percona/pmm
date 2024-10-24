@@ -14,7 +14,11 @@
 
 package flags
 
-import "github.com/AlekSi/pointer"
+import (
+	"github.com/AlekSi/pointer"
+
+	"github.com/percona/pmm/utils/enums"
+)
 
 // MetricsModeFlags contains flags for metrics mode.
 type MetricsModeFlags struct {
@@ -26,5 +30,5 @@ type MetricsMode string
 
 // EnumValue returns pointer to string representation of LogLevel.
 func (l MetricsMode) EnumValue() *string {
-	return pointer.To(convertEnum("METRICS_MODE", string(l)))
+	return pointer.To(enums.ConvertEnum("METRICS_MODE", string(l)))
 }

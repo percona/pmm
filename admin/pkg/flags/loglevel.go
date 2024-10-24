@@ -16,10 +16,9 @@
 package flags
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/AlekSi/pointer"
+
+	"github.com/percona/pmm/utils/enums"
 )
 
 // LogLevelFatalFlags contains log level flag with "fatal" option.
@@ -37,10 +36,5 @@ type LogLevel string
 
 // EnumValue returns pointer to string representation of LogLevel.
 func (l LogLevel) EnumValue() *string {
-	return pointer.To(convertEnum("LOG_LEVEL", string(l)))
-}
-
-// convertEnum converts flag value to value supported by API.
-func convertEnum(prefix string, value string) string {
-	return fmt.Sprintf("%s_%s", prefix, strings.ToUpper(value))
+	return pointer.To(enums.ConvertEnum("LOG_LEVEL", string(l)))
 }

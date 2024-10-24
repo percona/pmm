@@ -3,6 +3,7 @@ syntax = "proto3";
 package management.v1;
 
 import "google/protobuf/timestamp.proto";
+import "inventory/v1/log_level.proto";
 
 message UniversalAgent {
   message MySQLOptions {
@@ -72,7 +73,7 @@ message UniversalAgent {
   // Listen port for scraping metrics.
   uint32 listen_port = 11;
   // Log level for exporter.
-  string log_level = 12;
+  inventory.v1.LogLevel log_level = 12;
   // Limit query length in QAN.
   int32 max_query_length = 13;
   // Limit query log size in QAN.
