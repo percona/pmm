@@ -1,2 +1,84 @@
 ---
 # This role installs and configures Loki (https://github.com/grafana/loki).
+
+- name: Add Grafana RPM repository
+  yum_repository:
+    name: grafana
+    description: Grafana repository
+    baseurl: https://rpm.grafana.com
+    gpgcheck: yes
+    enabled: no
+    gpgkey: https://rpm.grafana.com/gpg.key
+    sslverify: yes
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+
+- name: Install Loki and Promtail
+  yum:
+    name: "{{ item }}"
+    state: latest
+    disablerepo: "*"
+    enablerepo: grafana
+  loop:
+    - loki
+    - promtail
+
+- name: Create loki and promtail users
+  user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid }}"
+    home: "{{ item.home }}"
+    comment: "{{ item.comment }}"
+    shell: "{{ item.shell }}"
+    group: "{{ item.group }}"
+    create_home: false
+  loop:
+    - { name: loki, uid: 1001, comment: "Loki user", shell: "/sbin/nologin", group: pmm, }
+    - { name: promtail, uid: 1002, comment: "Promtail user", shell: "/sbin/nologin", group: pmm, }
+
+- name: Create a directory for Loki
+  copy: 
+    path: /srv/loki
+    state: directory
+    owner: pmm
+    group: pmm
+
+- name: Copy the supervisord config file for Loki and Promtail
+  copy:
+    src: loki.ini
+    dest: /etc/supervisord.d/loki.ini
+    # mode: 0644
+    owner: pmm
+    group: pmm
+
+- name: Copy the config files for Loki and Promtail
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/loki/{{ item }}"
+    # mode: 0644
+    owner: pmm
+    group: pmm
+  loop:
+    - config.yml
+    - promtail.yml
+
+- name: Copy the Grafana datasource file
+  copy:
+    src: loki.yml
+    dest: /usr/share/grafana/conf/provisioning/datasources/loki.yml
+    # mode: 0644
+    owner: pmm
+    group: pmm
+
+- name: Override pmm.conf file
+  copy:
+    src: pmm.conf
+    dest: /etc/nginx/conf.d/pmm.conf
+    owner: pmm
+    group: pmm
+
+- name: Override nginx.conf file
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: pmm
+    group: pmm

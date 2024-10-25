@@ -1,0 +1,9 @@
+# This is a Grafana datasource to interact with a Loki server
+
+apiVersion: 1
+datasources:
+  - name: Loki
+    type: loki
+    uid: loki
+    access: proxy
+    url: http://127.0.0.1:3100
