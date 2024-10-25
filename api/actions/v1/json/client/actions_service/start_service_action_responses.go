@@ -7,6 +7,7 @@ package actions_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type StartServiceActionOK struct {
 	Payload *StartServiceActionOKBody
 }
 
+// IsSuccess returns true when this start service action Ok response has a 2xx status code
+func (o *StartServiceActionOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this start service action Ok response has a 3xx status code
+func (o *StartServiceActionOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this start service action Ok response has a 4xx status code
+func (o *StartServiceActionOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this start service action Ok response has a 5xx status code
+func (o *StartServiceActionOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this start service action Ok response a status code equal to that given
+func (o *StartServiceActionOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the start service action Ok response
+func (o *StartServiceActionOK) Code() int {
+	return 200
+}
+
 func (o *StartServiceActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/actions:startServiceAction][%d] startServiceActionOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/actions:startServiceAction][%d] startServiceActionOk %s", 200, payload)
+}
+
+func (o *StartServiceActionOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/actions:startServiceAction][%d] startServiceActionOk %s", 200, payload)
 }
 
 func (o *StartServiceActionOK) GetPayload() *StartServiceActionOKBody {
@@ -94,13 +131,44 @@ type StartServiceActionDefault struct {
 	Payload *StartServiceActionDefaultBody
 }
 
+// IsSuccess returns true when this start service action default response has a 2xx status code
+func (o *StartServiceActionDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this start service action default response has a 3xx status code
+func (o *StartServiceActionDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this start service action default response has a 4xx status code
+func (o *StartServiceActionDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this start service action default response has a 5xx status code
+func (o *StartServiceActionDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this start service action default response a status code equal to that given
+func (o *StartServiceActionDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the start service action default response
 func (o *StartServiceActionDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *StartServiceActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/actions:startServiceAction][%d] StartServiceAction default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/actions:startServiceAction][%d] StartServiceAction default %s", o._statusCode, payload)
+}
+
+func (o *StartServiceActionDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/actions:startServiceAction][%d] StartServiceAction default %s", o._statusCode, payload)
 }
 
 func (o *StartServiceActionDefault) GetPayload() *StartServiceActionDefaultBody {
@@ -506,6 +574,11 @@ func (o *StartServiceActionBody) ContextValidate(ctx context.Context, formats st
 
 func (o *StartServiceActionBody) contextValidateMongodbExplain(ctx context.Context, formats strfmt.Registry) error {
 	if o.MongodbExplain != nil {
+
+		if swag.IsZero(o.MongodbExplain) { // not required
+			return nil
+		}
+
 		if err := o.MongodbExplain.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mongodb_explain")
@@ -521,6 +594,11 @@ func (o *StartServiceActionBody) contextValidateMongodbExplain(ctx context.Conte
 
 func (o *StartServiceActionBody) contextValidateMysqlExplain(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqlExplain != nil {
+
+		if swag.IsZero(o.MysqlExplain) { // not required
+			return nil
+		}
+
 		if err := o.MysqlExplain.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysql_explain")
@@ -536,6 +614,11 @@ func (o *StartServiceActionBody) contextValidateMysqlExplain(ctx context.Context
 
 func (o *StartServiceActionBody) contextValidateMysqlExplainJSON(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqlExplainJSON != nil {
+
+		if swag.IsZero(o.MysqlExplainJSON) { // not required
+			return nil
+		}
+
 		if err := o.MysqlExplainJSON.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysql_explain_json")
@@ -551,6 +634,11 @@ func (o *StartServiceActionBody) contextValidateMysqlExplainJSON(ctx context.Con
 
 func (o *StartServiceActionBody) contextValidateMysqlExplainTraditionalJSON(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqlExplainTraditionalJSON != nil {
+
+		if swag.IsZero(o.MysqlExplainTraditionalJSON) { // not required
+			return nil
+		}
+
 		if err := o.MysqlExplainTraditionalJSON.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysql_explain_traditional_json")
@@ -566,6 +654,11 @@ func (o *StartServiceActionBody) contextValidateMysqlExplainTraditionalJSON(ctx 
 
 func (o *StartServiceActionBody) contextValidateMysqlShowCreateTable(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqlShowCreateTable != nil {
+
+		if swag.IsZero(o.MysqlShowCreateTable) { // not required
+			return nil
+		}
+
 		if err := o.MysqlShowCreateTable.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysql_show_create_table")
@@ -581,6 +674,11 @@ func (o *StartServiceActionBody) contextValidateMysqlShowCreateTable(ctx context
 
 func (o *StartServiceActionBody) contextValidateMysqlShowIndex(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqlShowIndex != nil {
+
+		if swag.IsZero(o.MysqlShowIndex) { // not required
+			return nil
+		}
+
 		if err := o.MysqlShowIndex.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysql_show_index")
@@ -596,6 +694,11 @@ func (o *StartServiceActionBody) contextValidateMysqlShowIndex(ctx context.Conte
 
 func (o *StartServiceActionBody) contextValidateMysqlShowTableStatus(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqlShowTableStatus != nil {
+
+		if swag.IsZero(o.MysqlShowTableStatus) { // not required
+			return nil
+		}
+
 		if err := o.MysqlShowTableStatus.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysql_show_table_status")
@@ -611,6 +714,11 @@ func (o *StartServiceActionBody) contextValidateMysqlShowTableStatus(ctx context
 
 func (o *StartServiceActionBody) contextValidatePostgresShowCreateTable(ctx context.Context, formats strfmt.Registry) error {
 	if o.PostgresShowCreateTable != nil {
+
+		if swag.IsZero(o.PostgresShowCreateTable) { // not required
+			return nil
+		}
+
 		if err := o.PostgresShowCreateTable.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "postgres_show_create_table")
@@ -626,6 +734,11 @@ func (o *StartServiceActionBody) contextValidatePostgresShowCreateTable(ctx cont
 
 func (o *StartServiceActionBody) contextValidatePostgresShowIndex(ctx context.Context, formats strfmt.Registry) error {
 	if o.PostgresShowIndex != nil {
+
+		if swag.IsZero(o.PostgresShowIndex) { // not required
+			return nil
+		}
+
 		if err := o.PostgresShowIndex.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "postgres_show_index")
@@ -641,6 +754,11 @@ func (o *StartServiceActionBody) contextValidatePostgresShowIndex(ctx context.Co
 
 func (o *StartServiceActionBody) contextValidatePTMongodbSummary(ctx context.Context, formats strfmt.Registry) error {
 	if o.PTMongodbSummary != nil {
+
+		if swag.IsZero(o.PTMongodbSummary) { // not required
+			return nil
+		}
+
 		if err := o.PTMongodbSummary.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "pt_mongodb_summary")
@@ -656,6 +774,11 @@ func (o *StartServiceActionBody) contextValidatePTMongodbSummary(ctx context.Con
 
 func (o *StartServiceActionBody) contextValidatePTMysqlSummary(ctx context.Context, formats strfmt.Registry) error {
 	if o.PTMysqlSummary != nil {
+
+		if swag.IsZero(o.PTMysqlSummary) { // not required
+			return nil
+		}
+
 		if err := o.PTMysqlSummary.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "pt_mysql_summary")
@@ -671,6 +794,11 @@ func (o *StartServiceActionBody) contextValidatePTMysqlSummary(ctx context.Conte
 
 func (o *StartServiceActionBody) contextValidatePTPostgresSummary(ctx context.Context, formats strfmt.Registry) error {
 	if o.PTPostgresSummary != nil {
+
+		if swag.IsZero(o.PTPostgresSummary) { // not required
+			return nil
+		}
+
 		if err := o.PTPostgresSummary.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "pt_postgres_summary")
@@ -774,6 +902,11 @@ func (o *StartServiceActionDefaultBody) ContextValidate(ctx context.Context, for
 func (o *StartServiceActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartServiceAction default" + "." + "details" + "." + strconv.Itoa(i))
@@ -813,6 +946,80 @@ swagger:model StartServiceActionDefaultBodyDetailsItems0
 type StartServiceActionDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// start service action default body details items0
+	StartServiceActionDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *StartServiceActionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv StartServiceActionDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.StartServiceActionDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o StartServiceActionDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.StartServiceActionDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.StartServiceActionDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this start service action default body details items0
@@ -1231,6 +1438,11 @@ func (o *StartServiceActionOKBody) ContextValidate(ctx context.Context, formats 
 
 func (o *StartServiceActionOKBody) contextValidateMongodbExplain(ctx context.Context, formats strfmt.Registry) error {
 	if o.MongodbExplain != nil {
+
+		if swag.IsZero(o.MongodbExplain) { // not required
+			return nil
+		}
+
 		if err := o.MongodbExplain.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("startServiceActionOk" + "." + "mongodb_explain")
@@ -1246,6 +1458,11 @@ func (o *StartServiceActionOKBody) contextValidateMongodbExplain(ctx context.Con
 
 func (o *StartServiceActionOKBody) contextValidateMysqlExplain(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqlExplain != nil {
+
+		if swag.IsZero(o.MysqlExplain) { // not required
+			return nil
+		}
+
 		if err := o.MysqlExplain.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_explain")
@@ -1261,6 +1478,11 @@ func (o *StartServiceActionOKBody) contextValidateMysqlExplain(ctx context.Conte
 
 func (o *StartServiceActionOKBody) contextValidateMysqlExplainJSON(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqlExplainJSON != nil {
+
+		if swag.IsZero(o.MysqlExplainJSON) { // not required
+			return nil
+		}
+
 		if err := o.MysqlExplainJSON.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_explain_json")
@@ -1276,6 +1498,11 @@ func (o *StartServiceActionOKBody) contextValidateMysqlExplainJSON(ctx context.C
 
 func (o *StartServiceActionOKBody) contextValidateMysqlExplainTraditionalJSON(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqlExplainTraditionalJSON != nil {
+
+		if swag.IsZero(o.MysqlExplainTraditionalJSON) { // not required
+			return nil
+		}
+
 		if err := o.MysqlExplainTraditionalJSON.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_explain_traditional_json")
@@ -1291,6 +1518,11 @@ func (o *StartServiceActionOKBody) contextValidateMysqlExplainTraditionalJSON(ct
 
 func (o *StartServiceActionOKBody) contextValidateMysqlShowCreateTable(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqlShowCreateTable != nil {
+
+		if swag.IsZero(o.MysqlShowCreateTable) { // not required
+			return nil
+		}
+
 		if err := o.MysqlShowCreateTable.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_show_create_table")
@@ -1306,6 +1538,11 @@ func (o *StartServiceActionOKBody) contextValidateMysqlShowCreateTable(ctx conte
 
 func (o *StartServiceActionOKBody) contextValidateMysqlShowIndex(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqlShowIndex != nil {
+
+		if swag.IsZero(o.MysqlShowIndex) { // not required
+			return nil
+		}
+
 		if err := o.MysqlShowIndex.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_show_index")
@@ -1321,6 +1558,11 @@ func (o *StartServiceActionOKBody) contextValidateMysqlShowIndex(ctx context.Con
 
 func (o *StartServiceActionOKBody) contextValidateMysqlShowTableStatus(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqlShowTableStatus != nil {
+
+		if swag.IsZero(o.MysqlShowTableStatus) { // not required
+			return nil
+		}
+
 		if err := o.MysqlShowTableStatus.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("startServiceActionOk" + "." + "mysql_show_table_status")
@@ -1336,6 +1578,11 @@ func (o *StartServiceActionOKBody) contextValidateMysqlShowTableStatus(ctx conte
 
 func (o *StartServiceActionOKBody) contextValidatePostgresqlShowCreateTable(ctx context.Context, formats strfmt.Registry) error {
 	if o.PostgresqlShowCreateTable != nil {
+
+		if swag.IsZero(o.PostgresqlShowCreateTable) { // not required
+			return nil
+		}
+
 		if err := o.PostgresqlShowCreateTable.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("startServiceActionOk" + "." + "postgresql_show_create_table")
@@ -1351,6 +1598,11 @@ func (o *StartServiceActionOKBody) contextValidatePostgresqlShowCreateTable(ctx 
 
 func (o *StartServiceActionOKBody) contextValidatePostgresqlShowIndex(ctx context.Context, formats strfmt.Registry) error {
 	if o.PostgresqlShowIndex != nil {
+
+		if swag.IsZero(o.PostgresqlShowIndex) { // not required
+			return nil
+		}
+
 		if err := o.PostgresqlShowIndex.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("startServiceActionOk" + "." + "postgresql_show_index")
@@ -1366,6 +1618,11 @@ func (o *StartServiceActionOKBody) contextValidatePostgresqlShowIndex(ctx contex
 
 func (o *StartServiceActionOKBody) contextValidatePTMongodbSummary(ctx context.Context, formats strfmt.Registry) error {
 	if o.PTMongodbSummary != nil {
+
+		if swag.IsZero(o.PTMongodbSummary) { // not required
+			return nil
+		}
+
 		if err := o.PTMongodbSummary.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("startServiceActionOk" + "." + "pt_mongodb_summary")
@@ -1381,6 +1638,11 @@ func (o *StartServiceActionOKBody) contextValidatePTMongodbSummary(ctx context.C
 
 func (o *StartServiceActionOKBody) contextValidatePTMysqlSummary(ctx context.Context, formats strfmt.Registry) error {
 	if o.PTMysqlSummary != nil {
+
+		if swag.IsZero(o.PTMysqlSummary) { // not required
+			return nil
+		}
+
 		if err := o.PTMysqlSummary.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("startServiceActionOk" + "." + "pt_mysql_summary")
@@ -1396,6 +1658,11 @@ func (o *StartServiceActionOKBody) contextValidatePTMysqlSummary(ctx context.Con
 
 func (o *StartServiceActionOKBody) contextValidatePTPostgresSummary(ctx context.Context, formats strfmt.Registry) error {
 	if o.PTPostgresSummary != nil {
+
+		if swag.IsZero(o.PTPostgresSummary) { // not required
+			return nil
+		}
+
 		if err := o.PTPostgresSummary.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("startServiceActionOk" + "." + "pt_postgres_summary")

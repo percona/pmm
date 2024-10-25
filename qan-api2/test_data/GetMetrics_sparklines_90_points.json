@@ -6,6 +6,18 @@
 		"blk_write_time": {
 
 		},
+		"shared_blk_read_time": {
+
+		},
+		"shared_blk_write_time": {
+
+		},
+		"local_blk_read_time": {
+
+		},
+		"local_blk_write_time": {
+
+		},
 		"bytes_sent": {
 			"rate": 2.7203703,
 			"cnt": 13,
@@ -255,6 +267,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -309,6 +325,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -463,6 +483,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -547,6 +571,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -616,6 +644,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -670,6 +702,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -769,6 +805,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -823,6 +863,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -897,6 +941,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -961,6 +1009,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -1020,6 +1072,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -1114,6 +1170,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -1203,6 +1263,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -1227,6 +1291,18 @@
 
 		},
 		"blk_write_time": {
+
+		},
+		"shared_blk_read_time": {
+
+		},
+		"shared_blk_write_time": {
+
+		},
+		"local_blk_read_time": {
+
+		},
+		"local_blk_write_time": {
 
 		},
 		"bytes_sent": {
