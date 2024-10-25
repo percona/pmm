@@ -26,7 +26,6 @@
   user:
     name: "{{ item.name }}"
     uid: "{{ item.uid }}"
-    home: "{{ item.home }}"
     comment: "{{ item.comment }}"
     shell: "{{ item.shell }}"
     group: "{{ item.group }}"
