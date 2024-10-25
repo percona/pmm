@@ -45,26 +45,27 @@
   copy:
     src: loki.ini
     dest: /etc/supervisord.d/loki.ini
-    # mode: 0644
     owner: pmm
     group: pmm
 
-- name: Copy the config files for Loki and Promtail
+- name: Copy Loki config file
   copy:
-    src: "{{ item }}"
-    dest: "/etc/loki/{{ item }}"
-    # mode: 0644
+    src: config.yml
+    dest: /etc/loki/config.yml
     owner: pmm
     group: pmm
-  loop:
-    - config.yml
-    - promtail.yml
+
+- name: Copy Promtail config file
+  copy:
+    src: promtail.yml
+    dest: /srv/loki/promtail.yml
+    owner: pmm
+    group: pmm
 
 - name: Copy the Grafana datasource file
   copy:
     src: loki.yml
     dest: /usr/share/grafana/conf/provisioning/datasources/loki.yml
-    # mode: 0644
     owner: pmm
     group: pmm
 
