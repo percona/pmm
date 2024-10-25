@@ -1,7 +1,6 @@
 package agents
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/AlekSi/pointer"
@@ -24,7 +23,6 @@ func TestGenerateNomadClientConfig(t *testing.T) {
 		tdp := models.TemplateDelimsPair()
 		config, err := generateNomadClientConfig(node, agent, tdp)
 		require.NoError(t, err)
-		fmt.Println(config)
 		assert.Contains(t, config, "NodeName = \"node-name\"")
 	})
 }

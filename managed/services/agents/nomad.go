@@ -18,6 +18,8 @@ package agents
 import (
 	"bytes"
 	_ "embed"
+	"os"
+	"path"
 	"strings"
 	"text/template"
 
@@ -56,9 +58,18 @@ func nomadClientConfig(node *models.Node, exporter *models.Agent, agentVersion *
 	}
 	pathsToCerts := "/srv/nomad/certs"
 
-	caCert := ""
-	certFile := ""
-	keyFile := ""
+	caCert, err := readCertFile(pathsToCerts, "nomad-agent-ca.pem")
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to read CA certificate")
+	}
+	certFile, err := readCertFile(pathsToCerts, "global-client-nomad.pem")
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to read client certificate")
+	}
+	keyFile, err := readCertFile(pathsToCerts, "global-client-nomad-key.pem")
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to read client key")
+	}
 	params := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
@@ -73,6 +84,15 @@ func nomadClientConfig(node *models.Node, exporter *models.Agent, agentVersion *
 	}
 
 	return params, nil
+}
+
+func readCertFile(pathToCerts string, filename string) (string, error) {
+	pathToFile := path.Join(pathToCerts, filename)
+	file, err := os.ReadFile(pathToFile)
+	if err != nil {
+		return "", errors.Wrap(err, "Failed to read file on path: "+pathToFile)
+	}
+	return string(file), nil
 }
 
 func generateNomadClientConfig(node *models.Node, exporter *models.Agent, tdp models.DelimiterPair) (string, error) {
