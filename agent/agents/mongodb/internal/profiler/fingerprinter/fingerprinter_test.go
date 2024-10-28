@@ -221,15 +221,15 @@ func TestProfilerFingerprinter(t *testing.T) {
 			name: "delete",
 			doc: proto.SystemProfile{
 				Ns:      "test.delete_collection",
-				Op:      "delete",
+				Op:      "remove",
 				Command: bson.D{{Key: "q", Value: bson.D{{Key: "name", Value: "test"}}}},
 			},
 			want: fingerprinter.Fingerprint{
-				Fingerprint: `db.delete_collection.delete({"name":"?"})`,
+				Fingerprint: `db.delete_collection.deleteMany({"name":"?"})`,
 				Namespace:   "test.delete_collection",
 				Database:    "test",
 				Collection:  "delete_collection",
-				Operation:   "delete",
+				Operation:   "remove",
 			},
 		},
 	}
@@ -240,7 +240,11 @@ func TestProfilerFingerprinter(t *testing.T) {
 			fingerprint, err := pf.Fingerprint(tt.doc)
 			require.NoError(t, err)
 			require.NotNil(t, fingerprint)
-			assert.Equal(t, tt.want, fingerprint.Fingerprint)
+			assert.Equal(t, tt.want.Fingerprint, fingerprint.Fingerprint)
+			assert.Equal(t, tt.want.Namespace, fingerprint.Namespace)
+			assert.Equal(t, tt.want.Database, fingerprint.Database)
+			assert.Equal(t, tt.want.Collection, fingerprint.Collection)
+			assert.Equal(t, tt.want.Operation, fingerprint.Operation)
 		})
 	}
 }
