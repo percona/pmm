@@ -59,8 +59,44 @@ type StatusOK struct {
 	Payload *StatusOKBody
 }
 
+// IsSuccess returns true when this status Ok response has a 2xx status code
+func (o *StatusOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this status Ok response has a 3xx status code
+func (o *StatusOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this status Ok response has a 4xx status code
+func (o *StatusOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this status Ok response has a 5xx status code
+func (o *StatusOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this status Ok response a status code equal to that given
+func (o *StatusOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the status Ok response
+func (o *StatusOK) Code() int {
+	return 200
+}
+
 func (o *StatusOK) Error() string {
-	return fmt.Sprintf("[POST /local/Status][%d] statusOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /local/Status][%d] statusOk %s", 200, payload)
+}
+
+func (o *StatusOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /local/Status][%d] statusOk %s", 200, payload)
 }
 
 func (o *StatusOK) GetPayload() *StatusOKBody {
@@ -96,13 +132,44 @@ type StatusDefault struct {
 	Payload *StatusDefaultBody
 }
 
+// IsSuccess returns true when this status default response has a 2xx status code
+func (o *StatusDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this status default response has a 3xx status code
+func (o *StatusDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this status default response has a 4xx status code
+func (o *StatusDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this status default response has a 5xx status code
+func (o *StatusDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this status default response a status code equal to that given
+func (o *StatusDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the status default response
 func (o *StatusDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *StatusDefault) Error() string {
-	return fmt.Sprintf("[POST /local/Status][%d] Status default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /local/Status][%d] Status default %s", o._statusCode, payload)
+}
+
+func (o *StatusDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /local/Status][%d] Status default %s", o._statusCode, payload)
 }
 
 func (o *StatusDefault) GetPayload() *StatusDefaultBody {
@@ -229,6 +296,11 @@ func (o *StatusDefaultBody) ContextValidate(ctx context.Context, formats strfmt.
 func (o *StatusDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("Status default" + "." + "details" + "." + strconv.Itoa(i))
@@ -268,6 +340,80 @@ swagger:model StatusDefaultBodyDetailsItems0
 type StatusDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// status default body details items0
+	StatusDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *StatusDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv StatusDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.StatusDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o StatusDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.StatusDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.StatusDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this status default body details items0
@@ -412,6 +558,11 @@ func (o *StatusOKBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 func (o *StatusOKBody) contextValidateAgentsInfo(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.AgentsInfo); i++ {
 		if o.AgentsInfo[i] != nil {
+
+			if swag.IsZero(o.AgentsInfo[i]) { // not required
+				return nil
+			}
+
 			if err := o.AgentsInfo[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("statusOk" + "." + "agents_info" + "." + strconv.Itoa(i))
@@ -428,6 +579,11 @@ func (o *StatusOKBody) contextValidateAgentsInfo(ctx context.Context, formats st
 
 func (o *StatusOKBody) contextValidateServerInfo(ctx context.Context, formats strfmt.Registry) error {
 	if o.ServerInfo != nil {
+
+		if swag.IsZero(o.ServerInfo) { // not required
+			return nil
+		}
+
 		if err := o.ServerInfo.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("statusOk" + "." + "server_info")
@@ -468,7 +624,7 @@ type StatusOKBodyAgentsInfoItems0 struct {
 	AgentID string `json:"agent_id,omitempty"`
 
 	// AgentType describes supported Agent types.
-	// Enum: [AGENT_TYPE_UNSPECIFIED AGENT_TYPE_PMM_AGENT AGENT_TYPE_VM_AGENT AGENT_TYPE_NODE_EXPORTER AGENT_TYPE_MYSQLD_EXPORTER AGENT_TYPE_MONGODB_EXPORTER AGENT_TYPE_POSTGRES_EXPORTER AGENT_TYPE_PROXYSQL_EXPORTER AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT AGENT_TYPE_EXTERNAL_EXPORTER AGENT_TYPE_RDS_EXPORTER AGENT_TYPE_AZURE_DATABASE_EXPORTER]
+	// Enum: ["AGENT_TYPE_UNSPECIFIED","AGENT_TYPE_PMM_AGENT","AGENT_TYPE_VM_AGENT","AGENT_TYPE_NODE_EXPORTER","AGENT_TYPE_MYSQLD_EXPORTER","AGENT_TYPE_MONGODB_EXPORTER","AGENT_TYPE_POSTGRES_EXPORTER","AGENT_TYPE_PROXYSQL_EXPORTER","AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT","AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT","AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT","AGENT_TYPE_EXTERNAL_EXPORTER","AGENT_TYPE_RDS_EXPORTER","AGENT_TYPE_AZURE_DATABASE_EXPORTER"]
 	AgentType *string `json:"agent_type,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -480,7 +636,7 @@ type StatusOKBodyAgentsInfoItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// The current listen port of this Agent (exporter or vmagent).

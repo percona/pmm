@@ -124,26 +124,34 @@ message Point {
   float m_shared_blks_dirtied_sum_per_sec = 62;
   // Total number of shared blocks written by the statement.
   float m_shared_blks_written_sum_per_sec = 63;
+  // Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_shared_blk_read_time_sum_per_sec = 64;
+  // Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_shared_blk_write_time_sum_per_sec = 65;
+  // Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_local_blk_read_time_sum_per_sec = 66;
+  // Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_local_blk_write_time_sum_per_sec = 67;
   // Total number of local block cache hits by the statement.
-  float m_local_blks_hit_sum_per_sec = 64;
+  float m_local_blks_hit_sum_per_sec = 68;
   // Total number of local blocks read by the statement.
-  float m_local_blks_read_sum_per_sec = 65;
+  float m_local_blks_read_sum_per_sec = 69;
   // Total number of local blocks dirtied by the statement.
-  float m_local_blks_dirtied_sum_per_sec = 66;
+  float m_local_blks_dirtied_sum_per_sec = 70;
   // Total number of local blocks written by the statement.
-  float m_local_blks_written_sum_per_sec = 67;
+  float m_local_blks_written_sum_per_sec = 71;
   // Total number of temp blocks read by the statement.
-  float m_temp_blks_read_sum_per_sec = 68;
+  float m_temp_blks_read_sum_per_sec = 72;
   // Total number of temp blocks written by the statement.
-  float m_temp_blks_written_sum_per_sec = 69;
+  float m_temp_blks_written_sum_per_sec = 73;
   // Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-  float m_blk_read_time_sum_per_sec = 70;
+  float m_blk_read_time_sum_per_sec = 74;
   // Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-  float m_blk_write_time_sum_per_sec = 71;
+  float m_blk_write_time_sum_per_sec = 75;
   // Total time user spent in query.
-  float m_cpu_user_time_sum_per_sec = 75;
+  float m_cpu_user_time_sum_per_sec = 76;
   // Total time system spent in query.
-  float m_cpu_sys_time_sum_per_sec = 76;
+  float m_cpu_sys_time_sum_per_sec = 77;
 
   //
   // pg_stat_monitor 0.9 metrics

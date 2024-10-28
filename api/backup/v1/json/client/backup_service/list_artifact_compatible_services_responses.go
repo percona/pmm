@@ -7,6 +7,7 @@ package backup_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type ListArtifactCompatibleServicesOK struct {
 	Payload *ListArtifactCompatibleServicesOKBody
 }
 
+// IsSuccess returns true when this list artifact compatible services Ok response has a 2xx status code
+func (o *ListArtifactCompatibleServicesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list artifact compatible services Ok response has a 3xx status code
+func (o *ListArtifactCompatibleServicesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list artifact compatible services Ok response has a 4xx status code
+func (o *ListArtifactCompatibleServicesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list artifact compatible services Ok response has a 5xx status code
+func (o *ListArtifactCompatibleServicesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list artifact compatible services Ok response a status code equal to that given
+func (o *ListArtifactCompatibleServicesOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the list artifact compatible services Ok response
+func (o *ListArtifactCompatibleServicesOK) Code() int {
+	return 200
+}
+
 func (o *ListArtifactCompatibleServicesOK) Error() string {
-	return fmt.Sprintf("[GET /v1/backups/{artifact_id}/compatible-services][%d] listArtifactCompatibleServicesOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/{artifact_id}/compatible-services][%d] listArtifactCompatibleServicesOk %s", 200, payload)
+}
+
+func (o *ListArtifactCompatibleServicesOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/{artifact_id}/compatible-services][%d] listArtifactCompatibleServicesOk %s", 200, payload)
 }
 
 func (o *ListArtifactCompatibleServicesOK) GetPayload() *ListArtifactCompatibleServicesOKBody {
@@ -94,13 +131,44 @@ type ListArtifactCompatibleServicesDefault struct {
 	Payload *ListArtifactCompatibleServicesDefaultBody
 }
 
+// IsSuccess returns true when this list artifact compatible services default response has a 2xx status code
+func (o *ListArtifactCompatibleServicesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list artifact compatible services default response has a 3xx status code
+func (o *ListArtifactCompatibleServicesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list artifact compatible services default response has a 4xx status code
+func (o *ListArtifactCompatibleServicesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list artifact compatible services default response has a 5xx status code
+func (o *ListArtifactCompatibleServicesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list artifact compatible services default response a status code equal to that given
+func (o *ListArtifactCompatibleServicesDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the list artifact compatible services default response
 func (o *ListArtifactCompatibleServicesDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *ListArtifactCompatibleServicesDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/backups/{artifact_id}/compatible-services][%d] ListArtifactCompatibleServices default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/{artifact_id}/compatible-services][%d] ListArtifactCompatibleServices default %s", o._statusCode, payload)
+}
+
+func (o *ListArtifactCompatibleServicesDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/{artifact_id}/compatible-services][%d] ListArtifactCompatibleServices default %s", o._statusCode, payload)
 }
 
 func (o *ListArtifactCompatibleServicesDefault) GetPayload() *ListArtifactCompatibleServicesDefaultBody {
@@ -190,6 +258,11 @@ func (o *ListArtifactCompatibleServicesDefaultBody) ContextValidate(ctx context.
 func (o *ListArtifactCompatibleServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListArtifactCompatibleServices default" + "." + "details" + "." + strconv.Itoa(i))
@@ -229,6 +302,80 @@ swagger:model ListArtifactCompatibleServicesDefaultBodyDetailsItems0
 type ListArtifactCompatibleServicesDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// list artifact compatible services default body details items0
+	ListArtifactCompatibleServicesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *ListArtifactCompatibleServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv ListArtifactCompatibleServicesDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.ListArtifactCompatibleServicesDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o ListArtifactCompatibleServicesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.ListArtifactCompatibleServicesDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.ListArtifactCompatibleServicesDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this list artifact compatible services default body details items0
@@ -362,6 +509,11 @@ func (o *ListArtifactCompatibleServicesOKBody) ContextValidate(ctx context.Conte
 func (o *ListArtifactCompatibleServicesOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Mysql); i++ {
 		if o.Mysql[i] != nil {
+
+			if swag.IsZero(o.Mysql[i]) { // not required
+				return nil
+			}
+
 			if err := o.Mysql[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listArtifactCompatibleServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
@@ -379,6 +531,11 @@ func (o *ListArtifactCompatibleServicesOKBody) contextValidateMysql(ctx context.
 func (o *ListArtifactCompatibleServicesOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Mongodb); i++ {
 		if o.Mongodb[i] != nil {
+
+			if swag.IsZero(o.Mongodb[i]) { // not required
+				return nil
+			}
+
 			if err := o.Mongodb[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listArtifactCompatibleServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))

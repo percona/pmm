@@ -344,14 +344,26 @@ message MetricsBucket {
   float m_blk_write_time_cnt = 232;
   // Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
   float m_blk_write_time_sum = 233;
-  float m_cpu_user_time_cnt = 234;
+  float m_shared_blk_read_time_cnt = 234;
+  // Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_shared_blk_read_time_sum = 235;
+  float m_shared_blk_write_time_cnt = 236;
+  // Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_shared_blk_write_time_sum = 237;
+  float m_local_blk_read_time_cnt = 238;
+  // Total time the statement spent reading local blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_local_blk_read_time_sum = 239;
+  float m_local_blk_write_time_cnt = 240;
+  // Total time the statement spent writing local blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_local_blk_write_time_sum = 241;
+  float m_cpu_user_time_cnt = 242;
   // Total time user spent in query.
-  float m_cpu_user_time_sum = 235;
-  float m_cpu_sys_time_cnt = 236;
+  float m_cpu_user_time_sum = 243;
+  float m_cpu_sys_time_cnt = 244;
   // Total time system spent in query.
-  float m_cpu_sys_time_sum = 237;
+  float m_cpu_sys_time_sum = 245;
   // Type of SQL command.
-  string cmd_type = 238;
+  string cmd_type = 246;
 
   //
   // pg_stat_monitor 0.9 metrics

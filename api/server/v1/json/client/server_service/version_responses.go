@@ -59,8 +59,44 @@ type VersionOK struct {
 	Payload *VersionOKBody
 }
 
+// IsSuccess returns true when this version Ok response has a 2xx status code
+func (o *VersionOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this version Ok response has a 3xx status code
+func (o *VersionOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this version Ok response has a 4xx status code
+func (o *VersionOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this version Ok response has a 5xx status code
+func (o *VersionOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this version Ok response a status code equal to that given
+func (o *VersionOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the version Ok response
+func (o *VersionOK) Code() int {
+	return 200
+}
+
 func (o *VersionOK) Error() string {
-	return fmt.Sprintf("[GET /v1/server/version][%d] versionOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/server/version][%d] versionOk %s", 200, payload)
+}
+
+func (o *VersionOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/server/version][%d] versionOk %s", 200, payload)
 }
 
 func (o *VersionOK) GetPayload() *VersionOKBody {
@@ -96,13 +132,44 @@ type VersionDefault struct {
 	Payload *VersionDefaultBody
 }
 
+// IsSuccess returns true when this version default response has a 2xx status code
+func (o *VersionDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this version default response has a 3xx status code
+func (o *VersionDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this version default response has a 4xx status code
+func (o *VersionDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this version default response has a 5xx status code
+func (o *VersionDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this version default response a status code equal to that given
+func (o *VersionDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the version default response
 func (o *VersionDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *VersionDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/server/version][%d] Version default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/server/version][%d] Version default %s", o._statusCode, payload)
+}
+
+func (o *VersionDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/server/version][%d] Version default %s", o._statusCode, payload)
 }
 
 func (o *VersionDefault) GetPayload() *VersionDefaultBody {
@@ -192,6 +259,11 @@ func (o *VersionDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 func (o *VersionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("Version default" + "." + "details" + "." + strconv.Itoa(i))
@@ -342,6 +414,134 @@ type VersionDefaultBodyDetailsItems0 struct {
 	// Schemes other than `http`, `https` (or the empty scheme) might be
 	// used with implementation specific semantics.
 	AtType string `json:"@type,omitempty"`
+
+	// version default body details items0
+	VersionDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *VersionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// A URL/resource name that uniquely identifies the type of the serialized
+		// protocol buffer message. This string must contain at least
+		// one "/" character. The last segment of the URL's path must represent
+		// the fully qualified name of the type (as in
+		// `path/google.protobuf.Duration`). The name should be in a canonical form
+		// (e.g., leading "." is not accepted).
+		//
+		// In practice, teams usually precompile into the binary all types that they
+		// expect it to use in the context of Any. However, for URLs which use the
+		// scheme `http`, `https`, or no scheme, one can optionally set up a type
+		// server that maps type URLs to message definitions as follows:
+		//
+		// * If no scheme is provided, `https` is assumed.
+		// * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+		//   value in binary format, or produce an error.
+		// * Applications are allowed to cache lookup results based on the
+		//   URL, or have them precompiled into a binary to avoid any
+		//   lookup. Therefore, binary compatibility needs to be preserved
+		//   on changes to types. (Use versioned type names to manage
+		//   breaking changes.)
+		//
+		// Note: this functionality is not currently available in the official
+		// protobuf release, and it is not used for type URLs beginning with
+		// type.googleapis.com. As of May 2023, there are no widely used type server
+		// implementations and no plans to implement one.
+		//
+		// Schemes other than `http`, `https` (or the empty scheme) might be
+		// used with implementation specific semantics.
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv VersionDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.VersionDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o VersionDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// A URL/resource name that uniquely identifies the type of the serialized
+		// protocol buffer message. This string must contain at least
+		// one "/" character. The last segment of the URL's path must represent
+		// the fully qualified name of the type (as in
+		// `path/google.protobuf.Duration`). The name should be in a canonical form
+		// (e.g., leading "." is not accepted).
+		//
+		// In practice, teams usually precompile into the binary all types that they
+		// expect it to use in the context of Any. However, for URLs which use the
+		// scheme `http`, `https`, or no scheme, one can optionally set up a type
+		// server that maps type URLs to message definitions as follows:
+		//
+		// * If no scheme is provided, `https` is assumed.
+		// * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+		//   value in binary format, or produce an error.
+		// * Applications are allowed to cache lookup results based on the
+		//   URL, or have them precompiled into a binary to avoid any
+		//   lookup. Therefore, binary compatibility needs to be preserved
+		//   on changes to types. (Use versioned type names to manage
+		//   breaking changes.)
+		//
+		// Note: this functionality is not currently available in the official
+		// protobuf release, and it is not used for type URLs beginning with
+		// type.googleapis.com. As of May 2023, there are no widely used type server
+		// implementations and no plans to implement one.
+		//
+		// Schemes other than `http`, `https` (or the empty scheme) might be
+		// used with implementation specific semantics.
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.VersionDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.VersionDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this version default body details items0
@@ -381,7 +581,7 @@ type VersionOKBody struct {
 	Version string `json:"version,omitempty"`
 
 	// DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
-	// Enum: [DISTRIBUTION_METHOD_UNSPECIFIED DISTRIBUTION_METHOD_DOCKER DISTRIBUTION_METHOD_OVF DISTRIBUTION_METHOD_AMI DISTRIBUTION_METHOD_AZURE DISTRIBUTION_METHOD_DO]
+	// Enum: ["DISTRIBUTION_METHOD_UNSPECIFIED","DISTRIBUTION_METHOD_DOCKER","DISTRIBUTION_METHOD_OVF","DISTRIBUTION_METHOD_AMI","DISTRIBUTION_METHOD_AZURE","DISTRIBUTION_METHOD_DO"]
 	DistributionMethod *string `json:"distribution_method,omitempty"`
 
 	// managed
@@ -525,6 +725,11 @@ func (o *VersionOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 
 func (o *VersionOKBody) contextValidateManaged(ctx context.Context, formats strfmt.Registry) error {
 	if o.Managed != nil {
+
+		if swag.IsZero(o.Managed) { // not required
+			return nil
+		}
+
 		if err := o.Managed.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("versionOk" + "." + "managed")
@@ -540,6 +745,11 @@ func (o *VersionOKBody) contextValidateManaged(ctx context.Context, formats strf
 
 func (o *VersionOKBody) contextValidateServer(ctx context.Context, formats strfmt.Registry) error {
 	if o.Server != nil {
+
+		if swag.IsZero(o.Server) { // not required
+			return nil
+		}
+
 		if err := o.Server.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("versionOk" + "." + "server")

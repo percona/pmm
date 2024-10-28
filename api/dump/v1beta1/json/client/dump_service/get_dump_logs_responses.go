@@ -7,6 +7,7 @@ package dump_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type GetDumpLogsOK struct {
 	Payload *GetDumpLogsOKBody
 }
 
+// IsSuccess returns true when this get dump logs Ok response has a 2xx status code
+func (o *GetDumpLogsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get dump logs Ok response has a 3xx status code
+func (o *GetDumpLogsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get dump logs Ok response has a 4xx status code
+func (o *GetDumpLogsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get dump logs Ok response has a 5xx status code
+func (o *GetDumpLogsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get dump logs Ok response a status code equal to that given
+func (o *GetDumpLogsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get dump logs Ok response
+func (o *GetDumpLogsOK) Code() int {
+	return 200
+}
+
 func (o *GetDumpLogsOK) Error() string {
-	return fmt.Sprintf("[GET /v1/dumps/{dump_id}/logs][%d] getDumpLogsOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/dumps/{dump_id}/logs][%d] getDumpLogsOk %s", 200, payload)
+}
+
+func (o *GetDumpLogsOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/dumps/{dump_id}/logs][%d] getDumpLogsOk %s", 200, payload)
 }
 
 func (o *GetDumpLogsOK) GetPayload() *GetDumpLogsOKBody {
@@ -94,13 +131,44 @@ type GetDumpLogsDefault struct {
 	Payload *GetDumpLogsDefaultBody
 }
 
+// IsSuccess returns true when this get dump logs default response has a 2xx status code
+func (o *GetDumpLogsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get dump logs default response has a 3xx status code
+func (o *GetDumpLogsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get dump logs default response has a 4xx status code
+func (o *GetDumpLogsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get dump logs default response has a 5xx status code
+func (o *GetDumpLogsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get dump logs default response a status code equal to that given
+func (o *GetDumpLogsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the get dump logs default response
 func (o *GetDumpLogsDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *GetDumpLogsDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/dumps/{dump_id}/logs][%d] GetDumpLogs default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/dumps/{dump_id}/logs][%d] GetDumpLogs default %s", o._statusCode, payload)
+}
+
+func (o *GetDumpLogsDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/dumps/{dump_id}/logs][%d] GetDumpLogs default %s", o._statusCode, payload)
 }
 
 func (o *GetDumpLogsDefault) GetPayload() *GetDumpLogsDefaultBody {
@@ -190,6 +258,11 @@ func (o *GetDumpLogsDefaultBody) ContextValidate(ctx context.Context, formats st
 func (o *GetDumpLogsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetDumpLogs default" + "." + "details" + "." + strconv.Itoa(i))
@@ -229,6 +302,80 @@ swagger:model GetDumpLogsDefaultBodyDetailsItems0
 type GetDumpLogsDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// get dump logs default body details items0
+	GetDumpLogsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *GetDumpLogsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv GetDumpLogsDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.GetDumpLogsDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o GetDumpLogsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.GetDumpLogsDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.GetDumpLogsDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this get dump logs default body details items0
@@ -328,6 +475,11 @@ func (o *GetDumpLogsOKBody) ContextValidate(ctx context.Context, formats strfmt.
 func (o *GetDumpLogsOKBody) contextValidateLogs(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Logs); i++ {
 		if o.Logs[i] != nil {
+
+			if swag.IsZero(o.Logs[i]) { // not required
+				return nil
+			}
+
 			if err := o.Logs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getDumpLogsOk" + "." + "logs" + "." + strconv.Itoa(i))

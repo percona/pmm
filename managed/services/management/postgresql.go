@@ -64,7 +64,6 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 			return err
 		}
 
-		options := models.PostgreSQLOptionsFromRequest(req)
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
 			PMMAgentID:        req.PmmAgentId,
 			ServiceID:         service.ServiceID,
@@ -76,7 +75,7 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 			PushMetrics:       isPushMode(req.MetricsMode),
 			ExposeExporter:    req.ExposeExporter,
 			DisableCollectors: req.DisableCollectors,
-			PostgreSQLOptions: options,
+			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
 			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		})
 		if err != nil {
@@ -117,7 +116,7 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 				CommentsParsingDisabled: req.DisableCommentsParsing,
 				TLS:                     req.Tls,
 				TLSSkipVerify:           req.TlsSkipVerify,
-				PostgreSQLOptions:       options,
+				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
 				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
@@ -142,7 +141,7 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 				CommentsParsingDisabled: req.DisableCommentsParsing,
 				TLS:                     req.Tls,
 				TLSSkipVerify:           req.TlsSkipVerify,
-				PostgreSQLOptions:       options,
+				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
 				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
