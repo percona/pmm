@@ -132,7 +132,7 @@ func TestProfilerFingerprinter(t *testing.T) {
 		pf := &ProfilerFingerprinter{}
 
 		fingerprints := make([]string, 0)
-		for cursor.TryNext(context.TODO()) {
+		for cursor.TryNext(ctx) {
 			doc := proto.SystemProfile{}
 			e := cursor.Decode(&doc)
 			require.NoError(t, e)
@@ -210,7 +210,7 @@ func TestProfilerFingerprinter(t *testing.T) {
 				Command: bson.D{{Key: "q", Value: bson.D{{Key: "name", Value: "test"}}}, {Key: "u", Value: bson.D{{Key: "$set", Value: bson.D{{Key: "name", Value: "new"}}}}}},
 			},
 			want: fingerprinter.Fingerprint{
-				Fingerprint: `db.update_collection.update({"name":"?"}, {"$set":{"name":"new"}})`,
+				Fingerprint: `db.update_collection.update({"name":"?"}, {"$set":{"name":"?"}})`,
 				Namespace:   "test.update_collection",
 				Database:    "test",
 				Collection:  "update_collection",

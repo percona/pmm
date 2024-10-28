@@ -101,19 +101,19 @@ func (pf *ProfilerFingerprinter) fingerprintInsert(fp fingerprinter.Fingerprint)
 
 // Helper for update operations
 func (pf *ProfilerFingerprinter) fingerprintUpdate(fp fingerprinter.Fingerprint, doc proto.SystemProfile) (fingerprinter.Fingerprint, error) {
-	updateMap := doc.UpdateObj.Map()
-	filterJSON, _ := json.Marshal(updateMap["filter"])
-	updateJSON, _ := json.Marshal(doc.UpdateObj)
+	command := doc.Command.Map()
+	filterJSON, _ := json.Marshal(maskValues(command["q"].(bson.D), make(map[string]maskOption)))
+	updateJSON, _ := json.Marshal(maskValues(command["u"].(bson.D), make(map[string]maskOption)))
 
 	fp.Fingerprint = fmt.Sprintf(`db.%s.update(%s, %s`, fp.Collection, filterJSON, updateJSON)
 	fp.Keys = string(filterJSON)
 
-	if updateMap["upsert"] == true || updateMap["multi"] == true {
+	if command["upsert"] == true || command["multi"] == true {
 		options := map[string]interface{}{}
-		if updateMap["upsert"] == true {
+		if command["upsert"] == true {
 			options["upsert"] = true
 		}
-		if updateMap["multi"] == true {
+		if command["multi"] == true {
 			options["multi"] = true
 		}
 		optionsJSON, _ := json.Marshal(options)
