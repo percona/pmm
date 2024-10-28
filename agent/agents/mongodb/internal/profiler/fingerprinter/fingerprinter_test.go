@@ -107,18 +107,35 @@ func TestProfilerFingerprinter(t *testing.T) {
 		database.Collection("test").FindOneAndDelete(ctx, bson.M{"id": 1})
 		database.Collection("secondcollection").Find(ctx, bson.M{"name": "sec"}, options.Find().SetLimit(1).SetSort(bson.M{"id": -1}))
 		database.Collection("test").Aggregate(ctx,
-			bson.A{
-				bson.M{
+			[]bson.M{
+				{
 					"$match": bson.M{"id": 0, "time": bson.M{"$gt": time.Now().Add(-time.Hour)}},
 				},
-				bson.M{
+				{
 					"$group": bson.M{"_id": "$id", "count": bson.M{"$sum": 1}},
 				},
-				bson.M{
+				{
 					"$sort": bson.M{"_id": 1},
 				},
 			},
 		)
+		database.Collection("secondcollection").Aggregate(ctx, mongo.Pipeline{
+			bson.D{
+				{
+					Key: "$collStats", Value: bson.M{
+					// TODO: PMM-9568 : Add support to handle histogram metrics
+					"latencyStats": bson.M{"histograms": false},
+					"storageStats": bson.M{"scale": 1},
+				},
+				},
+			}, bson.D{
+				{
+					Key: "$project", Value: bson.M{
+					"storageStats.wiredTiger":   0,
+					"storageStats.indexDetails": 0,
+				},
+				},
+			}})
 		database.Collection("secondcollection").DeleteOne(ctx, bson.M{"id": 0})
 		database.Collection("test").DeleteMany(ctx, bson.M{"name": "test"})
 		profilerCollection := database.Collection("system.profile")
@@ -160,6 +177,7 @@ func TestProfilerFingerprinter(t *testing.T) {
 			`db.runCommand({"findAndModify":"test","query":{"id":"?"},"remove":true})`,
 			`db.secondcollection.find({"name":"?"}).sort({"id":-1}).limit(?)`,
 			`db.test.aggregate([{"$match":{"id":"?","time":{"$gt":"?"}}}, {"$group":{"_id":"$id","count":{"$sum":1}}}, {"$sort":{"_id":1}}])`,
+			`db.secondcollection.aggregate([{"$collStats":{"latencyStats":{"histograms":false},"storageStats":{"scale":1}}}, {"$project":{"storageStats.wiredTiger":0,"storageStats.indexDetails":0}}])`,
 			`db.secondcollection.deleteOne({"id":"?"})`,
 			`db.test.deleteMany({"name":"?"})`,
 		}

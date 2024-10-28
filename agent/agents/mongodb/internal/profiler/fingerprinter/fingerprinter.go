@@ -57,7 +57,7 @@ func (pf *ProfilerFingerprinter) Fingerprint(doc proto.SystemProfile) (fingerpri
 
 // Helper for find operations with optional parameters.
 func (pf *ProfilerFingerprinter) fingerprintFind(fp fingerprinter.Fingerprint, doc proto.SystemProfile) (fingerprinter.Fingerprint, error) {
-	filter := "{}"
+	filter := ""
 	command := doc.Command.Map()
 	if f, ok := command["filter"]; ok {
 		values := maskValues(f, make(map[string]maskOption))
@@ -141,23 +141,28 @@ func (pf *ProfilerFingerprinter) fingerprintDelete(fp fingerprinter.Fingerprint,
 // Helper for general command operations, including support for "aggregate" commands
 func (pf *ProfilerFingerprinter) fingerprintCommand(fp fingerprinter.Fingerprint, doc proto.SystemProfile) (fingerprinter.Fingerprint, error) {
 	// Unmarshal the command into a map for easy access and manipulation
-	commandMap := doc.Command.Map()
+	command := doc.Command.Map()
 
-	maskOptions := make(map[string]maskOption)
-	maskOptions["$db"] = maskOption{remove: true}
-	maskOptions["$readPreference"] = maskOption{remove: true}
-	maskOptions["lsid"] = maskOption{remove: true}
-	maskOptions["findAndModify"] = maskOption{skipMask: true}
-	maskOptions["remove"] = maskOption{skipMask: true}
-	if cmd, exists := commandMap["aggregate"]; exists {
+	maskOptions := map[string]maskOption{
+		"$db":                      {remove: true},
+		"$readPreference":          {remove: true},
+		"$readConcern":             {remove: true},
+		"$writeConcern":            {remove: true},
+		"$clusterTime":             {remove: true},
+		"$oplogQueryData":          {remove: true},
+		"$replData":                {remove: true},
+		"lastKnownCommittedOpTime": {remove: true},
+		"lsid":                     {remove: true},
+		"findAndModify":            {skipMask: true},
+		"remove":                   {skipMask: true},
+	}
+	if _, exists := command["aggregate"]; exists {
 		// Set collection and initialize aggregation structure
-		collectionName, _ := cmd.(string)
-		fp.Collection = collectionName
-		fp.Fingerprint = fmt.Sprintf(`db.%s.aggregate([`, collectionName)
+		fp.Fingerprint = fmt.Sprintf(`db.%s.aggregate([`, fp.Collection)
 		stageStrings := []string{}
 
 		// Process pipeline stages, replacing all values with "?"
-		if pipeline, exists := commandMap["pipeline"]; exists {
+		if pipeline, exists := command["pipeline"]; exists {
 			pipelineStages, _ := pipeline.(bson.A)
 
 			for _, stage := range pipelineStages {
@@ -166,9 +171,7 @@ func (pf *ProfilerFingerprinter) fingerprintCommand(fp fingerprinter.Fingerprint
 				switch {
 				case stageMap["$match"] != nil:
 					stageJSON, _ = json.Marshal(maskValues(stageMap, maskOptions))
-				case stageMap["$group"] != nil:
-					stageJSON, _ = bson.MarshalExtJSON(stageMap, false, false)
-				case stageMap["$sort"] != nil:
+				default:
 					stageJSON, _ = bson.MarshalExtJSON(stageMap, false, false)
 				}
 
@@ -178,7 +181,7 @@ func (pf *ProfilerFingerprinter) fingerprintCommand(fp fingerprinter.Fingerprint
 			fp.Fingerprint += strings.Join(stageStrings, ", ")
 		}
 		fp.Fingerprint += "])"
-		if collation, exists := commandMap["collation"]; exists {
+		if collation, exists := command["collation"]; exists {
 			collationMasked, _ := json.Marshal(maskValues(collation, maskOptions))
 			fp.Fingerprint += fmt.Sprintf(`, collation: %s`, collationMasked)
 		}
