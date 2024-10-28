@@ -1,0 +1,78 @@
+# Important: too much scraping during init process can overload the system.
+# https://github.com/grafana/loki/issues/11398
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+- url: http://127.0.0.1:9428/insert/loki/api/v1/push?_stream_fields=instance,job,host&_msg_field=msg&_time_field=t
+
+scrape_configs:
+- job_name: nginx
+  static_configs:
+  - targets:
+      - 127.0.0.1
+    labels:
+      job: nginx
+      __path__: /srv/logs/nginx.log
+
+- job_name: grafana
+  static_configs:
+  - targets:
+      - 127.0.0.1
+    labels:
+      job: grafana
+      __path__: /srv/logs/grafana.log
+
+- job_name: pmm-agent
+  static_configs:
+  - targets:
+      - 127.0.0.1
+    labels:
+      job: pmm-agent
+      __path__: /srv/logs/pmm-agent.log
+      node_name: pmm-server
+
+- job_name: pmm-managed
+  static_configs:
+  - targets:
+      - 127.0.0.1
+    labels:
+      job: pmm-managed
+      __path__: /srv/logs/pmm-managed.log
+
+- job_name: qan
+  static_configs:
+  - targets:
+      - 127.0.0.1
+    labels:
+      job: qan
+      __path__: /srv/logs/qani-api2.log
+
+- job_name: victoriametrics
+  static_configs:
+  - targets:
+      - 127.0.0.1
+    labels:
+      job: victoriametrcis
+      __path__: /srv/logs/victoriametrics.log
+
+- job_name: clickhouse
+  static_configs:
+  - targets:
+      - 127.0.0.1
+    labels:
+      job: clickhouse
+      __path__: /srv/logs/clickhouse-server.log
+
+- job_name: supervisor
+  static_configs:
+  - targets:
+      - 127.0.0.1
+    labels:
+      job: supervisor
+      __path__: /srv/logs/supervisord.log

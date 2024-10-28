@@ -1,0 +1,123 @@
+---
+# This role installs and configures Victorialogs (https://docs.victoriametrics.com/victorialogs/quickstart/).
+
+- name: Download and unarchive AWS installer
+  unarchive:
+    src: "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v{{ victorialogs_version }}-victorialogs/victoria-logs-linux-amd64-v{{ victorialogs_version }}-victorialogs.tar.gz"
+    dest: /tmp
+    remote_src: yes
+
+- name: Copy victorialogs binary
+  copy:
+    src: /tmp/victoria-logs-prod
+    dest: /usr/local/bin/victoria-logs
+    mode: 0755
+
+- name: Remove the temporary file
+  file:
+    path: /tmp/victoria-logs-prod
+    state: absent
+
+
+- name: Install unzip
+  yum:
+    name: unzip
+    state: latest
+
+- name: Download and unarchive victorialogs-datasource
+  unarchive:
+    src: "https://github.com/VictoriaMetrics/victorialogs-datasource/releases/download/v0.2.1/victorialogs-datasource-v0.2.1.zip"
+    dest: /srv/grafana/plugins
+    remote_src: yes
+
+- name: Remove unsuitable victorialogs binaries
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /srv/grafana/plugins/victorialogs-datasource/victorialogs_backend_plugin_darwin_amd64
+    - /srv/grafana/plugins/victorialogs-datasource/victorialogs_backend_plugin_darwin_arm64
+    - /srv/grafana/plugins/victorialogs-datasource/victorialogs_backend_plugin_linux_386
+    - /srv/grafana/plugins/victorialogs-datasource/victorialogs_backend_plugin_linux_arm
+    - /srv/grafana/plugins/victorialogs-datasource/victorialogs_backend_plugin_linux_arm64
+    - /srv/grafana/plugins/victorialogs-datasource/victorialogs_backend_plugin_windows_amd64.exe
+
+- name: Change ownership of victorialogs-datasource
+  file:
+    path: /srv/grafana/plugins/victorialogs-datasource
+    owner: pmm
+    group: pmm
+    recurse: yes
+
+- name: Add Grafana RPM repository
+  yum_repository:
+    name: grafana
+    description: Grafana repository
+    baseurl: https://rpm.grafana.com
+    gpgcheck: yes
+    enabled: no
+    gpgkey: https://rpm.grafana.com/gpg.key
+    sslverify: yes
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+
+- name: Install Promtail
+  yum:
+    name: promtail
+    state: latest
+    disablerepo: "*"
+    enablerepo: grafana
+
+- name: Create loki and promtail users
+  user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid }}"
+    comment: "{{ item.comment }}"
+    shell: "{{ item.shell }}"
+    group: "{{ item.group }}"
+    create_home: false
+  loop:
+    - { name: loki, uid: 1001, comment: "Loki user", shell: "/sbin/nologin", group: pmm, }
+    - { name: promtail, uid: 1002, comment: "Promtail user", shell: "/sbin/nologin", group: pmm, }
+
+- name: Create a directory for VictoriaLogs
+  file:
+    path: /srv/victorialogs/data
+    state: directory
+    owner: pmm
+    group: pmm
+    recurse: yes
+
+- name: Copy Supervisord config file for VictoriaLogs and Promtail
+  copy:
+    src: victorialogs.ini
+    dest: /etc/supervisord.d/victorialogs.ini
+    owner: pmm
+    group: pmm
+
+- name: Copy Promtail config file
+  copy:
+    src: promtail.yml
+    dest: /srv/victorialogs/promtail.yml
+    owner: pmm
+    group: pmm
+
+- name: Copy VictoriaLogs datasource file
+  copy:
+    src: victorialogs.yml
+    dest: /usr/share/grafana/conf/provisioning/datasources/victorialogs.yml
+    owner: pmm
+    group: pmm
+
+- name: Override nginx.conf file
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: pmm
+    group: pmm
+
+- name: Add victorialogs-datasource to unsigned plugins
+  lineinfile:
+    dest: /etc/grafana/grafana.ini
+    regexp: '^allow_loading_unsigned_plugins'
+    line: 'allow_loading_unsigned_plugins = grafana-polystat-panel,pmm-app,pmm-check-panel-home,pmm-update,pmm-qan-app-panel,pmm-pt-summary-panel,pmm-pt-summary-datasource,victorialogs-datasource'
+    state: present

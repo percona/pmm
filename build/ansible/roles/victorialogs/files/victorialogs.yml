@@ -1,0 +1,16 @@
+# This is a Grafana datasource to interact with a Loki server
+
+apiVersion: 1
+datasources:
+    # <string, required> Name of the VictoriaLogs datasource
+    # displayed in Grafana panels and queries.
+  - name: VictoriaLogs
+    # <string, required> Sets the data source type.
+    type: victorialogs-datasource
+    id: victorialogs
+    # <string, required> Sets the access mode, either
+    # proxy or direct (Server or Browser in the UI).
+    access: proxy
+    # <string> Sets URL for sending queries to VictoriaLogs server.
+    # see https://docs.victoriametrics.com/victorialogs/querying/
+    url: http://127.0.0.1:9428
