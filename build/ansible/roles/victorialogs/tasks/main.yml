@@ -115,6 +115,13 @@
     owner: pmm
     group: pmm
 
+- name: Override pmm.conf file
+  copy:
+    src: pmm.conf
+    dest: /etc/nginx/conf.d/pmm.conf
+    owner: pmm
+    group: pmm
+
 - name: Add victorialogs-datasource to unsigned plugins
   lineinfile:
     dest: /etc/grafana/grafana.ini
