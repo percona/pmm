@@ -18,7 +18,6 @@
     path: /tmp/victoria-logs-prod
     state: absent
 
-
 - name: Install unzip
   yum:
     name: unzip
@@ -30,7 +29,7 @@
     dest: /srv/grafana/plugins
     remote_src: yes
 
-- name: Remove unsuitable victorialogs binaries
+- name: Remove redundant binaries
   file:
     path: "{{ item }}"
     state: absent
@@ -76,7 +75,7 @@
     group: "{{ item.group }}"
     create_home: false
   loop:
-    - { name: loki, uid: 1001, comment: "Loki user", shell: "/sbin/nologin", group: pmm, }
+    - { name: loki, uid: 1001, comment: "Loki user", shell: "/sbin/nologin", group: pmm, } # compat with Loki docker image
     - { name: promtail, uid: 1002, comment: "Promtail user", shell: "/sbin/nologin", group: pmm, }
 
 - name: Create a directory for VictoriaLogs
@@ -108,6 +107,13 @@
     owner: pmm
     group: pmm
 
+- name: Add victorialogs-datasource to unsigned plugins
+  lineinfile:
+    dest: /etc/grafana/grafana.ini
+    regexp: '^allow_loading_unsigned_plugins'
+    line: 'allow_loading_unsigned_plugins = grafana-polystat-panel,pmm-app,pmm-check-panel-home,pmm-update,pmm-qan-app-panel,pmm-pt-summary-panel,pmm-pt-summary-datasource,victorialogs-datasource'
+    state: present
+
 - name: Override nginx.conf file
   copy:
     src: nginx.conf
@@ -121,10 +127,3 @@
     dest: /etc/nginx/conf.d/pmm.conf
     owner: pmm
     group: pmm
-
-- name: Add victorialogs-datasource to unsigned plugins
-  lineinfile:
-    dest: /etc/grafana/grafana.ini
-    regexp: '^allow_loading_unsigned_plugins'
-    line: 'allow_loading_unsigned_plugins = grafana-polystat-panel,pmm-app,pmm-check-panel-home,pmm-update,pmm-qan-app-panel,pmm-pt-summary-panel,pmm-pt-summary-datasource,victorialogs-datasource'
-    state: present
