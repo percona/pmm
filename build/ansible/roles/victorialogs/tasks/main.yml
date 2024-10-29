@@ -75,8 +75,7 @@
     group: "{{ item.group }}"
     create_home: false
   loop:
-    - { name: loki, uid: 1001, comment: "Loki user", shell: "/sbin/nologin", group: pmm, } # compat with Loki docker image
-    - { name: promtail, uid: 1002, comment: "Promtail user", shell: "/sbin/nologin", group: pmm, }
+    - { name: promtail, uid: 1001, comment: "Promtail user", shell: "/sbin/nologin", group: pmm, }
 
 - name: Create a directory for VictoriaLogs
   file:
