@@ -15,17 +15,34 @@
 // Package truncate privides strings truncation utilities.
 package truncate
 
-var defaultMaxQueryLength = int32(2048)
+const (
+	defaultMaxQueryLength        = int32(2048)
+	defaultMongoDBMaxQueryLength = int32(4096)
+)
 
 // Query truncate query to specific length of chars, if needed. -1: No limit, 0: Default (2048).
 // Also truncate all invalid UTF-8 chars.
 func Query(q string, maxQueryLength int32) (string, bool) {
-	if maxQueryLength < 0 {
-		return string([]rune(q)), false
-	}
-
 	if maxQueryLength == 0 {
 		maxQueryLength = defaultMaxQueryLength
+	}
+
+	return query(q, maxQueryLength)
+}
+
+// MongoQuery truncate query to specific length of chars, if needed. -1: No limit, 0: Default (4096).
+// Also truncate all invalid UTF-8 chars.
+func MongoQuery(q string, maxQueryLength int32) (string, bool) {
+	if maxQueryLength == 0 {
+		maxQueryLength = defaultMongoDBMaxQueryLength
+	}
+
+	return query(q, maxQueryLength)
+}
+
+func query(q string, maxQueryLength int32) (string, bool) {
+	if maxQueryLength < 0 {
+		return string([]rune(q)), false
 	}
 
 	runes := []rune(q)
@@ -45,4 +62,9 @@ func Query(q string, maxQueryLength int32) (string, bool) {
 // GetDefaultMaxQueryLength returns default decimal value for query length.
 func GetDefaultMaxQueryLength() int32 {
 	return defaultMaxQueryLength
+}
+
+// GetMongoDBDefaultMaxQueryLength returns default decimal value for MongoDB query length.
+func GetMongoDBDefaultMaxQueryLength() int32 {
+	return defaultMongoDBMaxQueryLength
 }
