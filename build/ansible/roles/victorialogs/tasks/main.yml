@@ -66,7 +66,7 @@
     disablerepo: "*"
     enablerepo: grafana
 
-- name: Create loki and promtail users
+- name: Create promtail user
   user:
     name: "{{ item.name }}"
     uid: "{{ item.uid }}"
