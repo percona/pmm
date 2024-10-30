@@ -2,8 +2,11 @@
 set -o errexit
 
 if [ -s ci.yml ]; then
-    sudo rm -rf results tmp || :
+    if [ -f /home/ec2-user/venv/bin/activate ]; then
+        source /home/ec2-user/venv/bin/activate
+    fi
     python3 ci.py
+    cat .git-sources
     . ./.git-sources
     echo $pmm_commit > apiCommitSha
     echo $pmm_branch > apiBranch
@@ -13,30 +16,22 @@ if [ -s ci.yml ]; then
     echo $pmm_ui_tests_branch > pmmUITestBranch
     echo $pmm_ui_tests_commit > pmmUITestsCommitSha
 else
-    sudo rm -rf results tmp || :
-    git reset --hard
-    git clean -fdx
-    git submodule foreach --recursive git reset --hard
-    git submodule foreach --recursive git clean -fdx
-    git submodule status
-    export commit_sha=$(git submodule status | grep 'pmm-managed' | awk -F ' ' '{print $1}')
-    export api_tests_commit_sha=$(git submodule status | grep 'pmm' | awk -F ' ' '{print $1}')
-    export api_tests_branch=$(git config -f .gitmodules submodule.pmm.branch)
-    export api_tests_url=$(git config -f .gitmodules submodule.pmm.url)
-    echo $api_tests_commit_sha > apiCommitSha
-    echo $api_tests_branch > apiBranch
-    echo $api_tests_url > apiURL
-    cat apiBranch
-    cat apiURL
-    export pmm_qa_commit_sha=$(git submodule status | grep 'pmm-qa' | awk -F ' ' '{print $1}')
-    export pmm_qa_branch=$(git config -f .gitmodules submodule.pmm-qa.branch)
+    # Define variables using git queries, i.e. w/o python
+    pmm_commit=$(git submodule status | grep 'sources/pmm/src' | awk -F ' ' '{print $1}')
+    echo $pmm_commit > apiCommitSha
+    pmm_branch=$(git config -f .gitmodules submodule.pmm.branch)
+    echo $pmm_branch > apiBranch
+    pmm_url=$(git config -f .gitmodules submodule.pmm.url)
+    echo $pmm_url > apiURL
+    pmm_qa_branch=$(git config -f .gitmodules submodule.pmm-qa.branch)
     echo $pmm_qa_branch > pmmQABranch
-    echo $pmm_qa_commit_sha > pmmQACommitSha
-    export pmm_ui_tests_commit_sha=$(git submodule status | grep 'pmm-ui-tests' | awk -F ' ' '{print $1}')
-    export pmm_ui_tests_branch=$(git config -f .gitmodules submodule.pmm-ui-tests.branch)
+    pmm_qa_commit=$(git submodule status | grep 'pmm-qa' | awk -F ' ' '{print $1}')
+    echo $pmm_qa_commit > pmmQACommitSha
+    pmm_ui_tests_branch=$(git config -f .gitmodules submodule.pmm-ui-tests.branch)
     echo $pmm_ui_tests_branch > pmmUITestBranch
-    echo $pmm_ui_tests_commit_sha > pmmUITestsCommitSha
+    pmm_ui_tests_commit=$(git submodule status | grep 'pmm-ui-tests' | awk -F ' ' '{print $1}')
+    echo $pmm_ui_tests_commit > pmmUITestsCommitSha
 fi
 
-export fb_commit_sha=$(git rev-parse HEAD)
+fb_commit_sha=$(git rev-parse HEAD)
 echo $fb_commit_sha > fbCommitSha
