@@ -1,5 +1,4 @@
 
-
 .PHONY: default init release gen test clean all
 default: help
 
@@ -37,7 +36,7 @@ gen: clean            ## Generate files
 	make format ## TODO: One formatting run is not enough, figure out why.
 	go install -v ./...
 
-clean: 			  ## Remove generated files
+clean:               ## Remove generated files
 	make -C api clean
 
 gen-mocks:
