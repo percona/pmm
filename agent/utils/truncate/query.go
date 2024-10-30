@@ -20,29 +20,15 @@ const (
 	defaultMongoDBMaxQueryLength = int32(4096)
 )
 
-// Query truncate query to specific length of chars, if needed. -1: No limit, 0: Default (2048).
+// Query truncate query to specific length of chars, if needed. -1: No limit, 0: Default (2048, Mongo 4096).
 // Also truncate all invalid UTF-8 chars.
-func Query(q string, maxQueryLength int32) (string, bool) {
-	if maxQueryLength == 0 {
-		maxQueryLength = defaultMaxQueryLength
-	}
-
-	return query(q, maxQueryLength)
-}
-
-// MongoQuery truncate query to specific length of chars, if needed. -1: No limit, 0: Default (4096).
-// Also truncate all invalid UTF-8 chars.
-func MongoQuery(q string, maxQueryLength int32) (string, bool) {
-	if maxQueryLength == 0 {
-		maxQueryLength = defaultMongoDBMaxQueryLength
-	}
-
-	return query(q, maxQueryLength)
-}
-
-func query(q string, maxQueryLength int32) (string, bool) {
+func Query(q string, maxQueryLength, defaultMaxQueryLength int32) (string, bool) {
 	if maxQueryLength < 0 {
 		return string([]rune(q)), false
+	}
+
+	if maxQueryLength == 0 {
+		maxQueryLength = defaultMaxQueryLength
 	}
 
 	runes := []rune(q)

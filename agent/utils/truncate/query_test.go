@@ -34,7 +34,7 @@ func TestQuery(t *testing.T) {
 		"\xff\xff\xff\xff\xff":     {"\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD", false},
 		"\xff\xff\xff\xff\xff\xff": {"\uFFFD ...", true},
 	} {
-		query, truncated := Query(q, 5)
+		query, truncated := Query(q, 5, GetDefaultMaxQueryLength())
 		assert.Equal(t, expected.query, query)
 		assert.Equal(t, expected.truncated, truncated)
 	}
