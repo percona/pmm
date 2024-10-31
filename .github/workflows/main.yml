@@ -169,7 +169,7 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2.3.1
+        uses: rtCamp/action-slack-notify@v2.3.2
 
   workflow_failure:
     if: ${{ failure() }}
@@ -187,4 +187,4 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2.3.1
+        uses: rtCamp/action-slack-notify@v2.3.2
