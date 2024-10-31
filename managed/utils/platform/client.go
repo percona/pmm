@@ -25,6 +25,7 @@ import (
 	"net/http"
 
 	api "github.com/percona/saas/gen/check/retrieval"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
