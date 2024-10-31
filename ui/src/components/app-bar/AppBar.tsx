@@ -5,16 +5,31 @@ import {
   Typography,
   Link,
   Stack,
+  IconButton,
 } from '@mui/material';
 import { HelpFilledIcon, PmmRoundedIcon } from 'icons';
 import { Breadcrumbs } from 'components/breadcrumbs';
 import { PMM_SUPPORT_URL } from 'constants';
 import { Messages } from './AppBar.messages';
 import { HomeLink } from 'components/home-link';
+import { MenuOpen } from '@mui/icons-material';
 
 export const AppBar = () => (
-  <MuiAppBar position="sticky" color="primary">
+  <MuiAppBar
+    position="sticky"
+    color="primary"
+    sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+  >
     <Toolbar>
+      <IconButton
+        size="medium"
+        edge="start"
+        color="inherit"
+        aria-label="menu"
+        sx={{ mr: 2 }}
+      >
+        <MenuOpen htmlColor="#fff" />
+      </IconButton>
       <HomeLink
         color="inherit"
         underline="hover"

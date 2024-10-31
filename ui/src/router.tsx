@@ -2,6 +2,8 @@ import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { Main } from 'components/main/Main';
 import { Updates } from 'pages/updates';
 import { UpdateClients } from 'pages/update-clients/UpdateClients';
+import { DashboardsPage } from 'pages/dashboards';
+import { AlertsPage } from 'pages/alerts';
 
 const router = createBrowserRouter(
   [
@@ -21,11 +23,19 @@ const router = createBrowserRouter(
           path: 'updates/clients',
           element: <UpdateClients />,
         },
+        {
+          path: 'd/*',
+          element: <DashboardsPage />,
+        },
+        {
+          path: 'alerts',
+          element: <AlertsPage />,
+        },
       ],
     },
     {
       path: '*',
-      element: <div>Not found!</div>,
+      element: <Navigate to="/" />,
     },
   ],
   {

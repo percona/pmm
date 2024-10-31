@@ -1,10 +1,14 @@
 import { CircularProgress, Stack } from '@mui/material';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { AppBar } from '../app-bar/AppBar';
 import { useBootstrap } from 'hooks/utils/useBootstrap';
+import { Grafana } from 'components/grafana/Grafana';
+import { SideNav } from 'components/sidenav/SideNav';
 
 export const Main = () => {
   const { isReady } = useBootstrap();
+  const location = useLocation();
+  const isGrafana = isGrafanaPage(location.pathname);
 
   if (!isReady) {
     return (
@@ -23,7 +27,23 @@ export const Main = () => {
   return (
     <Stack>
       <AppBar />
-      <Outlet />
+      <Stack direction="row">
+        <SideNav />
+        {!isGrafana && <Outlet />}
+        <Stack
+          sx={{
+            flex: 1,
+            visibility: isGrafana ? 'visible' : 'hidden',
+            width: isGrafana ? 'auto' : 0,
+          }}
+        >
+          <Grafana url="" />
+        </Stack>
+      </Stack>
     </Stack>
   );
+};
+
+const isGrafanaPage = (pathname: string) => {
+  return pathname.startsWith('/d') || pathname.startsWith('/alerts');
 };
