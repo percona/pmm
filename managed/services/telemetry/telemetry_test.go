@@ -24,7 +24,7 @@ import (
 
 	_ "github.com/ClickHouse/clickhouse-go/v2"
 	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
-	reporter "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -82,7 +82,7 @@ func TestRunTelemetryService(t *testing.T) {
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)
 
-	expectedServerMetrics := []*reporter.GenericReport_Metric{
+	expectedServerMetrics := []*telemetryv1.GenericReport_Metric{
 		{
 			Key:   "DistributionMethod",
 			Value: pmmv1.DistributionMethod_AMI.String(),
@@ -100,8 +100,8 @@ func TestRunTelemetryService(t *testing.T) {
 			Value: "value3",
 		},
 	}
-	expectedReport := &reporter.ReportRequest{
-		Reports: []*reporter.GenericReport{
+	expectedReport := &telemetryv1.ReportRequest{
+		Reports: []*telemetryv1.GenericReport{
 			{
 				Metrics: expectedServerMetrics,
 			},
@@ -179,7 +179,7 @@ func TestRunTelemetryService(t *testing.T) {
 				tDistributionMethod: 0,
 				dus:                 tt.fields.dus,
 				portalClient:        tt.mockTelemetrySender(),
-				sendCh:              make(chan *reporter.GenericReport, sendChSize),
+				sendCh:              make(chan *telemetryv1.GenericReport, sendChSize),
 			}
 			s.Run(ctx)
 		})
@@ -277,14 +277,14 @@ func getDistributionUtilService(t *testing.T, l *logrus.Entry) distributionUtilS
 	return dus
 }
 
-func initMockTelemetrySender(t *testing.T, expectedReport *reporter.ReportRequest, timesCall int) func() sender {
+func initMockTelemetrySender(t *testing.T, expectedReport *telemetryv1.ReportRequest, timesCall int) func() sender {
 	t.Helper()
 	return func() sender {
 		var mockTelemetrySender mockSender
 		mockTelemetrySender.Test(t)
 		mockTelemetrySender.On("SendTelemetry",
 			mock.Anything,
-			mock.MatchedBy(func(report *reporter.ReportRequest) bool {
+			mock.MatchedBy(func(report *telemetryv1.ReportRequest) bool {
 				return matchExpectedReport(report, expectedReport)
 			}),
 		).
@@ -298,7 +298,7 @@ func initMockTelemetrySender(t *testing.T, expectedReport *reporter.ReportReques
 	}
 }
 
-func valueIsInArray(items []*reporter.GenericReport_Metric, value string) bool {
+func valueIsInArray(items []*telemetryv1.GenericReport_Metric, value string) bool {
 	for _, item := range items {
 		if item.Value == value {
 			return true
@@ -308,7 +308,7 @@ func valueIsInArray(items []*reporter.GenericReport_Metric, value string) bool {
 	return false
 }
 
-func matchExpectedReport(report *reporter.ReportRequest, expectedReport *reporter.ReportRequest) bool {
+func matchExpectedReport(report *telemetryv1.ReportRequest, expectedReport *telemetryv1.ReportRequest) bool {
 	return len(report.Reports) == 1 && valueIsInArray(expectedReport.Reports[0].Metrics, "AMI")
 }
 

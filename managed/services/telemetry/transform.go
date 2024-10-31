@@ -18,13 +18,13 @@ package telemetry
 import (
 	"encoding/json"
 
-	reporter "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/pkg/errors"
 )
 
 type itemsType []map[string]any
 
-func transformToJSON(config *Config, metrics []*reporter.GenericReport_Metric) ([]*reporter.GenericReport_Metric, error) {
+func transformToJSON(config *Config, metrics []*telemetryv1.GenericReport_Metric) ([]*telemetryv1.GenericReport_Metric, error) {
 	if len(metrics) == 0 {
 		return metrics, nil
 	}
@@ -78,7 +78,7 @@ func transformToJSON(config *Config, metrics []*reporter.GenericReport_Metric) (
 		return nil, err
 	}
 
-	return []*reporter.GenericReport_Metric{
+	return []*telemetryv1.GenericReport_Metric{
 		{
 			Key:   config.Transform.Metric,
 			Value: string(resultAsJSON),
@@ -86,7 +86,7 @@ func transformToJSON(config *Config, metrics []*reporter.GenericReport_Metric) (
 	}, nil
 }
 
-func transformExportValues(config *Config, metrics []*reporter.GenericReport_Metric) ([]*reporter.GenericReport_Metric, error) {
+func transformExportValues(config *Config, metrics []*telemetryv1.GenericReport_Metric) ([]*telemetryv1.GenericReport_Metric, error) {
 	if len(metrics) == 0 {
 		return metrics, nil
 	}
@@ -107,8 +107,8 @@ func transformExportValues(config *Config, metrics []*reporter.GenericReport_Met
 	return metrics, nil
 }
 
-func removeEmpty(metrics []*reporter.GenericReport_Metric) []*reporter.GenericReport_Metric {
-	result := make([]*reporter.GenericReport_Metric, 0, len(metrics))
+func removeEmpty(metrics []*telemetryv1.GenericReport_Metric) []*telemetryv1.GenericReport_Metric {
+	result := make([]*telemetryv1.GenericReport_Metric, 0, len(metrics))
 
 	for _, metric := range metrics {
 		if metric.Value != "" {

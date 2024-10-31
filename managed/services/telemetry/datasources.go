@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	genericv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
@@ -77,7 +77,7 @@ func (r *dataSourceRegistry) LocateTelemetryDataSource(name string) (DataSource,
 	return ds, nil
 }
 
-func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Duration, db *sql.DB, config Config) ([]*genericv1.GenericReport_Metric, error) {
+func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Duration, db *sql.DB, config Config) ([]*telemetryv1.GenericReport_Metric, error) {
 	localCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	tx, err := db.BeginTx(localCtx, &sql.TxOptions{})
@@ -104,7 +104,7 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	}
 	cfgColumns := config.mapByColumn()
 
-	var metrics []*genericv1.GenericReport_Metric
+	var metrics []*telemetryv1.GenericReport_Metric
 	for rows.Next() {
 		if err := rows.Scan(values...); err != nil {
 			l.Error(err)
@@ -116,7 +116,7 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 
 			if cols, ok := cfgColumns[column]; ok {
 				for _, col := range cols {
-					metrics = append(metrics, &genericv1.GenericReport_Metric{
+					metrics = append(metrics, &telemetryv1.GenericReport_Metric{
 						Key:   col.MetricName,
 						Value: value,
 					})

@@ -18,10 +18,10 @@ package telemetry
 import (
 	"context"
 
-	genericv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 )
 
 // Extension provides dynamic extension point for Telemetry.
 type Extension interface {
-	FetchMetrics(ctx context.Context, config Config) ([]*genericv1.GenericReport_Metric, error)
+	FetchMetrics(ctx context.Context, config Config) ([]*telemetryv1.GenericReport_Metric, error)
 }

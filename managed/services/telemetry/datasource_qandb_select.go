@@ -20,7 +20,7 @@ import (
 	"context"
 	"database/sql"
 
-	genericv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
@@ -69,7 +69,7 @@ func openQANDBConnection(dsn string, enabled bool, l *logrus.Entry) (*sql.DB, er
 	return db, nil
 }
 
-func (d *dsQanDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*genericv1.GenericReport_Metric, error) {
+func (d *dsQanDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*telemetryv1.GenericReport_Metric, error) {
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
 

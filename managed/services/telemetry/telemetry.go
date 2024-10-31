@@ -24,7 +24,6 @@ import (
 
 	"github.com/google/uuid"
 	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
-	reporter "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -52,7 +51,7 @@ type Service struct {
 	os                  string
 	sDistributionMethod serverv1.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
-	sendCh              chan *reporter.GenericReport
+	sendCh              chan *telemetryv1.GenericReport
 	dataSourcesMap      map[DataSourceName]DataSource
 
 	extensions map[ExtensionType]Extension
@@ -88,7 +87,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		config:       config,
 		dsRegistry:   registry,
 		dus:          dus,
-		sendCh:       make(chan *reporter.GenericReport, sendChSize),
+		sendCh:       make(chan *telemetryv1.GenericReport, sendChSize),
 		extensions:   extensions,
 	}
 
@@ -166,7 +165,7 @@ func (s *Service) DistributionMethod() serverv1.DistributionMethod {
 
 func (s *Service) processSendCh(ctx context.Context) {
 	var reportsBufSync sync.Mutex
-	var reportsBuf []*reporter.GenericReport
+	var reportsBuf []*telemetryv1.GenericReport
 	var sendCtx context.Context //nolint:contextcheck
 	var cancel context.CancelFunc
 
@@ -183,11 +182,11 @@ func (s *Service) processSendCh(ctx context.Context) {
 				reportsBufSync.Lock()
 				reportsBuf = append(reportsBuf, report)
 				reportsToSend := reportsBuf
-				reportsBuf = []*reporter.GenericReport{}
+				reportsBuf = []*telemetryv1.GenericReport{}
 				reportsBufSync.Unlock()
 
 				go func(ctx context.Context) {
-					err := s.send(ctx, &reporter.ReportRequest{
+					err := s.send(ctx, &telemetryv1.ReportRequest{
 						Reports: reportsToSend,
 					})
 					if err != nil {
@@ -210,7 +209,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 	}
 }
 
-func (s *Service) prepareReport(ctx context.Context) *reporter.GenericReport {
+func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport {
 	initializedDataSources := make(map[DataSourceName]DataSource)
 	telemetryMetric, _ := s.makeMetric(ctx)
 	var totalTime time.Duration
@@ -323,7 +322,7 @@ func (s *Service) locateDataSources(telemetryConfig []Config) map[DataSourceName
 	return dataSources
 }
 
-func (s *Service) makeMetric(ctx context.Context) (*reporter.GenericReport, error) {
+func (s *Service) makeMetric(ctx context.Context) (*telemetryv1.GenericReport, error) {
 	var settings *models.Settings
 	useServerID := false
 	err := s.db.InTransaction(func(tx *reform.TX) error {
@@ -356,12 +355,12 @@ func (s *Service) makeMetric(ctx context.Context) (*reporter.GenericReport, erro
 
 	_, distMethod, _ := s.dus.GetDistributionMethodAndOS()
 
-	return &reporter.GenericReport{
+	return &telemetryv1.GenericReport{
 		Id:            uuid.New().String(),
 		CreateTime:    timestamppb.New(time.Now()),
 		InstanceId:    uuid.MustParse(serverID).String(),
-		ProductFamily: reporter.ProductFamily_PRODUCT_FAMILY_PMM,
-		Metrics: []*reporter.GenericReport_Metric{
+		ProductFamily: telemetryv1.ProductFamily_PRODUCT_FAMILY_PMM,
+		Metrics: []*telemetryv1.GenericReport_Metric{
 			{Key: "PMMServerVersion", Value: s.pmmVersion},
 			{Key: "UpDuration", Value: durationpb.New(time.Since(s.start)).String()},
 			{Key: "DistributionMethod", Value: distMethod.String()},
@@ -378,7 +377,7 @@ func generateUUID() (string, error) {
 	return uuid.String(), nil
 }
 
-func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) error {
+func (s *Service) send(ctx context.Context, report *telemetryv1.ReportRequest) error {
 	var err error
 	var attempt int
 	for {
@@ -407,7 +406,7 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 }
 
 // Format returns the formatted representation of the provided server metric.
-func (s *Service) Format(report *reporter.GenericReport) string {
+func (s *Service) Format(report *telemetryv1.GenericReport) string {
 	var builder strings.Builder
 	for _, m := range report.Metrics {
 		builder.WriteString(m.Key)

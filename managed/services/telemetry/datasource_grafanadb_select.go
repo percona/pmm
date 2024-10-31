@@ -22,7 +22,7 @@ import (
 	"net/url"
 	"time"
 
-	genericv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
@@ -94,7 +94,7 @@ func openGrafanaDBConnection(config DSConfigGrafanaDB, l *logrus.Entry) (*sql.DB
 	return db, nil
 }
 
-func (d *dsGrafanaDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*genericv1.GenericReport_Metric, error) {
+func (d *dsGrafanaDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*telemetryv1.GenericReport_Metric, error) {
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
 

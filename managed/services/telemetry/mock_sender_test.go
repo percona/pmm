@@ -5,7 +5,7 @@ package telemetry
 import (
 	context "context"
 
-	genericv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,7 +15,7 @@ type mockSender struct {
 }
 
 // SendTelemetry provides a mock function with given fields: ctx, report
-func (_m *mockSender) SendTelemetry(ctx context.Context, report *genericv1.ReportRequest) error {
+func (_m *mockSender) SendTelemetry(ctx context.Context, report *telemetryv1.ReportRequest) error {
 	ret := _m.Called(ctx, report)
 
 	if len(ret) == 0 {
@@ -23,7 +23,7 @@ func (_m *mockSender) SendTelemetry(ctx context.Context, report *genericv1.Repor
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *genericv1.ReportRequest) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *telemetryv1.ReportRequest) error); ok {
 		r0 = rf(ctx, report)
 	} else {
 		r0 = ret.Error(0)
