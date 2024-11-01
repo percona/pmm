@@ -1,5 +1,5 @@
 import { useAuth } from 'contexts/auth';
-import { useUser } from 'contexts/user/user.hooks';
+import { useUser } from 'contexts/user';
 
 export const useBootstrap = () => {
   const { isLoading: isLoadingAuth } = useAuth();

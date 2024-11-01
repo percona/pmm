@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 #
 # ###############################
-# Script to run PMM 2.
+# Script to run PMM 3.
 # If docker is not installed, this script will try to install it as root user.
+# if PMM 2 is running, it will be stopped and data will be migrated to PMM 3.
 #
 # Usage example:
-# curl -fsSL https://raw.githubusercontent.com/percona/pmm/main/get-pmm.sh -o get-pmm.sh; chmod +x get-pmm.sh; ./get-pmm.sh
+# curl -fsSL https://raw.githubusercontent.com/percona/pmm/main/get-pmm.sh -o get-pmm.sh; chmod +x get-pmm.sh; ./get-pmm.sh -b
 #
 #################################
 
@@ -13,10 +14,14 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 # Set defaults.
+network_name=${NETWORK_NAME:-pmm-net}
 tag=${PMM_TAG:-3}
 repo=${PMM_REPO:-percona/pmm-server}
 port=${PMM_PORT:-443}
 container_name=${CONTAINER_NAME:-pmm-server}
+docker_socket_path=${DOCKER_SOCKET_PATH:-/var/run/docker.sock}
+watchtower_token=${WATCHTOWER_TOKEN:-}
+backup_data=0
 interactive=0
 root_is_needed=no
 
@@ -25,7 +30,7 @@ root_is_needed=no
 #######################################
 usage() {
   cat <<EOF
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-i] [-t] [-n] [-p]
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-i] [-t] [-n] [-p] [-r] [-b] [-wt] [-dsp] [-nc] [-net] [--] [args]
 
 Script description here.
 
@@ -34,6 +39,7 @@ Available options:
 -h, --help          Print this help and exit
 -v, --verbose       Print script debug info
 -i, --interactive   Run script in inteactive mode
+-nc, --no-color     Disable colors
 
 -t, --tag="$tag"
        PMM server container tag (default: latest - PMM server version)
@@ -46,6 +52,18 @@ Available options:
 
 -n, --name=${container_name}
       PMM server container name (default: pmm-server)
+
+-b, --backup
+      Backup data from existing PMM Server instance
+
+-wt, --watchtower-token
+      Watchtower token to use for PMM Server updates
+
+-dsp, --docker-socket-path
+      Path to docker socket (default: /var/run/docker.sock)
+
+-net, --network-name
+      Name of the network to create (default: pmm-net)
 EOF
   exit
 }
@@ -99,7 +117,7 @@ parse_params() {
     case "${1-}" in
     -h | --help) usage ;;
     -v | --verbose) set -x ;;
-    --no-color) NO_COLOR=1 ;;
+    -nc | --no-color) NO_COLOR=1 ;;
     -i | --interactive) interactive=1 ;;
     -t | --tag)
       tag="${2-}"
@@ -111,6 +129,23 @@ parse_params() {
       ;;
     -p | --port)
       port="${2-}"
+      shift
+      ;;
+    -n | --name)
+      container_name="${2-}"
+      shift
+      ;;
+    -b | --backup) backup_data=1 ;;
+    -wt | --watchtower-token)
+      watchtower_token="${2-}"
+      shift
+      ;;
+    -dsp | --docker-socket-path)
+      docker_socket_path="${2-}"
+      shift
+      ;;
+    -net | --network-name)
+      network_name="${2-}"
       shift
       ;;
     -?*) die "Unknown option: $1" ;;
@@ -219,6 +254,74 @@ run_docker() {
 }
 
 #######################################
+# Generates Watchtower token if needed, or reuses existing one.
+#######################################
+generate_watchtower_token() {
+  if [ !  "$watchtower_token" == "" ]; then
+    msg "Using provided Watchtower token"
+    return 0
+  fi
+  if run_docker "inspect watchtower 1> /dev/null 2> /dev/null"; then
+    watchtower_token=$(run_docker "inspect --format='{{range .Config.Env}}{{println .}}{{end}}' watchtower | grep WATCHTOWER_HTTP_API_TOKEN | cut -d'=' -f2")
+    msg "Found Watchtower Token: $watchtower_token"
+    return 0
+  fi
+  if run_docker "inspect pmm-server 1> /dev/null 2> /dev/null"; then
+    watchtower_token=$(run_docker "inspect --format='{{range .Config.Env}}{{println .}}{{end}}' pmm-server | grep PMM_WATCHTOWER_TOKEN | cut -d'=' -f2")
+    msg "Found Watchtower Token: $watchtower_token"
+    # we don't return here, as we want to generate a new token if it's not found
+  fi
+  if [ "$watchtower_token" == "" ]; then
+    watchtower_token=random-$(date "+%F-%H%M%S")
+    msg "Generated Watchtower Token: $watchtower_token"
+  fi
+}
+
+#######################################
+# Creates PMM Network if needed.
+#######################################
+create_pmm_network() {
+  if ! run_docker "network inspect $network_name 1> /dev/null 2> /dev/null"; then
+    run_docker "network create $network_name 1> /dev/null"
+    msg "Created PMM Network: $network_name"
+  fi
+}
+
+#######################################
+# Starts Watchtower container if needed.
+#######################################
+start_watchtower() {
+  if ! run_docker "inspect watchtower 1> /dev/null 2> /dev/null"; then
+    run_docker "run -d --name watchtower --restart always --network $network_name -e WATCHTOWER_HTTP_API_TOKEN=$watchtower_token -e WATCHTOWER_HTTP_LISTEN_PORT=8080 -e WATCHTOWER_HTTP_API_UPDATE=1 -v $docker_socket_path:/var/run/docker.sock perconalab/watchtower --cleanup"
+    msg "Created Watchtower container"
+  fi
+}
+
+#######################################
+# Migrates PMM Server data from 2.x to 3.x
+#######################################
+migrate_pmm_data() {
+  msg "Migrating PMM Server data from 2.x to 3.x"
+  run_docker "start $container_name"
+  sleep 5
+  run_docker "exec -t $container_name supervisorctl stop all"
+  sleep 5
+  run_docker "exec -t $container_name chown -R pmm:pmm /srv"
+  run_docker "stop $container_name"
+}
+
+#######################################
+# Backs up existing PMM Data Volume.
+#######################################
+backup_pmm_data() {
+  pmm_volume_archive="pmm-data-$(date "+%F-%H%M%S")"
+  msg "Backing up existing PMM Data Volume to $pmm_volume_archive"
+  run_docker "volume create $pmm_volume_archive 1> /dev/null"
+  run_docker "run --rm -v pmm-data:/from -v $pmm_volume_archive:/to alpine ash -c 'cd /from ; cp -av . /to'"
+  msg "Successfully backed up existing PMM Data Volume to $pmm_volume_archive"
+}
+
+#######################################
 # Starts PMM Server container with given repo, tag, name and port.
 # If a PMM Server instance is running - stop and back it up.
 #######################################
@@ -233,17 +336,27 @@ start_pmm() {
     msg "Created PMM Data Volume: pmm-data"
   fi
 
-  if run_docker "inspect pmm-server 1> /dev/null 2> /dev/null"; then
-    pmm_archive="pmm-server-$(date "+%F-%H%M%S")"
+  if run_docker "inspect $container_name 1> /dev/null 2> /dev/null"; then
+    pmm_archive="$container_name-$(date "+%F-%H%M%S")"
     msg "\tExisting PMM Server found, renaming to $pmm_archive\n"
-    run_docker 'stop pmm-server' || :
-    run_docker "rename pmm-server $pmm_archive\n"
+    run_docker "stop $container_name" || :
+    if [[ "$backup_data" == 1 ]]; then
+      backup_pmm_data
+    fi
+    # get container tag from inspect
+    old_version=$(run_docker "inspect --format='{{.Config.Image}}' $container_name | cut -d':' -f2")
+    # if tag starts with 2.x, we need to migrate data
+    if [[ "$old_version" == 2.* ]]; then
+      migrate_pmm_data
+    fi
+    run_docker "rename $container_name $pmm_archive\n"
   fi
-  run_pmm="run -d -p $port:8443 --volume pmm-data:/srv --name $container_name --restart always $repo:$tag"
+  run_pmm="run -d -p $port:8443 --volume pmm-data:/srv --name $container_name --network $network_name -e PMM_WATCHTOWER_HOST=http://watchtower:8080 -e PMM_WATCHTOWER_TOKEN=$watchtower_token --restart always $repo:$tag"
 
   run_docker "$run_pmm 1> /dev/null"
   msg "Created PMM Server: $container_name"
   msg "\nUse the following command if you ever need to update your container manually:"
+  msg "\tdocker pull $repo:$tag \n"
   msg "\tdocker $run_pmm \n"
 }
 
@@ -278,7 +391,10 @@ main() {
   fi
   msg "Gathering/downloading required components, this may take a moment\n"
   install_docker
+  create_pmm_network
+  generate_watchtower_token
   start_pmm
+  start_watchtower
   show_message
 }
 
@@ -286,3 +402,6 @@ parse_params "$@"
 
 main
 die "Enjoy Percona Monitoring and Management!" 0
+# TODO: Update script from PMM 2 to PMM 3
+
+}# TODO: reuse watchtower token from older pmm instance or watchtower
