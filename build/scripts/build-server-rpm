@@ -128,7 +128,7 @@ build() {
     echo "repo_name: ${repo_name}"
     echo "rpm_verison: ${rpm_version}"
 
-    docker run --rm ${volume_mounts} ${rpmbuild_docker_image} sh -c "
+    docker run --rm --platform=${platform} ${volume_mounts} ${rpmbuild_docker_image} sh -c "
         set -o errexit
         set -o xtrace
 

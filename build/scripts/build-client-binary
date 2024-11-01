@@ -59,6 +59,7 @@ gobuild_component() {
     fi
 
     docker run --rm \
+      --platform=${platform}
       ${volume_mounts} \
       ${rpmbuild_docker_image} sh -c "
         set -o errexit

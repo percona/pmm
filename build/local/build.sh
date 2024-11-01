@@ -5,6 +5,7 @@ set -o nounset
 usage() {
   cat <<-EOF
 Usage: $BASE_NAME [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm] [--no-server-docker] [--log-file <path>] [--help | -h]
+--platform <platform>    Build for a specific platform (default - linux/amd64)
 --no-update              Do not fetch the latest changes from the repo
 --update-only            Only fetch the latest changes from the repo
 --no-client              Do not build PMM Client
@@ -27,6 +28,7 @@ parse-params() {
   START_TIME=$(date +%s)
   LOG_FILE="$(dirname $0)/build.log"
   BASE_NAME=$(basename $0)
+  PLATFORM=linux/amd64
   SUBMODULES=pmm-submodules
   PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
 
@@ -57,6 +59,14 @@ parse-params() {
           exit 1
         fi
         NO_SERVER_DOCKER=1
+        ;;
+      --platform)
+        shift
+        if [ -z "$1" ]; then
+          echo "Missing argument for --platform"
+          exit 1
+        fi
+        PLATFORM="$1"
         ;;
       --log-file)
         shift
