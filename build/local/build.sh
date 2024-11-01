@@ -194,17 +194,17 @@ get_branch_name() {
   echo $branch_name
 }
 
-build_with_logs() {
+run_build_script() {
   local CURDIR="$PWD"
   local script="$PATH_TO_SCRIPTS/$1"
+  local script_name="$1"
   local start_time
   local end_time
-  local script_name="$1"
 
   cd "$SUBMODULES" > /dev/null
 
   if [ ! -f "$script" ]; then
-    echo "Fatal: script $script does not exist"
+    echo "Fatal: script $script does not exist."
     cd "$CURDIR" > /dev/null
     exit 1
   fi
@@ -213,14 +213,14 @@ build_with_logs() {
   if [ "$#" -gt 1 ]; then
     shift
     script_name="${script_name}:($1)"
-    $script "$@" | tee -a $LOG_FILE
+    $script "$@"
   else
-    $script | tee -a $LOG_FILE
+    $script
   fi
   end_time=$(date +%s)
 
   echo ---
-  echo "Execution time (in sec) for $script_name: $((end_time - start_time))" | tee -a $LOG_FILE
+  echo "Execution time (in sec) for $script_name: $((end_time - start_time))"
   echo ---
 
   cd "$CURDIR" > /dev/null
@@ -240,19 +240,21 @@ purge_files() {
       if [ -n "$tmp_files" ]; then
         tmp_files=( $tmp_files )
         for f in "${tmp_files[@]}"; do
+          echo "Removing file or directory $f ..."
           rm -rf "$f"
         done
       fi
     fi
 
     if [ -d "tmp/source/pmm" ]; then
+      echo "Removing tmp/source/pmm ..."
       rm -rf tmp/source/pmm
     fi
   fi
 
   if [ -f "$LOG_FILE" ]; then
-    echo "Removing the log file..."
-    rm -f $LOG_FILE
+    echo "Removing the log file $LOG_FILE ..."
+    rm -f "$LOG_FILE"
   fi
 
   cd "$CURDIR"
@@ -337,22 +339,22 @@ main() {
 
   if [ "$NO_CLIENT" -eq 0 ]; then
     # Build client source: 4m39s from scratch, 0m27s using cache
-    build_with_logs build-client-source
+    run_build_script build-client-source
 
     # Build client binary: ??? from scratch, 0m20s using cache
-    build_with_logs build-client-binary
+    run_build_script build-client-binary
 
     # Building client source rpm takes 13s (caching does not apply)
-    # build_with_logs build-client-srpm
+    # run_build_script build-client-srpm
 
     # Building client rpm takes 1m40s
-    # build_with_logs build-client-rpm
+    # run_build_script build-client-rpm
   fi
 
   # Building client docker image takes 17s
   export DOCKER_CLIENT_TAG=local/pmm-client:${GIT_COMMIT}
   if [ "$NO_CLIENT_DOCKER" -eq 0 ]; then
-    build_with_logs build-client-docker
+    run_build_script build-client-docker
   fi
 
   # Building PMM CLient locally (non-CI, i.e. non-Jenkins)
@@ -366,28 +368,28 @@ main() {
   export RPM_EPOCH=1
   export FORCE_REBUILD=1 # Don't use S3 cache
   if [ "$NO_SERVER_RPM" -eq 0 ]; then
-    build_with_logs build-server-rpm percona-dashboards grafana-dashboards
-    build_with_logs build-server-rpm pmm-managed pmm
-    build_with_logs build-server-rpm percona-qan-api2 pmm
-    build_with_logs build-server-rpm pmm-update pmm
-    build_with_logs build-server-rpm pmm-dump
-    build_with_logs build-server-rpm vmproxy pmm
+    run_build_script build-server-rpm percona-dashboards grafana-dashboards
+    run_build_script build-server-rpm pmm-managed pmm
+    run_build_script build-server-rpm percona-qan-api2 pmm
+    run_build_script build-server-rpm pmm-update pmm
+    run_build_script build-server-rpm pmm-dump
+    run_build_script build-server-rpm vmproxy pmm
 
     # 3rd-party
-    build_with_logs build-server-rpm victoriametrics
-    build_with_logs build-server-rpm grafana
+    run_build_script build-server-rpm victoriametrics
+    run_build_script build-server-rpm grafana
   fi
 
   if [ "$NO_SERVER_DOCKER" -eq 0 ]; then
     export DOCKER_TAG=percona/pmm-server:${GIT_COMMIT}
     export DOCKERFILE=Dockerfile.el9
-    build_with_logs build-server-docker
+    run_build_script build-server-docker
   fi
 
   echo
   echo "Done building PMM artifacts."
   echo ---
-  echo "Total execution time, sec: $(($(date +%s) - $START_TIME))" | tee -a $LOG_FILE
+  echo "Total execution time, sec: $(($(date +%s) - $START_TIME))"
   echo ---
 
   cleanup
@@ -399,5 +401,8 @@ main() {
 # OS: Ubuntu 22.04.1 LTS
 
 parse-params "$@"
+
+# Capture the output in the log file
+exec > >(tee -a "$LOG_FILE") 2>&1
 
 main
