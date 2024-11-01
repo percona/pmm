@@ -57,8 +57,6 @@ gobuild_component() {
       ${rpmbuild_docker_image} sh -c "
         set -o errexit
         set -o xtrace
-        export GOOS=${GOOS:-linux}
-        export GOARCH=${GOARCH:-$(uname -m)}
         export CGO_ENABLED=0
         export GO111MODULE=auto
 
