@@ -261,13 +261,13 @@ purge_files() {
       rm -rf tmp/source/pmm
     fi
   fi
+  
+  cd "$CURDIR"
 
   if [ -f "$LOG_FILE" ]; then
     echo "Removing the log file $LOG_FILE ..."
     rm -f "$LOG_FILE"
   fi
-
-  cd "$CURDIR"
 }
 
 init() {
@@ -299,11 +299,20 @@ init() {
   echo $pmm_ui_tests_branch > pmmUITestBranch
   echo $pmm_ui_tests_commit > pmmUITestsCommitSha
 
-  # Create cache directories. Read more in the section about `rpmbuild`.
-  test -d "go-path" || mkdir -p "go-path"
-  test -d "go-build" || mkdir -p "go-build"
-  test -d "yarn-cache" || mkdir -p "yarn-cache"
-  test -d "yum-cache" || mkdir -p "yum-cache"
+  # Create docker volume to persist package and build cache
+  # Read more in the section about `rpmbuild`.
+  if ! docker volume ls | grep pmm-gobuild; then
+    docker volume create pmm-gobuild
+  fi
+  if ! docker volume ls | grep pmm-gomod; then
+    docker volume create pmm-gomod
+  fi
+  if ! docker volume ls | grep pmm-yarn; then
+    docker volume create pmm-yarn
+  fi
+  if ! docker volume ls | grep pmm-dnf; then
+    docker volume create pmm-dnf
+  fi
 
   cd "$CURDIR" > /dev/null
 }
@@ -373,21 +382,21 @@ main() {
 
   # Building PMM CLient in a CI environment, i.e. Jenkins running on AWS
   # total time: 8m45s - build from scratch, no initial cache
-  # total time: ??? - subsequent build, using cache from prior builds
+  # total time: N/A - subsequent build, using cache from prior builds
 
   export RPM_EPOCH=1
   export FORCE_REBUILD=1 # Don't use S3 cache
   if [ "$NO_SERVER_RPM" -eq 0 ]; then
     run_build_script build-server-rpm percona-dashboards grafana-dashboards
-    run_build_script build-server-rpm pmm-managed pmm
-    run_build_script build-server-rpm percona-qan-api2 pmm
-    run_build_script build-server-rpm pmm-update pmm
-    run_build_script build-server-rpm pmm-dump
-    run_build_script build-server-rpm vmproxy pmm
+    # run_build_script build-server-rpm pmm-managed pmm
+    # run_build_script build-server-rpm percona-qan-api2 pmm
+    # run_build_script build-server-rpm pmm-update pmm
+    # run_build_script build-server-rpm pmm-dump
+    # run_build_script build-server-rpm vmproxy pmm
 
     # 3rd-party
-    run_build_script build-server-rpm victoriametrics
-    run_build_script build-server-rpm grafana
+    # run_build_script build-server-rpm victoriametrics
+    # run_build_script build-server-rpm grafana
   fi
 
   if [ "$NO_SERVER_DOCKER" -eq 0 ]; then

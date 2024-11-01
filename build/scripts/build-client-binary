@@ -31,12 +31,9 @@ gobuild_component() {
       local GOARCH=$(uname -m)
     fi
 
-    if [ -d "${root_dir}/go-build" ]; then
-        volume_mounts+=" -v ${root_dir}/go-build:/home/builder/.cache/go-build"
-    fi
-    if [ -d "${root_dir}/go-path" ]; then
-        volume_mounts+=" -v ${root_dir}/go-path:/home/builder/go/pkg/mod"
-    fi
+    volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
+    volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
+    volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
 
     if [ ${component} = 'azure_metrics_exporter' ]; then
         result_file=${result_file/_metrics/}

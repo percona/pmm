@@ -113,15 +113,10 @@ build() {
     echo "Building PMM Server RPM for ${spec_name} component..."
     echo -------------------------------------------------------
 
-    if [ -d "${root_dir}/go-build" ]; then
-        volume_mounts+=" -v ${root_dir}/go-build:/home/builder/.cache/go-build"
-    fi
-    if [ -d "${root_dir}/yarn-cache" ]; then
-        volume_mounts+=" -v ${root_dir}/yarn-cache:/home/builder/.yarn"
-    fi
-    if [ -d "${root_dir}/go-path" ]; then
-        volume_mounts+=" -v ${root_dir}/go-path:/home/builder/go/pkg/mod"
-    fi
+    volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
+    volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
+    volume_mounts+=" -v pmm-yarn:/home/builder/.yarn"
+    volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
 
     echo "Start building Server RPMs..."
     echo "spec_name: ${spec_name}"
@@ -132,7 +127,7 @@ build() {
         set -o errexit
         set -o xtrace
 
-        sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES /home/builder/.cache /home/builder/go
+        sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES /home/builder/go
 
         # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
         if [ ${RPM_EPOCH} = 1 ]; then

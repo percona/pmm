@@ -5,7 +5,7 @@ set -o xtrace
 
 . $(dirname $0)/vars
 
-sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES /home/builder/.cache
+sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
 
 # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
 if [ ${RPM_EPOCH} = 1 ]; then
