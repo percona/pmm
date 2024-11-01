@@ -90,7 +90,7 @@ gobuild_component() {
 
         ${build_command}
 
-        sudo chown -R $(id -u):$(id -g) /home/builder/tmp
+        # sudo chown -R $(id -u):$(id -g) /home/builder/tmp
     "
 }
 

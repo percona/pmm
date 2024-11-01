@@ -4,7 +4,6 @@ ARG VERSION
 ARG BUILD_DATE
 
 ENV LANG=en_US.utf8
-ENV LC_ALL=en_US.utf8
 ENV GF_PLUGIN_DIR=/srv/grafana/plugins
 ENV PS1="[\u@\h \W] # "
 
