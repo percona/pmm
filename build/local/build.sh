@@ -19,6 +19,7 @@ EOF
 
 parse-params() {
   # Define global variables
+  LOCAL_BUILD=1
   NO_UPDATE=0
   UPDATE_ONLY=0
   NO_CLIENT=0
@@ -148,7 +149,7 @@ update() {
   local CURDIR="$PWD"
 
   # Thouroughly verify the presence of known files, otherwise bail out
-  if [ ! -d "$SUBMODULES" ] ; then # pwd must outside of pmm-submodules
+  if [ ! -d "$SUBMODULES" ] ; then # pwd must be outside of pmm-submodules
     echo "Warn: the current working directory must be outside of pmm-submodules"
     echo "cd .."
     cd .. > /dev/null

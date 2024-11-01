@@ -27,9 +27,7 @@ is_build_needed() {
     local s3_cache_dir=RELEASE
 
     # Structure of S3 build cache
-    # s3://pmm-build-cache/PR-BUILDS/7 - el7
     # s3://pmm-build-cache/PR-BUILDS/9 - el9
-    # s3://pmm-build-cache/RELEASE/7 - el7
     # s3://pmm-build-cache/RELEASE/9 - el9
 
     [ "${FORCE_REBUILD}" = 1 ] && return 0
@@ -38,7 +36,7 @@ is_build_needed() {
     if [ "$RPM_EPOCH" = 1 ]; then
         s3_cache_dir=PR-BUILDS
     fi
-    if command -v aws &> /dev/null; then
+    if command -v aws &> /dev/null && [ -z "$LOCAL_BUILD" ]; then
         aws s3 sync \
             --region us-east-2 \
             --no-sign-request \
@@ -175,8 +173,15 @@ build() {
     # TODO: see if this is even needed
     # cp ${rpms_dir}/${spec_name}-${rpm_version}/*/*.rpm ${rpms_dir}
 
+    if [ -n "$LOCAL_BUILD" ]; then
+        return
+        echo "Finished building Server RPMs, spec_name: ${spec_name}.spec, repo_name: ${repo_name}"
+    fi
+
     if ! command -v aws &> /dev/null; then
         echo "AWS CLI is not installed. Upload to S3 will be skipped."
+        echo
+        echo "Finished building Server RPMs, spec_name: ${spec_name}.spec, repo_name: ${repo_name}"
         return
     fi
 
