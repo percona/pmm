@@ -4,7 +4,7 @@ set -o nounset
 
 usage() {
   cat <<-EOF
-Usage: $BASE_NAME [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm] [--no-server-docker] [--log-file <path>] [--help | -h]
+Usage: $BASE_NAME [--platform] [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm] [--no-server-docker] [--log-file <path>] [--help | -h]
 --platform <platform>    Build for a specific platform (default - linux/amd64)
 --no-update              Do not fetch the latest changes from the repo
 --update-only            Only fetch the latest changes from the repo
@@ -417,6 +417,6 @@ main() {
 parse-params "$@"
 
 # Capture the output in the log file
-exec > >(tee -a "$LOG_FILE") 2>&1
+exec > >(tee "$LOG_FILE") 2>&1
 
 main
