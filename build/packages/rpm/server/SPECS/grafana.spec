@@ -19,7 +19,7 @@ Summary:        Grafana is an open source, feature rich metrics dashboard and gr
 License:        AGPLv3
 URL:            https://github.com/percona/grafana
 Source0:        https://github.com/percona/grafana/archive/%{commit}.tar.gz
-ExclusiveArch:  %{ix86} x86_64 %{arm} %{aarch}
+ExclusiveArch:  %{ix86} x86_64 %{arm} aarch64
 
 BuildRequires: fontconfig
 
