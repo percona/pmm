@@ -27,10 +27,6 @@ gobuild_component() {
     local archive=$(ls ${source_dir} | grep -e "${parent_component}-\w*\.tar\.gz" | head -n1)
     local build_command
 
-    if [ "$(uname -o)" = "Darwin" ]; then
-      local GOARCH=$(uname -m)
-    fi
-
     volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
     volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
     volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
@@ -62,7 +58,7 @@ gobuild_component() {
         set -o errexit
         set -o xtrace
         export GOOS=${GOOS:-linux}
-        export GOARCH=${GOARCH:-amd64}
+        export GOARCH=${GOARCH:-$(uname -m)}
         export CGO_ENABLED=0
         export GO111MODULE=auto
 
@@ -71,6 +67,12 @@ gobuild_component() {
         export PMM_RELEASE_TIMESTAMP=$(date '+%s')
         export PMM_RELEASE_BRANCH=""
         sudo chown -R builder:builder /home/builder/tmp
+        if [ ! -w /home/builder/.cache/go-build ]; then
+            sudo chown builder /home/builder/.cache/go-build
+        fi
+        if [ ! -w /home/builder/go/pkg/mod ]; then
+            sudo chown builder /home/builder/go/pkg/mod
+        fi
 
         export PMM_RELEASE_PATH=${bin_dir}/bin
         if [ "${component}" = vmagent ]; then

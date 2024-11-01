@@ -40,6 +40,7 @@ main() {
   docker buildx build \
       --build-arg BUILD_DATE="$BUILD_DATE" \
       --build-arg VERSION="$IMAGE_VERSION" \
+      --platform=${platform} \
       --progress plain \
       -f ${docker_root}/${docker_file} \
       -t ${DOCKER_TAG} \

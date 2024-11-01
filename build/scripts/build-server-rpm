@@ -131,6 +131,15 @@ build() {
         set -o xtrace
 
         sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
+        if [ ! -w /home/builder/.cache/go-build ]; then
+            sudo chown builder /home/builder/.cache/go-build
+        fi
+        if [ ! -w /home/builder/go/pkg/mod ]; then
+            sudo chown builder /home/builder/go/pkg/mod
+        fi
+        if [ ! -w pmm-yarn:/home/builder/.cache/yarn ]; then
+            sudo chown builder /home/builder/.cache/yarn
+        fi
 
         # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
         if [ ${RPM_EPOCH} = 1 ]; then

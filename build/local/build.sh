@@ -263,11 +263,6 @@ purge_files() {
   fi
   
   cd "$CURDIR"
-
-  if [ -f "$LOG_FILE" ]; then
-    echo "Removing the log file $LOG_FILE ..."
-    rm -f "$LOG_FILE"
-  fi
 }
 
 init() {
