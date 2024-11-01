@@ -65,8 +65,6 @@ gobuild_component() {
         export GOARCH=${GOARCH:-amd64}
         export CGO_ENABLED=0
         export GO111MODULE=auto
-        export GOPATH=/tmp/go
-        export GOMODCACHE=/home/builder/go/pkg/mod
 
         # Setting variable for 'make release'
         export PMM_RELEASE_VERSION=${full_pmm_version}
@@ -87,8 +85,6 @@ gobuild_component() {
         tar -C /tmp/go/src/${extract_path} --strip-components=1 -zxpf ${src_dir}/${archive}
 
         ${build_command}
-
-        # sudo chown -R $(id -u):$(id -g) /home/builder/tmp
     "
 }
 

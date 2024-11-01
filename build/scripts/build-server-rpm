@@ -61,6 +61,9 @@ prepare_specs() {
     if [ ! -d "${root_dir}/sources/${repo_name}" ]; then
         return
     fi
+    if [ ! -f "${rpmbuild_dir}/SOURCES/${spec_name}.spec" ]; then
+      echo "The spec file could not be found."
+    fi
     
     local git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
     local full_commit=$(git -C "${git_dir}" rev-parse HEAD)
@@ -127,7 +130,7 @@ build() {
         set -o errexit
         set -o xtrace
 
-        sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES /home/builder/go
+        sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
 
         # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
         if [ ${RPM_EPOCH} = 1 ]; then
@@ -146,7 +149,7 @@ build() {
 
         # Only these two specs have build dependencies
         if [[ ${spec_name} =~ ^grafana$|^percona-dashboards$ ]]; then
-            sleep 5s
+            sleep 2s
             sudo yum-builddep -y SOURCES/${spec_name}.spec
         fi
 
