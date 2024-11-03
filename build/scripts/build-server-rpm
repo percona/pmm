@@ -9,7 +9,9 @@ get_rpm_version() {
     local spec_name=$1
 
     local rpm_version=$(
-        docker run --rm -v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES ${rpmbuild_docker_image} sh -c "
+        docker run --rm \
+            --platform=${platform} \
+            -v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES ${rpmbuild_docker_image} sh -c "
             rpmspec -q --qf '%{version}-%{release}\n' SOURCES/${spec_name}.spec \
                 | sed -re 's/\.[0-9]{10}\././; s/.${rpmbuild_dist}//' \
                 | head -1
@@ -130,13 +132,13 @@ build() {
 
         sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
         if [ ! -w /home/builder/.cache/go-build ]; then
-            sudo chown builder /home/builder/.cache/go-build
+            sudo chown builder:builder /home/builder/.cache/go-build
         fi
         if [ ! -w /home/builder/go/pkg/mod ]; then
-            sudo chown builder /home/builder/go/pkg/mod
+            sudo chown builder:builder /home/builder/go/pkg/mod
         fi
-        if [ ! -w pmm-yarn:/home/builder/.cache/yarn ]; then
-            sudo chown builder /home/builder/.cache/yarn
+        if [ ! -w /home/builder/.cache/yarn ]; then
+            sudo chown builder:builder /home/builder/.cache/yarn
         fi
 
         # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
@@ -167,15 +169,14 @@ build() {
                   -ba SOURCES/${spec_name}.spec
 
         rm -f SOURCES/${spec_name}.spec*
-        sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
     "
 
     # TODO: see if this is even needed
     # cp ${rpms_dir}/${spec_name}-${rpm_version}/*/*.rpm ${rpms_dir}
 
-    if [ -n "$LOCAL_BUILD" ]; then
-        return
+    if [ "$LOCAL_BUILD" -ne 1 ]; then
         echo "Finished building Server RPMs, spec_name: ${spec_name}.spec, repo_name: ${repo_name}"
+        return
     fi
 
     if ! command -v aws &> /dev/null; then

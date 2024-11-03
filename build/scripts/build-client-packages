@@ -30,12 +30,6 @@ append_arg_to_args () {
 }
 
 parse_arguments() {
-    pick_args=
-    if test "$1" = PICK-ARGS-FROM-ARGV; then
-        pick_args=1
-        shift
-    fi
-
     for arg do
         val=`echo "$arg" | sed -e 's;^--[^=]*=;;'`
         optname=`echo "$arg" | sed -e 's/^\(--[^=]*\)=.*$/\1/'`
@@ -51,9 +45,7 @@ parse_arguments() {
             --install_deps=*) INSTALL="$val" ;;
             --help) usage ;;
             *)
-              if test -n "$pick_args"; then
-                  append_arg_to_args "$arg"
-              fi
+                append_arg_to_args "$arg"
               ;;
         esac
     done
@@ -87,7 +79,7 @@ get_repos() {
 }
 
 check_workdir(){
-    if [ "x$WORKDIR" = "x$CURDIR" ]; then
+    if [ "$WORKDIR" = "$CURDIR" ]; then
         echo >&2 "Current directory cannot be used for building!"
         exit 1
     fi
@@ -461,7 +453,7 @@ if [ -n "$pmm_release" ]; then
     DEB_RELEASE="$DEB_RELEASE.$pmm_release"
 fi
 
-parse_arguments PICK-ARGS-FROM-ARGV "$@"
+parse_arguments "$@"
 get_system
 install_deps
 

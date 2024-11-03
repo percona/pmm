@@ -297,16 +297,16 @@ init() {
 
   # Create docker volume to persist package and build cache
   # Read more in the section about `rpmbuild`.
-  if ! docker volume ls | grep pmm-gobuild; then
+  if ! docker volume ls | grep pmm-gobuild >/dev/null; then
     docker volume create pmm-gobuild
   fi
-  if ! docker volume ls | grep pmm-gomod; then
+  if ! docker volume ls | grep pmm-gomod >/dev/null; then
     docker volume create pmm-gomod
   fi
-  if ! docker volume ls | grep pmm-yarn; then
+  if ! docker volume ls | grep pmm-yarn >/dev/null; then
     docker volume create pmm-yarn
   fi
-  if ! docker volume ls | grep pmm-dnf; then
+  if ! docker volume ls | grep pmm-dnf >/dev/null; then
     docker volume create pmm-dnf
   fi
 
@@ -367,7 +367,7 @@ main() {
   fi
 
   # Building client docker image takes 17s
-  export DOCKER_CLIENT_TAG=local/pmm-client:${GIT_COMMIT}
+  export DOCKER_CLIENT_TAG=percona/pmm-client:${GIT_COMMIT}
   if [ "$NO_CLIENT_DOCKER" -eq 0 ]; then
     run_build_script build-client-docker
   fi
@@ -384,15 +384,15 @@ main() {
   export FORCE_REBUILD=1 # Don't use S3 cache
   if [ "$NO_SERVER_RPM" -eq 0 ]; then
     run_build_script build-server-rpm percona-dashboards grafana-dashboards
-    # run_build_script build-server-rpm pmm-managed pmm
-    # run_build_script build-server-rpm percona-qan-api2 pmm
-    # run_build_script build-server-rpm pmm-update pmm
-    # run_build_script build-server-rpm pmm-dump
-    # run_build_script build-server-rpm vmproxy pmm
+    run_build_script build-server-rpm pmm-managed pmm
+    run_build_script build-server-rpm percona-qan-api2 pmm
+    run_build_script build-server-rpm pmm-update pmm
+    run_build_script build-server-rpm pmm-dump
+    run_build_script build-server-rpm vmproxy pmm
 
     # 3rd-party
-    # run_build_script build-server-rpm victoriametrics
-    # run_build_script build-server-rpm grafana
+    run_build_script build-server-rpm victoriametrics
+    run_build_script build-server-rpm grafana
   fi
 
   if [ "$NO_SERVER_DOCKER" -eq 0 ]; then
