@@ -212,7 +212,7 @@ func (a *Client) LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...Clie
 /*
 ListChangeLogs gets the changelog
 
-List all the changes between the installed version and the latest available version.
+Display a changelog comparing the installed version to the latest available version.
 */
 func (a *Client) ListChangeLogs(params *ListChangeLogsParams, opts ...ClientOption) (*ListChangeLogsOK, error) {
 	// TODO: Validate the params before sending
