@@ -6,7 +6,6 @@ set -o errexit
 set -o xtrace
 
 bin_dir=$(cd $(dirname $0); pwd -P)
-tmp_dir=${root_dir}/tmp
 
 main() {
     local IMAGE=${1:-ubuntu:focal}
