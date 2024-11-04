@@ -46,6 +46,7 @@ const (
 	updateCheckInterval          = 24 * time.Hour
 	updateCheckResultFresh       = updateCheckInterval + 10*time.Minute
 	updateDefaultTimeout         = 30 * time.Second
+	envfilePath                  = "/home/pmm/update/pmm-server.env"
 )
 
 var fileName = "/etc/pmm-server-update-version.json"
@@ -133,6 +134,13 @@ func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName str
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
+	if resp.StatusCode == http.StatusBadRequest {
+		bytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return errors.Wrap(err, "failed to read response body")
+		}
+		return grpcstatus.Error(codes.FailedPrecondition, string(bytes))
+	}
 	// Check the response
 	if resp.StatusCode != http.StatusOK {
 		return errors.Errorf("received non-OK response: %v", resp.StatusCode)
@@ -151,22 +159,38 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 	up.performM.Lock()
 	defer up.performM.Unlock()
 	if up.running {
-		return errors.New("update already in progress")
+		return grpcstatus.Error(codes.FailedPrecondition, "update already in progress")
 	}
 	up.running = true
 	if newImageName == "" {
+		up.running = false
 		return errors.New("newImageName is empty")
 	}
 
 	err := up.checkWatchtowerHost()
 	if err != nil {
+		up.running = false
 		up.l.WithError(err).Error("Failed to check watchtower host")
 		return grpcstatus.Errorf(codes.FailedPrecondition, "failed to check watchtower host")
 	}
 
+	if _, e := os.Stat(envfilePath); e == nil {
+		err := up.updatePodmanEnvironmentVariables(envfilePath, newImageName)
+		if err != nil {
+			up.running = false
+			up.l.WithError(err).Error("Failed to update environment variables file")
+			return errors.Wrap(err, "failed to update environment variables file")
+		}
+	} else if !os.IsNotExist(e) {
+		up.running = false
+		up.l.WithError(e).Error("Failed to check environment variables file")
+		return errors.Wrap(e, "failed to check environment variables file")
+	}
+
 	if err := up.sendRequestToWatchtower(ctx, newImageName); err != nil {
+		up.running = false
 		up.l.WithError(err).Error("Failed to trigger update")
-		return errors.Wrap(err, "failed to trigger update")
+		return err
 	}
 	return nil
 }
@@ -214,7 +238,6 @@ func (up *Updater) latest(ctx context.Context) ([]*version.DockerVersionInfo, *v
 }
 
 func (up *Updater) readFromFile() (*version.DockerVersionInfo, error) {
-	// Read from file, if it's not exist read from ENV variable, if it's not exist get the latest tag from DockerHub.
 	content, err := os.ReadFile(fileName)
 	if err != nil && !os.IsNotExist(err) {
 		up.l.WithError(err).Error("Failed to read file")
@@ -461,6 +484,27 @@ func (up *Updater) checkWatchtowerHost() error {
 	}
 	if !isHostAvailable(up.watchtowerHost.Hostname(), up.watchtowerHost.Port(), updateDefaultTimeout) {
 		return errors.New("watchtower host is not available")
+	}
+	return nil
+}
+
+func (up *Updater) updatePodmanEnvironmentVariables(filename string, name string) error {
+	if len(strings.Split(name, "/")) < 3 {
+		name = "docker.io/" + name
+	}
+	file, err := os.ReadFile(filename)
+	if err != nil {
+		return errors.Wrap(err, "failed to read file")
+	}
+	lines := strings.Split(string(file), "\n")
+	for i, line := range lines {
+		if strings.Contains(line, "PMM_IMAGE") {
+			lines[i] = fmt.Sprintf("PMM_IMAGE=%s", name)
+		}
+	}
+	err = os.WriteFile(filename, []byte(strings.Join(lines, "\n")), 0o644)
+	if err != nil {
+		return errors.Wrap(err, "failed to write file")
 	}
 	return nil
 }

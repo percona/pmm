@@ -16,6 +16,9 @@ jobs:
     name: Checks
     runs-on: ubuntu-22.04
 
+    env:
+      PMM_ENCRYPTION_KEY_PATH: pmm-encryption.key
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -166,7 +169,7 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2.2.1
+        uses: rtCamp/action-slack-notify@v2.3.2
 
   workflow_failure:
     if: ${{ failure() }}
@@ -184,4 +187,4 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2.2.1
+        uses: rtCamp/action-slack-notify@v2.3.2

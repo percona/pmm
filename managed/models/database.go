@@ -27,6 +27,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -36,6 +37,8 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 const (
@@ -1146,10 +1149,85 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	if err := migrateDB(db, params); err != nil {
+	agentColumnsToEncrypt := []encryption.Column{
+		{Name: "username"},
+		{Name: "password"},
+		{Name: "aws_access_key"},
+		{Name: "aws_secret_key"},
+		{Name: "mongo_db_tls_options", CustomHandler: EncryptMongoDBOptionsHandler},
+		{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
+		{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
+		{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
+		{Name: "agent_password"},
+	}
+
+	itemsToEncrypt := []encryption.Table{
+		{
+			Name:        "agents",
+			Identifiers: []string{"agent_id"},
+			Columns:     agentColumnsToEncrypt,
+		},
+	}
+
+	if err := migrateDB(db, params, itemsToEncrypt); err != nil {
 		return nil, err
 	}
+
 	return db, nil
+}
+
+// EncryptDB encrypts a set of columns in a specific database and table.
+func EncryptDB(tx *reform.TX, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
+	if len(itemsToEncrypt) == 0 {
+		return nil
+	}
+
+	settings, err := GetSettings(tx)
+	if err != nil {
+		return err
+	}
+	alreadyEncrypted := make(map[string]bool)
+	for _, v := range settings.EncryptedItems {
+		alreadyEncrypted[v] = true
+	}
+
+	notEncrypted := []encryption.Table{}
+	newlyEncrypted := []string{}
+	for _, table := range itemsToEncrypt {
+		columns := []encryption.Column{}
+		for _, column := range table.Columns {
+			dbTableColumn := fmt.Sprintf("%s.%s.%s", params.Name, table.Name, column.Name)
+			if alreadyEncrypted[dbTableColumn] {
+				continue
+			}
+
+			columns = append(columns, column)
+			newlyEncrypted = append(newlyEncrypted, dbTableColumn)
+		}
+		if len(columns) == 0 {
+			continue
+		}
+
+		table.Columns = columns
+		notEncrypted = append(notEncrypted, table)
+	}
+
+	if len(notEncrypted) == 0 {
+		return nil
+	}
+
+	err = encryption.EncryptItems(tx, notEncrypted)
+	if err != nil {
+		return err
+	}
+	_, err = UpdateSettings(tx, &ChangeSettingsParams{
+		EncryptedItems: slices.Concat(settings.EncryptedItems, newlyEncrypted),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // checkVersion checks minimal required PostgreSQL server version.
@@ -1211,7 +1289,7 @@ func initWithRoot(params SetupDBParams) error {
 }
 
 // migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params SetupDBParams) error {
+func migrateDB(db *reform.DB, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
@@ -1247,6 +1325,11 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			}
 		}
 
+		err := EncryptDB(tx, params, itemsToEncrypt)
+		if err != nil {
+			return err
+		}
+
 		if params.SetupFixtures == SkipFixtures {
 			return nil
 		}
@@ -1260,14 +1343,16 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 
-		if err = setupFixture1(tx.Querier, params); err != nil {
+		err = setupPMMServerAgents(tx.Querier, params)
+		if err != nil {
 			return err
 		}
+
 		return nil
 	})
 }
 
-func setupFixture1(q *reform.Querier, params SetupDBParams) error {
+func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
 		NodeName: "pmm-server",

@@ -59,8 +59,44 @@ type RegisterNodeOK struct {
 	Payload *RegisterNodeOKBody
 }
 
+// IsSuccess returns true when this register node Ok response has a 2xx status code
+func (o *RegisterNodeOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this register node Ok response has a 3xx status code
+func (o *RegisterNodeOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this register node Ok response has a 4xx status code
+func (o *RegisterNodeOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this register node Ok response has a 5xx status code
+func (o *RegisterNodeOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this register node Ok response a status code equal to that given
+func (o *RegisterNodeOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the register node Ok response
+func (o *RegisterNodeOK) Code() int {
+	return 200
+}
+
 func (o *RegisterNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/nodes][%d] registerNodeOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/management/nodes][%d] registerNodeOk %s", 200, payload)
+}
+
+func (o *RegisterNodeOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/management/nodes][%d] registerNodeOk %s", 200, payload)
 }
 
 func (o *RegisterNodeOK) GetPayload() *RegisterNodeOKBody {
@@ -96,13 +132,44 @@ type RegisterNodeDefault struct {
 	Payload *RegisterNodeDefaultBody
 }
 
+// IsSuccess returns true when this register node default response has a 2xx status code
+func (o *RegisterNodeDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this register node default response has a 3xx status code
+func (o *RegisterNodeDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this register node default response has a 4xx status code
+func (o *RegisterNodeDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this register node default response has a 5xx status code
+func (o *RegisterNodeDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this register node default response a status code equal to that given
+func (o *RegisterNodeDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the register node default response
 func (o *RegisterNodeDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *RegisterNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/nodes][%d] RegisterNode default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/management/nodes][%d] RegisterNode default %s", o._statusCode, payload)
+}
+
+func (o *RegisterNodeDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/management/nodes][%d] RegisterNode default %s", o._statusCode, payload)
 }
 
 func (o *RegisterNodeDefault) GetPayload() *RegisterNodeDefaultBody {
@@ -126,7 +193,7 @@ swagger:model RegisterNodeBody
 */
 type RegisterNodeBody struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// A user-defined name unique across all Nodes.
@@ -166,7 +233,7 @@ type RegisterNodeBody struct {
 	// it can be pull, push or auto mode chosen by server.
 	//
 	//  - METRICS_MODE_UNSPECIFIED: Auto
-	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// List of collector names to disable in this exporter.
@@ -391,6 +458,11 @@ func (o *RegisterNodeDefaultBody) ContextValidate(ctx context.Context, formats s
 func (o *RegisterNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("RegisterNode default" + "." + "details" + "." + strconv.Itoa(i))
@@ -430,6 +502,80 @@ swagger:model RegisterNodeDefaultBodyDetailsItems0
 type RegisterNodeDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// register node default body details items0
+	RegisterNodeDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *RegisterNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv RegisterNodeDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.RegisterNodeDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o RegisterNodeDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.RegisterNodeDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.RegisterNodeDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this register node default body details items0
@@ -584,6 +730,11 @@ func (o *RegisterNodeOKBody) ContextValidate(ctx context.Context, formats strfmt
 
 func (o *RegisterNodeOKBody) contextValidateContainerNode(ctx context.Context, formats strfmt.Registry) error {
 	if o.ContainerNode != nil {
+
+		if swag.IsZero(o.ContainerNode) { // not required
+			return nil
+		}
+
 		if err := o.ContainerNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("registerNodeOk" + "." + "container_node")
@@ -599,6 +750,11 @@ func (o *RegisterNodeOKBody) contextValidateContainerNode(ctx context.Context, f
 
 func (o *RegisterNodeOKBody) contextValidateGenericNode(ctx context.Context, formats strfmt.Registry) error {
 	if o.GenericNode != nil {
+
+		if swag.IsZero(o.GenericNode) { // not required
+			return nil
+		}
+
 		if err := o.GenericNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("registerNodeOk" + "." + "generic_node")
@@ -614,6 +770,11 @@ func (o *RegisterNodeOKBody) contextValidateGenericNode(ctx context.Context, for
 
 func (o *RegisterNodeOKBody) contextValidatePMMAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.PMMAgent != nil {
+
+		if swag.IsZero(o.PMMAgent) { // not required
+			return nil
+		}
+
 		if err := o.PMMAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("registerNodeOk" + "." + "pmm_agent")
