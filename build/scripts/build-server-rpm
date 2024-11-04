@@ -172,7 +172,7 @@ build() {
     # TODO: see if this is even needed
     # cp ${rpms_dir}/${spec_name}-${rpm_version}/*/*.rpm ${rpms_dir}
 
-    if [ "$LOCAL_BUILD" -ne 1 ]; then
+    if [ "$LOCAL_BUILD" = 1 ]; then
         echo "Finished building Server RPMs, spec_name: ${spec_name}.spec, repo_name: ${repo_name}"
         return
     fi
