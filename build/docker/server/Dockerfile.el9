@@ -37,7 +37,7 @@ LABEL org.opencontainers.image.licenses=AGPL-3.0
 LABEL org.opencontainers.image.title="Percona Monitoring and Management"
 LABEL org.opencontainers.image.vendor="Percona LLC"
 LABEL org.opencontainers.image.version=${VERSION}
-LABEL org.opencontainers.image.sourc=https://github.com/percona/pmm/blob/main/build/docker/server/Dockerfile.el9
+LABEL org.opencontainers.image.source=https://github.com/percona/pmm/blob/main/build/docker/server/Dockerfile.el9
 LABEL org.opencontainers.image.docs=https://docs.percona.com/percona-monitoring-and-management/setting-up/server/docker.html
 
 USER pmm
