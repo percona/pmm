@@ -45,7 +45,7 @@ require (
 	github.com/grafana/grafana-api-golang-client v0.27.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.23.0
 	github.com/hashicorp/go-version v1.7.0
 	github.com/hashicorp/raft v1.7.0
 	github.com/jmoiron/sqlx v1.4.0
@@ -80,8 +80,8 @@ require (
 	golang.org/x/sys v0.26.0
 	golang.org/x/text v0.19.0
 	golang.org/x/tools v0.26.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20240814211410-ddb44dafa142
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240814211410-ddb44dafa142
+	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241021214115-324edc3d5d38
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.35.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
