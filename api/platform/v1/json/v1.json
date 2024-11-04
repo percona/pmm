@@ -33,13 +33,13 @@
                   "description": "CustomerSuccess contains the contanct details of the customer success employee assigned to a customer's account.",
                   "type": "object",
                   "properties": {
-                    "email": {
-                      "type": "string",
-                      "x-order": 1
-                    },
                     "name": {
                       "type": "string",
                       "x-order": 0
+                    },
+                    "email": {
+                      "type": "string",
+                      "x-order": 1
                     }
                   },
                   "x-order": 0
@@ -62,6 +62,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -72,13 +76,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -106,65 +106,20 @@
                     "description": "OrganizationEntitlement contains information about Organization entitlement.",
                     "type": "object",
                     "properties": {
-                      "end_date": {
-                        "description": "Entitlement end date.\nNote: only date is used here but not time.",
+                      "number": {
+                        "description": "Entitlement number.",
                         "type": "string",
-                        "format": "date-time",
-                        "x-order": 9
+                        "x-order": 0
                       },
                       "name": {
                         "description": "Entitlement name.",
                         "type": "string",
                         "x-order": 1
                       },
-                      "number": {
-                        "description": "Entitlement number.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "platform": {
-                        "description": "Platform indicates platform specific entitlements.",
-                        "type": "object",
-                        "properties": {
-                          "config_advisor": {
-                            "description": "Flag indicates that config advisors are covered by this entitlement.",
-                            "type": "string",
-                            "x-nullable": true,
-                            "x-order": 1
-                          },
-                          "security_advisor": {
-                            "description": "Flag indicates that security advisors are covered by this entitlement.",
-                            "type": "string",
-                            "x-nullable": true,
-                            "x-order": 0
-                          }
-                        },
-                        "x-order": 10
-                      },
-                      "software_families": {
-                        "description": "Percona product families covered by this entitlement.",
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "x-order": 7
-                      },
-                      "start_date": {
-                        "description": "Entitlement start data.\nNote: only date is used here but not time.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 8
-                      },
                       "summary": {
                         "description": "Entitlement short summary.",
                         "type": "string",
                         "x-order": 2
-                      },
-                      "support_level": {
-                        "description": "Support level covered by this entitlement.",
-                        "type": "string",
-                        "x-nullable": true,
-                        "x-order": 6
                       },
                       "tier": {
                         "description": "Entitlement tier.",
@@ -183,6 +138,51 @@
                         "type": "boolean",
                         "x-nullable": true,
                         "x-order": 5
+                      },
+                      "support_level": {
+                        "description": "Support level covered by this entitlement.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 6
+                      },
+                      "software_families": {
+                        "description": "Percona product families covered by this entitlement.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 7
+                      },
+                      "start_date": {
+                        "description": "Entitlement start data.\nNote: only date is used here but not time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 8
+                      },
+                      "end_date": {
+                        "description": "Entitlement end date.\nNote: only date is used here but not time.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 9
+                      },
+                      "platform": {
+                        "description": "Platform indicates platform specific entitlements.",
+                        "type": "object",
+                        "properties": {
+                          "security_advisor": {
+                            "description": "Flag indicates that security advisors are covered by this entitlement.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 0
+                          },
+                          "config_advisor": {
+                            "description": "Flag indicates that config advisors are covered by this entitlement.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 1
+                          }
+                        },
+                        "x-order": 10
                       }
                     }
                   },
@@ -201,6 +201,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -211,13 +215,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -246,6 +246,26 @@
                     "description": "OrganizationTicket contains information about the support ticket.",
                     "type": "object",
                     "properties": {
+                      "number": {
+                        "description": "Ticket number.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "short_description": {
+                        "description": "Ticket short description.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "priority": {
+                        "description": "Ticket priority.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "state": {
+                        "description": "Ticket state.",
+                        "type": "string",
+                        "x-order": 3
+                      },
                       "create_time": {
                         "description": "Ticket creation time.",
                         "type": "string",
@@ -257,30 +277,10 @@
                         "type": "string",
                         "x-order": 5
                       },
-                      "number": {
-                        "description": "Ticket number.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "priority": {
-                        "description": "Ticket priority.",
-                        "type": "string",
-                        "x-order": 2
-                      },
                       "requester": {
                         "description": "Ticket requester.",
                         "type": "string",
                         "x-order": 6
-                      },
-                      "short_description": {
-                        "description": "Ticket short description.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "state": {
-                        "description": "Ticket state.",
-                        "type": "string",
-                        "x-order": 3
                       },
                       "task_type": {
                         "description": "Task type.",
@@ -309,6 +309,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -319,13 +323,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -347,21 +347,21 @@
             "schema": {
               "type": "object",
               "properties": {
-                "connected_to_portal": {
-                  "type": "boolean",
-                  "x-order": 3
+                "pmm_server_name": {
+                  "type": "string",
+                  "x-order": 0
                 },
                 "pmm_server_id": {
                   "type": "string",
                   "x-order": 1
                 },
-                "pmm_server_name": {
-                  "type": "string",
-                  "x-order": 0
-                },
                 "pmm_server_telemetry_id": {
                   "type": "string",
                   "x-order": 2
+                },
+                "connected_to_portal": {
+                  "type": "boolean",
+                  "x-order": 3
                 }
               }
             }
@@ -376,6 +376,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -386,13 +390,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -431,6 +431,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -441,13 +445,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -471,15 +471,15 @@
             "schema": {
               "type": "object",
               "properties": {
-                "personal_access_token": {
-                  "description": "Personal Access Token that the user obtains from Percona Portal.",
-                  "type": "string",
-                  "x-order": 1
-                },
                 "server_name": {
                   "description": "User defined human readable PMM Server Name.",
                   "type": "string",
                   "x-order": 0
+                },
+                "personal_access_token": {
+                  "description": "Personal Access Token that the user obtains from Percona Portal.",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -502,6 +502,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -512,13 +516,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -568,6 +568,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -578,13 +582,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }

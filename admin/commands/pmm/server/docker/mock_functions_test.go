@@ -9,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	types "github.com/docker/docker/api/types"
 	container "github.com/docker/docker/api/types/container"
+	image "github.com/docker/docker/api/types/image"
 	volume "github.com/docker/docker/api/types/volume"
 	client "github.com/docker/docker/client"
 	mock "github.com/stretchr/testify/mock"
@@ -322,7 +323,7 @@ func (_m *MockFunctions) ParsePullImageProgress(r io.Reader, p *tea.Program) (<-
 }
 
 // PullImage provides a mock function with given fields: ctx, dockerImage, opts
-func (_m *MockFunctions) PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error) {
+func (_m *MockFunctions) PullImage(ctx context.Context, dockerImage string, opts image.PullOptions) (io.Reader, error) {
 	ret := _m.Called(ctx, dockerImage, opts)
 
 	if len(ret) == 0 {
@@ -331,10 +332,10 @@ func (_m *MockFunctions) PullImage(ctx context.Context, dockerImage string, opts
 
 	var r0 io.Reader
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, types.ImagePullOptions) (io.Reader, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, image.PullOptions) (io.Reader, error)); ok {
 		return rf(ctx, dockerImage, opts)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, types.ImagePullOptions) io.Reader); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, image.PullOptions) io.Reader); ok {
 		r0 = rf(ctx, dockerImage, opts)
 	} else {
 		if ret.Get(0) != nil {
@@ -342,7 +343,7 @@ func (_m *MockFunctions) PullImage(ctx context.Context, dockerImage string, opts
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, types.ImagePullOptions) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, image.PullOptions) error); ok {
 		r1 = rf(ctx, dockerImage, opts)
 	} else {
 		r1 = ret.Error(1)

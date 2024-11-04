@@ -1,9 +1,6 @@
 #!/bin/bash
 set -o errexit
 
-git submodule update --init --jobs 10
-git submodule status
-
 if [ -s ci.yml ]; then
     if [ -f /home/ec2-user/venv/bin/activate ]; then
         source /home/ec2-user/venv/bin/activate

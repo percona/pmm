@@ -59,8 +59,44 @@ type ChangeAgentOK struct {
 	Payload *ChangeAgentOKBody
 }
 
+// IsSuccess returns true when this change agent Ok response has a 2xx status code
+func (o *ChangeAgentOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this change agent Ok response has a 3xx status code
+func (o *ChangeAgentOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this change agent Ok response has a 4xx status code
+func (o *ChangeAgentOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this change agent Ok response has a 5xx status code
+func (o *ChangeAgentOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this change agent Ok response a status code equal to that given
+func (o *ChangeAgentOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the change agent Ok response
+func (o *ChangeAgentOK) Code() int {
+	return 200
+}
+
 func (o *ChangeAgentOK) Error() string {
-	return fmt.Sprintf("[PUT /v1/inventory/agents/{agent_id}][%d] changeAgentOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/inventory/agents/{agent_id}][%d] changeAgentOk %s", 200, payload)
+}
+
+func (o *ChangeAgentOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/inventory/agents/{agent_id}][%d] changeAgentOk %s", 200, payload)
 }
 
 func (o *ChangeAgentOK) GetPayload() *ChangeAgentOKBody {
@@ -96,13 +132,44 @@ type ChangeAgentDefault struct {
 	Payload *ChangeAgentDefaultBody
 }
 
+// IsSuccess returns true when this change agent default response has a 2xx status code
+func (o *ChangeAgentDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this change agent default response has a 3xx status code
+func (o *ChangeAgentDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this change agent default response has a 4xx status code
+func (o *ChangeAgentDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this change agent default response has a 5xx status code
+func (o *ChangeAgentDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this change agent default response a status code equal to that given
+func (o *ChangeAgentDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the change agent default response
 func (o *ChangeAgentDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *ChangeAgentDefault) Error() string {
-	return fmt.Sprintf("[PUT /v1/inventory/agents/{agent_id}][%d] ChangeAgent default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/inventory/agents/{agent_id}][%d] ChangeAgent default %s", o._statusCode, payload)
+}
+
+func (o *ChangeAgentDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/inventory/agents/{agent_id}][%d] ChangeAgent default %s", o._statusCode, payload)
 }
 
 func (o *ChangeAgentDefault) GetPayload() *ChangeAgentDefaultBody {
@@ -538,6 +605,11 @@ func (o *ChangeAgentBody) ContextValidate(ctx context.Context, formats strfmt.Re
 
 func (o *ChangeAgentBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.AzureDatabaseExporter != nil {
+
+		if swag.IsZero(o.AzureDatabaseExporter) { // not required
+			return nil
+		}
+
 		if err := o.AzureDatabaseExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "azure_database_exporter")
@@ -553,6 +625,11 @@ func (o *ChangeAgentBody) contextValidateAzureDatabaseExporter(ctx context.Conte
 
 func (o *ChangeAgentBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ExternalExporter != nil {
+
+		if swag.IsZero(o.ExternalExporter) { // not required
+			return nil
+		}
+
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "external_exporter")
@@ -568,6 +645,11 @@ func (o *ChangeAgentBody) contextValidateExternalExporter(ctx context.Context, f
 
 func (o *ChangeAgentBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.MongodbExporter != nil {
+
+		if swag.IsZero(o.MongodbExporter) { // not required
+			return nil
+		}
+
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mongodb_exporter")
@@ -583,6 +665,11 @@ func (o *ChangeAgentBody) contextValidateMongodbExporter(ctx context.Context, fo
 
 func (o *ChangeAgentBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqldExporter != nil {
+
+		if swag.IsZero(o.MysqldExporter) { // not required
+			return nil
+		}
+
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysqld_exporter")
@@ -598,6 +685,11 @@ func (o *ChangeAgentBody) contextValidateMysqldExporter(ctx context.Context, for
 
 func (o *ChangeAgentBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.NodeExporter != nil {
+
+		if swag.IsZero(o.NodeExporter) { // not required
+			return nil
+		}
+
 		if err := o.NodeExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "node_exporter")
@@ -613,6 +705,11 @@ func (o *ChangeAgentBody) contextValidateNodeExporter(ctx context.Context, forma
 
 func (o *ChangeAgentBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.PostgresExporter != nil {
+
+		if swag.IsZero(o.PostgresExporter) { // not required
+			return nil
+		}
+
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "postgres_exporter")
@@ -628,6 +725,11 @@ func (o *ChangeAgentBody) contextValidatePostgresExporter(ctx context.Context, f
 
 func (o *ChangeAgentBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ProxysqlExporter != nil {
+
+		if swag.IsZero(o.ProxysqlExporter) { // not required
+			return nil
+		}
+
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "proxysql_exporter")
@@ -643,6 +745,11 @@ func (o *ChangeAgentBody) contextValidateProxysqlExporter(ctx context.Context, f
 
 func (o *ChangeAgentBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANMongodbProfilerAgent != nil {
+
+		if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
+			return nil
+		}
+
 		if err := o.QANMongodbProfilerAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
@@ -658,6 +765,11 @@ func (o *ChangeAgentBody) contextValidateQANMongodbProfilerAgent(ctx context.Con
 
 func (o *ChangeAgentBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANMysqlPerfschemaAgent != nil {
+
+		if swag.IsZero(o.QANMysqlPerfschemaAgent) { // not required
+			return nil
+		}
+
 		if err := o.QANMysqlPerfschemaAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent")
@@ -673,6 +785,11 @@ func (o *ChangeAgentBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Con
 
 func (o *ChangeAgentBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANMysqlSlowlogAgent != nil {
+
+		if swag.IsZero(o.QANMysqlSlowlogAgent) { // not required
+			return nil
+		}
+
 		if err := o.QANMysqlSlowlogAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent")
@@ -688,6 +805,11 @@ func (o *ChangeAgentBody) contextValidateQANMysqlSlowlogAgent(ctx context.Contex
 
 func (o *ChangeAgentBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANPostgresqlPgstatementsAgent != nil {
+
+		if swag.IsZero(o.QANPostgresqlPgstatementsAgent) { // not required
+			return nil
+		}
+
 		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent")
@@ -703,6 +825,11 @@ func (o *ChangeAgentBody) contextValidateQANPostgresqlPgstatementsAgent(ctx cont
 
 func (o *ChangeAgentBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
+
+		if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent) { // not required
+			return nil
+		}
+
 		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent")
@@ -718,6 +845,11 @@ func (o *ChangeAgentBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx con
 
 func (o *ChangeAgentBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.RDSExporter != nil {
+
+		if swag.IsZero(o.RDSExporter) { // not required
+			return nil
+		}
+
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "rds_exporter")
@@ -821,6 +953,11 @@ func (o *ChangeAgentDefaultBody) ContextValidate(ctx context.Context, formats st
 func (o *ChangeAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangeAgent default" + "." + "details" + "." + strconv.Itoa(i))
@@ -860,6 +997,80 @@ swagger:model ChangeAgentDefaultBodyDetailsItems0
 type ChangeAgentDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// change agent default body details items0
+	ChangeAgentDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *ChangeAgentDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv ChangeAgentDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.ChangeAgentDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o ChangeAgentDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.ChangeAgentDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.ChangeAgentDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this change agent default body details items0
@@ -1308,6 +1519,11 @@ func (o *ChangeAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.
 
 func (o *ChangeAgentOKBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.AzureDatabaseExporter != nil {
+
+		if swag.IsZero(o.AzureDatabaseExporter) { // not required
+			return nil
+		}
+
 		if err := o.AzureDatabaseExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "azure_database_exporter")
@@ -1323,6 +1539,11 @@ func (o *ChangeAgentOKBody) contextValidateAzureDatabaseExporter(ctx context.Con
 
 func (o *ChangeAgentOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ExternalExporter != nil {
+
+		if swag.IsZero(o.ExternalExporter) { // not required
+			return nil
+		}
+
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "external_exporter")
@@ -1338,6 +1559,11 @@ func (o *ChangeAgentOKBody) contextValidateExternalExporter(ctx context.Context,
 
 func (o *ChangeAgentOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.MongodbExporter != nil {
+
+		if swag.IsZero(o.MongodbExporter) { // not required
+			return nil
+		}
+
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "mongodb_exporter")
@@ -1353,6 +1579,11 @@ func (o *ChangeAgentOKBody) contextValidateMongodbExporter(ctx context.Context, 
 
 func (o *ChangeAgentOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqldExporter != nil {
+
+		if swag.IsZero(o.MysqldExporter) { // not required
+			return nil
+		}
+
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "mysqld_exporter")
@@ -1368,6 +1599,11 @@ func (o *ChangeAgentOKBody) contextValidateMysqldExporter(ctx context.Context, f
 
 func (o *ChangeAgentOKBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.NodeExporter != nil {
+
+		if swag.IsZero(o.NodeExporter) { // not required
+			return nil
+		}
+
 		if err := o.NodeExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "node_exporter")
@@ -1383,6 +1619,11 @@ func (o *ChangeAgentOKBody) contextValidateNodeExporter(ctx context.Context, for
 
 func (o *ChangeAgentOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.PostgresExporter != nil {
+
+		if swag.IsZero(o.PostgresExporter) { // not required
+			return nil
+		}
+
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "postgres_exporter")
@@ -1398,6 +1639,11 @@ func (o *ChangeAgentOKBody) contextValidatePostgresExporter(ctx context.Context,
 
 func (o *ChangeAgentOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ProxysqlExporter != nil {
+
+		if swag.IsZero(o.ProxysqlExporter) { // not required
+			return nil
+		}
+
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "proxysql_exporter")
@@ -1413,6 +1659,11 @@ func (o *ChangeAgentOKBody) contextValidateProxysqlExporter(ctx context.Context,
 
 func (o *ChangeAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANMongodbProfilerAgent != nil {
+
+		if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
+			return nil
+		}
+
 		if err := o.QANMongodbProfilerAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_mongodb_profiler_agent")
@@ -1428,6 +1679,11 @@ func (o *ChangeAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.C
 
 func (o *ChangeAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANMysqlPerfschemaAgent != nil {
+
+		if swag.IsZero(o.QANMysqlPerfschemaAgent) { // not required
+			return nil
+		}
+
 		if err := o.QANMysqlPerfschemaAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_mysql_perfschema_agent")
@@ -1443,6 +1699,11 @@ func (o *ChangeAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.C
 
 func (o *ChangeAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANMysqlSlowlogAgent != nil {
+
+		if swag.IsZero(o.QANMysqlSlowlogAgent) { // not required
+			return nil
+		}
+
 		if err := o.QANMysqlSlowlogAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_mysql_slowlog_agent")
@@ -1458,6 +1719,11 @@ func (o *ChangeAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Cont
 
 func (o *ChangeAgentOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANPostgresqlPgstatementsAgent != nil {
+
+		if swag.IsZero(o.QANPostgresqlPgstatementsAgent) { // not required
+			return nil
+		}
+
 		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_postgresql_pgstatements_agent")
@@ -1473,6 +1739,11 @@ func (o *ChangeAgentOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx co
 
 func (o *ChangeAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
+
+		if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent) { // not required
+			return nil
+		}
+
 		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
@@ -1488,6 +1759,11 @@ func (o *ChangeAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx c
 
 func (o *ChangeAgentOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.RDSExporter != nil {
+
+		if swag.IsZero(o.RDSExporter) { // not required
+			return nil
+		}
+
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "rds_exporter")
@@ -1554,7 +1830,7 @@ type ChangeAgentOKBodyAzureDatabaseExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -1569,7 +1845,7 @@ type ChangeAgentOKBodyAzureDatabaseExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// metrics resolutions
@@ -1747,6 +2023,11 @@ func (o *ChangeAgentOKBodyAzureDatabaseExporter) ContextValidate(ctx context.Con
 
 func (o *ChangeAgentOKBodyAzureDatabaseExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
@@ -1912,6 +2193,11 @@ func (o *ChangeAgentOKBodyExternalExporter) ContextValidate(ctx context.Context,
 
 func (o *ChangeAgentOKBodyExternalExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "external_exporter" + "." + "metrics_resolutions")
@@ -2030,7 +2316,7 @@ type ChangeAgentOKBodyMongodbExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2052,7 +2338,7 @@ type ChangeAgentOKBodyMongodbExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -2233,6 +2519,11 @@ func (o *ChangeAgentOKBodyMongodbExporter) ContextValidate(ctx context.Context, 
 
 func (o *ChangeAgentOKBodyMongodbExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
@@ -2368,7 +2659,7 @@ type ChangeAgentOKBodyMysqldExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2383,7 +2674,7 @@ type ChangeAgentOKBodyMysqldExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -2564,6 +2855,11 @@ func (o *ChangeAgentOKBodyMysqldExporter) ContextValidate(ctx context.Context, f
 
 func (o *ChangeAgentOKBodyMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
@@ -2670,7 +2966,7 @@ type ChangeAgentOKBodyNodeExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2682,7 +2978,7 @@ type ChangeAgentOKBodyNodeExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -2863,6 +3159,11 @@ func (o *ChangeAgentOKBodyNodeExporter) ContextValidate(ctx context.Context, for
 
 func (o *ChangeAgentOKBodyNodeExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "node_exporter" + "." + "metrics_resolutions")
@@ -2981,7 +3282,7 @@ type ChangeAgentOKBodyPostgresExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2993,7 +3294,7 @@ type ChangeAgentOKBodyPostgresExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Limit of databases for auto-discovery.
@@ -3180,6 +3481,11 @@ func (o *ChangeAgentOKBodyPostgresExporter) ContextValidate(ctx context.Context,
 
 func (o *ChangeAgentOKBodyPostgresExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
@@ -3298,7 +3604,7 @@ type ChangeAgentOKBodyProxysqlExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -3310,7 +3616,7 @@ type ChangeAgentOKBodyProxysqlExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the exporter process on all public interfaces
@@ -3491,6 +3797,11 @@ func (o *ChangeAgentOKBodyProxysqlExporter) ContextValidate(ctx context.Context,
 
 func (o *ChangeAgentOKBodyProxysqlExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
@@ -3606,7 +3917,7 @@ type ChangeAgentOKBodyQANMongodbProfilerAgent struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -3615,7 +3926,7 @@ type ChangeAgentOKBodyQANMongodbProfilerAgent struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -3830,7 +4141,7 @@ type ChangeAgentOKBodyQANMysqlPerfschemaAgent struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -3839,7 +4150,7 @@ type ChangeAgentOKBodyQANMysqlPerfschemaAgent struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -4057,7 +4368,7 @@ type ChangeAgentOKBodyQANMysqlSlowlogAgent struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// mod tidy
@@ -4066,7 +4377,7 @@ type ChangeAgentOKBodyQANMysqlSlowlogAgent struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -4269,7 +4580,7 @@ type ChangeAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -4278,7 +4589,7 @@ type ChangeAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -4484,7 +4795,7 @@ type ChangeAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -4493,7 +4804,7 @@ type ChangeAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -4684,7 +4995,7 @@ type ChangeAgentOKBodyRDSExporter struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -4705,7 +5016,7 @@ type ChangeAgentOKBodyRDSExporter struct {
 	// Log level for exporters
 	//
 	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Limit of databases for auto-discovery.
@@ -4886,6 +5197,11 @@ func (o *ChangeAgentOKBodyRDSExporter) ContextValidate(ctx context.Context, form
 
 func (o *ChangeAgentOKBodyRDSExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeAgentOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
@@ -5054,6 +5370,11 @@ func (o *ChangeAgentParamsBodyAzureDatabaseExporter) ContextValidate(ctx context
 
 func (o *ChangeAgentParamsBodyAzureDatabaseExporter) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "azure_database_exporter" + "." + "custom_labels")
@@ -5069,6 +5390,11 @@ func (o *ChangeAgentParamsBodyAzureDatabaseExporter) contextValidateCustomLabels
 
 func (o *ChangeAgentParamsBodyAzureDatabaseExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
@@ -5274,6 +5600,11 @@ func (o *ChangeAgentParamsBodyExternalExporter) ContextValidate(ctx context.Cont
 
 func (o *ChangeAgentParamsBodyExternalExporter) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "external_exporter" + "." + "custom_labels")
@@ -5289,6 +5620,11 @@ func (o *ChangeAgentParamsBodyExternalExporter) contextValidateCustomLabels(ctx 
 
 func (o *ChangeAgentParamsBodyExternalExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "external_exporter" + "." + "metrics_resolutions")
@@ -5494,6 +5830,11 @@ func (o *ChangeAgentParamsBodyMongodbExporter) ContextValidate(ctx context.Conte
 
 func (o *ChangeAgentParamsBodyMongodbExporter) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mongodb_exporter" + "." + "custom_labels")
@@ -5509,6 +5850,11 @@ func (o *ChangeAgentParamsBodyMongodbExporter) contextValidateCustomLabels(ctx c
 
 func (o *ChangeAgentParamsBodyMongodbExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mongodb_exporter" + "." + "metrics_resolutions")
@@ -5714,6 +6060,11 @@ func (o *ChangeAgentParamsBodyMysqldExporter) ContextValidate(ctx context.Contex
 
 func (o *ChangeAgentParamsBodyMysqldExporter) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysqld_exporter" + "." + "custom_labels")
@@ -5729,6 +6080,11 @@ func (o *ChangeAgentParamsBodyMysqldExporter) contextValidateCustomLabels(ctx co
 
 func (o *ChangeAgentParamsBodyMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
@@ -5934,6 +6290,11 @@ func (o *ChangeAgentParamsBodyNodeExporter) ContextValidate(ctx context.Context,
 
 func (o *ChangeAgentParamsBodyNodeExporter) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "node_exporter" + "." + "custom_labels")
@@ -5949,6 +6310,11 @@ func (o *ChangeAgentParamsBodyNodeExporter) contextValidateCustomLabels(ctx cont
 
 func (o *ChangeAgentParamsBodyNodeExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "node_exporter" + "." + "metrics_resolutions")
@@ -6154,6 +6520,11 @@ func (o *ChangeAgentParamsBodyPostgresExporter) ContextValidate(ctx context.Cont
 
 func (o *ChangeAgentParamsBodyPostgresExporter) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "postgres_exporter" + "." + "custom_labels")
@@ -6169,6 +6540,11 @@ func (o *ChangeAgentParamsBodyPostgresExporter) contextValidateCustomLabels(ctx 
 
 func (o *ChangeAgentParamsBodyPostgresExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "postgres_exporter" + "." + "metrics_resolutions")
@@ -6374,6 +6750,11 @@ func (o *ChangeAgentParamsBodyProxysqlExporter) ContextValidate(ctx context.Cont
 
 func (o *ChangeAgentParamsBodyProxysqlExporter) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "proxysql_exporter" + "." + "custom_labels")
@@ -6389,6 +6770,11 @@ func (o *ChangeAgentParamsBodyProxysqlExporter) contextValidateCustomLabels(ctx 
 
 func (o *ChangeAgentParamsBodyProxysqlExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
@@ -6594,6 +6980,11 @@ func (o *ChangeAgentParamsBodyQANMongodbProfilerAgent) ContextValidate(ctx conte
 
 func (o *ChangeAgentParamsBodyQANMongodbProfilerAgent) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "custom_labels")
@@ -6609,6 +7000,11 @@ func (o *ChangeAgentParamsBodyQANMongodbProfilerAgent) contextValidateCustomLabe
 
 func (o *ChangeAgentParamsBodyQANMongodbProfilerAgent) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent" + "." + "metrics_resolutions")
@@ -6814,6 +7210,11 @@ func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgent) ContextValidate(ctx conte
 
 func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgent) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "custom_labels")
@@ -6829,6 +7230,11 @@ func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgent) contextValidateCustomLabe
 
 func (o *ChangeAgentParamsBodyQANMysqlPerfschemaAgent) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_mysql_perfschema_agent" + "." + "metrics_resolutions")
@@ -7034,6 +7440,11 @@ func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgent) ContextValidate(ctx context.
 
 func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgent) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "custom_labels")
@@ -7049,6 +7460,11 @@ func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgent) contextValidateCustomLabels(
 
 func (o *ChangeAgentParamsBodyQANMysqlSlowlogAgent) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_mysql_slowlog_agent" + "." + "metrics_resolutions")
@@ -7254,6 +7670,11 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent) ContextValidate(ct
 
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "custom_labels")
@@ -7269,6 +7690,11 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent) contextValidateCus
 
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatements_agent" + "." + "metrics_resolutions")
@@ -7474,6 +7900,11 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent) ContextValidate(c
 
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "custom_labels")
@@ -7489,6 +7920,11 @@ func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent) contextValidateCu
 
 func (o *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "qan_postgresql_pgstatmonitor_agent" + "." + "metrics_resolutions")
@@ -7694,6 +8130,11 @@ func (o *ChangeAgentParamsBodyRDSExporter) ContextValidate(ctx context.Context, 
 
 func (o *ChangeAgentParamsBodyRDSExporter) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "rds_exporter" + "." + "custom_labels")
@@ -7709,6 +8150,11 @@ func (o *ChangeAgentParamsBodyRDSExporter) contextValidateCustomLabels(ctx conte
 
 func (o *ChangeAgentParamsBodyRDSExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "rds_exporter" + "." + "metrics_resolutions")

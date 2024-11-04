@@ -7,6 +7,7 @@ package locations_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type TestLocationConfigOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this test location config Ok response has a 2xx status code
+func (o *TestLocationConfigOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this test location config Ok response has a 3xx status code
+func (o *TestLocationConfigOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this test location config Ok response has a 4xx status code
+func (o *TestLocationConfigOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this test location config Ok response has a 5xx status code
+func (o *TestLocationConfigOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this test location config Ok response a status code equal to that given
+func (o *TestLocationConfigOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the test location config Ok response
+func (o *TestLocationConfigOK) Code() int {
+	return 200
+}
+
 func (o *TestLocationConfigOK) Error() string {
-	return fmt.Sprintf("[POST /v1/backups/locations:testConfig][%d] testLocationConfigOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/backups/locations:testConfig][%d] testLocationConfigOk %s", 200, payload)
+}
+
+func (o *TestLocationConfigOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/backups/locations:testConfig][%d] testLocationConfigOk %s", 200, payload)
 }
 
 func (o *TestLocationConfigOK) GetPayload() interface{} {
@@ -92,13 +129,44 @@ type TestLocationConfigDefault struct {
 	Payload *TestLocationConfigDefaultBody
 }
 
+// IsSuccess returns true when this test location config default response has a 2xx status code
+func (o *TestLocationConfigDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this test location config default response has a 3xx status code
+func (o *TestLocationConfigDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this test location config default response has a 4xx status code
+func (o *TestLocationConfigDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this test location config default response has a 5xx status code
+func (o *TestLocationConfigDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this test location config default response a status code equal to that given
+func (o *TestLocationConfigDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the test location config default response
 func (o *TestLocationConfigDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *TestLocationConfigDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/backups/locations:testConfig][%d] TestLocationConfig default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/backups/locations:testConfig][%d] TestLocationConfig default %s", o._statusCode, payload)
+}
+
+func (o *TestLocationConfigDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/backups/locations:testConfig][%d] TestLocationConfig default %s", o._statusCode, payload)
 }
 
 func (o *TestLocationConfigDefault) GetPayload() *TestLocationConfigDefaultBody {
@@ -204,6 +272,11 @@ func (o *TestLocationConfigBody) ContextValidate(ctx context.Context, formats st
 
 func (o *TestLocationConfigBody) contextValidateFilesystemConfig(ctx context.Context, formats strfmt.Registry) error {
 	if o.FilesystemConfig != nil {
+
+		if swag.IsZero(o.FilesystemConfig) { // not required
+			return nil
+		}
+
 		if err := o.FilesystemConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "filesystem_config")
@@ -219,6 +292,11 @@ func (o *TestLocationConfigBody) contextValidateFilesystemConfig(ctx context.Con
 
 func (o *TestLocationConfigBody) contextValidateS3Config(ctx context.Context, formats strfmt.Registry) error {
 	if o.S3Config != nil {
+
+		if swag.IsZero(o.S3Config) { // not required
+			return nil
+		}
+
 		if err := o.S3Config.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "s3_config")
@@ -322,6 +400,11 @@ func (o *TestLocationConfigDefaultBody) ContextValidate(ctx context.Context, for
 func (o *TestLocationConfigDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("TestLocationConfig default" + "." + "details" + "." + strconv.Itoa(i))
@@ -361,6 +444,80 @@ swagger:model TestLocationConfigDefaultBodyDetailsItems0
 type TestLocationConfigDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// test location config default body details items0
+	TestLocationConfigDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *TestLocationConfigDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv TestLocationConfigDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.TestLocationConfigDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o TestLocationConfigDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.TestLocationConfigDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.TestLocationConfigDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this test location config default body details items0

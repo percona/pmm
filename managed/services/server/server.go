@@ -98,7 +98,7 @@ type Params struct {
 
 // NewServer returns new server for Server service.
 func NewServer(params *Params) (*Server, error) {
-	path := os.TempDir()
+	path := "/srv"
 	if _, err := os.Stat(path); err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -359,6 +359,12 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 
 // UpdateStatus returns PMM Server update status.
 func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusRequest) (*serverv1.UpdateStatusResponse, error) {
+	if _, err := os.Stat(s.pmmUpdateAuthFile); err != nil && os.IsNotExist(err) {
+		return &serverv1.UpdateStatusResponse{
+			Done: true,
+		}, nil
+	}
+
 	token, err := s.readUpdateAuthToken()
 	if err != nil {
 		return nil, err
@@ -370,12 +376,10 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusReq
 	// wait up to 30 seconds for new log lines
 	var lines []string
 	var newOffset uint32
-	var done bool
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 	for ctx.Err() == nil {
-		done = !s.updater.IsRunning()
-		if done {
+		if !s.updater.IsRunning() {
 			// give supervisord a second to flush logs to file
 			time.Sleep(time.Second)
 		}
@@ -385,7 +389,7 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusReq
 			s.l.Warn(err)
 		}
 
-		if len(lines) != 0 || done {
+		if len(lines) != 0 {
 			break
 		}
 
@@ -395,7 +399,7 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusReq
 	return &serverv1.UpdateStatusResponse{
 		LogLines:  lines,
 		LogOffset: newOffset,
-		Done:      done,
+		Done:      false,
 	}, nil
 }
 
