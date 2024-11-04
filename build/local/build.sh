@@ -195,14 +195,14 @@ update() {
 
 get_branch_name() {
   local module="${1:-}"
-  local branch_name
-  local path
+  local path=$(git config -f .gitmodules submodule.${module}.path)
 
-  path=$(git config -f .gitmodules submodule.${module}.path)
-  cd "$path" || exit 1
-  branch_name=$(git branch --show-current)
-  cd - > /dev/null
-  echo $branch_name
+  if [ ! -d "$path" ]; then
+    echo "Error: could not resolve the path to submodule ${module}"
+    exit 1
+  fi
+
+  echo $(git -C "$path" branch --show-current)
 }
 
 run_build_script() {

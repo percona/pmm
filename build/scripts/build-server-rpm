@@ -54,6 +54,7 @@ prepare_specs() {
     local repo_name=$2
     local spec_file=${rpmbuild_dir}/${spec_name}.spec
 
+    mkdir -p ${rpms_dir} ${rpmbuild_dir} 2>/dev/null || :
     cp ${rpmspec_dir}/${spec_name}.spec ${spec_file}
     if [ ! -d "${root_dir}/sources/${repo_name}" ]; then
         return
