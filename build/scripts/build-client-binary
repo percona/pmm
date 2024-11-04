@@ -21,12 +21,11 @@ gobuild_component() {
     local extract_path=${3:-"github.com/percona/$parent_component"}
     local component_path=$4
     local result_file=${5:-bin/$(basename ${component_path:-$extract_path})}
-    local volume_mounts="-v ${tmp_dir}:/home/builder/tmp"
     local src_dir=/home/builder/tmp/source/pmm-client-${pmm_version}
     local bin_dir=/home/builder/tmp/binary/pmm-client-${pmm_version}
     local archive=$(ls ${source_dir} | grep -e "${parent_component}-\w*\.tar\.gz" | head -n1)
     local build_command
-
+    local volume_mounts="-v ${tmp_dir}:/home/builder/tmp"
     volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
     volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
     volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
@@ -60,10 +59,11 @@ gobuild_component() {
         export CGO_ENABLED=0
         export GO111MODULE=auto
 
-        # Setting variable for 'make release'
+        # Setting variables for 'make release'
         export PMM_RELEASE_VERSION=${full_pmm_version}
         export PMM_RELEASE_TIMESTAMP=$(date '+%s')
-        export PMM_RELEASE_BRANCH=""
+        export PMM_RELEASE_PATH=${bin_dir}/bin
+
         sudo chown -R builder:builder /home/builder/tmp
         if [ ! -w /home/builder/.cache/go-build ]; then
             sudo chown builder /home/builder/.cache/go-build
@@ -72,7 +72,6 @@ gobuild_component() {
             sudo chown builder /home/builder/go/pkg/mod
         fi
 
-        export PMM_RELEASE_PATH=${bin_dir}/bin
         if [ "${component}" = vmagent ]; then
             export PMM_RELEASE_FULLCOMMIT=${vmagent_commit_hash}
         else

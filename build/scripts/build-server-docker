@@ -10,14 +10,11 @@ main() {
   echo "Building docker image for PMM Server..."
   echo -----------------------------------------
 
-  if [ -f "${docker_tarball}" ]; then
-      echo Docker tarball found, skipping docker build...
-      return
-  fi
+  local docker_root=$(realpath ${rpms_dir}/..)
+  local pmm_source_dir=$(git config -f .gitmodules submodule.pmm.path)
 
-  docker_root=$(realpath ${rpms_dir}/..)
-  cp -r ${root_dir}/tmp/source/pmm/build/ansible ${docker_root}/ansible
-  cp ${root_dir}/tmp/source/pmm/build/docker/server/* ${docker_root}/
+  cp -r "${root_dir}/${pmm_source_dir}/build/ansible" "${docker_root}/ansible"
+  cp "${root_dir}/${pmm_source_dir}/build/docker/server/*" "${docker_root}"
   cp ${root_dir}/results/tarball/pmm-client-*.tar.gz ${docker_root}/pmm-client.tar.gz
 
   git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
@@ -50,10 +47,6 @@ main() {
       mkdir -p $(dirname ${docker_tag_file})
       echo ${DOCKER_TAG} > ${docker_tag_file}
       docker push ${DOCKER_TAG}
-  fi
-  if [ -n "${SAVE_DOCKER}" ]; then
-      mkdir -p $(dirname ${docker_tarball})
-      docker save ${DOCKER_TAG} > ${docker_tarball}
   fi
 }
 

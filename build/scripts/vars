@@ -49,7 +49,6 @@ client_properties=${root_dir}/results/pmm-client.properties
 docker_file=${DOCKERFILE:-Dockerfile}
 docker_tag_file=${root_dir}/results/docker/TAG
 docker_client_tag_file=${root_dir}/results/docker/CLIENT_TAG
-docker_tarball=${root_dir}/results/docker/pmm-server-${pmm_version}.docker
 docker_client_tarball=${root_dir}/results/docker/pmm-client-${pmm_version}.docker
 source_tarball=${root_dir}/results/source_tarball/pmm-client-${pmm_version}.tar.gz
 binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}.tar.gz

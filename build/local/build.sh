@@ -277,24 +277,6 @@ init() {
 
   GIT_COMMIT=$(git rev-parse HEAD | head -c 8)
 
-  pmm_commit=$(git submodule status | grep 'sources/pmm/src' | awk -F ' ' '{print $1}')
-  pmm_branch=$(git config -f .gitmodules submodule.pmm.branch)
-  pmm_url=$(git config -f .gitmodules submodule.pmm.url)
-  pmm_qa_branch=$(git config -f .gitmodules submodule.pmm-qa.branch)
-  pmm_qa_commit=$(git submodule status | grep 'pmm-qa' | awk -F ' ' '{print $1}')
-  pmm_ui_tests_branch=$(git config -f .gitmodules submodule.pmm-ui-tests.branch)
-  pmm_ui_tests_commit=$(git submodule status | grep 'pmm-ui-tests' | awk -F ' ' '{print $1}')
-  fb_commit_sha=$(git rev-parse HEAD)
-
-  echo $fb_commit_sha > fbCommitSha
-  echo $pmm_commit > apiCommitSha
-  echo $pmm_branch > apiBranch
-  echo $pmm_url > apiURL
-  echo $pmm_qa_branch > pmmQABranch
-  echo $pmm_qa_commit > pmmQACommitSha
-  echo $pmm_ui_tests_branch > pmmUITestBranch
-  echo $pmm_ui_tests_commit > pmmUITestsCommitSha
-
   # Create docker volume to persist package and build cache
   # Read more in the section about `rpmbuild`.
   if ! docker volume ls | grep pmm-gobuild >/dev/null; then
@@ -317,15 +299,7 @@ cleanup() {
   local CURDIR="$PWD"
   cd "$SUBMODULES" > /dev/null
 
-  # Clean up temporary files
-  rm -f apiBranch \
-    apiCommitSha \
-    apiURL \
-    fbCommitSha \
-    pmmQABranch \
-    pmmQACommitSha \
-    pmmUITestBranch \
-    pmmUITestsCommitSha || :
+  # Implement cleanup logic here
 
   cd "$CURDIR" > /dev/null
 }
