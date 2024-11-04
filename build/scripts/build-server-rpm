@@ -63,7 +63,7 @@ prepare_specs() {
       echo "Warning: the spec file could not be found."
     fi
     
-    local git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git -type d | head -1))
+    local git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
     local full_commit=$(git -C "${git_dir}" rev-parse HEAD)
     local short_commit=${full_commit:0:7}
 
