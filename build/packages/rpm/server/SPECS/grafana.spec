@@ -35,8 +35,6 @@ sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
 sudo npm install -g grunt-cli
 
 %build
-mkdir -p _build/src
-export GOPATH="$(pwd)/_build"
 
 make build-go
 
