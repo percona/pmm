@@ -269,11 +269,11 @@ purge_files() {
 init() {
   local CURDIR="$PWD"
 
-  export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
-
   if [ -d "$SUBMODULES" ]; then
     cd "$SUBMODULES" > /dev/null
   fi
+
+  export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
 
   GIT_COMMIT=$(git rev-parse HEAD | head -c 8)
 
@@ -381,8 +381,11 @@ main() {
   # total time: N/A - subsequent build, using cache from prior builds
 
   export RPM_EPOCH=1
-  export FORCE_REBUILD=1 # Don't use S3 cache
   if [ "$NO_SERVER_RPM" -eq 0 ]; then
+    # Grafana build fails to build with Go 1.23.x, see https://github.com/grafana/grafana/issues/89796
+    export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:go1.22.4
+    run_build_script build-server-rpm grafana
+    export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
     run_build_script build-server-rpm percona-dashboards grafana-dashboards
     run_build_script build-server-rpm pmm-managed pmm
     run_build_script build-server-rpm percona-qan-api2 pmm
@@ -392,7 +395,6 @@ main() {
 
     # 3rd-party
     run_build_script build-server-rpm victoriametrics
-    run_build_script build-server-rpm grafana
   fi
 
   if [ "$NO_SERVER_DOCKER" -eq 0 ]; then

@@ -32,8 +32,6 @@ is_build_needed() {
     # s3://pmm-build-cache/PR-BUILDS/9 - el9
     # s3://pmm-build-cache/RELEASE/9 - el9
 
-    [ "${FORCE_REBUILD}" = 1 ] && return 0
-
     # RPM_EPOCH is set to 1 for Feature Builds
     if [ "$RPM_EPOCH" = 1 ]; then
         s3_cache_dir=PR-BUILDS
