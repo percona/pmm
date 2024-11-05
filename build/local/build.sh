@@ -4,16 +4,17 @@ set -o nounset
 
 usage() {
   cat <<-EOF
-Usage: $BASE_NAME [--platform] [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm] [--no-server-docker] [--log-file <path>] [--help | -h]
---platform <platform>    Build for a specific platform (default - linux/amd64)
---no-update              Do not fetch the latest changes from the repo
---update-only            Only fetch the latest changes from the repo
---no-client              Do not build PMM Client
---client-docker          Build PMM Client docker image
---no-server-rpm          Do not build Server RPM packages
---no-server-docker       Do not build PMM Server docker image
---log-file <path>        Save build logs to a file located at <path>
---help | -h              Display help
+Usage: $BASE_NAME [OPTIONS] [--platform] [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm] [--no-server-docker] [--log-file <path>] [--help | -h]
+Options:
+      --platform <platform>    Build for a specific platform (defaults to linux/amd64)
+      --no-update              Do not fetch the latest changes from the repo
+      --update-only            Only fetch the latest changes from the repo
+      --no-client              Do not build PMM Client
+      --client-docker          Build PMM Client docker image
+      --no-server-rpm          Do not build Server RPM packages
+      --no-server-docker       Do not build PMM Server docker image
+      --log-file <path>        Save build logs to a file located at <path> (defaults to PWD)
+      --help | -h              Display help
 EOF
 }
 
@@ -346,29 +347,22 @@ main() {
     run_build_script build-client-docker
   fi
 
-  # Building PMM CLient locally (non-CI, i.e. non-Jenkins)
-  # total time: 6m26s - build from scratch, no initial cache
-  # total time: 2m49s - subsequent build, using cache from prior builds
-
-  # Building PMM CLient in a CI environment, i.e. Jenkins running on AWS
-  # total time: 8m45s - build from scratch, no initial cache
-  # total time: N/A - subsequent build, using cache from prior builds
-
   export RPM_EPOCH=1
   if [ "$NO_SERVER_RPM" -eq 0 ]; then
-    # Grafana build fails to build with Go 1.23.x, see https://github.com/grafana/grafana/issues/89796
-    export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:go1.22.4
-    run_build_script build-server-rpm grafana
+    # Grafana build fails to compile with Go 1.23.x, see https://github.com/grafana/grafana/issues/89796
+    # We need to apply this [patch](https://github.com/grafana/grafana/pull/94742) to fix it
     export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
+    # 3rd-party components
+    run_build_script build-server-rpm grafana
+    run_build_script build-server-rpm victoriametrics
+
+    # 1st-party components
     run_build_script build-server-rpm percona-dashboards grafana-dashboards
     run_build_script build-server-rpm pmm-managed pmm
     run_build_script build-server-rpm percona-qan-api2 pmm
     run_build_script build-server-rpm pmm-update pmm
     run_build_script build-server-rpm pmm-dump
     run_build_script build-server-rpm vmproxy pmm
-
-    # 3rd-party
-    run_build_script build-server-rpm victoriametrics
   fi
 
   if [ "$NO_SERVER_DOCKER" -eq 0 ]; then
@@ -386,14 +380,9 @@ main() {
   cleanup
 }
 
-# Reference test environment
-# CPU: 4 cores
-# RAM: 16 GB
-# OS: Ubuntu 22.04.1 LTS
-
 parse-params "$@"
 
-# Capture the output in the log file
+# Capture the build logs in the log file
 exec > >(tee "$LOG_FILE") 2>&1
 
 main
