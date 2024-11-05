@@ -1,20 +1,20 @@
 ---
 title: Create user accounts
-slug: bulk-add-users
-category: 66acab7b0bf230001846b5e2
-parentDoc: 66acad52c21a1a0036295235
+slug: create-user-accounts
+categorySlug: pmm-server-maintenance
+parentDocSlug: pmm-server-user-accounts
 order: 1
 ---
 
-## Create multiple user accounts
+### Create multiple user accounts
 
 PMM Server will start up with a single user account, the administrator account.
 This account should not be for general use, because it allows complete control of
-the server and access to all data that is accessible via the UI.
+the server and access to all the data, including sensitive.
 
 Similar to the management of the [admin account](ref:change-admin-password), it is
 possible to manage other user accounts via the API. Waiting for readiness and
-using `netrc` files with `cURL` are relevant for API usage in general and are
+using `netrc` files with `curl` are relevant for API usage in general and are
 thus relevant here.
 
 ### Create a single user account
@@ -26,7 +26,7 @@ follow.
 The following example will create a Grafana admin user that can make certain
 administrative changes to the system, but does not have full administrative access.
 
-```sh
+```shell
 $ cat <<EOF >/tmp/data.json
 {
     "name": "Grafana Admin",
@@ -142,4 +142,3 @@ For simplicity, we will only be using Ansible for this example.
   - login: user2
     role: Viewer
 ```
-
