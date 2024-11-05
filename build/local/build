@@ -352,7 +352,7 @@ main() {
     run_build_script build-client-rpm
   fi
 
-  # Building client docker image takes from 17s (using docker cache) to 43s (no docker cache). 
+  # Building client docker image takes from 17s (using docker cache) to 43s (no docker cache).
   export DOCKER_CLIENT_TAG=percona/pmm-client:${GIT_COMMIT}
   if [ "$NO_CLIENT_DOCKER" -eq 0 ]; then
     run_build_script build-client-docker
