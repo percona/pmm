@@ -1,15 +1,15 @@
-%global debug_package   %{nil}
-%global commit          7dd51483f34ce324e603160f415395fce0bc55a1
+%global commit          f2a6d70344f94674f731e6e9b031a6f147de46cc
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
-%define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         106
 %define grafana_version 11.1.5
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
-%define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
+%define rpm_release     %{release}.%{shortcommit}%{?dist}
 
 %if ! 0%{?gobuild:1}
-%define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n')" -a -v -x %{?**};
+# https://github.com/rpm-software-management/rpm/issues/367
+# https://fedoraproject.org/wiki/PackagingDrafts/Go#Build_ID
+%define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom | od -An -tx1 | tr -d ' \\n')" -a -v -x %{?**};
 %endif
 
 Name:           percona-grafana
@@ -19,24 +19,20 @@ Summary:        Grafana is an open source, feature rich metrics dashboard and gr
 License:        AGPLv3
 URL:            https://github.com/percona/grafana
 Source0:        https://github.com/percona/grafana/archive/%{commit}.tar.gz
-ExclusiveArch:  %{ix86} x86_64 %{arm}
+ExclusiveArch:  %{ix86} x86_64 %{arm} aarch64
 
 BuildRequires: fontconfig
-%if 0%{?rhel} < 9
-BuildRequires: nodejs-grunt-cli
-%endif
 
 %description
-Grafana is an open source, feature rich metrics dashboard and graph editor for
-Graphite, InfluxDB & OpenTSDB.
+Grafana is an open source observability and data visualization platform.
+Visualize metrics, logs, and traces from multiple sources like
+Prometheus, Loki, Elasticsearch, InfluxDB, Postgres and many more.
 
 %prep
 %setup -q -n grafana-%{commit}
 rm -rf Godeps
 sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
-%if 0%{?rhel} >= 9
-    sudo npm install -g grunt-cli
-%endif
+sudo npm install -g grunt-cli
 
 %build
 mkdir -p _build/src
@@ -79,7 +75,7 @@ install -d -p %{buildroot}%{_sharedstatedir}/grafana
 %pre
 getent group pmm >/dev/null || echo "Group pmm does not exist. Please create it manually."
 getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it manually."
-exit 0
+
 
 %changelog
 * Fri Sep 06 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.1.5-1
@@ -93,6 +89,9 @@ exit 0
 
 * Tue Apr 16 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.4.2-1
 - PMM-13059 Grafana 10.4.2
+
+* Wed Mar 20 2024 Alex Demidoff <alexander.demidoff@percona.com> - 10.4.0-2
+- PMM-12899 Use module and build cache
 
 * Tue Mar 12 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 10.4.0-1
 - PMM-12991 Grafana 10.4.0
