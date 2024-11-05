@@ -4,15 +4,15 @@ set -o nounset
 
 usage() {
   cat <<-EOF
-Usage: $BASE_NAME [OPTIONS] [--platform] [--no-update | --update-only] [--no-client] [--no-client-docker] [--no-server-rpm] [--no-server-docker] [--log-file <path>] [--help | -h]
+Usage: $BASE_NAME [OPTIONS]
 Options:
       --platform <platform>    Build for a specific platform (defaults to linux/amd64)
       --no-update              Do not fetch the latest changes from the repo
       --update-only            Only fetch the latest changes from the repo
       --no-client              Do not build PMM Client
-      --client-docker          Build PMM Client docker image
-      --no-server-rpm          Do not build Server RPM packages
-      --no-server-docker       Do not build PMM Server docker image
+      --no-client-docker       Do not build PMM Client docker image (default)
+      --client-only            Build only PMM Client (client binaries + docker)
+      --no-server              Do not build PMM Server (docker image)
       --log-file <path>        Save build logs to a file located at <path> (defaults to PWD)
       --help | -h              Display help
 EOF
@@ -25,8 +25,7 @@ parse-params() {
   UPDATE_ONLY=0
   NO_CLIENT=0
   NO_CLIENT_DOCKER=1
-  NO_SERVER_RPM=0
-  NO_SERVER_DOCKER=0
+  NO_SERVER=0
   START_TIME=$(date +%s)
   LOG_FILE="$(dirname $0)/build.log"
   BASE_NAME=$(basename $0)
@@ -40,7 +39,14 @@ parse-params() {
         UPDATE_ONLY=1; NO_UPDATE=0
         ;;
       --no-update)
+        if [ "$UPDATE_ONLY" -eq 1 ]; then
+          echo "Error. Mutually exclusive options: --update-only and --no-update"
+          exit 1
+        fi      
         NO_UPDATE=1
+        ;;
+      --client-only)
+        NO_CLIENT=0; NO_CLIENT_DOCKER=0; NO_SERVER=1
         ;;
       --no-client)
         NO_CLIENT=1; NO_CLIENT_DOCKER=1
@@ -48,19 +54,19 @@ parse-params() {
       --client-docker)
         NO_CLIENT_DOCKER=0
         ;;
-      --no-server-rpm)
-        if [ "$NO_SERVER_DOCKER" -eq 1 ]; then
-          echo "Error: cannot disable both server RPM and server Docker"
+      --no-client-docker)
+        if [ "$NO_CLIENT" -eq 1 ]; then
+          echo "Error. Mutually exclusive options: --client-docker and --no-client"
           exit 1
         fi
-        NO_SERVER_RPM=1
+        if [ "$NO_CLIENT_DOCKER" -eq 1 ]; then
+          echo "Error. Mutually exclusive options: --client-docker and --no-client-docker"
+          exit 1
+        fi
+        NO_CLIENT_DOCKER=1
         ;;
-      --no-server-docker)
-        if [ "$NO_SERVER_RPM" -eq 1 ]; then
-          echo "Error: cannot disable both server RPM and server Docker"
-          exit 1
-        fi
-        NO_SERVER_DOCKER=1
+      --no-server)
+        NO_SERVER=1
         ;;
       --platform)
         shift
@@ -145,9 +151,17 @@ check-files() {
   return 1
 }
 
+# Update submodules and PR branches
 update() {
   local DEPS=
   local CURDIR="$PWD"
+  local UPDATED_SCRIPT="$SUBMODULES/$PATH_TO_SCRIPTS/build/local/build.sh"
+  local MD5SUM=$(md5sum $(dirname $0)/build.sh)
+
+   if [ "$NO_UPDATE" -eq 1 ]; then
+    echo "Running without refreshing the source code from repositories..."
+    return
+   fi
 
   # Thouroughly verify the presence of known files, otherwise bail out
   if [ ! -d "$SUBMODULES" ] ; then # pwd must be outside of pmm-submodules
@@ -192,6 +206,13 @@ update() {
   git submodule status
 
   cd "$CURDIR" > /dev/null
+
+  if [ -f "$UPDATED_SCRIPT" ] && [ "$MD5SUM" != "$(md5sum $UPDATED_SCRIPT)" ]; then
+    echo "The local copy of this script differs from the one fetched from the repo." 
+    echo "Apparently, that version is newer. We will halt to give you the change to run a fresh version."
+    echo "You can copy it over and run it again, i.e. '/bin/bash $(dirname $0)/build.sh --no-update'"
+    exit 0
+  fi
 }
 
 get_branch_name() {
@@ -306,22 +327,7 @@ cleanup() {
 }
 
 main() {
-  if [ "$NO_UPDATE" -eq 0 ]; then
-    local UPDATED_SCRIPT="$SUBMODULES/$PATH_TO_SCRIPTS/build/local/build.sh"
-    MD5SUM=$(md5sum $(dirname $0)/build.sh)
-
-    # Update submodules and PR branches
-    update
-
-    test "$UPDATE_ONLY" -eq 1 && return
-
-    if [ -f "$UPDATED_SCRIPT" ] && [ "$MD5SUM" != "$(md5sum $UPDATED_SCRIPT)" ]; then
-      echo "The local copy of this script differs from the one fetched from the repo." 
-      echo "Apparently, that version is newer. We will halt to give you the change to run a fresh version."
-      echo "You can copy it over and run it again, i.e. '/bin/bash $(dirname $0)/build.sh --no-update'"
-      return
-    fi
-  fi
+  update
 
   init
 
@@ -335,10 +341,10 @@ main() {
     run_build_script build-client-binary
 
     # Building client source rpm takes 13s (caching does not apply)
-    # run_build_script build-client-srpm
+    run_build_script build-client-srpm
 
     # Building client rpm takes 1m40s
-    # run_build_script build-client-rpm
+    run_build_script build-client-rpm
   fi
 
   # Building client docker image takes 17s
@@ -347,11 +353,14 @@ main() {
     run_build_script build-client-docker
   fi
 
-  export RPM_EPOCH=1
-  if [ "$NO_SERVER_RPM" -eq 0 ]; then
+  if [ "$NO_SERVER" -eq 0 ]; then
     # Grafana build fails to compile with Go 1.23.x, see https://github.com/grafana/grafana/issues/89796
     # We need to apply this [patch](https://github.com/grafana/grafana/pull/94742) to fix it
     export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
+    export DOCKER_TAG=percona/pmm-server:${GIT_COMMIT}
+    export DOCKERFILE=Dockerfile.el9
+    export RPM_EPOCH=1
+
     # 3rd-party components
     run_build_script build-server-rpm grafana
     run_build_script build-server-rpm victoriametrics
@@ -363,11 +372,7 @@ main() {
     run_build_script build-server-rpm pmm-update pmm
     run_build_script build-server-rpm pmm-dump
     run_build_script build-server-rpm vmproxy pmm
-  fi
 
-  if [ "$NO_SERVER_DOCKER" -eq 0 ]; then
-    export DOCKER_TAG=percona/pmm-server:${GIT_COMMIT}
-    export DOCKERFILE=Dockerfile.el9
     run_build_script build-server-docker
   fi
 
