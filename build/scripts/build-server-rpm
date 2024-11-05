@@ -135,6 +135,9 @@ build() {
         if [ ! -d /home/builder/.cache/go-build ]; then
             mkdir -p /home/builder/.cache/go-build
         fi
+        if [ ! -d /home/builder/go ]; then
+            mkdir -p /home/builder/go/pkg/mod
+        fi        
         if [ ! -w /home/builder/.cache/go-build ]; then
             sudo chown builder:builder /home/builder/.cache/go-build
         fi
