@@ -34,7 +34,6 @@ parse_arguments() {
         val=`echo "$arg" | sed -e 's;^--[^=]*=;;'`
         optname=`echo "$arg" | sed -e 's/^\(--[^=]*\)=.*$/\1/'`
         case "$arg" in
-            # these get passed explicitly to mysqld
             --builddir=*) WORKDIR="$val" ;;
             --build_src_rpm=*) SRPM="$val" ;;
             --build_source_deb=*) SDEB="$val" ;;
@@ -44,9 +43,7 @@ parse_arguments() {
             --branch=*) SUBMODULE_BRANCH="$val" ;;
             --install_deps=*) INSTALL="$val" ;;
             --help) usage ;;
-            *)
-                append_arg_to_args "$arg"
-              ;;
+            *) append_arg_to_args "$arg" ;;
         esac
     done
 }
@@ -59,7 +56,7 @@ get_branches() {
     cd ${WORKDIR}/pmm-submodules
       git reset --hard > /dev/null 2>&1
       git clean -xdf > /dev/null 2>&1
-      git checkout $SUBMODULE_BRANCH > /dev/null 2>&1
+      git checkout $SUBMODULE_BRANCH
       # this is the return value of this function
       git submodule status | grep $COMPONENT | awk '{print $1}' | awk -F'-' '{print $2}'
     cd - >/dev/null
@@ -257,7 +254,13 @@ build_srpm(){
     cp ${WORKDIR}/${NAME}-${VERSION}/rpm/*.spec .
     cp ${WORKDIR}/${TARFILE} ../SOURCES/
     cd ${WORKDIR}
-    rpmbuild -bs --define "_topdir ${WORKDIR}/rpmbuild" --define "version $VERSION" --define "release $RPM_RELEASE" --define "dist %{nil}" "rpmbuild/SPECS/${PACKAGE_NAME}.spec"
+    rpmbuild -bs \
+      --define "_topdir ${WORKDIR}/rpmbuild" \
+      --define "version $VERSION" \
+      --define "release $RPM_RELEASE" \
+      --define "dist %{nil}" \
+      "rpmbuild/SPECS/${PACKAGE_NAME}.spec"
+
     mkdir -p ${WORKDIR}/srpm
     mkdir -p ${CURDIR}/srpm
     cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm

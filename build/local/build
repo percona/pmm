@@ -52,13 +52,13 @@ parse-params() {
         NO_CLIENT=1; NO_CLIENT_DOCKER=1
         ;;
       --client-docker)
-        NO_CLIENT_DOCKER=0
-        ;;
-      --no-client-docker)
         if [ "$NO_CLIENT" -eq 1 ]; then
           echo "Error. Mutually exclusive options: --client-docker and --no-client"
           exit 1
         fi
+        NO_CLIENT_DOCKER=0
+        ;;
+      --no-client-docker)
         if [ "$NO_CLIENT_DOCKER" -eq 1 ]; then
           echo "Error. Mutually exclusive options: --client-docker and --no-client-docker"
           exit 1
@@ -155,8 +155,8 @@ check-files() {
 update() {
   local DEPS=
   local CURDIR="$PWD"
-  local UPDATED_SCRIPT="$SUBMODULES/$PATH_TO_SCRIPTS/build/local/build.sh"
-  local MD5SUM=$(md5sum $(dirname $0)/build.sh)
+  local UPDATED_SCRIPT="$SUBMODULES/$PATH_TO_SCRIPTS/build/local/build"
+  local MD5SUM=$(md5sum $(dirname $0)/build)
 
    if [ "$NO_UPDATE" -eq 1 ]; then
     echo "Running without refreshing the source code from repositories..."
@@ -210,7 +210,7 @@ update() {
   if [ -f "$UPDATED_SCRIPT" ] && [ "$MD5SUM" != "$(md5sum $UPDATED_SCRIPT)" ]; then
     echo "The local copy of this script differs from the one fetched from the repo." 
     echo "Apparently, that version is newer. We will halt to give you the change to run a fresh version."
-    echo "You can copy it over and run it again, i.e. '/bin/bash $(dirname $0)/build.sh --no-update'"
+    echo "You can copy it over and run it again, i.e. '/bin/bash $(dirname $0)/build --no-update'"
     exit 0
   fi
 }
@@ -283,6 +283,11 @@ purge_files() {
       echo "Removing tmp/source/pmm ..."
       rm -rf tmp/source/pmm
     fi
+  fi
+
+  if [ -d results/rpm ]; then
+    echo "Removing results/rpm/*.rpm ..."
+    rm results/rpm/*.rpm
   fi
   
   cd "$CURDIR"
