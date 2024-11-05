@@ -285,9 +285,9 @@ purge_files() {
     fi
   fi
 
-  if [ -d results/rpm ]; then
-    echo "Removing results/rpm/*.rpm ..."
-    rm results/rpm/*.rpm
+  if [ -d results ]; then
+    echo "Removing results/* ..."
+    rm -rf results/{rpm,srpm,tarball,source_tarball,pmm-client.properties}
   fi
   
   cd "$CURDIR"
