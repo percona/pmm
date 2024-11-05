@@ -14,7 +14,7 @@ PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 PMM_DEV_SERVER_PORT ?= 8443
 
 ifdef NO_VCS
-	NO_VCS := -buildvcs=false
+	NO_VCS = -buildvcs=false
 endif
 ifeq ($(GOBIN),)
 	GOBIN := $(shell go env GOPATH)/bin

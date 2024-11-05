@@ -13,7 +13,7 @@ PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 
 ifdef NO_VCS
-	NO_VCS := -buildvcs=false
+	NO_VCS = -buildvcs=false
 endif
 ifeq ($(GOBIN),)
 	GOBIN := $(shell go env GOPATH)/bin
