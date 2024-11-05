@@ -3,6 +3,17 @@ import { ThemeOptions } from '@mui/material/styles';
 import { deepmerge } from '@mui/utils';
 import { baseThemeOptions } from '@percona/design';
 
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+
+import '@fontsource/poppins/400.css';
+import '@fontsource/poppins/500.css';
+import '@fontsource/poppins/600.css';
+
+import '@fontsource/roboto-mono';
+
 const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
   const newOptions: ThemeOptions = {
     palette: {
@@ -27,12 +38,6 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
               outlinedBorder: 'rgba(220, 33, 0, 0.5)',
               outlinedBorderOpacity: 0.5,
             },
-            background: {
-              default: '#F0F1F4',
-            },
-            surfaces: {
-              default: '#FFFFFF',
-            },
           }
         : {
             primary: {
@@ -56,6 +61,13 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
     },
     components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          body: {
+            backgroundColor: '#F0F1F4',
+          },
+        },
+      },
       MuiIconButton: {
         defaultProps: {
           disableTouchRipple: true,
@@ -102,6 +114,33 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
               flexDirection: 'column',
             },
           }),
+        },
+      },
+      MuiLinearProgress: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            height: 10,
+            borderStyle: 'solid',
+            borderRadius: 5,
+            borderColor: theme.palette.divider,
+            backgroundColor: theme.palette.surfaces?.low,
+          }),
+          bar: {
+            borderRadius: 5,
+            backgroundColor: '#606C86',
+          },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          icon: {
+            width: 22,
+            height: 22,
+          },
+          colorError: {
+            color: '#920000',
+            backgroundColor: '#FFECE9',
+          },
         },
       },
     },

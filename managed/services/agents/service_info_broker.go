@@ -154,9 +154,9 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		return err
 	}
 
-	var sanitizedDSN string
+	sanitizedDSN := request.Dsn
 	for _, word := range redactWords(agent) {
-		sanitizedDSN = strings.ReplaceAll(request.Dsn, word, "****")
+		sanitizedDSN = strings.ReplaceAll(sanitizedDSN, word, "****")
 	}
 	l.Infof("ServiceInfoRequest: type: %s, DSN: %s timeout: %s.", request.Type, sanitizedDSN, request.Timeout)
 
@@ -182,9 +182,11 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	case models.MySQLServiceType:
 		agent.TableCount = &sInfo.TableCount
 		l.Debugf("Updating table count: %d.", sInfo.TableCount)
-		if err = q.Update(agent); err != nil {
+		encryptedAgent := models.EncryptAgent(*agent)
+		if err = q.Update(&encryptedAgent); err != nil {
 			return errors.Wrap(err, "failed to update table count")
 		}
+
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.PostgreSQLServiceType:
 		if agent.PostgreSQLOptions == nil {
@@ -206,9 +208,11 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		agent.PostgreSQLOptions.DatabaseCount = int32(databaseCount - excludedDatabaseCount)
 
 		l.Debugf("Updating PostgreSQL options, database count: %d.", agent.PostgreSQLOptions.DatabaseCount)
-		if err = q.Update(agent); err != nil {
+		encryptedAgent := models.EncryptAgent(*agent)
+		if err = q.Update(&encryptedAgent); err != nil {
 			return errors.Wrap(err, "failed to update database count")
 		}
+
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.MongoDBServiceType,
 		models.ProxySQLServiceType:

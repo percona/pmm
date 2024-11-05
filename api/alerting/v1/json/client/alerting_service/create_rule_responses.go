@@ -59,8 +59,44 @@ type CreateRuleOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this create rule Ok response has a 2xx status code
+func (o *CreateRuleOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create rule Ok response has a 3xx status code
+func (o *CreateRuleOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create rule Ok response has a 4xx status code
+func (o *CreateRuleOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create rule Ok response has a 5xx status code
+func (o *CreateRuleOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create rule Ok response a status code equal to that given
+func (o *CreateRuleOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the create rule Ok response
+func (o *CreateRuleOK) Code() int {
+	return 200
+}
+
 func (o *CreateRuleOK) Error() string {
-	return fmt.Sprintf("[POST /v1/alerting/rules][%d] createRuleOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/rules][%d] createRuleOk %s", 200, payload)
+}
+
+func (o *CreateRuleOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/rules][%d] createRuleOk %s", 200, payload)
 }
 
 func (o *CreateRuleOK) GetPayload() interface{} {
@@ -94,13 +130,44 @@ type CreateRuleDefault struct {
 	Payload *CreateRuleDefaultBody
 }
 
+// IsSuccess returns true when this create rule default response has a 2xx status code
+func (o *CreateRuleDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this create rule default response has a 3xx status code
+func (o *CreateRuleDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this create rule default response has a 4xx status code
+func (o *CreateRuleDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this create rule default response has a 5xx status code
+func (o *CreateRuleDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this create rule default response a status code equal to that given
+func (o *CreateRuleDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the create rule default response
 func (o *CreateRuleDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *CreateRuleDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/alerting/rules][%d] CreateRule default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/rules][%d] CreateRule default %s", o._statusCode, payload)
+}
+
+func (o *CreateRuleDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/alerting/rules][%d] CreateRule default %s", o._statusCode, payload)
 }
 
 func (o *CreateRuleDefault) GetPayload() *CreateRuleDefaultBody {
@@ -142,7 +209,7 @@ type CreateRuleBody struct {
 	For string `json:"for,omitempty"`
 
 	// Severity represents severity level of the check result or alert.
-	// Enum: [SEVERITY_UNSPECIFIED SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
+	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
 	Severity *string `json:"severity,omitempty"`
 
 	// All custom labels to add or remove (with empty values) to default labels from template.
@@ -313,6 +380,11 @@ func (o *CreateRuleBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 func (o *CreateRuleBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Params); i++ {
 		if o.Params[i] != nil {
+
+			if swag.IsZero(o.Params[i]) { // not required
+				return nil
+			}
+
 			if err := o.Params[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "params" + "." + strconv.Itoa(i))
@@ -330,6 +402,11 @@ func (o *CreateRuleBody) contextValidateParams(ctx context.Context, formats strf
 func (o *CreateRuleBody) contextValidateFilters(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Filters); i++ {
 		if o.Filters[i] != nil {
+
+			if swag.IsZero(o.Filters[i]) { // not required
+				return nil
+			}
+
 			if err := o.Filters[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "filters" + "." + strconv.Itoa(i))
@@ -434,6 +511,11 @@ func (o *CreateRuleDefaultBody) ContextValidate(ctx context.Context, formats str
 func (o *CreateRuleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("CreateRule default" + "." + "details" + "." + strconv.Itoa(i))
@@ -473,6 +555,80 @@ swagger:model CreateRuleDefaultBodyDetailsItems0
 type CreateRuleDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// create rule default body details items0
+	CreateRuleDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *CreateRuleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv CreateRuleDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.CreateRuleDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o CreateRuleDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.CreateRuleDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.CreateRuleDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this create rule default body details items0
@@ -509,7 +665,7 @@ swagger:model CreateRuleParamsBodyFiltersItems0
 */
 type CreateRuleParamsBodyFiltersItems0 struct {
 	// FilterType represents filter matching type.
-	// Enum: [FILTER_TYPE_UNSPECIFIED FILTER_TYPE_MATCH FILTER_TYPE_MISMATCH]
+	// Enum: ["FILTER_TYPE_UNSPECIFIED","FILTER_TYPE_MATCH","FILTER_TYPE_MISMATCH"]
 	Type *string `json:"type,omitempty"`
 
 	// label
@@ -610,7 +766,7 @@ type CreateRuleParamsBodyParamsItems0 struct {
 	Name string `json:"name,omitempty"`
 
 	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_UNSPECIFIED PARAM_TYPE_BOOL PARAM_TYPE_FLOAT PARAM_TYPE_STRING]
+	// Enum: ["PARAM_TYPE_UNSPECIFIED","PARAM_TYPE_BOOL","PARAM_TYPE_FLOAT","PARAM_TYPE_STRING"]
 	Type *string `json:"type,omitempty"`
 
 	// Bool value.

@@ -59,8 +59,44 @@ type ListScheduledBackupsOK struct {
 	Payload *ListScheduledBackupsOKBody
 }
 
+// IsSuccess returns true when this list scheduled backups Ok response has a 2xx status code
+func (o *ListScheduledBackupsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list scheduled backups Ok response has a 3xx status code
+func (o *ListScheduledBackupsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list scheduled backups Ok response has a 4xx status code
+func (o *ListScheduledBackupsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list scheduled backups Ok response has a 5xx status code
+func (o *ListScheduledBackupsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list scheduled backups Ok response a status code equal to that given
+func (o *ListScheduledBackupsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the list scheduled backups Ok response
+func (o *ListScheduledBackupsOK) Code() int {
+	return 200
+}
+
 func (o *ListScheduledBackupsOK) Error() string {
-	return fmt.Sprintf("[GET /v1/backups/scheduled][%d] listScheduledBackupsOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/scheduled][%d] listScheduledBackupsOk %s", 200, payload)
+}
+
+func (o *ListScheduledBackupsOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/scheduled][%d] listScheduledBackupsOk %s", 200, payload)
 }
 
 func (o *ListScheduledBackupsOK) GetPayload() *ListScheduledBackupsOKBody {
@@ -96,13 +132,44 @@ type ListScheduledBackupsDefault struct {
 	Payload *ListScheduledBackupsDefaultBody
 }
 
+// IsSuccess returns true when this list scheduled backups default response has a 2xx status code
+func (o *ListScheduledBackupsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list scheduled backups default response has a 3xx status code
+func (o *ListScheduledBackupsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list scheduled backups default response has a 4xx status code
+func (o *ListScheduledBackupsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list scheduled backups default response has a 5xx status code
+func (o *ListScheduledBackupsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list scheduled backups default response a status code equal to that given
+func (o *ListScheduledBackupsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the list scheduled backups default response
 func (o *ListScheduledBackupsDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *ListScheduledBackupsDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/backups/scheduled][%d] ListScheduledBackups default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/scheduled][%d] ListScheduledBackups default %s", o._statusCode, payload)
+}
+
+func (o *ListScheduledBackupsDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/backups/scheduled][%d] ListScheduledBackups default %s", o._statusCode, payload)
 }
 
 func (o *ListScheduledBackupsDefault) GetPayload() *ListScheduledBackupsDefaultBody {
@@ -192,6 +259,11 @@ func (o *ListScheduledBackupsDefaultBody) ContextValidate(ctx context.Context, f
 func (o *ListScheduledBackupsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListScheduledBackups default" + "." + "details" + "." + strconv.Itoa(i))
@@ -231,6 +303,80 @@ swagger:model ListScheduledBackupsDefaultBodyDetailsItems0
 type ListScheduledBackupsDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// list scheduled backups default body details items0
+	ListScheduledBackupsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *ListScheduledBackupsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv ListScheduledBackupsDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.ListScheduledBackupsDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o ListScheduledBackupsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.ListScheduledBackupsDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.ListScheduledBackupsDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this list scheduled backups default body details items0
@@ -327,6 +473,11 @@ func (o *ListScheduledBackupsOKBody) ContextValidate(ctx context.Context, format
 func (o *ListScheduledBackupsOKBody) contextValidateScheduledBackups(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.ScheduledBackups); i++ {
 		if o.ScheduledBackups[i] != nil {
+
+			if swag.IsZero(o.ScheduledBackups[i]) { // not required
+				return nil
+			}
+
 			if err := o.ScheduledBackups[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listScheduledBackupsOk" + "." + "scheduled_backups" + "." + strconv.Itoa(i))
@@ -405,11 +556,11 @@ type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
 	RetryInterval string `json:"retry_interval,omitempty"`
 
 	// DataModel is a model used for performing a backup.
-	// Enum: [DATA_MODEL_UNSPECIFIED DATA_MODEL_PHYSICAL DATA_MODEL_LOGICAL]
+	// Enum: ["DATA_MODEL_UNSPECIFIED","DATA_MODEL_PHYSICAL","DATA_MODEL_LOGICAL"]
 	DataModel *string `json:"data_model,omitempty"`
 
 	// BackupMode specifies backup mode.
-	// Enum: [BACKUP_MODE_UNSPECIFIED BACKUP_MODE_SNAPSHOT BACKUP_MODE_INCREMENTAL BACKUP_MODE_PITR]
+	// Enum: ["BACKUP_MODE_UNSPECIFIED","BACKUP_MODE_SNAPSHOT","BACKUP_MODE_INCREMENTAL","BACKUP_MODE_PITR"]
 	Mode *string `json:"mode,omitempty"`
 
 	// Database vendor e.g. PostgreSQL, MongoDB, MySQL.
