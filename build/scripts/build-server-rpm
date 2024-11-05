@@ -131,7 +131,7 @@ build() {
         set -o xtrace
 
         sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
-        if [ ! -w /home/builder/.cache/go-build ]; then
+        if [ -d /home/builder/.cache/go-build ] && [ ! -w /home/builder/.cache/go-build ]; then
             sudo chown builder:builder /home/builder/.cache/go-build
         fi
         if [ ! -w /home/builder/go/pkg/mod ]; then
