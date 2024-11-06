@@ -86,7 +86,7 @@ gobuild_component() {
           ls -lah /tmp/go/src/${extract_path}
         fi
 
-        \"${build_command}\"
+        '${build_command}'
     "
 }
 
