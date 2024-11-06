@@ -54,6 +54,7 @@ gobuild_component() {
       --platform=${platform} \
       ${volume_mounts} \
       ${rpmbuild_docker_image} sh -c "
+        # Note: use no double quotes inside this script.
         set -o errexit
         set -o xtrace
         export CGO_ENABLED=0
@@ -86,7 +87,7 @@ gobuild_component() {
           ls -lah /tmp/go/src/${extract_path}
         fi
 
-        '${build_command}'
+        bash ${build_command}
     "
 }
 
