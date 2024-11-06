@@ -87,7 +87,7 @@ gobuild_component() {
           ls -lah /tmp/go/src/${extract_path}
         fi
 
-        bash ${build_command}
+        bash -E ${build_command}
     "
 }
 
