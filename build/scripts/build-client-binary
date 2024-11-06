@@ -82,6 +82,9 @@ gobuild_component() {
         mkdir -p /tmp/go/src/${extract_path}
 
         tar -C /tmp/go/src/${extract_path} --strip-components=1 -zxpf ${src_dir}/${archive}
+        if [ -d /tmp/go/src/${extract_path}/admin ]; then
+          ls -lah /tmp/go/src/${extract_path}
+        fi
 
         \"${build_command}\"
     "
@@ -111,6 +114,7 @@ main() {
 
   extract_source_tarball
 
+  # gobuild_component(component, parent_component, extract_path, component_path)
   gobuild_component "vmagent" "" "github.com/VictoriaMetrics/VictoriaMetrics" "app/vmagent"
   gobuild_component "node_exporter" "" "github.com/prometheus/node_exporter"
   gobuild_component "mysqld_exporter"
