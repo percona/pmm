@@ -11,7 +11,7 @@ main() {
     local IMAGE=${1:-ubuntu:focal}
     docker run --rm -e DEBIAN_FRONTEND=noninteractive \
                     -v ${bin_dir}:/home/builder/bin \
-                    -v ${root_dir}/results:/home/builder/results ${IMAGE} sh -c "
+                    -v ${root_dir}/build:/home/builder/build ${IMAGE} sh -c "
         set -o errexit
         set -o xtrace
 
@@ -20,13 +20,9 @@ main() {
 
         apt-get update
         DEBIAN_FRONTEND=noninteractive apt-get -y install git lsb-release devscripts dh-make dh-systemd
-        mkdir -p /tmp/pmm
-        cd /home/builder/results
-            bash /home/builder/bin/build-client-packages \
-                --builddir=/tmp/pmm \
-                --build_source_deb=1
-        cd -
-        chown -R $(id -u):$(id -g) /home/builder/results/source_deb
+        cd /home/builder/build
+
+        bash /home/builder/bin/build-client-packages --build_source_deb=1
     "
 }
 

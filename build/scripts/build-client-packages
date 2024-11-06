@@ -11,8 +11,6 @@ usage () {
     cat <<EOF
 Usage: $0 [OPTIONS]
     The following options may be given :
-        --builddir=DIR      Absolute path to the dir where all actions will be performed
-        --get_sources       Source will be downloaded from github
         --build_src_rpm     If it is 1 src rpm will be built
         --build_source_deb  If it is 1 source deb package will be built
         --build_rpm         If it is 1 rpm will be built
@@ -20,7 +18,7 @@ Usage: $0 [OPTIONS]
         --install_deps      Install build dependencies(root privileges are required)
         --branch            Branch from which submodules should be taken(default v3)
         --help) usage ;;
-Example $0 --builddir=/tmp/PMM_CLIENT --get_sources=1 --build_src_rpm=1 --build_rpm=1
+Example $0 --build_src_rpm=1 --build_rpm=1
 EOF
     exit 1
 }
@@ -30,16 +28,15 @@ append_arg_to_args () {
 }
 
 parse_arguments() {
+    WORKDIR=/tmp/pmm
     for arg do
         val=`echo "$arg" | sed -e 's;^--[^=]*=;;'`
         optname=`echo "$arg" | sed -e 's/^\(--[^=]*\)=.*$/\1/'`
         case "$arg" in
-            --builddir=*) WORKDIR="$val" ;;
             --build_src_rpm=*) SRPM="$val" ;;
-            --build_source_deb=*) SDEB="$val" ;;
             --build_rpm=*) RPM="$val" ;;
+            --build_source_deb=*) SDEB="$val" ;;
             --build_deb=*) DEB="$val" ;;
-            --get_sources=*) SOURCE="$val" ;;
             --branch=*) SUBMODULE_BRANCH="$val" ;;
             --install_deps=*) INSTALL="$val" ;;
             --help) usage ;;
@@ -82,70 +79,8 @@ check_workdir(){
     fi
     
     if ! test -d "$WORKDIR"; then
-        echo >&2 "$WORKDIR is not a directory."
-        exit 1
+        mkdir -p "$WORKDIR"
     fi
-}
-
-get_sources(){
-    cd $WORKDIR
-    if [ $SOURCE = 0 ]; then
-        echo "Sources will not be downloaded"
-        return 0
-    fi
-    git clone $REPO
-    retval=$?
-    if [ $retval != 0 ]; then
-        echo "There were some issues during repo cloning from github. Please retry."
-        exit 1
-    fi
-    cd pmm-client
-    if [ -n $BRANCH ]; then
-        git reset --hard
-        git clean -xdf
-        git checkout $BRANCH
-    fi
-    REVISION=$(git rev-parse --short HEAD)
-    git reset --hard
-    #
-    VERSION=$(pmm_version)
-    mv Makefile build/
-    echo "VERSION=${VERSION}" > $VERSION_FILE
-    echo "REVISION=${REVISION}" >> $VERSION_FILE
-    echo "RPM_RELEASE=${RPM_RELEASE}" >> $VERSION_FILE
-    echo "DEB_RELEASE=${DEB_RELEASE}" >> $VERSION_FILE
-    echo "GIT_REPO=${REPO}" >> $VERSION_FILE
-    echo "BRANCH_NAME=${BRANCH}" >> $VERSION_FILE
-    echo "NodeExp_BRANCH_NAME=${NodeExp_BRANCH_NAME}" >> $VERSION_FILE
-    echo "MongoExp_BRANCH_NAME=${MongoExp_BRANCH_NAME}" >> $VERSION_FILE
-    echo "MysqlExp_BRANCH_NAME=${MysqlExp_BRANCH_NAME}" >> $VERSION_FILE
-    echo "ProxysqlExp_BRANCH_NAME=${ProxysqlExp_BRANCH_NAME}" >> $VERSION_FILE
-    echo "TOOLKIT_REPO=${TOOLKIT_REPO}" >> $VERSION_FILE
-    echo "TOOLKIT_BRANCH_NAME=${TOOLKIT_BRANCH_NAME}" >> $VERSION_FILE
-    PRODUCT=pmm-client
-    PRODUCT_NAME=pmm
-    echo "PRODUCT=${PRODUCT}" >> $VERSION_FILE
-    echo "PRODUCT_NAME=${PRODUCT_NAME}" >> $VERSION_FILE
-    PRODUCT_FULL=${PRODUCT}-${VERSION}
-    echo "PRODUCT_FULL=${PRODUCT_FULL}" >> $VERSION_FILE
-    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> $VERSION_FILE
-    echo "BUILD_ID=${BUILD_ID}" >> $VERSION_FILE
-    echo "UPLOAD=UPLOAD/experimental/BUILDS/${PRODUCT_NAME}/${VERSION}/${BRANCH_NAME}/${REVISION}/${BUILD_ID}" >> $VERSION_FILE
-    echo "MongoExp_REPO=${MongoExp_REPO}" >> $VERSION_FILE
-    echo "MysqlExp_REPO=${MysqlExp_REPO}" >> $VERSION_FILE
-    echo "ProxysqlExp_REPO=${ProxysqlExp_REPO}" >> $VERSION_FILE
-    echo "NodeExp_REPO=${NodeExp_REPO}" >> $VERSION_FILE
-    cd ../
-    mv ${PRODUCT} ${PRODUCT}-${VERSION}
-
-    tar -zcvf ${PRODUCT}-${VERSION}.tar.gz ${PRODUCT}-${VERSION} --exclude=.bzr*
-    mkdir $WORKDIR/source_tarball
-    mkdir $CURDIR/source_tarball
-    cp ${PRODUCT}-${VERSION}.tar.gz $WORKDIR/source_tarball
-    cp ${PRODUCT}-${VERSION}.tar.gz $CURDIR/source_tarball
-    cd $CURDIR
-    rm -rf pmm-client
-    return
 }
 
 get_system(){
@@ -168,7 +103,7 @@ install_deps() {
         echo "Dependencies will not be installed."
         return;
     fi
-    if [ ! $( id -u ) -eq 0 ]; then
+    if [ $(id -u) -ne 0 ]; then
         echo "It is not possible to install dependencies. Please run as root."
         exit 1
     fi
@@ -192,8 +127,8 @@ install_deps() {
 }
 
 get_tar(){
-    TARBALL=$1
-    TARFILE=$(basename $(find $WORKDIR/$TARBALL -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1) || :)
+    local TARBALL=$1
+    local TARFILE=$(basename $(find $WORKDIR/$TARBALL -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1) || :)
     if [ -z $TARFILE ]; then
         TARFILE=$(basename $(find $CURDIR/$TARBALL -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1) || :)
         if [ -z $TARFILE ]; then
@@ -205,13 +140,12 @@ get_tar(){
     else
         cp $WORKDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
     fi
-    return
 }
 
 get_deb_sources(){
-    param=$1
+    local param=$1
     echo $param
-    FILE=$(basename $(find $WORKDIR/source_deb -name "${PACKAGE_NAME}*.$param" | sort | tail -n1) || :)
+    local FILE=$(basename $(find $WORKDIR/source_deb -name "${PACKAGE_NAME}*.$param" | sort | tail -n1) || :)
     if [ -z $FILE ]; then
         FILE=$(basename $(find $CURDIR/source_deb -name "${PACKAGE_NAME}*.$param" | sort | tail -n1) || :)
         if [ -z $FILE ]; then
@@ -227,10 +161,6 @@ get_deb_sources(){
 }
 
 build_srpm(){
-    if [ "$SRPM" = 0 ]; then
-        echo "SRC RPM will not be created"
-        return;
-    fi
     if [ "$OS" = "deb" ]; then
         echo "It is not possible to build src rpm here"
         exit 1
@@ -268,10 +198,6 @@ build_srpm(){
 }
 
 build_rpm(){
-    if [ "$RPM" = 0 ]; then
-        echo "RPM will not be created"
-        return;
-    fi
     if [ "$OS" = "deb" ]; then
         echo "It is not possible to build rpm here"
         exit 1
@@ -316,10 +242,6 @@ build_rpm(){
 }
 
 build_source_deb(){
-    if [ "$SDEB" = 0 ]; then
-        echo "source deb package will not be created"
-        return;
-    fi
     if [ "$OS" = "rpm" ]; then
         echo "It is not possible to build source deb here"
         exit 1
@@ -346,10 +268,8 @@ build_source_deb(){
             git clean -xdf
             git checkout ${BRANCH}
         fi
-    popd
-    pushd ${NAME}-${VERSION}_all
-    REVISION=$(git rev-parse --short HEAD)
-    mkdir distro
+        REVISION=$(git rev-parse --short HEAD)
+        mkdir distro
     popd
 
     tar xzf ${NEWTAR}
@@ -396,10 +316,6 @@ build_source_deb(){
 }
 
 build_deb(){
-    if [ "$DEB" = 0 ]; then
-        echo "deb package will not be created"
-        return;
-    fi
     if [ "$OS" = "rpm" ]; then
         echo "It is not possible to build deb here"
         exit 1
@@ -440,8 +356,6 @@ SRPM=0
 SDEB=0
 RPM=0
 DEB=0
-SOURCE=0
-TARBALL=0
 OS_NAME=
 ARCH=
 OS=
@@ -450,6 +364,8 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
+BRANCH="v3"
+REPO="https://github.com/Percona-Lab/pmm-submodules.git"
 
 if [ -n "$pmm_release" ]; then
     RPM_RELEASE="$RPM_RELEASE.$pmm_release"
@@ -460,31 +376,22 @@ parse_arguments "$@"
 get_system
 install_deps
 
-BRANCH="v3"
-REPO="https://github.com/Percona-Lab/pmm-submodules.git"
-
-if [ "$TARBALL" = '1' -o "$SOURCE" = '1' ]; then
-    MongoExp_BRANCH_NAME=$(get_branches "mongodb_exporter")
-    MongoExp_REPO=$(get_repos "mongodb_exporter")
-    TOOLKIT_BRANCH_NAME=$(get_branches "percona-toolkit")
-    TOOLKIT_REPO=$(get_repos "percona-toolkit")
-    MysqlExp_BRANCH_NAME=$(get_branches "mysqld_exporter")
-    MysqlExp_REPO=$(get_repos "mysqld_exporter")
-    PostgreSQLExp_BRANCH_NAME=$(get_branches "postgres_exporter")
-    PostgreSQLExp_REPO=$(get_repos "postgres_exporter")
-    ProxysqlExp_BRANCH_NAME=$(get_branches "proxysql_exporter")
-    ProxysqlExp_REPO=$(get_repos "proxysql_exporter")
-    NodeExp_BRANCH_NAME=$(get_branches "node_exporter")
-    NodeExp_REPO=$(get_repos "node_exporter")
-    AzureExp_BRANCH_NAME=$(get_branches "azure_metrics_exporter")
-    AzureExp_REPO=$(get_repos "azure_metrics_exporter")
-fi
-
 check_workdir
-get_sources
-build_srpm
-build_source_deb
-build_rpm
-build_deb
+if [ "$SRPM" != 0 ]; then
+  echo "Building srpm packages..."
+  build_srpm
+fi
+if [ "$SDEB" = 0 ]; then
+  echo "Building source deb packages..."
+  build_source_deb
+fi
+if [ "$RPM" = 0 ]; then
+  echo "Building rpm packages..."
+  build_rpm
+fi
+if [ "$DEB" = 0 ]; then
+  echo "Building deb packages..."
+  build_deb
+fi
 
 # vim: expandtab shiftwidth=4 tabstop=4

@@ -46,12 +46,12 @@ rpmspec_dir=${root_dir}/$(git -C ${root_dir} config -f .gitmodules submodule.pmm
 rpmbuild_dist=${RPMBUILD_DIST:-"el9"}
 source_dir=${root_dir}/tmp/source/pmm-client-${pmm_version}
 binary_dir=${root_dir}/tmp/binary/pmm-client-${pmm_version}
-client_properties=${root_dir}/results/pmm-client.properties
+client_properties=${root_dir}/build/pmm-client.properties
 docker_file=${DOCKERFILE:-Dockerfile}
-docker_tag_file=${root_dir}/results/docker/TAG
-docker_client_tag_file=${root_dir}/results/docker/CLIENT_TAG
-source_tarball=${root_dir}/results/source_tarball/pmm-client-${pmm_version}.tar.gz
-binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}.tar.gz
+docker_tag_file=${root_dir}/build/docker/TAG
+docker_client_tag_file=${root_dir}/build/docker/CLIENT_TAG
+source_tarball=${root_dir}/build/source_tarball/pmm-client-${pmm_version}.tar.gz
+binary_tarball=${root_dir}/build/tarball/pmm-client-${pmm_version}.tar.gz
 
 # https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.93.4
 vmagent_commit_hash=58ecb9066574f38f1d1c91ace467316e7f175b09

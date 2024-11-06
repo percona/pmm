@@ -13,18 +13,16 @@ main() {
     local IMAGE=${1:-${rpmbuild_docker_image}}
     docker run --rm \
       -v ${bin_dir}:/home/builder/bin \
-      -v ${root_dir}/results:/home/builder/results \
+      -v ${root_dir}/build:/home/builder/build \
       ${IMAGE} sh -c "
         set -o errexit
         set -o xtrace
 
         export pmm_version=$pmm_version
         export pmm_release=$pmm_release
-        mkdir -p /tmp/pmm
-        cd /home/builder/results
-        /home/builder/bin/build-client-packages \
-            --builddir=/tmp/pmm \
-            --build_rpm=1
+        cd /home/builder/build
+
+        /home/builder/bin/build-client-packages --build_rpm=1
       "
 }
 

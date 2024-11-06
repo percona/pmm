@@ -15,7 +15,7 @@ main() {
 
   cp -r "${root_dir}/${pmm_source_dir}/build/ansible" "${docker_root}/ansible"
   cp "${root_dir}/${pmm_source_dir}/build/docker/server/"* "${docker_root}"
-  cp ${root_dir}/results/tarball/pmm-client-*.tar.gz "${docker_root}/pmm-client.tar.gz"
+  cp ${root_dir}/build/tarball/pmm-client-*.tar.gz "${docker_root}/pmm-client.tar.gz"
 
   git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
   ls -la ${rpms_dir}

@@ -11,17 +11,14 @@ main() {
     echo -----------------------------------------
 
     local IMAGE=${1:-${rpmbuild_docker_image}}
-    docker run --rm -v ${bin_dir}:/home/builder/bin -v ${root_dir}/results:/home/builder/results ${IMAGE} sh -c "
+    docker run --rm -v ${bin_dir}:/home/builder/bin -v ${root_dir}/build:/home/builder/build ${IMAGE} sh -c "
         set -o errexit
         set -o xtrace
 
         export pmm_release=$pmm_release
-        mkdir -p /tmp/pmm
-        cd /home/builder/results
+        cd /home/builder/build
 
-        /home/builder/bin/build-client-packages \
-            --builddir=/tmp/pmm \
-            --build_src_rpm=1
+        /home/builder/bin/build-client-packages --build_src_rpm=1
     "
 }
 
