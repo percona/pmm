@@ -78,10 +78,14 @@ main() {
     prepare_tarball azure_metrics_exporter
 
     prepare_tarball percona-toolkit
+    local noxattrs=
+    if [[ $(uname -o) =~ [Dd]arwin ]]; then
+      noxattrs="--no-xattrs"
+    fi
 
-    tar -C $(dirname ${source_dir}) -zcpf ${source_tarball} $(basename ${source_dir})
+    tar -C $(dirname ${source_dir}) ${noxattrs} -zcpf ${source_tarball} $(basename ${source_dir})
 }
 
 main
 
-# vim: expandtab shiftwidth=4 tabstop=4
+# vim: expandtab shiftwidth=2 tabstop=2

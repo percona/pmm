@@ -8,4 +8,4 @@ bin_dir=$(dirname $0)
 ${bin_dir}/build-client
 ${bin_dir}/build-server
 
-# vim: expandtab shiftwidth=4 tabstop=4
+# vim: expandtab shiftwidth=2 tabstop=2

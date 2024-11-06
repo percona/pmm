@@ -37,4 +37,4 @@ rpmbuild  --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
 rm -f SOURCES/${spec_name}.spec*
 sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
 
-# vim: expandtab shiftwidth=4 tabstop=4
+# vim: expandtab shiftwidth=2 tabstop=2

@@ -1,0 +1,3 @@
+deps:
+  - name: pmm
+    branch: PMM-13487-build-pmm-locally

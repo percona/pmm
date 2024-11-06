@@ -6,34 +6,34 @@ set -o xtrace
 . $(dirname $0)/vars
 
 main() {
-    echo -----------------------------------------
-    echo "Building docker image for PMM Client..."
-    echo -----------------------------------------
+  echo -----------------------------------------
+  echo "Building docker image for PMM Client..."
+  echo -----------------------------------------
 
-    DOCKER_FILE_LOCATION=tmp/source/pmm/build/docker/client # relative to `root_dir`
-    cp ${root_dir}/build/tarball/pmm-client-*.tar.gz ${root_dir}/${DOCKER_FILE_LOCATION}/pmm-client.tar.gz
+  local DOCKER_FILE_LOCATION=build/source/pmm/build/docker/client # relative to `root_dir`
+  cp ${root_dir}/build/tarball/pmm-client-*.tar.gz ${root_dir}/${DOCKER_FILE_LOCATION}/pmm-client.tar.gz
 
-    if [ -z "${DOCKER_CLIENT_TAG}" ]; then
-        DOCKER_CLIENT_TAG=perconalab/pmm-client-fb:${full_pmm_version}
-    fi
+  if [ -z "${DOCKER_CLIENT_TAG}" ]; then
+    DOCKER_CLIENT_TAG=perconalab/pmm-client-fb:${full_pmm_version}
+  fi
 
-    CLIENT_IMAGE_VERSION=`echo $DOCKER_CLIENT_TAG | cut -d ':' -f2`
+  CLIENT_IMAGE_VERSION=`echo $DOCKER_CLIENT_TAG | cut -d ':' -f2`
 
-    docker buildx build \
-        --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
-        --build-arg VERSION="$CLIENT_IMAGE_VERSION" \
-        --progress plain \
-        -f ${DOCKER_FILE_LOCATION}/${docker_file} \
-        -t ${DOCKER_CLIENT_TAG} \
-        ${DOCKER_FILE_LOCATION}
+  docker buildx build \
+    --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
+    --build-arg VERSION="$CLIENT_IMAGE_VERSION" \
+    --progress plain \
+    -f ${DOCKER_FILE_LOCATION}/${docker_file} \
+    -t ${DOCKER_CLIENT_TAG} \
+    ${DOCKER_FILE_LOCATION}
 
-    if [ -n "${PUSH_DOCKER}" ]; then
-        mkdir -p $(dirname ${docker_client_tag_file})
-        echo ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
-        docker push ${DOCKER_CLIENT_TAG}
-    fi
+  if [ -n "${PUSH_DOCKER}" ]; then
+    mkdir -p $(dirname ${docker_client_tag_file})
+    echo ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
+    docker push ${DOCKER_CLIENT_TAG}
+  fi
 }
 
 main
 
-# vim: expandtab shiftwidth=4 tabstop=4
+# vim: expandtab shiftwidth=2 tabstop=2

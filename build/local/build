@@ -14,7 +14,8 @@ Options:
       --client-only            Build only PMM Client (client binaries + docker)
       --no-server              Do not build PMM Server (docker image)
       --log-file <path>        Save build logs to a file located at <path> (defaults to PWD)
-      --help | -h              Display help
+  -d  --debug                  Log output in debug mode, which also prints the commands
+  -h  --help                   Display help
 EOF
 }
 
@@ -26,6 +27,7 @@ parse-params() {
   NO_CLIENT=0
   NO_CLIENT_DOCKER=1
   NO_SERVER=0
+  DEBUG_MODE=0
   START_TIME=$(date +%s)
   LOG_FILE="$(dirname $0)/build.log"
   BASE_NAME=$(basename $0)
@@ -84,6 +86,10 @@ parse-params() {
         fi
         LOG_FILE="$1"
         ;;
+      --debug | -d)
+        shift
+        export DEBUG_MODE=1
+        ;;
       --help | -h)
         shift
         usage
@@ -128,7 +134,10 @@ rewind() {
   fi
 
   if needs-to-pull; then
-    git pull origin
+    if ! git pull origin; then
+      git reset --hard HEAD~20
+      git pull origin
+    fi
     echo "Submodule has pulled from upstream"
     git logs -n 2
     cd - > /dev/null
@@ -265,11 +274,11 @@ purge_files() {
 
   cd "$SUBMODULES" > /dev/null
   # Remove stale files and directories
-  if [ -d tmp ]; then
+  if [ -d build ]; then
     echo "Removing stale files and directories..."
 
-    if [ -d "tmp/pmm-server" ]; then
-      tmp_files=$(find tmp/pmm-server | grep -v "RPMS" | grep -Ev "^tmp/pmm-server$" || :)
+    if [ -d "build/pmm-server" ]; then
+      tmp_files=$(find build/pmm-server | grep -v "RPMS" | grep -Ev "^build/pmm-server$" || :)
       if [ -n "$tmp_files" ]; then
         tmp_files=( $tmp_files )
         for f in "${tmp_files[@]}"; do
@@ -279,15 +288,15 @@ purge_files() {
       fi
     fi
 
-    if [ -d "tmp/source/pmm" ]; then
-      echo "Removing tmp/source/pmm ..."
-      rm -rf tmp/source/pmm
+    if [ -d "build/source/pmm" ]; then
+      echo "Removing build/source/pmm ..."
+      rm -rf build/source/pmm
     fi
   fi
 
-  if [ -d results ]; then
+  if [ -d build ]; then
     echo "Removing results/* ..."
-    rm -rf results/{rpm,srpm,tarball,source_tarball,pmm-client.properties}
+    rm -rf build/{rpm,srpm,tarball,source_tarball,pmm-client.properties}
   fi
   
   cd "$CURDIR"
@@ -304,20 +313,15 @@ init() {
 
   GIT_COMMIT=$(git rev-parse HEAD | head -c 8)
 
-  # Create docker volume to persist package and build cache
+  # Create docker volumes to persist package and build cache
   # Read more in the section about `rpmbuild`.
-  if ! docker volume ls | grep pmm-gobuild >/dev/null; then
-    docker volume create pmm-gobuild
-  fi
-  if ! docker volume ls | grep pmm-gomod >/dev/null; then
-    docker volume create pmm-gomod
-  fi
-  if ! docker volume ls | grep pmm-yarn >/dev/null; then
-    docker volume create pmm-yarn
-  fi
-  if ! docker volume ls | grep pmm-dnf >/dev/null; then
-    docker volume create pmm-dnf
-  fi
+  for volume in pmm-gobuild pmm-gomod pmm-yarn pmm-dnf; do
+    if ! docker volume ls | grep "$volume" >/dev/null; then
+      docker volume create "$volume"
+    else
+      echo "Info: docker volume $volume checked."
+    fi
+  done
 
   cd "$CURDIR" > /dev/null
 }
