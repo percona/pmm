@@ -83,9 +83,6 @@ gobuild_component() {
         mkdir -p /tmp/go/src/${extract_path}
 
         tar -C /tmp/go/src/${extract_path} --strip-components=1 -zxpf ${src_dir}/${archive}
-        if [ -d /tmp/go/src/${extract_path}/admin ]; then
-          ls -lah /tmp/go/src/${extract_path}
-        fi
 
         bash -E ${build_command}
     "
