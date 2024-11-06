@@ -17,7 +17,7 @@ Usage: $0 [OPTIONS]
         --build_deb         If it is 1 deb will be built
         --install_deps      Install build dependencies(root privileges are required)
         --branch            Branch from which submodules should be taken(default v3)
-        --help) usage ;;
+        --help)             Display this help
 Example $0 --build_src_rpm=1 --build_rpm=1
 EOF
     exit 1
@@ -381,15 +381,15 @@ if [ "$SRPM" != 0 ]; then
   echo "Building srpm packages..."
   build_srpm
 fi
-if [ "$SDEB" = 0 ]; then
+if [ "$SDEB" != 0 ]; then
   echo "Building source deb packages..."
   build_source_deb
 fi
-if [ "$RPM" = 0 ]; then
+if [ "$RPM" != 0 ]; then
   echo "Building rpm packages..."
   build_rpm
 fi
-if [ "$DEB" = 0 ]; then
+if [ "$DEB" != 0 ]; then
   echo "Building deb packages..."
   build_deb
 fi
