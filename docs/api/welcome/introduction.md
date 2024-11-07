@@ -1,7 +1,7 @@
 ---
 title: Introduction
 slug: introduction
-category: 66aca6ddfd9bfe004c97cd48
+parentSlug: welcome
 order: 0
 ---
 
@@ -11,10 +11,10 @@ This guide is designed to enable both those starting off and those who have alre
 
 To give you an idea of what you can do with PMM api, you can:
 
-- add database instances to monitoring, be it MySQL, PostgreSQL, or MongoDB
-- check the availability of PMM updates
-- update PMM and check if PMM is successfully updated or not
-- change the configuration of PMM server
-- analyze query performance issues with Query Analytics
-- kick off a backup prior to a significant change
-- download PMM Server logs to troubleshoot an issue
+- [add database instances](ref:addservice) to monitoring, be it MySQL, PostgreSQL, or MongoDB
+- [check](ref:checkupdates) the availability of PMM updates
+- [update](ref:startupdate) PMM and [check](ref:updatestatus) the status of the update
+- [change](ref:changesettings) the configuration of PMM server
+- [analyze](ref:getreport) query performance issues with Query Analytics
+- [kick off](ref:startbackup) a backup prior to a significant change
+- [download](ref:logs) PMM Server logs to troubleshoot an issue

@@ -798,11 +798,11 @@
     },
     "/v1/server/updates/changelogs": {
       "get": {
-        "description": "List all the changes between the installed version and the latest available version",
+        "description": "Display a changelog comparing the installed version to the latest available version.",
         "tags": [
           "ServerService"
         ],
-        "summary": "List all the changes between the installed version and the latest available version",
+        "summary": "Get the changelog",
         "operationId": "ListChangeLogs",
         "responses": {
           "200": {
