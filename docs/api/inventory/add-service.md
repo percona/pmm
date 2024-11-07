@@ -1,7 +1,7 @@
 ---
 title: Add a Service
 slug: addservice
-category: 66aca9bf17142b005ad4e9fa
+categorySlug: inventory-api
 ---
 
 ## Add a Service
@@ -18,11 +18,11 @@ Here's how to add a Node of type `mysql` using the old and the new API calls:
 
 ```shell
 curl --insecure -X POST \
-  -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
-	-H 'Accept: application/json' \
-	-H 'Content-Type: application/json' \
-	--url https://127.0.0.1/v1/inventory/Services/AddMySQL \
-	--data '
+     --header 'Authorization: Bearer XXXXX' \
+     --header 'Accept: application/json' \
+     --header 'Content-Type: application/json' \
+     --url https://127.0.0.1/v1/inventory/Services/AddMySQL \
+     --data '
 {
   "service_name": "mysql-sales-db-prod-1",
   "node_id": "pmm-server",
@@ -42,11 +42,10 @@ curl --insecure -X POST \
 
 ```shell
 curl --insecure -X POST \
-  -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
-	-H 'Accept: application/json' \
-	-H 'Content-Type: application/json' \
-	--url https://127.0.0.1/v1/inventory/Services/Add \
-	--data '
+     --header 'Authorization: Bearer XXXXX' \
+     --header 'Content-Type: application/json' \
+     --url https://127.0.0.1/v1/inventory/services \
+     --data '
 {
   "mysql": {
     "service_name": "mysql-sales-db-prod-1",
@@ -73,4 +72,4 @@ You can choose from the following Service types:
 - haproxy
 - external
 
-To get the authentication token, check [the Authentication page](ref:authentication).
+To get the authentication token, check [Authentication](ref:authentication).
