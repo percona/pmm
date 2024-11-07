@@ -270,6 +270,7 @@ run_build_script() {
 
 purge_files() {
   local CURDIR=$PWD
+  local PMM_DIR="build/source/pmm"
   local tmp_files
 
   cd "$SUBMODULES" > /dev/null
@@ -288,14 +289,14 @@ purge_files() {
       fi
     fi
 
-    if [ -d "build/source/pmm" ]; then
-      echo "Removing build/source/pmm ..."
-      rm -rf build/source/pmm
+    if [ -d "$PMM_DIR" ]; then
+      echo "Removing $PMM_DIR ..."
+      rm -rf "$PMM_DIR"
     fi
   fi
 
   if [ -d build ]; then
-    echo "Removing results/* ..."
+    echo "Removing build/* ..."
     rm -rf build/{rpm,srpm,tarball,source_tarball,pmm-client.properties}
   fi
   
@@ -368,7 +369,8 @@ main() {
     export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
     export DOCKER_TAG=percona/pmm-server:${GIT_COMMIT}
     export DOCKERFILE=Dockerfile.el9
-    export RPM_EPOCH=1
+    export RPM_EPOCH=1 # TODO: replace with RELEASE_BUILD=1
+    export LOCAL_BUILD
 
     # 3rd-party components
     run_build_script build-server-rpm grafana

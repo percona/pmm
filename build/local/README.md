@@ -50,6 +50,14 @@ We use a special docker image to build various PMM artifacts - `perconalab/rpmbu
 
 During the first run, `build` will create a few directories on the host machine, which are necessary to make use of docker cache. Please be aware, that the docker container's user needs to be able to write to these directories. The docker container's user is `builder` with uid 1000 and gid 1000. You need to make sure that the directories we create on the host are owned by a user with the same uid and gid. If the build fails, this is the first thing to check.
 
+## Using S3 to cache packages
+
+In order to save time and to avoid building the same package versions repeatedly, we use a dedicated AWS S3 bucket for caching in the following manner:
+
+- before proceeding to building a package, we check if this package version can be found in S3 and we download the package instead of building it;
+- if the package can not be found, we build and upload it to S3 for future reuse.
+
+There is special variable `LOCAL_BUILD`, which needs to be set to '1' in case you don't have AWS CLI installed or you don't want to use the cache. Please be aware, that interacting with Percona's AWS S3 account, i.e. upload and download artefacts, requires authentication and is therefore reserved for Percona's own purposes. This is why, when building packages locally, you are requested to set this variable to '1', which happens to be the default value. Please note, that an attempt to interact with the S3 bucket without proper authorization will lead to a build failure.
 
 ## Avoiding unnecessary builds
 

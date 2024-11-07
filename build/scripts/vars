@@ -5,6 +5,10 @@ bin_dir=$(cd $(dirname $0); pwd -P)
 root_dir=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
 root_dir=${ROOT_DIR:-$root_dir}
 build_dir=${root_dir}/build
+arch=$(uname -m)
+if [ "${arch}" = "arm64" ]; then
+  arch=aarch64
+fi
 
 # In VERSION file we can have numeric value like '2.0.0' as well as
 # alphanumeric value like '2.0.0-alpha3' which can not be used entirely

@@ -31,7 +31,7 @@ is_build_needed() {
   # s3://pmm-build-cache/PR-BUILDS/9 - el9
   # s3://pmm-build-cache/RELEASE/9 - el9
 
-  # RPM_EPOCH is set to 1 for Feature Builds
+  # Check if this is a feature build
   if [ "$RPM_EPOCH" = 1 ]; then
     s3_cache_dir=PR-BUILDS
   fi
@@ -43,7 +43,7 @@ is_build_needed() {
         ${rpms_dir}/${spec_name}-${rpm_version} || :
   fi
 
-  packages=$(find ${rpms_dir}/${spec_name}-${rpm_version} -name "*.${rpmbuild_dist}.*.rpm" | wc -l)
+  packages=$(find ${rpms_dir}/${spec_name}-${rpm_version}/${arch} -type f -name "*-${rpm_version}.${arch}.rpm" | wc -l)
 
   # return result as true (0) or false (>0)
   [[ ${packages// /} == 0 ]]
@@ -113,11 +113,10 @@ build() {
   prepare_spec "${spec_name}" "${repo_name}"
 
   local rpm_version=$(get_rpm_version "${spec_name}")
-  local CH_VERSION=${rpm_version%-*}
-  local CH_TAG=${rpm_version#*-}
   local s3_cache_dir=RELEASE
 
   if ! is_build_needed "${spec_name}" "${rpm_version}"; then
+      echo "Using cached rpm artefacts for ${spec_name}-${rpm_version}."
       return
   fi
 
@@ -126,16 +125,14 @@ build() {
   echo -------------------------------------------------------
 
   local volume_mounts="-v ${rpmbuild_dir}:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS"
-  volume_mounts+=" -v pmm-yarn:/home/builder/.cache/yarn"
   volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
-  if [ ${spec_name} != "grafana" ]; then
-      volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
-      volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
-  fi
+  volume_mounts+=" -v pmm-yarn:/home/builder/.cache/yarn"
+  volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
+  volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
 
   echo "Start building Server RPMs..."
-  echo "spec_name: ${spec_name}"
   echo "repo_name: ${repo_name}"
+  echo "spec_name: ${spec_name}"
   echo "rpm_verison: ${rpm_version}"
 
   docker run --rm --platform=${platform} ${volume_mounts} ${rpmbuild_docker_image} sh -c "
@@ -158,11 +155,6 @@ build() {
     fi
     if [ ! -w /home/builder/.cache/yarn ]; then
       sudo chown builder:builder /home/builder/.cache/yarn
-    fi
-
-    # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
-    if [ ${RPM_EPOCH} = 1 ]; then
-      sed -i '/^Version:.*/i Epoch: 1' /home/builder/rpm/SOURCES/${spec_name}.spec
     fi
 
     rm -rf /home/builder/rpm/RPMS/${spec_name}-*
@@ -190,18 +182,17 @@ build() {
     rm -f SOURCES/${spec_name}.spec*
   "
 
-  # TODO: see if this is even needed
-  # cp ${rpms_dir}/${spec_name}-${rpm_version}/*/*.rpm ${rpms_dir}
-
   if [ "$LOCAL_BUILD" = 1 ]; then
     echo "Finished building Server RPMs, spec_name: ${spec_name}.spec, repo_name: ${repo_name}"
+    echo
     return
   fi
 
   if ! command -v aws &> /dev/null; then
-    echo "AWS CLI is not installed. Upload to S3 will be skipped."
+    echo "AWS CLI is not installed, skipping upload to S3..."
     echo
     echo "Finished building Server RPMs, spec_name: ${spec_name}.spec, repo_name: ${repo_name}"
+    echo
     return
   fi
 
@@ -210,11 +201,12 @@ build() {
   fi
   aws s3 sync \
       --region us-east-2 \
-      ${rpms_dir}/${spec_name}-${rpm_version} \
+      ${rpms_dir}/${spec_name}-${rpm_version}/${arch} \
       s3://pmm-build-cache/${s3_cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version} \
       || :
 
   echo "Finished building Server RPMs, spec_name: ${spec_name}.spec, repo_name: ${repo_name}"
+  echo
 }
 
 build "$@"

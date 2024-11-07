@@ -1,4 +1,4 @@
-FROM redhat/ubi9-minimal as users
+FROM redhat/ubi9-minimal AS users
 
 RUN microdnf install shadow-utils jq tar -y
 
@@ -47,13 +47,13 @@ RUN cd /tmp/pmm-client-* \
     && cd /tmp \
     && rm -rf /tmp/pmm-client*
 
-LABEL org.opencontainers.image.created ${BUILD_DATE}
-LABEL org.opencontainers.image.licenses Apache-2.0
-LABEL org.opencontainers.image.title Percona Monitoring and Management Client
-LABEL org.opencontainers.image.vendor Percona
-LABEL org.opencontainers.image.version ${VERSION}
-LABEL org.opencontainers.image.source https://github.com/percona/pmm/blob/main/build/docker/client/Dockerfile
-LABEL org.opencontainers.image.docs https://docs.percona.com/percona-monitoring-and-management/setting-up/client/index.html#docker
+LABEL org.opencontainers.image.created=${BUILD_DATE}
+LABEL org.opencontainers.image.licenses=Apache-2.0
+LABEL org.opencontainers.image.title="Percona Monitoring and Management Client"
+LABEL org.opencontainers.image.vendor=Percona
+LABEL org.opencontainers.image.version=${VERSION}
+LABEL org.opencontainers.image.source=https://github.com/percona/pmm/blob/main/build/docker/client/Dockerfile
+LABEL org.opencontainers.image.docs=https://docs.percona.com/percona-monitoring-and-management/setting-up/client/index.html#docker
 
 USER pmm-agent
 WORKDIR /usr/local/percona/pmm/
