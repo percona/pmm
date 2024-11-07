@@ -10,15 +10,16 @@ root_dir=${ROOT_DIR:-$root_dir}
 build_dir=${root_dir}/build
 
 # In VERSION file we can have numeric value like '2.0.0' as well as
-# alphanumeric value like '2.0.0-alpha3' which can not be used entirely
-# e.g. in Version directive in spec files. So we define:
-# * full_pmm_version to contain full version and build metadata: '2.0.0-alpha3-PMM-1234-fb-branch-123abc';
-# * pmm_version to contain only MAJOR.MINOR.PATCH: '2.0.0';
-# * pmm_release to contain only pre-release part (can be empty): 'alpha3'.
+# alphanumeric value like '2.0.0-alpha3' which can not be used entirely,
+# e.g. as in Version directive of RPM spec files. So we define the following:
+# 'full_pmm_version' - must contain full version and build metadata: '2.0.0-alpha3-PMM-1234-fb-branch-abc123de'
+# 'pmm_version'      - must contain only MAJOR.MINOR.PATCH: '2.0.0'
+# 'pmm_release'      - can contain only pre-release part (but can also be empty): 'alpha3'
 pmm_branch=$(git rev-parse --abbrev-ref HEAD)
-
 pmm_base_version=$(cat ${root_dir}/VERSION)
-full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
+
+shortcommit=$(git rev-parse --short HEAD)
+full_pmm_version=${pmm_base_version}-${pmm_branch}-${shortcommit}
 # Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
 full_pmm_version=${full_pmm_version//\//-}
 

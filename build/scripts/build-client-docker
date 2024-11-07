@@ -14,7 +14,7 @@ main() {
   cp ${build_dir}/tarball/pmm-client-*.tar.gz ${DOCKERFILE_LOCATION}/pmm-client.tar.gz
 
   if [ -z "${DOCKER_CLIENT_TAG}" ]; then
-    DOCKER_CLIENT_TAG="perconalab/pmm-client-fb:${full_pmm_version}"
+    DOCKER_CLIENT_TAG="perconalab/pmm-client-fb:${shortcommit}"
   fi
 
   CLIENT_IMAGE_VERSION=`echo $DOCKER_CLIENT_TAG | cut -d ':' -f2`

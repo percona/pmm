@@ -20,33 +20,37 @@ main() {
   git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
   ls -la ${rpms_dir}
   docker run --rm --platform=${platform} -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
-      sudo chown -R builder /home/builder/rpm/RPMS
-      until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
-          echo "waiting"
-          sleep 1
-      done
+    sudo chown -R builder /home/builder/rpm/RPMS
+    until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
+        echo "waiting"
+        sleep 1
+    done
   "
 
   if [ -z "${DOCKER_TAG}" ]; then
-      DOCKER_TAG=perconalab/pmm-server-fb:${full_pmm_version}
+    DOCKER_TAG=perconalab/pmm-server-fb:${shortcommit}
   fi
 
   local IMAGE_VERSION=$(echo "$DOCKER_TAG" | cut -d ':' -f2)
   local BUILD_DATE=$(date -u +'%F %T%z' | sed 's@^.\{22\}@&:@')
+  if [ -z "$IMAGE_VERSION" ]; then
+    echo "Error: could not detect the docker image version"
+    exit 1
+  fi
 
   docker buildx build \
-      --build-arg BUILD_DATE="$BUILD_DATE" \
-      --build-arg VERSION="$IMAGE_VERSION" \
-      --platform=${platform} \
-      --progress plain \
-      -f ${docker_root}/${docker_file} \
-      -t ${DOCKER_TAG} \
-      ${docker_root}
+    --build-arg BUILD_DATE="$BUILD_DATE" \
+    --build-arg VERSION="$IMAGE_VERSION" \
+    --platform=${platform} \
+    --progress plain \
+    -f ${docker_root}/${docker_file} \
+    -t ${DOCKER_TAG} \
+    ${docker_root}
 
   if [ -n "${PUSH_DOCKER}" ]; then
-      mkdir -p $(dirname ${docker_tag_file})
-      echo ${DOCKER_TAG} > ${docker_tag_file}
-      docker push ${DOCKER_TAG}
+    mkdir -p $(dirname ${docker_tag_file})
+    echo ${DOCKER_TAG} > ${docker_tag_file}
+    docker push ${DOCKER_TAG}
   fi
 }
 

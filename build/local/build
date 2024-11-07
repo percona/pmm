@@ -312,7 +312,7 @@ init() {
 
   export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
 
-  GIT_COMMIT=$(git rev-parse HEAD | head -c 8)
+  GIT_COMMIT=$(git rev-parse --short HEAD)
 
   # Create docker volumes to persist package and build cache
   # Read more in the section about `rpmbuild`.
@@ -337,9 +337,9 @@ cleanup() {
 }
 
 main() {
-  update
-
   init
+
+  update
 
   purge_files
 
@@ -358,19 +358,13 @@ main() {
   fi
 
   # Building client docker image takes from 17s (using docker cache) to 43s (no docker cache).
-  export DOCKER_CLIENT_TAG=percona/pmm-client:${GIT_COMMIT}
   if [ "$NO_CLIENT_DOCKER" -eq 0 ]; then
     run_build_script build-client-docker
   fi
 
   if [ "$NO_SERVER" -eq 0 ]; then
-    export DOCKER_TAG=percona/pmm-server:${GIT_COMMIT}
     export RPM_EPOCH=1 # TODO: replace with RELEASE_BUILD=1
     export LOCAL_BUILD
-
-    # 3rd-party components
-    run_build_script build-server-rpm grafana
-    run_build_script build-server-rpm victoriametrics
 
     # 1st-party components
     run_build_script build-server-rpm percona-dashboards grafana-dashboards
@@ -379,6 +373,10 @@ main() {
     run_build_script build-server-rpm pmm-update pmm
     run_build_script build-server-rpm pmm-dump
     run_build_script build-server-rpm vmproxy pmm
+
+    # 3rd-party components
+    run_build_script build-server-rpm victoriametrics
+    run_build_script build-server-rpm grafana
 
     run_build_script build-server-docker
   fi
