@@ -83,3 +83,8 @@ Currently, local builds target the following environments:
 - PMM Server
   - docker image - docker and Kubernetes environments (amd64)
 
+
+## Todo List
+
+* have a VERSION file, similar to the one in https://github.com/percona-lab/pmm-submodules/blob/v3/VERSION
+* have a package.yml file containing hashes of all build artefacts (PMM components, i.e. grafana, pmm-managed, etc.)

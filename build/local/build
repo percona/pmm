@@ -364,11 +364,7 @@ main() {
   fi
 
   if [ "$NO_SERVER" -eq 0 ]; then
-    # Grafana build fails to compile with Go 1.23.x, see https://github.com/grafana/grafana/issues/89796
-    # We need to apply this [patch](https://github.com/grafana/grafana/pull/94742) to fix it
-    export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
     export DOCKER_TAG=percona/pmm-server:${GIT_COMMIT}
-    export DOCKERFILE=Dockerfile.el9
     export RPM_EPOCH=1 # TODO: replace with RELEASE_BUILD=1
     export LOCAL_BUILD
 

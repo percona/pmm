@@ -42,7 +42,7 @@ install -p -m 0755 pmm-dump %{buildroot}%{_sbindir}/pmm-dump
 * Mon Apr 1 2024 Alex Demidoff <alexander.demidoff@percona.com> - 0.7.0-2
 - PMM-12899 Use module and build cache
 
-* Tue Nov 23 2023 Artem Gavrilov <artem.gavrilov@percona.com> - 0.7.0-ga
+* Thu Nov 23 2023 Artem Gavrilov <artem.gavrilov@percona.com> - 0.7.0-ga
 - PMM-12460 Update pmm-dump to v0.7.0-ga version
 
 * Tue Mar 29 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 0.6.0-1

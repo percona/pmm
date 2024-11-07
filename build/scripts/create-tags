@@ -52,8 +52,8 @@ for REPO in "${repos[@]}"; do
         git remote set-url origin git@github.com:${REPO_URL}.git
 
         if git tag -l | grep "$TAG"; then
-            echo "Fatal: tag $TAG already exists in $REPO, exiting..."
-            break
+          echo "Fatal: tag $TAG already exists in $REPO, exiting..."
+          break
         fi
 
         echo "Tagging SHA: $(git rev-parse HEAD)"
@@ -65,9 +65,9 @@ for REPO in "${repos[@]}"; do
         fi
 
         if ! git push origin "$TAG"; then
-            echo "Fatal: failed to tag the repository $REPO with $TAG, exiting..."
-            popd >/dev/null
-            break
+          echo "Fatal: failed to tag the repository $REPO with $TAG, exiting..."
+          popd >/dev/null
+          break
         fi
     popd >/dev/null
 done
