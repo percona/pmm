@@ -177,7 +177,7 @@ service AdvisorService {
   rpc GetFailedChecks(GetFailedChecksRequest) returns (GetFailedChecksResponse) {
     option (google.api.http) = {get: "/v1/advisors/checks/failed"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Get Failed Checks"
+      summary: "Get Failed Advisor Checks"
       description: "Returns the latest check results for a given service."
     };
   }
@@ -196,7 +196,7 @@ service AdvisorService {
   rpc ListAdvisorChecks(ListAdvisorChecksRequest) returns (ListAdvisorChecksResponse) {
     option (google.api.http) = {get: "/v1/advisors/checks"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List advisor checks"
+      summary: "List Advisor Checks"
       description: "List advisor checks available to the user."
     };
   }
@@ -204,7 +204,7 @@ service AdvisorService {
   rpc ListAdvisors(ListAdvisorsRequest) returns (ListAdvisorsResponse) {
     option (google.api.http) = {get: "/v1/advisors"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List advisors"
+      summary: "List Advisors"
       description: "List advisors available to the user."
     };
   }

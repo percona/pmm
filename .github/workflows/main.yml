@@ -99,7 +99,7 @@ jobs:
           fi
 
           # One may need to suppress passing to reviewdog because of https://github.com/reviewdog/reviewdog/issues/1696
-          echo "$out" | bin/reviewdog -f=buf -reporter=github-pr-review -fail-on-error=true
+          echo "$out" | bin/reviewdog -f=buf -reporter=github-pr-review -fail-level=error
 
       - name: Run code linters
         uses: reviewdog/action-golangci-lint@v2
@@ -126,7 +126,7 @@ jobs:
             exit $exit_code
           fi
 
-          echo "$out" | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true
+          echo "$out" | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-level=error
 
       - name: Test common API
         run: make test-common
@@ -169,7 +169,7 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2.3.1
+        uses: rtCamp/action-slack-notify@v2.3.2
 
   workflow_failure:
     if: ${{ failure() }}
@@ -187,4 +187,4 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2.3.1
+        uses: rtCamp/action-slack-notify@v2.3.2
