@@ -100,7 +100,7 @@ func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Re
 				Password:               cmd.Password,
 				CustomLabels:           customLabels,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
-				DisableCommentsParsing: !cmd.CommentsParsingEnabled(),
+				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
 				MaxQueryLength:         cmd.MaxQueryLength,
 				DisableQueryExamples:   cmd.QueryExamplesDisabled,
 
@@ -109,7 +109,7 @@ func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Re
 				TLSCa:         tlsCa,
 				TLSCert:       tlsCert,
 				TLSKey:        tlsKey,
-				LogLevel:      cmd.LogLevel.EnumValue(),
+				LogLevel:      cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

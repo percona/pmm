@@ -93,8 +93,8 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 		res = append(res, "--server-insecure-tls")
 	}
 
-	if cmd.LogLevel != "" {
-		res = append(res, fmt.Sprintf("--log-level=%s", cmd.LogLevel))
+	if cmd.LogLevelFatalFlags.LogLevel != "" {
+		res = append(res, fmt.Sprintf("--log-level=%s", cmd.LogLevelFatalFlags.LogLevel))
 	}
 	if globals.EnableDebug {
 		res = append(res, "--debug")
@@ -121,8 +121,8 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 		res = append(res, "--force")
 	}
 
-	if cmd.MetricsMode != "" {
-		res = append(res, fmt.Sprintf("--metrics-mode=%s", cmd.MetricsMode))
+	if cmd.MetricsModeFlags.MetricsMode != "" {
+		res = append(res, fmt.Sprintf("--metrics-mode=%s", cmd.MetricsModeFlags.MetricsMode))
 	}
 
 	if len(cmd.DisableCollectors) != 0 {

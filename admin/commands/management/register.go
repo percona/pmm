@@ -87,7 +87,7 @@ func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
 			AgentPassword: cmd.AgentPassword,
 
 			Reregister:        cmd.Force,
-			MetricsMode:       cmd.MetricsMode.EnumValue(),
+			MetricsMode:       cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
 		},
 		Context: commands.Ctx,

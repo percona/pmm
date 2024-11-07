@@ -104,7 +104,7 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 				DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
 				StatsCollections:              commands.ParseDisableCollectors(cmd.StatsCollections),
 				CollectionsLimit:              cmd.CollectionsLimit,
-				LogLevel:                      cmd.LogLevel.EnumValue(),
+				LogLevel:                      cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

@@ -96,7 +96,7 @@ func (cmd *AddAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, er
 				TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
 				TLSCa:                         tlsCa,
 				AuthenticationMechanism:       cmd.AuthenticationMechanism,
-				LogLevel:                      cmd.LogLevel.EnumValue(),
+				LogLevel:                      cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

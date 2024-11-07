@@ -75,7 +75,7 @@ func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 				DisableBasicMetrics:    cmd.DisableBasicMetrics,
 				DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
 				PushMetrics:            cmd.PushMetrics,
-				LogLevel:               cmd.LogLevel.EnumValue(),
+				LogLevel:               cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

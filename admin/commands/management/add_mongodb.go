@@ -187,13 +187,13 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				AuthenticationMechanism:       cmd.AuthenticationMechanism,
 				AuthenticationDatabase:        cmd.AuthenticationDatabase,
 
-				MetricsMode: cmd.MetricsMode.EnumValue(),
+				MetricsMode: cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 
 				EnableAllCollectors: cmd.EnableAllCollectors,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 				StatsCollections:    commands.ParseDisableCollectors(cmd.StatsCollections),
 				CollectionsLimit:    cmd.CollectionsLimit,
-				LogLevel:            cmd.LogLevel.EnumValue(),
+				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

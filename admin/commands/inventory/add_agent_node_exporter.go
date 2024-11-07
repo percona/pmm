@@ -64,7 +64,7 @@ func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 				PushMetrics:       cmd.PushMetrics,
 				ExposeExporter:    cmd.ExposeExporter,
 				DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:          cmd.LogLevel.EnumValue(),
+				LogLevel:          cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

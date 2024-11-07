@@ -119,7 +119,7 @@ func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 				Cluster:             cmd.Cluster,
 				ReplicationSet:      cmd.ReplicationSet,
 				CustomLabels:        customLabels,
-				MetricsMode:         cmd.MetricsMode.EnumValue(),
+				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 			},
 		},

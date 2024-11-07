@@ -135,7 +135,7 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 				Cluster:             cmd.Cluster,
 				ReplicationSet:      cmd.ReplicationSet,
 				CustomLabels:        customLabels,
-				MetricsMode:         cmd.MetricsMode.EnumValue(),
+				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 			},
