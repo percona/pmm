@@ -27,7 +27,7 @@ fetch-el9:
 		|| VAGRANT_HOME=${PACKER_CACHE_DIR}/box vagrant box add bento/oraclelinux-9 --box-version 202407.23.0 --provider virtualbox
 
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
-		|| cp -rp ${PACKER_CACHE_DIR}/box/boxes/bento-VAGRANTSLASH-oraclelinux-9/202407.23.0/amd64/virtualbox/* ${PACKER_CACHE_DIR}/box
+		|| cp -rp ${PACKER_CACHE_DIR}/box/boxes/bento-VAGRANTSLASH-oraclelinux-9/${BOX_VERSION}/amd64/virtualbox/* ${PACKER_CACHE_DIR}/box
 
 deps:
 	mkdir -p ${PACKER_CACHE_DIR} ~/bin || :
