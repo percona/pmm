@@ -25,7 +25,7 @@ gobuild_component() {
     local bin_dir=/home/builder/tmp/binary/pmm-client-${pmm_version}
     local archive=$(ls ${source_dir} | grep -e "${parent_component}-\w*\.tar\.gz" | head -n1)
     local build_command
-    local volume_mounts="-v ${tmp_dir}:/home/builder/tmp"
+    local volume_mounts="-v ${build_dir}:/home/builder/tmp"
     volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
     volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
     volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
@@ -92,7 +92,7 @@ copy_component() {
   local component=$1
   local component_path=$2
   local component_dest=${3:-$component_path}
-  local component_dir=${tmp_dir}/source/${component}
+  local component_dir=${build_dir}/source/${component}
   local archive=$(ls ${source_dir}/${component}-*.tar.gz | head -n1) # temporary hack for pmm repo
 
   if [ ! -d "${component_dir}" ]; then
