@@ -7,6 +7,7 @@ package nodes_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type AddNodeOK struct {
 	Payload *AddNodeOKBody
 }
 
+// IsSuccess returns true when this add node Ok response has a 2xx status code
+func (o *AddNodeOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add node Ok response has a 3xx status code
+func (o *AddNodeOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add node Ok response has a 4xx status code
+func (o *AddNodeOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add node Ok response has a 5xx status code
+func (o *AddNodeOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add node Ok response a status code equal to that given
+func (o *AddNodeOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the add node Ok response
+func (o *AddNodeOK) Code() int {
+	return 200
+}
+
 func (o *AddNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/nodes][%d] addNodeOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/nodes][%d] addNodeOk %s", 200, payload)
+}
+
+func (o *AddNodeOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/nodes][%d] addNodeOk %s", 200, payload)
 }
 
 func (o *AddNodeOK) GetPayload() *AddNodeOKBody {
@@ -94,13 +131,44 @@ type AddNodeDefault struct {
 	Payload *AddNodeDefaultBody
 }
 
+// IsSuccess returns true when this add node default response has a 2xx status code
+func (o *AddNodeDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add node default response has a 3xx status code
+func (o *AddNodeDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add node default response has a 4xx status code
+func (o *AddNodeDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add node default response has a 5xx status code
+func (o *AddNodeDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add node default response a status code equal to that given
+func (o *AddNodeDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the add node default response
 func (o *AddNodeDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *AddNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/nodes][%d] AddNode default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/nodes][%d] AddNode default %s", o._statusCode, payload)
+}
+
+func (o *AddNodeDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/nodes][%d] AddNode default %s", o._statusCode, payload)
 }
 
 func (o *AddNodeDefault) GetPayload() *AddNodeDefaultBody {
@@ -296,6 +364,11 @@ func (o *AddNodeBody) ContextValidate(ctx context.Context, formats strfmt.Regist
 
 func (o *AddNodeBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
 	if o.Container != nil {
+
+		if swag.IsZero(o.Container) { // not required
+			return nil
+		}
+
 		if err := o.Container.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "container")
@@ -311,6 +384,11 @@ func (o *AddNodeBody) contextValidateContainer(ctx context.Context, formats strf
 
 func (o *AddNodeBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
 	if o.Generic != nil {
+
+		if swag.IsZero(o.Generic) { // not required
+			return nil
+		}
+
 		if err := o.Generic.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "generic")
@@ -326,6 +404,11 @@ func (o *AddNodeBody) contextValidateGeneric(ctx context.Context, formats strfmt
 
 func (o *AddNodeBody) contextValidateRemote(ctx context.Context, formats strfmt.Registry) error {
 	if o.Remote != nil {
+
+		if swag.IsZero(o.Remote) { // not required
+			return nil
+		}
+
 		if err := o.Remote.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "remote")
@@ -341,6 +424,11 @@ func (o *AddNodeBody) contextValidateRemote(ctx context.Context, formats strfmt.
 
 func (o *AddNodeBody) contextValidateRemoteAzure(ctx context.Context, formats strfmt.Registry) error {
 	if o.RemoteAzure != nil {
+
+		if swag.IsZero(o.RemoteAzure) { // not required
+			return nil
+		}
+
 		if err := o.RemoteAzure.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "remote_azure")
@@ -356,6 +444,11 @@ func (o *AddNodeBody) contextValidateRemoteAzure(ctx context.Context, formats st
 
 func (o *AddNodeBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
 	if o.RemoteRDS != nil {
+
+		if swag.IsZero(o.RemoteRDS) { // not required
+			return nil
+		}
+
 		if err := o.RemoteRDS.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "remote_rds")
@@ -459,6 +552,11 @@ func (o *AddNodeDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 func (o *AddNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddNode default" + "." + "details" + "." + strconv.Itoa(i))
@@ -498,6 +596,80 @@ swagger:model AddNodeDefaultBodyDetailsItems0
 type AddNodeDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// add node default body details items0
+	AddNodeDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *AddNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv AddNodeDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.AddNodeDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o AddNodeDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.AddNodeDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.AddNodeDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this add node default body details items0
@@ -706,6 +878,11 @@ func (o *AddNodeOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 
 func (o *AddNodeOKBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
 	if o.Container != nil {
+
+		if swag.IsZero(o.Container) { // not required
+			return nil
+		}
+
 		if err := o.Container.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addNodeOk" + "." + "container")
@@ -721,6 +898,11 @@ func (o *AddNodeOKBody) contextValidateContainer(ctx context.Context, formats st
 
 func (o *AddNodeOKBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
 	if o.Generic != nil {
+
+		if swag.IsZero(o.Generic) { // not required
+			return nil
+		}
+
 		if err := o.Generic.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addNodeOk" + "." + "generic")
@@ -736,6 +918,11 @@ func (o *AddNodeOKBody) contextValidateGeneric(ctx context.Context, formats strf
 
 func (o *AddNodeOKBody) contextValidateRemote(ctx context.Context, formats strfmt.Registry) error {
 	if o.Remote != nil {
+
+		if swag.IsZero(o.Remote) { // not required
+			return nil
+		}
+
 		if err := o.Remote.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addNodeOk" + "." + "remote")
@@ -751,6 +938,11 @@ func (o *AddNodeOKBody) contextValidateRemote(ctx context.Context, formats strfm
 
 func (o *AddNodeOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, formats strfmt.Registry) error {
 	if o.RemoteAzureDatabase != nil {
+
+		if swag.IsZero(o.RemoteAzureDatabase) { // not required
+			return nil
+		}
+
 		if err := o.RemoteAzureDatabase.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addNodeOk" + "." + "remote_azure_database")
@@ -766,6 +958,11 @@ func (o *AddNodeOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, 
 
 func (o *AddNodeOKBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
 	if o.RemoteRDS != nil {
+
+		if swag.IsZero(o.RemoteRDS) { // not required
+			return nil
+		}
+
 		if err := o.RemoteRDS.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addNodeOk" + "." + "remote_rds")

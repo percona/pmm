@@ -59,8 +59,44 @@ type ListTemplatesOK struct {
 	Payload *ListTemplatesOKBody
 }
 
+// IsSuccess returns true when this list templates Ok response has a 2xx status code
+func (o *ListTemplatesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list templates Ok response has a 3xx status code
+func (o *ListTemplatesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list templates Ok response has a 4xx status code
+func (o *ListTemplatesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list templates Ok response has a 5xx status code
+func (o *ListTemplatesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list templates Ok response a status code equal to that given
+func (o *ListTemplatesOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the list templates Ok response
+func (o *ListTemplatesOK) Code() int {
+	return 200
+}
+
 func (o *ListTemplatesOK) Error() string {
-	return fmt.Sprintf("[GET /v1/alerting/templates][%d] listTemplatesOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/alerting/templates][%d] listTemplatesOk %s", 200, payload)
+}
+
+func (o *ListTemplatesOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/alerting/templates][%d] listTemplatesOk %s", 200, payload)
 }
 
 func (o *ListTemplatesOK) GetPayload() *ListTemplatesOKBody {
@@ -96,13 +132,44 @@ type ListTemplatesDefault struct {
 	Payload *ListTemplatesDefaultBody
 }
 
+// IsSuccess returns true when this list templates default response has a 2xx status code
+func (o *ListTemplatesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list templates default response has a 3xx status code
+func (o *ListTemplatesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list templates default response has a 4xx status code
+func (o *ListTemplatesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list templates default response has a 5xx status code
+func (o *ListTemplatesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list templates default response a status code equal to that given
+func (o *ListTemplatesDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the list templates default response
 func (o *ListTemplatesDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *ListTemplatesDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/alerting/templates][%d] ListTemplates default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/alerting/templates][%d] ListTemplates default %s", o._statusCode, payload)
+}
+
+func (o *ListTemplatesDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/alerting/templates][%d] ListTemplates default %s", o._statusCode, payload)
 }
 
 func (o *ListTemplatesDefault) GetPayload() *ListTemplatesDefaultBody {
@@ -192,6 +259,11 @@ func (o *ListTemplatesDefaultBody) ContextValidate(ctx context.Context, formats 
 func (o *ListTemplatesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListTemplates default" + "." + "details" + "." + strconv.Itoa(i))
@@ -231,6 +303,80 @@ swagger:model ListTemplatesDefaultBodyDetailsItems0
 type ListTemplatesDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// list templates default body details items0
+	ListTemplatesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *ListTemplatesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv ListTemplatesDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.ListTemplatesDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o ListTemplatesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.ListTemplatesDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.ListTemplatesDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this list templates default body details items0
@@ -333,6 +479,11 @@ func (o *ListTemplatesOKBody) ContextValidate(ctx context.Context, formats strfm
 func (o *ListTemplatesOKBody) contextValidateTemplates(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Templates); i++ {
 		if o.Templates[i] != nil {
+
+			if swag.IsZero(o.Templates[i]) { // not required
+				return nil
+			}
+
 			if err := o.Templates[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listTemplatesOk" + "." + "templates" + "." + strconv.Itoa(i))
@@ -386,7 +537,7 @@ type ListTemplatesOKBodyTemplatesItems0 struct {
 	For string `json:"for,omitempty"`
 
 	// Severity represents severity level of the check result or alert.
-	// Enum: [SEVERITY_UNSPECIFIED SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
+	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
 	Severity *string `json:"severity,omitempty"`
 
 	// Labels.
@@ -401,7 +552,7 @@ type ListTemplatesOKBodyTemplatesItems0 struct {
 	//  - TEMPLATE_SOURCE_SAAS: Template that is downloaded from check.percona.com.
 	//  - TEMPLATE_SOURCE_USER_FILE: Templated loaded from user-suplied file.
 	//  - TEMPLATE_SOURCE_USER_API: Templated created via API.
-	// Enum: [TEMPLATE_SOURCE_UNSPECIFIED TEMPLATE_SOURCE_BUILT_IN TEMPLATE_SOURCE_SAAS TEMPLATE_SOURCE_USER_FILE TEMPLATE_SOURCE_USER_API]
+	// Enum: ["TEMPLATE_SOURCE_UNSPECIFIED","TEMPLATE_SOURCE_BUILT_IN","TEMPLATE_SOURCE_SAAS","TEMPLATE_SOURCE_USER_FILE","TEMPLATE_SOURCE_USER_API"]
 	Source *string `json:"source,omitempty"`
 
 	// Template creation time. Empty for built-in and SaaS templates.
@@ -607,6 +758,11 @@ func (o *ListTemplatesOKBodyTemplatesItems0) ContextValidate(ctx context.Context
 func (o *ListTemplatesOKBodyTemplatesItems0) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Params); i++ {
 		if o.Params[i] != nil {
+
+			if swag.IsZero(o.Params[i]) { // not required
+				return nil
+			}
+
 			if err := o.Params[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("params" + "." + strconv.Itoa(i))
@@ -655,11 +811,11 @@ type ListTemplatesOKBodyTemplatesItems0ParamsItems0 struct {
 	//  - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.
 	//  - PARAM_UNIT_PERCENTAGE: %
 	//  - PARAM_UNIT_SECONDS: s
-	// Enum: [PARAM_UNIT_UNSPECIFIED PARAM_UNIT_PERCENTAGE PARAM_UNIT_SECONDS]
+	// Enum: ["PARAM_UNIT_UNSPECIFIED","PARAM_UNIT_PERCENTAGE","PARAM_UNIT_SECONDS"]
 	Unit *string `json:"unit,omitempty"`
 
 	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_UNSPECIFIED PARAM_TYPE_BOOL PARAM_TYPE_FLOAT PARAM_TYPE_STRING]
+	// Enum: ["PARAM_TYPE_UNSPECIFIED","PARAM_TYPE_BOOL","PARAM_TYPE_FLOAT","PARAM_TYPE_STRING"]
 	Type *string `json:"type,omitempty"`
 
 	// bool
@@ -876,6 +1032,11 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) ContextValidate(ctx con
 
 func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateBool(ctx context.Context, formats strfmt.Registry) error {
 	if o.Bool != nil {
+
+		if swag.IsZero(o.Bool) { // not required
+			return nil
+		}
+
 		if err := o.Bool.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("bool")
@@ -891,6 +1052,11 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateBool(ctx
 
 func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateFloat(ctx context.Context, formats strfmt.Registry) error {
 	if o.Float != nil {
+
+		if swag.IsZero(o.Float) { // not required
+			return nil
+		}
+
 		if err := o.Float.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("float")
@@ -906,6 +1072,11 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateFloat(ct
 
 func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateString(ctx context.Context, formats strfmt.Registry) error {
 	if o.String != nil {
+
+		if swag.IsZero(o.String) { // not required
+			return nil
+		}
+
 		if err := o.String.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("string")

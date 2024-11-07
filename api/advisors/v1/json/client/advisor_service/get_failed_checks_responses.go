@@ -59,8 +59,44 @@ type GetFailedChecksOK struct {
 	Payload *GetFailedChecksOKBody
 }
 
+// IsSuccess returns true when this get failed checks Ok response has a 2xx status code
+func (o *GetFailedChecksOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get failed checks Ok response has a 3xx status code
+func (o *GetFailedChecksOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get failed checks Ok response has a 4xx status code
+func (o *GetFailedChecksOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get failed checks Ok response has a 5xx status code
+func (o *GetFailedChecksOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get failed checks Ok response a status code equal to that given
+func (o *GetFailedChecksOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the get failed checks Ok response
+func (o *GetFailedChecksOK) Code() int {
+	return 200
+}
+
 func (o *GetFailedChecksOK) Error() string {
-	return fmt.Sprintf("[GET /v1/advisors/checks/failed][%d] getFailedChecksOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors/checks/failed][%d] getFailedChecksOk %s", 200, payload)
+}
+
+func (o *GetFailedChecksOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors/checks/failed][%d] getFailedChecksOk %s", 200, payload)
 }
 
 func (o *GetFailedChecksOK) GetPayload() *GetFailedChecksOKBody {
@@ -96,13 +132,44 @@ type GetFailedChecksDefault struct {
 	Payload *GetFailedChecksDefaultBody
 }
 
+// IsSuccess returns true when this get failed checks default response has a 2xx status code
+func (o *GetFailedChecksDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get failed checks default response has a 3xx status code
+func (o *GetFailedChecksDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get failed checks default response has a 4xx status code
+func (o *GetFailedChecksDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get failed checks default response has a 5xx status code
+func (o *GetFailedChecksDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get failed checks default response a status code equal to that given
+func (o *GetFailedChecksDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the get failed checks default response
 func (o *GetFailedChecksDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *GetFailedChecksDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/advisors/checks/failed][%d] GetFailedChecks default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors/checks/failed][%d] GetFailedChecks default %s", o._statusCode, payload)
+}
+
+func (o *GetFailedChecksDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors/checks/failed][%d] GetFailedChecks default %s", o._statusCode, payload)
 }
 
 func (o *GetFailedChecksDefault) GetPayload() *GetFailedChecksDefaultBody {
@@ -192,6 +259,11 @@ func (o *GetFailedChecksDefaultBody) ContextValidate(ctx context.Context, format
 func (o *GetFailedChecksDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetFailedChecks default" + "." + "details" + "." + strconv.Itoa(i))
@@ -231,6 +303,80 @@ swagger:model GetFailedChecksDefaultBodyDetailsItems0
 type GetFailedChecksDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// get failed checks default body details items0
+	GetFailedChecksDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *GetFailedChecksDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv GetFailedChecksDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.GetFailedChecksDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o GetFailedChecksDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.GetFailedChecksDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.GetFailedChecksDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this get failed checks default body details items0
@@ -333,6 +479,11 @@ func (o *GetFailedChecksOKBody) ContextValidate(ctx context.Context, formats str
 func (o *GetFailedChecksOKBody) contextValidateResults(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Results); i++ {
 		if o.Results[i] != nil {
+
+			if swag.IsZero(o.Results[i]) { // not required
+				return nil
+			}
+
 			if err := o.Results[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getFailedChecksOk" + "." + "results" + "." + strconv.Itoa(i))
@@ -377,7 +528,7 @@ type GetFailedChecksOKBodyResultsItems0 struct {
 	Description string `json:"description,omitempty"`
 
 	// Severity represents severity level of the check result or alert.
-	// Enum: [SEVERITY_UNSPECIFIED SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
+	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
 	Severity *string `json:"severity,omitempty"`
 
 	// labels

@@ -15,11 +15,18 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   });
   const shouldRedirectToLogin = useMemo(() => {
     const response = (error as AxiosError)?.response;
-    return response?.status === HttpStatusCode.Unauthorized;
+    return (
+      response?.status === HttpStatusCode.Unauthorized ||
+      response?.status === HttpStatusCode.InternalServerError
+    );
   }, [error]);
 
   if (shouldRedirectToLogin) {
     redirectToLogin();
+    return null;
+  }
+
+  if (isLoading) {
     return null;
   }
 
