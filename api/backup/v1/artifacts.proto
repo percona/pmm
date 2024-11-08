@@ -59,7 +59,7 @@ message ListArtifactsResponse {
 
 message DeleteArtifactRequest {
   // Machine-readable artifact ID.
-  string artifact_id = 1 [(validate.rules).string.min_len = 1];
+  string artifact_id = 1 [(validate.rules).string.uuid = true];
   // Removes all the backup files associated with artifact if flag is set.
   bool remove_files = 2;
 }
@@ -75,7 +75,7 @@ message PitrTimerange {
 
 message ListPitrTimerangesRequest {
   // Artifact ID represents artifact whose location has PITR timeranges to be retrieved.
-  string artifact_id = 1 [(validate.rules).string.min_len = 1];
+  string artifact_id = 1 [(validate.rules).string.uuid = true];
 }
 
 message ListPitrTimerangesResponse {

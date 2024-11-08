@@ -35,6 +35,9 @@ var (
 	_ = sort.Sort
 )
 
+// define the regex for a UUID once up-front
+var _backup_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on StartBackupRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -57,10 +60,11 @@ func (m *StartBackupRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := StartBackupRequestValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = StartBackupRequestValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -68,10 +72,11 @@ func (m *StartBackupRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetLocationId()) < 1 {
-		err := StartBackupRequestValidationError{
+	if err := m._validateUuid(m.GetLocationId()); err != nil {
+		err = StartBackupRequestValidationError{
 			field:  "LocationId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -120,6 +125,14 @@ func (m *StartBackupRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return StartBackupRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *StartBackupRequest) _validateUuid(uuid string) error {
+	if matched := _backup_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -325,10 +338,11 @@ func (m *ListArtifactCompatibleServicesRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetArtifactId()) < 1 {
-		err := ListArtifactCompatibleServicesRequestValidationError{
+	if err := m._validateUuid(m.GetArtifactId()); err != nil {
+		err = ListArtifactCompatibleServicesRequestValidationError{
 			field:  "ArtifactId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -338,6 +352,14 @@ func (m *ListArtifactCompatibleServicesRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return ListArtifactCompatibleServicesRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *ListArtifactCompatibleServicesRequest) _validateUuid(uuid string) error {
+	if matched := _backup_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -860,10 +882,11 @@ func (m *ScheduleBackupRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := ScheduleBackupRequestValidationError{
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = ScheduleBackupRequestValidationError{
 			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -871,10 +894,11 @@ func (m *ScheduleBackupRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetLocationId()) < 1 {
-		err := ScheduleBackupRequestValidationError{
+	if err := m._validateUuid(m.GetLocationId()); err != nil {
+		err = ScheduleBackupRequestValidationError{
 			field:  "LocationId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -969,6 +993,14 @@ func (m *ScheduleBackupRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return ScheduleBackupRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *ScheduleBackupRequest) _validateUuid(uuid string) error {
+	if matched := _backup_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1413,10 +1445,11 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetScheduledBackupId()) < 1 {
-		err := ChangeScheduledBackupRequestValidationError{
+	if err := m._validateUuid(m.GetScheduledBackupId()); err != nil {
+		err = ChangeScheduledBackupRequestValidationError{
 			field:  "ScheduledBackupId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -1508,6 +1541,14 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return ChangeScheduledBackupRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *ChangeScheduledBackupRequest) _validateUuid(uuid string) error {
+	if matched := _backup_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1712,10 +1753,11 @@ func (m *RemoveScheduledBackupRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetScheduledBackupId()) < 1 {
-		err := RemoveScheduledBackupRequestValidationError{
+	if err := m._validateUuid(m.GetScheduledBackupId()); err != nil {
+		err = RemoveScheduledBackupRequestValidationError{
 			field:  "ScheduledBackupId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -1725,6 +1767,14 @@ func (m *RemoveScheduledBackupRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return RemoveScheduledBackupRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *RemoveScheduledBackupRequest) _validateUuid(uuid string) error {
+	if matched := _backup_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil
@@ -1929,10 +1979,11 @@ func (m *GetLogsRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetArtifactId()) < 1 {
-		err := GetLogsRequestValidationError{
+	if err := m._validateUuid(m.GetArtifactId()); err != nil {
+		err = GetLogsRequestValidationError{
 			field:  "ArtifactId",
-			reason: "value length must be at least 1 runes",
+			reason: "value must be a valid UUID",
+			cause:  err,
 		}
 		if !all {
 			return err
@@ -1946,6 +1997,14 @@ func (m *GetLogsRequest) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return GetLogsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetLogsRequest) _validateUuid(uuid string) error {
+	if matched := _backup_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil

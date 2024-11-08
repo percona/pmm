@@ -81,7 +81,7 @@ message RegisterNodeResponse {
 
 message UnregisterNodeRequest {
   // Node_id to be unregistered.
-  string node_id = 1 [(validate.rules).string.min_len = 1];
+  string node_id = 1 [(validate.rules).string.uuid = true];
   // Force delete node, related service account, even if it has more service tokens attached.
   bool force = 2;
 }
@@ -171,7 +171,7 @@ message ListNodesResponse {
 
 message GetNodeRequest {
   // Unique Node identifier.
-  string node_id = 1 [(validate.rules).string.min_len = 1];
+  string node_id = 1 [(validate.rules).string.uuid = true];
 }
 
 message GetNodeResponse {
