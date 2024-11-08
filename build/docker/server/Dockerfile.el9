@@ -5,6 +5,7 @@ ARG BUILD_DATE
 
 ENV LANG=en_US.utf8
 ENV GF_PLUGIN_DIR=/srv/grafana/plugins
+ENV PERCONA_TELEMETRY_DISABLE=1
 ENV PS1="[\u@\h \W] # "
 
 WORKDIR /opt
