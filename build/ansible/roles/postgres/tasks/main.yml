@@ -16,7 +16,7 @@
       - percona-postgresql14-server
       - percona-postgresql14-contrib
       - percona-postgresql14
-      - python-psycopg2 # Python PostgreSQL database adapter
+      - python3-psycopg2 # Python PostgreSQL database adapter
     state: installed
 
 - name: Create a socket directory for Postgres

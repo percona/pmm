@@ -18,7 +18,7 @@ This project is built from several repositories:
 ### APIs
 
 * [percona/pmm](https://github.com/percona/pmm/tree/main/api)
-* [percona-platform/saas](https://github.com/percona-platform/saas)
+* [percona/saas](https://github.com/percona/saas)
 
 ### PMM Server
 

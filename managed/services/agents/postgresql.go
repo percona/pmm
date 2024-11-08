@@ -56,7 +56,7 @@ var defaultPostgresExporterCollectors = []string{
 const defaultAutoDiscoveryDatabaseLimit = 50
 
 func postgresExcludedDatabases() []string {
-	return []string{"template0", "template1", "postgres", "cloudsqladmin", "pmm-managed-dev", "azure_maintenance", "rdsadmin"}
+	return []string{"template0", "template1", "cloudsqladmin", "pmm-managed-dev", "azure_maintenance", "rdsadmin"}
 }
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
@@ -150,7 +150,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		res.RedactWords = redactWords(exporter)
 	}
 
-	if err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion); err != nil {
+	if err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false); err != nil {
 		return nil, err
 	}
 

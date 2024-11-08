@@ -28,6 +28,7 @@ enum AgentType {
   AGENT_TYPE_EXTERNAL_EXPORTER = 13;
   AGENT_TYPE_RDS_EXPORTER = 14;
   AGENT_TYPE_AZURE_DATABASE_EXPORTER = 15;
+  AGENT_TYPE_NOMAD_AGENT = 16;
 }
 
 // PMMAgent runs on Generic or Container Node.

@@ -22,7 +22,7 @@ Requires(postun): systemd
 
 AutoReq:        no
 Conflicts:      pmm-client
-Obsoletes:	pmm2-client < 3.0.0
+Obsoletes:      pmm2-client < 3.0.0
 
 %description
 Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL and MongoDB
@@ -100,6 +100,7 @@ install -m 0755 bin/pt-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools
 install -m 0755 bin/pt-mysql-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools
 install -m 0755 bin/pt-mongodb-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools
 install -m 0755 bin/pt-pg-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools
+install -m 0755 bin/nomad $RPM_BUILD_ROOT/usr/local/percona/pmm/tools
 install -m 0660 example.prom $RPM_BUILD_ROOT/usr/local/percona/pmm/collectors/textfile-collector/low-resolution/
 install -m 0660 example.prom $RPM_BUILD_ROOT/usr/local/percona/pmm/collectors/textfile-collector/medium-resolution/
 install -m 0660 example.prom $RPM_BUILD_ROOT/usr/local/percona/pmm/collectors/textfile-collector/high-resolution/

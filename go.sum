@@ -410,8 +410,6 @@ github.com/paulmach/orb v0.11.1/go.mod h1:5mULz1xQfs3bmQm63QEJA6lNGujuRafwA5S/En
 github.com/paulmach/protoscan v0.2.1/go.mod h1:SpcSwydNLrxUGSDvXvO0P7g7AuhJ7lcKfDlhJCDw2gY=
 github.com/percona-lab/crypto v0.0.0-20231108144114-756dfb24eaf2 h1:FaO5loTAkRzVhyKWYRHg/ii9oWXNsqv89H/kGl9Cb5I=
 github.com/percona-lab/crypto v0.0.0-20231108144114-756dfb24eaf2/go.mod h1:aSyBXtGhRzSMdne9jbl3+PPMVS0IgOWF6Llc+HB5uUU=
-github.com/percona-platform/saas v0.0.0-20230728161159-ad6bdeb8a3d9 h1:KkOH+Y4sVRP7qvRtTDmfPFNjjQcwU2054/jNl9DZhEo=
-github.com/percona-platform/saas v0.0.0-20230728161159-ad6bdeb8a3d9/go.mod h1:lZuFcqj0EoQWx28SYkTcdhJOCQEbRcAyahYPfRMY7tc=
 github.com/percona/exporter_shared v0.7.5 h1:sIhdDtKOfH0jsqtTAi41C7wm1R42yXYeAkK0QWhgN7k=
 github.com/percona/exporter_shared v0.7.5/go.mod h1:P8ZHDzveyJRGD4ZIRNiEMuAdDexBpQWf2mAVwtyVcYU=
 github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c h1:1SZ7nS+kSaO63IpaKspf/gf8602QcgP2eXNPMNOIc0M=
@@ -420,6 +418,8 @@ github.com/percona/percona-toolkit v3.2.1+incompatible h1:5jLvtZKcu9fDmaLRB8qA4b
 github.com/percona/percona-toolkit v3.2.1+incompatible/go.mod h1:netQWdWMaF1cnmwiIS+i5uyaqNXz46yNeM6HKkR6yeI=
 github.com/percona/promconfig v0.2.5 h1:f/HN/CbECQs7d9RIB6MKVkuXstsrsqEDxRvf6yigquc=
 github.com/percona/promconfig v0.2.5/go.mod h1:Y2uXi5QNk71+ceJHuI9poank+0S1kjxd3K105fXKVkg=
+github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e h1:xhk5ivxlTPat0SwLBqU1UdfqJb+2R3x4yAhjCf6WMEU=
+github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e/go.mod h1:UP4WqGWy8xeGhEoDFaB1aPNNtNs/TYXQ8MjUrN6rXis=
 github.com/pganalyze/pg_query_go/v5 v5.1.0 h1:MlxQqHZnvA3cbRQYyIrjxEjzo560P6MyTgtlaf3pmXg=
 github.com/pganalyze/pg_query_go/v5 v5.1.0/go.mod h1:FsglvxidZsVN+Ltw3Ai6nTgPVcK2BPukH3jCDEqc1Ug=
 github.com/pierrec/lz4/v4 v4.1.21 h1:yOVMLb6qSIDP67pl/5F7RepeKYu/VmTyEXvuMI5d9mQ=
@@ -505,6 +505,8 @@ github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
+github.com/tink-crypto/tink-go v0.0.0-20230613075026-d6de17e3f164 h1:yhVO0Yhq84FjdcotvFFvDJRNHJ7mO743G12VdcW4Evc=
+github.com/tink-crypto/tink-go v0.0.0-20230613075026-d6de17e3f164/go.mod h1:HhtDVdE/PRZFRia834tkmcwuscnaAzda1RJUW9Pr3Rg=
 github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926/go.mod h1:9ESjWnEqriFuLhtthL60Sar/7RFoluCcXsuvEwTV5KM=
 github.com/xdg-go/pbkdf2 v1.0.0 h1:Su7DPu48wXMwC3bs7MCNG+z4FhcyEuz5dlvchbq0B0c=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=

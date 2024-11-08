@@ -26,6 +26,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	stringsgen "github.com/percona/pmm/utils/strings"
 )
 
 func TestClient(t *testing.T) {
@@ -144,7 +146,9 @@ func TestClient(t *testing.T) {
 			})
 
 			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
-				nodeName := fmt.Sprintf("test-node-%s", role)
+				name, err := stringsgen.GenerateRandomString(256)
+				require.NoError(t, err)
+				nodeName := fmt.Sprintf("%s-%s", name, role)
 				serviceAccountID, err := c.createServiceAccount(ctx, role, nodeName, true, authHeaders)
 				require.NoError(t, err)
 				defer func() {
