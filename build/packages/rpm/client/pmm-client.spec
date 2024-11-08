@@ -198,6 +198,9 @@ fi
 %attr(-,pmm-agent,pmm-agent) /usr/local/percona/pmm
 
 %changelog
+* Fri Nov 8 2024 Nurlan Moldomurov <nurlan.moldomurov@percona.com>
+- PMM-13399 include nomad into pmm client
+
 * Tue Jun 21 2022 Nikita Beletskii <nikita.beletskii@percona.com>
 - PMM-7 remove support for RHEL older then 7
 
