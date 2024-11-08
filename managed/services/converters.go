@@ -27,7 +27,6 @@ import (
 
 	"github.com/percona/pmm/api/common"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	"github.com/percona/pmm/api/inventory/v1/types"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -240,7 +239,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			PushMetricsEnabled: agent.PushMetrics,
 			DisabledCollectors: agent.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           types.LogLevelAPIValue(agent.LogLevel),
+			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:     agent.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
 		}, nil
@@ -263,7 +262,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			PushMetricsEnabled:        agent.PushMetrics,
 			DisabledCollectors:        agent.DisabledCollectors,
 			ProcessExecPath:           processExecPath,
-			LogLevel:                  types.LogLevelAPIValue(agent.LogLevel),
+			LogLevel:                  inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:            agent.ExposeExporter,
 			MetricsResolutions:        ConvertMetricsResolutions(agent.MetricsResolutions),
 		}, nil
@@ -283,7 +282,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			PushMetricsEnabled: agent.PushMetrics,
 			DisabledCollectors: agent.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           types.LogLevelAPIValue(agent.LogLevel),
+			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:     agent.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
 		}
@@ -309,7 +308,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			PushMetricsEnabled: agent.PushMetrics,
 			DisabledCollectors: agent.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           types.LogLevelAPIValue(agent.LogLevel),
+			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:     agent.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
 		}
@@ -333,7 +332,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			QueryExamplesDisabled:  agent.QueryExamplesDisabled,
 			DisableCommentsParsing: agent.CommentsParsingDisabled,
 			ProcessExecPath:        processExecPath,
-			LogLevel:               types.LogLevelAPIValue(agent.LogLevel),
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
 	case models.QANMySQLSlowlogAgentType:
@@ -351,7 +350,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			DisableCommentsParsing: agent.CommentsParsingDisabled,
 			MaxSlowlogFileSize:     agent.MaxQueryLogSize,
 			ProcessExecPath:        processExecPath,
-			LogLevel:               types.LogLevelAPIValue(agent.LogLevel),
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
 	case models.QANMongoDBProfilerAgentType:
@@ -367,7 +366,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			TlsSkipVerify:   agent.TLSSkipVerify,
 			MaxQueryLength:  agent.MaxQueryLength,
 			ProcessExecPath: processExecPath,
-			LogLevel:        types.LogLevelAPIValue(agent.LogLevel),
+			LogLevel:        inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}, nil
 
@@ -386,7 +385,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			PushMetricsEnabled: agent.PushMetrics,
 			DisabledCollectors: agent.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           types.LogLevelAPIValue(agent.LogLevel),
+			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:     agent.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
 		}, nil
@@ -405,7 +404,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			Tls:                    agent.TLS,
 			TlsSkipVerify:          agent.TLSSkipVerify,
 			ProcessExecPath:        processExecPath,
-			LogLevel:               types.LogLevelAPIValue(agent.LogLevel),
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
 	case models.QANPostgreSQLPgStatMonitorAgentType:
@@ -423,7 +422,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			QueryExamplesDisabled:  agent.QueryExamplesDisabled,
 			DisableCommentsParsing: agent.CommentsParsingDisabled,
 			ProcessExecPath:        processExecPath,
-			LogLevel:               types.LogLevelAPIValue(agent.LogLevel),
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
 	case models.RDSExporterType:
@@ -440,7 +439,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			EnhancedMetricsDisabled: agent.RDSEnhancedMetricsDisabled,
 			PushMetricsEnabled:      agent.PushMetrics,
 			ProcessExecPath:         processExecPath,
-			LogLevel:                types.LogLevelAPIValue(agent.LogLevel),
+			LogLevel:                inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			MetricsResolutions:      ConvertMetricsResolutions(agent.MetricsResolutions),
 		}, nil
 
@@ -478,7 +477,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ListenPort:                  uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:                labels,
 			ProcessExecPath:             processExecPath,
-			LogLevel:                    types.LogLevelAPIValue(agent.LogLevel),
+			LogLevel:                    inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			MetricsResolutions:          ConvertMetricsResolutions(agent.MetricsResolutions),
 		}, nil
 

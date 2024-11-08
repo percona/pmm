@@ -13,15 +13,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package types
+package inventoryv1
 
 import (
 	"github.com/AlekSi/pointer"
 
-	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/utils/enums"
 )
 
-func LogLevelAPIValue(l *string) inventoryv1.LogLevel {
-	return inventoryv1.LogLevel(inventoryv1.LogLevel_value[enums.ConvertEnum("LOG_LEVEL", pointer.Get(l))])
+func LogLevelAPIValue(l *string) LogLevel {
+	return LogLevel(LogLevel_value[enums.ConvertEnum("LOG_LEVEL", pointer.Get(l))])
 }
