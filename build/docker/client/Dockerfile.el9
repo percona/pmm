@@ -1,4 +1,4 @@
-FROM redhat/ubi9-minimal AS users
+FROM redhat/ubi9-minimal AS base
 
 RUN microdnf install shadow-utils jq tar -y
 
@@ -13,30 +13,30 @@ ARG VERSION
 ARG BUILD_DATE
 
 COPY LICENSE /licenses/
-COPY --from=users --chown=0:0 /etc/passwd /etc/passwd
-COPY --from=users --chown=0:0 /etc/group /etc/group
+COPY --from=base --chown=0:0 /etc/passwd /etc/passwd
+COPY --from=base --chown=0:0 /etc/group /etc/group
 
 # Install jq along with its dependencies
-COPY --from=users --chown=0:0 /usr/bin/jq /usr/bin/
-COPY --from=users --chown=0:0 /usr/bin/tar /usr/bin/
-COPY --from=users --chown=0:0 /usr/bin/curl /usr/bin/
+COPY --from=base --chown=0:0 /usr/bin/jq /usr/bin/
+COPY --from=base --chown=0:0 /usr/bin/tar /usr/bin/
+COPY --from=base --chown=0:0 /usr/bin/curl /usr/bin/
 
-COPY --from=users --chown=0:0 /usr/lib64/libjq.so.1.0.4 /lib64/libjq.so.1
-COPY --from=users --chown=0:0 /usr/lib64/libonig.so.5.1.0 /lib64/libonig.so.5
+COPY --from=base --chown=0:0 /usr/lib64/libjq.so.1.0.4 /lib64/libjq.so.1
+COPY --from=base --chown=0:0 /usr/lib64/libonig.so.5.1.0 /lib64/libonig.so.5
 
 # Dependencies of curl
-COPY --from=users --chown=0:0 /usr/lib64/libkeyutils.so* /lib64/
-COPY --from=users --chown=0:0 /usr/lib64/libz.so* /lib64/
-COPY --from=users --chown=0:0 /usr/lib64/libkrb5support.so* /lib64/
-COPY --from=users --chown=0:0 /usr/lib64/libkrb5.so* /lib64/
-COPY --from=users --chown=0:0 /usr/lib64/libk5crypto.so* /lib64/
-COPY --from=users --chown=0:0 /usr/lib64/libgssapi_krb5.so* /lib64/
-COPY --from=users --chown=0:0 /usr/lib64/libcom_err.so* /lib64/
-COPY --from=users --chown=0:0 /usr/lib64/libssl.so* /lib64/
-COPY --from=users --chown=0:0 /usr/lib64/libcrypto.so* /lib64/
-COPY --from=users --chown=0:0 /usr/lib64/libcurl.so* /lib64/
-COPY --from=users --chown=0:0 /usr/lib64/libnghttp2.so* /lib64/
-COPY --from=users --chown=0:0 /usr/lib64/libresolv.so* /lib64/
+COPY --from=base --chown=0:0 /usr/lib64/libkeyutils.so* /lib64/
+COPY --from=base --chown=0:0 /usr/lib64/libz.so* /lib64/
+COPY --from=base --chown=0:0 /usr/lib64/libkrb5support.so* /lib64/
+COPY --from=base --chown=0:0 /usr/lib64/libkrb5.so* /lib64/
+COPY --from=base --chown=0:0 /usr/lib64/libk5crypto.so* /lib64/
+COPY --from=base --chown=0:0 /usr/lib64/libgssapi_krb5.so* /lib64/
+COPY --from=base --chown=0:0 /usr/lib64/libcom_err.so* /lib64/
+COPY --from=base --chown=0:0 /usr/lib64/libssl.so* /lib64/
+COPY --from=base --chown=0:0 /usr/lib64/libcrypto.so* /lib64/
+COPY --from=base --chown=0:0 /usr/lib64/libcurl.so* /lib64/
+COPY --from=base --chown=0:0 /usr/lib64/libnghttp2.so* /lib64/
+COPY --from=base --chown=0:0 /usr/lib64/libresolv.so* /lib64/
 
 RUN install -d -o pmm-agent -g pmm-agent -m 0775 /usr/local/percona/pmm
 
@@ -57,6 +57,6 @@ LABEL org.opencontainers.image.docs=https://docs.percona.com/percona-monitoring-
 
 USER pmm-agent
 WORKDIR /usr/local/percona/pmm/
-ENV PATH /usr/local/percona/pmm/bin/:$PATH
+ENV PATH=/usr/local/percona/pmm/bin/:$PATH
 
 ENTRYPOINT ["/usr/local/percona/pmm/bin/pmm-agent-entrypoint"]
