@@ -46,7 +46,7 @@ PMM Client:
 	pmm-admin version: {{ .PMMVersion }}
 	pmm-agent version: {{ .PMMAgentStatus.AgentVersion }}
 Agents:
-{{ range .PMMAgentStatus.Agents }}	{{ .AgentID }} {{ .AgentType | $.HumanReadableAgentType }} {{ .Status | $.NiceAgentStatus }} {{ .Port }}
+{{ range .PMMAgentStatus.Agents }}	{{ .AgentID }} {{ printf "%-29s" (.AgentType | $.HumanReadableAgentType) }} {{ printf "%-15s" (.Status | $.NiceAgentStatus) }} {{ .Port }}
 {{ end }}
 `)
 
@@ -60,8 +60,7 @@ func (res *statusResult) HumanReadableAgentType(agentType string) string {
 }
 
 func (res *statusResult) NiceAgentStatus(status string) string {
-	s, _ := strings.CutPrefix(status, "AGENT_STATUS_")
-	return cases.Title(language.English).String(strings.ToLower(s))
+	return cases.Title(language.English).String(strings.ToLower(status))
 }
 
 func (res *statusResult) Result() {}

@@ -63,7 +63,7 @@ func (a listResultAgent) HumanReadableAgentType() string {
 
 // NiceAgentStatus returns human-readable agent status.
 func (a listResultAgent) NiceAgentStatus() string {
-	res, _ := strings.CutPrefix(a.Status, "AGENT_STATUS_")
+	res := a.Status
 	if res == "" {
 		res = "unknown" //nolint:goconst
 	}
@@ -221,7 +221,7 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 
 func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent { //nolint:cyclop
 	getStatus := func(s *string) string {
-		res := pointer.GetString(s)
+		res, _ := strings.CutPrefix(pointer.GetString(s), "AGENT_STATUS_")
 		if res == "" {
 			res = "unknown"
 		}
