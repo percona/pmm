@@ -280,6 +280,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				AWSSecretKey:               req.AwsSecretKey,
 				RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
 				RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
+				PushMetrics:                isPushMode(metricsMode),
 			})
 			if err != nil {
 				return err
