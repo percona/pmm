@@ -74,7 +74,7 @@ func queryUsernames(q *reform.Querier) map[int64]string {
 
 func extractTables(query string, maxQueryLength int32, l *logrus.Entry) []string {
 	start := time.Now()
-	t, _ := truncate.Query(query, maxQueryLength)
+	t, _ := truncate.Query(query, maxQueryLength, truncate.GetDefaultMaxQueryLength())
 	tables, err := parser.ExtractTables(query)
 	if err != nil {
 		// log full query and error stack on debug level or more
