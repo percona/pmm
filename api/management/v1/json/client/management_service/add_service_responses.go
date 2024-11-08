@@ -9890,6 +9890,9 @@ type AddServiceParamsBodyRDS struct {
 	// Enum: ["DISCOVER_RDS_ENGINE_UNSPECIFIED","DISCOVER_RDS_ENGINE_MYSQL","DISCOVER_RDS_ENGINE_POSTGRESQL"]
 	Engine *string `json:"engine,omitempty"`
 
+	// PMM Agent ID.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
 	// Unique across all Nodes user-defined name. Defaults to AWS instance ID.
 	NodeName string `json:"node_name,omitempty"`
 

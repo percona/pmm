@@ -182,6 +182,8 @@ type AgentFilters struct {
 	ServiceID string
 	// Return Agents with provided type.
 	AgentType *AgentType
+	// Return only Agents that provide insights for that AWSAccessKey.
+	AWSAccessKey string
 }
 
 // FindAgents returns Agents by filters.
@@ -216,6 +218,11 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	if filters.AgentType != nil {
 		conditions = append(conditions, fmt.Sprintf("agent_type = %s", q.Placeholder(idx)))
 		args = append(args, *filters.AgentType)
+		idx++
+	}
+	if filters.AWSAccessKey != "" {
+		conditions = append(conditions, fmt.Sprintf("aws_access_key = %s", q.Placeholder(idx)))
+		args = append(args, filters.AWSAccessKey)
 	}
 
 	var whereClause string
