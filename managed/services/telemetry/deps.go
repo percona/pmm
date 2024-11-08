@@ -18,8 +18,8 @@ package telemetry
 import (
 	"context"
 
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
-	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
+	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
 )
@@ -31,7 +31,7 @@ type distributionUtilService interface {
 
 // sender is interface which defines method for client which sends report with metrics.
 type sender interface {
-	SendTelemetry(ctx context.Context, report *reporter.ReportRequest) error
+	SendTelemetry(ctx context.Context, report *telemetryv1.ReportRequest) error
 }
 
 // DataSourceLocator locates data source by name.
@@ -42,7 +42,7 @@ type DataSourceLocator interface {
 // DataSource telemetry data source.
 type DataSource interface {
 	Init(ctx context.Context) error
-	FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error)
+	FetchMetrics(ctx context.Context, config Config) ([]*telemetryv1.GenericReport_Metric, error)
 	Dispose(ctx context.Context) error
 	Enabled() bool
 }
