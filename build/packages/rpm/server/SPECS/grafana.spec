@@ -12,6 +12,8 @@
 %define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom | od -An -tx1 | tr -d ' \\n')" -a -v -x %{?**};
 %endif
 
+# Source0: is modified by build-server-rpm's sed
+
 Name:           percona-grafana
 Version:        %{grafana_version}
 Release:        %{rpm_release}
@@ -65,9 +67,9 @@ install -d -p %{buildroot}%{_sharedstatedir}/grafana
 %{_datadir}/grafana
 %doc CHANGELOG.md README.md
 %license LICENSE
-%attr(0755, pmm, pmm) %{_sbindir}/grafana
-%attr(0755, pmm, pmm) %{_sbindir}/grafana-server
-%attr(0755, pmm, pmm) %{_bindir}/grafana-cli
+%attr(0755, root, root) %{_sbindir}/grafana
+%attr(0755, root, root) %{_sbindir}/grafana-server
+%attr(0755, root, root) %{_bindir}/grafana-cli
 %{_sysconfdir}/grafana/grafana.ini
 %{_sysconfdir}/grafana/ldap.toml
 %dir %{_sharedstatedir}/grafana

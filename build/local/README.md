@@ -77,15 +77,15 @@ It's important to note, however, that once all changes are made and tested, you 
 
 Currently, local builds target the following environments:
 - PMM Client
-  - tarball - virtually any amd64 Linux environment
-  - RPM - RHEL9-compatible environments
-  - docker image - docker and Kubernetes environments (amd64)
+  - tarball - most Linux environments, noarch
+  - RPM - RHEL9-compatible environments, amd64/aarch64
+  - docker image - docker and Kubernetes environments amd64/aarch64
 - PMM Server
-  - docker image - docker and Kubernetes environments (amd64)
+  - docker image - docker and Kubernetes environments amd64/aarch64
 
 
 ## Todo List
 
 * have a VERSION file, similar to the one in https://github.com/percona-lab/pmm-submodules/blob/v3/VERSION
 * have a package.yml file containing hashes of all build artefacts (PMM components, i.e. grafana, pmm-managed, etc.)
-* copy all build scripts to `build/local` to have a separation between old an new build flows
+* copy all build scripts to `build/local` to isolate the new build flows from the old ones

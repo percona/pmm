@@ -1,14 +1,13 @@
 %global repo            pmm
 %global provider        github.com/percona/%{repo}
 %global import_path     %{provider}
-# The commit hash gets sed'ed by build-server-rpm script to set a correct version
-# see: https://github.com/percona/pmm/blob/main/build/scripts/build-server-rpm#L58
+# The commit hash gets sed'ed by build-server-rpm script
 %global commit          0000000000000000000000000000000000000000
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define release         18
 %define rpm_release     %{release}.%{shortcommit}%{?dist}
 
-# the line below is sed'ed by build/bin/build-server-rpm to set a correct version
+# The line below is sed'ed by build-server-rpm
 %define full_pmm_version 2.0.0
 
 Name:           percona-qan-api2
@@ -21,8 +20,8 @@ URL:            https://%{provider}
 Source0:        https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
 
 %description
-Percona Query Analytics (QAN) API v2 is part of Percona Monitoring and Management (PMM).
-See PMM docs for more information - https://docs.percona.com/percona-monitoring-and-management/using/query-analytics.html.
+Percona Query Analytics (QAN) API is part of Percona Monitoring and Management (PMM).
+Refer to PMM docs for more information - https://docs.percona.com/percona-monitoring-and-management/get-started/query-analytics.html.
 
 
 %prep

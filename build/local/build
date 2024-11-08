@@ -9,17 +9,16 @@ Options:
       --platform <platform>    Build for a specific platform (defaults to linux/amd64)
       --no-update              Do not fetch the latest changes from the repo
       --update-only            Only fetch the latest changes from the repo
+      --client-only            Build only PMM Client (client binaries + docker)
       --no-client              Do not build PMM Client
       --no-client-docker       Do not build PMM Client docker image (default)
-      --client-only            Build only PMM Client (client binaries + docker)
-      --no-server              Do not build PMM Server (docker image)
       --log-file <path>        Save build logs to a file located at <path> (defaults to PWD)
   -d  --debug                  Log output in debug mode, which also prints the commands
   -h  --help                   Display help
 EOF
 }
 
-parse-params() {
+parse_params() {
   # Define global variables
   LOCAL_BUILD=1
   NO_UPDATE=0
@@ -67,9 +66,6 @@ parse-params() {
         fi
         NO_CLIENT_DOCKER=1
         ;;
-      --no-server)
-        NO_SERVER=1
-        ;;
       --platform)
         shift
         if [ -z "$1" ]; then
@@ -97,6 +93,7 @@ parse-params() {
         ;;
       *)
         echo "Unknown argument: $1"
+        echo
         usage
         exit 1
         ;;
@@ -105,7 +102,7 @@ parse-params() {
   done
 }
 
-needs-to-pull() {
+needs_to_pull() {
   local UPSTREAM=${1:-'@{u}'}
   local LOCAL=$(git rev-parse @)
   local BASE=$(git merge-base @ "$UPSTREAM")
@@ -133,7 +130,7 @@ rewind() {
     git checkout "$BRANCH"
   fi
 
-  if needs-to-pull; then
+  if needs_to_pull; then
     if ! git pull origin; then
       git reset --hard HEAD~20
       git pull origin
@@ -148,7 +145,7 @@ rewind() {
   fi
 }
 
-check-files() {
+check_files() {
   local DIR="$1"
 
   test -z "DIR" && exit 1
@@ -180,7 +177,7 @@ update() {
   fi
 
   if [ -d "$SUBMODULES" ]; then # pwd is outside pmm-submodules
-    if ! check-files "$SUBMODULES"; then
+    if ! check_files "$SUBMODULES"; then
       echo "Fatal: could not locate known files in ${PWD}/${SUBMODULES}"
       exit 1
     fi
@@ -390,7 +387,7 @@ main() {
   cleanup
 }
 
-parse-params "$@"
+parse_params "$@"
 
 # Capture the build logs in the log file
 exec > >(tee "$LOG_FILE") 2>&1

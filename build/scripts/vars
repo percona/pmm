@@ -30,7 +30,7 @@ fi
 new_pmm_version=$(cat ${root_dir}/VERSION | awk -F'-' '{print $1}')
 new_pmm_release=$(cat ${root_dir}/VERSION | awk -F'-' '{print $2}')
 
-# Failsafe during refactoring - check that we did not redefine pmm_version in some other script
+# Check that we did not redefine pmm_version in some other script
 if [ -n "${pmm_version}" ] && [ "${new_pmm_version}" != "${pmm_version}" ]; then
   echo "pmm_version is already defined: ${pmm_version}"
   exit 1

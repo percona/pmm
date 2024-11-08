@@ -56,7 +56,7 @@ prepare_spec() {
   mkdir -p ${rpms_dir} ${rpmbuild_dir} 2>/dev/null || :
   cp ${rpmspec_dir}/${spec_name}.spec ${spec_file}
   if [ ! -d "${root_dir}/sources/${repo_name}" ]; then
-    # TODO: see if we should not exit with error here
+    # Exit if the repo can't be found in pmm-submodules (e.g. VictoriaMetrics)
     return
   fi
   if [ ! -f "${spec_file}" ]; then

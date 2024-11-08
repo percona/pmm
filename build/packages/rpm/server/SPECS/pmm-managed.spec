@@ -9,7 +9,7 @@
 %define rpm_release     %{release}.%{shortcommit}%{?dist}
 
 # the line below is sed'ed by build/bin/build-server-rpm to set a correct version
-%define full_pmm_version 2.0.0
+%define full_pmm_version 3.0.0
 
 Name:     pmm-managed
 Version:  %{version}
