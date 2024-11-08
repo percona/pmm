@@ -1,5 +1,6 @@
 export PACKER_CACHE_DIR := .cache
 export PACKER_VERSION := 1.8.2
+export BOX_VERSION := 202407.23.0
 export CENTOS_ISO := 2004.01
 
 ## ----------------- PACKER ------------------
@@ -21,12 +22,13 @@ fetch-el9:
 	    || curl -L https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant \
 		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
-	test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
-		|| curl -fL https://pmm-build-cache.s3.us-east-2.amazonaws.com/VBOXES/oracle9-202401.31.0.box -o ${PACKER_CACHE_DIR}/box/oracle9.ova
 
-	# NOTE: image from vagrant registry is twice as large
+	# Add the box using Vagrant
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
-		|| tar -C ${PACKER_CACHE_DIR}/box -xvf ${PACKER_CACHE_DIR}/box/oracle9.ova
+		|| VAGRANT_HOME=${PACKER_CACHE_DIR}/box vagrant box add bento/oraclelinux-9 --box-version ${BOX_VERSION} --provider virtualbox
+
+	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
+		|| cp -rp ${PACKER_CACHE_DIR}/box/boxes/bento-VAGRANTSLASH-oraclelinux-9/${BOX_VERSION}/amd64/virtualbox/* ${PACKER_CACHE_DIR}/box
 
 deps:
 	mkdir -p ${PACKER_CACHE_DIR} ~/bin || :
