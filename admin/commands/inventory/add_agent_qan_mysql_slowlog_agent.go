@@ -20,6 +20,7 @@ import (
 	"github.com/alecthomas/units"
 
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
@@ -72,7 +73,6 @@ type AddAgentQANMySQLSlowlogAgentCommand struct {
 	Password             string            `help:"MySQL password for scraping metrics"`
 	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
-	CommentsParsing      string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	MaxQueryLength       int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MaxSlowlogFileSize   units.Base2Bytes  `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: 0; 0 or negative value disables rotation). Ex.: 1GiB"`
@@ -81,7 +81,9 @@ type AddAgentQANMySQLSlowlogAgentCommand struct {
 	TLSCAFile            string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile          string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile           string            `name:"tls-key" help:"Path to client key file"`
-	LogLevel             string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
+
+	flags.CommentsParsingFlags
+	flags.LogLevelFatalFlags
 }
 
 // RunCmd executes the AddAgentQANMySQLSlowlogAgentCommand and returns the result.
@@ -109,11 +111,6 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 		}
 	}
 
-	disableCommentsParsing := true
-	if cmd.CommentsParsing == "on" {
-		disableCommentsParsing = false
-	}
-
 	params := &agents.AddAgentParams{
 		Body: agents.AddAgentBody{
 			QANMysqlSlowlogAgent: &agents.AddAgentParamsBodyQANMysqlSlowlogAgent{
@@ -123,7 +120,7 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 				Password:               cmd.Password,
 				CustomLabels:           customLabels,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
-				DisableCommentsParsing: disableCommentsParsing,
+				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
 				MaxQueryLength:         cmd.MaxQueryLength,
 				DisableQueryExamples:   cmd.DisableQueryExamples,
 				MaxSlowlogFileSize:     strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
@@ -132,7 +129,7 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 				TLSCa:                  tlsCa,
 				TLSCert:                tlsCert,
 				TLSKey:                 tlsKey,
-				LogLevel:               &cmd.LogLevel,
+				LogLevel:               cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

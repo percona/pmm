@@ -17,14 +17,13 @@ package management
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/units"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
@@ -111,19 +110,19 @@ type AddMySQLCommand struct {
 	ReplicationSet         string            `help:"Replication set name"`
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
-	CommentsParsing        string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	TLS                    bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
 	TLSCaFile              string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile            string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile             string            `name:"tls-key" help:"Path to client key file"`
 	CreateUser             bool              `hidden:"" help:"Create pmm user"`
-	MetricsMode            string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 
 	AddCommonFlags
-	AddLogLevelNoFatalFlags
+	flags.MetricsModeFlags
+	flags.CommentsParsingFlags
+	flags.LogLevelNoFatalFlags
 }
 
 // GetServiceName returns the service name for AddMySQLCommand.
@@ -176,11 +175,6 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	disableCommentsParsing := true
-	if cmd.CommentsParsing == "on" {
-		disableCommentsParsing = false
-	}
-
 	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
@@ -230,7 +224,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
 
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
-				DisableCommentsParsing: disableCommentsParsing,
+				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
 				MaxQueryLength:         cmd.MaxQueryLength,
 				DisableQueryExamples:   cmd.DisableQueryExamples,
 
@@ -241,9 +235,9 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				TLSCert:                   tlsCert,
 				TLSKey:                    tlsKey,
 				TablestatsGroupTableLimit: tablestatsGroupTableLimit,
-				MetricsMode:               pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+				MetricsMode:               cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:                  &cmd.AddLogLevel,
+				LogLevel:                  cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

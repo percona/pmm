@@ -16601,8 +16601,18 @@
                         "x-order": 10
                       },
                       "log_level": {
-                        "description": "Log level for exporter.",
+                        "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                         "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "LOG_LEVEL_UNSPECIFIED",
+                        "enum": [
+                          "LOG_LEVEL_UNSPECIFIED",
+                          "LOG_LEVEL_FATAL",
+                          "LOG_LEVEL_ERROR",
+                          "LOG_LEVEL_WARN",
+                          "LOG_LEVEL_INFO",
+                          "LOG_LEVEL_DEBUG"
+                        ],
                         "x-order": 11
                       },
                       "max_query_length": {
@@ -18085,8 +18095,18 @@
                               "x-order": 10
                             },
                             "log_level": {
-                              "description": "Log level for exporter.",
+                              "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                               "type": "string",
+                              "title": "Log level for exporters",
+                              "default": "LOG_LEVEL_UNSPECIFIED",
+                              "enum": [
+                                "LOG_LEVEL_UNSPECIFIED",
+                                "LOG_LEVEL_FATAL",
+                                "LOG_LEVEL_ERROR",
+                                "LOG_LEVEL_WARN",
+                                "LOG_LEVEL_INFO",
+                                "LOG_LEVEL_DEBUG"
+                              ],
                               "x-order": 11
                             },
                             "max_query_length": {

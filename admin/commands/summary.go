@@ -36,8 +36,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/agentlocal"
-	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/helpers"
+	"github.com/percona/pmm/admin/pkg/flags"
 	agents_info "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
 	"github.com/percona/pmm/api/inventory/v1/types"
 	"github.com/percona/pmm/api/server/v1/json/client"

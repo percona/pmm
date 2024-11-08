@@ -21,7 +21,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/admin/cli/flags"
+	"github.com/percona/pmm/admin/pkg/flags"
 )
 
 type configResult struct {
@@ -43,20 +43,21 @@ func (res *configResult) String() string {
 //
 //nolint:lll
 type ConfigCommand struct {
-	NodeAddress       string   `arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
-	NodeType          string   `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type, one of: generic, container (default: ${nodeTypeDefault})"`
-	NodeName          string   `arg:"" default:"${hostname}" help:"Node name (autodetected default: ${hostname})"`
+	NodeAddress       string   `arg:"" default:"${nodeIp}" help:"Node address (autodetected, default: ${default})"`
+	NodeType          string   `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type. One of: [${enum}]. Default: ${default}"`
+	NodeName          string   `arg:"" default:"${hostname}" help:"Node name (autodetected, default: ${default})"`
 	NodeModel         string   `help:"Node model"`
 	Region            string   `help:"Node region"`
 	Az                string   `help:"Node availability zone"`
 	AgentPassword     string   `help:"Custom password for /metrics endpoint"`
 	Force             bool     `help:"Remove Node with that name with all dependent Services and Agents if one exist"`
-	MetricsMode       string   `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode for agents node-exporter, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors []string `help:"Comma-separated list of collector names to exclude from exporter"`
 	CustomLabels      string   `placeholder:"KEY=VALUE,KEY=VALUE,..." help:"Custom user-assigned labels"`
 	BasePath          string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
-	LogLevel          string   `enum:"debug,info,warn,error,fatal" default:"warn" help:"Logging level"`
 	LogLinesCount     uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`
+
+	flags.MetricsModeFlags
+	flags.LogLevelFatalFlags
 }
 
 func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
@@ -92,8 +93,8 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 		res = append(res, "--server-insecure-tls")
 	}
 
-	if cmd.LogLevel != "" {
-		res = append(res, fmt.Sprintf("--log-level=%s", cmd.LogLevel))
+	if cmd.LogLevelFatalFlags.LogLevel != "" {
+		res = append(res, fmt.Sprintf("--log-level=%s", cmd.LogLevelFatalFlags.LogLevel))
 	}
 	if globals.EnableDebug {
 		res = append(res, "--debug")
@@ -120,8 +121,8 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 		res = append(res, "--force")
 	}
 
-	if cmd.MetricsMode != "" {
-		res = append(res, fmt.Sprintf("--metrics-mode=%s", cmd.MetricsMode))
+	if cmd.MetricsModeFlags.MetricsMode != "" {
+		res = append(res, fmt.Sprintf("--metrics-mode=%s", cmd.MetricsModeFlags.MetricsMode))
 	}
 
 	if len(cmd.DisableCollectors) != 0 {
