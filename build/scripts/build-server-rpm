@@ -90,7 +90,7 @@ prepare_spec() {
     grep -r 'define release' ${spec_file}
   fi
 
-  if [ "${spec_name}" = "grafana" ]; then
+  if [ "${spec_name}" != "victorimetrics" ]; then
     sed -i -e "s;\(Source0:[[:space:]]*\)http.*;\1${tar_archive};" ${spec_file}
   fi
 

@@ -65,9 +65,9 @@ Sometimes, the changes you make affect only PMM Client. Other times, they affect
 
 * --no-update: run the build tasks without pulling the changes from `pmm-submodules` repository
 * --update-only: pull changes from the repo without building PMM
+* --client-only: build PMM Client only, skip building the Server
 * --no-client: do not build the client, use the cached PMM Client artifacts
 * --no-client-docker: skip building PMM Client docker container
-* --no-server-rpm: skip building PMM Server RPM artifacts
 * --log-file <path>: change the path of the build log file
 
 It's important to note, however, that once all changes are made and tested, you most probably want to re-build both PMM Client and Server to test them together.
@@ -86,6 +86,8 @@ Currently, local builds target the following environments:
 
 ## Todo List
 
+* download the sources to a local directory `.modules` w/o using pmm-submodules
 * have a VERSION file, similar to the one in https://github.com/percona-lab/pmm-submodules/blob/v3/VERSION
 * have a package.yml file containing hashes of all build artefacts (PMM components, i.e. grafana, pmm-managed, etc.)
 * copy all build scripts to `build/local` to isolate the new build flows from the old ones
+* use the `--debug` parameter to control the verbosity of the logs

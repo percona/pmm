@@ -3,8 +3,6 @@
 
 bin_dir=$(cd $(dirname $0); pwd -P)
 # TODO: refactor to pass ${WORKSPACE} as ROOT_DIR from either Jenkins or, if relevant, from GH actions
-# NOTE: in most cases, this evaluates to Jenkins ${WORKSPACE} directory when called from pipelines
-# Example: /home/ec2-user/workspace/ol9-build-server/, see how it's used in ol9-build-server.groovy
 root_dir=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
 root_dir=${ROOT_DIR:-$root_dir}
 build_dir=${root_dir}/build

@@ -10,8 +10,8 @@ main() {
   echo "Building docker image for PMM Client..."
   echo -----------------------------------------
 
-  local DOCKERFILE_LOCATION="${build_dir}/source/pmm/build/docker/client"
-  cp ${build_dir}/tarball/pmm-client-*.tar.gz ${DOCKERFILE_LOCATION}/pmm-client.tar.gz
+  local DOCKER_CONTEXT_DIR="${bin_dir}/../docker/client"
+  cp ${build_dir}/tarball/pmm-client-*.tar.gz ${DOCKER_CONTEXT_DIR}/pmm-client.tar.gz
 
   if [ -z "${DOCKER_CLIENT_TAG}" ]; then
     DOCKER_CLIENT_TAG="perconalab/pmm-client-fb:${shortcommit}"
@@ -23,9 +23,9 @@ main() {
     --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
     --build-arg VERSION="$CLIENT_IMAGE_VERSION" \
     --progress plain \
-    -f ${DOCKERFILE_LOCATION}/${docker_file} \
+    -f ${DOCKER_CONTEXT_DIR}/${docker_file} \
     -t ${DOCKER_CLIENT_TAG} \
-    ${DOCKERFILE_LOCATION}
+    ${DOCKER_CONTEXT_DIR}
 
   if [ -n "${PUSH_DOCKER}" ]; then
     mkdir -p $(dirname ${docker_client_tag_file})

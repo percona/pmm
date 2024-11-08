@@ -32,6 +32,7 @@ parse_params() {
   BASE_NAME=$(basename $0)
   PLATFORM=linux/amd64
   SUBMODULES=pmm-submodules
+  ROOT_DIR="$(realpath ./${SUBMODULES})"
   PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
 
   while test "$#" -gt 0; do
@@ -83,8 +84,8 @@ parse_params() {
         LOG_FILE="$1"
         ;;
       --debug | -d)
+        DEBUG_MODE=1
         shift
-        export DEBUG_MODE=1
         ;;
       --help | -h)
         shift
@@ -308,6 +309,9 @@ init() {
   fi
 
   export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
+  export DEBUG_MODE
+  export LOCAL_BUILD
+  export ROOT_DIR
 
   GIT_COMMIT=$(git rev-parse --short HEAD)
 
@@ -361,7 +365,6 @@ main() {
 
   if [ "$NO_SERVER" -eq 0 ]; then
     export RPM_EPOCH=1 # TODO: replace with RELEASE_BUILD=1
-    export LOCAL_BUILD
 
     # 1st-party components
     run_build_script build-server-rpm percona-dashboards grafana-dashboards

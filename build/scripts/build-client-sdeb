@@ -11,7 +11,7 @@ main() {
     local IMAGE=${1:-ubuntu:focal}
     docker run --rm -e DEBIAN_FRONTEND=noninteractive \
                     -v ${bin_dir}:/home/builder/bin \
-                    -v ${root_dir}/build:/home/builder/build ${IMAGE} sh -c "
+                    -v ${build_dir}:/home/builder/build ${IMAGE} sh -c "
         set -o errexit
         set -o xtrace
 

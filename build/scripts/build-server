@@ -11,7 +11,7 @@ pmm_version=${pmm_version} ${bin_dir}/build-client
 pmm_version=${pmm_version} ${bin_dir}/build-client-srpm
 pmm_version=${pmm_version} ${bin_dir}/build-client-rpm
 mkdir -p ${rpms_dir} ${rpmbuild_dir}
-cp ${root_dir}/build/rpm/*.rpm ${rpms_dir}/
+cp ${build_dir}/rpm/*.rpm ${rpms_dir}/
 
 # install all rpms
 ${bin_dir}/build-server-rpm-all

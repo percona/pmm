@@ -11,7 +11,7 @@ main() {
     echo -----------------------------------------
 
     local IMAGE=${1:-${rpmbuild_docker_image}}
-    docker run --rm -v ${bin_dir}:/home/builder/bin -v ${root_dir}/build:/home/builder/build ${IMAGE} sh -c "
+    docker run --rm -v ${bin_dir}:/home/builder/bin -v ${build_dir}:/home/builder/build ${IMAGE} sh -c "
         set -o errexit
         set -o xtrace
 
