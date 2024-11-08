@@ -13,7 +13,7 @@ describe('Main', () => {
       </TestWrapper>
     );
 
-    expect(screen.queryByTestId('pmm-loading-indicator')).not.toBeNull()
+    expect(screen.queryByTestId('pmm-loading-indicator')).not.toBeNull();
   });
 
   it("doesn't show loading", () => {

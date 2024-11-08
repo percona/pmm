@@ -22,14 +22,13 @@ import { KeyboardDoubleArrowUp } from '@mui/icons-material';
 import { UpdateInfo } from '../update-info';
 import { UpdateInProgressCard } from '../update-in-progress-card';
 import { useUpdates } from 'contexts/updates';
-import { useWaitForReadiness } from 'hooks/api/useReadiness';
+import { ChangeLog } from '../change-log';
 
 export const UpdateCard: FC = () => {
   const { inProgress, status, setStatus } = useUpdates();
   const { isLoading, data, error, isRefetching, refetch } = useCheckUpdates();
   const { mutate: startUpdate } = useStartUpdate();
   const [authToken, setAuthToken] = useState<string>();
-  const { waitForReadiness } = useWaitForReadiness();
 
   const handleStartUpdate = async () => {
     setStatus(UpdateStatus.Updating);
@@ -40,11 +39,6 @@ export const UpdateCard: FC = () => {
           if (response) {
             setStatus(UpdateStatus.Restarting);
             setAuthToken(response.authToken);
-
-            // TODO: temporary till the done status works correctly on get status
-            waitForReadiness().then(() => {
-              setStatus(UpdateStatus.Completed);
-            });
           }
         },
         onError: () => {
@@ -157,6 +151,7 @@ export const UpdateCard: FC = () => {
           </Link>
         </CardActions>
       )}
+      <ChangeLog />
     </Card>
   );
 };

@@ -112,4 +112,9 @@
     file:
       state: absent
       path: /usr/share/pmm-server/maintenance/maintenance.html
+
+  - name: Remove the file provisioned by 'getStatus'
+    file:
+      state: absent
+      path: /srv/pmm-update.json      
   when: need_initialization or need_upgrade

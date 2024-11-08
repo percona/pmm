@@ -15,7 +15,7 @@ replace golang.org/x/crypto => github.com/percona-lab/crypto v0.0.0-202311081441
 
 require (
 	github.com/AlekSi/pointer v1.2.0
-	github.com/ClickHouse/clickhouse-go/v2 v2.29.0
+	github.com/ClickHouse/clickhouse-go/v2 v2.30.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/alecthomas/kong v1.2.1
@@ -38,16 +38,16 @@ require (
 	github.com/go-openapi/validate v0.24.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/gogo/status v1.1.1
-	github.com/golang-migrate/migrate/v4 v4.17.0
+	github.com/golang-migrate/migrate/v4 v4.18.1
 	github.com/google/tink/go v1.7.0
 	github.com/google/uuid v1.6.0
 	github.com/grafana/grafana-api-golang-client v0.27.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.21.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0
 	github.com/hashicorp/go-version v1.7.0
 	github.com/hashicorp/raft v1.7.0
-	github.com/jmoiron/sqlx v1.3.5
+	github.com/jmoiron/sqlx v1.4.0
 	github.com/jotaen/kong-completion v0.0.5
 	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.55
@@ -67,7 +67,8 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.9.0
-	go.mongodb.org/mongo-driver v1.16.1
+	github.com/tink-crypto/tink-go v0.0.0-20230613075026-d6de17e3f164
+	go.mongodb.org/mongo-driver v1.17.1
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	golang.org/x/crypto v0.28.0
 	golang.org/x/sync v0.8.0
@@ -111,9 +112,9 @@ require (
 	github.com/riywo/loginshell v0.0.0-20200815045211-7d26008be1ab // indirect
 	github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529 // indirect
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.54.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.22.0 // indirect
-	go.opentelemetry.io/otel/metric v1.28.0 // indirect
+	go.opentelemetry.io/otel/metric v1.29.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
@@ -128,7 +129,7 @@ require (
 	github.com/ClickHouse/ch-go v0.61.5 // indirect
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2
 	github.com/Microsoft/go-winio v0.6.2 // indirect
-	github.com/andybalholm/brotli v1.1.0 // indirect
+	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -188,9 +189,9 @@ require (
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
-	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
-	go.opentelemetry.io/otel v1.28.0 // indirect
-	go.opentelemetry.io/otel/trace v1.28.0 // indirect
+	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
+	go.opentelemetry.io/otel v1.29.0 // indirect
+	go.opentelemetry.io/otel/trace v1.29.0 // indirect
 	golang.org/x/mod v0.21.0 // indirect
 	golang.org/x/net v0.30.0 // indirect
 	gotest.tools/v3 v3.3.0 // indirect
