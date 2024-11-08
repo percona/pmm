@@ -14,3 +14,14 @@ COPY build/ansible /opt/ansible
 RUN ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/loki.yml
 
 USER pmm
+
+EXPOSE 3100
+
+# To launch it: 
+#  `docker run -d --name loki --platform=linux/amd64 -p 3100:3100 -p 443:8443 perconalab/pmm-server:loki-3.2`
+
+# To upload data to Loki:
+#  curl -X POST -k \
+#  -H "Content-Type: application/json" \
+#  -d '{"streams": [{ "stream": { "foo": "bar2" }, "values": [ [ "1730718238000000000", "fizzbuzz" ] ] }]}' \
+#  "http://localhost:3100/loki/api/v1/push"

@@ -7,7 +7,7 @@ server:
   grpc_server_max_concurrent_streams: 1000
 
 common:
-  instance_addr: 127.0.0.1
+  instance_addr: 0.0.0.0
   path_prefix: /srv/loki
   storage:
     filesystem:
