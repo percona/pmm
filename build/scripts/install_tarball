@@ -14,7 +14,7 @@ Example:
         To install PMM tarball - $0
         To update the installed PMM tarball - $0 -u
 EOF
-        exit 1
+    exit 1
 }
 
 UPDATE=0

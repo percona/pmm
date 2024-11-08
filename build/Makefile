@@ -37,7 +37,8 @@ pmm-ami:
 		build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}' -only amazon-ebs -color=false packer/pmm.json | tee build.log
 ## ----------------- PACKER ------------------
 
-check:                          ## Run required checks and linters
-	ansible-playbook --syntax-check ansible/pmm-docker/update.yml
-	ansible-playbook --check ansible/pmm-docker/update.yml
-	ansible-lint ansible/pmm-docker/update.yml
+check:
+	echo "TODO: Since update.yml has been deprecated, see if other playbooks need to be linted"
+	# ansible-playbook --syntax-check ansible/pmm-docker/update.yml
+	# ansible-playbook --check ansible/pmm-docker/update.yml
+	# ansible-lint ansible/pmm-docker/update.yml

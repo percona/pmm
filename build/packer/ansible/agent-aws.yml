@@ -7,6 +7,7 @@
     kubectl_version: "1.29.2"
     doctl_version: "1.105.0"
     node_version: "18.x"
+    goreleaser_version: "2.3.2" # https://github.com/goreleaser/goreleaser/releases
 
   tasks:
     - name: Detect vm architecture
@@ -41,6 +42,8 @@
           - docker-ce
           - docker-ce-cli
           - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
         state: latest
 
     - name: Enable Docker service
@@ -67,8 +70,9 @@
           - gcc
           - make
           - perl
-            #- p7zip
+          - bc
           - nodejs
+          - chromium
         state: latest
 
     - name: Install Java17
@@ -94,6 +98,7 @@
     - name: Install bats
       shell: "npm install -g bats"
     
+    # TODO: remove once we refactor percona/pmm-qa and percona-lab/qa-integration
     - name: Install docker-compose
       get_url:
         url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-{{ ansible_architecture }}"
@@ -112,11 +117,6 @@
         dest: /usr/local/bin/lw-scanner
         mode: "u+x,g+x,o+x"
 
-    - name: Install chromium
-      yum:
-        name: chromium
-        state: latest
-
     - name: Install doctl client for digital ocean
       get_url:
         url: https://github.com/digitalocean/doctl/releases/download/v{{ doctl_version }}/doctl-{{ doctl_version }}-linux-{{ ansible_architecture_alt }}.tar.gz
@@ -129,7 +129,12 @@
         remote_src: yes
         mode: "u+x,g+x,o+x"
 
-    - name: Instal yq
+    - name: Install Goreleaser
+      yum:
+        name: https://github.com/goreleaser/goreleaser/releases/download/v{{ goreleaser_version }}/goreleaser-{{ goreleaser_version }}-1.{{ ansible_architecture }}.rpm
+        state: present
+
+    - name: install latest YQ (YAML processor) 
       get_url:
         url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         dest: /usr/bin/yq
@@ -198,6 +203,8 @@
         - ubuntu:noble
         - rockylinux:8
         - oraclelinux:9
+        - public.ecr.aws/e7j3v3n0/rpmbuild:3
+        - public.ecr.aws/e7j3v3n0/rpmbuild:2
 
     - name: Turn off swap
       sysctl:
