@@ -141,7 +141,9 @@ func pathsBase(agentVersion *version.Parsed, tdpLeft, tdpRight string) string {
 }
 
 // ensureAuthParams updates agent start parameters to contain prometheus webconfig.
-func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_AgentProcess, agentVersion *version.Parsed, minAuthVersion *version.Parsed) error {
+func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_AgentProcess,
+	agentVersion *version.Parsed, minAuthVersion *version.Parsed, useNewTLSConfig bool,
+) error {
 	if agentVersion.Less(minAuthVersion) {
 		params.Env = append(params.Env, fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()))
 	} else {
@@ -155,7 +157,11 @@ func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_Ag
 		}
 		params.TextFiles["webConfigPlaceholder"] = wcf
 		// see https://github.com/prometheus/exporter-toolkit/tree/v0.1.0/https
-		params.Args = append(params.Args, "--web.config="+params.TemplateLeftDelim+" .TextFiles.webConfigPlaceholder "+params.TemplateRightDelim)
+		if useNewTLSConfig {
+			params.Args = append(params.Args, "--web.config.file="+params.TemplateLeftDelim+" .TextFiles.webConfigPlaceholder "+params.TemplateRightDelim)
+		} else {
+			params.Args = append(params.Args, "--web.config="+params.TemplateLeftDelim+" .TextFiles.webConfigPlaceholder "+params.TemplateRightDelim)
+		}
 	}
 
 	return nil
