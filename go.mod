@@ -20,14 +20,14 @@ require (
 	github.com/ClickHouse/clickhouse-go/151 v0.0.0-00010101000000-000000000000
 	github.com/ClickHouse/clickhouse-go/v2 v2.30.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/alecthomas/kong v1.3.0
+	github.com/alecthomas/kong v1.4.0
 	github.com/alecthomas/units v0.0.0-20231202071711-9a357b53e9c9
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
 	github.com/aws/aws-sdk-go v1.55.5
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/charmbracelet/bubbles v0.20.0
-	github.com/charmbracelet/bubbletea v1.1.0
+	github.com/charmbracelet/bubbletea v1.2.0
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/docker/docker v27.3.0+incompatible
@@ -103,7 +103,7 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/benbjohnson/clock v1.3.5 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
-	github.com/charmbracelet/x/ansi v0.4.2 // indirect
+	github.com/charmbracelet/x/ansi v0.4.5 // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
