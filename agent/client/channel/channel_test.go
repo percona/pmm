@@ -108,9 +108,9 @@ func setup(t *testing.T, connect func(agentv1.AgentService_ConnectServer) error,
 
 func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 	defaultMaxQueryLength := truncate.GetDefaultMaxQueryLength()
-	fingerprint, _ := truncate.Query("SELECT * FROM contacts t0 WHERE t0.person_id = '?';", defaultMaxQueryLength)
+	fingerprint, _ := truncate.Query("SELECT * FROM contacts t0 WHERE t0.person_id = '?';", defaultMaxQueryLength, truncate.GetDefaultMaxQueryLength())
 	invalidQuery := "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\xff\\uD83D\xddÃ¼\xf1'"
-	query, _ := truncate.Query(invalidQuery, defaultMaxQueryLength)
+	query, _ := truncate.Query(invalidQuery, defaultMaxQueryLength, truncate.GetDefaultMaxQueryLength())
 
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		msg, err := stream.Recv()

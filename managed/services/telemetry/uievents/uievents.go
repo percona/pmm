@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/HdrHistogram/hdrhistogram-go"
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
@@ -96,11 +96,11 @@ func (s *Service) ScheduleCleanup(ctx context.Context) {
 }
 
 // FetchMetrics fetches metrics for the service based on the provided context and telemetry configuration.
-func (s *Service) FetchMetrics(_ context.Context, _ telemetry.Config) ([]*pmmv1.ServerMetric_Metric, error) { //nolint:unparam
+func (s *Service) FetchMetrics(_ context.Context, _ telemetry.Config) ([]*telemetryv1.GenericReport_Metric, error) { //nolint:unparam
 	s.stateM.RLock()
 	defer s.stateM.RUnlock()
 
-	var result []*pmmv1.ServerMetric_Metric
+	var result []*telemetryv1.GenericReport_Metric
 	if metric := s.processDashboardMetrics(); metric != nil {
 		result = append(result, metric)
 	}
@@ -114,7 +114,7 @@ func (s *Service) FetchMetrics(_ context.Context, _ telemetry.Config) ([]*pmmv1.
 	return result, nil
 }
 
-func (s *Service) processDashboardMetrics() *pmmv1.ServerMetric_Metric {
+func (s *Service) processDashboardMetrics() *telemetryv1.GenericReport_Metric {
 	type Stat struct {
 		TopDashboards         []string `json:"top_dashboards"`
 		SlowDashboardsP95_1s  []string `json:"slow_dashboards_p95_1s"`
@@ -170,13 +170,13 @@ func (s *Service) processDashboardMetrics() *pmmv1.ServerMetric_Metric {
 		s.l.Error("failed to marshal to JSON")
 	}
 
-	return &pmmv1.ServerMetric_Metric{
+	return &telemetryv1.GenericReport_Metric{
 		Key:   "ui-events-dashboards",
 		Value: string(serializedDashboardStat),
 	}
 }
 
-func (s *Service) processComponentMetrics() *pmmv1.ServerMetric_Metric {
+func (s *Service) processComponentMetrics() *telemetryv1.GenericReport_Metric {
 	type Stat struct {
 		SlowComponentsP95_1s  []string `json:"slow_components_p95_1s"`
 		SlowComponentsP95_5s  []string `json:"slow_components_p95_5s"`
@@ -220,20 +220,20 @@ func (s *Service) processComponentMetrics() *pmmv1.ServerMetric_Metric {
 	if err != nil {
 		s.l.Error("failed to marshal to JSON")
 	}
-	return &pmmv1.ServerMetric_Metric{
+	return &telemetryv1.GenericReport_Metric{
 		Key:   "ui-events-components",
 		Value: string(serializedComponentsStat),
 	}
 }
 
-func (s *Service) processUserFlowEvents() []*pmmv1.ServerMetric_Metric {
-	result := make([]*pmmv1.ServerMetric_Metric, 0, len(s.userFlowEvents))
+func (s *Service) processUserFlowEvents() []*telemetryv1.GenericReport_Metric {
+	result := make([]*telemetryv1.GenericReport_Metric, 0, len(s.userFlowEvents))
 	for _, event := range s.userFlowEvents {
 		marshal, err := json.Marshal(event)
 		if err != nil {
 			s.l.Error("failed to marshal to JSON")
 		}
-		result = append(result, &pmmv1.ServerMetric_Metric{
+		result = append(result, &telemetryv1.GenericReport_Metric{
 			Key:   "ui-events-user-flow",
 			Value: string(marshal),
 		})

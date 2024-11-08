@@ -17,7 +17,7 @@
 package signatures
 
 import (
-	"github.com/percona-platform/saas/pkg/check"
+	"github.com/percona/saas/pkg/check"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )

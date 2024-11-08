@@ -146,7 +146,7 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
-	t.Run("v2 valid env vars with 'PERCONA_*' prefix show warnings", func(t *testing.T) {
+	t.Run("env vars with 'PERCONA_*' prefix show warnings", func(t *testing.T) {
 		t.Parallel()
 
 		envs := []string{
@@ -156,6 +156,7 @@ func TestEnvVarValidator(t *testing.T) {
 			"PERCONA_TEST_CHECKS_HOST=host:333",
 			"PERCONA_TEST_TELEMETRY_HOST=host:333",
 			"PERCONA_TEST_SAAS_HOST=host:333",
+			"PERCONA_TELEMETRY_DISABLE=1", // this one shouldn't trigger the warning
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 		expectedWarns := []string{
@@ -168,7 +169,6 @@ func TestEnvVarValidator(t *testing.T) {
 		}
 
 		gotEnvVars, _, gotWarns := ParseEnvVars(envs)
-		// assert.Nil(t, gotErrs)
 		assert.Equal(t, expectedEnvVars, gotEnvVars)
 		assert.Equal(t, expectedWarns, gotWarns)
 	})

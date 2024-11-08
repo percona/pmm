@@ -254,8 +254,8 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 			collection = s[1]
 		}
 
-		fingerprint, _ := truncate.Query(v.Fingerprint, a.maxQueryLength)
-		query, truncated := truncate.Query(v.Query, a.maxQueryLength)
+		fingerprint, _ := truncate.Query(v.Fingerprint, a.maxQueryLength, truncate.GetMongoDBDefaultMaxQueryLength())
+		query, truncated := truncate.Query(v.Query, a.maxQueryLength, truncate.GetMongoDBDefaultMaxQueryLength())
 		bucket := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
 				Queryid:             v.ID,
