@@ -6,84 +6,84 @@ set -o xtrace
 . $(dirname $0)/vars
 
 prepare_tarball() {
-    local repo_name=$1
-    local git_dir
-    if [ $repo_name = 'pmm-submodules' ]; then
-        git_dir="${root_dir}/sources/${repo_name}"
-        mkdir -p "${git_dir}"
-    else
-        git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
-    fi
-    local commit=$(git -C "${git_dir}" rev-parse --short HEAD)
-    local tarball=${source_dir}/${repo_name}-${commit}.tar.gz
-    local repo_var=$(
-        echo "${repo_name}_commit" \
-            | sed -e 's:-:_:g' \
-            | tr '[[:lower:]]' '[[:upper:]]'
-    )
-    echo "${repo_var}=$commit" >> ${client_properties}
+  local repo_name=$1
+  local git_dir
+  if [ $repo_name = 'pmm-submodules' ]; then
+    git_dir="${root_dir}/sources/${repo_name}"
+    mkdir -p "${git_dir}"
+  else
+    git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
+  fi
+  local commit=$(git -C "${git_dir}" rev-parse --short HEAD)
+  local tarball=${source_dir}/${repo_name}-${commit}.tar.gz
+  local repo_var=$(
+    echo "${repo_name}_commit" \
+        | sed -e 's:-:_:g' \
+        | tr '[[:lower:]]' '[[:upper:]]'
+  )
+  echo "${repo_var}=$commit" >> ${client_properties}
 
-    if [ -f "${tarball}" ]; then
-        echo ${tarball} already exists, skipping build
-        return
-    fi
+  if [ -f "${tarball}" ]; then
+    echo ${tarball} already exists, skipping build
+    return
+  fi
 
-    if [ ${repo_name} = 'pmm-submodules' ]; then
-        tar -C sources -zcf ${repo_name}-${commit}.tar.gz  ${repo_name}
-        mv ${repo_name}-${commit}.tar.gz  ${source_dir}/
-        return
-    fi
+  if [ ${repo_name} = 'pmm-submodules' ]; then
+    tar -C sources -zcf ${repo_name}-${commit}.tar.gz  ${repo_name}
+    mv ${repo_name}-${commit}.tar.gz  ${source_dir}/
+    return
+  fi
 
-    git -C "${git_dir}" archive \
-        --format=tar.gz \
-        --prefix=${repo_name}-${commit}/ \
-        -o ${tarball} \
-        "${commit}"
+  git -C "${git_dir}" archive \
+      --format=tar.gz \
+      --prefix=${repo_name}-${commit}/ \
+      -o ${tarball} \
+      "${commit}"
 }
 
 prepare_vmagent_tarball() {
-    local repo_name=vmagent
-    local commit_hash=${vmagent_commit_hash}
-    local commit_short=${commit_hash::7}
-    local tarball=${source_dir}/${repo_name}-${commit_short}.tar.gz
-    local repo_var=$(
-        echo "${repo_name}_commit" | sed -e 's:-:_:g' | tr '[[:lower:]]' '[[:upper:]]'
-    )
-    echo "${repo_var}=$commit_short" >> ${client_properties}
+  local repo_name=vmagent
+  local commit_hash=${vmagent_commit_hash}
+  local commit_short=${commit_hash::7}
+  local tarball=${source_dir}/${repo_name}-${commit_short}.tar.gz
+  local repo_var=$(
+    echo "${repo_name}_commit" | sed -e 's:-:_:g' | tr '[[:lower:]]' '[[:upper:]]'
+  )
+  echo "${repo_var}=$commit_short" >> ${client_properties}
 
-    if [ -f "${tarball}" ]; then
-        echo ${tarball} already exists, skipping download
-    else
-        curl -o ${tarball} -fsSL https://github.com/VictoriaMetrics/VictoriaMetrics/archive/${commit_hash}.tar.gz
-    fi
+  if [ -f "${tarball}" ]; then
+    echo ${tarball} already exists, skipping download
+  else
+    curl -o ${tarball} -fsSL https://github.com/VictoriaMetrics/VictoriaMetrics/archive/${commit_hash}.tar.gz
+  fi
 }
 
 main() {
-    echo -----------------------------------------
-    echo "Building PMM Client source files..."
-    echo -----------------------------------------
+  echo -----------------------------------------
+  echo "Building PMM Client source files..."
+  echo -----------------------------------------
 
-    rm -rf ${source_tarball}
-    mkdir -p ${source_dir}/ $(dirname ${source_tarball}) || :
+  rm -rf ${source_tarball}
+  mkdir -p ${source_dir}/ $(dirname ${source_tarball}) || :
 
-    prepare_vmagent_tarball
-    prepare_tarball pmm-submodules
-    prepare_tarball pmm
-    prepare_tarball mongodb_exporter
-    prepare_tarball mysqld_exporter
-    prepare_tarball postgres_exporter
-    prepare_tarball proxysql_exporter
-    prepare_tarball node_exporter
-    prepare_tarball rds_exporter
-    prepare_tarball azure_metrics_exporter
+  prepare_vmagent_tarball
+  prepare_tarball pmm-submodules
+  prepare_tarball pmm
+  prepare_tarball mongodb_exporter
+  prepare_tarball mysqld_exporter
+  prepare_tarball postgres_exporter
+  prepare_tarball proxysql_exporter
+  prepare_tarball node_exporter
+  prepare_tarball rds_exporter
+  prepare_tarball azure_metrics_exporter
 
-    prepare_tarball percona-toolkit
-    local noxattrs=
-    if [[ $(uname -o) =~ [Dd]arwin ]]; then
-      noxattrs="--no-xattrs"
-    fi
+  prepare_tarball percona-toolkit
+  local noxattrs=
+  if [[ $(uname -o) =~ [Dd]arwin ]]; then
+    noxattrs="--no-xattrs"
+  fi
 
-    tar -C $(dirname ${source_dir}) ${noxattrs} -zcpf ${source_tarball} $(basename ${source_dir})
+  tar -C $(dirname ${source_dir}) ${noxattrs} -zcpf ${source_tarball} $(basename ${source_dir})
 }
 
 main

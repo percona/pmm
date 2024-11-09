@@ -149,13 +149,22 @@ rewind() {
 check_files() {
   local DIR="$1"
 
-  test -z "DIR" && exit 1
-
-  if [ -d "$DIR/sources" ] && [ -f "$DIR/ci-default.yml" ] && [ -f "$DIR/ci.yml" ]; then
-    return 0
+  # Thouroughly verify the presence of known files, otherwise bail out
+  if [ ! -d "$DIR" ] ; then
+    echo "Error: could not locate the 'pmm-submodules' directory."
+    exit 1
   fi
 
-  return 1
+  if [ ! -d "$DIR/sources" ] || [ ! -d "$DIR/.git" ] || [ ! -f "$DIR/.gitmodules" ] || [ ! -f "$DIR/ci-default.yml" ]; then
+    echo "Error: directory $DIR does not look like a clone of https://github.com/percona-lab/pmm-submodules repository, exiting..."
+    exit 1
+  fi
+
+  if [ ! -f "ci.yml" ] || [ ! -s "ci.yml" ]; then
+    echo "Error: the working directory '$PWD' must contain a non-empty ci.yml file."
+    echo "Please refer to this [README](https://github.com/Percona-Lab/pmm-submodules/blob/v3/README.md#how-to-create-a-feature-build) for more information."
+    exit 1
+  fi
 }
 
 # Update submodules and PR branches
@@ -170,29 +179,13 @@ update() {
     return
    fi
 
-  # Thouroughly verify the presence of known files, otherwise bail out
-  if [ ! -d "$SUBMODULES" ] ; then # pwd must be outside of pmm-submodules
-    echo "Warn: the current working directory must be outside of pmm-submodules"
-    echo "cd .."
-    cd .. > /dev/null
-  fi
-
-  if [ -d "$SUBMODULES" ]; then # pwd is outside pmm-submodules
-    if ! check_files "$SUBMODULES"; then
-      echo "Fatal: could not locate known files in ${PWD}/${SUBMODULES}"
-      exit 1
-    fi
-  else
-    echo "Fatal: could not locate known files in $PWD"
-    exit 1
-  fi
-
   cd "$SUBMODULES"
 
   # Join the dependencies from ci-default.yml and ci.yml
-  DEPS=$(yq -o=json eval-all '. as $item ireduce ({}; . *d $item )' ci-default.yml ci.yml | jq '.deps')
+  DEPS=$(yq -o=json eval-all '. as $item ireduce ({}; . *d $item )' ci-default.yml ../ci.yml | jq '.deps')
 
-  echo "This script rewinds submodule branches as per the joint config of 'ci-default.yml' and 'ci.yml'"
+  echo
+  echo "This script rewinds submodule branches as per the joint config of 'ci-default.yml' and '../ci.yml'"
 
   echo "$DEPS" | jq -c '.[]' | while read -r item; do
     branch=$(echo "$item" | jq -r '.branch')
@@ -313,8 +306,6 @@ init() {
   export LOCAL_BUILD
   export ROOT_DIR
 
-  GIT_COMMIT=$(git rev-parse --short HEAD)
-
   # Create docker volumes to persist package and build cache
   # Read more in the section about `rpmbuild`.
   for volume in pmm-gobuild pmm-gomod pmm-yarn pmm-dnf; do
@@ -338,6 +329,8 @@ cleanup() {
 }
 
 main() {
+  check_files "$SUBMODULES"
+
   init
 
   update

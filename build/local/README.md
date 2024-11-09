@@ -84,7 +84,7 @@ Currently, local builds target the following environments:
   - docker image - docker and Kubernetes environments amd64/aarch64
 
 
-## Todo List
+## Draft Todo List
 
 * download the sources to a local directory `.modules` w/o using pmm-submodules
 * have a VERSION file, similar to the one in https://github.com/percona-lab/pmm-submodules/blob/v3/VERSION
