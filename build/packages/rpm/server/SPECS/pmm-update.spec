@@ -1,4 +1,5 @@
-%undefine _missing_build_ids_terminate_build
+%define _missing_build_ids_terminate_build   0
+%define _binaries_in_noarch_packages_terminate_build   0
 %define _unpackaged_files_terminate_build   0
 
 %global repo            pmm

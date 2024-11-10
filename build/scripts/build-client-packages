@@ -11,14 +11,13 @@ usage () {
   cat <<EOF
 Usage: $0 [OPTIONS]
     The following options may be given :
-        --build_src_rpm     If it is 1 src rpm will be built
-        --build_source_deb  If it is 1 source deb package will be built
-        --build_rpm         If it is 1 rpm will be built
-        --build_deb         If it is 1 deb will be built
-        --install_deps      Install build dependencies(root privileges are required)
-        --branch            Branch from which submodules should be taken(default v3)
+        --build_src_rpm     Build RPM packages
+        --build_source_deb  Build debian source packages
+        --build_rpm         Build RPM packages
+        --build_deb         Build debian packages
+        --branch            Branch from which submodules should be taken (default v3)
         --help)             Display this help
-Example $0 --build_src_rpm=1 --build_rpm=1
+Example $0 --build_src_rpm --build_rpm
 EOF
 
   exit 1
@@ -31,15 +30,11 @@ append_arg_to_args () {
 parse_arguments() {
   WORKDIR=/tmp/pmm
   for arg do
-    val=`echo "$arg" | sed -e 's;^--[^=]*=;;'`
-    optname=`echo "$arg" | sed -e 's/^\(--[^=]*\)=.*$/\1/'`
     case "$arg" in
-      --build_src_rpm=*) SRPM="$val" ;;
-      --build_rpm=*) RPM="$val" ;;
-      --build_source_deb=*) SDEB="$val" ;;
-      --build_deb=*) DEB="$val" ;;
-      --branch=*) SUBMODULE_BRANCH="$val" ;;
-      --install_deps=*) INSTALL="$val" ;;
+      --build_src_rpm) SRPM=1 ;;
+      --build_rpm) RPM=1 ;;
+      --build_source_deb=*) SDEB=1 ;;
+      --build_deb) DEB=1 ;;
       --help) usage ;;
       *) append_arg_to_args "$arg" ;;
     esac
@@ -70,48 +65,22 @@ else
   fi
 }
 
-install_deps() {
-  local PACKAGES
-  if [ $INSTALL = 0 ]; then
-    echo "Dependencies will not be installed."
-    return;
-  fi
-  if [ $(id -u) -ne 0 ]; then
-    echo "It is not possible to install dependencies. Please run as root."
-    exit 1
-  fi
-  if [ "$OS" = "rpm" ]; then
-    # yum -y install git curl wget rpmdevtools bison yum-utils rpm-build
-    command -v git || PACKAGES+=" git"
-    command -v curl || PACKAGES+=" curl"
-    command -v wget || PACKAGES+=" wget"
-    command -v spectool || PACKAGES+=" rpmdevtools"
-    command -v bison || PACKAGES+=" bison"
-    command -v repoquery || PACKAGES+=" yum-utils"
-    command -v rpmbuild || PACKAGES+=" rpm-build"
-    if [ -n "$PACKAGES" ]; then
-      yum -y install "$PACKAGES"
-    fi
-  else
-    apt-get update
-    apt-get -y install devscripts equivs debhelper
-  fi
-}
-
 get_tar(){
   local TARBALL=$1
   local TARFILE=$(basename $(find $WORKDIR/$TARBALL -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1) || :)
-  if [ -z $TARFILE ]; then
-    TARFILE=$(basename $(find $CURDIR/$TARBALL -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1) || :)
-    if [ -z $TARFILE ]; then
-      echo "There is no $TARBALL for build"
-      exit 1
-    else
-      cp $CURDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-    fi
-  else
+  if [ -n $TARFILE ]; then
     cp $WORKDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
+    return
   fi
+
+  TARFILE=$(basename $(find $CURDIR/$TARBALL -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1) || :)
+  if [ -n $TARFILE ]; then
+    cp $CURDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
+    return
+  fi
+
+  echo "Error: $TARBALL could not be found, exiting..."
+  exit 1
 }
 
 get_deb_sources(){
@@ -134,7 +103,7 @@ get_deb_sources(){
 
 build_srpm(){
   if [ "$OS" = "deb" ]; then
-    echo "It is not possible to build src rpm here"
+    echo "Error: it is not possible to build source RPM on a debian based OS, exiting..."
     exit 1
   fi
   cd $WORKDIR
@@ -268,7 +237,7 @@ build_source_deb(){
   cd debian
   echo "${NAME} (${VERSION}) unstable; urgency=low" >> changelog
   echo "  * Initial Release." >> changelog
-  echo " -- EvgeniyPatlan <evgeniy.patlan@percona.com> $(date -R)" >> changelog
+  echo " -- Percona LLC <no-reply@percona.com> $(date -R)" >> changelog
 
   cd ../
 
@@ -331,8 +300,6 @@ DEB=0
 OS_NAME=
 ARCH=
 OS=
-SUBMODULE_BRANCH="v3"
-INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 REVISION=0
@@ -346,7 +313,6 @@ fi
 
 parse_arguments "$@"
 get_system
-install_deps
 
 check_workdir
 if [ "$SRPM" != 0 ]; then

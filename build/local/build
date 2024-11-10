@@ -175,7 +175,7 @@ update() {
   local MD5SUM=$(md5sum $(dirname $0)/build)
 
    if [ "$NO_UPDATE" -eq 1 ]; then
-    echo "Running without refreshing the source code from repositories..."
+    echo "Info: skip refreshing the source code from upstream repositories..."
     return
    fi
 
@@ -253,7 +253,7 @@ run_build_script() {
   end_time=$(date +%s)
 
   echo ---
-  echo "Execution time (in sec) for $script_name: $((end_time - start_time))"
+  echo "Execution time for $script_name, sec: $((end_time - start_time))"
   echo ---
 
   cd "$CURDIR" > /dev/null

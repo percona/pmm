@@ -23,7 +23,7 @@ main() {
       esac
 
       cd /home/builder/build
-      bash /home/builder/bin/build-client-packages --build_deb=1
+      bash /home/builder/bin/build-client-packages --build_deb
   "
 }
 

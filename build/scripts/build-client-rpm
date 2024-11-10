@@ -22,7 +22,7 @@ main() {
       export pmm_release=$pmm_release
       cd /home/builder/build
 
-      /home/builder/bin/build-client-packages --build_rpm=1
+      /home/builder/bin/build-client-packages --build_rpm
     "
 }
 

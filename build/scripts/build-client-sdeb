@@ -22,7 +22,7 @@ main() {
         DEBIAN_FRONTEND=noninteractive apt-get -y install git lsb-release devscripts dh-make dh-systemd
         cd /home/builder/build
 
-        bash /home/builder/bin/build-client-packages --build_source_deb=1
+        bash /home/builder/bin/build-client-packages --build_source_deb
     "
 }
 
