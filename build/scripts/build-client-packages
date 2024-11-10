@@ -15,7 +15,6 @@ Usage: $0 [OPTIONS]
         --build_source_deb  Build debian source packages
         --build_rpm         Build RPM packages
         --build_deb         Build debian packages
-        --branch            Branch from which submodules should be taken (default v3)
         --help)             Display this help
 Example $0 --build_src_rpm --build_rpm
 EOF
@@ -23,12 +22,7 @@ EOF
   exit 1
 }
 
-append_arg_to_args () {
-  args="$args "`shell_quote_string "$1"`
-}
-
 parse_arguments() {
-  WORKDIR=/tmp/pmm
   for arg do
     case "$arg" in
       --build_src_rpm) SRPM=1 ;;
@@ -36,7 +30,7 @@ parse_arguments() {
       --build_source_deb=*) SDEB=1 ;;
       --build_deb) DEB=1 ;;
       --help) usage ;;
-      *) append_arg_to_args "$arg" ;;
+      *) usage ;;
     esac
   done
 }
@@ -67,13 +61,13 @@ else
 
 get_tar(){
   local TARBALL=$1
-  local TARFILE=$(basename $(find $WORKDIR/$TARBALL -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1) || :)
-  if [ -n $TARFILE ]; then
-    cp $WORKDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-    return
-  fi
+  # local TARFILE=$(basename $(find $WORKDIR/$TARBALL -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1) || :)
+  # if [ -n $TARFILE ]; then
+  #   cp $WORKDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
+  #   return
+  # fi
 
-  TARFILE=$(basename $(find $CURDIR/$TARBALL -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1) || :)
+  local TARFILE=$(basename $(find $CURDIR/$TARBALL -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1) || :)
   if [ -n $TARFILE ]; then
     cp $CURDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
     return
@@ -291,8 +285,7 @@ build_deb(){
 CURDIR=$(pwd)
 PACKAGE_NAME=pmm-client
 VERSION_FILE=$CURDIR/pmm-client.properties
-args=
-WORKDIR=
+WORKDIR=/tmp/pmm
 SRPM=0
 SDEB=0
 RPM=0
