@@ -10,8 +10,8 @@ get_rpm_version() {
   local rpm_version=$(
     docker run --rm \
         --platform=${platform} \
-        -v ${rpmbuild_dir}:/home/builder/rpm/BUILD ${rpmbuild_docker_image} sh -c "
-        rpmspec -q --qf '%{version}-%{release}\n' BUILD/${spec_name}.spec \
+        -v ${rpmbuild_dir}:/home/builder/rpm/SOURCES ${rpmbuild_docker_image} sh -c "
+        rpmspec -q --qf '%{version}-%{release}\n' SOURCES/${spec_name}.spec \
             | sed -re 's/\.[0-9]{10}\././' | head -1
     "
   )
@@ -123,7 +123,7 @@ build() {
   echo "Building PMM Server RPM for ${spec_name} component..."
   echo -------------------------------------------------------
 
-  local volume_mounts="-v ${rpmbuild_dir}:/home/builder/rpm/BUILD -v ${rpms_dir}:/home/builder/rpm/RPMS"
+  local volume_mounts="-v ${rpmbuild_dir}:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS"
   volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
   volume_mounts+=" -v pmm-yarn:/home/builder/.cache/yarn"
   volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
@@ -138,7 +138,7 @@ build() {
     set -o errexit
     set -o xtrace
 
-    sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/BUILD
+    sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
     sudo chown builder:builder /home/builder/.cache
     if [ ! -d /home/builder/.cache/go-build ]; then
       mkdir -p /home/builder/.cache/go-build
@@ -169,16 +169,16 @@ build() {
     # Only these two specs have build dependencies
     if [[ ${spec_name} =~ ^grafana$|^percona-dashboards$ ]]; then
       sleep 2s
-      sudo yum-builddep -y BUILD/${spec_name}.spec
+      sudo yum-builddep -y SOURCES/${spec_name}.spec
     fi
 
-    spectool -C BUILD -g BUILD/${spec_name}.spec
+    spectool -C SOURCES -g SOURCES/${spec_name}.spec
     rpmbuild  --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
               --define 'dist .${rpmbuild_dist}' \
               --define 'debug_package %{nil}' \
-              -ba BUILD/${spec_name}.spec
+              -ba SOURCES/${spec_name}.spec
 
-    rm -f BUILD/${spec_name}.spec*
+    rm -f SOURCES/${spec_name}.spec*
   "
 
   if [ "$LOCAL_BUILD" = 1 ]; then
