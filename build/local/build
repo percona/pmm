@@ -175,7 +175,7 @@ update() {
   local MD5SUM=$(md5sum $(dirname $0)/build)
 
    if [ "$NO_UPDATE" -eq 1 ]; then
-    echo "Info: skip refreshing the source code from upstream repositories..."
+    echo "Running without refreshing the source code from repositories..."
     return
    fi
 

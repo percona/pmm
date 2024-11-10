@@ -92,14 +92,10 @@ copy_component() {
   local component=$1
   local component_path=$2
   local component_dest=${3:-$component_path}
-  local component_dir=${build_dir}/source/${component}
-  local archive=$(ls ${source_dir}/${component}-*.tar.gz | head -n1) # temporary hack for pmm repo
-
-  if [ ! -d "${component_dir}" ]; then
-    mkdir -p ${component_dir}
-    tar -C ${component_dir} \
-        --strip-components=1 \
-        -zxpf "$archive"
+  local component_dir=$(git config -f .gitmodules submodule.${component}.path)
+  if [ ! -d "$component_dir" ]; then
+    echo "Error: could not locate the component directory for $component."
+    exit 1
   fi
 
   cp -r ${component_dir}/${component_path} ${binary_dir}/${component_dest}
