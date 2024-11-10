@@ -1,14 +1,5 @@
 ---
-# We already have nginx package in epel repo
-- name: Add Nginx repository
-  yum_repository:
-    name: nginx
-    description: nginx repo
-    baseurl: http://nginx.org/packages/rhel/9/$basearch/
-    gpgcheck: no
-    enabled: no
-
-- name: Create directories for nginx
+- name: Create required directories for Nginx
   file:
     path: "{{ item }}"
     state: directory
@@ -79,10 +70,11 @@
     recurse: yes
   loop:
     - /var/lib/nginx
+    - /var/log/nginx
     - /etc/nginx
     - /srv/nginx
 
-- name: Change ownership of nginx files
+- name: Provision empty Nginx configuration files
   file:
     path: "{{ item }}"
     state: touch

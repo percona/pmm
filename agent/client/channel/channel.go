@@ -47,7 +47,7 @@ type ServerRequest struct {
 }
 
 // AgentResponse represents agent's response.
-// It is similar to agentpb.AgentMessage except it can contain only responses,
+// It is similar to agentv1.AgentMessage except it can contain only responses,
 // and the payload is already unwrapped (XXX instead of AgentMessage_XXX).
 type AgentResponse struct {
 	ID      uint32

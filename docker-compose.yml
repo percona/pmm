@@ -90,6 +90,10 @@ services:
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
+      # grafana
+#      - "../grafana:/workspace"
+#      - "../grafana/public:/usr/share/grafana/public"
+#      - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
     # command: >
     #   bash -c "
     #     rm -rf /tmp/certs

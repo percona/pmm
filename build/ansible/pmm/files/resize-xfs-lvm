@@ -1,7 +1,0 @@
-#!/bin/sh
-
-/usr/sbin/pvresize $(/usr/bin/ls /dev/sda /dev/sdb /dev/sdc /dev/xvdb /dev/nvme1n1 2>/dev/null | /usr/bin/grep -v ^$(/usr/sbin/pvdisplay -c | /usr/bin/grep ':VolGroup00:' | /usr/bin/cut -d ':' -f 1 | /usr/bin/tr -d '[:space:]' | /usr/bin/sed 's/[0-9]$//')$ | /usr/bin/grep -v ^$(/usr/bin/findmnt -f -n -o SOURCE / | /usr/bin/sed 's/[0-9]$//')$ | /usr/bin/grep -v ^$(/usr/bin/findmnt -f -n -o SOURCE /mnt/resource | /usr/bin/sed 's/[0-9]$//')$)
-/usr/sbin/lvextend -l '1%VG' /dev/DataVG/ThinPool_tmeta
-/usr/sbin/lvextend -l '100%VG' /dev/DataVG/ThinPool
-/usr/sbin/lvextend -l '80%PVS' /dev/DataVG/DataLV
-/usr/sbin/xfs_growfs -d /srv

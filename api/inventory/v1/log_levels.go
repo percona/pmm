@@ -13,33 +13,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package encryption
+package inventoryv1
 
-import "github.com/google/tink/go/tink"
+import (
+	"github.com/AlekSi/pointer"
 
-// Encryption contains fields required for encryption.
-type Encryption struct {
-	Path      string
-	Key       string
-	Primitive tink.AEAD
-}
+	"github.com/percona/pmm/utils/enums"
+)
 
-// Table represents table name, it's identifiers and columns to be encrypted/decrypted.
-type Table struct {
-	Name        string
-	Identifiers []string
-	Columns     []Column
-}
-
-// Column represents column name and column's custom handler (if needed).
-type Column struct {
-	Name          string
-	CustomHandler func(e *Encryption, val any) (any, error)
-}
-
-// QueryValues represents query to update row after encrypt/decrypt.
-type QueryValues struct {
-	Query       string
-	SetValues   [][]any
-	WhereValues [][]any
+func LogLevelAPIValue(l *string) LogLevel {
+	return LogLevel(LogLevel_value[enums.ConvertEnum("LOG_LEVEL", pointer.Get(l))])
 }

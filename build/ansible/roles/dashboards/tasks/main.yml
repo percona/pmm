@@ -1,18 +1,27 @@
 ---
-- name: Get plugin list
+- name: Stop and remove Grafana from Supervisor
+  shell: "supervisorctl {{ item }} grafana"
+  become: true
+  become_user: pmm
+  become_method: su
+  loop:
+    - stop
+    - remove
+
+- name: Retrieve Percona plugins
   find:
     paths: /usr/share/percona-dashboards/panels/
     depth: 2
     file_type: directory
   register: plugin_list
 
-- name: Delete older plugins
+- name: Delete outdated plugins
   file:
     path: "/srv/grafana/plugins/{{ item['path'].split('/')[-1] }}"
     state: absent
   loop: "{{ plugin_list['files'] }}"
 
-- name: Copy plugins to the plugin directory
+- name: Copy new plugins to the plugin directory
   synchronize:
     src: /usr/share/percona-dashboards/panels/
     dest: /srv/grafana/plugins/
@@ -26,12 +35,19 @@
     mode: 0775
     recurse: yes
 
-- name: Restart grafana with new plugins
+- name: Synchronize Percona Dashboards version file after upgrade
+  copy:
+    src: /usr/share/percona-dashboards/VERSION
+    dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+    owner: pmm
+    group: pmm
+    mode: 0644
+    remote_src: yes    
+
+- name: Restart Grafana service with new plugins 
   shell: "supervisorctl {{ item }} grafana"
   become: true
   become_user: pmm
   become_method: su
   loop:
-    - stop
-    - remove
     - add
