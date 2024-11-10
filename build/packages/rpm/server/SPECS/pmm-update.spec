@@ -18,7 +18,7 @@ Summary:	Tool for updating packages and OS configuration for PMM Server
 
 License:	AGPLv3
 URL:		  https://%{provider}
-Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
+Source0:	https://%{provider}/archive/%{commit}.tar.gz
 
 BuildArch:	noarch
 

@@ -35,7 +35,7 @@ gobuild_component() {
     fi
 
     if [ -x "${binary_dir}/${result_file}" ]; then
-      echo "Skipping the build for ${result_file} ..."
+      echo "The binary ${result_file} was found, skipping the build ..."
       return
     fi
     if [[ ${component} =~ pmm-admin|pmm-agent ]]; then
@@ -96,10 +96,10 @@ copy_component() {
   local archive=$(ls ${source_dir}/${component}-*.tar.gz | head -n1) # temporary hack for pmm repo
 
   if [ ! -d "${component_dir}" ]; then
-      mkdir -p ${component_dir}
-      tar -C ${component_dir} \
-          --strip-components=1 \
-          -zxpf "$archive"
+    mkdir -p ${component_dir}
+    tar -C ${component_dir} \
+        --strip-components=1 \
+        -zxpf "$archive"
   fi
 
   cp -r ${component_dir}/${component_path} ${binary_dir}/${component_dest}
@@ -148,7 +148,7 @@ main() {
   
   # Removes pmm binary (aka CLI) in case this is not a PR build - such as RC/GA build
   if [[ "$(basename ${root_dir})" != pmm-submodules_PR-* ]]; then
-      rm -f "${binary_dir}/bin/pmm"
+    rm -f "${binary_dir}/bin/pmm"
   fi
   
   local noxattrs=

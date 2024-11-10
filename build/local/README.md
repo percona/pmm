@@ -10,31 +10,33 @@ Therefore, we decided to make it possible to build PMM locally. This is a work i
 
 The build process is mostly based on bash scripts, which control the build flow. This was an intentional decision early on, since every developer should have at least a basic command of bash. Apart from bash and a few other well-known utilitites like `curl` or `make`, it also uses Docker for environment isolation and caching.
 
-The build process is designed to run on a Linux host. We believe it can run on other flavors of Linux, including MacOS, with little to no modification (TBC).
+The build process is designed to run on Linux or MacOS. We believe it could be adapated to run on other types of operating systems with little to no modification.
 
 
 ## Prerequisites
 
 Below is a list of prerequisites that are required to build PMM locally.
 
-- OS: Linux (tested on Oracle Linux 9.3, CentOS 7, Ubuntu 22.04.3 LTS)
-- Docker: 25.0.2+ (tested on 25.0.2)
-- Docker Compose Plugin: 2.24.7+ (tested on 2.24.7)
-- make: 4.3+ (tested on 4.3)
-- bash (GNU): 5.1+ (tested on 5.1)
-- git: 2.34.1+ (tested on 2.34.1)
-- curl: 7.81.0+ (tested on 7.81.0)
-- yq: 4.42.0+ (tested on 4.42.1)
-- jq: 1.6+ (tested on 1.6)
+- OS: Linux (tested on Oracle Linux 9.3, CentOS 7, Ubuntu 22.04.3 LTS), MacOS (tested on Sequoia 15.1)
+- Docker: 25.0.2+
+- Docker buildx plugin: 0.16.0+, https://github.com/docker/buildx
+- make
+- bash (GNU)
+- tar
+- git
+- curl
+- yq: 4.42.0+
+- jq: 1.6+
 
 
-## How to build PMM
+## How to use this script to build PMM
 
 1. Install the prerequisites
-2. Clone the PMM repository to the user's home directory, e.g.: `git clone https://github.com/percona/pmm /home/user/pmm`. 
-3. Change to the `build/local` directory in the cloned repo.
-4. Run `./build --help` to print the help message and check the usage.
-5. Run `./build` with parameters of your choice to build PMM v3.
+2. Download the `build` script to the user's home directory, e.g.: `curl -o $HOME/build https://raw.githubusercontent.com/percona/pmm/refs/heads/PMM-13487-build-pmm-locally/build/local/build`. 
+3. Change to the user `cd $HOME` directory.
+4. Run `./build --provision` to download the source code using our `https://github.com/percona-lab/pmm-submodules` repository.
+5. Run `./build --help` to display the script usage.
+6. Run `./build` with parameters of your choice to build PMM v3.
 
 Usually, you will want to rebuild PMM whenever there are changes in at least one of its components. All components of PMM are gathered together in one repository - `github.com/percona-lab/pmm-submodules` (or `pmm-submodules`). Therefore, you can run `build` as often as those changes need to be factored in to the next build.
 

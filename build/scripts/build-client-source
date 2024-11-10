@@ -7,30 +7,29 @@ set -o xtrace
 
 prepare_tarball() {
   local repo_name=$1
-  local git_dir
-  if [ $repo_name = 'pmm-submodules' ]; then
-    git_dir="${root_dir}/sources/${repo_name}"
-    mkdir -p "${git_dir}"
-  else
-    git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
-  fi
-  local commit=$(git -C "${git_dir}" rev-parse --short HEAD)
-  local tarball=${source_dir}/${repo_name}-${commit}.tar.gz
+  local commit=$2
+  local repo_url=$3
+  local git_dir=
   local repo_var=$(
-    echo "${repo_name}_commit" \
-        | sed -e 's:-:_:g' \
-        | tr '[[:lower:]]' '[[:upper:]]'
+    echo "${repo_name}_commit" | sed -e 's:-:_:g' | tr '[[:lower:]]' '[[:upper:]]'
   )
-  echo "${repo_var}=$commit" >> ${client_properties}
+  local tarball=${source_dir}/${repo_name}-${commit::7}.tar.gz
+
+  if [ -z "$commit" ]; then
+    git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
+    commit=$(git -C "${git_dir}" rev-parse --short HEAD)
+    tarball=${source_dir}/${repo_name}-${commit}.tar.gz
+  fi
+
+  echo "${repo_var}=${commit::7}" >> ${client_properties}
 
   if [ -f "${tarball}" ]; then
-    echo ${tarball} already exists, skipping build
+    echo "Info: ${tarball} already exists, skip creating the tarball..."
     return
   fi
 
-  if [ ${repo_name} = 'pmm-submodules' ]; then
-    tar -C sources -zcf ${repo_name}-${commit}.tar.gz  ${repo_name}
-    mv ${repo_name}-${commit}.tar.gz  ${source_dir}/
+  if [ -n "$repo_url" ]; then
+    curl -o ${tarball} -fsSL ${repo_url}/archive/${commit}.tar.gz
     return
   fi
 
@@ -41,23 +40,6 @@ prepare_tarball() {
       "${commit}"
 }
 
-prepare_vmagent_tarball() {
-  local repo_name=vmagent
-  local commit_hash=${vmagent_commit_hash}
-  local commit_short=${commit_hash::7}
-  local tarball=${source_dir}/${repo_name}-${commit_short}.tar.gz
-  local repo_var=$(
-    echo "${repo_name}_commit" | sed -e 's:-:_:g' | tr '[[:lower:]]' '[[:upper:]]'
-  )
-  echo "${repo_var}=$commit_short" >> ${client_properties}
-
-  if [ -f "${tarball}" ]; then
-    echo ${tarball} already exists, skipping download
-  else
-    curl -o ${tarball} -fsSL https://github.com/VictoriaMetrics/VictoriaMetrics/archive/${commit_hash}.tar.gz
-  fi
-}
-
 main() {
   echo -----------------------------------------
   echo "Building PMM Client source files..."
@@ -66,8 +48,7 @@ main() {
   rm -rf ${source_tarball}
   mkdir -p ${source_dir}/ $(dirname ${source_tarball}) || :
 
-  prepare_vmagent_tarball
-  prepare_tarball pmm-submodules
+  prepare_tarball vmagent ${vmagent_commit_hash} https://github.com/VictoriaMetrics/VictoriaMetrics
   prepare_tarball pmm
   prepare_tarball mongodb_exporter
   prepare_tarball mysqld_exporter
@@ -76,8 +57,8 @@ main() {
   prepare_tarball node_exporter
   prepare_tarball rds_exporter
   prepare_tarball azure_metrics_exporter
-
   prepare_tarball percona-toolkit
+
   local noxattrs=
   if [[ $(uname -o) =~ [Dd]arwin ]]; then
     noxattrs="--no-xattrs"
