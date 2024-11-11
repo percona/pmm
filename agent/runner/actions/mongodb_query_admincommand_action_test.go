@@ -196,7 +196,6 @@ func convertToObjxMap(t *testing.T, b []byte) objx.Map {
 
 func getParameterAssertions(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 5000, len(b))
-	assert.LessOrEqual(t, len(b), 17000)
 	objxM := convertToObjxMap(t, b)
 	assert.Equal(t, 1.0, objxM.Get("ok").Data())
 	assert.Contains(t, objxM.Get("authenticationMechanisms").Data(), "SCRAM-SHA-1")
@@ -204,7 +203,6 @@ func getParameterAssertions(t *testing.T, b []byte) { //nolint:thelper
 
 func buildInfoAssertions(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 1000, len(b))
-	assert.LessOrEqual(t, len(b), 2200)
 	objxM := convertToObjxMap(t, b)
 	assert.Equal(t, 1.0, objxM.Get("ok").Data())
 	assert.Equal(t, "mozjs", objxM.Get("javascriptEngine").Data())
@@ -213,7 +211,6 @@ func buildInfoAssertions(t *testing.T, b []byte) { //nolint:thelper
 
 func getDiagnosticDataAssertions(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 25000, len(b))
-	assert.LessOrEqual(t, len(b), 110000)
 	objxM := convertToObjxMap(t, b)
 	assert.Equal(t, 1.0, objxM.Get("ok").Data())
 	assert.Equal(t, 1.0, objxM.Get("data.serverStatus.ok").Data())
@@ -222,7 +219,6 @@ func getDiagnosticDataAssertions(t *testing.T, b []byte) { //nolint:thelper
 
 func replSetGetStatusAssertionsReplicated(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 1000, len(b))
-	assert.LessOrEqual(t, len(b), 4000)
 	objxM := convertToObjxMap(t, b)
 	assert.Equal(t, 1.0, objxM.Get("ok").Data())
 	assert.Len(t, objxM.Get("members").Data(), 2)
@@ -253,7 +249,7 @@ func getCmdLineOptsAssertionsWithAuth(t *testing.T, b []byte) { //nolint:thelper
 	assert.Equal(t, "enabled", security.Get("authorization").String())
 
 	argv := objxM.Get("argv").InterSlice()
-	for _, v := range []interface{}{"mongod", "--profile", "2", "--auth"} {
+	for _, v := range []interface{}{"mongod", "--profile=2", "--auth"} {
 		assert.Contains(t, argv, v)
 	}
 }

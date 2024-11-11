@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona-platform/saas/pkg/alert"
+	"github.com/percona/saas/pkg/alert"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

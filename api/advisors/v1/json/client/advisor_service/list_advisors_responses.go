@@ -59,8 +59,44 @@ type ListAdvisorsOK struct {
 	Payload *ListAdvisorsOKBody
 }
 
+// IsSuccess returns true when this list advisors Ok response has a 2xx status code
+func (o *ListAdvisorsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list advisors Ok response has a 3xx status code
+func (o *ListAdvisorsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list advisors Ok response has a 4xx status code
+func (o *ListAdvisorsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list advisors Ok response has a 5xx status code
+func (o *ListAdvisorsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list advisors Ok response a status code equal to that given
+func (o *ListAdvisorsOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the list advisors Ok response
+func (o *ListAdvisorsOK) Code() int {
+	return 200
+}
+
 func (o *ListAdvisorsOK) Error() string {
-	return fmt.Sprintf("[GET /v1/advisors][%d] listAdvisorsOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors][%d] listAdvisorsOk %s", 200, payload)
+}
+
+func (o *ListAdvisorsOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors][%d] listAdvisorsOk %s", 200, payload)
 }
 
 func (o *ListAdvisorsOK) GetPayload() *ListAdvisorsOKBody {
@@ -96,13 +132,44 @@ type ListAdvisorsDefault struct {
 	Payload *ListAdvisorsDefaultBody
 }
 
+// IsSuccess returns true when this list advisors default response has a 2xx status code
+func (o *ListAdvisorsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list advisors default response has a 3xx status code
+func (o *ListAdvisorsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list advisors default response has a 4xx status code
+func (o *ListAdvisorsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list advisors default response has a 5xx status code
+func (o *ListAdvisorsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list advisors default response a status code equal to that given
+func (o *ListAdvisorsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the list advisors default response
 func (o *ListAdvisorsDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *ListAdvisorsDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/advisors][%d] ListAdvisors default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors][%d] ListAdvisors default %s", o._statusCode, payload)
+}
+
+func (o *ListAdvisorsDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/advisors][%d] ListAdvisors default %s", o._statusCode, payload)
 }
 
 func (o *ListAdvisorsDefault) GetPayload() *ListAdvisorsDefaultBody {
@@ -192,6 +259,11 @@ func (o *ListAdvisorsDefaultBody) ContextValidate(ctx context.Context, formats s
 func (o *ListAdvisorsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListAdvisors default" + "." + "details" + "." + strconv.Itoa(i))
@@ -231,6 +303,80 @@ swagger:model ListAdvisorsDefaultBodyDetailsItems0
 type ListAdvisorsDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// list advisors default body details items0
+	ListAdvisorsDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *ListAdvisorsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv ListAdvisorsDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.ListAdvisorsDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o ListAdvisorsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.ListAdvisorsDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.ListAdvisorsDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this list advisors default body details items0
@@ -327,6 +473,11 @@ func (o *ListAdvisorsOKBody) ContextValidate(ctx context.Context, formats strfmt
 func (o *ListAdvisorsOKBody) contextValidateAdvisors(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Advisors); i++ {
 		if o.Advisors[i] != nil {
+
+			if swag.IsZero(o.Advisors[i]) { // not required
+				return nil
+			}
+
 			if err := o.Advisors[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAdvisorsOk" + "." + "advisors" + "." + strconv.Itoa(i))
@@ -440,6 +591,11 @@ func (o *ListAdvisorsOKBodyAdvisorsItems0) ContextValidate(ctx context.Context, 
 func (o *ListAdvisorsOKBodyAdvisorsItems0) contextValidateChecks(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Checks); i++ {
 		if o.Checks[i] != nil {
+
+			if swag.IsZero(o.Checks[i]) { // not required
+				return nil
+			}
+
 			if err := o.Checks[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("checks" + "." + strconv.Itoa(i))
@@ -490,11 +646,11 @@ type ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 struct {
 	Summary string `json:"summary,omitempty"`
 
 	// AdvisorCheckInterval represents possible execution interval values for checks.
-	// Enum: [ADVISOR_CHECK_INTERVAL_UNSPECIFIED ADVISOR_CHECK_INTERVAL_STANDARD ADVISOR_CHECK_INTERVAL_FREQUENT ADVISOR_CHECK_INTERVAL_RARE]
+	// Enum: ["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]
 	Interval *string `json:"interval,omitempty"`
 
 	// family
-	// Enum: [ADVISOR_CHECK_FAMILY_UNSPECIFIED ADVISOR_CHECK_FAMILY_MYSQL ADVISOR_CHECK_FAMILY_POSTGRESQL ADVISOR_CHECK_FAMILY_MONGODB]
+	// Enum: ["ADVISOR_CHECK_FAMILY_UNSPECIFIED","ADVISOR_CHECK_FAMILY_MYSQL","ADVISOR_CHECK_FAMILY_POSTGRESQL","ADVISOR_CHECK_FAMILY_MONGODB"]
 	Family *string `json:"family,omitempty"`
 }
 

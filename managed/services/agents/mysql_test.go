@@ -199,7 +199,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s&tls=custom",
 			"HTTP_AUTH=pmm:agent-id",
 		},
-		RedactWords: []string{"s3cur3 p@$$w0r4."},
+		RedactWords: []string{"s3cur3 p@$$w0r4.", "content-of-tls-key"},
 		TextFiles: map[string]string{
 			"tlsCa":   "content-of-tls-ca",
 			"tlsCert": "content-of-tls-cert",

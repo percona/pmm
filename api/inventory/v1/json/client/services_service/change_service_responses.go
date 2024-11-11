@@ -7,6 +7,7 @@ package services_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type ChangeServiceOK struct {
 	Payload *ChangeServiceOKBody
 }
 
+// IsSuccess returns true when this change service Ok response has a 2xx status code
+func (o *ChangeServiceOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this change service Ok response has a 3xx status code
+func (o *ChangeServiceOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this change service Ok response has a 4xx status code
+func (o *ChangeServiceOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this change service Ok response has a 5xx status code
+func (o *ChangeServiceOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this change service Ok response a status code equal to that given
+func (o *ChangeServiceOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the change service Ok response
+func (o *ChangeServiceOK) Code() int {
+	return 200
+}
+
 func (o *ChangeServiceOK) Error() string {
-	return fmt.Sprintf("[PUT /v1/inventory/services/{service_id}][%d] changeServiceOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/inventory/services/{service_id}][%d] changeServiceOk %s", 200, payload)
+}
+
+func (o *ChangeServiceOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/inventory/services/{service_id}][%d] changeServiceOk %s", 200, payload)
 }
 
 func (o *ChangeServiceOK) GetPayload() *ChangeServiceOKBody {
@@ -94,13 +131,44 @@ type ChangeServiceDefault struct {
 	Payload *ChangeServiceDefaultBody
 }
 
+// IsSuccess returns true when this change service default response has a 2xx status code
+func (o *ChangeServiceDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this change service default response has a 3xx status code
+func (o *ChangeServiceDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this change service default response has a 4xx status code
+func (o *ChangeServiceDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this change service default response has a 5xx status code
+func (o *ChangeServiceDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this change service default response a status code equal to that given
+func (o *ChangeServiceDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the change service default response
 func (o *ChangeServiceDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *ChangeServiceDefault) Error() string {
-	return fmt.Sprintf("[PUT /v1/inventory/services/{service_id}][%d] ChangeService default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/inventory/services/{service_id}][%d] ChangeService default %s", o._statusCode, payload)
+}
+
+func (o *ChangeServiceDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[PUT /v1/inventory/services/{service_id}][%d] ChangeService default %s", o._statusCode, payload)
 }
 
 func (o *ChangeServiceDefault) GetPayload() *ChangeServiceDefaultBody {
@@ -188,6 +256,11 @@ func (o *ChangeServiceBody) ContextValidate(ctx context.Context, formats strfmt.
 
 func (o *ChangeServiceBody) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
 	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
 		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "custom_labels")
@@ -291,6 +364,11 @@ func (o *ChangeServiceDefaultBody) ContextValidate(ctx context.Context, formats 
 func (o *ChangeServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangeService default" + "." + "details" + "." + strconv.Itoa(i))
@@ -330,6 +408,80 @@ swagger:model ChangeServiceDefaultBodyDetailsItems0
 type ChangeServiceDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// change service default body details items0
+	ChangeServiceDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *ChangeServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv ChangeServiceDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.ChangeServiceDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o ChangeServiceDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.ChangeServiceDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.ChangeServiceDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this change service default body details items0
@@ -568,6 +720,11 @@ func (o *ChangeServiceOKBody) ContextValidate(ctx context.Context, formats strfm
 
 func (o *ChangeServiceOKBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
 	if o.External != nil {
+
+		if swag.IsZero(o.External) { // not required
+			return nil
+		}
+
 		if err := o.External.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeServiceOk" + "." + "external")
@@ -583,6 +740,11 @@ func (o *ChangeServiceOKBody) contextValidateExternal(ctx context.Context, forma
 
 func (o *ChangeServiceOKBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
 	if o.Haproxy != nil {
+
+		if swag.IsZero(o.Haproxy) { // not required
+			return nil
+		}
+
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeServiceOk" + "." + "haproxy")
@@ -598,6 +760,11 @@ func (o *ChangeServiceOKBody) contextValidateHaproxy(ctx context.Context, format
 
 func (o *ChangeServiceOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
 	if o.Mongodb != nil {
+
+		if swag.IsZero(o.Mongodb) { // not required
+			return nil
+		}
+
 		if err := o.Mongodb.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeServiceOk" + "." + "mongodb")
@@ -613,6 +780,11 @@ func (o *ChangeServiceOKBody) contextValidateMongodb(ctx context.Context, format
 
 func (o *ChangeServiceOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
 	if o.Mysql != nil {
+
+		if swag.IsZero(o.Mysql) { // not required
+			return nil
+		}
+
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeServiceOk" + "." + "mysql")
@@ -628,6 +800,11 @@ func (o *ChangeServiceOKBody) contextValidateMysql(ctx context.Context, formats 
 
 func (o *ChangeServiceOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
 	if o.Postgresql != nil {
+
+		if swag.IsZero(o.Postgresql) { // not required
+			return nil
+		}
+
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeServiceOk" + "." + "postgresql")
@@ -643,6 +820,11 @@ func (o *ChangeServiceOKBody) contextValidatePostgresql(ctx context.Context, for
 
 func (o *ChangeServiceOKBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
 	if o.Proxysql != nil {
+
+		if swag.IsZero(o.Proxysql) { // not required
+			return nil
+		}
+
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeServiceOk" + "." + "proxysql")

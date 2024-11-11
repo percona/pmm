@@ -7,6 +7,7 @@ package access_control_service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -57,8 +58,44 @@ type ListRolesOK struct {
 	Payload *ListRolesOKBody
 }
 
+// IsSuccess returns true when this list roles Ok response has a 2xx status code
+func (o *ListRolesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list roles Ok response has a 3xx status code
+func (o *ListRolesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list roles Ok response has a 4xx status code
+func (o *ListRolesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list roles Ok response has a 5xx status code
+func (o *ListRolesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list roles Ok response a status code equal to that given
+func (o *ListRolesOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the list roles Ok response
+func (o *ListRolesOK) Code() int {
+	return 200
+}
+
 func (o *ListRolesOK) Error() string {
-	return fmt.Sprintf("[GET /v1/accesscontrol/roles][%d] listRolesOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/accesscontrol/roles][%d] listRolesOk %s", 200, payload)
+}
+
+func (o *ListRolesOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/accesscontrol/roles][%d] listRolesOk %s", 200, payload)
 }
 
 func (o *ListRolesOK) GetPayload() *ListRolesOKBody {
@@ -94,13 +131,44 @@ type ListRolesDefault struct {
 	Payload *ListRolesDefaultBody
 }
 
+// IsSuccess returns true when this list roles default response has a 2xx status code
+func (o *ListRolesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list roles default response has a 3xx status code
+func (o *ListRolesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list roles default response has a 4xx status code
+func (o *ListRolesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list roles default response has a 5xx status code
+func (o *ListRolesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list roles default response a status code equal to that given
+func (o *ListRolesDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the list roles default response
 func (o *ListRolesDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *ListRolesDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/accesscontrol/roles][%d] ListRoles default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/accesscontrol/roles][%d] ListRoles default %s", o._statusCode, payload)
+}
+
+func (o *ListRolesDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/accesscontrol/roles][%d] ListRoles default %s", o._statusCode, payload)
 }
 
 func (o *ListRolesDefault) GetPayload() *ListRolesDefaultBody {
@@ -190,6 +258,11 @@ func (o *ListRolesDefaultBody) ContextValidate(ctx context.Context, formats strf
 func (o *ListRolesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListRoles default" + "." + "details" + "." + strconv.Itoa(i))
@@ -229,6 +302,80 @@ swagger:model ListRolesDefaultBodyDetailsItems0
 type ListRolesDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// list roles default body details items0
+	ListRolesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *ListRolesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv ListRolesDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.ListRolesDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o ListRolesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.ListRolesDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.ListRolesDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this list roles default body details items0
@@ -325,6 +472,11 @@ func (o *ListRolesOKBody) ContextValidate(ctx context.Context, formats strfmt.Re
 func (o *ListRolesOKBody) contextValidateRoles(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Roles); i++ {
 		if o.Roles[i] != nil {
+
+			if swag.IsZero(o.Roles[i]) { // not required
+				return nil
+			}
+
 			if err := o.Roles[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listRolesOk" + "." + "roles" + "." + strconv.Itoa(i))

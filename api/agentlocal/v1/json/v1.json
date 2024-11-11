@@ -50,6 +50,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -60,13 +64,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -99,10 +99,51 @@
                   "type": "string",
                   "x-order": 0
                 },
-                "agent_version": {
-                  "description": "PMM Agent version.",
+                "runs_on_node_id": {
                   "type": "string",
-                  "x-order": 6
+                  "title": "TODO: rename to node_id",
+                  "x-order": 1
+                },
+                "node_name": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "server_info": {
+                  "description": "ServerInfo contains information about the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "description": "PMM Server URL in a form https://HOST:PORT/.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "insecure_tls": {
+                      "description": "PMM Server's TLS certificate validation should be skipped if true.",
+                      "type": "boolean",
+                      "x-order": 1
+                    },
+                    "connected": {
+                      "description": "True if pmm-agent is currently connected to the server.",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "version": {
+                      "description": "PMM Server version (if agent is connected).",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "latency": {
+                      "description": "Ping time from pmm-agent to pmm-managed (if agent is connected).",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "clock_drift": {
+                      "description": "Clock drift from PMM Server (if agent is connected).",
+                      "type": "string",
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 3
                 },
                 "agents_info": {
                   "type": "array",
@@ -134,19 +175,10 @@
                           "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
                           "AGENT_TYPE_EXTERNAL_EXPORTER",
                           "AGENT_TYPE_RDS_EXPORTER",
-                          "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
+                          "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
+                          "AGENT_TYPE_NOMAD_AGENT"
                         ],
                         "x-order": 1
-                      },
-                      "listen_port": {
-                        "description": "The current listen port of this Agent (exporter or vmagent).\nZero for other Agent types, or if unknown or not yet supported.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 3
-                      },
-                      "process_exec_path": {
-                        "type": "string",
-                        "x-order": 4
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -163,6 +195,16 @@
                           "AGENT_STATUS_UNKNOWN"
                         ],
                         "x-order": 2
+                      },
+                      "listen_port": {
+                        "description": "The current listen port of this Agent (exporter or vmagent).\nZero for other Agent types, or if unknown or not yet supported.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 3
+                      },
+                      "process_exec_path": {
+                        "type": "string",
+                        "x-order": 4
                       }
                     }
                   },
@@ -173,57 +215,16 @@
                   "type": "string",
                   "x-order": 5
                 },
+                "agent_version": {
+                  "description": "PMM Agent version.",
+                  "type": "string",
+                  "x-order": 6
+                },
                 "connection_uptime": {
                   "type": "number",
                   "format": "float",
                   "title": "Shows connection uptime in percentage between agent and server",
                   "x-order": 7
-                },
-                "node_name": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "runs_on_node_id": {
-                  "type": "string",
-                  "title": "TODO: rename to node_id",
-                  "x-order": 1
-                },
-                "server_info": {
-                  "description": "ServerInfo contains information about the PMM Server.",
-                  "type": "object",
-                  "properties": {
-                    "clock_drift": {
-                      "description": "Clock drift from PMM Server (if agent is connected).",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "connected": {
-                      "description": "True if pmm-agent is currently connected to the server.",
-                      "type": "boolean",
-                      "x-order": 2
-                    },
-                    "insecure_tls": {
-                      "description": "PMM Server's TLS certificate validation should be skipped if true.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "latency": {
-                      "description": "Ping time from pmm-agent to pmm-managed (if agent is connected).",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "url": {
-                      "description": "PMM Server URL in a form https://HOST:PORT/.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "version": {
-                      "description": "PMM Server version (if agent is connected).",
-                      "type": "string",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 3
                 }
               }
             }
@@ -238,6 +239,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -248,13 +253,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }
@@ -294,10 +295,51 @@
                   "type": "string",
                   "x-order": 0
                 },
-                "agent_version": {
-                  "description": "PMM Agent version.",
+                "runs_on_node_id": {
                   "type": "string",
-                  "x-order": 6
+                  "title": "TODO: rename to node_id",
+                  "x-order": 1
+                },
+                "node_name": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "server_info": {
+                  "description": "ServerInfo contains information about the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "description": "PMM Server URL in a form https://HOST:PORT/.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "insecure_tls": {
+                      "description": "PMM Server's TLS certificate validation should be skipped if true.",
+                      "type": "boolean",
+                      "x-order": 1
+                    },
+                    "connected": {
+                      "description": "True if pmm-agent is currently connected to the server.",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "version": {
+                      "description": "PMM Server version (if agent is connected).",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "latency": {
+                      "description": "Ping time from pmm-agent to pmm-managed (if agent is connected).",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "clock_drift": {
+                      "description": "Clock drift from PMM Server (if agent is connected).",
+                      "type": "string",
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 3
                 },
                 "agents_info": {
                   "type": "array",
@@ -329,19 +371,10 @@
                           "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
                           "AGENT_TYPE_EXTERNAL_EXPORTER",
                           "AGENT_TYPE_RDS_EXPORTER",
-                          "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
+                          "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
+                          "AGENT_TYPE_NOMAD_AGENT"
                         ],
                         "x-order": 1
-                      },
-                      "listen_port": {
-                        "description": "The current listen port of this Agent (exporter or vmagent).\nZero for other Agent types, or if unknown or not yet supported.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 3
-                      },
-                      "process_exec_path": {
-                        "type": "string",
-                        "x-order": 4
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -358,6 +391,16 @@
                           "AGENT_STATUS_UNKNOWN"
                         ],
                         "x-order": 2
+                      },
+                      "listen_port": {
+                        "description": "The current listen port of this Agent (exporter or vmagent).\nZero for other Agent types, or if unknown or not yet supported.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 3
+                      },
+                      "process_exec_path": {
+                        "type": "string",
+                        "x-order": 4
                       }
                     }
                   },
@@ -368,57 +411,16 @@
                   "type": "string",
                   "x-order": 5
                 },
+                "agent_version": {
+                  "description": "PMM Agent version.",
+                  "type": "string",
+                  "x-order": 6
+                },
                 "connection_uptime": {
                   "type": "number",
                   "format": "float",
                   "title": "Shows connection uptime in percentage between agent and server",
                   "x-order": 7
-                },
-                "node_name": {
-                  "type": "string",
-                  "x-order": 2
-                },
-                "runs_on_node_id": {
-                  "type": "string",
-                  "title": "TODO: rename to node_id",
-                  "x-order": 1
-                },
-                "server_info": {
-                  "description": "ServerInfo contains information about the PMM Server.",
-                  "type": "object",
-                  "properties": {
-                    "clock_drift": {
-                      "description": "Clock drift from PMM Server (if agent is connected).",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "connected": {
-                      "description": "True if pmm-agent is currently connected to the server.",
-                      "type": "boolean",
-                      "x-order": 2
-                    },
-                    "insecure_tls": {
-                      "description": "PMM Server's TLS certificate validation should be skipped if true.",
-                      "type": "boolean",
-                      "x-order": 1
-                    },
-                    "latency": {
-                      "description": "Ping time from pmm-agent to pmm-managed (if agent is connected).",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "url": {
-                      "description": "PMM Server URL in a form https://HOST:PORT/.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "version": {
-                      "description": "PMM Server version (if agent is connected).",
-                      "type": "string",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 3
                 }
               }
             }
@@ -433,6 +435,10 @@
                   "format": "int32",
                   "x-order": 0
                 },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
                 "details": {
                   "type": "array",
                   "items": {
@@ -443,13 +449,9 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": false
+                    "additionalProperties": {}
                   },
                   "x-order": 2
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
                 }
               }
             }

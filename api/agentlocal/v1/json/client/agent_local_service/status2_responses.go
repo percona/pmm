@@ -59,8 +59,44 @@ type Status2OK struct {
 	Payload *Status2OKBody
 }
 
+// IsSuccess returns true when this status2 Ok response has a 2xx status code
+func (o *Status2OK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this status2 Ok response has a 3xx status code
+func (o *Status2OK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this status2 Ok response has a 4xx status code
+func (o *Status2OK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this status2 Ok response has a 5xx status code
+func (o *Status2OK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this status2 Ok response a status code equal to that given
+func (o *Status2OK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the status2 Ok response
+func (o *Status2OK) Code() int {
+	return 200
+}
+
 func (o *Status2OK) Error() string {
-	return fmt.Sprintf("[GET /local/Status][%d] status2Ok  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /local/Status][%d] status2Ok %s", 200, payload)
+}
+
+func (o *Status2OK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /local/Status][%d] status2Ok %s", 200, payload)
 }
 
 func (o *Status2OK) GetPayload() *Status2OKBody {
@@ -96,13 +132,44 @@ type Status2Default struct {
 	Payload *Status2DefaultBody
 }
 
+// IsSuccess returns true when this status2 default response has a 2xx status code
+func (o *Status2Default) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this status2 default response has a 3xx status code
+func (o *Status2Default) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this status2 default response has a 4xx status code
+func (o *Status2Default) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this status2 default response has a 5xx status code
+func (o *Status2Default) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this status2 default response a status code equal to that given
+func (o *Status2Default) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the status2 default response
 func (o *Status2Default) Code() int {
 	return o._statusCode
 }
 
 func (o *Status2Default) Error() string {
-	return fmt.Sprintf("[GET /local/Status][%d] Status2 default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /local/Status][%d] Status2 default %s", o._statusCode, payload)
+}
+
+func (o *Status2Default) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /local/Status][%d] Status2 default %s", o._statusCode, payload)
 }
 
 func (o *Status2Default) GetPayload() *Status2DefaultBody {
@@ -192,6 +259,11 @@ func (o *Status2DefaultBody) ContextValidate(ctx context.Context, formats strfmt
 func (o *Status2DefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("Status2 default" + "." + "details" + "." + strconv.Itoa(i))
@@ -231,6 +303,80 @@ swagger:model Status2DefaultBodyDetailsItems0
 type Status2DefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// status2 default body details items0
+	Status2DefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *Status2DefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv Status2DefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.Status2DefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o Status2DefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.Status2DefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.Status2DefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this status2 default body details items0
@@ -375,6 +521,11 @@ func (o *Status2OKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 func (o *Status2OKBody) contextValidateAgentsInfo(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.AgentsInfo); i++ {
 		if o.AgentsInfo[i] != nil {
+
+			if swag.IsZero(o.AgentsInfo[i]) { // not required
+				return nil
+			}
+
 			if err := o.AgentsInfo[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("status2Ok" + "." + "agents_info" + "." + strconv.Itoa(i))
@@ -391,6 +542,11 @@ func (o *Status2OKBody) contextValidateAgentsInfo(ctx context.Context, formats s
 
 func (o *Status2OKBody) contextValidateServerInfo(ctx context.Context, formats strfmt.Registry) error {
 	if o.ServerInfo != nil {
+
+		if swag.IsZero(o.ServerInfo) { // not required
+			return nil
+		}
+
 		if err := o.ServerInfo.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("status2Ok" + "." + "server_info")
@@ -431,7 +587,7 @@ type Status2OKBodyAgentsInfoItems0 struct {
 	AgentID string `json:"agent_id,omitempty"`
 
 	// AgentType describes supported Agent types.
-	// Enum: [AGENT_TYPE_UNSPECIFIED AGENT_TYPE_PMM_AGENT AGENT_TYPE_VM_AGENT AGENT_TYPE_NODE_EXPORTER AGENT_TYPE_MYSQLD_EXPORTER AGENT_TYPE_MONGODB_EXPORTER AGENT_TYPE_POSTGRES_EXPORTER AGENT_TYPE_PROXYSQL_EXPORTER AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT AGENT_TYPE_EXTERNAL_EXPORTER AGENT_TYPE_RDS_EXPORTER AGENT_TYPE_AZURE_DATABASE_EXPORTER]
+	// Enum: ["AGENT_TYPE_UNSPECIFIED","AGENT_TYPE_PMM_AGENT","AGENT_TYPE_VM_AGENT","AGENT_TYPE_NODE_EXPORTER","AGENT_TYPE_MYSQLD_EXPORTER","AGENT_TYPE_MONGODB_EXPORTER","AGENT_TYPE_POSTGRES_EXPORTER","AGENT_TYPE_PROXYSQL_EXPORTER","AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT","AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT","AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT","AGENT_TYPE_EXTERNAL_EXPORTER","AGENT_TYPE_RDS_EXPORTER","AGENT_TYPE_AZURE_DATABASE_EXPORTER","AGENT_TYPE_NOMAD_AGENT"]
 	AgentType *string `json:"agent_type,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -443,7 +599,7 @@ type Status2OKBodyAgentsInfoItems0 struct {
 	//  - AGENT_STATUS_STOPPING: Agent is stopping.
 	//  - AGENT_STATUS_DONE: Agent finished.
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_INITIALIZATION_ERROR AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// The current listen port of this Agent (exporter or vmagent).
@@ -476,7 +632,7 @@ var status2OkBodyAgentsInfoItems0TypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_TYPE_UNSPECIFIED","AGENT_TYPE_PMM_AGENT","AGENT_TYPE_VM_AGENT","AGENT_TYPE_NODE_EXPORTER","AGENT_TYPE_MYSQLD_EXPORTER","AGENT_TYPE_MONGODB_EXPORTER","AGENT_TYPE_POSTGRES_EXPORTER","AGENT_TYPE_PROXYSQL_EXPORTER","AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT","AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT","AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT","AGENT_TYPE_EXTERNAL_EXPORTER","AGENT_TYPE_RDS_EXPORTER","AGENT_TYPE_AZURE_DATABASE_EXPORTER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_TYPE_UNSPECIFIED","AGENT_TYPE_PMM_AGENT","AGENT_TYPE_VM_AGENT","AGENT_TYPE_NODE_EXPORTER","AGENT_TYPE_MYSQLD_EXPORTER","AGENT_TYPE_MONGODB_EXPORTER","AGENT_TYPE_POSTGRES_EXPORTER","AGENT_TYPE_PROXYSQL_EXPORTER","AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT","AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT","AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT","AGENT_TYPE_EXTERNAL_EXPORTER","AGENT_TYPE_RDS_EXPORTER","AGENT_TYPE_AZURE_DATABASE_EXPORTER","AGENT_TYPE_NOMAD_AGENT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -533,6 +689,9 @@ const (
 
 	// Status2OKBodyAgentsInfoItems0AgentTypeAGENTTYPEAZUREDATABASEEXPORTER captures enum value "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
 	Status2OKBodyAgentsInfoItems0AgentTypeAGENTTYPEAZUREDATABASEEXPORTER string = "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
+
+	// Status2OKBodyAgentsInfoItems0AgentTypeAGENTTYPENOMADAGENT captures enum value "AGENT_TYPE_NOMAD_AGENT"
+	Status2OKBodyAgentsInfoItems0AgentTypeAGENTTYPENOMADAGENT string = "AGENT_TYPE_NOMAD_AGENT"
 )
 
 // prop value enum

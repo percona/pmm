@@ -59,8 +59,44 @@ type ListServicesOK struct {
 	Payload *ListServicesOKBody
 }
 
+// IsSuccess returns true when this list services Ok response has a 2xx status code
+func (o *ListServicesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list services Ok response has a 3xx status code
+func (o *ListServicesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list services Ok response has a 4xx status code
+func (o *ListServicesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list services Ok response has a 5xx status code
+func (o *ListServicesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list services Ok response a status code equal to that given
+func (o *ListServicesOK) IsCode(code int) bool {
+	return code == 200
+}
+
+// Code gets the status code for the list services Ok response
+func (o *ListServicesOK) Code() int {
+	return 200
+}
+
 func (o *ListServicesOK) Error() string {
-	return fmt.Sprintf("[GET /v1/management/services][%d] listServicesOk  %+v", 200, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/management/services][%d] listServicesOk %s", 200, payload)
+}
+
+func (o *ListServicesOK) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/management/services][%d] listServicesOk %s", 200, payload)
 }
 
 func (o *ListServicesOK) GetPayload() *ListServicesOKBody {
@@ -96,13 +132,44 @@ type ListServicesDefault struct {
 	Payload *ListServicesDefaultBody
 }
 
+// IsSuccess returns true when this list services default response has a 2xx status code
+func (o *ListServicesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list services default response has a 3xx status code
+func (o *ListServicesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list services default response has a 4xx status code
+func (o *ListServicesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list services default response has a 5xx status code
+func (o *ListServicesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list services default response a status code equal to that given
+func (o *ListServicesDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 // Code gets the status code for the list services default response
 func (o *ListServicesDefault) Code() int {
 	return o._statusCode
 }
 
 func (o *ListServicesDefault) Error() string {
-	return fmt.Sprintf("[GET /v1/management/services][%d] ListServices default  %+v", o._statusCode, o.Payload)
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/management/services][%d] ListServices default %s", o._statusCode, payload)
+}
+
+func (o *ListServicesDefault) String() string {
+	payload, _ := json.Marshal(o.Payload)
+	return fmt.Sprintf("[GET /v1/management/services][%d] ListServices default %s", o._statusCode, payload)
 }
 
 func (o *ListServicesDefault) GetPayload() *ListServicesDefaultBody {
@@ -192,6 +259,11 @@ func (o *ListServicesDefaultBody) ContextValidate(ctx context.Context, formats s
 func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
+
+			if swag.IsZero(o.Details[i]) { // not required
+				return nil
+			}
+
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListServices default" + "." + "details" + "." + strconv.Itoa(i))
@@ -231,6 +303,80 @@ swagger:model ListServicesDefaultBodyDetailsItems0
 type ListServicesDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
+
+	// list services default body details items0
+	ListServicesDefaultBodyDetailsItems0 map[string]interface{} `json:"-"`
+}
+
+// UnmarshalJSON unmarshals this object with additional properties from JSON
+func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+	// stage 1, bind the properties
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+	if err := json.Unmarshal(data, &stage1); err != nil {
+		return err
+	}
+	var rcv ListServicesDefaultBodyDetailsItems0
+
+	rcv.AtType = stage1.AtType
+	*o = rcv
+
+	// stage 2, remove properties and add to map
+	stage2 := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &stage2); err != nil {
+		return err
+	}
+
+	delete(stage2, "@type")
+	// stage 3, add additional properties values
+	if len(stage2) > 0 {
+		result := make(map[string]interface{})
+		for k, v := range stage2 {
+			var toadd interface{}
+			if err := json.Unmarshal(v, &toadd); err != nil {
+				return err
+			}
+			result[k] = toadd
+		}
+		o.ListServicesDefaultBodyDetailsItems0 = result
+	}
+
+	return nil
+}
+
+// MarshalJSON marshals this object with additional properties into a JSON object
+func (o ListServicesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+	var stage1 struct {
+		// at type
+		AtType string `json:"@type,omitempty"`
+	}
+
+	stage1.AtType = o.AtType
+
+	// make JSON object for known properties
+	props, err := json.Marshal(stage1)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(o.ListServicesDefaultBodyDetailsItems0) == 0 { // no additional properties
+		return props, nil
+	}
+
+	// make JSON object for the additional properties
+	additional, err := json.Marshal(o.ListServicesDefaultBodyDetailsItems0)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(props) < 3 { // "{}": only additional properties
+		return additional, nil
+	}
+
+	// concatenate the 2 objects
+	return swag.ConcatJSON(props, additional), nil
 }
 
 // Validate validates this list services default body details items0
@@ -327,6 +473,11 @@ func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt
 func (o *ListServicesOKBody) contextValidateServices(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Services); i++ {
 		if o.Services[i] != nil {
+
+			if swag.IsZero(o.Services[i]) { // not required
+				return nil
+			}
+
 			if err := o.Services[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "services" + "." + strconv.Itoa(i))
@@ -426,7 +577,7 @@ type ListServicesOKBodyServicesItems0 struct {
 	//  - STATUS_UP: The service is up.
 	//  - STATUS_DOWN: The service is down.
 	//  - STATUS_UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).
-	// Enum: [STATUS_UNSPECIFIED STATUS_UP STATUS_DOWN STATUS_UNKNOWN]
+	// Enum: ["STATUS_UNSPECIFIED","STATUS_UP","STATUS_DOWN","STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
 
 	// The service/database version.
@@ -574,6 +725,11 @@ func (o *ListServicesOKBodyServicesItems0) ContextValidate(ctx context.Context, 
 func (o *ListServicesOKBodyServicesItems0) contextValidateAgents(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Agents); i++ {
 		if o.Agents[i] != nil {
+
+			if swag.IsZero(o.Agents[i]) { // not required
+				return nil
+			}
+
 			if err := o.Agents[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("agents" + "." + strconv.Itoa(i))
@@ -642,8 +798,11 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Log level for exporter.
-	LogLevel string `json:"log_level,omitempty"`
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
 
 	// Limit query length in QAN.
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
@@ -744,6 +903,10 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) Validate(formats strfmt.R
 		res = append(res, err)
 	}
 
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -776,6 +939,60 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateCreatedAt(formats
 	}
 
 	if err := validate.FormatOf("created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listServicesOkBodyServicesItems0AgentsItems0TypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listServicesOkBodyServicesItems0AgentsItems0TypeLogLevelPropEnum = append(listServicesOkBodyServicesItems0AgentsItems0TypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ListServicesOKBodyServicesItems0AgentsItems0LogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ListServicesOKBodyServicesItems0AgentsItems0LogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// ListServicesOKBodyServicesItems0AgentsItems0LogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ListServicesOKBodyServicesItems0AgentsItems0LogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// ListServicesOKBodyServicesItems0AgentsItems0LogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ListServicesOKBodyServicesItems0AgentsItems0LogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// ListServicesOKBodyServicesItems0AgentsItems0LogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ListServicesOKBodyServicesItems0AgentsItems0LogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// ListServicesOKBodyServicesItems0AgentsItems0LogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ListServicesOKBodyServicesItems0AgentsItems0LogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// ListServicesOKBodyServicesItems0AgentsItems0LogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ListServicesOKBodyServicesItems0AgentsItems0LogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listServicesOkBodyServicesItems0AgentsItems0TypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -898,6 +1115,11 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) ContextValidate(ctx conte
 
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateAzureOptions(ctx context.Context, formats strfmt.Registry) error {
 	if o.AzureOptions != nil {
+
+		if swag.IsZero(o.AzureOptions) { // not required
+			return nil
+		}
+
 		if err := o.AzureOptions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("azure_options")
@@ -913,6 +1135,11 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateAzureOptio
 
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMongoDBOptions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MongoDBOptions != nil {
+
+		if swag.IsZero(o.MongoDBOptions) { // not required
+			return nil
+		}
+
 		if err := o.MongoDBOptions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mongo_db_options")
@@ -928,6 +1155,11 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMongoDBOpt
 
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMysqlOptions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqlOptions != nil {
+
+		if swag.IsZero(o.MysqlOptions) { // not required
+			return nil
+		}
+
 		if err := o.MysqlOptions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mysql_options")
@@ -943,6 +1175,11 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMysqlOptio
 
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidatePostgresqlOptions(ctx context.Context, formats strfmt.Registry) error {
 	if o.PostgresqlOptions != nil {
+
+		if swag.IsZero(o.PostgresqlOptions) { // not required
+			return nil
+		}
+
 		if err := o.PostgresqlOptions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("postgresql_options")

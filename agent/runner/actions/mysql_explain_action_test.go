@@ -102,7 +102,11 @@ func TestMySQLExplain(t *testing.T) {
 
 		var table map[string]interface{}
 		if mySQLVendor == version.MariaDBVendor {
-			table = m.Get("query_block.read_sorted_file.filesort.table").MSI()
+			if mySQLVersion.Float() >= 11 {
+				table = m.Get("query_block.nested_loop[0].read_sorted_file.filesort.table").MSI()
+			} else {
+				table = m.Get("query_block.read_sorted_file.filesort.table").MSI()
+			}
 		} else {
 			table = m.Get("query_block.ordering_operation.table").MSI()
 		}
@@ -161,9 +165,9 @@ func TestMySQLExplain(t *testing.T) {
 		assert.Contains(t, actual[0], "Extra")
 
 		// Checks some stable values
-		assert.Equal(t, actual[1][0], "1")      // id
-		assert.Equal(t, actual[1][1], "SIMPLE") // select_type
-		assert.Equal(t, actual[1][2], "city")   // table
+		assert.Equal(t, float64(1), actual[1][0]) // id
+		assert.Equal(t, "SIMPLE", actual[1][1])   // select_type
+		assert.Equal(t, "city", actual[1][2])     // table
 	})
 
 	t.Run("Error", func(t *testing.T) {
