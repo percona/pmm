@@ -93,4 +93,4 @@ Currently, local builds target the following environments:
 * have a package.yml file containing hashes of all build artefacts (PMM components, i.e. grafana, pmm-managed, etc.)
 * copy all build scripts to `build/local` to isolate the new build flows from the old ones
 * use the `--debug` parameter to control the verbosity of the logs
-* better caching for pmm-qan, pmm-agent, vmproxy and pmm-admin, which all reside in one monorepo
+* provide better caching for pmm-qan, pmm-agent, vmproxy and pmm-admin, which all reside in one monorepo, by calculating a sha256sum on their directories
