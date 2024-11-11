@@ -86,10 +86,11 @@ Currently, local builds target the following environments:
   - docker image - docker and Kubernetes environments amd64/aarch64
 
 
-## Draft Todo List
+## Ideas to evaluate
 
 * download the sources to a local directory `.modules` w/o using pmm-submodules
 * have a VERSION file, similar to the one in https://github.com/percona-lab/pmm-submodules/blob/v3/VERSION
 * have a package.yml file containing hashes of all build artefacts (PMM components, i.e. grafana, pmm-managed, etc.)
 * copy all build scripts to `build/local` to isolate the new build flows from the old ones
 * use the `--debug` parameter to control the verbosity of the logs
+* better caching for pmm-qan, pmm-agent, vmproxy and pmm-admin, which all reside in one monorepo
