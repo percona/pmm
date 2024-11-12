@@ -22,6 +22,7 @@ RUN yum install -y gcc gcc-c++ \
     automake autoconf \
     rpmdevtools createrepo_c epel-release \
     bison yum-utils rpm-build \
+    jq \
     rsync \
     wget && \
     yum install -y --enablerepo=ol9_codeready_builder glibc-static && \
@@ -38,7 +39,10 @@ RUN if [ `uname -i` == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
     curl -fSsL -o /tmp/goreleaser.rpm https://github.com/goreleaser/goreleaser/releases/download/v${GO_RELEASER_VERSION}/goreleaser-${GO_RELEASER_VERSION}-1.`uname -i`.rpm && \
     tar -C /usr/local -xzf /tmp/golang.tar.gz && \
     yum install -y --disablerepo="*" /tmp/goreleaser.rpm && \
-    rm /tmp/golang.tar.gz /tmp/goreleaser.rpm
+    rm /tmp/golang.tar.gz /tmp/goreleaser.rpm && \
+    curl -o /usr/bin/yq -fSsL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH} && \
+    chmod +x /usr/bin/yq
+
 
 RUN update-alternatives --install "/usr/bin/go" "go" "/usr/local/go/bin/go" 0
 RUN update-alternatives --set go /usr/local/go/bin/go
