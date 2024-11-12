@@ -30,16 +30,16 @@ gen: clean            ## Generate files
 	make -C admin gen
 	make -C managed gen
 
-	make gen-mocks      ## Generate mocks
+	make gen-mocks
 
 	make format
 	make format ## TODO: One formatting run is not enough, figure out why.
 	go install -v ./...
 
-clean:               ## Remove generated files
+clean:                ## Remove generated files
 	make -C api clean
 
-gen-mocks:
+gen-mocks:            ## Generate mocks
 	find . -name mock_*.go -delete
 	./bin/mockery --config .mockery.yaml
 
@@ -55,7 +55,7 @@ check:                ## Run required checkers and linters
 	bin/go-sumtype ./...
 	bin/go-consistent -pedantic ./...
 
-check-license:          ## Run license header checks against source files
+check-license:        ## Run license header checks against source files
 	bin/license-eye -c .licenserc.yaml header check
 
 check-all: check-license check    ## Run golangci linter to check for changes against main
@@ -68,6 +68,11 @@ format:               ## Format source code
 	bin/gofumpt -l -w $(FILES)
 	bin/goimports -local github.com/percona/pmm -l -w $(FILES)
 	bin/gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
+
+tidy:                 ## Tidy up the go mod files
+	@echo "==> Tidy up submodules"
+	@go mod tidy
+	@cd tools && go mod tidy
 
 serve:                ## Serve API documentation with nginx
 	nginx -p . -c api/nginx/nginx.conf

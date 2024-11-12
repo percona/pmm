@@ -49,6 +49,7 @@ main() {
   mkdir -p ${source_dir}/ $(dirname ${source_tarball}) || :
 
   prepare_tarball vmagent ${vmagent_commit_hash} https://github.com/VictoriaMetrics/VictoriaMetrics
+  prepare_tarball nomad ${nomad_commit_hash} https://github.com/hashicorp/nomad
   prepare_tarball pmm
   prepare_tarball mongodb_exporter
   prepare_tarball mysqld_exporter
