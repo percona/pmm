@@ -185,7 +185,7 @@ func testProfiler(t *testing.T, url string) {
 		assert.Equal(t, "INSERT people", bucket.Common.Fingerprint)
 		assert.Equal(t, []string{"people"}, bucket.Common.Tables)
 		assert.Equal(t, "test-id", bucket.Common.AgentId)
-		assert.Equal(t, inventoryv1.AgentType(10), bucket.Common.AgentType)
+		assert.Equal(t, inventoryv1.AgentType(9), bucket.Common.AgentType)
 		expected := &agentv1.MetricsBucket_MongoDB{
 			MDocsReturnedCnt:   docsCount,
 			MResponseLengthCnt: docsCount,

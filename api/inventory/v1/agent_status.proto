@@ -8,15 +8,15 @@ enum AgentStatus {
   // Agent is starting.
   AGENT_STATUS_STARTING = 1;
   // Agent encountered error when starting.
-  AGENT_STATUS_INITIALIZATION_ERROR = 2;
+  AGENT_STATUS_INITIALIZATION_ERROR = 7;
   // Agent is running.
-  AGENT_STATUS_RUNNING = 3;
+  AGENT_STATUS_RUNNING = 2;
   // Agent encountered error and will be restarted automatically soon.
-  AGENT_STATUS_WAITING = 4;
+  AGENT_STATUS_WAITING = 3;
   // Agent is stopping.
-  AGENT_STATUS_STOPPING = 5;
+  AGENT_STATUS_STOPPING = 4;
   // Agent finished.
-  AGENT_STATUS_DONE = 6;
+  AGENT_STATUS_DONE = 5;
   // Agent is not connected, we don't know anything about it's state.
-  AGENT_STATUS_UNKNOWN = 7;
+  AGENT_STATUS_UNKNOWN = 6;
 }
