@@ -30,19 +30,18 @@ gobuild_component() {
     volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
     volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
 
-    # Set target for Nomad accordingly
-    local target
-    case "$(uname -m)" in
-        x86_64)
-            target="linux_amd64"
-            ;;
-        aarch64)
-            target="linux_arm64"
-            ;;
-        *)
-            echo "Unsupported architecture: $(uname -m)"
-            exit 1
-            ;;
+    # Set target for Nomad
+    case "$platform" in
+      linux/amd64)
+        target="linux_amd64"
+        ;;
+      linux/arm64)
+        target="linux_arm64"
+        ;;
+      *)
+        echo "Unsupported platform: $platform"
+        exit 1
+        ;;
     esac
 
     if [ ${component} = 'azure_metrics_exporter' ]; then
