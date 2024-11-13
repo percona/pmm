@@ -1,7 +1,7 @@
 # TODO: the image should be percona/pmm-server:3 once PMM v3 is released.
 
 # To build the image, run the following in the project root directory (mind the dot!):
-# docker buildx build --platform=linux/amd64 --progress=plain -t perconalab/pmm-server:victorialogs-0.37.0 -f ./build/ansible/roles/victorialogs/files/Dockerfile.victorialogs .
+# docker buildx build --platform=linux/amd64 --progress=plain -t perconalab/pmm-server:victorialogs-0.42.0 -f ./build/ansible/roles/victorialogs/files/Dockerfile.victorialogs .
 FROM perconalab/pmm-server:3-dev-latest
 
 ENV GF_ANALYTICS_CHECK_FOR_UPDATES=false
@@ -12,5 +12,7 @@ USER root
 COPY build/ansible /opt/ansible
 
 RUN ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/victorialogs.yml
+
+EXPOSE 9428
 
 USER pmm
