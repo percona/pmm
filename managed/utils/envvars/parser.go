@@ -102,6 +102,12 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR":
 			// skip env variables for external clickhouse
 			continue
+		case "PMM_WATCHTOWER_TOKEN", "PMM_WATCHTOWER_HOST":
+			// skip watchtower environement variables
+			continue
+		case "PERCONA_TELEMETRY_DISABLE":
+			// skip the Pillars telemetry environment variable
+			continue
 		case "PMM_ENABLE_UPDATES":
 			b, err := strconv.ParseBool(v)
 			if err != nil {

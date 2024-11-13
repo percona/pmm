@@ -1,7 +1,7 @@
 ---
 title: Authentication
 slug: authentication
-category: 66aca6ddfd9bfe004c97cd48
+parentSlug: welcome
 order: 1
 ---
 
@@ -25,14 +25,14 @@ echo -n admin:admin | base64
 Let's assume the username is `admin` and the password is also `admin`. Then the API call to get the PMM Server version info would be as follows:
 
 ```shell
-curl -X GET -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
-  -H 'Content-Type: application/json' https://127.0.0.1/v1/version
+curl -X GET --header 'Authorization: Bearer XXXXX' \
+  --header 'Content-Type: application/json' https://127.0.0.1/v1/version
 ```
 
 If you use `curl` to make API calls, a simple equivalent to the command above is:
 
 ```shell
-curl -X GET -u admin:admin -H 'Content-Type: application/json' https://127.0.0.1/v1/version
+curl -X GET -u admin:admin --header 'Content-Type: application/json' https://127.0.0.1/v1/version
 ```
 
 ### Bearer Authentication
@@ -41,28 +41,28 @@ Bearer authentication (also called token authentication) is an HTTP authenticati
 
 Service Token example:
 ```shell
-curl -X GET -H 'Authorization: Bearer glsa_Fp0ggev31R58ueNJbJgYw7fIGfO3yKWH_746383ab' \
-  -H 'Content-Type: application/json' https://127.0.0.1/v1/version
+curl -X GET --header 'Authorization: Bearer glsa_Fp0ggev31R58ueNJbJgYw7fIGfO3yKWH_746383ab' \
+  --header 'Content-Type: application/json' https://127.0.0.1/v1/version
 ```
 
 You can use the Service Token in basic authentication as well:
 
 ```shell
-curl -X GET -H 'Content-Type: application/json' \
+curl -X GET --header 'Content-Type: application/json' \
   https://service_token:glsa_Fp0ggev31R58ueNJbJgYw7fIGfO3yKWH_746383ab@127.0.0.1/v1/version
 ```
 Service Token usually has "glsa_" prefix. If you convert it from API key, it will not change. If you use API key, then it will be automatically converted into Service Account and Service Token.
 
 API key example:
 ```shell
-curl -X GET -H 'Authorization: Bearer eyJrIjoiUXRkeDNMS1g1bFVyY0tUj1o0SmhBc3g4QUdTRVAwekoiLCJuIjoicG1tLXRlc3QiLCJpZCI6MX0=' \
-  -H 'Content-Type: application/json' https://127.0.0.1/v1/version
+curl -X GET --header 'Authorization: Bearer eyJrIjoiUXRkeDNMS1g1bFVyY0tUj1o0SmhBc3g4QUdTRVAwekoiLCJuIjoicG1tLXRlc3QiLCJpZCI6MX0=' \
+  --header 'Content-Type: application/json' https://127.0.0.1/v1/version
 ```
 
 You can use the API key in basic authentication as well:
 
 ```shell
-curl -X GET -H 'Content-Type: application/json' \
+curl -X GET --header 'Content-Type: application/json' \
   https://api_key:eyJrIjoiUXRkeDNMS1g1bFVyY0tUj1o0SmhBc3g4QUdTRVAwekoiLCJuIjoicG1tLXRlc3QiLCJpZCI6MX0=@127.0.0.1/v1/version
 ```
 
@@ -99,13 +99,13 @@ password admin
 This can then be used as follows:
 
 ```shell
-curl --netrc -X GET -H 'Content-Type: application/json' https://127.0.0.1/v1/version
+curl --netrc -X GET --header 'Content-Type: application/json' https://127.0.0.1/v1/version
 ```
 
 Should you wish to use a different file then the `--netrc-file` option needs to be used. If we have the credentials stored in `~/.netrc-pmm` then the command would become:
 
 ```shell
-curl --netrc --netrc-file ~/.netrc-pmm -X GET -H 'Content-Type: application/json' https://127.0.0.1/v1/version
+curl --netrc --netrc-file ~/.netrc-pmm -X GET --header 'Content-Type: application/json' https://127.0.0.1/v1/version
 ```
 
 You can use API keys in this way too, for example:

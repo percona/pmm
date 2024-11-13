@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -137,10 +138,11 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 
 	agents := make([]AgentStatus, len(p.AgentsInfo))
 	for i, a := range p.AgentsInfo {
+		status, _ := strings.CutPrefix(pointer.GetString(a.Status), "AGENT_STATUS_")
 		agents[i] = AgentStatus{
 			AgentID:   a.AgentID,
 			AgentType: pointer.GetString(a.AgentType),
-			Status:    pointer.GetString(a.Status),
+			Status:    status,
 			Port:      a.ListenPort,
 		}
 	}

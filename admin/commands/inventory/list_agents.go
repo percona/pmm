@@ -31,9 +31,9 @@ import (
 var listAgentsResultT = commands.ParseTemplate(`
 Agents list.
 
-{{ printf "%-27s" "Agent type" }} {{ printf "%-15s" "Status" }} {{ printf "%-47s" "Agent ID" }} {{ printf "%-47s" "PMM-Agent ID" }} {{ printf "%-47s" "Service ID" }} {{ printf "%-47s" "Port" }}
+{{ printf "%-29s" "Agent type" }} {{ printf "%-15s" "Status" }} {{ printf "%-39s" "Agent ID" }} {{ printf "%-39s" "PMM-Agent ID" }} {{ printf "%-38s" "Service ID" }} {{ printf "%-20s" "Port" }}
 {{ range .Agents }}
-{{- printf "%-27s" .HumanReadableAgentType }} {{ printf "%-15s" .NiceAgentStatus }} {{ .AgentID }}  {{ .PMMAgentID }}  {{ .ServiceID }} {{ .Port }}
+{{- printf "%-29s" .HumanReadableAgentType }} {{ printf "%-15s" .NiceAgentStatus }} {{ printf "%-38s" .AgentID }}  {{ printf "%-38s" .PMMAgentID }}  {{ printf "%-38s" .ServiceID }} {{ .Port }}
 {{ end }}
 `)
 

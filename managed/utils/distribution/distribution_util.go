@@ -21,7 +21,7 @@ import (
 	"os"
 	"regexp"
 
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
 
 	serverv1 "github.com/percona/pmm/api/server/v1"

@@ -27,7 +27,6 @@ import (
 	"net"
 	"net/url"
 	"os"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -60,6 +59,25 @@ const (
 	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode.
 	VerifyFullSSLMode string = "verify-full"
 )
+
+// DefaultAgentEncryptionColumns contains all tables and it's columns to be encrypted in PMM Server DB.
+var DefaultAgentEncryptionColumns = []encryption.Table{
+	{
+		Name:        "agents",
+		Identifiers: []string{"agent_id"},
+		Columns: []encryption.Column{
+			{Name: "username"},
+			{Name: "password"},
+			{Name: "aws_access_key"},
+			{Name: "aws_secret_key"},
+			{Name: "mongo_db_tls_options", CustomHandler: EncryptMongoDBOptionsHandler},
+			{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
+			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
+			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
+			{Name: "agent_password"},
+		},
+	},
+}
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
 var databaseSchema = [][]string{
@@ -1149,27 +1167,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	agentColumnsToEncrypt := []encryption.Column{
-		{Name: "username"},
-		{Name: "password"},
-		{Name: "aws_access_key"},
-		{Name: "aws_secret_key"},
-		{Name: "mongo_db_tls_options", CustomHandler: EncryptMongoDBOptionsHandler},
-		{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
-		{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
-		{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
-		{Name: "agent_password"},
-	}
-
-	itemsToEncrypt := []encryption.Table{
-		{
-			Name:        "agents",
-			Identifiers: []string{"agent_id"},
-			Columns:     agentColumnsToEncrypt,
-		},
-	}
-
-	if err := migrateDB(db, params, itemsToEncrypt); err != nil {
+	if err := migrateDB(db, params, DefaultAgentEncryptionColumns); err != nil {
 		return nil, err
 	}
 
@@ -1177,8 +1175,20 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 }
 
 // EncryptDB encrypts a set of columns in a specific database and table.
-func EncryptDB(tx *reform.TX, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
-	if len(itemsToEncrypt) == 0 {
+func EncryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table) error {
+	return dbEncryption(tx, database, itemsToEncrypt, encryption.EncryptItems, true)
+}
+
+// DecryptDB decrypts a set of columns in a specific database and table.
+func DecryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table) error {
+	return dbEncryption(tx, database, itemsToEncrypt, encryption.DecryptItems, false)
+}
+
+func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
+	encryptionHandler func(tx *reform.TX, tables []encryption.Table) error,
+	expectedState bool,
+) error {
+	if len(items) == 0 {
 		return nil
 	}
 
@@ -1186,42 +1196,47 @@ func EncryptDB(tx *reform.TX, params SetupDBParams, itemsToEncrypt []encryption.
 	if err != nil {
 		return err
 	}
-	alreadyEncrypted := make(map[string]bool)
+	currentColumns := make(map[string]bool)
 	for _, v := range settings.EncryptedItems {
-		alreadyEncrypted[v] = true
+		currentColumns[v] = true
 	}
 
-	notEncrypted := []encryption.Table{}
-	newlyEncrypted := []string{}
-	for _, table := range itemsToEncrypt {
+	tables := []encryption.Table{}
+	prepared := []string{}
+	for _, table := range items {
 		columns := []encryption.Column{}
 		for _, column := range table.Columns {
-			dbTableColumn := fmt.Sprintf("%s.%s.%s", params.Name, table.Name, column.Name)
-			if alreadyEncrypted[dbTableColumn] {
+			dbTableColumn := fmt.Sprintf("%s.%s.%s", database, table.Name, column.Name)
+			if currentColumns[dbTableColumn] == expectedState {
 				continue
 			}
 
 			columns = append(columns, column)
-			newlyEncrypted = append(newlyEncrypted, dbTableColumn)
+			prepared = append(prepared, dbTableColumn)
 		}
 		if len(columns) == 0 {
 			continue
 		}
 
 		table.Columns = columns
-		notEncrypted = append(notEncrypted, table)
+		tables = append(tables, table)
 	}
-
-	if len(notEncrypted) == 0 {
+	if len(tables) == 0 {
 		return nil
 	}
 
-	err = encryption.EncryptItems(tx, notEncrypted)
+	err = encryptionHandler(tx, tables)
 	if err != nil {
 		return err
 	}
+
+	encryptedItems := []string{}
+	if expectedState {
+		encryptedItems = prepared
+	}
+
 	_, err = UpdateSettings(tx, &ChangeSettingsParams{
-		EncryptedItems: slices.Concat(settings.EncryptedItems, newlyEncrypted),
+		EncryptedItems: encryptedItems,
 	})
 	if err != nil {
 		return err
@@ -1325,7 +1340,7 @@ func migrateDB(db *reform.DB, params SetupDBParams, itemsToEncrypt []encryption.
 			}
 		}
 
-		err := EncryptDB(tx, params, itemsToEncrypt)
+		err := EncryptDB(tx, params.Name, itemsToEncrypt)
 		if err != nil {
 			return err
 		}

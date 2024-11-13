@@ -14,7 +14,7 @@ Example:
         To install PMM tarball - $0
         To update the installed PMM tarball - $0 -u
 EOF
-        exit 1
+    exit 1
 }
 
 UPDATE=0
@@ -79,7 +79,7 @@ ${INSTALL_COMMAND} -m 0755 queries-mysqld-group-replication.yml "${PMM_DIR}"/col
 for FILE in $( ls ${PWD}/bin ); do
     if [ "x${FILE}" = "xpmm-admin" ] || [ "x${FILE}" = "xpmm-agent" ] || [ "x${FILE}" = "xpmm-agent-entrypoint" ]; then
         ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/${FILE} "${PMM_DIR}"/bin
-    elif [ "x${FILE}" = "xpt-summary" ] || [ "x${FILE}" = "xpt-mysql-summary" ] || [ "x${FILE}" = "xpt-pg-summary" ] || [ "x${FILE}" = "xpt-mongodb-summary" ]; then
+    elif [[ "${FILE}" =~ pt-summary|pt-mysql-summary|pt-pg-summary|pt-mongodb-summary|nomad ]]; then
         ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/"${FILE}" "${PMM_DIR}"/tools
     else
         ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/"${FILE}" "${PMM_DIR}"/exporters

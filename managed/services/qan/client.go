@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -57,6 +58,8 @@ func collectAgents(q *reform.Querier, metricsBuckets []*agentv1.MetricsBucket) (
 	agentIDs := make(map[string]struct{})
 	for _, m := range metricsBuckets {
 		if id := m.Common.AgentId; id != "" {
+			// TODO: remove once v2 hits end-of-support
+			id, _ := strings.CutPrefix(id, "/agent_id/")
 			agentIDs[id] = struct{}{}
 		}
 	}
@@ -180,7 +183,9 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 
 	convertedMetricsBuckets := make([]*qanv1.MetricsBucket, 0, len(metricsBuckets))
 	for _, m := range metricsBuckets {
-		agent := agents[m.Common.AgentId]
+		// TODO: remove once v2 hits end-of-support
+		agentID, _ := strings.CutPrefix(m.Common.AgentId, "/agent_id/")
+		agent := agents[agentID]
 		if agent == nil {
 			c.l.Errorf("No Agent with ID %q for bucket with query_id %q, can't add labels.", m.Common.AgentId, m.Common.Queryid)
 			continue
@@ -221,7 +226,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 			NodeType:             string(node.NodeType),
 			ServiceId:            service.ServiceID,
 			ServiceType:          string(service.ServiceType),
-			AgentId:              m.Common.AgentId,
+			AgentId:              agent.AgentID,
 			AgentType:            m.Common.AgentType,
 			PeriodStartUnixSecs:  m.Common.PeriodStartUnixSecs,
 			PeriodLengthSecs:     m.Common.PeriodLengthSecs,

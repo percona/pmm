@@ -33,7 +33,7 @@ import (
 
 func TestNew(t *testing.T) {
 	docsChan := make(chan pm.SystemProfile)
-	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetDefaultMaxQueryLength())
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength())
 
 	type args struct {
 		docsChan   <-chan pm.SystemProfile
@@ -65,7 +65,7 @@ func TestNew(t *testing.T) {
 func TestParserStartStop(t *testing.T) {
 	var err error
 	docsChan := make(chan pm.SystemProfile)
-	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetDefaultMaxQueryLength())
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength())
 
 	ctx := context.TODO()
 	parser1 := New(docsChan, a, logrus.WithField("component", "test-parser"))
@@ -83,7 +83,7 @@ func TestParserStartStop(t *testing.T) {
 
 func TestParserRunning(t *testing.T) {
 	docsChan := make(chan pm.SystemProfile)
-	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetDefaultMaxQueryLength())
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength())
 	reportChan := a.Start()
 	defer a.Stop()
 	d := aggregator.DefaultInterval

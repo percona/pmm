@@ -59,7 +59,8 @@
               "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
               "AGENT_TYPE_EXTERNAL_EXPORTER",
               "AGENT_TYPE_RDS_EXPORTER",
-              "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
+              "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
+              "AGENT_TYPE_NOMAD_AGENT"
             ],
             "type": "string",
             "default": "AGENT_TYPE_UNSPECIFIED",

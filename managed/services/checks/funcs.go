@@ -19,7 +19,7 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/percona-platform/saas/pkg/starlark"
+	"github.com/percona/saas/pkg/starlark"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 

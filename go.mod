@@ -3,7 +3,7 @@ module github.com/percona/pmm
 go 1.23.2
 
 // Update saas with
-// go get -v github.com/percona-platform/saas@latest
+// go get -v github.com/percona/saas@latest
 
 replace github.com/grpc-ecosystem/go-grpc-prometheus => github.com/Percona-Lab/go-grpc-prometheus v0.0.0-20230116133345-3487748d4592
 
@@ -51,11 +51,11 @@ require (
 	github.com/jotaen/kong-completion v0.0.5
 	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.55
-	github.com/percona-platform/saas v0.0.0-20230728161159-ad6bdeb8a3d9
 	github.com/percona/exporter_shared v0.7.5
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
 	github.com/percona/percona-toolkit v3.2.1+incompatible
 	github.com/percona/promconfig v0.2.5
+	github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e
 	github.com/pganalyze/pg_query_go/v5 v5.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.6
@@ -67,6 +67,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.9.0
+	github.com/tink-crypto/tink-go v0.0.0-20230613075026-d6de17e3f164
 	go.mongodb.org/mongo-driver v1.17.1
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	golang.org/x/crypto v0.28.0

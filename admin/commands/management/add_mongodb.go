@@ -16,12 +16,10 @@ package management
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/AlekSi/pointer"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
@@ -77,7 +75,6 @@ type AddMongoDBCommand struct {
 	TLSCaFile                     string            `help:"Path to certificate authority file"`
 	AuthenticationMechanism       string            `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
 	AuthenticationDatabase        string            `help:"Authentication database. Default is empty. Use $external for ssl certificates"`
-	MetricsMode                   string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	EnableAllCollectors           bool              `help:"Enable all collectors"`
 	DisableCollectors             []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
@@ -85,7 +82,8 @@ type AddMongoDBCommand struct {
 	ExposeExporter                bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 
 	AddCommonFlags
-	AddLogLevelFatalFlags
+	flags.MetricsModeFlags
+	flags.LogLevelFatalFlags
 }
 
 // GetServiceName returns the service name for AddMongoDBCommand.
@@ -189,13 +187,13 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				AuthenticationMechanism:       cmd.AuthenticationMechanism,
 				AuthenticationDatabase:        cmd.AuthenticationDatabase,
 
-				MetricsMode: pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+				MetricsMode: cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 
 				EnableAllCollectors: cmd.EnableAllCollectors,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 				StatsCollections:    commands.ParseDisableCollectors(cmd.StatsCollections),
 				CollectionsLimit:    cmd.CollectionsLimit,
-				LogLevel:            &cmd.AddLogLevel,
+				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

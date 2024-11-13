@@ -337,7 +337,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 
 			if esh.SQLText != nil {
 				explainFingerprint, placeholdersCount := queryparser.GetMySQLFingerprintPlaceholders(*esh.SQLText, *esh.DigestText)
-				explainFingerprint, truncated := truncate.Query(explainFingerprint, m.maxQueryLength)
+				explainFingerprint, truncated := truncate.Query(explainFingerprint, m.maxQueryLength, truncate.GetDefaultMaxQueryLength())
 				if truncated {
 					b.Common.IsTruncated = truncated
 				}
@@ -345,7 +345,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 				b.Common.PlaceholdersCount = placeholdersCount
 
 				if !m.disableQueryExamples {
-					example, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength)
+					example, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength, truncate.GetDefaultMaxQueryLength())
 					if truncated {
 						b.Common.IsTruncated = truncated
 					}
@@ -407,7 +407,7 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 		}
 
 		count := inc(currentESS.CountStar, prevESS.CountStar)
-		fingerprint, isTruncated := truncate.Query(*currentESS.DigestText, maxQueryLength)
+		fingerprint, isTruncated := truncate.Query(*currentESS.DigestText, maxQueryLength, truncate.GetDefaultMaxQueryLength())
 		mb := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
 				Schema:                 pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?

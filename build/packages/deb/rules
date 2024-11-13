@@ -57,6 +57,7 @@ override_dh_auto_install:
 	cp -f distro/rds_exporter $(TMP)/rds_exporter
 	cp -f distro/azure_exporter $(TMP)/azure_exporter
 	cp -f distro/vmagent $(TMP)/vmagent
+	cp -f distro/nomad $(TMP)/nomad
 	cp -f distro/example.prom $(TMP)/example.prom
 	cp -f distro/queries-mysqld.yml $(TMP)/queries-mysqld.yml
 	cp -f distro/queries-mysqld-group-replication.yml $(TMP)/queries-mysqld-group-replication.yml

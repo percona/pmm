@@ -1,7 +1,7 @@
 ---
 title: Changing Advisors and Advisor checks
 slug: changing-advisor-checks
-category: 66acabbe485c6000126b0499
+categorySlug: advisor-api
 order: 3
-hidden: 0
+hidden: 1
 ---
