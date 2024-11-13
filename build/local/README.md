@@ -25,7 +25,6 @@ Below is a list of prerequisites that are required to build PMM locally.
 - tar
 - git
 - curl
-- yq: 4.42.0+
 - jq: 1.6+
 
 

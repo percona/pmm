@@ -49,9 +49,6 @@ run-qan: release-qan
 
 run-all: run-agent run-managed       ## Run pmm-managed and pmm-agent
 
-run:                                 ## Deprecated
-	echo "Deprecated: please use run-all"
-
 # TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
 # run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
 # 	go test -coverpkg="github.com/percona/pmm/managed/..." \
