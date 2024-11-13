@@ -84,6 +84,12 @@ message AddPostgreSQLRequest {
   string agent_password = 26;
   // Exporter log level
   inventory.LogLevel log_level = 28;
+  // Limit for auto discovery.
+  int32 auto_discovery_limit = 31;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 32;
+  // Maximum number of connections that exporter can open to the database instance.
+  int32 max_exporter_connections = 33;
 }
 
 message AddPostgreSQLResponse {
@@ -91,6 +97,8 @@ message AddPostgreSQLResponse {
   inventory.PostgresExporter postgres_exporter = 2;
   inventory.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 3;
   inventory.QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 4;
+  // Warning message.
+  string warning = 5;
 }
 
 // PostgreSQL service provides public Management API methods for PostgreSQL Service.

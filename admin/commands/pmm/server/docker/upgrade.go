@@ -25,6 +25,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/strslice"
 	"github.com/pkg/errors"
@@ -74,7 +75,7 @@ func (u *upgradeResult) String() string {
 }
 
 // RunCmdWithContext runs upgrade command.
-func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam
+func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam,revive
 	logrus.Info("Starting PMM Server upgrade via Docker")
 
 	d, err := prepareDocker(ctx, c.dockerFn, prepareOpts{install: false})
@@ -204,7 +205,7 @@ func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.Con
 }
 
 func (c *UpgradeCommand) pullImage(ctx context.Context, imageName string) error {
-	reader, err := c.dockerFn.PullImage(ctx, imageName, types.ImagePullOptions{})
+	reader, err := c.dockerFn.PullImage(ctx, imageName, image.PullOptions{})
 	if err != nil {
 		return err
 	}

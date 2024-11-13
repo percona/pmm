@@ -35,6 +35,7 @@ type Target struct {
 	TLSSkipVerify bool
 }
 
+// Copy creates a copy of the Target instance.
 func (t *Target) Copy() Target {
 	labels := make(map[string]string, len(t.Labels))
 	for k, v := range t.Labels {

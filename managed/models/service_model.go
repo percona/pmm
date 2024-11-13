@@ -25,14 +25,16 @@ import (
 
 // ServiceType represents Service type as stored in databases:
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
-type ServiceType string
-
-type ServiceStandardLabelsParams struct {
-	Cluster        *string
-	Environment    *string
-	ReplicationSet *string
-	ExternalGroup  *string
-}
+type (
+	ServiceType string
+	// ServiceStandardLabelsParams represents the parameters for standard labels in a service.
+	ServiceStandardLabelsParams struct {
+		Cluster        *string
+		Environment    *string
+		ReplicationSet *string
+		ExternalGroup  *string
+	}
+)
 
 // Service types (in the same order as in services.proto).
 const (
@@ -58,6 +60,7 @@ type Service struct {
 	ReplicationSet string      `reform:"replication_set"`
 	CustomLabels   []byte      `reform:"custom_labels"`
 	ExternalGroup  string      `reform:"external_group"`
+	Version        *string     `reform:"version"`
 	CreatedAt      time.Time   `reform:"created_at"`
 	UpdatedAt      time.Time   `reform:"updated_at"`
 

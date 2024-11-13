@@ -28,21 +28,18 @@ import (
 )
 
 const (
-	DBClusterKind = "DatabaseCluster"
-	apiKind       = "databaseclusters"
+	apiKind = "databaseclusters"
 )
 
-type DatabaseClusterClientInterface interface {
-	DBClusters(namespace string) DatabaseClusterInterface
-}
-
-type DatabaseClusterClient struct {
+// ClusterClient contains client for database cluster.
+type ClusterClient struct {
 	restClient rest.Interface
 }
 
 var addToScheme sync.Once
 
-func NewForConfig(c *rest.Config) (*DatabaseClusterClient, error) {
+// NewForConfig create database cluster client from given config.
+func NewForConfig(c *rest.Config) (*ClusterClient, error) {
 	config := *c
 	config.ContentConfig.GroupVersion = &dbaasv1.GroupVersion
 	config.APIPath = "/apis"
@@ -50,7 +47,7 @@ func NewForConfig(c *rest.Config) (*DatabaseClusterClient, error) {
 	config.UserAgent = rest.DefaultKubernetesUserAgent()
 
 	addToScheme.Do(func() {
-		dbaasv1.SchemeBuilder.AddToScheme(scheme.Scheme)
+		dbaasv1.SchemeBuilder.AddToScheme(scheme.Scheme) //nolint:errcheck
 		metav1.AddToGroupVersion(scheme.Scheme, dbaasv1.GroupVersion)
 	})
 
@@ -59,17 +56,18 @@ func NewForConfig(c *rest.Config) (*DatabaseClusterClient, error) {
 		return nil, err
 	}
 
-	return &DatabaseClusterClient{restClient: client}, nil
+	return &ClusterClient{restClient: client}, nil
 }
 
-func (c *DatabaseClusterClient) DBClusters(namespace string) DatabaseClusterInterface { //nolint:ireturn
+// DBClusters returns database cluster client.
+func (c *ClusterClient) DBClusters(namespace string) databaseClusterInterface { //nolint:ireturn
 	return &dbClusterClient{
 		restClient: c.restClient,
 		namespace:  namespace,
 	}
 }
 
-type DatabaseClusterInterface interface {
+type databaseClusterInterface interface {
 	List(ctx context.Context, opts metav1.ListOptions) (*dbaasv1.DatabaseClusterList, error)
 	Get(ctx context.Context, name string, options metav1.GetOptions) (*dbaasv1.DatabaseCluster, error)
 	Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error)

@@ -172,7 +172,7 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementp
 }
 
 // ToggleCheckAlert toggles the silence state of the check with the provided alertID.
-func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *managementpb.ToggleCheckAlertRequest) (*managementpb.ToggleCheckAlertResponse, error) {
+func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *managementpb.ToggleCheckAlertRequest) (*managementpb.ToggleCheckAlertResponse, error) { //nolint:revive,lll
 	return nil, status.Error(codes.NotFound, "Advisor alerts silencing is not supported anymore.")
 }
 
@@ -250,6 +250,7 @@ func (s *ChecksAPIService) ListSecurityChecks(_ context.Context, _ *managementpb
 	return &managementpb.ListSecurityChecksResponse{Checks: res}, nil
 }
 
+// ListAdvisors retrieves a list of advisors based on the provided request.
 func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementpb.ListAdvisorsRequest) (*managementpb.ListAdvisorsResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()
 	if err != nil {

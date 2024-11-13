@@ -70,7 +70,7 @@ func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName s
 		if _, err := parseFilters(filters); err != nil {
 			rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 			rw.WriteHeader(http.StatusPreconditionFailed)
-			io.WriteString(rw, fmt.Sprintf("Failed to parse %s header", headerName))
+			io.WriteString(rw, fmt.Sprintf("Failed to parse %s header", headerName)) //nolint:errcheck
 			return true
 		}
 	}

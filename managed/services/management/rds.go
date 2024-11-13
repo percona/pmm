@@ -52,16 +52,18 @@ type RDSService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
+	sib   serviceInfoBroker
 
 	managementpb.UnimplementedRDSServer
 }
 
 // NewRDSService creates new instance discovery service.
-func NewRDSService(db *reform.DB, state agentsStateUpdater, cc connectionChecker) *RDSService {
+func NewRDSService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker) *RDSService {
 	return &RDSService{
 		db:    db,
 		state: state,
 		cc:    cc,
+		sib:   sib,
 	}
 }
 
@@ -349,20 +351,24 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter); err != nil {
 					return err
 				}
-				// CheckConnectionToService updates the table count in row so, let's also update the response
+				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, mysqldExporter); err != nil {
+					return err
+				}
+				// GetInfoFromService gets additional info in row, let's also update the response
 				res.TableCount = *mysqldExporter.TableCount
 			}
 
 			// add MySQL PerfSchema QAN Agent
 			if req.QanMysqlPerfschema {
 				qanAgent, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
-					PMMAgentID:            models.PMMServerAgentID,
-					ServiceID:             service.ServiceID,
-					Username:              req.Username,
-					Password:              req.Password,
-					TLS:                   req.Tls,
-					TLSSkipVerify:         req.TlsSkipVerify,
-					QueryExamplesDisabled: req.DisableQueryExamples,
+					PMMAgentID:              models.PMMServerAgentID,
+					ServiceID:               service.ServiceID,
+					Username:                req.Username,
+					Password:                req.Password,
+					TLS:                     req.Tls,
+					TLSSkipVerify:           req.TlsSkipVerify,
+					QueryExamplesDisabled:   req.DisableQueryExamples,
+					CommentsParsingDisabled: req.DisableCommentsParsing,
 				})
 				if err != nil {
 					return err
@@ -412,6 +418,10 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				TLS:                            req.Tls,
 				TLSSkipVerify:                  req.TlsSkipVerify,
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				PostgreSQLOptions: &models.PostgreSQLOptions{
+					AutoDiscoveryLimit:     req.AutoDiscoveryLimit,
+					MaxExporterConnections: req.MaxPostgresqlExporterConnections,
+				},
 			})
 			if err != nil {
 				return err
@@ -426,18 +436,22 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, postgresExporter); err != nil {
 					return err
 				}
+				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, postgresExporter); err != nil {
+					return err
+				}
 			}
 
-			// add MySQL PerfSchema QAN Agent
+			// add PostgreSQL Pgstatements QAN Agent
 			if req.QanPostgresqlPgstatements {
 				qanAgent, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
-					PMMAgentID:            models.PMMServerAgentID,
-					ServiceID:             service.ServiceID,
-					Username:              req.Username,
-					Password:              req.Password,
-					TLS:                   req.Tls,
-					TLSSkipVerify:         req.TlsSkipVerify,
-					QueryExamplesDisabled: req.DisableQueryExamples,
+					PMMAgentID:              models.PMMServerAgentID,
+					ServiceID:               service.ServiceID,
+					Username:                req.Username,
+					Password:                req.Password,
+					TLS:                     req.Tls,
+					TLSSkipVerify:           req.TlsSkipVerify,
+					QueryExamplesDisabled:   req.DisableQueryExamples,
+					CommentsParsingDisabled: req.DisableCommentsParsing,
 				})
 				if err != nil {
 					return err

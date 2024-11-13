@@ -4278,6 +4278,284 @@ var _ interface {
 	ErrorName() string
 } = CheckConnectionResponseValidationError{}
 
+// Validate checks the field values on ServiceInfoRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ServiceInfoRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ServiceInfoRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ServiceInfoRequestMultiError, or nil if none found.
+func (m *ServiceInfoRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ServiceInfoRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Type
+
+	// no validation rules for Dsn
+
+	if all {
+		switch v := interface{}(m.GetTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ServiceInfoRequestValidationError{
+					field:  "Timeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ServiceInfoRequestValidationError{
+					field:  "Timeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ServiceInfoRequestValidationError{
+				field:  "Timeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetTextFiles()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ServiceInfoRequestValidationError{
+					field:  "TextFiles",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ServiceInfoRequestValidationError{
+					field:  "TextFiles",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ServiceInfoRequestValidationError{
+				field:  "TextFiles",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for TlsSkipVerify
+
+	if len(errors) > 0 {
+		return ServiceInfoRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ServiceInfoRequestMultiError is an error wrapping multiple validation errors
+// returned by ServiceInfoRequest.ValidateAll() if the designated constraints
+// aren't met.
+type ServiceInfoRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ServiceInfoRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ServiceInfoRequestMultiError) AllErrors() []error { return m }
+
+// ServiceInfoRequestValidationError is the validation error returned by
+// ServiceInfoRequest.Validate if the designated constraints aren't met.
+type ServiceInfoRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ServiceInfoRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ServiceInfoRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ServiceInfoRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ServiceInfoRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ServiceInfoRequestValidationError) ErrorName() string {
+	return "ServiceInfoRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ServiceInfoRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sServiceInfoRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ServiceInfoRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ServiceInfoRequestValidationError{}
+
+// Validate checks the field values on ServiceInfoResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ServiceInfoResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ServiceInfoResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ServiceInfoResponseMultiError, or nil if none found.
+func (m *ServiceInfoResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ServiceInfoResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Error
+
+	// no validation rules for TableCount
+
+	// no validation rules for Version
+
+	if m.PgsmVersion != nil {
+		// no validation rules for PgsmVersion
+	}
+
+	if len(errors) > 0 {
+		return ServiceInfoResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ServiceInfoResponseMultiError is an error wrapping multiple validation
+// errors returned by ServiceInfoResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ServiceInfoResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ServiceInfoResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ServiceInfoResponseMultiError) AllErrors() []error { return m }
+
+// ServiceInfoResponseValidationError is the validation error returned by
+// ServiceInfoResponse.Validate if the designated constraints aren't met.
+type ServiceInfoResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ServiceInfoResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ServiceInfoResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ServiceInfoResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ServiceInfoResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ServiceInfoResponseValidationError) ErrorName() string {
+	return "ServiceInfoResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ServiceInfoResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sServiceInfoResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ServiceInfoResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ServiceInfoResponseValidationError{}
+
 // Validate checks the field values on JobStatusRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -6923,6 +7201,47 @@ func (m *AgentMessage) validate(all bool) error {
 			}
 		}
 
+	case *AgentMessage_ServiceInfo:
+		if v == nil {
+			err := AgentMessageValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetServiceInfo()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AgentMessageValidationError{
+						field:  "ServiceInfo",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AgentMessageValidationError{
+						field:  "ServiceInfo",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetServiceInfo()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AgentMessageValidationError{
+					field:  "ServiceInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -7667,6 +7986,47 @@ func (m *ServerMessage) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "AgentLogs",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ServerMessage_ServiceInfo:
+		if v == nil {
+			err := ServerMessageValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetServiceInfo()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ServerMessageValidationError{
+						field:  "ServiceInfo",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ServerMessageValidationError{
+						field:  "ServiceInfo",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetServiceInfo()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ServerMessageValidationError{
+					field:  "ServiceInfo",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}

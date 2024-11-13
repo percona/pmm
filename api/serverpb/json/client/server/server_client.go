@@ -38,6 +38,8 @@ type ClientService interface {
 
 	GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error)
 
+	LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...ClientOption) (*LeaderHealthCheckOK, error)
+
 	Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error)
 
 	Readiness(params *ReadinessParams, opts ...ClientOption) (*ReadinessOK, error)
@@ -206,6 +208,45 @@ func (a *Client) GetSettings(params *GetSettingsParams, opts ...ClientOption) (*
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetSettingsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+LeaderHealthCheck checks leadership
+
+Checks if the instance is the leader in a cluster. Returns an error if the instance isn't the leader.
+*/
+func (a *Client) LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...ClientOption) (*LeaderHealthCheckOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewLeaderHealthCheckParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "LeaderHealthCheck",
+		Method:             "POST",
+		PathPattern:        "/v1/leaderHealthCheck",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &LeaderHealthCheckReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*LeaderHealthCheckOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*LeaderHealthCheckDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

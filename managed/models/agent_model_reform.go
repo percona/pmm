@@ -62,10 +62,12 @@ func (v *agentTableType) Columns() []string {
 		"rds_enhanced_metrics_disabled",
 		"push_metrics",
 		"disabled_collectors",
+		"metrics_resolutions",
 		"mysql_options",
 		"mongo_db_tls_options",
 		"postgresql_options",
 		"log_level",
+		"expose_exporter",
 	}
 }
 
@@ -124,10 +126,12 @@ var AgentTable = &agentTableType{
 			{Name: "RDSEnhancedMetricsDisabled", Type: "bool", Column: "rds_enhanced_metrics_disabled"},
 			{Name: "PushMetrics", Type: "bool", Column: "push_metrics"},
 			{Name: "DisabledCollectors", Type: "pq.StringArray", Column: "disabled_collectors"},
+			{Name: "MetricsResolutions", Type: "*MetricsResolutions", Column: "metrics_resolutions"},
 			{Name: "MySQLOptions", Type: "*MySQLOptions", Column: "mysql_options"},
 			{Name: "MongoDBOptions", Type: "*MongoDBOptions", Column: "mongo_db_tls_options"},
 			{Name: "PostgreSQLOptions", Type: "*PostgreSQLOptions", Column: "postgresql_options"},
 			{Name: "LogLevel", Type: "*string", Column: "log_level"},
+			{Name: "ExposeExporter", Type: "bool", Column: "expose_exporter"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -136,7 +140,7 @@ var AgentTable = &agentTableType{
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 38)
+	res := make([]string, 40)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -171,10 +175,12 @@ func (s Agent) String() string {
 	res[31] = "RDSEnhancedMetricsDisabled: " + reform.Inspect(s.RDSEnhancedMetricsDisabled, true)
 	res[32] = "PushMetrics: " + reform.Inspect(s.PushMetrics, true)
 	res[33] = "DisabledCollectors: " + reform.Inspect(s.DisabledCollectors, true)
-	res[34] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
-	res[35] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
-	res[36] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
-	res[37] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
+	res[34] = "MetricsResolutions: " + reform.Inspect(s.MetricsResolutions, true)
+	res[35] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
+	res[36] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
+	res[37] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
+	res[38] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
+	res[39] = "ExposeExporter: " + reform.Inspect(s.ExposeExporter, true)
 	return strings.Join(res, ", ")
 }
 
@@ -216,10 +222,12 @@ func (s *Agent) Values() []interface{} {
 		s.RDSEnhancedMetricsDisabled,
 		s.PushMetrics,
 		s.DisabledCollectors,
+		s.MetricsResolutions,
 		s.MySQLOptions,
 		s.MongoDBOptions,
 		s.PostgreSQLOptions,
 		s.LogLevel,
+		s.ExposeExporter,
 	}
 }
 
@@ -261,10 +269,12 @@ func (s *Agent) Pointers() []interface{} {
 		&s.RDSEnhancedMetricsDisabled,
 		&s.PushMetrics,
 		&s.DisabledCollectors,
+		&s.MetricsResolutions,
 		&s.MySQLOptions,
 		&s.MongoDBOptions,
 		&s.PostgreSQLOptions,
 		&s.LogLevel,
+		&s.ExposeExporter,
 	}
 }
 

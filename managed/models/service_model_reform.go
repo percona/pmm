@@ -38,6 +38,7 @@ func (v *serviceTableType) Columns() []string {
 		"replication_set",
 		"custom_labels",
 		"external_group",
+		"version",
 		"created_at",
 		"updated_at",
 		"address",
@@ -77,6 +78,7 @@ var ServiceTable = &serviceTableType{
 			{Name: "ReplicationSet", Type: "string", Column: "replication_set"},
 			{Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"},
 			{Name: "ExternalGroup", Type: "string", Column: "external_group"},
+			{Name: "Version", Type: "*string", Column: "version"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 			{Name: "Address", Type: "*string", Column: "address"},
@@ -90,7 +92,7 @@ var ServiceTable = &serviceTableType{
 
 // String returns a string representation of this struct or record.
 func (s Service) String() string {
-	res := make([]string, 15)
+	res := make([]string, 16)
 	res[0] = "ServiceID: " + reform.Inspect(s.ServiceID, true)
 	res[1] = "ServiceType: " + reform.Inspect(s.ServiceType, true)
 	res[2] = "ServiceName: " + reform.Inspect(s.ServiceName, true)
@@ -101,11 +103,12 @@ func (s Service) String() string {
 	res[7] = "ReplicationSet: " + reform.Inspect(s.ReplicationSet, true)
 	res[8] = "CustomLabels: " + reform.Inspect(s.CustomLabels, true)
 	res[9] = "ExternalGroup: " + reform.Inspect(s.ExternalGroup, true)
-	res[10] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[11] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
-	res[12] = "Address: " + reform.Inspect(s.Address, true)
-	res[13] = "Port: " + reform.Inspect(s.Port, true)
-	res[14] = "Socket: " + reform.Inspect(s.Socket, true)
+	res[10] = "Version: " + reform.Inspect(s.Version, true)
+	res[11] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[12] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[13] = "Address: " + reform.Inspect(s.Address, true)
+	res[14] = "Port: " + reform.Inspect(s.Port, true)
+	res[15] = "Socket: " + reform.Inspect(s.Socket, true)
 	return strings.Join(res, ", ")
 }
 
@@ -123,6 +126,7 @@ func (s *Service) Values() []interface{} {
 		s.ReplicationSet,
 		s.CustomLabels,
 		s.ExternalGroup,
+		s.Version,
 		s.CreatedAt,
 		s.UpdatedAt,
 		s.Address,
@@ -145,6 +149,7 @@ func (s *Service) Pointers() []interface{} {
 		&s.ReplicationSet,
 		&s.CustomLabels,
 		&s.ExternalGroup,
+		&s.Version,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 		&s.Address,

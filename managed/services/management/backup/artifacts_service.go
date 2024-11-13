@@ -107,7 +107,7 @@ func (s *ArtifactsService) ListArtifacts(context.Context, *backuppb.ListArtifact
 
 // DeleteArtifact deletes specified artifact and its files.
 func (s *ArtifactsService) DeleteArtifact(
-	ctx context.Context,
+	ctx context.Context, //nolint:revive
 	req *backuppb.DeleteArtifactRequest,
 ) (*backuppb.DeleteArtifactResponse, error) {
 	artifact, err := models.FindArtifactByID(s.db.Querier, req.ArtifactId)
@@ -128,7 +128,7 @@ func (s *ArtifactsService) DeleteArtifact(
 	return &backuppb.DeleteArtifactResponse{}, nil
 }
 
-// ListPitrTimeranges lists available PITR timelines/time-ranges (for MongoDB)
+// ListPitrTimeranges lists available PITR timelines/time-ranges (for MongoDB).
 func (s *ArtifactsService) ListPitrTimeranges(
 	ctx context.Context,
 	req *backuppb.ListPitrTimerangesRequest,

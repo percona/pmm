@@ -2,7 +2,7 @@
 - name: Install the GPG key for repo.percona.com
   rpm_key:
     state: present
-    key: https://downloads.percona.com/downloads/RPM-GPG-KEY-percona
+    key: https://repo.percona.com/yum/PERCONA-PACKAGING-KEY
 
 - name: Packages                   | Add PMM2 Server YUM repository for EL7
   when:
@@ -29,7 +29,7 @@
 
 # local yum repo for building of pmm server docker image in autobuild jobs
 - name: PMM                        | Add local YUM repository
-  when: ansible_virtualization_type == "docker" 
+  when: pmm_running_in_docker
   yum_repository:
     name: local
     description: Local YUM repository - x86_64
@@ -55,7 +55,7 @@
     name: "*"
     state: latest
     exclude: "ansible*"
-    disablerepo: percona-release-x86_64
+    disablerepo: pmm2-server
 
 - name: Packages                   | Update OS EL9
   when:
@@ -64,7 +64,7 @@
   yum:
     name: "*"
     state: latest
-    disablerepo: percona-release-x86_64
+    disablerepo: pmm2-server
 
 - name: Packages                   | Install OS tools for EL7
   when:
@@ -89,7 +89,7 @@
 - name: Create users for non-docker images          | Create users
   user:
     name: "pmm"
-  when: ansible_virtualization_type != "docker"
+  when: not pmm_running_in_docker
 
 - name: Create users and groups in docker container
   block:
@@ -120,7 +120,7 @@
         - { name: grafana, uid: 998, comment: "Grafana Dashboard", shell: "/sbin/nologin", home: "/etc/grafana", group: grafana, }
         - { name: clickhouse, uid: 997, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse, }
         - { name: pmm-agent, uid: 996, comment: "pmm-agent", shell: "/bin/false", home: "/usr/local/percona/", group: pmm-agent, }
-  when: ansible_virtualization_type == "docker"
+  when: pmm_running_in_docker
 
 - name: Create directories        | Create dirs
   file: path={{ item }} state=directory owner=pmm group=pmm
@@ -138,7 +138,7 @@
     mode: "0775"
 
 - name: Create dirs                | Create dirs
-  when: ansible_virtualization_type == "docker"
+  when: pmm_running_in_docker
   file: path={{ item }} state=directory
   with_items:
     - /var/lib/cloud/scripts/per-once
@@ -178,11 +178,11 @@
     enablerepo: "{{ pmm_client_repo_name }}"
 
 - name: Disable pmm-agent service | Disable pmm-agent
-  when: ansible_virtualization_type != "docker"
+  when: not pmm_running_in_docker
   service: name=pmm-agent state=stopped enabled=no
 
 - name: Create tmp dirs           | Create tmp dirs
-  when: ansible_virtualization_type != "docker"
+  when: not pmm_running_in_docker
   command: /usr/bin/systemd-tmpfiles --create --remove --boot --exclude-prefix=/dev
 
 - name: Copy grafana.ini file for the first run

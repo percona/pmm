@@ -44,6 +44,7 @@ type RemoveCommand struct {
 	ServiceID   string `help:"Service ID"`
 }
 
+// RunCmd runs the command for RemoveCommand.
 func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 	if cmd.ServiceID == "" && cmd.ServiceName == "" {
 		// Automatic service lookup during removal

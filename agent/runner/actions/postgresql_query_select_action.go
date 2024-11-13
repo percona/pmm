@@ -29,21 +29,38 @@ import (
 	"github.com/percona/pmm/utils/sqlrows"
 )
 
+const postgreSQLQuerySelectActionType = "postgresql-query-select"
+
 type postgresqlQuerySelectAction struct {
 	id      string
 	timeout time.Duration
 	params  *agentpb.StartActionRequest_PostgreSQLQuerySelectParams
-	tempDir string
+	dsn     string
 }
 
 // NewPostgreSQLQuerySelectAction creates PostgreSQL SELECT query Action.
-func NewPostgreSQLQuerySelectAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLQuerySelectParams, tempDir string) Action {
+func NewPostgreSQLQuerySelectAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLQuerySelectParams, tempDir string) (Action, error) {
+	// A very basic check that there is a single SELECT query. It has oblivious false positives (`SELECT ';'`),
+	// but PostgreSQL query lexical structure (https://www.postgresql.org/docs/current/sql-syntax-lexical.html)
+	// does not allow false negatives.
+	// If we decide to improve it, we could use our existing query parser from pg_stat_statement agent,
+	// or use a simple hand-made parser similar to
+	// https://github.com/mc2soft/pq-types/blob/ada769d4011a027a5385b9c4e47976fe327350a6/string_array.go#L82-L116
+	if strings.Contains(params.Query, ";") {
+		return nil, errors.New("query contains ';'")
+	}
+
+	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLQuerySelectActionType, id))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	return &postgresqlQuerySelectAction{
 		id:      id,
 		timeout: timeout,
 		params:  params,
-		tempDir: tempDir,
-	}
+		dsn:     dsn,
+	}, nil
 }
 
 // ID returns an Action ID.
@@ -58,32 +75,22 @@ func (a *postgresqlQuerySelectAction) Timeout() time.Duration {
 
 // Type returns an Action type.
 func (a *postgresqlQuerySelectAction) Type() string {
-	return "postgresql-query-select"
+	return postgreSQLQuerySelectActionType
+}
+
+// DSN returns the DSN for the Action.
+func (a *postgresqlQuerySelectAction) DSN() string {
+	return a.dsn
 }
 
 // Run runs an Action and returns output and error.
 func (a *postgresqlQuerySelectAction) Run(ctx context.Context) ([]byte, error) {
-	dsn, err := templates.RenderDSN(a.params.Dsn, a.params.TlsFiles, filepath.Join(a.tempDir, strings.ToLower(a.Type()), a.id))
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	connector, err := pq.NewConnector(dsn)
+	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
-
-	// A very basic check that there is a single SELECT query. It has oblivious false positives (`SELECT ';'`),
-	// but PostgreSQL query lexical structure (https://www.postgresql.org/docs/current/sql-syntax-lexical.html)
-	// does not allow false negatives.
-	// If we decide to improve it, we could use our existing query parser from pg_stat_statement agent,
-	// or use a simple hand-made parser similar to
-	// https://github.com/mc2soft/pq-types/blob/ada769d4011a027a5385b9c4e47976fe327350a6/string_array.go#L82-L116
-	if strings.Contains(a.params.Query, ";") {
-		return nil, errors.New("query contains ';'")
-	}
 
 	rows, err := db.QueryContext(ctx, "SELECT /* pmm-agent */ "+a.params.Query) //nolint:gosec
 	if err != nil {

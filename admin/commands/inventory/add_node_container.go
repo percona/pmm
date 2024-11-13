@@ -58,6 +58,7 @@ type AddNodeContainerCommand struct {
 	NodeModel     string            `help:"Node model"`
 }
 
+// RunCmd executes the AddNodeContainerCommand and returns the result.
 func (cmd *AddNodeContainerCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &nodes.AddContainerNodeParams{

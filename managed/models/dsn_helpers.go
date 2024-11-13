@@ -39,8 +39,13 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 		return "", nil, err
 	}
 
-	if db == "" {
-		db = svc.DatabaseName
+	dsnParams := DSNParams{
+		Database:    db,
+		DialTimeout: time.Second,
+	}
+
+	if dsnParams.Database == "" {
+		dsnParams.Database = svc.DatabaseName
 	}
 
 	var agentTypes []AgentType
@@ -57,6 +62,10 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 			QANPostgreSQLPgStatementsAgentType,
 			QANPostgreSQLPgStatMonitorAgentType,
 			PostgresExporterType)
+		dsnParams.PostgreSQLSupportsSSLSNI, err = IsPostgreSQLSSLSniSupported(q, pmmAgentID)
+		if err != nil {
+			return "", nil, err
+		}
 	case MongoDBServiceType:
 		agentTypes = append(
 			agentTypes,
@@ -76,7 +85,9 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 			return "", nil, err
 		}
 		if len(fexp) == 1 {
-			return fexp[0].DSN(svc, time.Second, db, nil), fexp[0], nil
+			agent := fexp[0]
+			pmmAgentVersion := ExtractPmmAgentVersionFromAgent(q, agent)
+			return agent.DSN(svc, dsnParams, nil, pmmAgentVersion), agent, nil
 		}
 		if len(fexp) > 1 {
 			return "", nil, status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be only one agent")

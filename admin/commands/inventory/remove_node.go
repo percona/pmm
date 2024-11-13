@@ -38,6 +38,7 @@ type RemoveNodeCommand struct {
 	Force  bool   `help:"Remove node with all dependencies"`
 }
 
+// RunCmd runs the command for RemoveNodeCommand.
 func (cmd *RemoveNodeCommand) RunCmd() (commands.Result, error) {
 	params := &nodes.RemoveNodeParams{
 		Body: nodes.RemoveNodeBody{

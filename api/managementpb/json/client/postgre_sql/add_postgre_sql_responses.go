@@ -220,6 +220,15 @@ type AddPostgreSQLBody struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Limit for auto discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Maximum number of connections that exporter can open to the database instance.
+	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+
 	// add node
 	AddNode *AddPostgreSQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -557,6 +566,9 @@ AddPostgreSQLOKBody add postgre SQL OK body
 swagger:model AddPostgreSQLOKBody
 */
 type AddPostgreSQLOKBody struct {
+	// Warning message.
+	Warning string `json:"warning,omitempty"`
+
 	// postgres exporter
 	PostgresExporter *AddPostgreSQLOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 
@@ -814,12 +826,13 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -831,6 +844,18 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Maximum number of connections that exporter can open to the database instance.
+	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddPostgreSQLOKBodyPostgresExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body postgres exporter
@@ -845,6 +870,10 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) Validate(formats strfmt.Registry) 
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -855,7 +884,7 @@ var addPostgreSqlOkBodyPostgresExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -870,6 +899,9 @@ const (
 
 	// AddPostgreSQLOKBodyPostgresExporterStatusSTARTING captures enum value "STARTING"
 	AddPostgreSQLOKBodyPostgresExporterStatusSTARTING string = "STARTING"
+
+	// AddPostgreSQLOKBodyPostgresExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddPostgreSQLOKBodyPostgresExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddPostgreSQLOKBodyPostgresExporterStatusRUNNING captures enum value "RUNNING"
 	AddPostgreSQLOKBodyPostgresExporterStatusRUNNING string = "RUNNING"
@@ -962,8 +994,51 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) validateLogLevel(formats strfmt.Re
 	return nil
 }
 
-// ContextValidate validates this add postgre SQL OK body postgres exporter based on context it is used
+func (o *AddPostgreSQLOKBodyPostgresExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addPostgreSqlOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPostgreSqlOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add postgre SQL OK body postgres exporter based on the context it is used
 func (o *AddPostgreSQLOKBodyPostgresExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLOKBodyPostgresExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addPostgreSqlOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPostgreSqlOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -978,6 +1053,49 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddPostgreSQLOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 	var res AddPostgreSQLOKBodyPostgresExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddPostgreSQLOKBodyPostgresExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model AddPostgreSQLOKBodyPostgresExporterMetricsResolutions
+*/
+type AddPostgreSQLOKBodyPostgresExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this add postgre SQL OK body postgres exporter metrics resolutions
+func (o *AddPostgreSQLOKBodyPostgresExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add postgre SQL OK body postgres exporter metrics resolutions based on context it is used
+func (o *AddPostgreSQLOKBodyPostgresExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddPostgreSQLOKBodyPostgresExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddPostgreSQLOKBodyPostgresExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res AddPostgreSQLOKBodyPostgresExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1025,12 +1143,13 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -1063,7 +1182,7 @@ var addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []interf
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1078,6 +1197,9 @@ const (
 
 	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusSTARTING captures enum value "STARTING"
 	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusSTARTING string = "STARTING"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusRUNNING captures enum value "RUNNING"
 	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusRUNNING string = "RUNNING"
@@ -1236,12 +1358,13 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -1274,7 +1397,7 @@ var addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []inter
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1289,6 +1412,9 @@ const (
 
 	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusSTARTING captures enum value "STARTING"
 	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusSTARTING string = "STARTING"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusRUNNING captures enum value "RUNNING"
 	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusRUNNING string = "RUNNING"
@@ -1444,6 +1570,12 @@ type AddPostgreSQLOKBodyService struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// PostgreSQL version.
+	Version string `json:"version,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body service

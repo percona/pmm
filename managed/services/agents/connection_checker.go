@@ -49,7 +49,7 @@ func NewConnectionChecker(r *Registry) *ConnectionChecker {
 	}
 }
 
-// CheckConnectionToService sends request to pmm-agent to check connection to service.
+// CheckConnectionToService sends a request to pmm-agent to check connection to service.
 func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) error {
 	l := logger.Get(ctx)
 	start := time.Now()
@@ -91,6 +91,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		sanitizedDSN = strings.ReplaceAll(request.Dsn, word, "****")
 	}
 	l.Infof("CheckConnectionRequest: type: %s, DSN: %s timeout: %s.", request.Type, sanitizedDSN, request.Timeout)
+
 	resp, err := pmmAgent.channel.SendAndWaitResponse(request)
 	if err != nil {
 		return err
@@ -99,16 +100,25 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 
 	switch service.ServiceType {
 	case models.MySQLServiceType:
-		tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert
-		agent.TableCount = &tableCount
-		l.Debugf("Updating table count: %d.", tableCount)
-		if err = q.Update(agent); err != nil {
-			return errors.Wrap(err, "failed to update table count")
+		// TODO: remove the whole block after v3 release.
+		isSibSupported, err := isServiceInfoBrokerSupported(q, pmmAgentID)
+		if err != nil {
+			l.Warnf("Failed to check if serviceInfoBroker is supported: %s.", err)
 		}
-	case models.ExternalServiceType, models.HAProxyServiceType:
-	case models.PostgreSQLServiceType:
-	case models.MongoDBServiceType:
-	case models.ProxySQLServiceType:
+		// In newer clients this gets handled by the ServiceInfoBroker.
+		if !isSibSupported {
+			tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert,staticcheck
+			agent.TableCount = &tableCount
+			l.Debugf("Updating table count: %d.", tableCount)
+			if err = q.Update(agent); err != nil {
+				return errors.Wrap(err, "failed to update table count")
+			}
+		}
+	case models.ExternalServiceType,
+		models.HAProxyServiceType,
+		models.PostgreSQLServiceType,
+		models.MongoDBServiceType,
+		models.ProxySQLServiceType:
 		// nothing yet
 
 	default:
@@ -127,12 +137,14 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 
 func connectionRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentpb.CheckConnectionRequest, error) {
 	var request *agentpb.CheckConnectionRequest
+
+	pmmAgentVersion := models.ExtractPmmAgentVersionFromAgent(q, agent)
 	switch service.ServiceType {
 	case models.MySQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_MYSQL_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
@@ -143,9 +155,14 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		}
 	case models.PostgreSQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
+		sqlSniSupported, err := models.IsPostgreSQLSSLSniSupported(q, pointer.GetString(agent.PMMAgentID))
+		if err != nil {
+			return nil, err
+		}
 		request = &agentpb.CheckConnectionRequest{
-			Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
+			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported},
+				nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
@@ -157,7 +174,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_MONGODB_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
@@ -168,7 +185,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 	case models.ProxySQLServiceType:
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
 			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.ExternalServiceType:

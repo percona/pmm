@@ -73,8 +73,9 @@ var rules = map[string]role{
 	"/v1/user": viewer,
 
 	// must be available without authentication for health checking
-	"/v1/readyz": none,
-	"/ping":      none, // PMM 1.x variant
+	"/v1/readyz":            none,
+	"/v1/leaderHealthCheck": none,
+	"/ping":                 none, // PMM 1.x variant
 
 	// must not be available without authentication as it can leak data
 	"/v1/version":         viewer,
@@ -528,20 +529,21 @@ func cleanPath(p string) (string, error) {
 		return "", err
 	}
 
-	return path.Clean(unescaped), nil
+	cleanedPath := path.Clean(unescaped)
+
+	cleanedPath = strings.ReplaceAll(cleanedPath, "\n", " ")
+
+	u, err := url.Parse(cleanedPath)
+	if err != nil {
+		return "", err
+	}
+	u.RawQuery = ""
+	return u.String(), nil
 }
 
 func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
 	// check Grafana with some headers from request
-	authHeaders := make(http.Header)
-	for _, k := range []string{
-		"Authorization",
-		"Cookie",
-	} {
-		if v := req.Header.Get(k); v != "" {
-			authHeaders.Set(k, v)
-		}
-	}
+	authHeaders := s.authHeaders(req)
 	j, err := json.Marshal(authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
@@ -556,6 +558,19 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	}
 
 	return s.retrieveRole(ctx, hash, authHeaders, l)
+}
+
+func (s *AuthServer) authHeaders(req *http.Request) http.Header {
+	authHeaders := make(http.Header)
+	for _, k := range []string{
+		"Authorization",
+		"Cookie",
+	} {
+		if v := req.Header.Get(k); v != "" {
+			authHeaders.Set(k, v)
+		}
+	}
+	return authHeaders
 }
 
 func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {

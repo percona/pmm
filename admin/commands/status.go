@@ -127,7 +127,7 @@ func (cmd *StatusCommand) RunCmd() (Result, error) {
 				return newStatusResult(status), nil
 			}
 
-			return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.", err) //nolint:golint
+			return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.", err) //nolint:golint,revive
 		default:
 			time.Sleep(1 * time.Second)
 		}

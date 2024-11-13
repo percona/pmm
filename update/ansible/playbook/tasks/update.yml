@@ -10,6 +10,9 @@
 
   vars:
     pmm_packages:
+      - percona-dashboards
+      - percona-grafana
+      - percona-release
       - percona-victoriametrics
       - percona-qan-api2
       - percona-alertmanager
@@ -22,6 +25,43 @@
       - vmproxy
       - grafana-db-migrator
   pre_tasks:
+    - name: Check for updates of ansible-core package | EL9
+      shell: yum list updates ansible-core | grep -q 'ansible-core' && echo 'Available' || echo 'Not Available'
+      register: ansible_core_update
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+
+    - name: Log message if ansible-core package needs update | EL9
+      debug:
+        msg: "The ansible-core package needs update. Playbook will re-run to apply the changes."
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+        - ansible_core_update.stdout == "Available"
+
+    - name: Remove ansible RPM if installed   | EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+      yum:
+        name: ansible
+        state: absent
+      ignore_errors: yes
+
+    - name: Install ansible-core RPM          | EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+        - not ansible_check_mode
+      yum:
+        name:
+          - ansible-core
+          - ansible-collection-community-general
+          - ansible-collection-community-postgresql
+          - ansible-collection-ansible-posix
+        state: latest
+
     - name: detect /srv/pmm-distribution
       stat:
         path: /srv/pmm-distribution
@@ -57,25 +97,12 @@
         state: absent
       register: experimental_repo_existed
 
-    - name: Update percona-dashboards package
-      yum:
-        name:
-          - percona-dashboards
-          - percona-grafana
-        state: latest
+    - name: Enable percona telemetry repo
+      command: percona-release enable telemetry release
+      when: not ansible_check_mode
 
     - name: Cleanup yum metadata
-      command: yum clean metadata
-      register: yum_clean_result
-      changed_when: "'Cleaning repos' in yum_clean_result.stdout"
-      when: experimental_repo_existed.changed
-      tags:
-        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
-        # The handler looks bad in this case
-
-    # TODO: join with the command above
-    - name: Cleanup yum metadata
-      command: yum clean metadata
+      command: yum clean all
       become: true
       tags:
         - skip_ansible_lint
@@ -124,6 +151,13 @@
       file:
         state: absent
         path: /etc/supervisord.d/supervisord.ini
+      when: not is_docker
+
+    - name: Stop systemd pmm-agent service, if running
+      systemd:
+        name: pmm-agent
+        state: stopped
+        enabled: no
       when: not is_docker
 
     - name: Create grafana config
@@ -264,27 +298,6 @@
         - sshpass
         - vi
 
-    - name: Remove ansible RPM if installed   | EL9
-      when:
-        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-        - ansible_distribution_major_version == '9'
-      yum:
-        name: ansible
-        state: absent
-      ignore_errors: yes
-
-    - name: Install ansible-core RPM          | EL9
-      when:
-        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-        - ansible_distribution_major_version == '9'
-      yum:
-        name:
-          - ansible-core
-          - ansible-collection-community-general
-          - ansible-collection-community-postgresql
-          - ansible-collection-ansible-posix
-        state: present
-
     - name: Update system packages EL9
       when:
         - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
@@ -303,15 +316,6 @@
     - name: Install clickhouse
       include_role:
         name: clickhouse
-
-    # Fix things that should be fixed before restarts.
-
-    - name: Stop systemd pmm-agent service, if running
-      systemd:
-        name: pmm-agent
-        state: stopped
-        enabled: no
-      when: not is_docker
 
     # https://jira.percona.com/browse/PMM-9298
     - name: Copy rezise-xfs file for lvm
@@ -407,6 +411,12 @@
         - ALTER TABLE tag ALTER COLUMN value TYPE text;
         - ALTER TABLE api_key ALTER COLUMN key TYPE text;
         - ALTER TABLE api_key ALTER COLUMN name TYPE text;
+      when: not ansible_check_mode
+
+    - name: Change default admin id
+      postgresql_query:
+        db: grafana
+        query: UPDATE "user" SET id='1' WHERE login='admin';
       when: not ansible_check_mode
 
     # we need to put this step as one of the last steps, because it removes pmm.ini and /etc/alertmanager.yml

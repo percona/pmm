@@ -21,8 +21,10 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/api/common"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 )
@@ -237,6 +239,8 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			DisabledCollectors: agent.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
 			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			ExposeExporter:     agent.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
 		}, nil
 
 	case models.MySQLdExporterType:
@@ -257,6 +261,8 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			DisabledCollectors:        agent.DisabledCollectors,
 			ProcessExecPath:           processExecPath,
 			LogLevel:                  inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			ExposeExporter:            agent.ExposeExporter,
+			MetricsResolutions:        ConvertMetricsResolutions(agent.MetricsResolutions),
 		}, nil
 
 	case models.MongoDBExporterType:
@@ -275,6 +281,8 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			DisabledCollectors: agent.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
 			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			ExposeExporter:     agent.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
 		}
 		if agent.MongoDBOptions != nil {
 			exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
@@ -284,7 +292,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 		return exporter, nil
 
 	case models.PostgresExporterType:
-		return &inventorypb.PostgresExporter{
+		exporter := &inventorypb.PostgresExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
 			ServiceId:          serviceID,
@@ -299,8 +307,14 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			DisabledCollectors: agent.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
 			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-		}, nil
-
+			ExposeExporter:     agent.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
+		}
+		if agent.PostgreSQLOptions != nil {
+			exporter.AutoDiscoveryLimit = agent.PostgreSQLOptions.AutoDiscoveryLimit
+			exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
+		}
+		return exporter, nil
 	case models.QANMySQLPerfSchemaAgentType:
 		return &inventorypb.QANMySQLPerfSchemaAgent{
 			AgentId:                agent.AgentID,
@@ -370,6 +384,8 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			DisabledCollectors: agent.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
 			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			ExposeExporter:     agent.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
 		}, nil
 
 	case models.QANPostgreSQLPgStatementsAgentType:
@@ -422,6 +438,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			PushMetricsEnabled:      agent.PushMetrics,
 			ProcessExecPath:         processExecPath,
 			LogLevel:                inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			MetricsResolutions:      ConvertMetricsResolutions(agent.MetricsResolutions),
 		}, nil
 
 	case models.ExternalExporterType:
@@ -444,6 +461,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			CustomLabels:       labels,
 			PushMetricsEnabled: agent.PushMetrics,
 			ProcessExecPath:    processExecPath,
+			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
 		}, nil
 
 	case models.AzureDatabaseExporterType:
@@ -458,6 +476,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			CustomLabels:                labels,
 			ProcessExecPath:             processExecPath,
 			LogLevel:                    inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			MetricsResolutions:          ConvertMetricsResolutions(agent.MetricsResolutions),
 		}, nil
 
 	case models.VMAgentType:
@@ -472,6 +491,24 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 	default:
 		panic(fmt.Errorf("unhandled Agent type %s", agent.AgentType))
 	}
+}
+
+// ConvertMetricsResolutions converts MetricsResolutions from model to API.
+func ConvertMetricsResolutions(resolutions *models.MetricsResolutions) *common.MetricsResolutions {
+	if resolutions == nil {
+		return nil
+	}
+	var res common.MetricsResolutions
+	if resolutions.HR != 0 {
+		res.Hr = durationpb.New(resolutions.HR)
+	}
+	if resolutions.MR != 0 {
+		res.Mr = durationpb.New(resolutions.MR)
+	}
+	if resolutions.LR != 0 {
+		res.Lr = durationpb.New(resolutions.LR)
+	}
+	return &res
 }
 
 // SpecifyLogLevel - convert proto enum to string

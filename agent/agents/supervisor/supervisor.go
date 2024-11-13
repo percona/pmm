@@ -25,6 +25,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -237,7 +238,7 @@ func (s *Supervisor) RestartAgents() {
 		agent.cancel()
 		<-agent.done
 
-		if err := s.startProcess(id, agent.requestedState, agent.listenPort); err != nil {
+		if err := s.tryStartProcess(id, agent.requestedState, agent.listenPort); err != nil {
 			s.l.Errorf("Failed to restart Agent: %s.", err)
 		}
 	}
@@ -310,7 +311,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 		agent.cancel()
 		<-agent.done
 
-		if err := s.startProcess(agentID, agentProcesses[agentID], agent.listenPort); err != nil {
+		if err := s.tryStartProcess(agentID, agentProcesses[agentID], agent.listenPort); err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
 		}
@@ -318,14 +319,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 
 	// start new agents
 	for _, agentID := range toStart {
-		port, err := s.portsRegistry.Reserve()
-		if err != nil {
-			s.l.Errorf("Failed to reserve port: %s.", err)
-			// TODO report that error to server
-			continue
-		}
-
-		if err := s.startProcess(agentID, agentProcesses[agentID], port); err != nil {
+		if err := s.tryStartProcess(agentID, agentProcesses[agentID], 0); err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
 		}
@@ -425,11 +419,34 @@ func filter(existing, ap map[string]agentpb.AgentParams) ([]string, []string, []
 	return toStart, toRestart, toStop
 }
 
-//nolint:golint,stylecheck
+//nolint:golint,stylecheck,revive
 const (
-	type_TEST_SLEEP inventorypb.AgentType = 998 // process
-	type_TEST_NOOP  inventorypb.AgentType = 999 // built-in
+	type_TEST_SLEEP       inventorypb.AgentType = 998 // process
+	type_TEST_NOOP        inventorypb.AgentType = 999 // built-in
+	process_Retry_Time    int                   = 3
+	start_Process_Waiting                       = 2 * time.Second
 )
+
+func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess, port uint16) error {
+	var err error
+	for i := 0; i < process_Retry_Time; i++ {
+		if port == 0 {
+			_port, err := s.portsRegistry.Reserve()
+			if err != nil {
+				s.l.Errorf("Failed to reserve port: %s.", err)
+				continue
+			}
+			port = _port
+		}
+
+		if err = s.startProcess(agentID, agentProcess, port); err == nil {
+			return nil
+		}
+
+		port = 0
+	}
+	return err
+}
 
 // startProcess starts Agent's process.
 // Must be called with s.rw held for writing.
@@ -472,6 +489,17 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		}
 		close(done)
 	}()
+
+	t := time.NewTimer(start_Process_Waiting)
+	defer t.Stop()
+	select {
+	case isInitialized := <-process.IsInitialized():
+		if !isInitialized {
+			defer cancel()
+			return process.GetError()
+		}
+	case <-t.C:
+	}
 
 	//nolint:forcetypeassert
 	s.agentProcesses[agentID] = &agentProcessInfo{
@@ -671,11 +699,11 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		templateParams["tmp_dir"] = cfg.Paths.TempDir
 		processParams.Path = cfg.Paths.VMAgent
 	default:
-		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type)
+		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
 	}
 
 	if processParams.Path == "" {
-		return nil, errors.Errorf("no path for agent type %[1]s (%[1]d).", agentProcess.Type)
+		return nil, errors.Errorf("no path for agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
 	}
 
 	tr := &templates.TemplateRenderer{

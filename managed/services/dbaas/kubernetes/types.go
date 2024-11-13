@@ -35,9 +35,9 @@ const (
 	dbaasKind           = "DatabaseCluster"
 	pxcSecretNameTmpl   = "dbaas-%s-pxc-secrets"   //nolint:gosec
 	psmdbSecretNameTmpl = "dbaas-%s-psmdb-secrets" //nolint:gosec
-	// DatabaseTypePXC is a pxc database
+	// DatabaseTypePXC is a pxc database.
 	DatabaseTypePXC dbaasv1.EngineType = "pxc"
-	// DatabaseTypePSMDB is a psmdb database
+	// DatabaseTypePSMDB is a psmdb database.
 	DatabaseTypePSMDB dbaasv1.EngineType = "psmdb"
 	externalNLB       string             = "external"
 
@@ -82,7 +82,7 @@ func convertComputeResource(res *dbaasv1beta1.ComputeResources) (corev1.Resource
 	return req, nil
 }
 
-// DatabaseClusterForPXC fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
+// DatabaseClusterForPXC fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type.
 func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) { //nolint:lll
 	if (cluster.Params.Proxysql != nil) == (cluster.Params.Haproxy != nil) {
 		return nil, nil, errors.New("pxc cluster must have one and only one proxy type defined")
@@ -251,7 +251,7 @@ func DatabaseClusterForPXC(cluster *dbaasv1beta1.CreatePXCClusterRequest, cluste
 	return dbCluster, nil, nil
 }
 
-// DatabaseClusterForPSMDB fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type
+// DatabaseClusterForPSMDB fills dbaasv1.DatabaseCluster struct with data provided for specified cluster type.
 func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, clusterType ClusterType, backupLocation *models.BackupLocation, backupImage string) (*dbaasv1.DatabaseCluster, *dbaasv1.DatabaseClusterRestore, error) { //nolint:lll
 	if backupLocation != nil && backupLocation.Type != models.S3BackupLocationType {
 		return nil, nil, errors.New("only s3 compatible storages are supported for backup/restore")
@@ -401,7 +401,7 @@ func DatabaseClusterForPSMDB(cluster *dbaasv1beta1.CreatePSMDBClusterRequest, cl
 	return dbCluster, nil, nil
 }
 
-// UpdatePatchForPSMDB returns a patch to update a database cluster
+// UpdatePatchForPSMDB returns a patch to update a database cluster.
 func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePSMDBClusterRequest, clusterType ClusterType) error {
 	if updateRequest.Params.Suspend && updateRequest.Params.Resume {
 		return errSimultaneous
@@ -488,7 +488,7 @@ func UpdatePatchForPSMDB(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaa
 	return nil
 }
 
-// UpdatePatchForPXC returns a patch to update a database cluster
+// UpdatePatchForPXC returns a patch to update a database cluster.
 func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv1beta1.UpdatePXCClusterRequest, clusterType ClusterType) error { //nolint:cyclop
 	if updateRequest.Params.Suspend && updateRequest.Params.Resume {
 		return errSimultaneous
@@ -589,6 +589,7 @@ func UpdatePatchForPXC(dbCluster *dbaasv1.DatabaseCluster, updateRequest *dbaasv
 	return nil
 }
 
+// SecretForBackup returns a AWS secrets.
 func SecretForBackup(backupLocation *models.BackupLocation) map[string][]byte {
 	return map[string][]byte{
 		"AWS_ACCESS_KEY_ID":     []byte(backupLocation.S3Config.AccessKey),

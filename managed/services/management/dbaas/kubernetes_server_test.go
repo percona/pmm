@@ -47,39 +47,39 @@ import (
 )
 
 func TestKubernetesServer(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, ks dbaasv1beta1.KubernetesServer, dbaasClient *mockDbaasClient,
-		kubeClient *mockKubernetesClient, grafanaClient *mockGrafanaClient,
-		versionService *mockVersionService, teardown func(t *testing.T),
+	setup := func(t *testing.T) (context.Context, dbaasv1beta1.KubernetesServer, *mockDbaasClient,
+		*mockKubernetesClient, *mockGrafanaClient,
+		*mockVersionService, func(t *testing.T),
 	) {
 		t.Helper()
 
-		ctx = logger.Set(context.Background(), t.Name())
+		ctx := logger.Set(context.Background(), t.Name())
 		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		// To enable verbose queries output use:
 		// db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
-		dbaasClient = &mockDbaasClient{}
-		kubeClient = &mockKubernetesClient{}
-		grafanaClient = &mockGrafanaClient{}
+		dbaasClient := &mockDbaasClient{}
+		kubeClient := &mockKubernetesClient{}
+		grafanaClient := &mockGrafanaClient{}
 
-		teardown = func(t *testing.T) {
+		teardown := func(t *testing.T) {
 			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
 			require.NoError(t, sqlDB.Close())
 		}
 		// versionService = NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
-		versionService = &mockVersionService{}
-		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+		versionService := &mockVersionService{}
+		ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
 		s := ks.(*kubernetesServer)
 		clients := map[string]kubernetesClient{
 			clusterName: kubeClient,
 		}
 		s.kubeStorage.clients = clients
 		ks = s
-		return
+		return ctx, ks, dbaasClient, kubeClient, grafanaClient, versionService, teardown
 	}
 
 	// This is for local testing. When running local tests, if pmmversion.PMMVersion is empty
@@ -283,7 +283,7 @@ contexts:
   name: local
 current-context: local`
 	)
-	setup := func(t *testing.T) (ks dbaasv1beta1.KubernetesServer, kubeClient *mockKubernetesClient, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (dbaasv1beta1.KubernetesServer, *mockKubernetesClient, func(t *testing.T)) {
 		t.Helper()
 
 		uuid.SetRand(&tests.IDReader{})
@@ -291,7 +291,7 @@ current-context: local`
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient := &mockDbaasClient{}
-		kubeClient = &mockKubernetesClient{}
+		kubeClient := &mockKubernetesClient{}
 		grafanaClient := &mockGrafanaClient{}
 
 		kubernetesCluster, err := models.CreateKubernetesCluster(db.Querier, &models.CreateKubernetesClusterParams{
@@ -300,7 +300,7 @@ current-context: local`
 		})
 		require.NoError(t, err)
 
-		teardown = func(t *testing.T) {
+		teardown := func(t *testing.T) {
 			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
@@ -308,7 +308,7 @@ current-context: local`
 			require.NoError(t, sqlDB.Close())
 		}
 		versionService := NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
-		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+		ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
 		s := ks.(*kubernetesServer)
 		kubeClient.On("GetServerVersion").Return(nil, nil)
 		clients := map[string]kubernetesClient{
@@ -316,7 +316,7 @@ current-context: local`
 		}
 		s.kubeStorage.clients = clients
 		ks = s
-		return
+		return ks, kubeClient, teardown
 	}
 	t.Run("GetResources", func(t *testing.T) {
 		ks, kubeClient, teardown := setup(t)
@@ -430,7 +430,7 @@ contexts:
   name: local
 current-context: local`
 	)
-	setup := func(t *testing.T) (ks dbaasv1beta1.KubernetesServer, kubeClient *mockKubernetesClient, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (dbaasv1beta1.KubernetesServer, *mockKubernetesClient, func(t *testing.T)) {
 		t.Helper()
 
 		uuid.SetRand(&tests.IDReader{})
@@ -438,7 +438,7 @@ current-context: local`
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient := &mockDbaasClient{}
-		kubeClient = &mockKubernetesClient{}
+		kubeClient := &mockKubernetesClient{}
 		grafanaClient := &mockGrafanaClient{}
 
 		kubernetesCluster, err := models.CreateKubernetesCluster(db.Querier, &models.CreateKubernetesClusterParams{
@@ -447,7 +447,7 @@ current-context: local`
 		})
 		require.NoError(t, err)
 
-		teardown = func(t *testing.T) {
+		teardown := func(t *testing.T) {
 			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
@@ -455,14 +455,14 @@ current-context: local`
 			require.NoError(t, sqlDB.Close())
 		}
 		versionService := NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
-		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
+		ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
 		s := ks.(*kubernetesServer)
 		clients := map[string]kubernetesClient{
 			clusterName: kubeClient,
 		}
 		s.kubeStorage.clients = clients
 		ks = s
-		return
+		return ks, kubeClient, teardown
 	}
 	t.Run("ListStorageClasses", func(t *testing.T) {
 		ks, kubeClient, teardown := setup(t)

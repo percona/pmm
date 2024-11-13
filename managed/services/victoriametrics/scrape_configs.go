@@ -62,6 +62,21 @@ func scrapeConfigForAlertmanager(interval time.Duration) *config.ScrapeConfig {
 	}
 }
 
+func scrapeConfigForClickhouse(mr time.Duration) *config.ScrapeConfig {
+	return &config.ScrapeConfig{
+		JobName:        "clickhouse",
+		ScrapeInterval: config.Duration(mr),
+		ScrapeTimeout:  scrapeTimeout(mr),
+		MetricsPath:    "/metrics",
+		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+			StaticConfigs: []*config.Group{{
+				Targets: []string{"127.0.0.1:9363"},
+				Labels:  map[string]string{"instance": "pmm-server"},
+			}},
+		},
+	}
+}
+
 func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "grafana",
@@ -157,12 +172,13 @@ func httpClientConfig(agent *models.Agent) config.HTTPClientConfig {
 }
 
 type scrapeConfigParams struct {
-	host            string // Node address where pmm-agent runs
-	node            *models.Node
-	service         *models.Service
-	agent           *models.Agent
-	pmmAgentVersion *version.Parsed
-	streamParse     bool
+	host              string // Node address where pmm-agent runs
+	node              *models.Node
+	service           *models.Service
+	agent             *models.Agent
+	pmmAgentVersion   *version.Parsed
+	streamParse       bool
+	metricsResolution *models.MetricsResolutions
 }
 
 // scrapeConfigForStandardExporter returns scrape config for endpoint with given parameters.
@@ -218,7 +234,7 @@ func scrapeConfigForRDSExporter(intervalName string, interval time.Duration, hos
 	}
 }
 
-func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+func scrapeConfigsForNodeExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	var hr, mr, lr *config.ScrapeConfig
 	var err error
 	var hrCollect []string
@@ -229,7 +245,7 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 			"textfile.mr",
 		}
 		mrCollect = collectors.FilterOutCollectors("", mrCollect, params.agent.DisabledCollectors)
-		mr, err = scrapeConfigForStandardExporter("mr", s.MR, params, mrCollect)
+		mr, err = scrapeConfigForStandardExporter("mr", params.metricsResolution.MR, params, mrCollect)
 		if err != nil {
 			return nil, err
 		}
@@ -242,7 +258,7 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 			"os",
 		}
 		lrCollect = collectors.FilterOutCollectors("", lrCollect, params.agent.DisabledCollectors)
-		lr, err = scrapeConfigForStandardExporter("lr", s.LR, params, lrCollect)
+		lr, err = scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, lrCollect)
 		if err != nil {
 			return nil, err
 		}
@@ -271,7 +287,7 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 		"time")
 	hrCollect = collectors.FilterOutCollectors("", hrCollect, params.agent.DisabledCollectors)
 
-	hr, err = scrapeConfigForStandardExporter("hr", s.HR, params, hrCollect)
+	hr, err = scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, hrCollect)
 	if err != nil {
 		return nil, err
 	}
@@ -290,7 +306,7 @@ func scrapeConfigsForNodeExporter(s *models.MetricsResolutions, params *scrapeCo
 }
 
 // scrapeConfigsForMySQLdExporter returns scrape config for mysqld_exporter.
-func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+func scrapeConfigsForMySQLdExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	// keep in sync with mysqld_exporter Agent flags generator
 	hrOptions := []string{
 		"global_status",
@@ -301,7 +317,7 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 	}
 	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.DisabledCollectors)
 
-	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, hrOptions)
+	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, hrOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -322,7 +338,7 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 	}
 
 	mrOptions = collectors.FilterOutCollectors("", mrOptions, params.agent.DisabledCollectors)
-	mr, err := scrapeConfigForStandardExporter("mr", s.MR, params, mrOptions)
+	mr, err := scrapeConfigForStandardExporter("mr", params.metricsResolution.MR, params, mrOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -351,7 +367,7 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 
 	lrOptions = collectors.FilterOutCollectors("", lrOptions, params.agent.DisabledCollectors)
 
-	lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, lrOptions)
+	lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, lrOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -369,11 +385,11 @@ func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, params *scrape
 	return r, nil
 }
 
-func scrapeConfigsForMongoDBExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	// Old pmm-agents doesn't have support of multiple resolution,
 	// so requesting mongodb_exporter metrics in two resolutions increases CPU and Memory usage.
-	if params.pmmAgentVersion == nil || params.pmmAgentVersion.Less(version.MustParse("2.25.99")) {
-		hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, nil)
+	if params.pmmAgentVersion == nil || params.pmmAgentVersion.Less(version.MustParse("2.26.0-0")) {
+		hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -384,11 +400,13 @@ func scrapeConfigsForMongoDBExporter(s *models.MetricsResolutions, params *scrap
 		}
 		return r, nil
 	}
-	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, []string{
+	hrOptions := []string{
 		"diagnosticdata",
 		"replicasetstatus",
 		"topmetrics",
-	})
+	}
+	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.DisabledCollectors)
+	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, hrOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -398,11 +416,26 @@ func scrapeConfigsForMongoDBExporter(s *models.MetricsResolutions, params *scrap
 		r = append(r, hr)
 	}
 	if params.agent.MongoDBOptions != nil && params.agent.MongoDBOptions.EnableAllCollectors {
-		lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, []string{
+		defaultCollectors := []string{
 			"dbstats",
 			"indexstats",
 			"collstats",
-		})
+		}
+		if !params.pmmAgentVersion.Less(version.MustParse("2.41.1-0")) {
+			defaultCollectors = append(defaultCollectors, "shards")
+		}
+		if !params.pmmAgentVersion.Less(version.MustParse("2.42.0-0")) {
+			defaultCollectors = append(defaultCollectors, "currentopmetrics")
+		}
+		if !params.pmmAgentVersion.Less(version.MustParse("2.43.0-0")) {
+			defaultCollectors = append(defaultCollectors, "fcv")
+		}
+		if !params.pmmAgentVersion.Less(version.MustParse("2.43.0-0")) {
+			defaultCollectors = append(defaultCollectors, "pbm")
+		}
+
+		defaultCollectors = collectors.FilterOutCollectors("", defaultCollectors, params.agent.DisabledCollectors)
+		lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, defaultCollectors)
 		if err != nil {
 			return nil, err
 		}
@@ -414,7 +447,7 @@ func scrapeConfigsForMongoDBExporter(s *models.MetricsResolutions, params *scrap
 	return r, nil
 }
 
-func scrapeConfigsForPostgresExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+func scrapeConfigsForPostgresExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	hrOptions := []string{
 		"exporter",
 		"custom_query.hr",
@@ -423,7 +456,7 @@ func scrapeConfigsForPostgresExporter(s *models.MetricsResolutions, params *scra
 		"postgres",
 	}
 	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.DisabledCollectors)
-	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, hrOptions)
+	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, hrOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -432,7 +465,7 @@ func scrapeConfigsForPostgresExporter(s *models.MetricsResolutions, params *scra
 		"custom_query.mr",
 	}
 	mrOptions = collectors.FilterOutCollectors("", mrOptions, params.agent.DisabledCollectors)
-	mr, err := scrapeConfigForStandardExporter("mr", s.MR, params, mrOptions)
+	mr, err := scrapeConfigForStandardExporter("mr", params.metricsResolution.MR, params, mrOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -441,7 +474,7 @@ func scrapeConfigsForPostgresExporter(s *models.MetricsResolutions, params *scra
 		"custom_query.lr",
 	}
 	lrOptions = collectors.FilterOutCollectors("", lrOptions, params.agent.DisabledCollectors)
-	lr, err := scrapeConfigForStandardExporter("lr", s.LR, params, lrOptions)
+	lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, lrOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -459,8 +492,8 @@ func scrapeConfigsForPostgresExporter(s *models.MetricsResolutions, params *scra
 	return r, nil
 }
 
-func scrapeConfigsForProxySQLExporter(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
-	hr, err := scrapeConfigForStandardExporter("hr", s.HR, params, nil) // TODO https://jira.percona.com/browse/PMM-4619
+func scrapeConfigsForProxySQLExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, nil) // TODO https://jira.percona.com/browse/PMM-4619
 	if err != nil {
 		return nil, err
 	}
@@ -472,24 +505,25 @@ func scrapeConfigsForProxySQLExporter(s *models.MetricsResolutions, params *scra
 	return r, nil
 }
 
-func scrapeConfigsForRDSExporter(s *models.MetricsResolutions, params []*scrapeConfigParams) []*config.ScrapeConfig {
-	hostportSet := make(map[string]struct{}, len(params))
+func scrapeConfigsForRDSExporter(params []*scrapeConfigParams) []*config.ScrapeConfig {
+	hostportMap := make(map[string]*models.MetricsResolutions, len(params))
 	for _, p := range params {
 		port := int(*p.agent.ListenPort)
 		hostport := net.JoinHostPort(p.host, strconv.Itoa(port))
-		hostportSet[hostport] = struct{}{}
+		hostportMap[hostport] = p.metricsResolution
 	}
 
-	hostports := make([]string, 0, len(hostportSet))
-	for hostport := range hostportSet {
+	hostports := make([]string, 0, len(hostportMap))
+	for hostport := range hostportMap {
 		hostports = append(hostports, hostport)
 	}
 	sort.Strings(hostports)
 
 	r := make([]*config.ScrapeConfig, 0, len(hostports)*2)
 	for _, hostport := range hostports {
-		mr := scrapeConfigForRDSExporter("mr", s.MR, hostport, "/enhanced")
-		lr := scrapeConfigForRDSExporter("lr", s.LR, hostport, "/basic")
+		metricsResolutions := hostportMap[hostport]
+		mr := scrapeConfigForRDSExporter("mr", metricsResolutions.MR, hostport, "/enhanced")
+		lr := scrapeConfigForRDSExporter("lr", metricsResolutions.LR, hostport, "/basic")
 		r = append(r, mr, lr)
 	}
 

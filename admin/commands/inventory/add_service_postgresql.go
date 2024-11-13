@@ -60,6 +60,7 @@ type AddServicePostgreSQLCommand struct {
 	CustomLabels   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
+// RunCmd executes the AddServicePostgreSQLCommand and returns the result.
 func (cmd *AddServicePostgreSQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 

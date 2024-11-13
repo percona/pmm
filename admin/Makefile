@@ -29,7 +29,6 @@ gen: clean                      ## Generate files
 
 clean:                          ## Remove generated files
 	find . -name *_reform.go -delete
-	find . -name mock_*.go -delete
 
 release:                        ## Build pmm-admin release binary
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin ./cmd/pmm-admin/
@@ -52,8 +51,8 @@ test-cover:                     ## Run tests and collect cross-package coverage 
 	go test $(TEST_FLAGS) -race -coverprofile=cover.out -covermode=atomic -coverpkg=./... ./...
 
 env-up:                         ## Start development environment
-	docker-compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
+	docker compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
 
 env-down:                       ## Stop development environment
-	docker-compose down --volumes --remove-orphans
+	docker compose down --volumes --remove-orphans
 

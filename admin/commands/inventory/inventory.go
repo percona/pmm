@@ -22,7 +22,7 @@ import (
 )
 
 // InventoryCommand is used by Kong for CLI flags and commands.
-type InventoryCommand struct {
+type InventoryCommand struct { //nolint:revive
 	List   ListCommand   `cmd:"" help:"List inventory commands"`
 	Add    AddCommand    `cmd:"" help:"Add to inventory commands"`
 	Remove RemoveCommand `cmd:"" help:"Remove from inventory commands"`

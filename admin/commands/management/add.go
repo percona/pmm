@@ -21,7 +21,7 @@ import (
 
 // AddCommand is used by Kong for CLI flags and commands.
 type AddCommand struct {
-	External           AddExternalCommand           `cmd:"" help:"Add External source of data (like a custom exporter running on a port) to the monitoring"`
+	External           AddExternalCommand           `cmd:"" help:"Add External source of data (like a custom exporter running on a port) to monitoring"`
 	ExternalServerless AddExternalServerlessCommand `cmd:"" help:"Add External Service on Remote node to monitoring"`
 	HAProxy            AddHAProxyCommand            `cmd:"" name:"haproxy" help:"Add HAProxy to monitoring"`
 	MongoDB            AddMongoDBCommand            `cmd:"" name:"mongodb" help:"Add MongoDB to monitoring"`

@@ -82,7 +82,7 @@ func checkFilesystemLocationConfig(c *FilesystemLocationConfig) error {
 		return status.Error(codes.InvalidArgument, "Folder should be an absolute path (should contain leading slash).")
 	}
 
-	if !pathRe.Match([]byte(c.Path)) {
+	if !pathRe.MatchString(c.Path) {
 		return status.Error(codes.InvalidArgument, "Filesystem path can contain only dots, colons, slashes, letters, digits, underscores and dashes.")
 	}
 

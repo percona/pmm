@@ -16,6 +16,8 @@ pmm_branch=$(git rev-parse --abbrev-ref HEAD)
 
 pmm_base_version=$(cat ${root_dir}/VERSION)
 full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
+# Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
+full_pmm_version=${full_pmm_version//\//-}
 
 # TODO Maybe it makes sense to use variable from job here
 if [[ ${pmm_branch} =~ release-* || \
@@ -43,7 +45,7 @@ echo -e "\n\n\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_versio
 rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:2}
 rpms_dir=${root_dir}/tmp/pmm-server/RPMS
 rpmbuild_dir=${root_dir}/sources/pmm/src/github.com/percona/pmm/build/packages/rpm/server
-rpmbuild_dist=${RPMBUILD_DIST:-"el7"}
+rpmbuild_dist=${RPMBUILD_DIST:-"el9"}
 source_dir=${root_dir}/tmp/source/pmm2-client-${pmm_version}
 binary_dir=${root_dir}/tmp/binary/pmm2-client-${pmm_version}
 client_properties=${root_dir}/results/pmm-client.properties

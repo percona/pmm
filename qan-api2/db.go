@@ -12,7 +12,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+// Package main.
 package main
 
 import (
@@ -88,7 +88,7 @@ func createDB(dsn string) error {
 	if err != nil {
 		return err
 	}
-	defer defaultDB.Close()
+	defer defaultDB.Close() //nolint:errcheck
 
 	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName))
 	if err != nil {
@@ -123,17 +123,18 @@ func runMigrations(dsn string) error {
 }
 
 // DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.
-func DropOldPartition(db *sqlx.DB, days uint) {
+func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
 	partitions := []string{}
 	const query = `
 		SELECT DISTINCT partition
 		FROM system.parts
-		WHERE toUInt32(partition) < toYYYYMMDD(now() - toIntervalDay(?)) ORDER BY partition
+		WHERE toUInt32(partition) < toYYYYMMDD(now() - toIntervalDay(?)) AND database = ? and visible = 1 ORDER BY partition
 	`
 	err := db.Select(
 		&partitions,
 		query,
-		days)
+		days,
+		dbName)
 	if err != nil {
 		log.Printf("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
 		return

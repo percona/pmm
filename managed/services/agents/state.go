@@ -21,9 +21,9 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/encoding/prototext"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/agentpb"
@@ -113,7 +113,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 		case <-ctx.Done():
 			return
 
-		case <-agent.kick:
+		case <-agent.kickChan:
 			return
 
 		case <-agent.stateChangeChan:
@@ -226,34 +226,34 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			if err != nil {
 				return err
 			}
-
+			node, _ := models.FindNodeByID(u.db.Querier, pointer.GetString(pmmAgent.RunsOnNodeID))
 			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
-				agentProcesses[row.AgentID] = mysqldExporterConfig(service, row, redactMode, pmmAgentVersion)
+				agentProcesses[row.AgentID] = mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 			case models.MongoDBExporterType:
-				cfg, err := mongodbExporterConfig(service, row, redactMode, pmmAgentVersion)
+				cfg, err := mongodbExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 				if err != nil {
 					return err
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.PostgresExporterType:
-				cfg, err := postgresExporterConfig(service, row, redactMode, pmmAgentVersion)
+				cfg, err := postgresExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 				if err != nil {
 					return err
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.ProxySQLExporterType:
-				agentProcesses[row.AgentID] = proxysqlExporterConfig(service, row, redactMode, pmmAgentVersion)
+				agentProcesses[row.AgentID] = proxysqlExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 			case models.QANMySQLPerfSchemaAgentType:
-				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(service, row)
+				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(service, row, pmmAgentVersion)
 			case models.QANMySQLSlowlogAgentType:
-				builtinAgents[row.AgentID] = qanMySQLSlowlogAgentConfig(service, row)
+				builtinAgents[row.AgentID] = qanMySQLSlowlogAgentConfig(service, row, pmmAgentVersion)
 			case models.QANMongoDBProfilerAgentType:
-				builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(service, row)
+				builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(service, row, pmmAgentVersion)
 			case models.QANPostgreSQLPgStatementsAgentType:
-				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row)
+				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row, pmmAgentVersion)
 			case models.QANPostgreSQLPgStatMonitorAgentType:
-				builtinAgents[row.AgentID] = qanPostgreSQLPgStatMonitorAgentConfig(service, row)
+				builtinAgents[row.AgentID] = qanPostgreSQLPgStatMonitorAgentConfig(service, row, pmmAgentVersion)
 			}
 
 		default:
@@ -274,7 +274,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		AgentProcesses: agentProcesses,
 		BuiltinAgents:  builtinAgents,
 	}
-	l.Debugf("sendSetStateRequest:\n%s", proto.MarshalTextString(state))
+	l.Debugf("sendSetStateRequest:\n%s", prototext.Format(state))
 
 	resp, err := agent.channel.SendAndWaitResponse(state)
 	if err != nil {

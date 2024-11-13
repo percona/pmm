@@ -1,8 +1,7 @@
 ---
 - name: Install supervisor         | EL7
   when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-  pip:
-    name: supervisor==3.4.0
+  command: /usr/bin/pip2 install --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org supervisor==3.4.0
 
 - name: Install supervisor        | EL9
   when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version  == '9'
@@ -70,7 +69,7 @@
     state: directory
 
 - name: Configure supervisor       | Add /etc/tmpfiles.d/supervisor.conf config
-  when: ansible_virtualization_type != "docker"
+  when: not pmm_running_in_docker
   copy:
     content: |
       D /var/run/supervisor 0775 root root -
@@ -92,7 +91,7 @@
     value: dummy
 
 - name: Configure supervisor       | Increase number of open files for jobs
-  when: ansible_virtualization_type != "docker"
+  when: not pmm_running_in_docker
   ini_file:
     dest: /etc/supervisord.conf
     section: supervisord
@@ -100,7 +99,7 @@
     value: "800000"
 
 - name: Configure supervisor       | Add supervisord.service
-  when: ansible_virtualization_type != "docker"
+  when: not pmm_running_in_docker
   copy:
     src: supervisord.service
     dest: /usr/lib/systemd/system/

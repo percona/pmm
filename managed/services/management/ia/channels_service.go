@@ -60,7 +60,7 @@ func (s *ChannelsService) Enabled() bool {
 
 // ListChannels returns list of available channels.
 // Deprecated. Do not use.
-func (s *ChannelsService) ListChannels(ctx context.Context, req *iav1beta1.ListChannelsRequest) (*iav1beta1.ListChannelsResponse, error) {
+func (s *ChannelsService) ListChannels(ctx context.Context, req *iav1beta1.ListChannelsRequest) (*iav1beta1.ListChannelsResponse, error) { //nolint:staticcheck,revive
 	var pageIndex int
 	var pageSize int
 	if req.PageParams != nil {
@@ -68,7 +68,7 @@ func (s *ChannelsService) ListChannels(ctx context.Context, req *iav1beta1.ListC
 		pageSize = int(req.PageParams.PageSize)
 	}
 
-	var channels []*iav1beta1.Channel
+	var channels []*iav1beta1.Channel //nolint:staticcheck
 	pageTotals := &managementpb.PageTotals{
 		TotalPages: 1,
 	}
@@ -85,10 +85,10 @@ func (s *ChannelsService) ListChannels(ctx context.Context, req *iav1beta1.ListC
 		return nil, err
 	}
 
-	return &iav1beta1.ListChannelsResponse{Channels: channels, Totals: pageTotals}, nil
+	return &iav1beta1.ListChannelsResponse{Channels: channels, Totals: pageTotals}, nil //nolint:staticcheck
 }
 
-func (s *ChannelsService) getNotificationChannels() ([]*iav1beta1.Channel, error) {
+func (s *ChannelsService) getNotificationChannels() ([]*iav1beta1.Channel, error) { //nolint:staticcheck
 	var channels []*models.Channel
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -103,7 +103,7 @@ func (s *ChannelsService) getNotificationChannels() ([]*iav1beta1.Channel, error
 		return nil, errors.WithStack(errTx)
 	}
 
-	res := make([]*iav1beta1.Channel, len(channels))
+	res := make([]*iav1beta1.Channel, len(channels)) //nolint:staticcheck
 	for i, channel := range channels {
 		c, err := convertChannel(channel)
 		if err != nil {
@@ -116,7 +116,7 @@ func (s *ChannelsService) getNotificationChannels() ([]*iav1beta1.Channel, error
 }
 
 // Deprecated. Do not use.
-func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) ([]*iav1beta1.Channel, *managementpb.PageTotals, error) {
+func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) ([]*iav1beta1.Channel, *managementpb.PageTotals, error) { //nolint: staticcheck
 	var channels []*models.Channel
 	var totalItems int
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
@@ -137,7 +137,7 @@ func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) (
 		return nil, nil, errors.WithStack(errTx)
 	}
 
-	res := make([]*iav1beta1.Channel, len(channels))
+	res := make([]*iav1beta1.Channel, len(channels)) //nolint: staticcheck
 	for i, channel := range channels {
 		c, err := convertChannel(channel)
 		if err != nil {
@@ -161,7 +161,7 @@ func (s *ChannelsService) getNotificationChannelsPage(pageIndex, pageSize int) (
 
 // AddChannel adds new notification channel.
 // Deprecated. Do not use.
-func (s *ChannelsService) AddChannel(ctx context.Context, req *iav1beta1.AddChannelRequest) (*iav1beta1.AddChannelResponse, error) {
+func (s *ChannelsService) AddChannel(ctx context.Context, req *iav1beta1.AddChannelRequest) (*iav1beta1.AddChannelResponse, error) { //nolint:staticcheck,revive
 	params := &models.CreateChannelParams{
 		Summary:  req.Summary,
 		Disabled: req.Disabled,
@@ -207,12 +207,12 @@ func (s *ChannelsService) AddChannel(ctx context.Context, req *iav1beta1.AddChan
 
 	s.alertManager.RequestConfigurationUpdate()
 
-	return &iav1beta1.AddChannelResponse{ChannelId: channel.ID}, nil
+	return &iav1beta1.AddChannelResponse{ChannelId: channel.ID}, nil //nolint:staticcheck
 }
 
 // ChangeChannel changes existing notification channel.
 // Deprecated. Do not use.
-func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.ChangeChannelRequest) (*iav1beta1.ChangeChannelResponse, error) {
+func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.ChangeChannelRequest) (*iav1beta1.ChangeChannelResponse, error) { //nolint:staticcheck,revive
 	params := &models.ChangeChannelParams{
 		Summary:  req.Summary,
 		Disabled: req.Disabled,
@@ -256,12 +256,12 @@ func (s *ChannelsService) ChangeChannel(ctx context.Context, req *iav1beta1.Chan
 
 	s.alertManager.RequestConfigurationUpdate()
 
-	return &iav1beta1.ChangeChannelResponse{}, nil
+	return &iav1beta1.ChangeChannelResponse{}, nil //nolint:staticcheck
 }
 
 // RemoveChannel removes notification channel.
 // Deprecated. Do not use.
-func (s *ChannelsService) RemoveChannel(ctx context.Context, req *iav1beta1.RemoveChannelRequest) (*iav1beta1.RemoveChannelResponse, error) {
+func (s *ChannelsService) RemoveChannel(ctx context.Context, req *iav1beta1.RemoveChannelRequest) (*iav1beta1.RemoveChannelResponse, error) { //nolint:staticcheck,revive
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveChannel(tx.Querier, req.ChannelId)
 	})
@@ -271,13 +271,13 @@ func (s *ChannelsService) RemoveChannel(ctx context.Context, req *iav1beta1.Remo
 
 	s.alertManager.RequestConfigurationUpdate()
 
-	return &iav1beta1.RemoveChannelResponse{}, nil
+	return &iav1beta1.RemoveChannelResponse{}, nil //nolint:staticcheck
 }
 
 // convertChannel converts a channel model to its protobuf representation.
 // Deprecated. Do not use.
-func convertChannel(channel *models.Channel) (*iav1beta1.Channel, error) {
-	c := &iav1beta1.Channel{
+func convertChannel(channel *models.Channel) (*iav1beta1.Channel, error) { //nolint: staticcheck
+	c := &iav1beta1.Channel{ //nolint: staticcheck
 		ChannelId: channel.ID,
 		Summary:   channel.Summary,
 		Disabled:  channel.Disabled,
@@ -287,7 +287,7 @@ func convertChannel(channel *models.Channel) (*iav1beta1.Channel, error) {
 	case models.Email:
 		config := channel.EmailConfig
 		c.Channel = &iav1beta1.Channel_EmailConfig{
-			EmailConfig: &iav1beta1.EmailConfig{
+			EmailConfig: &iav1beta1.EmailConfig{ //nolint: staticcheck
 				SendResolved: config.SendResolved,
 				To:           config.To,
 			},
@@ -295,7 +295,7 @@ func convertChannel(channel *models.Channel) (*iav1beta1.Channel, error) {
 	case models.PagerDuty:
 		config := channel.PagerDutyConfig
 		c.Channel = &iav1beta1.Channel_PagerdutyConfig{
-			PagerdutyConfig: &iav1beta1.PagerDutyConfig{
+			PagerdutyConfig: &iav1beta1.PagerDutyConfig{ //nolint:staticcheck
 				SendResolved: config.SendResolved,
 				RoutingKey:   config.RoutingKey,
 				ServiceKey:   config.ServiceKey,
@@ -304,7 +304,7 @@ func convertChannel(channel *models.Channel) (*iav1beta1.Channel, error) {
 	case models.Slack:
 		config := channel.SlackConfig
 		c.Channel = &iav1beta1.Channel_SlackConfig{
-			SlackConfig: &iav1beta1.SlackConfig{
+			SlackConfig: &iav1beta1.SlackConfig{ //nolint:staticcheck
 				SendResolved: config.SendResolved,
 				Channel:      config.Channel,
 			},
@@ -312,7 +312,7 @@ func convertChannel(channel *models.Channel) (*iav1beta1.Channel, error) {
 	case models.WebHook:
 		config := channel.WebHookConfig
 		c.Channel = &iav1beta1.Channel_WebhookConfig{
-			WebhookConfig: &iav1beta1.WebhookConfig{
+			WebhookConfig: &iav1beta1.WebhookConfig{ //nolint:staticcheck
 				SendResolved: config.SendResolved,
 				Url:          config.URL,
 				HttpConfig:   convertModelToHTTPConfig(config.HTTPConfig),
@@ -328,7 +328,7 @@ func convertChannel(channel *models.Channel) (*iav1beta1.Channel, error) {
 
 // convertHTTPConfigToModel converts a protobuf HTTPConfig to its model representation.
 // Deprecated. Do not use.
-func convertHTTPConfigToModel(config *iav1beta1.HTTPConfig) *models.HTTPConfig {
+func convertHTTPConfigToModel(config *iav1beta1.HTTPConfig) *models.HTTPConfig { //nolint:staticcheck
 	if config == nil {
 		return nil
 	}
@@ -365,19 +365,19 @@ func convertHTTPConfigToModel(config *iav1beta1.HTTPConfig) *models.HTTPConfig {
 
 // convertModelToHTTPConfig converts a HTTPConfig model to its protobuf representation.
 // Deprecated. Do not use.
-func convertModelToHTTPConfig(config *models.HTTPConfig) *iav1beta1.HTTPConfig {
+func convertModelToHTTPConfig(config *models.HTTPConfig) *iav1beta1.HTTPConfig { //nolint:staticcheck
 	if config == nil {
 		return nil
 	}
 
-	res := &iav1beta1.HTTPConfig{
+	res := &iav1beta1.HTTPConfig{ //nolint:staticcheck
 		BearerToken:     config.BearerToken,
 		BearerTokenFile: config.BearerTokenFile,
 		ProxyUrl:        config.ProxyURL,
 	}
 
 	if basicAuthConf := config.BasicAuth; basicAuthConf != nil {
-		res.BasicAuth = &iav1beta1.BasicAuth{
+		res.BasicAuth = &iav1beta1.BasicAuth{ //nolint:staticcheck
 			Username:     basicAuthConf.Username,
 			Password:     basicAuthConf.Password,
 			PasswordFile: basicAuthConf.PasswordFile,
@@ -385,7 +385,7 @@ func convertModelToHTTPConfig(config *models.HTTPConfig) *iav1beta1.HTTPConfig {
 	}
 
 	if tlsConfig := config.TLSConfig; tlsConfig != nil {
-		res.TlsConfig = &iav1beta1.TLSConfig{
+		res.TlsConfig = &iav1beta1.TLSConfig{ //nolint:staticcheck
 			CaFile:             tlsConfig.CAFile,
 			CertFile:           tlsConfig.CertFile,
 			KeyFile:            tlsConfig.KeyFile,

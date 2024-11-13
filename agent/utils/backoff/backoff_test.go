@@ -16,6 +16,6 @@ package backoff
 
 import "testing"
 
-func TestBackoff(t *testing.T) {
+func TestBackoff(t *testing.T) { //nolint:revive
 	// we need at least one test per package to correctly calculate coverage
 }

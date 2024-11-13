@@ -5,6 +5,7 @@ services:
     profiles:
       - pmm
     image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
+    platform: linux/amd64
     # build:
     #   context: .
     #   args:
@@ -29,6 +30,8 @@ services:
       - DBAAS_DBAAS_OP_CHANNEL=${DBAAS_DBAAS_OP_CHANNEL}
       - DBAAS_ALLOW_UNSUPPORTED_OPERATORS=${DBAAS_ALLOW_UNSUPPORTED_OPERATORS:-0}
       - PERCONA_TEST_DBAAS_PMM_CLIENT=${PERCONA_TEST_DBAAS_PMM_CLIENT}
+      - GF_RENDERING_SERVER_URL=http://renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=https://pmm-server:8443/graph/
       # - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
       # - PERCONA_TEST_PLATFORM_INSECURE=1
       # - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
@@ -100,22 +103,33 @@ services:
     #     /opt/entrypoint.sh
     #   "
 
+  renderer:
+    image: grafana/grafana-image-renderer:latest
+    networks:
+      - ${NETWORK:-default}
+    ports:
+      - 8081:8081
+
   # PMM with external DBs
   ch:
     profiles:
-      - pmm-external-dbs
-    image: ${CH_IMAGE:-clickhouse/clickhouse-server:22.6.9.11-alpine}
+      - pmm-ha
+    image: ${CH_IMAGE:-clickhouse/clickhouse-server:23.8.2.7-alpine}
     platform: linux/amd64
     hostname: ${CH_HOSTNAME:-ch}
     ports:
       - ${CH_PORT:-9000}:9000
     networks:
-      - ${NETWORK:-default}
+      ha:
+        ipv4_address: 172.20.0.7
+    volumes:
+      - chdata:/var/lib/clickhouse  # Volume for ClickHouse data
+
   victoriametrics:
     profiles:
-      - pmm-external-dbs
+      - pmm-ha
     hostname: ${VM_HOSTNAME:-victoriametrics}
-    image: victoriametrics/victoria-metrics:v1.88.1
+    image: victoriametrics/victoria-metrics:v1.93.4
     ports:
       - 8428:8428
       - 8089:8089
@@ -132,20 +146,79 @@ services:
       - "--httpListenAddr=:8428"
       - "--influxListenAddr=:8089"
     networks:
-      - ${NETWORK:-default}
-  pmm-managed-server-ch:
+      ha:
+        ipv4_address: 172.20.0.4
+
+  # PMM with external Postgres DB
+  pg:
     profiles:
-      - pmm-external-dbs
+      - pmm-ha
+    build:
+      context: ./managed/testdata/pg
+      args:
+        POSTGRES_IMAGE: ${POSTGRES_IMAGE:-postgres:14}
+      dockerfile: Dockerfile
+#    image: postgres:14
+    container_name: pg
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pmm-password}
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    command: |
+      postgres 
+      -c shared_preload_libraries=pg_stat_statements 
+      -c pg_stat_statements.max=10000 
+      -c pg_stat_statements.track=all 
+      -c pg_stat_statements.save=off 
+      -c fsync=off 
+#      -c hba_file=/conf/pg_hba.conf
+#      -c ssl=on
+#      -c ssl_ca_file=/certs/root.crt
+#      -c ssl_cert_file=/certs/server.crt
+#      -c ssl_key_file=/certs/server.key
+    networks:
+      ha:
+        ipv4_address: 172.20.0.3
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Volume for PostgreSQL data
+      - ./managed/testdata/pg/conf/:/conf/
+      - ./managed/testdata/pg/queries/:/docker-entrypoint-initdb.d/
+
+  haproxy:
+    profiles:
+      - pmm-ha
+    image: haproxy:latest
+    container_name: haproxy
+    hostname: haproxy
+    networks:
+      ha:
+        ipv4_address: 172.20.0.10
+    volumes:
+      - ./managed/testdata/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./managed/testdata/haproxy/localhost.pem:/etc/ssl/private/localhost.pem
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - pmm-server-active
+      - pmm-server-passive
+      - pmm-server-passive-2
+
+  pmm-server-active:
+    profiles:
+      - pmm-ha
     depends_on:
       - ch
       - victoriametrics
+      - pg
     image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
-    container_name: pmm-server
-    hostname: pmm-server
+    container_name: pmm-server-active
+    hostname: pmm-server-active
     networks:
-      - ${NETWORK:-default}
+      ha:
+        ipv4_address: 172.20.0.5
     environment:
-      - PMM_RELEASE_PATH=/root/go/bin
+      - PMM_RELEASE_PATH=/root/go/src/github.com/percona/pmm/bin
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
       - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
@@ -161,9 +234,28 @@ services:
       - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
       - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
       - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
+      - PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE=1
+      - PERCONA_TEST_POSTGRES_ADDR=pg:5432
+      - PERCONA_TEST_POSTGRES_USERNAME=pmm-managed
+      - PERCONA_TEST_POSTGRES_DBPASSWORD=pmm-managed
+      - PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1
+#      - PERCONA_TEST_POSTGRES_SSL_MODE=require
+#      - PERCONA_TEST_POSTGRES_SSL_CA_PATH=/certs/root.crt
+#      - PERCONA_TEST_POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
+#      - PERCONA_TEST_POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
+      - GF_DATABASE_URL=postgres://grafana:grafana@pg:5432/grafana
+#      - GF_DATABASE_SSL_MODE=require
+#      - PMM_DEBUG=1
+      - GO_VERSION=1.20
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
-      - PMM_DEBUG=1
       - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
+      - PMM_TEST_HA_ENABLE=1
+      - PMM_TEST_HA_BOOTSTRAP=1
+      - PMM_TEST_HA_NODE_ID=pmm-server-active
+      - PMM_TEST_HA_ADVERTISE_ADDRESS=172.20.0.5
+      - PMM_TEST_HA_PEERS=pmm-server-active,pmm-server-passive,pmm-server-passive-2
+      - PMM_TEST_HA_GOSSIP_PORT=9096
+      - PMM_TEST_HA_GRAFANA_GOSSIP_PORT=9094
 
     extra_hosts:
       - host.docker.internal:host-gateway
@@ -183,8 +275,8 @@ services:
       memlock: 67108864
 
     ports:
-      - ${PMM_PORT_HTTP:-80}:80
-      - ${PMM_PORT_HTTPS:-443}:443
+      - ${PMM_PORT_HTTP:-8081}:80
+      - ${PMM_PORT_HTTPS:-8441}:443
       # For headless delve
       - ${PMM_PORT_DELVE:-2345}:2345
     volumes:
@@ -194,37 +286,189 @@ services:
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
+      - ./managed/testdata/pg/certs/:/certs/
+      - ./update/ansible:/usr/share/pmm-update/ansible
 
-  # PMM with external Postgres DB
-  pg:
+  pmm-server-passive:
     profiles:
-      - pmm-pg
-    build:
-      context: ./managed/testdata/pg
-      args:
-        POSTGRES_IMAGE: ${POSTGRES_IMAGE:-postgres:14}
-      dockerfile: Dockerfile
-    container_name: pmm-pg
+      - pmm-ha
+    depends_on:
+      - ch
+      - pg
+      - victoriametrics
+      - pmm-server-active
+    image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
+    container_name: pmm-server-passive
+    hostname: pmm-server-passive
+    networks: 
+      ha:
+        ipv4_address: 172.20.0.6
     environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pmm-password}
+      - PMM_RELEASE_PATH=/root/go/src/github.com/percona/pmm/bin
+      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
+      - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+#      - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
+#      - PERCONA_TEST_PLATFORM_INSECURE=1
+#      - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
+#      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
+#      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
+#      - PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY=1
+      - PERCONA_TEST_PMM_CLICKHOUSE_ADDR=${CH_HOSTNAME:-ch}:9000
+      - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
+      - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
+      - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
+      - PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE=1
+      - PERCONA_TEST_POSTGRES_ADDR=pg:5432
+      - PERCONA_TEST_POSTGRES_USERNAME=pmm-managed
+      - PERCONA_TEST_POSTGRES_DBPASSWORD=pmm-managed
+      - PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1
+#      - PERCONA_TEST_POSTGRES_SSL_MODE=require
+#      - PERCONA_TEST_POSTGRES_SSL_CA_PATH=/certs/root.crt
+#      - PERCONA_TEST_POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
+#      - PERCONA_TEST_POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
+      - GF_DATABASE_URL=postgres://grafana:grafana@pg:5432/grafana
+#      - GF_DATABASE_SSL_MODE=require
+#      - PMM_DEBUG=1
+      - GO_VERSION=1.20
+      - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
+      - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
+      - PMM_TEST_HA_ENABLE=1
+      - PMM_TEST_HA_NODE_ID=pmm-server-passive
+      - PMM_TEST_HA_ADVERTISE_ADDRESS=172.20.0.6
+      - PMM_TEST_HA_PEERS=pmm-server-active,pmm-server-passive,pmm-server-passive-2
+      - PMM_TEST_HA_GOSSIP_PORT=9096
+      - PMM_TEST_HA_GRAFANA_GOSSIP_PORT=9094
+
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    #      - portal.localhost:${PORTAL_HOST:-host-gateway}
+    #      - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
+    #      - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
+    #      - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
+
+    # for delve
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+
+    # see https://github.com/golang/go/wiki/LinuxKernelSignalVectorBug#what-to-do
+    ulimits:
+      memlock: 67108864
+
     ports:
-      - ${POSTGRES_PORT:-5432}:5432
-    command: |
-      postgres 
-      -c shared_preload_libraries=pg_stat_statements 
-      -c pg_stat_statements.max=10000 
-      -c pg_stat_statements.track=all 
-      -c pg_stat_statements.save=off 
-      -c fsync=off 
-      -c ssl=on 
-      -c ssl_ca_file=/certs/root.crt 
-      -c ssl_cert_file=/certs/server.crt 
-      -c ssl_key_file=/certs/server.key
-      -c hba_file=/conf/pg_hba.conf
+      - ${PMM_PORT_HTTP:-8082}:80
+      - ${PMM_PORT_HTTPS:-8432}:443
+      # For headless delve
+      - ${PMM_PORT_DELVE:-12345}:2345
+    volumes:
+      - ./:/root/go/src/github.com/percona/pmm
+#      - "../grafana/public:/usr/share/grafana/public"
+      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # change Makefile in devcontainer
+      # caching
+      - go-modules:/root/go/pkg/mod
+      - root-cache:/root/.cache
+      - ./managed/testdata/pg/certs/:/certs/
+      - ./update/ansible:/usr/share/pmm-update/ansible
+
+  pmm-server-passive-2:
+    profiles:
+      - pmm-ha
+    depends_on:
+      - ch
+      - pg
+      - victoriametrics
+      - pmm-server-active
+    image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
+    container_name: pmm-server-passive-2
+    hostname: pmm-server-passive-2
     networks:
-      - ${NETWORK:-default}
+      ha:
+        ipv4_address: 172.20.0.11
+    environment:
+      - PMM_RELEASE_PATH=/root/go/src/github.com/percona/pmm/bin
+      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
+      - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      #      - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
+      #      - PERCONA_TEST_PLATFORM_INSECURE=1
+      #      - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
+      #      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
+      #      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
+      #      - PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY=1
+      - PERCONA_TEST_PMM_CLICKHOUSE_ADDR=${CH_HOSTNAME:-ch}:9000
+      - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
+      - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
+      - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
+      - PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE=1
+      - PERCONA_TEST_POSTGRES_ADDR=pg:5432
+      - PERCONA_TEST_POSTGRES_USERNAME=pmm-managed
+      - PERCONA_TEST_POSTGRES_DBPASSWORD=pmm-managed
+      - PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1
+      #      - PERCONA_TEST_POSTGRES_SSL_MODE=require
+      #      - PERCONA_TEST_POSTGRES_SSL_CA_PATH=/certs/root.crt
+      #      - PERCONA_TEST_POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
+      #      - PERCONA_TEST_POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
+      - GF_DATABASE_URL=postgres://grafana:grafana@pg:5432/grafana
+      #      - GF_DATABASE_SSL_MODE=require
+      #      - PMM_DEBUG=1
+      - GO_VERSION=1.20
+      - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
+      - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
+      - PMM_TEST_HA_ENABLE=1
+      - PMM_TEST_HA_NODE_ID=pmm-server-passive-2
+      - PMM_TEST_HA_ADVERTISE_ADDRESS=172.20.0.11
+      - PMM_TEST_HA_PEERS=pmm-server-active,pmm-server-passive,pmm-server-passive-2
+      - PMM_TEST_HA_GOSSIP_PORT=9096
+      - PMM_TEST_HA_GRAFANA_GOSSIP_PORT=9094
+
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    #      - portal.localhost:${PORTAL_HOST:-host-gateway}
+    #      - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
+    #      - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
+    #      - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
+
+    # for delve
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+
+    # see https://github.com/golang/go/wiki/LinuxKernelSignalVectorBug#what-to-do
+    ulimits:
+      memlock: 67108864
+
+    ports:
+      - ${PMM_PORT_HTTP:-8083}:80
+      - ${PMM_PORT_HTTPS:-8433}:443
+      # For headless delve
+#      - ${PMM_PORT_DELVE:-12345}:2345
+    volumes:
+      - ./:/root/go/src/github.com/percona/pmm
+      #      - "../grafana/public:/usr/share/grafana/public"
+      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # change Makefile in devcontainer
+      # caching
+      - go-modules:/root/go/pkg/mod
+      - root-cache:/root/.cache
+      - ./managed/testdata/pg/certs/:/certs/
+      - ./update/ansible:/usr/share/pmm-update/ansible
 
 volumes:
+  chdata:  # Volume for ClickHouse data
+  vmdata:  # Volume for VictoriaMetrics data
+  pgdata:  # Volume for PostgreSQL data
   go-modules:
-  vmdata: {}
   root-cache:
+
+networks:
+  minikube:
+    external: true
+    name: minikube
+  ha:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24

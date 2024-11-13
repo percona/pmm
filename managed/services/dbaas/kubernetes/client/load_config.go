@@ -20,13 +20,13 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
-// configGetter stores kubeconfig string to convert it to the final object
+// configGetter stores kubeconfig string to convert it to the final object.
 type configGetter struct {
 	kubeconfig string
 }
 
-// NewConfigGetter creates a new configGetter struct
-func NewConfigGetter(kubeconfig string) *configGetter {
+// NewConfigGetter creates a new configGetter struct.
+func NewConfigGetter(kubeconfig string) *configGetter { //nolint:revive
 	return &configGetter{kubeconfig: kubeconfig}
 }
 

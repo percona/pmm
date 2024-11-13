@@ -50,6 +50,7 @@ type Service struct {
 	uievents.UnimplementedUIEventsServer
 }
 
+// DashboardUsageStat represents a structure for dashboard usage statistics.
 type DashboardUsageStat struct {
 	title    string
 	uid      string
@@ -57,6 +58,7 @@ type DashboardUsageStat struct {
 	loadTime *hdrhistogram.Histogram
 }
 
+// ComponentsUsageStat represents a structure for component usage statistics.
 type ComponentsUsageStat struct {
 	uid      string
 	useCount int32
@@ -93,6 +95,7 @@ func (s *Service) ScheduleCleanup(ctx context.Context) {
 	}()
 }
 
+// FetchMetrics fetches metrics for the service based on the provided context and telemetry configuration.
 func (s *Service) FetchMetrics(_ context.Context, _ telemetry.Config) ([]*pmmv1.ServerMetric_Metric, error) { //nolint:unparam
 	s.stateM.RLock()
 	defer s.stateM.RUnlock()

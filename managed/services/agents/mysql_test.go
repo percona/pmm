@@ -33,6 +33,9 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(3306),
 	}
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
 	exporter := &models.Agent{
 		AgentID:       "agent-id",
 		AgentType:     models.MySQLdExporterType,
@@ -42,7 +45,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	}
 	pmmAgentVersion := version.MustParse("2.21.0")
 
-	actual := mysqldExporterConfig(mysql, exporter, redactSecrets, pmmAgentVersion)
+	actual := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -85,7 +88,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			"--exporter.global-conn-pool",
 			"--exporter.max-idle-conns=3",
 			"--exporter.max-open-conns=3",
-			"--web.listen-address=:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",
@@ -100,13 +103,13 @@ func TestMySQLdExporterConfig(t *testing.T) {
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
-		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
 
@@ -117,7 +120,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			TLSCert: "content-of-tls-certificate-key",
 			TLSKey:  "content-of-tls-key",
 		}
-		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		expected := "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom"
 		assert.Equal(t, expected, actual.Env[0])
 		expectedFiles := map[string]string{
@@ -130,6 +133,9 @@ func TestMySQLdExporterConfig(t *testing.T) {
 }
 
 func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
 	mysql := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(3306),
@@ -149,7 +155,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 	}
 	pmmAgentVersion := version.MustParse("2.24.0")
 
-	actual := mysqldExporterConfig(mysql, exporter, redactSecrets, pmmAgentVersion)
+	actual := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -187,7 +193,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 			"--mysql.ssl-ca-file={{ .TextFiles.tlsCa }}",
 			"--mysql.ssl-cert-file={{ .TextFiles.tlsCert }}",
 			"--mysql.ssl-key-file={{ .TextFiles.tlsKey }}",
-			"--web.listen-address=:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s&tls=custom",
@@ -207,30 +213,33 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
-		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
 	})
 
 	t.Run("V236_EnablesPluginCollector", func(t *testing.T) {
 		pmmAgentVersion := version.MustParse("2.36.0")
-		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Contains(t, actual.Args, "--collect.plugins")
 	})
 
 	t.Run("beforeV236_NoPluginCollector", func(t *testing.T) {
 		pmmAgentVersion := version.MustParse("2.35.0")
-		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.NotContains(t, actual.Args, "--collect.plugins")
 	})
 }
 
 func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
 	mysql := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(3306),
@@ -244,7 +253,7 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 	}
 	pmmAgentVersion := version.MustParse("2.24.0")
 
-	actual := mysqldExporterConfig(mysql, exporter, redactSecrets, pmmAgentVersion)
+	actual := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -283,7 +292,7 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 			"--exporter.global-conn-pool",
 			"--exporter.max-idle-conns=3",
 			"--exporter.max-open-conns=3",
-			"--web.listen-address=:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",

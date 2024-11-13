@@ -129,8 +129,6 @@ func TestAgentService(t *testing.T) {
 					UpdatedAt:   timestamppb.New(now),
 					Username:    "postgres",
 					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
-						SslCa:       "",
-						SslCert:     "",
 						IsSslKeySet: false,
 					},
 					ServiceId:               "/service_id/00000000-0000-4000-8000-000000000002",
@@ -147,8 +145,6 @@ func TestAgentService(t *testing.T) {
 					UpdatedAt:   timestamppb.New(now),
 					Username:    "postgres",
 					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
-						SslCa:       "",
-						SslCert:     "",
 						IsSslKeySet: false,
 					},
 					ServiceId:               "/service_id/00000000-0000-4000-8000-000000000002",

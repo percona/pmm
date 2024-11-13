@@ -52,6 +52,7 @@ type AddServiceHAProxyCommand struct {
 	CustomLabels   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
+// RunCmd executes the AddServiceHAProxyCommand and returns the result.
 func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
 	isSupported, err := helpers.IsHAProxySupported()
 	if !isSupported {

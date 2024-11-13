@@ -37,19 +37,31 @@ const (
 	envReportingRetryBackoff = "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF"
 )
 
+const (
+	dsVM              = DataSourceName("VM")
+	dsQANDBSelect     = DataSourceName("QANDB_SELECT")
+	dsPMMDBSelect     = DataSourceName("PMMDB_SELECT")
+	dsGRAFANADBSelect = DataSourceName("GRAFANADB_SELECT")
+	dsEnvVars         = DataSourceName("ENV_VARS")
+)
+
+// DataSources holds all possible data source types.
+type DataSources struct {
+	VM              *DSConfigVM        `yaml:"VM"`
+	QanDBSelect     *DSConfigQAN       `yaml:"QANDB_SELECT"`
+	PmmDBSelect     *DSConfigPMMDB     `yaml:"PMMDB_SELECT"`
+	GrafanaDBSelect *DSConfigGrafanaDB `yaml:"GRAFANADB_SELECT"`
+	EnvVars         *DSConfigEnvVars   `yaml:"ENV_VARS"`
+}
+
 // ServiceConfig telemetry config.
 type ServiceConfig struct {
 	l            *logrus.Entry
-	Enabled      bool     `yaml:"enabled"`
-	telemetry    []Config `yaml:"-"`
-	SaasHostname string   `yaml:"saas_hostname"`
-	DataSources  struct {
-		VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-		QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-		PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-		GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
-	} `yaml:"datasources"`
-	Reporting ReportingConfig `yaml:"reporting"`
+	Enabled      bool            `yaml:"enabled"`
+	telemetry    []Config        `yaml:"-"`
+	SaasHostname string          `yaml:"saas_hostname"`
+	DataSources  DataSources     `yaml:"datasources"`
+	Reporting    ReportingConfig `yaml:"reporting"`
 }
 
 // FileConfig top level telemetry config element.
@@ -64,18 +76,11 @@ type DSConfigQAN struct {
 	DSN     string        `yaml:"-"`
 }
 
-// DataSourceVictoriaMetrics telemetry config.
-type DataSourceVictoriaMetrics struct {
+// DSConfigVM telemetry config.
+type DSConfigVM struct {
 	Enabled bool          `yaml:"enabled"`
 	Timeout time.Duration `yaml:"timeout"`
 	Address string        `yaml:"address"`
-}
-
-// DSGrafanaSqliteDB telemetry config.
-type DSGrafanaSqliteDB struct {
-	Enabled bool          `yaml:"enabled"`
-	Timeout time.Duration `yaml:"timeout"`
-	DBFile  string        `yaml:"db_file"`
 }
 
 // DSConfigPMMDB telemetry config.
@@ -83,13 +88,13 @@ type DSConfigPMMDB struct { //nolint:musttag
 	Enabled                bool          `yaml:"enabled"`
 	Timeout                time.Duration `yaml:"timeout"`
 	UseSeparateCredentials bool          `yaml:"use_separate_credentials"`
-	// Credentials used by PMM
-	DSN struct {
+	DSN                    struct {
 		Scheme string
 		Host   string
 		DB     string
 		Params string
 	} `yaml:"-"`
+	// Credentials used by PMM
 	Credentials struct {
 		Username string
 		Password string
@@ -98,6 +103,14 @@ type DSConfigPMMDB struct { //nolint:musttag
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
 	} `yaml:"separate_credentials"`
+}
+
+// DSConfigGrafanaDB is a Grafana telemetry config.
+type DSConfigGrafanaDB DSConfigPMMDB
+
+// DSConfigEnvVars is an env variable telemetry config.
+type DSConfigEnvVars struct {
+	Enabled bool `yaml:"enabled"`
 }
 
 // Config telemetry config.
@@ -111,21 +124,23 @@ type Config struct {
 	Data      []ConfigData
 }
 
-// ConfigTransform telemetry config transformation.
+// ConfigTransform is a telemetry config transformation.
 type ConfigTransform struct {
 	Type   ConfigTransformType `yaml:"type"`
 	Metric string              `yaml:"metric"`
 }
 
-// ConfigTransformType config transform type.
+// ConfigTransformType is a config transform type.
 type ConfigTransformType string
 
 const (
-	// JSONTransformType JSON type.
-	JSONTransformType = ConfigTransformType("JSON")
+	// JSONTransform converts multiple metrics in one formatted as JSON.
+	JSONTransform = ConfigTransformType("JSON")
+	// StripValuesTransform strips values from metrics, replacing them with 1 to indicate presence.
+	StripValuesTransform = ConfigTransformType("StripValues")
 )
 
-// ConfigData telemetry config.
+// ConfigData is a telemetry data config.
 type ConfigData struct {
 	MetricName string `yaml:"metric_name"`
 	Label      string `yaml:"label"`
@@ -154,9 +169,11 @@ type ReportingConfig struct {
 //go:embed config.default.yml
 var defaultConfig string
 
+// ExtensionType represents the type of telemetry extension.
 type ExtensionType string
 
 const (
+	// UIEventsExtension is a constant for the UI events telemetry extension.
 	UIEventsExtension = ExtensionType("UIEventsExtension")
 )
 

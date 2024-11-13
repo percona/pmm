@@ -66,15 +66,15 @@ func TestAgent(t *testing.T) {
 		} {
 			t.Run(string(typ), func(t *testing.T) {
 				agent.AgentType = typ
-				assert.Equal(t, expected, agent.DSN(service, time.Second, "database", nil))
+				assert.Equal(t, expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 			})
 		}
 
 		t.Run("MongoDBNoDatabase", func(t *testing.T) {
 			agent.AgentType = models.MongoDBExporterType
 
-			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000", agent.DSN(service, time.Second, "", nil))
-			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?directConnection=true", agent.DSN(service, 0, "", nil))
+			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000", agent.DSN(service, models.DSNParams{DialTimeout: time.Second}, nil, nil))
+			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?directConnection=true", agent.DSN(service, models.DSNParams{}, nil, nil))
 		})
 	})
 
@@ -94,7 +94,7 @@ func TestAgent(t *testing.T) {
 		} {
 			t.Run(string(typ), func(t *testing.T) {
 				agent.AgentType = typ
-				assert.Equal(t, expected, agent.DSN(service, time.Second, "database", nil))
+				assert.Equal(t, expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 			})
 		}
 	})
@@ -113,7 +113,7 @@ func TestAgent(t *testing.T) {
 		} {
 			t.Run(string(typ), func(t *testing.T) {
 				agent.AgentType = typ
-				assert.Equal(t, expected, agent.DSN(service, time.Second, "database", nil))
+				assert.Equal(t, expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 			})
 		}
 	})
@@ -159,7 +159,7 @@ func TestAgent(t *testing.T) {
 		} {
 			t.Run(string(typ), func(t *testing.T) {
 				agent.AgentType = typ
-				assert.Equal(t, expected, agent.DSN(service, time.Second, "database", nil))
+				assert.Equal(t, expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 			})
 		}
 
@@ -169,8 +169,8 @@ func TestAgent(t *testing.T) {
 			agent.MongoDBOptions.TLSCertificateKeyFilePassword = ""
 			agent.MongoDBOptions.AuthenticationMechanism = ""
 
-			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}", agent.DSN(service, time.Second, "", nil))
-			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?directConnection=true&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}", agent.DSN(service, 0, "", nil))
+			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}", agent.DSN(service, models.DSNParams{DialTimeout: time.Second}, nil, nil))
+			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?directConnection=true&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}", agent.DSN(service, models.DSNParams{}, nil, nil))
 			expectedFiles := map[string]string{
 				"caFilePlaceholder":             "cert",
 				"certificateKeyFilePlaceholder": "key",
@@ -185,8 +185,8 @@ func TestAgent(t *testing.T) {
 			agent.MongoDBOptions.AuthenticationMechanism = "MONGO-X509"
 			agent.MongoDBOptions.AuthenticationDatabase = "$external"
 
-			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?authMechanism=MONGO-X509&authSource=%24external&connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}", agent.DSN(service, time.Second, "", nil))
-			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?authMechanism=MONGO-X509&authSource=%24external&directConnection=true&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}", agent.DSN(service, 0, "", nil))
+			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?authMechanism=MONGO-X509&authSource=%24external&connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}", agent.DSN(service, models.DSNParams{DialTimeout: time.Second}, nil, nil))
+			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?authMechanism=MONGO-X509&authSource=%24external&directConnection=true&ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}", agent.DSN(service, models.DSNParams{}, nil, nil))
 			expectedFiles := map[string]string{
 				"caFilePlaceholder":             "cert",
 				"certificateKeyFilePlaceholder": "key",
@@ -217,15 +217,15 @@ func TestAgent(t *testing.T) {
 		} {
 			t.Run(string(typ), func(t *testing.T) {
 				agent.AgentType = typ
-				assert.Equal(t, expected, agent.DSN(service, time.Second, "database", nil))
+				assert.Equal(t, expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 			})
 		}
 
 		t.Run("MongoDBNoDatabase", func(t *testing.T) {
 			agent.AgentType = models.MongoDBExporterType
 
-			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000&ssl=true&tlsInsecure=true", agent.DSN(service, time.Second, "", nil))
-			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?directConnection=true&ssl=true&tlsInsecure=true", agent.DSN(service, 0, "", nil))
+			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000&ssl=true&tlsInsecure=true", agent.DSN(service, models.DSNParams{DialTimeout: time.Second}, nil, nil))
+			assert.Equal(t, "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?directConnection=true&ssl=true&tlsInsecure=true", agent.DSN(service, models.DSNParams{}, nil, nil))
 		})
 	})
 }
@@ -255,7 +255,13 @@ func TestPostgresAgentTLS(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			agent.TLS = testCase.tls
 			agent.TLSSkipVerify = testCase.tlsSkipVerify
-			assert.Equal(t, testCase.expected, agent.DSN(service, time.Second, "database", nil))
+			assert.Equal(t, testCase.expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
+		})
+		t.Run(fmt.Sprintf("AutodiscoveryLimit set TLS:%v/TLSSkipVerify:%v", testCase.tls, testCase.tlsSkipVerify), func(t *testing.T) {
+			agent.TLS = testCase.tls
+			agent.TLSSkipVerify = testCase.tlsSkipVerify
+			agent.PostgreSQLOptions = &models.PostgreSQLOptions{AutoDiscoveryLimit: 10}
+			assert.Equal(t, testCase.expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 		})
 	}
 }
@@ -272,7 +278,7 @@ func TestPostgresWithSocket(t *testing.T) {
 			Socket: pointer.ToString("/var/run/postgres"),
 		}
 		expect := "postgres://username@/database?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=verify-ca"
-		assert.Equal(t, expect, agent.DSN(service, time.Second, "database", nil))
+		assert.Equal(t, expect, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 	})
 
 	t.Run("empty-user-password", func(t *testing.T) {
@@ -283,7 +289,7 @@ func TestPostgresWithSocket(t *testing.T) {
 			Socket: pointer.ToString("/var/run/postgres"),
 		}
 		expect := "postgres:///database?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable"
-		assert.Equal(t, expect, agent.DSN(service, time.Second, "database", nil))
+		assert.Equal(t, expect, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 	})
 
 	t.Run("dir-with-symbols", func(t *testing.T) {
@@ -294,7 +300,7 @@ func TestPostgresWithSocket(t *testing.T) {
 			Socket: pointer.ToString(`/tmp/123\ A0m\%\$\@\8\,\+\-`),
 		}
 		expect := "postgres:///database?connect_timeout=1&host=%2Ftmp%2F123%5C+A0m%5C%25%5C%24%5C%40%5C8%5C%2C%5C%2B%5C-&sslmode=disable"
-		assert.Equal(t, expect, agent.DSN(service, time.Second, "database", nil))
+		assert.Equal(t, expect, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 	})
 }
 
@@ -310,7 +316,7 @@ func TestMongoWithSocket(t *testing.T) {
 			Socket: pointer.ToString("/tmp/mongodb-27017.sock"),
 		}
 		expect := "mongodb://username@%2Ftmp%2Fmongodb-27017.sock/database?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000&ssl=true"
-		assert.Equal(t, expect, agent.DSN(service, time.Second, "database", nil))
+		assert.Equal(t, expect, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 	})
 
 	t.Run("empty-user-password", func(t *testing.T) {
@@ -321,7 +327,7 @@ func TestMongoWithSocket(t *testing.T) {
 			Socket: pointer.ToString("/tmp/mongodb-27017.sock"),
 		}
 		expect := "mongodb://%2Ftmp%2Fmongodb-27017.sock/database?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000"
-		assert.Equal(t, expect, agent.DSN(service, time.Second, "database", nil))
+		assert.Equal(t, expect, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 	})
 
 	t.Run("dir-with-symbols", func(t *testing.T) {
@@ -332,7 +338,7 @@ func TestMongoWithSocket(t *testing.T) {
 			Socket: pointer.ToString(`/tmp/123\ A0m\%\$\@\8\,\+\-/mongodb-27017.sock`),
 		}
 		expect := "mongodb://%2Ftmp%2F123%5C%20A0m%5C%25%5C$%5C%40%5C8%5C,%5C+%5C-%2Fmongodb-27017.sock/database?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000"
-		assert.Equal(t, expect, agent.DSN(service, time.Second, "database", nil))
+		assert.Equal(t, expect, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 	})
 }
 
@@ -378,12 +384,12 @@ func TestExporterURL(t *testing.T) {
 		require.NoError(t, sqlDB.Close())
 	}()
 
-	setup := func(t *testing.T) (q *reform.Querier, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (*reform.Querier, func(t *testing.T)) {
 		t.Helper()
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
-		q = tx.Querier
+		q := tx.Querier
 
 		for _, str := range []reform.Struct{
 			&models.Node{
@@ -401,6 +407,13 @@ func TestExporterURL(t *testing.T) {
 				Address:  "redis_exporter",
 			},
 
+			&models.Node{
+				NodeID:   "ExporterServerlessNodeID2",
+				NodeType: models.RemoteNodeType,
+				NodeName: "Node 2 for Serverless Exporter",
+				Address:  "nomad_exporter",
+			},
+
 			&models.Service{
 				ServiceID:     "external",
 				ServiceType:   models.ExternalServiceType,
@@ -415,6 +428,14 @@ func TestExporterURL(t *testing.T) {
 				ServiceName:   "Service on ExporterServerlessNode",
 				NodeID:        "ExporterServerlessNodeID",
 				ExternalGroup: "redis",
+			},
+
+			&models.Service{
+				ServiceID:     "nomad_exporter-external",
+				ServiceType:   models.ExternalServiceType,
+				ServiceName:   "Service on ExporterServerlessNode 2",
+				NodeID:        "ExporterServerlessNodeID2",
+				ExternalGroup: "nomad",
 			},
 
 			&models.Agent{
@@ -453,15 +474,41 @@ func TestExporterURL(t *testing.T) {
 				Username:      pointer.ToString("user"),
 				Password:      pointer.ToString("secret"),
 			},
+
+			&models.Agent{
+				AgentID:       "ExporterServerlessWithQueryParams",
+				AgentType:     models.ExternalExporterType,
+				RunsOnNodeID:  pointer.ToString("ExporterServerlessNodeID2"),
+				ServiceID:     pointer.ToString("nomad_exporter-external"),
+				MetricsScheme: pointer.ToString("http"),
+				PushMetrics:   false,
+				ListenPort:    pointer.ToUint16(9121),
+				MetricsPath:   pointer.ToString("/metrics?format=prometheus&output=json"),
+				Username:      pointer.ToString("user"),
+				Password:      pointer.ToString("secret"),
+			},
+
+			&models.Agent{
+				AgentID:       "ExporterServerlessWithEmptyMetricsPath",
+				AgentType:     models.ExternalExporterType,
+				RunsOnNodeID:  pointer.ToString("ExporterServerlessNodeID2"),
+				ServiceID:     pointer.ToString("nomad_exporter-external"),
+				MetricsScheme: pointer.ToString("http"),
+				PushMetrics:   false,
+				ListenPort:    pointer.ToUint16(9121),
+				MetricsPath:   pointer.ToString("/"),
+				Username:      pointer.ToString("user"),
+				Password:      pointer.ToString("secret"),
+			},
 		} {
 			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
 		}
 
-		teardown = func(t *testing.T) {
+		teardown := func(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
-		return
+		return q, teardown
 	}
 
 	t.Run("ExporterURL", func(t *testing.T) {
@@ -469,9 +516,11 @@ func TestExporterURL(t *testing.T) {
 		defer teardown(t)
 
 		for agentID, expected := range map[string]string{
-			"ExporterAgentPush":  "http://127.0.0.1:9121/metrics",
-			"ExporterAgentPull":  "http://user:secret@172.20.0.4:9121/metrics",
-			"ExporterServerless": "http://user:secret@redis_exporter:9121/metrics",
+			"ExporterAgentPush":                      "http://127.0.0.1:9121/metrics",
+			"ExporterAgentPull":                      "http://user:secret@172.20.0.4:9121/metrics",
+			"ExporterServerless":                     "http://user:secret@redis_exporter:9121/metrics",
+			"ExporterServerlessWithQueryParams":      "http://user:secret@nomad_exporter:9121/metrics?format=prometheus&output=json",
+			"ExporterServerlessWithEmptyMetricsPath": "http://user:secret@nomad_exporter:9121/",
 		} {
 			t.Run(agentID, func(t *testing.T) {
 				agent, err := models.FindAgentByID(q, agentID)

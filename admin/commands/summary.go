@@ -85,7 +85,7 @@ func addFile(zipW *zip.Writer, name string, fileName string) {
 		logrus.Debugf("%s", err)
 		r = io.NopCloser(bytes.NewReader([]byte(err.Error() + "\n")))
 	}
-	defer r.Close() //nolint:gosec
+	defer r.Close() //nolint:gosec,errcheck,nolintlint
 
 	modTime := time.Now()
 	if fi, _ := os.Stat(fileName); fi != nil {
@@ -219,7 +219,7 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 				addData(zipW, "client/vmagent-targets.html", now, bytes.NewReader([]byte(err.Error())))
 				return
 			}
-			defer res.Body.Close() //nolint:gosec
+			defer res.Body.Close() //nolint:gosec,errcheck,nolintlint
 			html, err = io.ReadAll(res.Body)
 			if err != nil {
 				logrus.Debugf("%s", err)
@@ -241,7 +241,7 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.Errorf("status code: %d", resp.StatusCode)
@@ -357,12 +357,12 @@ type SummaryCommand struct {
 	Pprof      bool   `name:"pprof" help:"Include performance profiling data"`
 }
 
-func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.GlobalFlags) (err error) {
+func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.GlobalFlags) error {
 	var f *os.File
+	var err error
 
 	if f, err = os.Create(cmd.Filename); err != nil {
-		err = errors.WithStack(err)
-		return
+		return errors.WithStack(err)
 	}
 
 	defer func() {
@@ -389,7 +389,7 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.Globa
 		addServerData(ctx, zipW, cmd.Pprof)
 	}
 
-	return //nolint:nakedret
+	return nil
 }
 
 // RunCmdWithContext runs summary command.

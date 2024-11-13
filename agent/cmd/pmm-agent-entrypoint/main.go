@@ -4,14 +4,14 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//  http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+// Package main provides the entry point for the PMM Agent.
 package main
 
 import (
@@ -73,7 +73,7 @@ var (
 var pmmAgentProcessID = 0
 
 func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy restartPolicy, l *logrus.Entry, pmmAgentSidecarSleep int) int {
-	pmmAgentFullCommand := "pmm-admin " + strings.Join(commandLineArgs, " ")
+	pmmAgentFullCommand := "pmm-agent " + strings.Join(commandLineArgs, " ")
 	for {
 		select {
 		case <-ctx.Done():
@@ -81,7 +81,7 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 		default:
 		}
 		var exitCode int
-		l.Infof("Starting 'pmm-admin %s'...", strings.Join(commandLineArgs, " "))
+		l.Infof("Starting 'pmm-agent %s'...", strings.Join(commandLineArgs, " "))
 		cmd := commandPmmAgent(commandLineArgs)
 		if err := cmd.Start(); err != nil {
 			l.Errorf("Can't run: '%s', Error: %s", commandLineArgs, err)

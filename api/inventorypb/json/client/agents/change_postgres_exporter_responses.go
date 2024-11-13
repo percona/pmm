@@ -480,12 +480,13 @@ type ChangePostgresExporterOKBodyPostgresExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -497,6 +498,18 @@ type ChangePostgresExporterOKBodyPostgresExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Maximum number of connections that exporter can open to the database instance.
+	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change postgres exporter OK body postgres exporter
@@ -511,6 +524,10 @@ func (o *ChangePostgresExporterOKBodyPostgresExporter) Validate(formats strfmt.R
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -521,7 +538,7 @@ var changePostgresExporterOkBodyPostgresExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -536,6 +553,9 @@ const (
 
 	// ChangePostgresExporterOKBodyPostgresExporterStatusSTARTING captures enum value "STARTING"
 	ChangePostgresExporterOKBodyPostgresExporterStatusSTARTING string = "STARTING"
+
+	// ChangePostgresExporterOKBodyPostgresExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ChangePostgresExporterOKBodyPostgresExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ChangePostgresExporterOKBodyPostgresExporterStatusRUNNING captures enum value "RUNNING"
 	ChangePostgresExporterOKBodyPostgresExporterStatusRUNNING string = "RUNNING"
@@ -628,8 +648,51 @@ func (o *ChangePostgresExporterOKBodyPostgresExporter) validateLogLevel(formats 
 	return nil
 }
 
-// ContextValidate validates this change postgres exporter OK body postgres exporter based on context it is used
+func (o *ChangePostgresExporterOKBodyPostgresExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changePostgresExporterOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changePostgresExporterOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change postgres exporter OK body postgres exporter based on the context it is used
 func (o *ChangePostgresExporterOKBodyPostgresExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePostgresExporterOKBodyPostgresExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changePostgresExporterOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changePostgresExporterOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -644,6 +707,49 @@ func (o *ChangePostgresExporterOKBodyPostgresExporter) MarshalBinary() ([]byte, 
 // UnmarshalBinary interface implementation
 func (o *ChangePostgresExporterOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 	var res ChangePostgresExporterOKBodyPostgresExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions
+*/
+type ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change postgres exporter OK body postgres exporter metrics resolutions
+func (o *ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change postgres exporter OK body postgres exporter metrics resolutions based on context it is used
+func (o *ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangePostgresExporterOKBodyPostgresExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -674,15 +780,70 @@ type ChangePostgresExporterParamsBodyCommon struct {
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
 	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangePostgresExporterParamsBodyCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change postgres exporter params body common
 func (o *ChangePostgresExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change postgres exporter params body common based on context it is used
+func (o *ChangePostgresExporterParamsBodyCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change postgres exporter params body common based on the context it is used
 func (o *ChangePostgresExporterParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePostgresExporterParamsBodyCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -697,6 +858,49 @@ func (o *ChangePostgresExporterParamsBodyCommon) MarshalBinary() ([]byte, error)
 // UnmarshalBinary interface implementation
 func (o *ChangePostgresExporterParamsBodyCommon) UnmarshalBinary(b []byte) error {
 	var res ChangePostgresExporterParamsBodyCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangePostgresExporterParamsBodyCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangePostgresExporterParamsBodyCommonMetricsResolutions
+*/
+type ChangePostgresExporterParamsBodyCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change postgres exporter params body common metrics resolutions
+func (o *ChangePostgresExporterParamsBodyCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change postgres exporter params body common metrics resolutions based on context it is used
+func (o *ChangePostgresExporterParamsBodyCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangePostgresExporterParamsBodyCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangePostgresExporterParamsBodyCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangePostgresExporterParamsBodyCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

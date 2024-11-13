@@ -80,7 +80,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.True(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 			assert.Equal(t, 401, resp.StatusCode)
 			assert.Equal(t, "1", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -97,7 +97,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.True(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 			assert.Equal(t, 303, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "/setup", resp.Header.Get("Location"))
@@ -123,7 +123,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.False(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 			assert.Equal(t, 200, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -148,7 +148,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.False(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 			assert.Equal(t, 200, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -422,6 +422,9 @@ func Test_cleanPath(t *testing.T) {
 		}, {
 			"/v1/AWSInstanceCheck/..%2f..%2f/logs.zip",
 			"/logs.zip",
+		}, {
+			"/graph/api/datasources/proxy/8/?query=WITH%20(%0A%20%20%20%20CASE%20%0A%20%20%20%20%20%20%20%20WHEN%20(3000%20%25%2060)%20%3D%200%20THEN%203000%0A%20%20%20%20ELSE%2060%20END%0A)%20AS%20scale%0ASELECT%0A%20%20%20%20(intDiv(toUInt32(timestamp)%2C%203000)%20*%203000)%20*%201000%20as%20t%2C%0A%20%20%20%20hostname%20h%2C%0A%20%20%20%20status%20s%2C%0A%20%20%20%20SUM(req_count)%20as%20req_count%0AFROM%20pinba.report_by_all%0AWHERE%0A%20%20%20%20timestamp%20%3E%3D%20toDateTime(1707139680)%20AND%20timestamp%20%3C%3D%20toDateTime(1707312480)%0A%20%20%20%20AND%20status%20%3E%3D%20400%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20schema%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20hostname%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20server_name%20%3D%20%27all%27%20ELSE%201%20END%0AGROUP%20BY%20t%2C%20h%2C%20s%0AORDER%20BY%20t%20FORMAT%20JSON",
+			"/graph/api/datasources/proxy/8/",
 		},
 	}
 	for _, tt := range tests {

@@ -27,7 +27,7 @@ type basicAuth struct {
 }
 
 // GetRequestMetadata implements credentials.PerRPCCredentials interface.
-func (b *basicAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
+func (b *basicAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) { //nolint:revive
 	auth := b.username + ":" + b.password
 	enc := base64.StdEncoding.EncodeToString([]byte(auth))
 	return map[string]string{

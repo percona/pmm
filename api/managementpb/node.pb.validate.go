@@ -98,6 +98,8 @@ func (m *RegisterNodeRequest) validate(all bool) error {
 
 	// no validation rules for AgentPassword
 
+	// no validation rules for ExposeExporter
+
 	if len(errors) > 0 {
 		return RegisterNodeRequestMultiError(errors)
 	}
@@ -288,6 +290,8 @@ func (m *RegisterNodeResponse) validate(all bool) error {
 	}
 
 	// no validation rules for Token
+
+	// no validation rules for Warning
 
 	if len(errors) > 0 {
 		return RegisterNodeResponseMultiError(errors)

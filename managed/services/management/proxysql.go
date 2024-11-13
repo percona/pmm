@@ -32,14 +32,16 @@ type ProxySQLService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
+	sib   serviceInfoBroker
 }
 
 // NewProxySQLService creates new ProxySQL Management Service.
-func NewProxySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker) *ProxySQLService {
+func NewProxySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker) *ProxySQLService {
 	return &ProxySQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
+		sib:   sib,
 	}
 }
 
@@ -87,6 +89,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 			TLS:               req.Tls,
 			TLSSkipVerify:     req.TlsSkipVerify,
 			PushMetrics:       isPushMode(req.MetricsMode),
+			ExposeExporter:    req.ExposeExporter,
 			DisableCollectors: req.DisableCollectors,
 			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 		})
@@ -96,6 +99,10 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 
 		if !req.SkipConnectionCheck {
 			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+
+			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
 		}

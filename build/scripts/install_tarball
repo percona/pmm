@@ -2,6 +2,31 @@
 
 set -eu
 
+# Usage instruction for the install_tarball script
+usage () {
+    cat <<EOF
+Usage: $0 [OPTIONS]
+    The following options may be given :
+        -u                  Update PMM-Agent
+        -help) usage ;;
+Example:
+        For help command - $0 -help
+        To install PMM tarball - $0
+        To update the installed PMM tarball - $0 -u
+EOF
+        exit 1
+}
+
+UPDATE=0
+for arg in "$@"
+do
+    case "$arg" in
+        "-u") UPDATE=1 ;;
+        "-help") usage ;;
+        *) echo "Invalid option:$arg"; usage;;
+    esac
+done
+
 CURRENT_DIR="$(pwd)"
 WORKING_DIR="$(dirname "${0}")"
 cd "${WORKING_DIR}" || exit 2
@@ -17,7 +42,15 @@ else
     INSTALL_COMMAND="install -o ${PMM_USER} -g ${PMM_GROUP}"
 fi
 
-echo "Installing into ${PMM_DIR}..."
+# Check if PMM_DIR has the right permission to install files into it
+mkdir -p "${PMM_DIR}" || true
+if [ -w ${PMM_DIR} ]; then
+    echo "Installing into ${PMM_DIR}...";
+else
+    echo -e "Cannot write to ${PMM_DIR}. \nPlease make sure the user $(id -un) has permissions to write to this directory\n\n"
+    usage;
+    exit 1;
+fi
 
 ${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"
 ${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/bin
@@ -39,7 +72,8 @@ ${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/postgresql/
 ${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/postgresql/medium-resolution
 ${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/postgresql/high-resolution
 ${INSTALL_COMMAND} -m 0755 queries-postgres-uptime.yml "${PMM_DIR}"/collectors/custom-queries/postgresql/high-resolution
-${INSTALL_COMMAND} -m 0755 queries.yaml "${PMM_DIR}"/collectors/custom-queries/postgresql/medium-resolution
+${INSTALL_COMMAND} -m 0755 queries-mr.yaml "${PMM_DIR}"/collectors/custom-queries/postgresql/medium-resolution
+${INSTALL_COMMAND} -m 0755 queries-lr.yaml "${PMM_DIR}"/collectors/custom-queries/postgresql/low-resolution
 ${INSTALL_COMMAND} -m 0755 queries-mysqld-group-replication.yml "${PMM_DIR}"/collectors/custom-queries/mysql/high-resolution
 
 for FILE in $( ls ${PWD}/bin ); do
@@ -64,19 +98,14 @@ for FILE in example.prom queries-mysqld.yml example-queries-postgres.yml; do
     done
 done
 
-update=0
-while getopts :u flag
-do
-  case "${flag}" in
-    u) update=1;;
-    *) echo "Invalid option: -$flag" ;;
-  esac
-done
-
-if [ "${update}" = "1" ]; then
+if [ "${UPDATE}" = "1" ]; then
   echo "Config file was not removed!"
 else
   ${INSTALL_COMMAND} -m 0660 /dev/null "${PMM_DIR}"/config/pmm-agent.yaml
+fi
+
+if [ $? -eq 0 ]; then
+  echo "Successfully installed PMM Client to ${PMM_DIR}"
 fi
 
 cd "${CURRENT_DIR}" || true

@@ -29,7 +29,8 @@ const (
 	// BasePrometheusConfigPath - basic path with prometheus config,
 	// that user can mount to container.
 	BasePrometheusConfigPath = "/srv/prometheus/prometheus.base.yml"
-	VMBaseURL                = "http://127.0.0.1:9090/prometheus/"
+	// VMBaseURL is the base URL for VictoriaMetrics.
+	VMBaseURL = "http://127.0.0.1:9090/prometheus/"
 )
 
 // VictoriaMetricsParams - defines flags and settings for victoriametrics.
@@ -100,14 +101,17 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 	return nil
 }
 
+// ExternalVM returns true if VictoriaMetrics is configured to run externally.
 func (vmp *VictoriaMetricsParams) ExternalVM() bool {
 	return vmp.url.Hostname() != "127.0.0.1"
 }
 
+// URL returns the base URL for VictoriaMetrics.
 func (vmp *VictoriaMetricsParams) URL() string {
 	return vmp.url.String()
 }
 
+// URLFor returns the URL for a specific path in VictoriaMetrics.
 func (vmp *VictoriaMetricsParams) URLFor(path string) (*url.URL, error) {
 	if path == "" {
 		return vmp.url, nil

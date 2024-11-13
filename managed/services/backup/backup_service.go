@@ -31,7 +31,6 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/services/agents"
 )
 
 // Service represents core logic for db backup.
@@ -227,7 +226,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		err = status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 	}
 	if err != nil {
-		var target *agents.AgentNotSupportedError
+		var target models.AgentNotSupportedError
 		if errors.As(err, &target) {
 			_, dbErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
 				Status: models.ErrorBackupStatus.Pointer(),

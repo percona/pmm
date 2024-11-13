@@ -482,12 +482,13 @@ type ChangeProxySQLExporterOKBodyProxysqlExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -499,6 +500,12 @@ type ChangeProxySQLExporterOKBodyProxysqlExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeProxySQLExporterOKBodyProxysqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change proxy SQL exporter OK body proxysql exporter
@@ -513,6 +520,10 @@ func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) Validate(formats strfmt.R
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -523,7 +534,7 @@ var changeProxySqlExporterOkBodyProxysqlExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -538,6 +549,9 @@ const (
 
 	// ChangeProxySQLExporterOKBodyProxysqlExporterStatusSTARTING captures enum value "STARTING"
 	ChangeProxySQLExporterOKBodyProxysqlExporterStatusSTARTING string = "STARTING"
+
+	// ChangeProxySQLExporterOKBodyProxysqlExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ChangeProxySQLExporterOKBodyProxysqlExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ChangeProxySQLExporterOKBodyProxysqlExporterStatusRUNNING captures enum value "RUNNING"
 	ChangeProxySQLExporterOKBodyProxysqlExporterStatusRUNNING string = "RUNNING"
@@ -630,8 +644,51 @@ func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) validateLogLevel(formats 
 	return nil
 }
 
-// ContextValidate validates this change proxy SQL exporter OK body proxysql exporter based on context it is used
+func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeProxySqlExporterOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeProxySqlExporterOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change proxy SQL exporter OK body proxysql exporter based on the context it is used
 func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeProxySqlExporterOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeProxySqlExporterOk" + "." + "proxysql_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -646,6 +703,49 @@ func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) MarshalBinary() ([]byte, 
 // UnmarshalBinary interface implementation
 func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeProxySQLExporterOKBodyProxysqlExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeProxySQLExporterOKBodyProxysqlExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeProxySQLExporterOKBodyProxysqlExporterMetricsResolutions
+*/
+type ChangeProxySQLExporterOKBodyProxysqlExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change proxy SQL exporter OK body proxysql exporter metrics resolutions
+func (o *ChangeProxySQLExporterOKBodyProxysqlExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change proxy SQL exporter OK body proxysql exporter metrics resolutions based on context it is used
+func (o *ChangeProxySQLExporterOKBodyProxysqlExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeProxySQLExporterOKBodyProxysqlExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeProxySQLExporterOKBodyProxysqlExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeProxySQLExporterOKBodyProxysqlExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -676,15 +776,70 @@ type ChangeProxySQLExporterParamsBodyCommon struct {
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
 	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeProxySQLExporterParamsBodyCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change proxy SQL exporter params body common
 func (o *ChangeProxySQLExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change proxy SQL exporter params body common based on context it is used
+func (o *ChangeProxySQLExporterParamsBodyCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change proxy SQL exporter params body common based on the context it is used
 func (o *ChangeProxySQLExporterParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeProxySQLExporterParamsBodyCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -699,6 +854,49 @@ func (o *ChangeProxySQLExporterParamsBodyCommon) MarshalBinary() ([]byte, error)
 // UnmarshalBinary interface implementation
 func (o *ChangeProxySQLExporterParamsBodyCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeProxySQLExporterParamsBodyCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeProxySQLExporterParamsBodyCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeProxySQLExporterParamsBodyCommonMetricsResolutions
+*/
+type ChangeProxySQLExporterParamsBodyCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change proxy SQL exporter params body common metrics resolutions
+func (o *ChangeProxySQLExporterParamsBodyCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change proxy SQL exporter params body common metrics resolutions based on context it is used
+func (o *ChangeProxySQLExporterParamsBodyCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeProxySQLExporterParamsBodyCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeProxySQLExporterParamsBodyCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeProxySQLExporterParamsBodyCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -46,10 +46,12 @@ type AddAgentNodeExporterCommand struct {
 	PMMAgentID        string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	CustomLabels      map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	PushMetrics       bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	ExposeExporter    bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	LogLevel          string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
 }
 
+// RunCmd runs the command for AddAgentNodeExporterCommand.
 func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &agents.AddNodeExporterParams{
@@ -57,6 +59,7 @@ func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 			PMMAgentID:        cmd.PMMAgentID,
 			CustomLabels:      customLabels,
 			PushMetrics:       cmd.PushMetrics,
+			ExposeExporter:    cmd.ExposeExporter,
 			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
 			LogLevel:          &cmd.LogLevel,
 		},

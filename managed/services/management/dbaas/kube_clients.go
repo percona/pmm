@@ -25,16 +25,16 @@ import (
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
-// KubeStorage stores kuberenetes clients for DBaaS
+// KubeStorage stores kuberenetes clients for DBaaS.
 type KubeStorage struct {
 	mu      sync.Mutex
 	db      *reform.DB
 	clients map[string]kubernetesClient
 }
 
-var ErrDatabaseNotSet = errors.New("Database connection not set")
+var errDatabaseNotSet = errors.New("Database connection not set")
 
-// NewKubeStorage returns a created KubeStorage
+// NewKubeStorage returns a created KubeStorage.
 func NewKubeStorage(db *reform.DB) *KubeStorage {
 	return &KubeStorage{
 		db:      db,
@@ -42,8 +42,8 @@ func NewKubeStorage(db *reform.DB) *KubeStorage {
 	}
 }
 
-// GetOrSetClient gets client from map or sets a new client to the map
-func (k *KubeStorage) GetOrSetClient(name string) (kubernetesClient, error) { //nolint:ireturn
+// GetOrSetClient gets client from map or sets a new client to the map.
+func (k *KubeStorage) GetOrSetClient(name string) (kubernetesClient, error) { //nolint:ireturn,nolintlint
 	k.mu.Lock()
 	defer k.mu.Unlock()
 	kubeClient, ok := k.clients[name]
@@ -53,7 +53,7 @@ func (k *KubeStorage) GetOrSetClient(name string) (kubernetesClient, error) { //
 	}
 
 	if k.db == nil {
-		return nil, ErrDatabaseNotSet
+		return nil, errDatabaseNotSet
 	}
 
 	kubernetesCluster, err := models.FindKubernetesClusterByName(k.db.Querier, name)
@@ -68,7 +68,7 @@ func (k *KubeStorage) GetOrSetClient(name string) (kubernetesClient, error) { //
 	return kubeClient, nil
 }
 
-// DeleteClient deletes client from storage
+// DeleteClient deletes client from storage.
 func (k *KubeStorage) DeleteClient(name string) error {
 	k.mu.Lock()
 	defer k.mu.Unlock()

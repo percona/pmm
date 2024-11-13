@@ -25,15 +25,15 @@ import (
 
 const (
 	// MetricsResolutionMin is the smallest value metric resolution can accept.
-	MetricsResolutionMin = time.Second
+	MetricsResolutionMin = time.Second //nolint:revive
 	// MetricsResolutionMultipleOf is value metrics resolution should be multiple of.
 	MetricsResolutionMultipleOf = time.Second
 	// STTCheckIntervalMin is the smallest value STT check intervals can accept.
-	STTCheckIntervalMin = time.Second
+	STTCheckIntervalMin = time.Second //nolint:revive
 	// STTCheckIntervalMultipleOf is value STT check intervals should be multiple of.
 	STTCheckIntervalMultipleOf = time.Second
 	// DataRetentionMin is the smallest value data retention can accept.
-	DataRetentionMin = 24 * time.Hour
+	DataRetentionMin = 24 * time.Hour //nolint:revive
 	// DataRetentionMultipleOf is a value of data retention should be multiple of.
 	DataRetentionMultipleOf = 24 * time.Hour
 )

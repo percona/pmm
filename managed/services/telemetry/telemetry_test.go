@@ -193,13 +193,8 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 			RetryCount:   2,
 			SendTimeout:  time.Second * 10,
 		},
-		DataSources: struct {
-			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
-		}{
-			VM: &DataSourceVictoriaMetrics{
+		DataSources: DataSources{
+			VM: &DSConfigVM{
 				Enabled: true,
 				Timeout: time.Second * 2,
 				Address: vmDSN,
@@ -232,10 +227,31 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 					Params: "sslmode=disable",
 				},
 			},
-			GrafanaDBSelect: &DSGrafanaSqliteDB{
+			GrafanaDBSelect: &DSConfigGrafanaDB{
+				Enabled:                true,
+				Timeout:                time.Second * 2,
+				UseSeparateCredentials: true,
+				SeparateCredentials: struct {
+					Username string `yaml:"username"`
+					Password string `yaml:"password"`
+				}{
+					Username: "grafana",
+					Password: "grafana",
+				},
+				DSN: struct {
+					Scheme string
+					Host   string
+					DB     string
+					Params string
+				}{
+					Scheme: "postgres",
+					Host:   pgPortHost,
+					DB:     "grafana",
+					Params: "sslmode=disable",
+				},
+			},
+			EnvVars: &DSConfigEnvVars{
 				Enabled: true,
-				Timeout: time.Second * 2,
-				DBFile:  "/srv/grafana/grafana.db",
 			},
 		},
 	}
@@ -302,12 +318,7 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 			},
 		},
 		SaasHostname: "",
-		DataSources: struct {
-			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
-		}{},
+		DataSources:  DataSources{},
 		Reporting: ReportingConfig{
 			Send:         true,
 			SendOnStart:  sendOnStart,

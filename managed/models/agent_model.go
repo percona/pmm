@@ -73,6 +73,8 @@ const (
 	VMAgentType                         AgentType = "vmagent"
 )
 
+var v2_42 = version.MustParse("2.42.0-0")
+
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
 const PMMServerAgentID = string("pmm-server") // no /agent_id/ prefix
 
@@ -122,11 +124,15 @@ func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
-// PostgreSQLOptions represents structure for special MySQL options.
+// PostgreSQLOptions represents structure for special PostgreSQL options.
 type PostgreSQLOptions struct {
-	SSLCa   string `json:"ssl_ca"`
-	SSLCert string `json:"ssl_cert"`
-	SSLKey  string `json:"ssl_key"`
+	SSLCa                  string  `json:"ssl_ca"`
+	SSLCert                string  `json:"ssl_cert"`
+	SSLKey                 string  `json:"ssl_key"`
+	AutoDiscoveryLimit     int32   `json:"auto_discovery_limit"`
+	DatabaseCount          int32   `json:"database_count"`
+	PGSMVersion            *string `json:"pgsm_version"`
+	MaxExporterConnections int32   `json:"max_exporter_connections"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -187,15 +193,18 @@ type Agent struct {
 	MetricsPath             *string `reform:"metrics_path"`
 	MetricsScheme           *string `reform:"metrics_scheme"`
 
-	RDSBasicMetricsDisabled    bool           `reform:"rds_basic_metrics_disabled"`
-	RDSEnhancedMetricsDisabled bool           `reform:"rds_enhanced_metrics_disabled"`
-	PushMetrics                bool           `reform:"push_metrics"`
-	DisabledCollectors         pq.StringArray `reform:"disabled_collectors"`
+	RDSBasicMetricsDisabled    bool                `reform:"rds_basic_metrics_disabled"`
+	RDSEnhancedMetricsDisabled bool                `reform:"rds_enhanced_metrics_disabled"`
+	PushMetrics                bool                `reform:"push_metrics"`
+	DisabledCollectors         pq.StringArray      `reform:"disabled_collectors"`
+	MetricsResolutions         *MetricsResolutions `reform:"metrics_resolutions"`
 
 	MySQLOptions      *MySQLOptions      `reform:"mysql_options"`
 	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`
 	PostgreSQLOptions *PostgreSQLOptions `reform:"postgresql_options"`
 	LogLevel          *string            `reform:"log_level"`
+
+	ExposeExporter bool `reform:"expose_exporter"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -297,8 +306,16 @@ func (s *Agent) DBConfig(service *Service) *DBConfig {
 	}
 }
 
-// DSN returns DSN string for accessing given Service with this Agent (and implicit driver).
-func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string, tdp *DelimiterPair) string { //nolint:cyclop,maintidx
+// DSNParams represents the parameters for configuring a Data Source Name (DSN).
+type DSNParams struct {
+	DialTimeout time.Duration
+	Database    string
+
+	PostgreSQLSupportsSSLSNI bool
+}
+
+// DSN returns a DSN string for accessing a given Service with this Agent (and an implicit driver).
+func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, pmmAgentVersion *version.Parsed) string { //nolint:cyclop,maintidx
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	socket := pointer.GetString(service.Socket)
@@ -320,15 +337,21 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			cfg.Net = tcp
 			cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		}
-		cfg.Timeout = dialTimeout
-		cfg.DBName = database
+		cfg.Timeout = dsnParams.DialTimeout
+		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
 		if s.TLS {
+			// It is mandatory to have "custom" as the first case.
+			// Except case for backward compatibility.
+			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
-			case s.TLSSkipVerify:
+			// Backward compatibility
+			case s.TLSSkipVerify && (pmmAgentVersion == nil || pmmAgentVersion.Less(v2_42)):
 				cfg.Params["tls"] = skipVerify
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
+			case s.TLSSkipVerify:
+				cfg.Params["tls"] = skipVerify
 			default:
 				cfg.Params["tls"] = trueStr
 			}
@@ -349,15 +372,21 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			cfg.Net = tcp
 			cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		}
-		cfg.Timeout = dialTimeout
-		cfg.DBName = database
+		cfg.Timeout = dsnParams.DialTimeout
+		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
 		if s.TLS {
+			// It is mandatory to have "custom" as the first case.
+			// Except case for backward compatibility.
+			// Skip verify for "custom" is handled on pmm-agent side.
 			switch {
-			case s.TLSSkipVerify:
-				cfg.Params["tls"] = "skip-verify"
+			// Backward compatibility
+			case pmmAgentVersion != nil && s.TLSSkipVerify && pmmAgentVersion.Less(v2_42):
+				cfg.Params["tls"] = skipVerify
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
+			case s.TLSSkipVerify:
+				cfg.Params["tls"] = skipVerify
 			default:
 				cfg.Params["tls"] = trueStr
 			}
@@ -382,8 +411,8 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			cfg.Net = tcp
 			cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		}
-		cfg.Timeout = dialTimeout
-		cfg.DBName = database
+		cfg.Timeout = dsnParams.DialTimeout
+		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
 		if s.TLS {
 			if s.TLSSkipVerify {
@@ -400,16 +429,16 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 
 	case QANMongoDBProfilerAgentType, MongoDBExporterType:
 		q := make(url.Values)
-		if dialTimeout != 0 {
-			q.Set("connectTimeoutMS", strconv.Itoa(int(dialTimeout/time.Millisecond)))
-			q.Set("serverSelectionTimeoutMS", strconv.Itoa(int(dialTimeout/time.Millisecond)))
+		if dsnParams.DialTimeout != 0 {
+			q.Set("connectTimeoutMS", strconv.Itoa(int(dsnParams.DialTimeout/time.Millisecond)))
+			q.Set("serverSelectionTimeoutMS", strconv.Itoa(int(dsnParams.DialTimeout/time.Millisecond)))
 		}
 
 		// https://docs.mongodb.com/manual/reference/connection-string/
 		// > If the connection string does not specify a database/ you must specify a slash (/)
 		// between the last host and the question mark (?) that begins the string of options.
-		path := database
-		if database == "" {
+		path := dsnParams.Database
+		if path == "" {
 			path = "/"
 		}
 
@@ -475,35 +504,37 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			} else {
 				sslmode = VerifyCaSSLMode
 			}
+			if dsnParams.PostgreSQLSupportsSSLSNI {
+				q.Set("sslsni", "0")
+			}
 		}
 		q.Set("sslmode", sslmode)
 
-		if s.PostgreSQLOptions != nil {
-			if files := s.Files(); len(files) != 0 {
-				for key := range files {
-					switch key {
-					case caFilePlaceholder:
-						q.Add("sslrootcert", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
-					case certificateFilePlaceholder:
-						q.Add("sslcert", tdp.Left+".TextFiles."+certificateFilePlaceholder+tdp.Right)
-					case certificateKeyFilePlaceholder:
-						q.Add("sslkey", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
-					}
+		if files := s.Files(); len(files) != 0 {
+			for key := range files {
+				switch key {
+				case caFilePlaceholder:
+					q.Add("sslrootcert", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
+				case certificateFilePlaceholder:
+					q.Add("sslcert", tdp.Left+".TextFiles."+certificateFilePlaceholder+tdp.Right)
+				case certificateKeyFilePlaceholder:
+					q.Add("sslkey", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
 				}
 			}
 		}
 
-		if dialTimeout != 0 {
-			q.Set("connect_timeout", strconv.Itoa(int(dialTimeout.Seconds())))
+		if dsnParams.DialTimeout != 0 {
+			q.Set("connect_timeout", strconv.Itoa(int(dsnParams.DialTimeout.Seconds())))
 		}
 
 		address := ""
+		database := dsnParams.Database
 		if socket == "" {
 			address = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		} else {
-			// Set socket dirrectory as host URI parameter.
+			// Set socket directory as host URI parameter.
 			q.Set("host", socket)
-			// In case of empty url.URL.Host we need to identify a start of a path (database name).
+			// In case of empty url.URL.Host we need to identify the start of the path (database name).
 			database = "/" + database
 		}
 
@@ -548,11 +579,20 @@ func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	}
 
 	address := net.JoinHostPort(host, strconv.Itoa(listenPort))
+	// We have to split MetricsPath into the path and the query because it may contain both.
+	// Example: "/metrics?format=prometheus&output=json"
+	p := strings.Split(path, "?")
+
 	u := &url.URL{
 		Scheme: scheme,
 		Host:   address,
-		Path:   path,
+		Path:   p[0],
 	}
+
+	if len(p) > 1 {
+		u.RawQuery = p[1]
+	}
+
 	switch {
 	case password != "":
 		u.User = url.UserPassword(username, password)
@@ -569,9 +609,9 @@ func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
 	}
 
 	switch {
-	case s.TableCountTablestatsGroupLimit == 0: // no limit, always enable
+	case s.TableCountTablestatsGroupLimit == 0: // server defined
 		return true
-	case s.TableCountTablestatsGroupLimit < 0: // always disable
+	case s.TableCountTablestatsGroupLimit < 0: // always disabled
 		return false
 	case s.TableCount == nil: // for compatibility with 2.0
 		return true
@@ -585,30 +625,47 @@ func (s Agent) Files() map[string]string {
 	switch s.AgentType {
 	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		if s.MySQLOptions != nil {
-			return map[string]string{
-				"tlsCa":   s.MySQLOptions.TLSCa,
-				"tlsCert": s.MySQLOptions.TLSCert,
-				"tlsKey":  s.MySQLOptions.TLSKey,
+			files := make(map[string]string)
+			if s.MySQLOptions.TLSCa != "" {
+				files["tlsCa"] = s.MySQLOptions.TLSCa
 			}
+			if s.MySQLOptions.TLSCert != "" {
+				files["tlsCert"] = s.MySQLOptions.TLSCert
+			}
+			if s.MySQLOptions.TLSKey != "" {
+				files["tlsKey"] = s.MySQLOptions.TLSKey
+			}
+			return files
 		}
 		return nil
 	case ProxySQLExporterType:
 		return nil
 	case QANMongoDBProfilerAgentType, MongoDBExporterType:
 		if s.MongoDBOptions != nil {
-			return map[string]string{
-				caFilePlaceholder:             s.MongoDBOptions.TLSCa,
-				certificateKeyFilePlaceholder: s.MongoDBOptions.TLSCertificateKey,
+			files := make(map[string]string)
+			if s.MongoDBOptions.TLSCa != "" {
+				files[caFilePlaceholder] = s.MongoDBOptions.TLSCa
 			}
+			if s.MongoDBOptions.TLSCertificateKey != "" {
+				files[certificateKeyFilePlaceholder] = s.MongoDBOptions.TLSCertificateKey
+			}
+			return files
 		}
 		return nil
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
 		if s.PostgreSQLOptions != nil {
-			return map[string]string{
-				caFilePlaceholder:             s.PostgreSQLOptions.SSLCa,
-				certificateFilePlaceholder:    s.PostgreSQLOptions.SSLCert,
-				certificateKeyFilePlaceholder: s.PostgreSQLOptions.SSLKey,
+			files := make(map[string]string)
+
+			if s.PostgreSQLOptions.SSLCa != "" {
+				files[caFilePlaceholder] = s.PostgreSQLOptions.SSLCa
 			}
+			if s.PostgreSQLOptions.SSLCert != "" {
+				files[certificateFilePlaceholder] = s.PostgreSQLOptions.SSLCert
+			}
+			if s.PostgreSQLOptions.SSLKey != "" {
+				files[certificateKeyFilePlaceholder] = s.PostgreSQLOptions.SSLKey
+			}
+			return files
 		}
 		return nil
 	default:

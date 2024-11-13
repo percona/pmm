@@ -42,7 +42,8 @@ const (
 	envEnableAccessControl    = "ENABLE_RBAC"
 	envPlatformAPITimeout     = "PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
-	ENVvmAgentPrefix          = "VMAGENT_"
+	// ENVvmAgentPrefix is the prefix for environment variables related to the VM agent.
+	ENVvmAgentPrefix = "VMAGENT_"
 )
 
 // InvalidDurationError invalid duration error.
@@ -69,8 +70,10 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
 //   - the environment variable set by podman
-func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) { //nolint:cyclop,nonamedreturns
-	envSettings = &models.ChangeSettingsParams{}
+func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []string) { //nolint:cyclop,maintidx
+	envSettings := &models.ChangeSettingsParams{}
+	var errs []error
+	var warns []string
 
 	for _, env := range envs {
 		p := strings.SplitN(env, "=", 2)
@@ -314,6 +317,7 @@ func GetPlatformPublicKeys() []string {
 	return nil
 }
 
+// GetInterfaceToBind retrieves the network interface to bind based on environment variables.
 func GetInterfaceToBind() string {
 	return GetEnv(evnInterfaceToBind, "127.0.0.1")
 }

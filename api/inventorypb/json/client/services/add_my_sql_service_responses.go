@@ -449,6 +449,9 @@ type AddMySQLServiceOKBodyMysql struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// MySQL version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this add my SQL service OK body mysql

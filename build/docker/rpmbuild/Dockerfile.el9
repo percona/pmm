@@ -1,13 +1,19 @@
 FROM oraclelinux:9-slim
 
+RUN microdnf install -y yum
 # enable nodesource repo for nodejs
 RUN curl -sL https://rpm.nodesource.com/setup_16.x | bash -
 RUN curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
 
 RUN yum update -y && \
+    yum install -y crypto-policies-scripts && \
+    update-crypto-policies --set DEFAULT:SHA1 && \
     yum install -y --setopt=skip_missing_names_on_install=False \
-    gcc gcc-c++ \
     nodejs \
+    yarn && \
+    yum remove -y nodesource-release-el9-1.noarch
+
+RUN yum install -y gcc gcc-c++ \
     libtool libtool-ltdl \
     make cmake \
     git \
@@ -17,19 +23,17 @@ RUN yum update -y && \
     rpmdevtools createrepo_c epel-release \
     bison yum-utils rpm-build \
     rsync \
-    wget \
-    yarn && \
+    wget && \
     yum install -y --enablerepo=ol9_codeready_builder glibc-static && \
-    yum remove -y nodesource-release-el9-1.noarch && \
     yum clean all && rm -rf /var/cache/yum
 
 # keep that format for easier search
-ENV GO_VERSION 1.21.1
-ENV GO_RELEASER_VERSION 1.15.2
+ENV GO_VERSION 1.23.2
+ENV GO_RELEASER_VERSION 1.24.0
 
 RUN if [ `uname -i` == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
-    wget --progress=dot:giga https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz -O /tmp/golang.tar.gz && \
-    wget --progress=dot:giga https://github.com/goreleaser/goreleaser/releases/download/v${GO_RELEASER_VERSION}/goreleaser-${GO_RELEASER_VERSION}.`uname -i`.rpm -O /tmp/goreleaser.rpm && \
+    curl -fSsL -o /tmp/golang.tar.gz https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz && \
+    curl -fSsL -o /tmp/goreleaser.rpm https://github.com/goreleaser/goreleaser/releases/download/v${GO_RELEASER_VERSION}/goreleaser-${GO_RELEASER_VERSION}-1.`uname -i`.rpm && \
     tar -C /usr/local -xzf /tmp/golang.tar.gz && \
     yum install -y /tmp/goreleaser.rpm && \
     rm /tmp/golang.tar.gz /tmp/goreleaser.rpm

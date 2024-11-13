@@ -46,6 +46,8 @@ func (res *addAgentPostgresExporterResult) String() string {
 }
 
 // AddAgentPostgresExporterCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddAgentPostgresExporterCommand struct {
 	PMMAgentID          string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID           string            `arg:"" help:"Service identifier"`
@@ -55,6 +57,7 @@ type AddAgentPostgresExporterCommand struct {
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	ExposeExporter      bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	TLS                 bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
@@ -62,8 +65,10 @@ type AddAgentPostgresExporterCommand struct {
 	TLSCertFile         string            `help:"TLS certificate file"`
 	TLSKeyFile          string            `help:"TLS certificate key file"`
 	LogLevel            string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
+	AutoDiscoveryLimit  int32             `default:"0" placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
 }
 
+// RunCmd executes the AddAgentPostgresExporterCommand and returns the result.
 func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
@@ -98,7 +103,9 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 			PushMetrics:         cmd.PushMetrics,
+			ExposeExporter:      cmd.ExposeExporter,
 			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+			AutoDiscoveryLimit:  cmd.AutoDiscoveryLimit,
 
 			TLS:           cmd.TLS,
 			TLSSkipVerify: cmd.TLSSkipVerify,

@@ -170,6 +170,15 @@ type AddPostgresExporterBody struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Maximum number of connections that exporter can open to the database instance.
+	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 }
 
 // Validate validates this add postgres exporter body
@@ -531,12 +540,13 @@ type AddPostgresExporterOKBodyPostgresExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -548,6 +558,18 @@ type AddPostgresExporterOKBodyPostgresExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Maximum number of connections that exporter can open to the database instance.
+	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddPostgresExporterOKBodyPostgresExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add postgres exporter OK body postgres exporter
@@ -562,6 +584,10 @@ func (o *AddPostgresExporterOKBodyPostgresExporter) Validate(formats strfmt.Regi
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -572,7 +598,7 @@ var addPostgresExporterOkBodyPostgresExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -587,6 +613,9 @@ const (
 
 	// AddPostgresExporterOKBodyPostgresExporterStatusSTARTING captures enum value "STARTING"
 	AddPostgresExporterOKBodyPostgresExporterStatusSTARTING string = "STARTING"
+
+	// AddPostgresExporterOKBodyPostgresExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddPostgresExporterOKBodyPostgresExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddPostgresExporterOKBodyPostgresExporterStatusRUNNING captures enum value "RUNNING"
 	AddPostgresExporterOKBodyPostgresExporterStatusRUNNING string = "RUNNING"
@@ -679,8 +708,51 @@ func (o *AddPostgresExporterOKBodyPostgresExporter) validateLogLevel(formats str
 	return nil
 }
 
-// ContextValidate validates this add postgres exporter OK body postgres exporter based on context it is used
+func (o *AddPostgresExporterOKBodyPostgresExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addPostgresExporterOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPostgresExporterOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add postgres exporter OK body postgres exporter based on the context it is used
 func (o *AddPostgresExporterOKBodyPostgresExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddPostgresExporterOKBodyPostgresExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addPostgresExporterOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPostgresExporterOk" + "." + "postgres_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -695,6 +767,49 @@ func (o *AddPostgresExporterOKBodyPostgresExporter) MarshalBinary() ([]byte, err
 // UnmarshalBinary interface implementation
 func (o *AddPostgresExporterOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 	var res AddPostgresExporterOKBodyPostgresExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddPostgresExporterOKBodyPostgresExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model AddPostgresExporterOKBodyPostgresExporterMetricsResolutions
+*/
+type AddPostgresExporterOKBodyPostgresExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this add postgres exporter OK body postgres exporter metrics resolutions
+func (o *AddPostgresExporterOKBodyPostgresExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add postgres exporter OK body postgres exporter metrics resolutions based on context it is used
+func (o *AddPostgresExporterOKBodyPostgresExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddPostgresExporterOKBodyPostgresExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddPostgresExporterOKBodyPostgresExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res AddPostgresExporterOKBodyPostgresExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

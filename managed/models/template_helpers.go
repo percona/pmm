@@ -174,10 +174,11 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 	return nil
 }
 
+// ConvertTemplate converts an alert template to the internal representation.
 func ConvertTemplate(template *alert.Template, source Source) (*Template, error) {
 	p, err := ConvertParamsDefinitions(template.Params)
 	if err != nil {
-		return nil, errors.Errorf("invalid rule template parameters: %v.", err)
+		return nil, errors.Errorf("invalid rule template parameters: %v.", err) //nolint:revive
 	}
 
 	yaml, err := alert.ToYAML([]alert.Template{*template})

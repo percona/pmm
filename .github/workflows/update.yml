@@ -63,8 +63,10 @@ jobs:
         run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm/update run-race-cover RUN_FLAGS='-debug -check'
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: cover.out
           flags: update
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+

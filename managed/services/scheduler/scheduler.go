@@ -251,7 +251,6 @@ func (s *Service) wrapTask(task Task, id string) func() {
 		_, err = models.ChangeScheduledTask(s.db.Querier, id, models.ChangeScheduledTaskParams{
 			Running: pointer.ToBool(true),
 		})
-
 		if err != nil {
 			l.Errorf("failed to change running state: %v", err)
 		}

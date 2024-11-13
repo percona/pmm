@@ -221,7 +221,7 @@ func (svc *Service) reload(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("Alertmanager reload: %s", b)
@@ -838,7 +838,6 @@ func (svc *Service) UnsilenceAlerts(ctx context.Context, alerts []*ammodels.Gett
 				SilenceID: strfmt.UUID(silenceID),
 				Context:   ctx,
 			})
-
 			if err != nil {
 				return errors.Wrapf(err, "failed to delete silence with id %s for alert %s", silenceID, *a.Fingerprint)
 			}
@@ -859,7 +858,7 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("Alertmanager ready: %s", b)

@@ -148,7 +148,7 @@ func FindArtifactByName(q *reform.Querier, name string) (*Artifact, error) {
 	err := q.FindOneTo(artifact, "name", name)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, errors.Wrapf(ErrNotFound, "backup artifact with name %q not found.", name)
+			return nil, errors.Wrapf(ErrNotFound, "backup artifact with name %q not found.", name) //nolint:revive
 		}
 		return nil, errors.WithStack(err)
 	}

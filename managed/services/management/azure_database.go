@@ -59,18 +59,20 @@ type AzureDatabaseService struct {
 	registry agentsRegistry
 	state    agentsStateUpdater
 	cc       connectionChecker
+	sib      serviceInfoBroker
 
 	azurev1beta1.UnimplementedAzureDatabaseServer
 }
 
 // NewAzureDatabaseService creates new instance discovery service.
-func NewAzureDatabaseService(db *reform.DB, registry agentsRegistry, state agentsStateUpdater, cc connectionChecker) *AzureDatabaseService {
+func NewAzureDatabaseService(db *reform.DB, registry agentsRegistry, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker) *AzureDatabaseService { //nolint:lll
 	return &AzureDatabaseService{
 		l:        logrus.WithField("component", "management/azure_database"),
 		db:       db,
 		registry: registry,
 		state:    state,
 		cc:       cc,
+		sib:      sib,
 	}
 }
 
@@ -299,6 +301,9 @@ func (s *AzureDatabaseService) AddAzureDatabase(ctx context.Context, req *azurev
 
 		if !req.SkipConnectionCheck {
 			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, metricsExporter); err != nil {
+				return err
+			}
+			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, metricsExporter); err != nil {
 				return err
 			}
 		}

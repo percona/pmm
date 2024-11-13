@@ -82,6 +82,11 @@ func (j *MySQLRestoreJob) Timeout() time.Duration {
 	return j.timeout
 }
 
+// DSN returns DSN for the Job.
+func (j *MySQLRestoreJob) DSN() string {
+	return "" // not used for MySQL restore
+}
+
 // Run executes backup restore steps.
 func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 	if j.locationConfig.S3Config == nil {
@@ -228,7 +233,7 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 	}
 
 	wrapError := func(err error) error {
-		return errors.Wrapf(err, "stderr: %s\n stdout: %s\n", stderr.String(), stdout.String())
+		return errors.Wrapf(err, "stderr: %s\n stdout: %s\n", stderr.String(), stdout.String()) //nolint:revive
 	}
 
 	if err := xbcloudCmd.Start(); err != nil {

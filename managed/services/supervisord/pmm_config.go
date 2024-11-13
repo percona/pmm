@@ -128,6 +128,7 @@ stdout_logfile_maxbytes = 30MB
 stdout_logfile_backups = 2
 redirect_stderr = true
 {{- end }}
+{{- if not .DisableInternalClickhouse }}
 
 [program:clickhouse]
 priority = 2
@@ -144,6 +145,7 @@ stdout_logfile = /srv/logs/clickhouse-server.log
 stdout_logfile_maxbytes = 50MB
 stdout_logfile_backups = 2
 redirect_stderr = true
+{{- end }}
 
 [program:nginx]
 priority = 4
@@ -182,7 +184,7 @@ redirect_stderr = true
 priority = 15
 command = /usr/sbin/pmm-agent --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml
 autorestart = true
-autostart = true
+autostart = false
 startretries = 1000
 startsecs = 1
 stopsignal = TERM

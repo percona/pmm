@@ -56,7 +56,7 @@ const (
 	defaultStartDelay = time.Minute
 
 	// Environment variables that affect checks service; only for testing.
-	envCheckFile         = "PERCONA_TEST_CHECKS_FILE"
+	envCheckFile         = "PERCONA_TEST_CHECKS_FILE" //nolint:gosec
 	envDisableStartDelay = "PERCONA_TEST_CHECKS_DISABLE_START_DELAY"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
@@ -370,6 +370,7 @@ func (s *Service) GetAdvisors() ([]check.Advisor, error) {
 	return res, nil
 }
 
+// GetChecks retrieves a map of checks from the service.
 func (s *Service) GetChecks() (map[string]check.Check, error) {
 	cs, err := models.FindCheckSettings(s.db.Querier)
 	if err != nil {
@@ -1438,7 +1439,7 @@ func (s *Service) loadLocalChecks(file string) ([]check.Check, error) {
 
 	for _, c := range checks {
 		if c.Advisor != "dev" {
-			return nil, errors.Errorf("Local checks are supposed to be linked to the 'dev' advisor.")
+			return nil, errors.Errorf("Local checks are supposed to be linked to the 'dev' advisor.") //nolint:revive
 		}
 	}
 
@@ -1490,24 +1491,24 @@ func (s *Service) filterSupportedChecks(advisors []check.Advisor) []check.Adviso
 	for _, advisor := range advisors {
 		checks := make([]check.Check, 0, len(advisor.Checks))
 
-	loop:
+	LOOP:
 		for _, c := range advisor.Checks {
 			if c.Version > maxSupportedVersion {
 				s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, maxSupportedVersion)
-				continue loop
+				continue LOOP
 			}
 
 			switch c.Version {
 			case 1:
 				if ok := isQueryTypeSupported(c.Type); !ok {
 					s.l.Warnf("Unsupported check type: %s.", c.Type)
-					continue loop
+					continue LOOP
 				}
 			case 2:
 				for _, query := range c.Queries {
 					if ok := isQueryTypeSupported(query.Type); !ok {
 						s.l.Warnf("Unsupported query type: %s.", query.Type)
-						continue loop
+						continue LOOP
 					}
 				}
 			}

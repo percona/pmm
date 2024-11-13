@@ -69,7 +69,7 @@ func GetLatestVersion(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	defer res.Body.Close() //nolint:errcheck,gosec
+	defer res.Body.Close() //nolint:errcheck,gosec,nolintlint
 
 	url, err := res.Location()
 	if err != nil {

@@ -40,7 +40,7 @@ jobs:
 
       - name: Enable Go build cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -50,7 +50,7 @@ jobs:
 
       - name: Enable Go modules cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
@@ -81,6 +81,9 @@ jobs:
       - name: Update binaries
         run: docker exec -i pmm-server make run-managed-ci run-agent run-vmproxy
 
+      - name: Refresh yum cache for tests
+        run: docker exec -i pmm-server yum --verbose info updates pmm-managed || echo '1'
+
       - name: Run tests
         run: docker exec -i pmm-server make -C managed test-cover
 
@@ -88,12 +91,13 @@ jobs:
         run: docker exec -i pmm-server make -C managed test-update
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: managed/cover.out
           flags: managed
           env_vars: PMM_SERVER_IMAGE
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}

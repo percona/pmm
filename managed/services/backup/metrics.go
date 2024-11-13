@@ -34,6 +34,7 @@ const (
 	prometheusSubsystem         = "backups"
 )
 
+// MetricsCollector is responsible for collecting metrics related to backup.
 type MetricsCollector struct {
 	db *reform.DB
 	l  *logrus.Entry
@@ -41,6 +42,7 @@ type MetricsCollector struct {
 	mArtifactsDesc *prom.Desc
 }
 
+// NewMetricsCollector creates a new instance of MetricsCollector.
 func NewMetricsCollector(db *reform.DB) *MetricsCollector {
 	return &MetricsCollector{
 		db: db,
@@ -56,10 +58,12 @@ func NewMetricsCollector(db *reform.DB) *MetricsCollector {
 	}
 }
 
+// Describe sends the metrics descriptions to the provided channel.
 func (c *MetricsCollector) Describe(ch chan<- *prom.Desc) {
 	ch <- c.mArtifactsDesc
 }
 
+// Collect sends the collected metrics to the provided channel.
 func (c *MetricsCollector) Collect(ch chan<- prom.Metric) {
 	ctx, cancelCtx := context.WithTimeout(context.Background(), requestTimeout)
 	defer cancelCtx()

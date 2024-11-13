@@ -53,6 +53,7 @@ type AddServiceExternalCommand struct {
 	Group          string            `help:"Group name of external service"`
 }
 
+// RunCmd executes the AddServiceExternalCommand and returns the result.
 func (cmd *AddServiceExternalCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 

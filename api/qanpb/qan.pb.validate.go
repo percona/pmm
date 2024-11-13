@@ -166,6 +166,14 @@ func (m *Point) validate(all bool) error {
 
 	// no validation rules for MBlkWriteTimeSumPerSec
 
+	// no validation rules for MSharedBlkReadTimeSumPerSec
+
+	// no validation rules for MSharedBlkWriteTimeSumPerSec
+
+	// no validation rules for MLocalBlkReadTimeSumPerSec
+
+	// no validation rules for MLocalBlkWriteTimeSumPerSec
+
 	// no validation rules for MCpuUserTimeSumPerSec
 
 	// no validation rules for MCpuSysTimeSumPerSec

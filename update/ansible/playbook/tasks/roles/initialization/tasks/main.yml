@@ -34,6 +34,15 @@
   debug:
     msg: "Current version: {{ pmm_current_version }} Image Version: {{ pmm_image_version }}"
 
+# We use current_version_file['failed'] because we don't want to run this on creating container
+# and we use pmm_current_version is version(pmm_image_version, '>=') to run it only if upgrade is required
+- name: Determine type of upgrade
+  set_fact:
+    docker_upgrade: "{{ not ui_upgrade and current_version_file['failed'] != true and not pmm_current_version is version(pmm_image_version, '>=') }}"
+
+- name: Print Docker upgrade fact
+  debug:
+    msg: "Docker upgrade: {{ docker_upgrade }}"
 
 # We use current_version_file['failed'] because we don't want to run this on creating container
 # and we use pmm_current_version is version(pmm_image_version, '>=') to run it only if upgrade is required
@@ -42,7 +51,7 @@
     src: maintenance.html
     dest: /usr/share/pmm-server/maintenance/
     mode: 0644
-  when: not ui_upgrade and current_version_file['failed'] == false and not pmm_current_version is version(pmm_image_version, '>=')
+  when: docker_upgrade
 
 # PMM-10858 - In certain environments, including AWS EC2, some of the
 # EPEL repository mirrors do not respond within the time limit defined
@@ -60,9 +69,54 @@
   become: true
   changed_when: True
 
-- name: Check if we need an update or not
-  include_role:
-    name: dashboards_upgrade
+- name: Create clickhouse data directory
+  file:
+    path: "/srv/clickhouse"
+    state: directory
+    owner: root
+    group: pmm
+
+- name: Update (both)
+  block:
+    - name: Check that conversion flag isn't created
+      stat:
+        path: /srv/clickhouse/flags/convert_ordinary_to_atomic
+      register: is_gf_database_converted
+
+    - name: Convert clickhouse engine from ordinary to atomic
+      block:
+        # This will implicitly create /srv/clickhouse
+        - name: Create clickhouse data directory
+          file:
+            path: "/srv/clickhouse/flags"
+            state: directory
+            owner: root
+            group: pmm
+            recurse: true
+
+        - name: Create empty file to convert clickhouse databases from ordinary to atomic
+          file:
+            path: "/srv/clickhouse/flags/convert_ordinary_to_atomic"
+            state: touch
+            owner: root
+            group: pmm
+
+        - name: Restart clickhouse EL7
+          when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+          command: supervisorctl restart clickhouse
+          become: true
+          changed_when: true
+
+        - name: Restart clickhouse EL9
+          when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+          command: /usr/local/bin/supervisorctl restart clickhouse
+          become: true
+          changed_when: true
+      when: not is_gf_database_converted.stat.exists and current_version_file['failed'] != true
+
+    - name: Upgrade dashboards
+      include_role:
+        name: dashboards_upgrade
   when: not pmm_current_version is version(pmm_image_version, '>=')
 
 - name: Create backup directory
@@ -80,20 +134,28 @@
     name: postgres
   when: is_postgres_11.stat.exists
 
-- name: Create grafana database in postgres
-  postgresql_db:
-    name: grafana
-    state: present
+- name: Create grafana DB
+  block:
+    - name: Create grafana database in postgres
+      postgresql_db:
+        name: grafana
+        state: present
 
-- name: Create grafana user in postgres
-  postgresql_user:
-    db: grafana
-    name: grafana
-    password: grafana
-    priv: 'ALL'
-    expires: infinity
-    state: present
-  when: not ansible_check_mode
+    - name: Create grafana user in postgres
+      postgresql_user:
+        db: grafana
+        name: grafana
+        password: grafana
+        priv: 'ALL'
+        expires: infinity
+        state: present
+      when: not ansible_check_mode
+  when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == ''
+
+- name: Upgrade grafana database (Get the latest schema)
+  command: grafana cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords
+  changed_when: True
+  when: lookup('env','PMM_TEST_HA_BOOTSTRAP') != '' and not pmm_current_version is version(pmm_image_version, '>=')
 
 - name: Create working directory for Alertmanager
   file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
@@ -104,14 +166,14 @@
 - name: Create empty configuration file for VictoriaMetrics
   file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
 
-- name: Run SQLite -> Postgres only for docker upgrade
+- name: Run operations for docker-way upgrade
   block:
     - name: Check that the SQLite grafana database exists
       stat:
         path: /srv/grafana/grafana.db
       register: is_database_sqlite
 
-    - name: Temporary change database to SQLite
+    - name: Run SQLite -> Postgres only
       block:
         - name: Remove database options (SQLite is default)
           ini_file:
@@ -160,6 +222,24 @@
             - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
       when: is_database_sqlite.stat.exists
 
+    - name: Change default admin id
+      postgresql_query:
+        db: grafana
+        query: UPDATE "user" SET id='1' WHERE login='admin';
+      when: not ansible_check_mode
+
+  when: docker_upgrade
+
+- name: Copy file with image version
+  copy:
+    src: /usr/share/percona-dashboards/VERSION
+    dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+    owner: grafana
+    remote_src: yes
+  when: not pmm_current_version is version(pmm_image_version, '>=')
+
+- name: Finalization
+  block:
     - name: Wait for PMM to be ready
       ansible.builtin.uri:
         url: "http://127.0.0.1:7772/v1/readyz"
@@ -167,12 +247,11 @@
         method: GET
       retries: 120
       delay: 1
-
-    - name: Disable maintenance mode
-      file:
-        state: absent
-        path: /usr/share/pmm-server/maintenance/maintenance.html
   # We use current_version_file['failed'] because we don't want to run this on creating container
-  when: not ui_upgrade and current_version_file['failed'] == false and not pmm_current_version is version(pmm_image_version, '>=')
+  when: docker_upgrade
 
-
+- name: Disable maintenance mode
+  file:
+    state: absent
+    path: /usr/share/pmm-server/maintenance/maintenance.html
+  when: not ui_upgrade

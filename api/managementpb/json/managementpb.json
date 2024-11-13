@@ -1844,6 +1844,28 @@
                       "type": "string",
                       "x-order": 6
                     },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 11
+                    },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
@@ -2177,6 +2199,28 @@
                       "type": "string",
                       "x-order": 6
                     },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 11
+                    },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
@@ -2434,6 +2478,11 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 31
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -2605,6 +2654,11 @@
                       "type": "boolean",
                       "x-order": 14
                     },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 17
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -2624,6 +2678,28 @@
                         "debug"
                       ],
                       "x-order": 16
+                    },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 18
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -2654,12 +2730,13 @@
                       "x-order": 12
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",
@@ -2744,12 +2821,13 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",
@@ -2833,6 +2911,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "MongoDB version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -3005,6 +3088,11 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 31
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -3174,6 +3262,11 @@
                       },
                       "x-order": 13
                     },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -3193,6 +3286,28 @@
                         "debug"
                       ],
                       "x-order": 18
+                    },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 20
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3215,12 +3330,13 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",
@@ -3341,12 +3457,13 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",
@@ -3462,12 +3579,13 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",
@@ -3566,6 +3684,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "MySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -3674,6 +3797,11 @@
                   "description": "Linux distribution name and version.",
                   "type": "string",
                   "x-order": 4
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 15
                 },
                 "machine_id": {
                   "description": "Linux machine-id.",
@@ -3889,6 +4017,11 @@
                   "description": "Token represents token for vmagent auth config.",
                   "type": "string",
                   "x-order": 3
+                },
+                "warning": {
+                  "description": "Warning message.",
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
@@ -4022,6 +4155,12 @@
                   "type": "string",
                   "x-order": 28
                 },
+                "auto_discovery_limit": {
+                  "description": "Limit for auto discovery.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 30
+                },
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
@@ -4063,6 +4202,11 @@
                   "type": "string",
                   "x-order": 9
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 31
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -4076,6 +4220,12 @@
                     "debug"
                   ],
                   "x-order": 29
+                },
+                "max_exporter_connections": {
+                  "description": "Maximum number of connections that exporter can open to the database instance.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 32
                 },
                 "max_query_length": {
                   "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
@@ -4199,6 +4349,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -4220,6 +4376,11 @@
                       },
                       "x-order": 9
                     },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -4239,6 +4400,34 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 16
+                    },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 17
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4261,12 +4450,13 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",
@@ -4356,12 +4546,13 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",
@@ -4456,12 +4647,13 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",
@@ -4496,6 +4688,12 @@
                       "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 4
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 12
                     },
                     "cluster": {
                       "description": "Cluster name.",
@@ -4550,9 +4748,19 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "version": {
+                      "description": "PostgreSQL version.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
+                },
+                "warning": {
+                  "description": "Warning message.",
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
@@ -4712,6 +4920,11 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 21
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -4838,6 +5051,11 @@
                       },
                       "x-order": 9
                     },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 14
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -4857,6 +5075,28 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 15
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4879,12 +5119,13 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",
@@ -4968,6 +5209,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "ProxySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -5035,6 +5281,12 @@
                   "type": "string",
                   "x-order": 28
                 },
+                "auto_discovery_limit": {
+                  "description": "Limit of databases for auto-discovery.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 30
+                },
                 "aws_access_key": {
                   "description": "AWS Access key.",
                   "type": "string",
@@ -5073,6 +5325,11 @@
                   "type": "boolean",
                   "x-order": 24
                 },
+                "disable_comments_parsing": {
+                  "description": "Disable parsing comments from queries and showing them in QAN.",
+                  "type": "boolean",
+                  "x-order": 31
+                },
                 "disable_enhanced_metrics": {
                   "description": "Disable enhanced metrics.",
                   "type": "boolean",
@@ -5103,6 +5360,12 @@
                   "description": "AWS instance ID.",
                   "type": "string",
                   "x-order": 2
+                },
+                "max_postgresql_exporter_connections": {
+                  "description": "Maximum number of exporter connections to PostgreSQL instance.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 32
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -5259,6 +5522,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "MySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 2
@@ -5293,6 +5561,11 @@
                       },
                       "x-order": 13
                     },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -5312,6 +5585,28 @@
                         "debug"
                       ],
                       "x-order": 18
+                    },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 20
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5334,12 +5629,13 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",
@@ -5446,6 +5742,12 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 12
+                    },
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
@@ -5499,6 +5801,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "version": {
+                      "description": "PostgreSQL version.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 6
@@ -5511,6 +5818,12 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -5533,6 +5846,11 @@
                       },
                       "x-order": 9
                     },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -5552,6 +5870,34 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 16
+                    },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 17
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5574,12 +5920,13 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",
@@ -5674,12 +6021,13 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",
@@ -5784,12 +6132,13 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",
@@ -5824,6 +6173,12 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 13
                     },
                     "aws_access_key": {
                       "description": "AWS Access Key.",
@@ -5873,6 +6228,28 @@
                       ],
                       "x-order": 12
                     },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        }
+                      },
+                      "x-order": 14
+                    },
                     "node_id": {
                       "description": "Node identifier.",
                       "type": "string",
@@ -5894,12 +6271,13 @@
                       "x-order": 10
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - INITIALIZATION_ERROR: Agent encountered error when starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error when running and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
                         "AGENT_STATUS_INVALID",
                         "STARTING",
+                        "INITIALIZATION_ERROR",
                         "RUNNING",
                         "WAITING",
                         "STOPPING",

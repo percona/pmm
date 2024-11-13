@@ -186,7 +186,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
 		l.Errorf("Failed to shutdown gracefully: %s \n", err)
-		server.Close()
+		server.Close() //nolint:errcheck
 	}
 	cancel()
 }
@@ -228,7 +228,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 		l.Panic(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, req *http.Request) {
-		rw.Write(buf.Bytes())
+		rw.Write(buf.Bytes()) //nolint:errcheck
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugBindF, strings.Join(handlers, "\n\t"))
 
@@ -355,7 +355,7 @@ func main() {
 		defer wg.Done()
 		for {
 			// Drop old partitions once in 24h.
-			DropOldPartition(db, *dataRetentionF)
+			DropOldPartition(db, *clickHouseDatabaseF, *dataRetentionF)
 			select {
 			case <-ctx.Done():
 				return

@@ -43,7 +43,7 @@ import (
 const defaultWaitTime = 60 * time.Second
 
 // PGStatMonitorQAN QAN services connects to PostgreSQL and extracts stats.
-type PGStatMonitorQAN struct {
+type PGStatMonitorQAN struct { //nolint:revive
 	q                      *reform.Querier
 	dbCloser               io.Closer
 	agentID                string
@@ -85,6 +85,13 @@ const (
 	pgStatMonitorVersion20PG13
 	pgStatMonitorVersion20PG14
 	pgStatMonitorVersion20PG15
+	pgStatMonitorVersion20PG16
+	pgStatMonitorVersion21PG12
+	pgStatMonitorVersion21PG13
+	pgStatMonitorVersion21PG14
+	pgStatMonitorVersion21PG15
+	pgStatMonitorVersion21PG16
+	pgStatMonitorVersion21PG17
 )
 
 const (
@@ -184,40 +191,54 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 
 	var version pgStatMonitorVersion
 	switch {
+	case vPGSM.Core().GreaterThanOrEqual(v21):
+		switch {
+		case vPG >= 17:
+			version = pgStatMonitorVersion21PG17
+		case vPG >= 16:
+			version = pgStatMonitorVersion21PG16
+		case vPG >= 15:
+			version = pgStatMonitorVersion21PG15
+		case vPG >= 14:
+			version = pgStatMonitorVersion21PG14
+		case vPG >= 13:
+			version = pgStatMonitorVersion21PG13
+		default:
+			version = pgStatMonitorVersion21PG12
+		}
 	case vPGSM.Core().GreaterThanOrEqual(v20):
-		if vPG >= 15 {
+		switch {
+		case vPG >= 16:
+			version = pgStatMonitorVersion20PG16
+		case vPG >= 15:
 			version = pgStatMonitorVersion20PG15
-			break
-		}
-		if vPG >= 14 {
+		case vPG >= 14:
 			version = pgStatMonitorVersion20PG14
-			break
-		}
-		if vPG >= 13 {
+		case vPG >= 13:
 			version = pgStatMonitorVersion20PG13
-			break
+		default:
+			version = pgStatMonitorVersion20PG12
 		}
-		version = pgStatMonitorVersion20PG12
 	case vPGSM.Core().GreaterThanOrEqual(v11):
-		if vPG >= 14 {
+		switch {
+		case vPG >= 14:
 			version = pgStatMonitorVersion11PG14
-			break
-		}
-		if vPG >= 13 {
+		case vPG >= 13:
 			version = pgStatMonitorVersion11PG13
-			break
+		default:
+			version = pgStatMonitorVersion11PG12
 		}
-		version = pgStatMonitorVersion11PG12
+
 	case vPGSM.Core().GreaterThanOrEqual(v10):
-		if vPG >= 14 {
+		switch {
+		case vPG >= 14:
 			version = pgStatMonitorVersion10PG14
-			break
-		}
-		if vPG >= 13 {
+		case vPG >= 13:
 			version = pgStatMonitorVersion10PG13
-			break
+		default:
+			version = pgStatMonitorVersion10PG12
 		}
-		version = pgStatMonitorVersion10PG12
+
 	case vPGSM.GreaterThanOrEqual(v09):
 		version = pgStatMonitorVersion09
 	case vPGSM.GreaterThanOrEqual(v08):
@@ -366,7 +387,7 @@ func getPGSM20Settings(q *reform.Querier) (settings, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	result := make(settings)
 	for rows.Next() {
@@ -563,10 +584,10 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				mb.Postgresql.HistogramItems = histogram
 			}
 
-			if (currentPSM.PlanTotalTime - prevPSM.PlanTotalTime) != 0 {
-				mb.Postgresql.MPlanTimeSum = float32(currentPSM.PlanTotalTime-prevPSM.PlanTotalTime) / 1000
-				mb.Postgresql.MPlanTimeMin = float32(currentPSM.PlanMinTime) / 1000
-				mb.Postgresql.MPlanTimeMax = float32(currentPSM.PlanMaxTime) / 1000
+			if (currentPSM.TotalPlanTime - prevPSM.TotalPlanTime) != 0 {
+				mb.Postgresql.MPlanTimeSum = float32(currentPSM.TotalPlanTime-prevPSM.TotalPlanTime) / 1000
+				mb.Postgresql.MPlanTimeMin = float32(currentPSM.MinPlanTime) / 1000
+				mb.Postgresql.MPlanTimeMax = float32(currentPSM.MaxPlanTime) / 1000
 				mb.Postgresql.MPlanTimeCnt = count
 			}
 
@@ -618,9 +639,11 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				{float32(currentPSM.WalBytes - prevPSM.WalBytes), &mb.Postgresql.MWalBytesSum, &mb.Postgresql.MWalBytesCnt},
 
 				// convert milliseconds to seconds
-				{float32(currentPSM.TotalTime-prevPSM.TotalTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
-				{float32(currentPSM.BlkReadTime-prevPSM.BlkReadTime) / 1000, &mb.Postgresql.MBlkReadTimeSum, &mb.Postgresql.MBlkReadTimeCnt},
-				{float32(currentPSM.BlkWriteTime-prevPSM.BlkWriteTime) / 1000, &mb.Postgresql.MBlkWriteTimeSum, &mb.Postgresql.MBlkWriteTimeCnt},
+				{float32(currentPSM.TotalExecTime-prevPSM.TotalExecTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
+				{float32(currentPSM.SharedBlkReadTime-prevPSM.SharedBlkReadTime) / 1000, &mb.Postgresql.MSharedBlkReadTimeSum, &mb.Postgresql.MSharedBlkReadTimeCnt},
+				{float32(currentPSM.SharedBlkWriteTime-prevPSM.SharedBlkWriteTime) / 1000, &mb.Postgresql.MSharedBlkWriteTimeSum, &mb.Postgresql.MSharedBlkWriteTimeCnt},
+				{float32(currentPSM.LocalBlkReadTime-prevPSM.LocalBlkReadTime) / 1000, &mb.Postgresql.MLocalBlkReadTimeSum, &mb.Postgresql.MLocalBlkReadTimeCnt},
+				{float32(currentPSM.LocalBlkWriteTime-prevPSM.LocalBlkWriteTime) / 1000, &mb.Postgresql.MLocalBlkWriteTimeSum, &mb.Postgresql.MLocalBlkWriteTimeCnt},
 
 				// convert microseconds to seconds
 				{float32(cpuSysTime) / 1000000, &mb.Postgresql.MCpuSysTimeSum, &mb.Postgresql.MCpuSysTimeCnt},
@@ -715,12 +738,12 @@ func (m *PGStatMonitorQAN) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) {
+func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) {
+func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 

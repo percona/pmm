@@ -26,6 +26,6 @@ import (
 )
 
 // Set works only on Linux.
-func Set(cmd *exec.Cmd, s unix.Signal) {
+func Set(_ *exec.Cmd, _ unix.Signal) {
 	// nothing, see pdeathsig_linux.go
 }

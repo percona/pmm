@@ -16,6 +16,6 @@ package noop
 
 import "testing"
 
-func TestNoOp(t *testing.T) {
+func TestNoOp(t *testing.T) { //nolint:revive
 	// we need at least one test per package to correctly calculate coverage
 }

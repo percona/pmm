@@ -27,6 +27,7 @@ import (
 )
 
 var (
+	v21 = version.Must(version.NewVersion("2.1.0"))
 	v20 = version.Must(version.NewVersion("2.0.0"))
 	v11 = version.Must(version.NewVersion("1.1.0"))
 	v10 = version.Must(version.NewVersion("1.0.0"))
@@ -46,30 +47,32 @@ type pgStatMonitor struct {
 	BucketStartTimeString string
 
 	// rest
-	Bucket            int64
-	BucketStartTime   time.Time
-	ClientIP          string
-	QueryID           string // we select only non-NULL rows
-	Query             string // we select only non-NULL rows
-	Comments          *string
-	Relations         pq.StringArray
-	Calls             int64
-	SharedBlksHit     int64
-	SharedBlksRead    int64
-	SharedBlksDirtied int64
-	SharedBlksWritten int64
-	LocalBlksHit      int64
-	LocalBlksRead     int64
-	LocalBlksDirtied  int64
-	LocalBlksWritten  int64
-	TempBlksRead      int64
-	TempBlksWritten   int64
-	BlkReadTime       float64
-	BlkWriteTime      float64
-	RespCalls         pq.StringArray
-	CPUUserTime       float64
-	CPUSysTime        float64
-	Rows              int64
+	Bucket             int64
+	BucketStartTime    time.Time
+	ClientIP           string
+	QueryID            string // we select only non-NULL rows
+	Query              string // we select only non-NULL rows
+	Comments           *string
+	Relations          pq.StringArray
+	Calls              int64
+	SharedBlksHit      int64
+	SharedBlksRead     int64
+	SharedBlksDirtied  int64
+	SharedBlksWritten  int64
+	LocalBlksHit       int64
+	LocalBlksRead      int64
+	LocalBlksDirtied   int64
+	LocalBlksWritten   int64
+	TempBlksRead       int64
+	TempBlksWritten    int64
+	SharedBlkReadTime  float64
+	SharedBlkWriteTime float64
+	LocalBlkReadTime   float64
+	LocalBlkWriteTime  float64
+	RespCalls          pq.StringArray
+	CPUUserTime        float64
+	CPUSysTime         float64
+	Rows               int64
 
 	TopQueryID      *string
 	PlanID          *string
@@ -81,16 +84,16 @@ type pgStatMonitor struct {
 	Elevel          int32
 	Sqlcode         *string
 	Message         *string
-	TotalTime       float64
-	MinTime         float64
-	MaxTime         float64
-	MeanTime        float64
-	StddevTime      float64
+	TotalExecTime   float64
+	MinExecTime     float64
+	MaxExecTime     float64
+	MeanExecTime    float64
+	StddevExecTime  float64
 	PlansCalls      int64
-	PlanTotalTime   float64
-	PlanMinTime     float64
-	PlanMaxTime     float64
-	PlanMeanTime    float64
+	TotalPlanTime   float64
+	MinPlanTime     float64
+	MaxPlanTime     float64
+	MeanPlanTime    float64
 	WalRecords      int64
 	WalFpi          int64
 	WalBytes        int64
@@ -122,8 +125,6 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 		{info: parse.FieldInfo{Name: "LocalBlksWritten", Type: "int64", Column: "local_blks_written"}, pointer: &s.LocalBlksWritten},
 		{info: parse.FieldInfo{Name: "TempBlksRead", Type: "int64", Column: "temp_blks_read"}, pointer: &s.TempBlksRead},
 		{info: parse.FieldInfo{Name: "TempBlksWritten", Type: "int64", Column: "temp_blks_written"}, pointer: &s.TempBlksWritten},
-		{info: parse.FieldInfo{Name: "BlkReadTime", Type: "float64", Column: "blk_read_time"}, pointer: &s.BlkReadTime},
-		{info: parse.FieldInfo{Name: "BlkWriteTime", Type: "float64", Column: "blk_write_time"}, pointer: &s.BlkWriteTime},
 		{info: parse.FieldInfo{Name: "RespCalls", Type: "pq.StringArray", Column: "resp_calls"}, pointer: &s.RespCalls},
 		{info: parse.FieldInfo{Name: "CPUUserTime", Type: "float64", Column: "cpu_user_time"}, pointer: &s.CPUUserTime},
 		{info: parse.FieldInfo{Name: "CPUSysTime", Type: "float64", Column: "cpu_sys_time"}, pointer: &s.CPUSysTime},
@@ -133,8 +134,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 		// versions older than 0.8
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "Relations", Type: "pq.StringArray", Column: "tables_names"}, pointer: &s.Relations},
-			field{info: parse.FieldInfo{Name: "DBID", Type: "int64", Column: "dbid"}, pointer: &s.DBID},
-			field{info: parse.FieldInfo{Name: "UserID", Type: "int64", Column: "userid"}, pointer: &s.UserID})
+			field{info: parse.FieldInfo{Name: "DBID", Type: "int64", Column: "dbid"}, pointer: &s.DBID})
 	}
 	if vPGSM <= pgStatMonitorVersion08 || vPGSM >= pgStatMonitorVersion20PG12 {
 		fields = append(fields,
@@ -151,10 +151,10 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 	}
 	if vPGSM == pgStatMonitorVersion09 {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "PlanTotalTime", Type: "float64", Column: "plan_total_time"}, pointer: &s.PlanTotalTime},
-			field{info: parse.FieldInfo{Name: "PlanMinTime", Type: "float64", Column: "plan_min_time"}, pointer: &s.PlanMinTime},
-			field{info: parse.FieldInfo{Name: "PlanMaxTime", Type: "float64", Column: "plan_max_time"}, pointer: &s.PlanMaxTime},
-			field{info: parse.FieldInfo{Name: "PlanMeanTime", Type: "float64", Column: "plan_mean_time"}, pointer: &s.PlanMeanTime},
+			field{info: parse.FieldInfo{Name: "TotalPlanTime", Type: "float64", Column: "plan_total_time"}, pointer: &s.TotalPlanTime},
+			field{info: parse.FieldInfo{Name: "MinPlanTime", Type: "float64", Column: "plan_min_time"}, pointer: &s.MinPlanTime},
+			field{info: parse.FieldInfo{Name: "MaxPlanTime", Type: "float64", Column: "plan_max_time"}, pointer: &s.MaxPlanTime},
+			field{info: parse.FieldInfo{Name: "MeanPlanTime", Type: "float64", Column: "plan_mean_time"}, pointer: &s.MeanPlanTime},
 			field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans_calls"}, pointer: &s.PlansCalls})
 	}
 	if vPGSM >= pgStatMonitorVersion09 {
@@ -177,25 +177,37 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "queryid"}, pointer: &s.QueryID})
 	}
 
+	if vPGSM >= pgStatMonitorVersion21PG17 {
+		fields = append(fields,
+			field{info: parse.FieldInfo{Name: "SharedBlkReadTime", Type: "float64", Column: "shared_blk_read_time"}, pointer: &s.SharedBlkReadTime},
+			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "float64", Column: "shared_blk_write_time"}, pointer: &s.SharedBlkWriteTime},
+			field{info: parse.FieldInfo{Name: "LocalBlkReadTime", Type: "float64", Column: "local_blk_read_time"}, pointer: &s.LocalBlkReadTime},
+			field{info: parse.FieldInfo{Name: "LocalBlkWriteTime", Type: "float64", Column: "local_blk_write_time"}, pointer: &s.LocalBlkWriteTime})
+	} else {
+		fields = append(fields,
+			field{info: parse.FieldInfo{Name: "SharedBlkReadTime", Type: "float64", Column: "blk_read_time"}, pointer: &s.SharedBlkReadTime},
+			field{info: parse.FieldInfo{Name: "SharedBlkWriteTime", Type: "float64", Column: "blk_write_time"}, pointer: &s.SharedBlkWriteTime})
+	}
+
 	if vPG <= 12 {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "TotalTime", Type: "float64", Column: "total_time"}, pointer: &s.TotalTime},
-			field{info: parse.FieldInfo{Name: "MinTime", Type: "float64", Column: "min_time"}, pointer: &s.MinTime},
-			field{info: parse.FieldInfo{Name: "MaxTime", Type: "float64", Column: "max_time"}, pointer: &s.MaxTime},
-			field{info: parse.FieldInfo{Name: "MeanTime", Type: "float64", Column: "mean_time"}, pointer: &s.MeanTime},
-			field{info: parse.FieldInfo{Name: "StddevTime", Type: "float64", Column: "stddev_time"}, pointer: &s.StddevTime})
+			field{info: parse.FieldInfo{Name: "TotalExecTime", Type: "float64", Column: "total_time"}, pointer: &s.TotalExecTime},
+			field{info: parse.FieldInfo{Name: "MinExecTime", Type: "float64", Column: "min_time"}, pointer: &s.MinExecTime},
+			field{info: parse.FieldInfo{Name: "MaxExecTime", Type: "float64", Column: "max_time"}, pointer: &s.MaxExecTime},
+			field{info: parse.FieldInfo{Name: "MeanExecTime", Type: "float64", Column: "mean_time"}, pointer: &s.MeanExecTime},
+			field{info: parse.FieldInfo{Name: "StddevExecTime", Type: "float64", Column: "stddev_time"}, pointer: &s.StddevExecTime})
 	}
 	if vPG >= 13 {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "TotalTime", Type: "float64", Column: "total_exec_time"}, pointer: &s.TotalTime},
-			field{info: parse.FieldInfo{Name: "MinTime", Type: "float64", Column: "min_exec_time"}, pointer: &s.MinTime},
-			field{info: parse.FieldInfo{Name: "MaxTime", Type: "float64", Column: "max_exec_time"}, pointer: &s.MaxTime},
-			field{info: parse.FieldInfo{Name: "MeanTime", Type: "float64", Column: "mean_exec_time"}, pointer: &s.MeanTime},
-			field{info: parse.FieldInfo{Name: "StddevTime", Type: "float64", Column: "stddev_exec_time"}, pointer: &s.StddevTime},
-			field{info: parse.FieldInfo{Name: "PlanTotalTime", Type: "float64", Column: "total_plan_time"}, pointer: &s.PlanTotalTime},
-			field{info: parse.FieldInfo{Name: "PlanMinTime", Type: "float64", Column: "min_plan_time"}, pointer: &s.PlanMinTime},
-			field{info: parse.FieldInfo{Name: "PlanMaxTime", Type: "float64", Column: "max_plan_time"}, pointer: &s.PlanMaxTime},
-			field{info: parse.FieldInfo{Name: "PlanMeanTime", Type: "float64", Column: "mean_plan_time"}, pointer: &s.PlanMeanTime})
+			field{info: parse.FieldInfo{Name: "TotalExecTime", Type: "float64", Column: "total_exec_time"}, pointer: &s.TotalExecTime},
+			field{info: parse.FieldInfo{Name: "MinExecTime", Type: "float64", Column: "min_exec_time"}, pointer: &s.MinExecTime},
+			field{info: parse.FieldInfo{Name: "MaxExecTime", Type: "float64", Column: "max_exec_time"}, pointer: &s.MaxExecTime},
+			field{info: parse.FieldInfo{Name: "MeanExecTime", Type: "float64", Column: "mean_exec_time"}, pointer: &s.MeanExecTime},
+			field{info: parse.FieldInfo{Name: "StddevExecTime", Type: "float64", Column: "stddev_exec_time"}, pointer: &s.StddevExecTime},
+			field{info: parse.FieldInfo{Name: "TotalPlanTime", Type: "float64", Column: "total_plan_time"}, pointer: &s.TotalPlanTime},
+			field{info: parse.FieldInfo{Name: "MinPlanTime", Type: "float64", Column: "min_plan_time"}, pointer: &s.MinPlanTime},
+			field{info: parse.FieldInfo{Name: "MaxPlanTime", Type: "float64", Column: "max_plan_time"}, pointer: &s.MaxPlanTime},
+			field{info: parse.FieldInfo{Name: "MeanPlanTime", Type: "float64", Column: "mean_plan_time"}, pointer: &s.MeanPlanTime})
 
 		if vPGSM >= pgStatMonitorVersion09 {
 			fields = append(fields,
@@ -214,10 +226,12 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 
 	if vPGSM >= pgStatMonitorVersion08 && vPGSM < pgStatMonitorVersion20PG12 {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "BucketStartTimeString", Type: "string", Column: "bucket_start_time"}, pointer: &s.BucketStartTimeString})
+			field{info: parse.FieldInfo{Name: "BucketStartTimeString", Type: "string", Column: "bucket_start_time"}, pointer: &s.BucketStartTimeString},
+			field{info: parse.FieldInfo{Name: "UserName", Type: "string", Column: "userid"}, pointer: &s.UserName})
 	} else {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "BucketStartTime", Type: "time.Time", Column: "bucket_start_time"}, pointer: &s.BucketStartTime})
+			field{info: parse.FieldInfo{Name: "BucketStartTime", Type: "time.Time", Column: "bucket_start_time"}, pointer: &s.BucketStartTime},
+			field{info: parse.FieldInfo{Name: "UserName", Type: "string", Column: "username"}, pointer: &s.UserName})
 	}
 
 	s.pointers = make([]interface{}, len(fields))
@@ -273,7 +287,7 @@ func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct { //nolint:ireturn
 
 // String returns a string representation of this struct or record.
 func (s pgStatMonitor) String() string {
-	res := make([]string, 49)
+	res := make([]string, 51)
 	res[0] = "Bucket: " + reform.Inspect(s.Bucket, true)
 	res[1] = "BucketStartTime: " + reform.Inspect(s.BucketStartTime, true)
 	res[2] = "UserID: " + reform.Inspect(s.UserID, true)
@@ -282,7 +296,7 @@ func (s pgStatMonitor) String() string {
 	res[5] = "Query: " + reform.Inspect(s.Query, true)
 	res[6] = "Relations: " + reform.Inspect(s.Relations, true)
 	res[7] = "Calls: " + reform.Inspect(s.Calls, true)
-	res[8] = "TotalTime: " + reform.Inspect(s.TotalTime, true)
+	res[8] = "TotalExecTime: " + reform.Inspect(s.TotalExecTime, true)
 	res[9] = "SharedBlksHit: " + reform.Inspect(s.SharedBlksHit, true)
 	res[10] = "SharedBlksRead: " + reform.Inspect(s.SharedBlksRead, true)
 	res[11] = "SharedBlksDirtied: " + reform.Inspect(s.SharedBlksDirtied, true)
@@ -293,36 +307,38 @@ func (s pgStatMonitor) String() string {
 	res[16] = "LocalBlksWritten: " + reform.Inspect(s.LocalBlksWritten, true)
 	res[17] = "TempBlksRead: " + reform.Inspect(s.TempBlksRead, true)
 	res[18] = "TempBlksWritten: " + reform.Inspect(s.TempBlksWritten, true)
-	res[19] = "BlkReadTime: " + reform.Inspect(s.BlkReadTime, true)
-	res[20] = "BlkWriteTime: " + reform.Inspect(s.BlkWriteTime, true)
-	res[21] = "RespCalls: " + reform.Inspect(s.RespCalls, true)
-	res[22] = "CPUUserTime: " + reform.Inspect(s.CPUUserTime, true)
-	res[23] = "CPUSysTime: " + reform.Inspect(s.CPUSysTime, true)
-	res[24] = "DBID: " + reform.Inspect(s.DBID, true)
-	res[25] = "DatName: " + reform.Inspect(s.DatName, true)
-	res[26] = "Rows: " + reform.Inspect(s.Rows, true)
-	res[27] = "TopQueryID: " + reform.Inspect(s.TopQueryID, true)
-	res[28] = "PlanID: " + reform.Inspect(s.PlanID, true)
-	res[29] = "QueryPlan: " + reform.Inspect(s.QueryPlan, true)
-	res[30] = "TopQuery: " + reform.Inspect(s.TopQuery, true)
-	res[31] = "ApplicationName: " + reform.Inspect(s.ApplicationName, true)
-	res[32] = "CmdType: " + reform.Inspect(s.CmdType, true)
-	res[33] = "CmdTypeText: " + reform.Inspect(s.CmdTypeText, true)
-	res[34] = "Elevel: " + reform.Inspect(s.Elevel, true)
-	res[35] = "Sqlcode: " + reform.Inspect(s.Sqlcode, true)
-	res[36] = "Message: " + reform.Inspect(s.Message, true)
-	res[37] = "MinTime: " + reform.Inspect(s.MinTime, true)
-	res[38] = "MaxTime: " + reform.Inspect(s.MaxTime, true)
-	res[39] = "MeanTime: " + reform.Inspect(s.MeanTime, true)
-	res[40] = "StddevTime: " + reform.Inspect(s.StddevTime, true)
-	res[41] = "PlansCalls: " + reform.Inspect(s.PlansCalls, true)
-	res[42] = "PlanTotalTime: " + reform.Inspect(s.PlanTotalTime, true)
-	res[43] = "PlanMinTime: " + reform.Inspect(s.PlanMinTime, true)
-	res[44] = "PlanMaxTime: " + reform.Inspect(s.PlanMaxTime, true)
-	res[45] = "PlanMeanTime: " + reform.Inspect(s.PlanMeanTime, true)
-	res[46] = "WalRecords: " + reform.Inspect(s.WalRecords, true)
-	res[47] = "WalFpi: " + reform.Inspect(s.WalFpi, true)
-	res[48] = "WalBytes: " + reform.Inspect(s.WalBytes, true)
+	res[19] = "SharedBlkReadTime: " + reform.Inspect(s.SharedBlkReadTime, true)
+	res[20] = "SharedBlkWriteTime: " + reform.Inspect(s.SharedBlkWriteTime, true)
+	res[21] = "LocalBlkReadTime: " + reform.Inspect(s.LocalBlkReadTime, true)
+	res[22] = "LocalBlkWriteTime: " + reform.Inspect(s.LocalBlkWriteTime, true)
+	res[23] = "RespCalls: " + reform.Inspect(s.RespCalls, true)
+	res[24] = "CPUUserTime: " + reform.Inspect(s.CPUUserTime, true)
+	res[25] = "CPUSysTime: " + reform.Inspect(s.CPUSysTime, true)
+	res[26] = "DBID: " + reform.Inspect(s.DBID, true)
+	res[27] = "DatName: " + reform.Inspect(s.DatName, true)
+	res[28] = "Rows: " + reform.Inspect(s.Rows, true)
+	res[29] = "TopQueryID: " + reform.Inspect(s.TopQueryID, true)
+	res[30] = "PlanID: " + reform.Inspect(s.PlanID, true)
+	res[31] = "QueryPlan: " + reform.Inspect(s.QueryPlan, true)
+	res[32] = "TopQuery: " + reform.Inspect(s.TopQuery, true)
+	res[33] = "ApplicationName: " + reform.Inspect(s.ApplicationName, true)
+	res[34] = "CmdType: " + reform.Inspect(s.CmdType, true)
+	res[35] = "CmdTypeText: " + reform.Inspect(s.CmdTypeText, true)
+	res[36] = "Elevel: " + reform.Inspect(s.Elevel, true)
+	res[37] = "Sqlcode: " + reform.Inspect(s.Sqlcode, true)
+	res[38] = "Message: " + reform.Inspect(s.Message, true)
+	res[39] = "MinExecTime: " + reform.Inspect(s.MinExecTime, true)
+	res[40] = "MaxExecTime: " + reform.Inspect(s.MaxExecTime, true)
+	res[41] = "MeanExecTime: " + reform.Inspect(s.MeanExecTime, true)
+	res[42] = "StddevExecTime: " + reform.Inspect(s.StddevExecTime, true)
+	res[43] = "PlansCalls: " + reform.Inspect(s.PlansCalls, true)
+	res[44] = "TotalPlanTime: " + reform.Inspect(s.TotalPlanTime, true)
+	res[45] = "MinPlanTime: " + reform.Inspect(s.MinPlanTime, true)
+	res[46] = "MaxPlanTime: " + reform.Inspect(s.MaxPlanTime, true)
+	res[47] = "MeanPlanTime: " + reform.Inspect(s.MeanPlanTime, true)
+	res[48] = "WalRecords: " + reform.Inspect(s.WalRecords, true)
+	res[49] = "WalFpi: " + reform.Inspect(s.WalFpi, true)
+	res[50] = "WalBytes: " + reform.Inspect(s.WalBytes, true)
 	return strings.Join(res, ", ")
 }
 

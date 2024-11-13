@@ -60,6 +60,7 @@ type AddServiceMySQLCommand struct {
 	CustomLabels   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
+// RunCmd runs the command for AddServiceMySQLCommand.
 func (cmd *AddServiceMySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &services.AddMySQLServiceParams{

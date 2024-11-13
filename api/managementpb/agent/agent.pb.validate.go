@@ -295,6 +295,8 @@ func (m *UniversalAgent) validate(all bool) error {
 
 	// no validation rules for IsConnected
 
+	// no validation rules for ExposeExporter
+
 	if len(errors) > 0 {
 		return UniversalAgentMultiError(errors)
 	}
@@ -635,10 +637,6 @@ func (m *UniversalAgent_MySQLOptions) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TlsCa
-
-	// no validation rules for TlsCert
-
 	// no validation rules for IsTlsKeySet
 
 	if len(errors) > 0 {
@@ -861,8 +859,6 @@ func (m *UniversalAgent_MongoDBOptions) validate(all bool) error {
 
 	// no validation rules for IsTlsCertificateKeyFilePasswordSet
 
-	// no validation rules for TlsCa
-
 	// no validation rules for AuthenticationMechanism
 
 	// no validation rules for AuthenticationDatabase
@@ -975,11 +971,11 @@ func (m *UniversalAgent_PostgreSQLOptions) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for SslCa
-
-	// no validation rules for SslCert
-
 	// no validation rules for IsSslKeySet
+
+	// no validation rules for AutoDiscoveryLimit
+
+	// no validation rules for MaxExporterConnections
 
 	if len(errors) > 0 {
 		return UniversalAgent_PostgreSQLOptionsMultiError(errors)

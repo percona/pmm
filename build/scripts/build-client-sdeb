@@ -9,8 +9,10 @@ bin_dir=$(cd $(dirname $0); pwd -P)
 tmp_dir=${root_dir}/tmp
 
 main() {
-    local IMAGE=${1:-ubuntu:bionic}
-    docker run --rm -v ${bin_dir}:/home/builder/bin -v ${root_dir}/results:/home/builder/results ${IMAGE} sh -c "
+    local IMAGE=${1:-ubuntu:focal}
+    docker run --rm -e DEBIAN_FRONTEND=noninteractive \
+                    -v ${bin_dir}:/home/builder/bin \
+                    -v ${root_dir}/results:/home/builder/results ${IMAGE} sh -c "
         set -o errexit
         set -o xtrace
 

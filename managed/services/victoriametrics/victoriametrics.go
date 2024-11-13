@@ -176,7 +176,7 @@ func (svc *Service) reload(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:errcheck,gosec
+	defer resp.Body.Close() //nolint:errcheck,gosec,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VM reload: %s", b)
@@ -258,7 +258,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	}
 	svc.l.Debugf("%s", b)
 
-	args = append(args, "-promscrape.config.strictParse", "true")
+	args = append(args, "-promscrape.config.strictParse=true")
 	cmd = exec.CommandContext(ctx, "victoriametrics", args...) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
 
@@ -326,20 +326,20 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		if err != nil {
 			return err
 		}
-		s := settings.MetricsResolutions
+		globalResoulutions := settings.MetricsResolutions
 		if cfg.GlobalConfig.ScrapeInterval == 0 {
-			cfg.GlobalConfig.ScrapeInterval = config.Duration(s.LR)
+			cfg.GlobalConfig.ScrapeInterval = config.Duration(globalResoulutions.LR)
 		}
 		if cfg.GlobalConfig.ScrapeTimeout == 0 {
-			cfg.GlobalConfig.ScrapeTimeout = ScrapeTimeout(s.LR)
+			cfg.GlobalConfig.ScrapeTimeout = ScrapeTimeout(globalResoulutions.LR)
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(svc.l, s.HR, svc.params))
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(svc.l, globalResoulutions.HR, svc.params))
 		if svc.params.ExternalVM() {
-			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(s.HR, svc.baseURL.Host))
+			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(globalResoulutions.HR, svc.baseURL.Host))
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(s.HR))
-		AddInternalServicesToScrape(cfg, s, settings.DBaaS.Enabled)
-		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &s, nil, false)
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(globalResoulutions.HR))
+		AddInternalServicesToScrape(cfg, globalResoulutions, settings.DBaaS.Enabled)
+		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &globalResoulutions, nil, false)
 	})
 }
 
@@ -440,7 +440,7 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VM health: %s", b)

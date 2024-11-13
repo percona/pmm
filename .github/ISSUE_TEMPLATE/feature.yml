@@ -3,7 +3,6 @@ description: Suggest an idea for this project
 labels: ["feature", "triage"]
 assignees:
   - BupycHuk
-  - artemgavrilov
 body:
   - type: markdown
     attributes:

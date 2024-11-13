@@ -292,6 +292,37 @@ func (m *NodeExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, NodeExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, NodeExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return NodeExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return NodeExporterMultiError(errors)
 	}
@@ -427,6 +458,37 @@ func (m *MySQLdExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MySQLdExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MySQLdExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MySQLdExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return MySQLdExporterMultiError(errors)
 	}
@@ -557,6 +619,37 @@ func (m *MongoDBExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MongoDBExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MongoDBExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MongoDBExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return MongoDBExporterMultiError(errors)
 	}
@@ -683,6 +776,41 @@ func (m *PostgresExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for AutoDiscoveryLimit
+
+	// no validation rules for ExposeExporter
+
+	// no validation rules for MaxExporterConnections
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, PostgresExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, PostgresExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return PostgresExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return PostgresExporterMultiError(errors)
 	}
@@ -808,6 +936,37 @@ func (m *ProxySQLExporter) validate(all bool) error {
 	// no validation rules for ProcessExecPath
 
 	// no validation rules for LogLevel
+
+	// no validation rules for ExposeExporter
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ProxySQLExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ProxySQLExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ProxySQLExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return ProxySQLExporterMultiError(errors)
@@ -1595,6 +1754,37 @@ func (m *RDSExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for AutoDiscoveryLimit
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RDSExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RDSExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RDSExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return RDSExporterMultiError(errors)
 	}
@@ -1715,6 +1905,35 @@ func (m *ExternalExporter) validate(all bool) error {
 	// no validation rules for PushMetricsEnabled
 
 	// no validation rules for ProcessExecPath
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ExternalExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ExternalExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ExternalExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return ExternalExporterMultiError(errors)
@@ -1840,6 +2059,35 @@ func (m *AzureDatabaseExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AzureDatabaseExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AzureDatabaseExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AzureDatabaseExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return AzureDatabaseExporterMultiError(errors)
 	}
@@ -1953,6 +2201,35 @@ func (m *ChangeCommonAgentParams) validate(all bool) error {
 	// no validation rules for EnablePushMetrics
 
 	// no validation rules for DisablePushMetrics
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangeCommonAgentParamsValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangeCommonAgentParamsValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangeCommonAgentParamsValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return ChangeCommonAgentParamsMultiError(errors)
@@ -4091,6 +4368,8 @@ func (m *AddNodeExporterRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
 	if len(errors) > 0 {
 		return AddNodeExporterRequestMultiError(errors)
 	}
@@ -4654,6 +4933,8 @@ func (m *AddMySQLdExporterRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
 	if len(errors) > 0 {
 		return AddMySQLdExporterRequestMultiError(errors)
 	}
@@ -5215,6 +5496,8 @@ func (m *AddMongoDBExporterRequest) validate(all bool) error {
 	// no validation rules for CollectionsLimit
 
 	// no validation rules for LogLevel
+
+	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
 		return AddMongoDBExporterRequestMultiError(errors)
@@ -5779,6 +6062,12 @@ func (m *AddPostgresExporterRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for AutoDiscoveryLimit
+
+	// no validation rules for ExposeExporter
+
+	// no validation rules for MaxExporterConnections
+
 	if len(errors) > 0 {
 		return AddPostgresExporterRequestMultiError(errors)
 	}
@@ -6336,6 +6625,8 @@ func (m *AddProxySQLExporterRequest) validate(all bool) error {
 	// no validation rules for AgentPassword
 
 	// no validation rules for LogLevel
+
+	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
 		return AddProxySQLExporterRequestMultiError(errors)

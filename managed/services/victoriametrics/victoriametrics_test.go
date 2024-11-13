@@ -323,6 +323,17 @@ scrape_configs:
           labels:
             instance: pmm-server
       follow_redirects: false
+    - job_name: clickhouse
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9363
+          labels:
+            instance: pmm-server
+      follow_redirects: false
     - job_name: mongodb_exporter_agent_id_cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8_hr
       honor_timestamps: false
       scrape_interval: 5s
@@ -887,6 +898,17 @@ scrape_configs:
       static_configs:
         - targets:
             - 127.0.0.1:9933
+          labels:
+            instance: pmm-server
+      follow_redirects: false
+    - job_name: clickhouse
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9363
           labels:
             instance: pmm-server
       follow_redirects: false

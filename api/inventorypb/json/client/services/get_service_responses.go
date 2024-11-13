@@ -760,6 +760,9 @@ type GetServiceOKBodyMongodb struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// MongoDB version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this get service OK body mongodb
@@ -827,6 +830,9 @@ type GetServiceOKBodyMysql struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// MySQL version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this get service OK body mysql
@@ -897,6 +903,12 @@ type GetServiceOKBodyPostgresql struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// PostgreSQL version.
+	Version string `json:"version,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this get service OK body postgresql
@@ -964,6 +976,9 @@ type GetServiceOKBodyProxysql struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// ProxySQL version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this get service OK body proxysql

@@ -4,6 +4,7 @@
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
 [![Code coverage](https://codecov.io/gh/percona/pmm/branch/main/graph/badge.svg)](https://codecov.io/gh/percona/pmm)
 [![Go Report Card](https://goreportcard.com/badge/github.com/percona/pmm)](https://goreportcard.com/report/github.com/percona/pmm)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/percona/pmm/badge)](https://scorecard.dev/viewer/?uri=github.com/percona/pmm)
 [![Forum](https://img.shields.io/badge/Forum-join-brightgreen)](https://forums.percona.com/)
 
 ![PMM](img/pmm-logo.png)

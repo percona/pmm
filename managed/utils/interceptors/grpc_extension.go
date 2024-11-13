@@ -37,14 +37,17 @@ type GRPCMetricsExtension struct {
 	grpc_prometheus.DefaultExtension
 }
 
+// MetricsNameAdjust adjusts the given metric name and returns the adjusted name.
 func (e GRPCMetricsExtension) MetricsNameAdjust(name string) string {
 	return "pmm_" + name
 }
 
+// ServerStreamMsgReceivedCounterCustomLabels returns custom labels for the server stream message received counter.
 func (e *GRPCMetricsExtension) ServerStreamMsgReceivedCounterCustomLabels() []string {
 	return []string{"caller_origin"}
 }
 
+// ServerStreamMsgReceivedCounterValues returns custom values for the server stream message received counter.
 func (e *GRPCMetricsExtension) ServerStreamMsgReceivedCounterValues(ctx context.Context) []string {
 	return []string{getCallerOriginStr(ctx)}
 }

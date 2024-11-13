@@ -237,7 +237,7 @@ func TestConnectionChecker(t *testing.T) {
 		})
 	}
 
-	t.Run("TableCount", func(t *testing.T) {
+	t.Run("Stats should be empty", func(t *testing.T) {
 		cfgStorage := config.NewStorage(&config.Config{
 			Paths: config.Paths{TempDir: t.TempDir()},
 		})
@@ -247,7 +247,8 @@ func TestConnectionChecker(t *testing.T) {
 			Type: inventorypb.ServiceType_MYSQL_SERVICE,
 		}, 0)
 		require.NotNil(t, resp)
-		assert.InDelta(t, 250, resp.Stats.TableCount, 150)
+		// CheckConnectionResponse_Stats are deprecated, but we can't remove them yet without breaking older clients.
+		assert.Equal(t, (*agentpb.CheckConnectionResponse_Stats)(nil), resp.Stats) //nolint:staticcheck
 	})
 
 	t.Run("MongoDBWithSSL", func(t *testing.T) {

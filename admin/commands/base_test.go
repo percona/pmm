@@ -157,7 +157,7 @@ func TestReadFile(t *testing.T) {
 			err = os.Remove(cert.Name())
 			assert.NoError(t, err)
 		}()
-		_, err = cert.Write([]byte("cert"))
+		_, err = cert.WriteString("cert")
 		require.NoError(t, err)
 
 		certificate, err := ReadFile(cert.Name())

@@ -31,7 +31,7 @@ is_build_needed() {
     # s3://pmm-build-cache/RELEASE/7 - el7
     # s3://pmm-build-cache/RELEASE/9 - el9
 
-    # This is for el9
+    # RPM_EPOCH is set for Feature Builds
     if [ -n "$RPM_EPOCH" ]; then
         aws s3 sync \
             --region us-east-2 \
@@ -65,7 +65,7 @@ prepare_specs() {
 
         sed -i -e "s/global commit.*/global commit ${full_commit}/" ${rpmbuild_dir}/SOURCES/${spec_name}.spec
         if [[ ${spec_name} != "grafana" ]]; then
-            sed -i -e "s/Version:.*/Version: ${pmm_version}/"           ${rpmbuild_dir}/SOURCES/${spec_name}.spec
+            sed -i -e "s/Version:.*/Version: ${pmm_version}/"       ${rpmbuild_dir}/SOURCES/${spec_name}.spec
         fi
 
         if [ -z "${full_pmm_version}" ]; then
@@ -109,6 +109,14 @@ build() {
             echo \"repo_name: ${repo_name}\"
             echo \"rpm_verison: ${rpm_version}\"
 
+            if grep -q 'CentOS Linux 7' /etc/os-release; then
+                # disable fastestmirror plugin, which mostly fails due to CentOS 7 being EOL
+                sudo sed -i 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/fastestmirror.conf
+
+                sudo sed -i -e 's/^\(mirrorlist\)/#\1/g' /etc/yum.repos.d/CentOS-Base.repo
+                sudo sed -i -e 's|^#baseurl.*|baseurl=http://vault.centos.org/centos/\$releasever/os/\$basearch/|g' /etc/yum.repos.d/CentOS-Base.repo
+            fi
+
             sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
 
             # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
@@ -122,14 +130,17 @@ build() {
                 | sudo tee /etc/yum.repos.d/local.repo
 
             until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
-		    echo waiting
-		    sleep 1
+              echo waiting
+              sleep 1
             done
 
             sudo yum-builddep --randomwait=1 -y SOURCES/${spec_name}.spec
 
             spectool -C SOURCES -g SOURCES/${spec_name}.spec
-            rpmbuild --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' --define 'dist .${rpmbuild_dist}' -ba SOURCES/${spec_name}.spec
+            rpmbuild  --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
+                      --define 'dist .${rpmbuild_dist}' \
+                      --define 'debug_package %{nil}' \
+                      -ba SOURCES/${spec_name}.spec
 
             rm -f SOURCES/${spec_name}.spec*
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
@@ -148,6 +159,9 @@ build() {
                 s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
                 || :
         fi
+
+        cp ${rpms_dir}/${spec_name}-${rpm_version}/*/*.rpm ${rpms_dir}
+
     fi
 }
 

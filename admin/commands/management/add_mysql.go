@@ -71,7 +71,7 @@ func (res *addMySQLResult) TablestatStatus() string {
 	s := "Table statistics collection " + status
 
 	switch {
-	case res.MysqldExporter.TablestatsGroupTableLimit == 0: // no limit
+	case res.MysqldExporter.TablestatsGroupTableLimit == 0: // server defined
 		s += " (the table count limit is not set)."
 	case res.MysqldExporter.TablestatsGroupTableLimit < 0: // always disabled
 		s += " (always)."
@@ -120,33 +120,39 @@ type AddMySQLCommand struct {
 	CreateUser             bool              `hidden:"" help:"Create pmm user"`
 	MetricsMode            string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 
 	AddCommonFlags
 	AddLogLevelNoFatalFlags
 }
 
+// GetServiceName returns the service name for AddMySQLCommand.
 func (cmd *AddMySQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
 
+// GetAddress returns the address for AddMySQLCommand.
 func (cmd *AddMySQLCommand) GetAddress() string {
 	return cmd.Address
 }
 
+// GetDefaultAddress returns the default address for AddMySQLCommand.
 func (cmd *AddMySQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:3306"
 }
 
+// GetSocket returns the socket for AddMySQLCommand.
 func (cmd *AddMySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
+// RunCmd runs the command for AddMySQLCommand.
 func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	if cmd.CreateUser {
 		return nil, errors.New("Unrecognized option. To create a user, see " +
-			"'https://www.percona.com/doc/percona-monitoring-and-management/2.x/concepts/services-mysql.html#pmm-conf-mysql-user-account-creating'")
+			"'https://docs.percona.com/percona-monitoring-and-management/setting-up/client/mysql.html#create-a-database-account-for-pmm'")
 	}
 
 	var (
@@ -209,6 +215,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 			Address:        host,
 			Socket:         socket,
 			Port:           int64(port),
+			ExposeExporter: cmd.ExposeExporter,
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,

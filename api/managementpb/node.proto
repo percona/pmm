@@ -44,6 +44,8 @@ message RegisterNodeRequest {
   repeated string disable_collectors = 14;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 15;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 16;
 }
 
 message RegisterNodeResponse {
@@ -52,6 +54,8 @@ message RegisterNodeResponse {
   inventory.PMMAgent pmm_agent = 3;
   // Token represents token for vmagent auth config.
   string token = 4;
+  // Warning message.
+  string warning = 5;
 }
 
 // Node service provides public Management API methods for Nodes.

@@ -33,8 +33,8 @@ func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*p
 		return nil, errors.Errorf("no transformation config is set")
 	}
 
-	if config.Transform.Type != JSONTransformType {
-		return nil, errors.Errorf("not supported transformation type [%s], it must be [%s]", config.Transform.Type, JSONTransformType)
+	if config.Transform.Type != JSONTransform {
+		return nil, errors.Errorf("unsupported transformation type [%s], it must be [%s]", config.Transform.Type, JSONTransform)
 	}
 
 	if len(config.Data) == 0 || config.Data[0].MetricName == "" {
@@ -84,6 +84,27 @@ func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*p
 			Value: string(resultAsJSON),
 		},
 	}, nil
+}
+
+func transformExportValues(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*pmmv1.ServerMetric_Metric, error) {
+	if len(metrics) == 0 {
+		return metrics, nil
+	}
+
+	if config.Transform.Type != StripValuesTransform {
+		return nil, errors.Errorf("unspported transformation type [%s], it must be [%s]", config.Transform.Type, StripValuesTransform)
+	}
+
+	if config.Source != string(dsEnvVars) {
+		return nil, errors.Errorf("this transform can only be used for %s data source", dsEnvVars)
+	}
+
+	for _, metric := range metrics {
+		// Here we replace the metric value with "1", which stands for "present".
+		metric.Value = "1"
+	}
+
+	return metrics, nil
 }
 
 func removeEmpty(metrics []*pmmv1.ServerMetric_Metric) []*pmmv1.ServerMetric_Metric {

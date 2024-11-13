@@ -36,6 +36,7 @@ import (
 	"github.com/percona/pmm/admin/pkg/common"
 )
 
+// ErrPasswordChangeFailed represents an error indicating that password change failed.
 var ErrPasswordChangeFailed = errors.New("ErrPasswordChangeFailed")
 
 // Base contains methods to interact with Docker.
@@ -148,7 +149,7 @@ func (b *Base) GetDockerClient() *client.Client {
 
 // FindServerContainers finds all containers running PMM Server.
 func (b *Base) FindServerContainers(ctx context.Context) ([]types.Container, error) {
-	return b.Cli.ContainerList(ctx, types.ContainerListOptions{ //nolint:exhaustruct
+	return b.Cli.ContainerList(ctx, container.ListOptions{ //nolint:exhaustruct
 		All: true,
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
@@ -220,7 +221,7 @@ func (b *Base) RunContainer(ctx context.Context, config *container.Config, hostC
 		return "", err
 	}
 
-	if err := b.Cli.ContainerStart(ctx, res.ID, types.ContainerStartOptions{}); err != nil { //nolint:exhaustruct
+	if err := b.Cli.ContainerStart(ctx, res.ID, container.StartOptions{}); err != nil { //nolint:exhaustruct
 		return "", err
 	}
 
@@ -234,7 +235,7 @@ var ErrVolumeExists = fmt.Errorf("VolumeExists")
 func (b *Base) CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*volume.Volume, error) {
 	// We need to first manually check if the volume exists because
 	// cli.VolumeCreate() does not complain if it already exists.
-	v, err := b.Cli.VolumeList(ctx, filters.NewArgs(filters.Arg("name", volumeName)))
+	v, err := b.Cli.VolumeList(ctx, volume.ListOptions{Filters: filters.NewArgs(filters.Arg("name", volumeName))})
 	if err != nil {
 		return nil, err
 	}

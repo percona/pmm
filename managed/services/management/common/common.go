@@ -30,6 +30,7 @@ import (
 // ErrClusterLocked is returned when there is an unfinished job that doesn't allow to change service cluster name.
 var ErrClusterLocked = errors.New("cluster/service is locked")
 
+// MgmtServices represents a collection of management services.
 type MgmtServices struct {
 	BackupsService        *managementbackup.BackupsService
 	ArtifactsService      *managementbackup.ArtifactsService

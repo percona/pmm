@@ -589,6 +589,22 @@ func (m *MetricsBucket) validate(all bool) error {
 
 	// no validation rules for MBlkWriteTimeSum
 
+	// no validation rules for MSharedBlkReadTimeCnt
+
+	// no validation rules for MSharedBlkReadTimeSum
+
+	// no validation rules for MSharedBlkWriteTimeCnt
+
+	// no validation rules for MSharedBlkWriteTimeSum
+
+	// no validation rules for MLocalBlkReadTimeCnt
+
+	// no validation rules for MLocalBlkReadTimeSum
+
+	// no validation rules for MLocalBlkWriteTimeCnt
+
+	// no validation rules for MLocalBlkWriteTimeSum
+
 	// no validation rules for MCpuUserTimeCnt
 
 	// no validation rules for MCpuUserTimeSum

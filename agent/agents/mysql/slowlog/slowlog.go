@@ -82,7 +82,7 @@ type slowLogInfo struct {
 // New creates new SlowLog QAN service.
 func New(params *Params, l *logrus.Entry) (*SlowLog, error) {
 	if params.TextFiles != nil {
-		err := tlshelpers.RegisterMySQLCerts(params.TextFiles.Files)
+		err := tlshelpers.RegisterMySQLCerts(params.TextFiles.Files, params.TLSSkipVerify)
 		if err != nil {
 			return nil, err
 		}
@@ -715,12 +715,12 @@ func errListsToMap(k, v []uint64) map[uint64]uint64 {
 }
 
 // Describe implements prometheus.Collector.
-func (s *SlowLog) Describe(ch chan<- *prometheus.Desc) {
+func (s *SlowLog) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (s *SlowLog) Collect(ch chan<- prometheus.Metric) {
+func (s *SlowLog) Collect(ch chan<- prometheus.Metric) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 

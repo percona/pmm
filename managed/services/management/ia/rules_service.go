@@ -272,7 +272,7 @@ func (s *RulesService) writeRuleFile(rule *ruleFile) error {
 
 // ListAlertRules returns a list of all Integrated Alerting rules.
 // Deprecated. Do not use.
-func (s *RulesService) ListAlertRules(ctx context.Context, req *iav1beta1.ListAlertRulesRequest) (*iav1beta1.ListAlertRulesResponse, error) {
+func (s *RulesService) ListAlertRules(ctx context.Context, req *iav1beta1.ListAlertRulesRequest) (*iav1beta1.ListAlertRulesResponse, error) { //nolint:staticcheck,revive
 	var pageIndex int
 	pageSize := math.MaxInt32
 	if req.PageParams != nil {
@@ -328,11 +328,11 @@ func (s *RulesService) ListAlertRules(ctx context.Context, req *iav1beta1.ListAl
 		TotalPages: int32(totalPages),
 	}
 
-	return &iav1beta1.ListAlertRulesResponse{Rules: res, Totals: totals}, nil
+	return &iav1beta1.ListAlertRulesResponse{Rules: res, Totals: totals}, nil //nolint:staticcheck
 }
 
-func (s *RulesService) convertAlertRules(rules []*models.Rule, channels []*models.Channel) ([]*iav1beta1.Rule, error) {
-	res := make([]*iav1beta1.Rule, 0, len(rules))
+func (s *RulesService) convertAlertRules(rules []*models.Rule, channels []*models.Channel) ([]*iav1beta1.Rule, error) { //nolint:staticcheck
+	res := make([]*iav1beta1.Rule, 0, len(rules)) //nolint:staticcheck
 	for _, rule := range rules {
 		r, err := convertRule(s.l, rule, channels)
 		if err != nil {
@@ -346,7 +346,7 @@ func (s *RulesService) convertAlertRules(rules []*models.Rule, channels []*model
 
 // CreateAlertRule creates Integrated Alerting rule.
 // Deprecated. Do not use.
-func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.CreateAlertRuleRequest) (*iav1beta1.CreateAlertRuleResponse, error) {
+func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.CreateAlertRuleRequest) (*iav1beta1.CreateAlertRuleResponse, error) { //nolint:staticcheck,revive,lll
 	if req.TemplateName != "" && req.SourceRuleId != "" {
 		return nil, status.Errorf(codes.InvalidArgument, "Both template name and source rule id are specified.")
 	}
@@ -442,12 +442,12 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 
 	s.updateConfigurations()
 
-	return &iav1beta1.CreateAlertRuleResponse{RuleId: rule.ID}, nil
+	return &iav1beta1.CreateAlertRuleResponse{RuleId: rule.ID}, nil //nolint:staticcheck
 }
 
 // UpdateAlertRule updates Integrated Alerting rule.
 // Deprecated. Do not use.
-func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.UpdateAlertRuleRequest) (*iav1beta1.UpdateAlertRuleResponse, error) {
+func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.UpdateAlertRuleRequest) (*iav1beta1.UpdateAlertRuleResponse, error) { //nolint:staticcheck,revive,lll
 	params := &models.ChangeRuleParams{
 		Name:         req.Name,
 		Disabled:     req.Disabled,
@@ -491,12 +491,12 @@ func (s *RulesService) UpdateAlertRule(ctx context.Context, req *iav1beta1.Updat
 
 	s.updateConfigurations()
 
-	return &iav1beta1.UpdateAlertRuleResponse{}, nil
+	return &iav1beta1.UpdateAlertRuleResponse{}, nil //nolint:staticcheck
 }
 
 // ToggleAlertRule allows switching between disabled and enabled states of an Alert Rule.
 // Deprecated. Do not use.
-func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.ToggleAlertRuleRequest) (*iav1beta1.ToggleAlertRuleResponse, error) {
+func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.ToggleAlertRuleRequest) (*iav1beta1.ToggleAlertRuleResponse, error) { //nolint:staticcheck,revive,lll
 	params := &models.ToggleRuleParams{Disabled: parseBooleanFlag(req.Disabled)}
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		_, err := models.ToggleRule(tx.Querier, req.RuleId, params)
@@ -508,12 +508,12 @@ func (s *RulesService) ToggleAlertRule(ctx context.Context, req *iav1beta1.Toggl
 
 	s.updateConfigurations()
 
-	return &iav1beta1.ToggleAlertRuleResponse{}, nil
+	return &iav1beta1.ToggleAlertRuleResponse{}, nil //nolint:staticcheck
 }
 
 // DeleteAlertRule deletes Integrated Alerting rule.
 // Deprecated. Do not use.
-func (s *RulesService) DeleteAlertRule(ctx context.Context, req *iav1beta1.DeleteAlertRuleRequest) (*iav1beta1.DeleteAlertRuleResponse, error) {
+func (s *RulesService) DeleteAlertRule(ctx context.Context, req *iav1beta1.DeleteAlertRuleRequest) (*iav1beta1.DeleteAlertRuleResponse, error) { //nolint:staticcheck,revive,lll
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveRule(tx.Querier, req.RuleId)
 	})
@@ -523,7 +523,7 @@ func (s *RulesService) DeleteAlertRule(ctx context.Context, req *iav1beta1.Delet
 
 	s.updateConfigurations()
 
-	return &iav1beta1.DeleteAlertRuleResponse{}, nil
+	return &iav1beta1.DeleteAlertRuleResponse{}, nil //nolint:staticcheck
 }
 
 func (s *RulesService) updateConfigurations() {
@@ -590,10 +590,10 @@ func convertModelToParamsDefinitions(definitions models.AlertExprParamsDefinitio
 
 // convertModelToParamValues converts a parameter value to its protobuf representation.
 // Deprecated. Do not use.
-func convertModelToParamValues(values models.AlertExprParamsValues) ([]*iav1beta1.ParamValue, error) {
-	res := make([]*iav1beta1.ParamValue, len(values))
+func convertModelToParamValues(values models.AlertExprParamsValues) ([]*iav1beta1.ParamValue, error) { //nolint:staticcheck
+	res := make([]*iav1beta1.ParamValue, len(values)) //nolint:staticcheck
 	for i, param := range values {
-		p := &iav1beta1.ParamValue{Name: param.Name}
+		p := &iav1beta1.ParamValue{Name: param.Name} //nolint:staticcheck
 
 		switch param.Type {
 		case models.Bool:
@@ -615,7 +615,7 @@ func convertModelToParamValues(values models.AlertExprParamsValues) ([]*iav1beta
 
 // convertParamsValuesToModel converts a parameter value to its model equivalent.
 // Deprecated. Do not use.
-func convertParamsValuesToModel(params []*iav1beta1.ParamValue) (models.AlertExprParamsValues, error) {
+func convertParamsValuesToModel(params []*iav1beta1.ParamValue) (models.AlertExprParamsValues, error) { //nolint:staticcheck
 	ruleParams := make(models.AlertExprParamsValues, len(params))
 	for i, param := range params {
 		p := models.AlertExprParamValue{Name: param.Name}
@@ -658,7 +658,7 @@ func parseBooleanFlag(bf managementpb.BooleanFlag) *bool {
 
 // convertModelToFilterType converts a filter type model to its protobuf representation.
 // Deprecated. Do not use.
-func convertModelToFilterType(filterType models.FilterType) iav1beta1.FilterType {
+func convertModelToFilterType(filterType models.FilterType) iav1beta1.FilterType { //nolint:staticcheck
 	switch filterType {
 	case models.Equal:
 		return iav1beta1.FilterType_EQUAL
@@ -671,7 +671,7 @@ func convertModelToFilterType(filterType models.FilterType) iav1beta1.FilterType
 
 // convertFiltersToModel converts an IA filter to its model representation.
 // Deprecated. Do not use.
-func convertFiltersToModel(filters []*iav1beta1.Filter) (models.Filters, error) {
+func convertFiltersToModel(filters []*iav1beta1.Filter) (models.Filters, error) { //nolint:staticcheck
 	res := make(models.Filters, len(filters))
 	for i, filter := range filters {
 		f := models.Filter{

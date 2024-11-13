@@ -101,6 +101,7 @@ type ListAgentsCommand struct {
 	AgentType  string `help:"Filter by Agent type"`
 }
 
+// RunCmd executes the ListAgentsCommand and returns the result.
 func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 	agentType, err := formatTypeValue(acceptableAgentTypes, cmd.AgentType)
 	if err != nil {

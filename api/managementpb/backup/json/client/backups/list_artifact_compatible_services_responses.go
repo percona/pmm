@@ -485,6 +485,9 @@ type ListArtifactCompatibleServicesOKBodyMongodbItems0 struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// MongoDB version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this list artifact compatible services OK body mongodb items0
@@ -552,6 +555,9 @@ type ListArtifactCompatibleServicesOKBodyMysqlItems0 struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// MySQL version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this list artifact compatible services OK body mysql items0

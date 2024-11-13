@@ -4,8 +4,12 @@ templates:
     version: 1
     summary: PostgreSQL connections in use
     expr: |-
-      sum(pg_stat_activity_count{datname!~"template.*|postgres"})
-      > bool pg_settings_max_connections * [[ .threshold ]] / 100
+      sum by(agent_id, agent_type, instance, node_id, node_name, service_name) 
+      (pg_stat_activity_count{datname!~"template.*|postgres"}) 
+      /
+      on(agent_id, agent_type, instance, node_id, node_name, service_name) 
+      pg_settings_max_connections * 100 
+      > [[ .threshold ]]
     params:
       - name: threshold
         summary: A percentage from configured maximum

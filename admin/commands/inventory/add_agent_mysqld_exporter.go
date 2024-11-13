@@ -62,7 +62,7 @@ func (res *addAgentMysqldExporterResult) TablestatStatus() string {
 	}
 
 	switch {
-	case res.Agent.TablestatsGroupTableLimit == 0: // no limit
+	case res.Agent.TablestatsGroupTableLimit == 0: // server defined
 		s += " (the table count limit is not set)."
 	case res.Agent.TablestatsGroupTableLimit < 0: // always disabled
 		s += " (always)."
@@ -94,12 +94,14 @@ type AddAgentMysqldExporterCommand struct {
 	TLSCAFile                 string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile               string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile                string            `name:"tls-key" help:"Path to client key file"`
-	TablestatsGroupTableLimit int32             `placeholder:"number" help:"Tablestats group collectors will be disabled if there are more than that number of tables (default: 0 - always enabled; negative value - always disabled)"`
+	TablestatsGroupTableLimit int32             `placeholder:"number" help:"Tablestats group collectors will be disabled if there are more than that number of tables (default: server-defined, -1: always disabled)"`
 	PushMetrics               bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	ExposeExporter            bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors         []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	LogLevel                  string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
 }
 
+// RunCmd executes the AddAgentMysqldExporterCommand and returns the result.
 func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
@@ -140,6 +142,7 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 			TLSKey:                    tlsKey,
 			TablestatsGroupTableLimit: cmd.TablestatsGroupTableLimit,
 			PushMetrics:               cmd.PushMetrics,
+			ExposeExporter:            cmd.ExposeExporter,
 			DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
 			LogLevel:                  &cmd.LogLevel,
 		},

@@ -237,10 +237,14 @@ const insertSQL = `
     m_temp_blks_read_sum,
     m_temp_blks_written_cnt,
     m_temp_blks_written_sum,
-    m_blk_read_time_cnt,
-    m_blk_read_time_sum,
-    m_blk_write_time_cnt,
-    m_blk_write_time_sum,
+    m_shared_blk_read_time_cnt,
+    m_shared_blk_read_time_sum,
+    m_shared_blk_write_time_cnt,
+    m_shared_blk_write_time_sum,
+    m_local_blk_read_time_cnt,
+    m_local_blk_read_time_sum,
+    m_local_blk_write_time_cnt,
+    m_local_blk_write_time_sum,
     m_cpu_user_time_cnt,
     m_cpu_user_time_sum,
     m_cpu_sys_time_cnt,
@@ -463,10 +467,14 @@ const insertSQL = `
     :m_temp_blks_read_sum,
     :m_temp_blks_written_cnt,
     :m_temp_blks_written_sum,
-    :m_blk_read_time_cnt,
-    :m_blk_read_time_sum,
-    :m_blk_write_time_cnt,
-    :m_blk_write_time_sum,
+    :m_shared_blk_read_time_cnt,
+    :m_shared_blk_read_time_sum,
+    :m_shared_blk_write_time_cnt,
+    :m_shared_blk_write_time_sum,
+    :m_local_blk_read_time_cnt,
+    :m_local_blk_read_time_sum,
+    :m_local_blk_write_time_cnt,
+    :m_local_blk_write_time_sum,
     :m_cpu_user_time_cnt,
     :m_cpu_user_time_sum,
     :m_cpu_sys_time_cnt,
@@ -600,14 +608,15 @@ func (mb *MetricsBucket) Run(ctx context.Context) {
 	_ = mb.insertBatch(0)
 }
 
-func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
+func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 	// wait for first request before doing anything, ignore timeout
 	req, ok := <-mb.requestsCh
 	if !ok {
 		mb.l.Warn("Requests channel closed, nothing to store.")
-		return
+		return nil
 	}
 
+	var err error
 	var buckets int
 	start := time.Now()
 	defer func() {
@@ -629,24 +638,22 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 	// begin "transaction" and commit or rollback it on exit
 	var tx *sqlx.Tx
 	if tx, err = mb.db.Beginx(); err != nil {
-		err = errors.Wrap(err, "failed to begin transaction")
-		return
+		return errors.Wrap(err, "failed to begin transaction")
 	}
 	defer func() {
-		if err != nil {
+		if err == nil {
+			if err = tx.Commit(); err != nil {
+				err = errors.Wrap(err, "failed to commit transaction")
+			}
+		} else {
 			_ = tx.Rollback()
-			return
-		}
-		if err = tx.Commit(); err != nil {
-			err = errors.Wrap(err, "failed to commit transaction")
 		}
 	}()
 
 	// prepare INSERT statement and close it on exit
 	var stmt *sqlx.NamedStmt
 	if stmt, err = tx.PrepareNamed(insertSQL); err != nil {
-		err = errors.Wrap(err, "failed to prepare statement")
-		return
+		return errors.Wrap(err, "failed to prepare statement")
 	}
 	defer func() {
 		if e := stmt.Close(); e != nil && err == nil {
@@ -694,8 +701,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 			}
 
 			if _, err = stmt.Exec(q); err != nil {
-				err = errors.Wrap(err, "failed to exec")
-				return
+				return errors.Wrap(err, "failed to exec")
 			}
 		}
 
@@ -704,10 +710,10 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 		case req, ok = <-mb.requestsCh:
 			if !ok {
 				mb.l.Warn("Requests channel closed, exiting.")
-				return
+				return nil
 			}
 		case <-timeoutCh:
-			return
+			return nil
 		}
 	}
 }

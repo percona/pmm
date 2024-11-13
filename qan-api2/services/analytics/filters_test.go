@@ -24,10 +24,9 @@ import (
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
-	// TODO replace with 'google.golang.org/protobuf/encoding/protojson' since this one is deprecated.
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/qan-api2/models"
@@ -82,8 +81,8 @@ func TestService_GetFilters(t *testing.T) {
 			"success",
 			fields{rm: rm, mm: mm},
 			&qanpb.FiltersRequest{
-				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 			},
 			&want,
 			false,
@@ -92,8 +91,8 @@ func TestService_GetFilters(t *testing.T) {
 			"success_with_dimensions_username",
 			fields{rm: rm, mm: mm},
 			&qanpb.FiltersRequest{
-				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 				Labels: []*qanpb.MapFieldEntry{
 					{Key: "username", Value: []string{"user1", "user2"}},
 				},
@@ -105,8 +104,8 @@ func TestService_GetFilters(t *testing.T) {
 			"success_with_dimensions_client_host_schema_service_name",
 			fields{rm: rm, mm: mm},
 			&qanpb.FiltersRequest{
-				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 				Labels: []*qanpb.MapFieldEntry{
 					{Key: "client_host", Value: []string{"10.11.12.1", "10.11.12.2", "10.11.12.3", "10.11.12.4", "10.11.12.5", "10.11.12.6", "10.11.12.7", "10.11.12.8", "10.11.12.9", "10.11.12.10", "10.11.12.11", "10.11.12.12", "10.11.12.13"}},
 					{Key: "schema", Value: []string{"schema65", "schema6", "schema42", "schema76", "schema90", "schema39", "schema1", "schema17", "schema79", "schema10"}},
@@ -120,8 +119,8 @@ func TestService_GetFilters(t *testing.T) {
 			"success_with_dimensions_multiple",
 			fields{rm: rm, mm: mm},
 			&qanpb.FiltersRequest{
-				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 				Labels: []*qanpb.MapFieldEntry{
 					{Key: "container_id", Value: []string{"container_id"}},
 					{Key: "container_name", Value: []string{"container_name1"}},
@@ -148,8 +147,8 @@ func TestService_GetFilters(t *testing.T) {
 			"success_with_labels",
 			fields{rm: rm, mm: mm},
 			&qanpb.FiltersRequest{
-				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				PeriodStartFrom: &timestamppb.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamppb.Timestamp{Seconds: t2.Unix()},
 				Labels: []*qanpb.MapFieldEntry{
 					{Key: "label0", Value: []string{"value1"}},
 				},
@@ -161,8 +160,8 @@ func TestService_GetFilters(t *testing.T) {
 			"fail",
 			fields{rm: rm, mm: mm},
 			&qanpb.FiltersRequest{
-				PeriodStartFrom: &timestamp.Timestamp{Seconds: t2.Unix()},
-				PeriodStartTo:   &timestamp.Timestamp{Seconds: t1.Unix()},
+				PeriodStartFrom: &timestamppb.Timestamp{Seconds: t2.Unix()},
+				PeriodStartTo:   &timestamppb.Timestamp{Seconds: t1.Unix()},
 			},
 			nil,
 			true,

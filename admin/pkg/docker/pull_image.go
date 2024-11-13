@@ -21,13 +21,13 @@ import (
 	"io"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/image"
 
 	"github.com/percona/pmm/admin/pkg/bubbles/progress"
 )
 
 // PullImage pulls image from Docker registry.
-func (b *Base) PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error) {
+func (b *Base) PullImage(ctx context.Context, dockerImage string, opts image.PullOptions) (io.Reader, error) {
 	return b.Cli.ImagePull(ctx, dockerImage, opts)
 }
 

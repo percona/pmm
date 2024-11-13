@@ -62,11 +62,14 @@ func TestDevContainer(t *testing.T) {
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 
 		res, resT := checker.checkResult(ctx)
-		assert.WithinDuration(t, time.Now(), resT, time.Second)
 
-		assert.True(t, strings.HasPrefix(res.Installed.Version, "2."), "%s", res.Installed.Version)
+		require.NotNil(t, res)
+		require.NotNil(t, res.Installed)
+
+		assert.True(t, strings.HasPrefix(res.Installed.Version, "2."))
+		assert.WithinDuration(t, time.Now(), resT, time.Second)
 		installedFullVersion, _ := normalizeFullversion(&res.Installed)
-		assert.True(t, strings.HasPrefix(installedFullVersion, "2."), "%s", installedFullVersion)
+		assert.True(t, strings.HasPrefix(installedFullVersion, "2."))
 		require.NotEmpty(t, res.Installed.BuildTime)
 		assert.True(t, res.Installed.BuildTime.After(gaReleaseDate), "Installed.BuildTime = %s", res.Installed.BuildTime)
 		assert.Equal(t, "local", res.Installed.Repo)
@@ -115,7 +118,7 @@ func TestDevContainer(t *testing.T) {
 		vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 		require.NoError(t, err)
 
-		s := New("/etc/supervisord.d", checker, vmParams, models.PGParams{}, gRPCMessageMaxSize)
+		s := New("/etc/supervisord.d", checker, &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())
@@ -168,7 +171,7 @@ func TestDevContainer(t *testing.T) {
 		// logrus.SetLevel(logrus.DebugLevel)
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 		vmParams := &models.VictoriaMetricsParams{}
-		s := New("/etc/supervisord.d", checker, vmParams, models.PGParams{}, gRPCMessageMaxSize)
+		s := New("/etc/supervisord.d", checker, &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())

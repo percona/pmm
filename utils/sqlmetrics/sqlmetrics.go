@@ -85,6 +85,7 @@ func NewCollector(driver, dbName string, db *sql.DB) *Collector {
 	}
 }
 
+//nolint:revive
 func (c *Collector) Describe(ch chan<- *prom.Desc) {
 	ch <- c.maxOpenConnections
 
@@ -98,6 +99,7 @@ func (c *Collector) Describe(ch chan<- *prom.Desc) {
 	ch <- c.maxLifetimeClosed
 }
 
+//nolint:revive
 func (c *Collector) Collect(ch chan<- prom.Metric) {
 	stats := c.db.Stats()
 

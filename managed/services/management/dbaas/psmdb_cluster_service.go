@@ -329,7 +329,7 @@ func (s PSMDBClusterService) getBackupLocation(req *dbaasv1beta1.CreatePSMDBClus
 }
 
 // GetPSMDBClusterResources returns expected resources to be consumed by the cluster.
-func (s PSMDBClusterService) GetPSMDBClusterResources(ctx context.Context, req *dbaasv1beta1.GetPSMDBClusterResourcesRequest) (*dbaasv1beta1.GetPSMDBClusterResourcesResponse, error) { //nolint:lll
+func (s PSMDBClusterService) GetPSMDBClusterResources(_ context.Context, req *dbaasv1beta1.GetPSMDBClusterResourcesRequest) (*dbaasv1beta1.GetPSMDBClusterResourcesResponse, error) { //nolint:lll
 	settings, err := models.GetSettings(s.db.Querier)
 	if err != nil {
 		return nil, err

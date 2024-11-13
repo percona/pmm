@@ -68,7 +68,7 @@ type pmmAgentInfo struct {
 	channel         *channel.Channel
 	id              string
 	stateChangeChan chan struct{}
-	kick            chan struct{}
+	kickChan        chan struct{}
 }
 
 // Registry keeps track of all connected pmm-agents.
@@ -199,10 +199,10 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	defer r.rw.Unlock()
 
 	agent := &pmmAgentInfo{
-		channel:         channel.New(stream),
+		channel:         channel.New(ctx, stream),
 		id:              agentMD.ID,
 		stateChangeChan: make(chan struct{}, 1),
-		kick:            make(chan struct{}),
+		kickChan:        make(chan struct{}),
 	}
 	r.agents[agentMD.ID] = agent
 	return agent, nil
@@ -371,10 +371,10 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	l.Debugf("pmm-agent with ID %q will be kicked in a moment.", pmmAgentID)
 
 	// see Run method
-	close(agent.kick)
+	close(agent.kickChan)
 
 	// Do not close agent.stateChangeChan to avoid breaking RequestStateUpdate;
-	// closing agent.kick is enough to exit runStateChangeHandler goroutine.
+	// closing agent.kickChan is enough to exit runStateChangeHandler goroutine.
 }
 
 func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
@@ -415,6 +415,13 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 	r.mDisconnects.Collect(ch)
 	r.mRoundTrip.Collect(ch)
 	r.mClockDrift.Collect(ch)
+}
+
+// KickAll sends a signal to all registered agents in the registry to perform a kick action.
+func (r *Registry) KickAll(ctx context.Context) {
+	for _, agentInfo := range r.agents {
+		r.Kick(ctx, agentInfo.id)
+	}
 }
 
 // check interfaces.

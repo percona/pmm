@@ -497,7 +497,7 @@ func (s *agentsServer) AddExternalExporter(ctx context.Context, req *inventorypb
 	return res, nil
 }
 
-func (s *agentsServer) ChangeExternalExporter(ctx context.Context, req *inventorypb.ChangeExternalExporterRequest) (*inventorypb.ChangeExternalExporterResponse, error) {
+func (s *agentsServer) ChangeExternalExporter(_ context.Context, req *inventorypb.ChangeExternalExporterRequest) (*inventorypb.ChangeExternalExporterResponse, error) {
 	agent, err := s.s.ChangeExternalExporter(req)
 	if err != nil {
 		return nil, err

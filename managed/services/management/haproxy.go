@@ -48,6 +48,7 @@ func NewHAProxyService(db *reform.DB, vmdb prometheusService, state agentsStateU
 	}
 }
 
+// AddHAProxy adds an HAProxy service based on the provided request.
 func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAProxyRequest) (*managementpb.AddHAProxyResponse, error) {
 	res := &managementpb.AddHAProxyResponse{}
 	var pmmAgentID *string

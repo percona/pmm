@@ -173,6 +173,12 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for AutoDiscoveryLimit
+
+	// no validation rules for ExposeExporter
+
+	// no validation rules for MaxExporterConnections
+
 	if len(errors) > 0 {
 		return AddPostgreSQLRequestMultiError(errors)
 	}
@@ -390,6 +396,8 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 			}
 		}
 	}
+
+	// no validation rules for Warning
 
 	if len(errors) > 0 {
 		return AddPostgreSQLResponseMultiError(errors)

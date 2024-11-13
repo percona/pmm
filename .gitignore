@@ -38,3 +38,8 @@ compose.yml
 
 cli-tests/node_modules/
 cli-tests/playwright-report/
+
+api-tests/pmm-api-tests-output.txt
+api-tests/pmm-api-tests-junit-report.xml
+
+packer.log

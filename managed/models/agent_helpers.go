@@ -18,6 +18,7 @@ package models
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
@@ -56,16 +57,28 @@ type PostgreSQLOptionsParams interface {
 	GetTlsKey() string
 }
 
+// PostgreSQLExtendedOptionsParams contains extended parameters for PostgreSQL exporter.
+type PostgreSQLExtendedOptionsParams interface {
+	GetAutoDiscoveryLimit() int32
+	GetMaxExporterConnections() int32
+}
+
 // PostgreSQLOptionsFromRequest creates PostgreSQLOptions object from request.
 func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) *PostgreSQLOptions {
+	res := &PostgreSQLOptions{}
 	if params.GetTlsCa() != "" || params.GetTlsCert() != "" || params.GetTlsKey() != "" {
-		return &PostgreSQLOptions{
-			SSLCa:   params.GetTlsCa(),
-			SSLCert: params.GetTlsCert(),
-			SSLKey:  params.GetTlsKey(),
-		}
+		res.SSLCa = params.GetTlsCa()
+		res.SSLCert = params.GetTlsCert()
+		res.SSLKey = params.GetTlsKey()
 	}
-	return nil
+
+	// PostgreSQL exporter has these parameters but they are not needed for QAN agent.
+	if extendedOptions, ok := params.(PostgreSQLExtendedOptionsParams); ok && extendedOptions != nil {
+		res.AutoDiscoveryLimit = extendedOptions.GetAutoDiscoveryLimit()
+		res.MaxExporterConnections = extendedOptions.GetMaxExporterConnections()
+	}
+
+	return res
 }
 
 // MongoDBOptionsParams contains methods to create MongoDBOptions object.
@@ -511,6 +524,24 @@ func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string,
 	return "", status.Errorf(codes.FailedPrecondition, "Couldn't find pmm-agent-id to run action")
 }
 
+// ExtractPmmAgentVersionFromAgent extract PMM agent version from Agent by pmm-agent-id.
+func ExtractPmmAgentVersionFromAgent(q *reform.Querier, agent *Agent) *version.Parsed {
+	pmmAgentID, err := ExtractPmmAgentID(agent)
+	if err != nil {
+		return nil
+	}
+	pmmAgent, err := FindAgentByID(q, pmmAgentID)
+	if err != nil {
+		return nil
+	}
+	version, err := version.Parse(pointer.GetString(pmmAgent.Version))
+	if err != nil {
+		return nil
+	}
+
+	return version
+}
+
 // ExtractPmmAgentID extract pmm-agent-id from Agent by type.
 func ExtractPmmAgentID(agent *Agent) (string, error) {
 	switch agent.AgentType {
@@ -576,6 +607,7 @@ func CreateNodeExporter(q *reform.Querier,
 	pmmAgentID string,
 	customLabels map[string]string,
 	pushMetrics bool,
+	exposeExporter bool,
 	disableCollectors []string,
 	agentPassword *string,
 	logLevel string,
@@ -604,6 +636,7 @@ func CreateNodeExporter(q *reform.Querier,
 		DisabledCollectors: disableCollectors,
 		AgentPassword:      agentPassword,
 		LogLevel:           pointer.ToStringOrNil(logLevel),
+		ExposeExporter:     exposeExporter,
 	}
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
@@ -724,8 +757,10 @@ type CreateAgentParams struct {
 	RDSEnhancedMetricsDisabled     bool
 	AzureOptions                   *AzureOptions
 	PushMetrics                    bool
+	ExposeExporter                 bool
 	DisableCollectors              []string
 	LogLevel                       string
+	MetricsResolutions             *MetricsResolutions
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -819,7 +854,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 	// check version for agent, if it exists.
 	if params.PushMetrics {
-		// special case for vmAgent, it always support push metrics.
+		// special case for vmAgent, it always supports push metrics.
 		if agentType != VMAgentType && !IsPushMetricsSupported(pmmAgent.Version) {
 			return nil, status.Errorf(codes.FailedPrecondition, "cannot use push_metrics_enabled with pmm_agent version=%q,"+
 				" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())
@@ -873,6 +908,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		RDSEnhancedMetricsDisabled:     params.RDSEnhancedMetricsDisabled,
 		AzureOptions:                   params.AzureOptions,
 		PushMetrics:                    params.PushMetrics,
+		ExposeExporter:                 params.ExposeExporter,
 		DisabledCollectors:             params.DisableCollectors,
 		LogLevel:                       pointer.ToStringOrNil(params.LogLevel),
 	}
@@ -893,6 +929,14 @@ type ChangeCommonAgentParams struct {
 	CustomLabels       map[string]string
 	RemoveCustomLabels bool
 	DisablePushMetrics *bool
+	MetricsResolutions ChangeMetricsResolutionsParams
+}
+
+// ChangeMetricsResolutionsParams contains metrics resolutions for change.
+type ChangeMetricsResolutionsParams struct {
+	HR *time.Duration
+	MR *time.Duration
+	LR *time.Duration
 }
 
 // ChangeAgent changes common parameters for given Agent.
@@ -927,6 +971,24 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		if err = row.SetCustomLabels(params.CustomLabels); err != nil {
 			return nil, err
 		}
+	}
+
+	if row.MetricsResolutions == nil {
+		row.MetricsResolutions = &MetricsResolutions{}
+	}
+	if params.MetricsResolutions.LR != nil {
+		row.MetricsResolutions.LR = *params.MetricsResolutions.LR
+	}
+	if params.MetricsResolutions.MR != nil {
+		row.MetricsResolutions.MR = *params.MetricsResolutions.MR
+	}
+	if params.MetricsResolutions.HR != nil {
+		row.MetricsResolutions.HR = *params.MetricsResolutions.HR
+	}
+
+	// If all resolutions are empty, then drop whole MetricsResolution field.
+	if row.MetricsResolutions.HR == 0 && row.MetricsResolutions.MR == 0 && row.MetricsResolutions.LR == 0 {
+		row.MetricsResolutions = nil
 	}
 
 	if err = q.Update(row); err != nil {

@@ -53,18 +53,18 @@ func TestComponentService(t *testing.T) {
 		kubeConfig  = "{}"
 	)
 
-	setup := func(t *testing.T) (ctx context.Context, cs dbaasv1beta1.ComponentsServer, dbaasClient *mockDbaasClient, kubeClient *mockKubernetesClient,
-		kubeStorage *mockKubeStorageManager,
+	setup := func(t *testing.T) (context.Context, dbaasv1beta1.ComponentsServer, *mockDbaasClient, *mockKubernetesClient,
+		*mockKubeStorageManager,
 	) {
 		t.Helper()
 
-		ctx = logger.Set(context.Background(), t.Name())
+		ctx := logger.Set(context.Background(), t.Name())
 		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		dbaasClient = &mockDbaasClient{}
+		dbaasClient := &mockDbaasClient{}
 
 		kubernetesCluster, err := models.CreateKubernetesCluster(db.Querier, &models.CreateKubernetesClusterParams{
 			KubernetesClusterName: clusterName,
@@ -80,12 +80,12 @@ func TestComponentService(t *testing.T) {
 		})
 
 		vsc := NewVersionServiceClient(versionServiceURL)
-		kubeStorage = &mockKubeStorageManager{}
-		kubeClient = &mockKubernetesClient{}
+		kubeStorage := &mockKubeStorageManager{}
+		kubeClient := &mockKubernetesClient{}
 		kubeClient.On("GetServerVersion").Return(nil, nil)
-		cs = NewComponentsService(db, dbaasClient, vsc, kubeStorage)
+		cs := NewComponentsService(db, dbaasClient, vsc, kubeStorage)
 
-		return
+		return ctx, cs, dbaasClient, kubeClient, kubeStorage
 	}
 
 	t.Run("PXC", func(t *testing.T) {

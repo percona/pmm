@@ -78,6 +78,7 @@ type ListServicesCommand struct {
 	ExternalGroup string `help:"Filter by external group"`
 }
 
+// RunCmd executes the ListServicesCommand and returns the result.
 func (cmd *ListServicesCommand) RunCmd() (commands.Result, error) {
 	serviceType, err := formatTypeValue(acceptableServiceTypes, cmd.ServiceType)
 	if err != nil {

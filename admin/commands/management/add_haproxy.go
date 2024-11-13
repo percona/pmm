@@ -63,6 +63,7 @@ type AddHAProxyCommand struct {
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 }
 
+// GetCredentials returns the credentials for AddHAProxyCommand.
 func (cmd *AddHAProxyCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
@@ -75,6 +76,7 @@ func (cmd *AddHAProxyCommand) GetCredentials() error {
 	return nil
 }
 
+// RunCmd runs the command for AddHAProxyCommand.
 func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 	isSupported, err := helpers.IsHAProxySupported()
 	if !isSupported {

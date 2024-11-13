@@ -81,6 +81,14 @@ telemetry:
       - metric_name: "pmm_server_updates_disabled"
         column: "updates_disabled"
 
+  - id: PMMServerFirstServiceAdded
+    source: PMMDB_SELECT
+    query:  EXTRACT(EPOCH FROM y.created_at::timestamp) - EXTRACT(EPOCH FROM x.created_at::timestamp)  AS value_difference_sec FROM services x JOIN services y ON y.service_name != 'pmm-server-postgresql' WHERE x.service_name = 'pmm-server-postgresql' AND y.created_at = (SELECT MIN(created_at) FROM services WHERE service_name != 'pmm-server-postgresql');
+    summary: "Difference between PMM installation and the first real service added to PMM"
+    data:
+      - metric_name: "pmm_server_first_service_added_sec"
+        column: "value_difference_sec"
+
   # Services Information
   - id: MySQLVersion
     source: VM
@@ -165,7 +173,7 @@ telemetry:
     summary: "Runtime for general collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_general"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsDiagnosticDataStats
     source: VM
@@ -173,7 +181,7 @@ telemetry:
     summary: "Runtime for diagnostic data collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_diagnostic_data"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsCollectionStats
     source: VM
@@ -181,7 +189,7 @@ telemetry:
     summary: "Runtime for collection statistics collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_collstats"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsDBStats
     source: VM
@@ -189,7 +197,7 @@ telemetry:
     summary: "Runtime for database statistics collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_dbstats"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsIndexStats
     source: VM
@@ -197,7 +205,7 @@ telemetry:
     summary: "Runtime for index statistics collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_indexstats"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsTopStats
     source: VM
@@ -205,7 +213,7 @@ telemetry:
     summary: "Runtime for top metrics collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_top"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsReplicationStatus
     source: VM
@@ -213,7 +221,7 @@ telemetry:
     summary: "Runtime for replication status collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_replset_status"
-        value : 1
+        value: 1
 
   - id: MongoDBEdition
     source: VM
@@ -362,7 +370,7 @@ telemetry:
 
   - id: GrafanaStatDailyActiveUsers
     source: GRAFANADB_SELECT
-    query: count(*) AS count FROM user WHERE last_seen_at > datetime('now', '-1 day')
+    query: count(*) AS count FROM public.user WHERE last_seen_at > now() - interval '1 day'
     summary: "Daily active users"
     data:
       - metric_name: "pmm_server_grafana_stat_daily_active_users"
@@ -658,6 +666,22 @@ telemetry:
       - metric_name: "pmm_server_node_os_version"
         label: "release"
 
+  - id: PMMClientNodeOSName
+    source: VM
+    query: node_uname_info{node_id!="pmm-server"}
+    summary: "PMM Client node OS name"
+    data:
+      - metric_name: "pmm_client_node_os_name"
+        label: "sysname"
+
+  - id: PMMClientNodeOSVersion
+    source: VM
+    query: node_uname_info{node_id!="pmm-server"}
+    summary: "PMM Client node OS version"
+    data:
+      - metric_name: "pmm_client_node_os_version"
+        label: "release"
+
   - id: PMMOSNameAndVersion
     source: VM
     query: node_os_info{node_id=~"pmm-server"}
@@ -761,7 +785,7 @@ telemetry:
   #Grafana
   - id: GrafanaUsersCount
     source: GRAFANADB_SELECT
-    query: count(*) AS count FROM user
+    query: count(*) AS count FROM public.user
     summary: "Grafana Users Count"
     data:
       - metric_name: "grafana_users_count"
@@ -769,7 +793,7 @@ telemetry:
 
   - id: GrafanaDarkThemeUsersCount
     source: GRAFANADB_SELECT
-    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = 'dark'
+    query: count(u.id) as count from public.user u left join preferences p on p.user_id = u.id where p.theme = 'dark'
     summary: "Grafana Dark Theme Users Count"
     data:
       - metric_name: "grafana_dark_theme_users_count"
@@ -777,7 +801,7 @@ telemetry:
 
   - id: GrafanaLightThemeUsersCount
     source: GRAFANADB_SELECT
-    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = 'light'
+    query: count(u.id) as count from public.user u left join preferences p on p.user_id = u.id where p.theme = 'light'
     summary: "Grafana Light Theme Users Count"
     data:
       - metric_name: "grafana_light_theme_users_count"
@@ -785,7 +809,7 @@ telemetry:
 
   - id: GrafanaDefaultThemeUsersCount
     source: GRAFANADB_SELECT
-    query: count(u.id) as count from user u left join preferences p on p.user_id = u.id where p.theme = '' or p.theme is null
+    query: count(u.id) as count from public.user u left join preferences p on p.user_id = u.id where p.theme = '' or p.theme is null
     summary: "Grafana Default Theme Users Count"
     data:
       - metric_name: "grafana_default_theme_users_count"
@@ -793,7 +817,7 @@ telemetry:
 
   - id: GrafanaCustomDashboardsCount
     source: GRAFANADB_SELECT
-    query: count(*) as count from dashboard where created_by != -1 and is_folder = 0
+    query: count(*) as count from dashboard where created_by != -1 and is_folder = false
     summary: "Grafana Custom Dashboards Count"
     data:
       - metric_name: "grafana_custom_dashboards_count"
@@ -801,7 +825,7 @@ telemetry:
 
   - id: GrafanaCustomDashboardsPerPillar
     source: GRAFANADB_SELECT
-    query: inn.title as pillar, count(d.title) as count from dashboard d left join dashboard inn ON d.folder_id =  inn.id where d.created_by != -1 and d.is_folder = 0 group by inn.title
+    query: inn.title as pillar, count(d.title) as count from dashboard d left join dashboard inn ON d.folder_id = inn.id where d.created_by != -1 and d.is_folder = false group by inn.title
     summary: "Grafana Custom Dashboards Count By Pillar"
     transform:
       type: JSON
@@ -810,6 +834,7 @@ telemetry:
       - metric_name: "pillar"
         column: "pillar"
       - metric_name: "count"
+        column: "count"
 
   # API usage
   - id: APIUsageMetrics
@@ -916,6 +941,38 @@ telemetry:
       - metric_name: "7"
         column: "count"
 
+  # PMM-Dump information
+  - id: PMMDumpsPerformed
+    source: PMMDB_SELECT
+    query: >
+      status,
+      ARRAY_LENGTH(service_names,1) as services_count,
+      end_time - start_time as timerange,
+      ignore_load,
+      export_qan,
+      count(*)
+      from dumps
+      where created_at BETWEEN NOW() - INTERVAL '24 HOURS' AND NOW()
+      group by status, services_count, timerange, ignore_load, export_qan;
+
+    transform:
+      type: JSON
+      metric: pmm_dumps_performed
+    summary: "How many PMM dumps were created"
+    data:
+      - metric_name: "1"
+        column: "status"
+      - metric_name: "2"
+        column: "services_count"
+      - metric_name: "3"
+        column: "timerange"
+      - metric_name: "4"
+        column: "ignore_load"
+      - metric_name: "5"
+        column: "export_qan"
+      - metric_name: "6"
+        column: "count"
+
   - id: PXCClusterNodesCount
     source: VM
     query: (min by (wsrep_cluster_state_uuid) (mysql_global_status_wsrep_cluster_size * on (service_id) group_left(wsrep_cluster_state_uuid) mysql_galera_status_info))
@@ -936,3 +993,23 @@ telemetry:
     data:
       - metric_name: "postgresql_db_count"
         value: 1
+
+  - id: PMMServerHAEnabled
+    source: ENV_VARS
+    summary: "Use of HA feature"
+    data:
+      - metric_name: "pmm_server_ha_enable"
+        column: "PERCONA_TEST_HA_ENABLE"
+
+  - id: PMMServerHAUseOfDBs
+    source: ENV_VARS
+    transform:
+      type: StripValues
+    summary: "Use of External DBs"
+    data:
+      - metric_name: "pmm_server_ha_clickhouse_address"
+        column: "PERCONA_TEST_PMM_CLICKHOUSE_ADDR"
+      - metric_name: "pmm_server_ha_postgres_address"
+        column: "PERCONA_TEST_POSTGRES_ADDR"
+      - metric_name: "pmm_server_ha_vm_url"
+        column: "PMM_VM_URL"

@@ -74,7 +74,7 @@ const dbKubeconfigTest = `
 `
 
 const (
-	dbKubernetesClusterNameTest = "test-k8s-db-cluster-name"
+	dbKubernetesClusterNameTest = "test-k8s-db-cluster-name" //nolint:gosec
 	version230                  = "2.30.0"
 )
 

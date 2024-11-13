@@ -21,7 +21,6 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -39,8 +38,10 @@ import (
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
+	agent_version "github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/version"
 )
 
 // configGetter allows for getting a config.
@@ -95,12 +96,12 @@ func (cc *ConnectionChecker) sqlPing(ctx context.Context, db *sql.DB) error {
 	return err
 }
 
-func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, tlsSkipVerify bool, id uint32) *agentpb.CheckConnectionResponse { //nolint:lll,unparam
+func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, tlsSkipVerify bool, id uint32) *agentpb.CheckConnectionResponse { //nolint:lll
 	var res agentpb.CheckConnectionResponse
 	var err error
 
 	if files != nil {
-		err = tlshelpers.RegisterMySQLCerts(files.Files)
+		err = tlshelpers.RegisterMySQLCerts(files.Files, tlsSkipVerify)
 		if err != nil {
 			cc.l.Debugf("checkMySQLConnection: failed to register cert: %s", err)
 			res.Error = err.Error()
@@ -140,28 +141,14 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 		} else {
 			res.Error = err.Error()
 		}
-		return &res
-	}
-
-	var count uint64
-	if err = db.QueryRowContext(ctx, "SELECT /* agent='connectionchecker' */ COUNT(*) FROM information_schema.tables").Scan(&count); err != nil {
-		res.Error = err.Error()
-		return &res
-	}
-
-	tableCount := int32(count)
-	if count > math.MaxInt32 {
-		tableCount = math.MaxInt32
-	}
-
-	res.Stats = &agentpb.CheckConnectionResponse_Stats{
-		TableCount: tableCount,
 	}
 
 	return &res
 }
 
 func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.CheckConnectionResponse {
+	const helloCommandVersion = "4.2.10"
+
 	var res agentpb.CheckConnectionResponse
 	var err error
 
@@ -194,11 +181,37 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 		return &res
 	}
 
-	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
-	if err = resp.Err(); err != nil {
-		cc.l.Debugf("checkMongoDBConnection: failed to runCommand getDiagnosticData: %s", err)
+	mongoVersion, err := agent_version.GetMongoDBVersion(ctx, client)
+	if err != nil {
+		cc.l.Debugf("checkMongoDBConnection: failed to get MongoDB version: %s", err)
 		res.Error = err.Error()
 		return &res
+	}
+
+	serverInfo := struct {
+		ArbiterOnly bool `bson:"arbiterOnly"`
+	}{}
+
+	// use hello command for newer MongoDB versions
+	command := "hello"
+	if mongoVersion.Less(version.MustParse(helloCommandVersion)) {
+		command = "isMaster"
+	}
+
+	err = client.Database("admin").RunCommand(ctx, bson.D{{Key: command, Value: 1}}).Decode(&serverInfo)
+	if err != nil {
+		cc.l.Debugf("checkMongoDBConnection: failed to runCommand %s: %s", command, err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	if !serverInfo.ArbiterOnly {
+		resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
+		if err = resp.Err(); err != nil {
+			cc.l.Debugf("checkMongoDBConnection: failed to runCommand getDiagnosticData: %s", err)
+			res.Error = err.Error()
+			return &res
+		}
 	}
 
 	return &res
@@ -271,7 +284,7 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 		res.Error = err.Error()
 		return &res
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	if resp.StatusCode != http.StatusOK {
 		res.Error = fmt.Sprintf("Unexpected HTTP status code: %d. Expected: 200", resp.StatusCode)

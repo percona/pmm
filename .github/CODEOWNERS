@@ -1,10 +1,9 @@
 *                                       @percona/pmm-review-be
+/docs/                                  @percona/pmm-docs
+/ui/                                    @percona/pmm-review-fe
 /agent/agents/postgres/                 @JiriCtvrtka @percona/pmm-review-be
-/agent/runner/                          @artemgavrilov @percona/pmm-review-be
 /api/                                   @BupycHuk @percona/pmm-review-be
 /managed/services/checks/               @idoqo @percona/pmm-review-be
-/managed/services/dbaas                 @gen1us2k @recharte @percona/pmm-review-be
-/managed/services/management/dbaas      @gen1us2k @recharte @percona/pmm-review-be
 /update/                                @BupycHuk @talhabinrizwan @percona/pmm-review-be
 **/go.mod                               @percona/pmm-review-dependency @percona/pmm-review-be
 **/Dockerfile                           @percona/pmm-review-dependency @percona/pmm-review-be
