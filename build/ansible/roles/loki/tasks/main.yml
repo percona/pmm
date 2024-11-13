@@ -34,12 +34,13 @@
     - { name: loki, uid: 1001, comment: "Loki user", shell: "/sbin/nologin", group: pmm, }
     - { name: promtail, uid: 1002, comment: "Promtail user", shell: "/sbin/nologin", group: pmm, }
 
-- name: Create a directory for Loki
+- name: Create directories for Loki
   file:
-    path: /srv/loki
+    path: /srv/loki/data
     state: directory
     owner: pmm
     group: pmm
+    recurse: true
 
 - name: Copy the supervisord config file for Loki and Promtail
   copy:

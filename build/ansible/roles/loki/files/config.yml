@@ -8,11 +8,11 @@ server:
 
 common:
   instance_addr: 0.0.0.0
-  path_prefix: /srv/loki
+  path_prefix: /srv/loki/data
   storage:
     filesystem:
-      chunks_directory: /srv/loki/chunks
-      rules_directory: /srv/loki/rules
+      chunks_directory: /srv/loki/data/chunks
+      rules_directory: /srv/loki/data/rules
   replication_factor: 1
   ring:
     kvstore:
