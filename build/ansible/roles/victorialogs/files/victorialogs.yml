@@ -7,7 +7,7 @@ datasources:
   - name: VictoriaLogs
     # <string, required> Sets the data source type.
     type: victorialogs-datasource
-    id: victorialogs
+    uid: victorialogs
     # <string, required> Sets the access mode, either
     # proxy or direct (Server or Browser in the UI).
     access: proxy
