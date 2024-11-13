@@ -7,18 +7,28 @@ deps:
   - buf.build/grpc-ecosystem/grpc-gateway
 lint:
   use:
-    - DEFAULT
+    - STANDARD
   except:
     - FIELD_NOT_REQUIRED
     - PACKAGE_NO_IMPORT_CYCLE
   ignore_only:
+    PACKAGE_DIRECTORY_MATCH:
+      - agent/pb/agent.proto
     PACKAGE_VERSION_SUFFIX:
+      - agent/pb/agent.proto
       - common/common.proto
       - common/metrics_resolutions.proto
     RPC_REQUEST_STANDARD_NAME:
+      - agent/pb/agent.proto
       - agent/v1/agent.proto
     RPC_RESPONSE_STANDARD_NAME:
+      - agent/pb/agent.proto
       - agent/v1/agent.proto
+    RPC_REQUEST_RESPONSE_UNIQUE:
+      - agent/pb/agent.proto
+      - agent/v1/agent.proto
+    SERVICE_SUFFIX:
+      - agent/pb/agent.proto
   disallow_comment_ignores: true
 breaking:
   use:
