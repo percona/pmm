@@ -270,7 +270,8 @@ build_deb(){
 
 #main
 
-CURDIR=$(pwd) # /home/builder/build
+# CURDIR is set to `/home/builder/build` inside the container, which is mapped to `pmm-submodules/build`
+CURDIR=$(pwd) 
 WORKDIR=/tmp/pmm
 PACKAGE_NAME=pmm-client
 VERSION_FILE=$CURDIR/pmm-client.properties
