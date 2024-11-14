@@ -20,7 +20,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/percona/pmm/managed/utils/envvars"
 	"io"
 	"net"
 	"net/http"
@@ -36,12 +35,11 @@ import (
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
 
+	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
-// defaultLatestPMMImage is the default image name to use when the latest version cannot be determined.
 const (
-	defaultLatestPMMImage  = "perconalab/pmm-server:3-dev-latest"
 	pmmUpdatePerformLog    = "/srv/logs/pmm-update-perform-init.log"
 	updateCheckInterval    = 24 * time.Hour
 	updateCheckResultFresh = updateCheckInterval + 10*time.Minute
@@ -310,11 +308,11 @@ func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*ve
 	}
 
 	if len(metadataResponse.Versions) != 0 {
-		up.l.Infof("Found %d versions", len(metadataResponse.Versions))
+		up.l.Debugf("Found %d versions", len(metadataResponse.Versions))
 		updates, next := up.next(*up.currentVersion(), metadataResponse.Versions)
 		return updates, next, err
 	}
-	up.l.Info("No new PMM version available")
+	up.l.Debug("No new PMM version available")
 	return nil, nil, nil
 }
 
