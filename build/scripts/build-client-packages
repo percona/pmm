@@ -117,10 +117,8 @@ build_srpm(){
     --define "dist %{nil}" \
     "rpmbuild/SPECS/${PACKAGE_NAME}.spec"
 
-  # mkdir -p ${WORKDIR}/srpm
   mkdir -p ${CURDIR}/srpm
   cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
-  # cp rpmbuild/SRPMS/*.src.rpm ${WORKDIR}/srpm
 }
 
 build_rpm(){
@@ -134,9 +132,6 @@ build_rpm(){
     echo "Error: no source RPM could be found, exiting..."
     echo "You can create SRPM using the parameter --build_src_rpm"
     exit 1
-  # else
-    # rm -f "$CURDIR/srpm/$SRC_RPM" || :
-    # cp "$CURDIR/srpm/$SRC_RPM" "$WORKDIR"
   fi
 
   cd $WORKDIR
