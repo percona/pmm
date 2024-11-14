@@ -91,6 +91,7 @@ func TestAgent(t *testing.T) {
 			models.ProxySQLExporterType:        "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?timeout=1s",
 			models.QANMySQLPerfSchemaAgentType: "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?clientFoundRows=true&parseTime=true&timeout=1s",
 			models.QANMySQLSlowlogAgentType:    "username:s3cur3 p@$$w0r4.@unix(/var/run/mysqld/mysqld.sock)/database?clientFoundRows=true&parseTime=true&timeout=1s",
+			models.MongoDBExporterType:         "mongodb://username:s3cur3%20p%40$$w0r4.@/var/run/mysqld/mysqld.sock/database?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
 		} {
 			t.Run(string(typ), func(t *testing.T) {
 				agent.AgentType = typ
