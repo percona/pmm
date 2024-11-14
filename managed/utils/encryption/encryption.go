@@ -108,11 +108,7 @@ func RotateEncryptionKey() error {
 	defaultEncryptionMtx.Lock()
 	defer defaultEncryptionMtx.Unlock()
 	DefaultEncryption, err = New()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // RestoreOldEncryptionKey is a wrapper around DefaultEncryption.RestoreOldEncryptionKey.
