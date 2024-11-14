@@ -160,6 +160,9 @@
 # During build time, this will be the first start of supervisord.
 - name: Start supervisord
   shell: supervisord -c /etc/supervisord.conf &
+  become: true
+  become_user: pmm
+  become_method: su
 
 - name: Run initialization playbook
   include_role:
