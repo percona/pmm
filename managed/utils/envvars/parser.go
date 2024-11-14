@@ -96,7 +96,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
-		case "PMM_DEV_VERSION_SERVICE_URL":
+		case "PMM_DEV_PERCONA_PLATFORM_ADDRESS":
 			// skip pmm-managed environment variables that are already handled by kingpin
 			continue
 		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR":

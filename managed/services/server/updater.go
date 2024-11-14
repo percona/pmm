@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/percona/pmm/managed/utils/envvars"
 	"io"
 	"net"
 	"net/http"
@@ -40,13 +41,12 @@ import (
 
 // defaultLatestPMMImage is the default image name to use when the latest version cannot be determined.
 const (
-	defaultLatestPMMImage        = "perconalab/pmm-server:3-dev-latest"
-	pmmUpdatePerformLog          = "/srv/logs/pmm-update-perform-init.log"
-	defaultVersionServiceAddress = "https://check-dev.percona.com"
-	updateCheckInterval          = 24 * time.Hour
-	updateCheckResultFresh       = updateCheckInterval + 10*time.Minute
-	updateDefaultTimeout         = 30 * time.Second
-	envfilePath                  = "/home/pmm/update/pmm-server.env"
+	defaultLatestPMMImage  = "perconalab/pmm-server:3-dev-latest"
+	pmmUpdatePerformLog    = "/srv/logs/pmm-update-perform-init.log"
+	updateCheckInterval    = 24 * time.Hour
+	updateCheckResultFresh = updateCheckInterval + 10*time.Minute
+	updateDefaultTimeout   = 30 * time.Second
+	envfilePath            = "/home/pmm/update/pmm-server.env"
 )
 
 var fileName = "/etc/pmm-server-update-version.json"
@@ -202,11 +202,15 @@ func (up *Updater) ForceCheckUpdates(ctx context.Context) error {
 
 // LastCheckUpdatesResult returns the result of the last update check.
 func (up *Updater) LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCheckResult, time.Time) {
+	var latest version.DockerVersionInfo
 	installed := up.InstalledPMMVersion()
-	latest, lastCheckTime := up.checkResult(ctx)
+	vi, lastCheckTime := up.checkResult(ctx)
+	if vi != nil {
+		latest = *vi
+	}
 	return &version.UpdateCheckResult{
 		Installed:       installed,
-		Latest:          *latest,
+		Latest:          latest,
 		UpdateAvailable: latest.DockerImage != "",
 		LatestNewsURL:   "https://per.co.na/pmm/" + latest.Version.String(),
 	}, lastCheckTime
@@ -281,9 +285,10 @@ type ReleaseNotesResponse struct {
 // If the current version is the latest minor version, it returns the next major version as the latest.
 // If the current version is the latest version, it returns the current version as the latest.
 func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
-	versionServiceUrl := os.Getenv("PMM_DEV_VERSION_SERVICE_URL")
-	if versionServiceUrl == "" {
-		versionServiceUrl = defaultVersionServiceAddress
+	versionServiceUrl, err := envvars.GetPlatformAddress()
+	if err != nil {
+		up.l.WithError(err).Error("Failed to get version service address")
+		return nil, nil, errors.Wrap(err, "failed to get version service address")
 	}
 	u := versionServiceUrl + "/metadata/v1/pmm-server"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
@@ -309,7 +314,8 @@ func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*ve
 		updates, next := up.next(*up.currentVersion(), metadataResponse.Versions)
 		return updates, next, err
 	}
-	return nil, nil, errors.New("no tags found")
+	up.l.Info("No new PMM version available")
+	return nil, nil, nil
 }
 
 func (up *Updater) parseDockerTag(tag string) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
@@ -535,9 +541,10 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 		return releaseNotes, nil
 	}
 
-	versionServiceUrl := os.Getenv("PMM_DEV_VERSION_SERVICE_URL")
-	if versionServiceUrl == "" {
-		versionServiceUrl = defaultVersionServiceAddress
+	versionServiceUrl, err := envvars.GetPlatformAddress()
+	if err != nil {
+		up.l.WithError(err).Error("Failed to get version service address")
+		return "", errors.Wrap(err, "failed to get version service address")
 	}
 	u := versionServiceUrl + "/release-notes/v1/pmm/" + versionString
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
