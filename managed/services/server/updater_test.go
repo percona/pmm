@@ -29,6 +29,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
@@ -268,14 +269,32 @@ func TestUpdater(t *testing.T) {
 	})
 
 	t.Run("TestLatest", func(t *testing.T) {
+		t.Parallel()
 		version.Version = "2.41.0"
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
-		_, latest, err := u.latest(context.Background())
-		require.NoError(t, err)
-		if latest != nil {
-			assert.True(t, strings.HasPrefix(latest.Version.String(), "2.") || strings.HasPrefix(latest.Version.String(), "3."),
-				"latest version of PMM should have either a '2.' or '3.' prefix")
-		}
+
+		t.Run("LatestFromProduction", func(t *testing.T) {
+			t.Parallel()
+			_, latest, err := u.latest(context.Background())
+			require.NoError(t, err)
+			if latest != nil {
+				assert.True(t, strings.HasPrefix(latest.Version.String(), "3."),
+					"latest version of PMM should start with a '3.' prefix")
+			}
+		})
+		t.Run("LatestFromStaging", func(t *testing.T) {
+			t.Parallel()
+			versionServiceURL, err := envvars.GetPlatformAddress() // defaults to production
+			require.NoError(t, err)
+			defer func() {
+				_ = os.Setenv(envvars.EnvPlatformAddress, versionServiceURL)
+			}()
+			_ = os.Setenv(envvars.EnvPlatformAddress, "https://check-dev.percona.com")
+			_, latest, err := u.latest(context.Background())
+			require.NoError(t, err)
+			assert.True(t, strings.HasPrefix(latest.Version.String(), "3."),
+				"latest version of PMM should start with a '3.' prefix")
+		})
 	})
 
 	t.Run("TestParseFile", func(t *testing.T) {
