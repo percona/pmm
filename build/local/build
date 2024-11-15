@@ -13,8 +13,9 @@ Options:
 			--client-only            Build only PMM Client (client binaries + docker)
 			--no-client              Do not build PMM Client
 			--no-client-docker       Do not build PMM Client docker image (default)
-			--log-file <path>        Save build logs to a file located at <path> (defaults to PWD).
-															 Note: the log file will get reset on every subsequent run.
+			--log-file <path>        Save build logs to a file located at <path> (defaults to PWD)
+															 Note: the log file will get reset on every subsequent run
+      --release                Mark it as a release build (otherwise it's a feature build)
 	-d  --debug                  Log output in debug mode, which also prints the commands
 	-h  --help                   Display help
 EOF
@@ -40,7 +41,8 @@ parse_params() {
 	export DEBUG_MODE=0
 	export ROOT_DIR="$(realpath ./${SUBMODULES})"
 	export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
-	export RPM_EPOCH=0
+  # This replaces the old `RPM_EPOCH=1`, which was used for feature builds
+	export RELEASE_BUILD=0
 
 	while test "$#" -gt 0; do
 		case "$1" in
@@ -90,6 +92,10 @@ parse_params() {
 				fi
 				LOG_FILE="$1"
 				;;
+      --release)
+        RELEASE_BUILD=1
+        shift
+        ;;
 			--debug | -d)
 				DEBUG_MODE=1
 				shift
@@ -418,8 +424,6 @@ main() {
 	fi
 
 	if [ "$NO_SERVER" -eq 0 ]; then
-		RPM_EPOCH=1 # TODO: replace with RELEASE_BUILD=1
-
 		# 1st-party components
 		run_build_script build-server-rpm percona-dashboards grafana-dashboards
 		run_build_script build-server-rpm pmm-managed pmm

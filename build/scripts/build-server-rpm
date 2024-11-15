@@ -24,15 +24,15 @@ is_build_needed() {
   local spec_name=$1
   local rpm_version=$2
   local packages=
-  local s3_cache_dir=RELEASE
+  local s3_cache_dir=PR-BUILDS
 
   # Structure of S3 build cache
   # s3://pmm-build-cache/PR-BUILDS/9 - el9
   # s3://pmm-build-cache/RELEASE/9 - el9
 
-  # Check if this is a feature build
-  if [ "$RPM_EPOCH" = 1 ]; then
-    s3_cache_dir=PR-BUILDS
+  # Check if this is a release build
+  if [ -z "$RPM_EPOCH"] && [ "$RELEASE_BUILD" = 1 ]; then
+    s3_cache_dir=RELEASE
   fi
   if command -v aws &> /dev/null && [ -z "$LOCAL_BUILD" ]; then
     aws s3 sync \
@@ -112,7 +112,7 @@ build() {
   prepare_spec "${spec_name}" "${repo_name}"
 
   local rpm_version=$(get_rpm_version "${spec_name}")
-  local s3_cache_dir=RELEASE
+  local s3_cache_dir=PR-BUILDS
 
   if ! is_build_needed "${spec_name}" "${rpm_version}"; then
       echo "Using cached rpm artefacts for ${spec_name}-${rpm_version}."
@@ -195,8 +195,8 @@ build() {
     return
   fi
 
-  if [ "$RPM_EPOCH" = 1 ]; then
-    s3_cache_dir=PR-BUILDS
+  if [ -z "$RPM_EPOCH" ] && [ "$RELEASE_BUILD" = 1 ]; then
+    s3_cache_dir=RELEASE
   fi
   aws s3 sync \
       --region us-east-2 \

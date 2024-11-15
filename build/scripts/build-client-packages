@@ -143,7 +143,7 @@ build_rpm(){
     # Remove older client rpm packages before building a new one
     rm -f "${CURDIR}/rpm/${PACKAGE_NAME}-${pmm_version}-*.rpm"
   fi
-  rpmbuild --define "_topdir ${WORKDIR}/rpmbuild" \
+  rpmbuild  --define "_topdir ${WORKDIR}/rpmbuild" \
             --define "version $pmm_version" \
             --define "release $RPM_RELEASE" \
             --define "dist .$OS_NAME" \
