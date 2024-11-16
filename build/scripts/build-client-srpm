@@ -7,7 +7,7 @@ set -o xtrace
 
 main() {
   echo -----------------------------------------
-  echo "Building PMM Client RPM packages..."
+  echo "Building PMM Client source RPM packages..."
   echo -----------------------------------------
 
   local IMAGE=${1:-${rpmbuild_docker_image}}
@@ -19,11 +19,10 @@ main() {
       set -o errexit
       set -o xtrace
 
-      export pmm_version=$pmm_version
       export pmm_release=$pmm_release
       cd /home/builder/build
 
-      /home/builder/bin/build-client-packages --build_rpm
+      /home/builder/bin/build-client-packages --build_src_rpm
     "
 }
 

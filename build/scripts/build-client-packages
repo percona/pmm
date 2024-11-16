@@ -1,5 +1,5 @@
 #!/bin/sh
-# NOTE: this script is always executed in a container environment.
+# NOTE: this script must be executed in a container environment.
 
 set -o errexit
 set -o xtrace
@@ -8,9 +8,9 @@ usage () {
   cat <<EOF
 Usage: $0 [OPTIONS]
     The following options may be given :
-        --build_src_rpm     Build RPM packages
-        --build_source_deb  Build debian source packages
+        --build_src_rpm     Build source RPM packages
         --build_rpm         Build RPM packages
+        --build_source_deb  Build debian source packages
         --build_deb         Build debian packages
         --help)             Display this help
 Example $0 --build_src_rpm --build_rpm
@@ -19,13 +19,25 @@ EOF
   exit 1
 }
 
-parse_arguments() {
+run() {
   for arg do
     case "$arg" in
-      --build_src_rpm) SRPM=1 ;;
-      --build_rpm) RPM=1 ;;
-      --build_source_deb=*) SDEB=1 ;;
-      --build_deb) DEB=1 ;;
+      --build_src_rpm)
+        echo "Building srpm packages..."
+        build_srpm
+        ;;
+      --build_rpm)
+        echo "Building rpm packages..."
+        build_rpm
+        ;;
+      --build_source_deb=*)
+        echo "Building source deb packages..."
+        build_source_deb
+        ;;
+      --build_deb)
+        echo "Building deb packages..."
+        build_deb
+        ;;
       --help) usage ;;
       *) usage ;;
     esac
@@ -43,73 +55,44 @@ check_workdir(){
   fi
 }
 
-get_system(){
-  if [ -f /etc/redhat-release ]; then
-    RHEL=$(rpm --eval %rhel)
-    ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
-    OS_NAME="el$RHEL"
-    OS="rpm"
-else
-    ARCH=$(uname -m)
-    OS_NAME="$(lsb_release -sc)"
-    OS="deb"
-  fi
-}
-
+# Find the tarball and copy it to WORKDIR
 get_tar(){
-  local TARBALL=$1
-  local TARFILE=$(basename $(find $CURDIR/$TARBALL -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1) || :)
-  if [ -n $TARFILE ]; then
-    cp $CURDIR/$TARBALL/$TARFILE $WORKDIR/$TARFILE
-    return
+  local TARBALL_DIR=$1
+  local TARFILE=$(basename $(find "$CURDIR/$TARBALL_DIR" -name "${PACKAGE_NAME}*.tar.gz" | sort | tail -n1))
+  if [ ! -f "$CURDIR/$TARBALL_DIR/$TARFILE" ]; then
+    echo "Error: $TARBALL_DIR could not be found, exiting..."
+    exit 1
   fi
 
-  echo "Error: $TARBALL could not be found, exiting..."
-  exit 1
+  cp "$CURDIR/$TARBALL_DIR/$TARFILE" "$WORKDIR/$TARFILE"
+  echo "$TARFILE"
 }
 
 get_deb_sources(){
-    local param=$1
-    echo $param
-    local FILE=$(basename $(find $WORKDIR/source_deb -name "${PACKAGE_NAME}*.$param" | sort | tail -n1) || :)
-    if [ -z $FILE ]; then
-        FILE=$(basename $(find $CURDIR/source_deb -name "${PACKAGE_NAME}*.$param" | sort | tail -n1) || :)
-        if [ -z $FILE ]; then
-            echo "There is no sources for build"
-            exit 1
-        else
-            cp $CURDIR/source_deb/$FILE $WORKDIR/
-        fi
-    else
-        cp $WORKDIR/source_deb/$FILE $WORKDIR/
-    fi
-    return
+  local param=$1
+  local FILE=$(basename $(find $CURDIR/source_deb -name "${PACKAGE_NAME}*.$param" | sort | tail -n1))
+  if [ -z $FILE ]; then
+    echo "There is no source to build from"
+    exit 1
+  else
+    cp $CURDIR/source_deb/$FILE $WORKDIR/
+  fi
 }
 
 build_srpm(){
-  if [ "$OS" = "deb" ]; then
-    echo "Error: it is not possible to build source RPM on a debian based OS, exiting..."
-    exit 1
-  fi
-  cd $WORKDIR
-  get_tar "tarball"
-
-  rm -fr rpmbuild
-  ls | grep -v tar.gz | xargs rm -rf
-
-  local TARFILE=$(basename $(find . -name "${PACKAGE_NAME}-*.tar.gz" | sort | tail -n1))
+  local TARFILE=$(get_tar "tarball")
   local NAME=$(echo ${TARFILE}| awk -F '-' '{print $1"-"$2}')
   local VERSION_TMP=$(echo ${TARFILE}| awk -F '-' '{print $3}')
   local VERSION=${VERSION_TMP%.tar.gz}
 
+  cd $WORKDIR
   mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
 
   tar -C ${WORKDIR} -zxpf ${TARFILE} ${NAME}-${VERSION}/rpm
 
-  cd ${WORKDIR}/rpmbuild/SPECS
-  cp ${WORKDIR}/${NAME}-${VERSION}/rpm/*.spec .
-  cp ${WORKDIR}/${TARFILE} ../SOURCES/
-  cd ${WORKDIR}
+  cp ${WORKDIR}/${NAME}-${VERSION}/rpm/*.spec ${WORKDIR}/rpmbuild/SPECS/
+  cp ${WORKDIR}/${TARFILE} ${WORKDIR}/rpmbuild/SOURCES/
+
   rpmbuild -bs \
     --define "_topdir ${WORKDIR}/rpmbuild" \
     --define "version $VERSION" \
@@ -117,20 +100,16 @@ build_srpm(){
     --define "dist %{nil}" \
     "rpmbuild/SPECS/${PACKAGE_NAME}.spec"
 
-  mkdir -p ${CURDIR}/srpm
-  cp rpmbuild/SRPMS/*.src.rpm ${CURDIR}/srpm
+  mkdir -p "${CURDIR}/srpm"
+  cp rpmbuild/SRPMS/*.src.rpm "${CURDIR}/srpm"
 }
 
 build_rpm(){
-  if [ "$OS" = "deb" ]; then
-    echo "It is not possible to build rpm here"
-    exit 1
-  fi
-
   local SRC_RPM=$(basename $(find $CURDIR/srpm -name "${PACKAGE_NAME}*.src.rpm" | sort | tail -n1) || :)
+  local RHEL=$(rpm --eval %rhel)
   if [ -z "$SRC_RPM" ]; then
     echo "Error: no source RPM could be found, exiting..."
-    echo "You can create SRPM using the parameter --build_src_rpm"
+    echo "You can build source RPM using the parameter --build_src_rpm"
     exit 1
   fi
 
@@ -146,7 +125,7 @@ build_rpm(){
   rpmbuild  --define "_topdir ${WORKDIR}/rpmbuild" \
             --define "version $pmm_version" \
             --define "release $RPM_RELEASE" \
-            --define "dist .$OS_NAME" \
+            --define "dist .el${RHEL}" \
             --rebuild rpmbuild/SRPMS/$SRC_RPM
 
   return_code=$?
@@ -155,23 +134,19 @@ build_rpm(){
     exit $return_code
   fi
 
-  mkdir -p ${CURDIR}/rpm
-  cp rpmbuild/RPMS/*/*.rpm ${CURDIR}/rpm
+  mkdir -p "${CURDIR}/rpm"
+  cp rpmbuild/RPMS/*/*.rpm "${CURDIR}/rpm"
 }
 
 build_source_deb(){
-  if [ "$OS" = "rpm" ]; then
-    echo "It is not possible to build source deb here"
-    exit 1
-  fi
   rm -rf pmm-client*
-  get_tar "tarball"
   rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
 
-  TARFILE=$(basename $(find . -name "${PACKAGE_NAME}-*.tar.gz" | sort | tail -n1))
-  NAME=$(echo ${TARFILE}| awk -F '-' '{print $1"-"$2}')
-  VERSION_TMP=$(echo ${TARFILE}| awk -F '-' '{print $3}')
-  VERSION=${VERSION_TMP%.tar.gz}
+  local TARFILE=$(get_tar "tarball")
+  # TARFILE=$(basename $(find . -name "${PACKAGE_NAME}-*.tar.gz" | sort | tail -n1))
+  local NAME=$(echo ${TARFILE}| awk -F '-' '{print $1"-"$2}')
+  local VERSION_TMP=$(echo ${TARFILE}| awk -F '-' '{print $3}')
+  local VERSION=${VERSION_TMP%.tar.gz}
 
   rm -fr ${NAME}-${VERSION}
 
@@ -181,7 +156,7 @@ build_source_deb(){
   git clone $REPO ${NAME}-${VERSION}_all
   pushd ${NAME}-${VERSION}_all
     git fetch origin
-    if [ ! -z ${BRANCH} ]; then
+    if [ -n ${BRANCH} ]; then
       git reset --hard
       git clean -xdf
       git checkout ${BRANCH}
@@ -218,7 +193,7 @@ build_source_deb(){
 
   cd ../
 
-  dch -D unstable --force-distribution -v "${VERSION}-${DEB_RELEASE}" "Update to new upstream release PMM-client ${VERSION}-${DEB_RELEASE}"
+  dch -D unstable --force-distribution -v "${VERSION}-${DEB_RELEASE}" "Update to new upstream release of PMM Client ${VERSION}-${DEB_RELEASE}"
   dpkg-buildpackage -S
   cd ../
   mkdir -p $WORKDIR/source_deb
@@ -234,10 +209,6 @@ build_source_deb(){
 }
 
 build_deb(){
-  if [ "$OS" = "rpm" ]; then
-    echo "It is not possible to build deb here"
-    exit 1
-  fi
   for file in 'dsc' 'orig.tar.gz' 'changes' 'diff.gz'; do
     get_deb_sources $file
   done
@@ -258,55 +229,31 @@ build_deb(){
 
   dpkg-buildpackage -rfakeroot -uc -us -b
   mkdir -p $CURDIR/deb
-  mkdir -p $WORKDIR/deb
-  cp $WORKDIR/*.deb $WORKDIR/deb
   cp $WORKDIR/*.deb $CURDIR/deb
 }
 
-#main
+main() {
+  # CURDIR points to `/home/builder/build` inside the container, which is mapped to `pmm-submodules/build`
+  CURDIR=$(pwd) 
+  WORKDIR=/tmp/pmm
+  PACKAGE_NAME=pmm-client
+  VERSION_FILE=${CURDIR}/${PACKAGE_NAME}.properties
+  RPM_RELEASE=1
+  DEB_RELEASE=1
+  REVISION=0
+  BRANCH="v3"
+  REPO="https://github.com/Percona-Lab/pmm-submodules.git"
 
-# CURDIR is set to `/home/builder/build` inside the container, which is mapped to `pmm-submodules/build`
-CURDIR=$(pwd) 
-WORKDIR=/tmp/pmm
-PACKAGE_NAME=pmm-client
-VERSION_FILE=$CURDIR/pmm-client.properties
-SRPM=0
-SDEB=0
-RPM=0
-DEB=0
-OS_NAME=
-ARCH=
-OS=
-RPM_RELEASE=1
-DEB_RELEASE=1
-REVISION=0
-BRANCH="v3"
-REPO="https://github.com/Percona-Lab/pmm-submodules.git"
+  if [ -n "$pmm_release" ]; then
+    RPM_RELEASE="$RPM_RELEASE.$pmm_release"
+    DEB_RELEASE="$DEB_RELEASE.$pmm_release"
+  fi
 
-if [ -n "$pmm_release" ]; then
-  RPM_RELEASE="$RPM_RELEASE.$pmm_release"
-  DEB_RELEASE="$DEB_RELEASE.$pmm_release"
-fi
+  check_workdir
 
-parse_arguments "$@"
-get_system
+  run "$@"
+}
 
-check_workdir
-if [ "$SRPM" != 0 ]; then
-  echo "Building srpm packages..."
-  build_srpm
-fi
-if [ "$SDEB" != 0 ]; then
-  echo "Building source deb packages..."
-  build_source_deb
-fi
-if [ "$RPM" != 0 ]; then
-  echo "Building rpm packages..."
-  build_rpm
-fi
-if [ "$DEB" != 0 ]; then
-  echo "Building deb packages..."
-  build_deb
-fi
+main "$@"
 
 # vim: expandtab shiftwidth=2 tabstop=2
