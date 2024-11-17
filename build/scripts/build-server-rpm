@@ -9,15 +9,16 @@ get_rpm_version() {
 
   local rpm_version=$(
     docker run --rm \
-        --platform=${platform} \
-        -v ${rpmbuild_dir}:/home/builder/rpm/SOURCES ${rpmbuild_docker_image} sh -c "
+      --platform=${platform} \
+      -v ${rpmbuild_dir}:/home/builder/rpm/SOURCES \
+      ${rpmbuild_docker_image} sh -c "
         rpmspec -q --qf '%{version}-%{release}\n' SOURCES/${spec_name}.spec \
             | sed -re 's/\.[0-9]{10}\././' | head -1
-    "
+      "
   )
 
   # return version
-  echo ${rpm_version}
+  echo "${rpm_version}"
 }
 
 is_build_needed() {
@@ -56,7 +57,7 @@ prepare_spec() {
   mkdir -p ${rpms_dir} ${rpmbuild_dir} 2>/dev/null || :
   cp ${rpmspec_dir}/${spec_name}.spec ${spec_file}
   if [ ! -d "${root_dir}/sources/${repo_name}" ]; then
-    # Exit if the repo can't be found in pmm-submodules (e.g. VictoriaMetrics)
+    # Exit if the repo can't be found in pmm-submodules (e.g. VictoriaMetrics and Nomad)
     return
   fi
   if [ ! -f "${spec_file}" ]; then
@@ -91,6 +92,7 @@ prepare_spec() {
   fi
 
   if [ "${spec_name}" != "victorimetrics" ]; then
+    # Substitute the https source with the one on the filesystem
     sed -i -e "s;\(Source0:[[:space:]]*\)http.*;\1${tar_archive};" ${spec_file}
   fi
 
