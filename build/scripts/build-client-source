@@ -61,7 +61,7 @@ main() {
   prepare_tarball percona-toolkit
 
   local noxattrs=
-  if [[ $(uname -o) =~ [Dd]arwin ]]; then
+  if [ $(uname -s) = "Darwin" ]; then
     noxattrs="--no-xattrs"
   fi
 
