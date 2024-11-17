@@ -148,9 +148,9 @@
         name: "{{ item }}"
         virtualenv: /home/ec2-user/venv
       loop: # Lookup versions at: https://pypi.org/search/
-        - pyaml==24.7.0
+        - pyaml==24.9.0
         - GitPython==3.1.43
-        - PyGithub==2.3.0
+        - PyGithub==2.5.0
         - python-digitalocean==1.17.0
         - docker==7.1.0
         - linode-cli==5.50.0
