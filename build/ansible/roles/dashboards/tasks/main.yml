@@ -1,21 +1,23 @@
 ---
+- name: Wait until Grafana starts
+  community.general.supervisorctl:
+    name: grafana
+    state: started
+  become: true
+  become_user: pmm
+  become_method: su    
+
 - name: Stop Grafana
   shell: supervisorctl stop grafana
   become: true
   become_user: pmm
   become_method: su
-  retries: 3
-  delay: 10
-  until: result.rc == 0
 
 - name: Remove Grafana from Supervisor jobs
   shell: supervisorctl remove grafana
   become: true
   become_user: pmm
   become_method: su
-  retries: 3
-  delay: 10
-  until: result.rc == 0  
 
 - name: Retrieve Percona plugins
   find:
@@ -54,9 +56,7 @@
     remote_src: yes    
 
 - name: Restart Grafana service with new plugins 
-  shell: "supervisorctl {{ item }} grafana"
+  shell: supervisorctl add grafana
   become: true
   become_user: pmm
   become_method: su
-  loop:
-    - add
