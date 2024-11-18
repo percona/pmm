@@ -288,7 +288,7 @@ func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*ve
 		up.l.WithError(err).Error("Failed to get version service address")
 		return nil, nil, errors.Wrap(err, "failed to get version service address")
 	}
-	u := versionServiceUrl + "/metadata/v1/pmm-server"
+	u := versionServiceUrl + "/metadata/v2/pmm-server"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to create request")
