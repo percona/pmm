@@ -13,11 +13,8 @@ curl -sSL https://dl.google.com/go/go1.23.2.linux-amd64.tar.gz -o /tmp/golang.ta
 # to install man pages
 sed -i '/nodocs/d' /etc/yum.conf
 
-# enable experimental repository with latest development packages
-sed -i'' -e 's^/release/^/experimental/^' /etc/yum.repos.d/pmm2-server.repo
-
 yum update -y percona-release
-percona-release enable pmm2-client testing
+percona-release enable pmm3-client testing
 
 # reinstall with man pages
 yum install -y yum rpm
