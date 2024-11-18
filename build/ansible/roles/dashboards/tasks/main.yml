@@ -1,12 +1,21 @@
 ---
-- name: Stop and remove Grafana from Supervisor
-  shell: "supervisorctl {{ item }} grafana"
+- name: Stop Grafana
+  shell: supervisorctl stop grafana
   become: true
   become_user: pmm
   become_method: su
-  loop:
-    - stop
-    - remove
+  retries: 3
+  delay: 10
+  until: result.rc == 0
+
+- name: Remove Grafana from Supervisor jobs
+  shell: supervisorctl remove grafana
+  become: true
+  become_user: pmm
+  become_method: su
+  retries: 3
+  delay: 10
+  until: result.rc == 0  
 
 - name: Retrieve Percona plugins
   find:
