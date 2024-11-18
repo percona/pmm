@@ -69,6 +69,7 @@
         - /var/log/nginx
         - /var/lib/pgsql
         - /srv/pmm-encryption.key
+        - /var/cache/yum
 
     - name: Remove users created by installers
       user:

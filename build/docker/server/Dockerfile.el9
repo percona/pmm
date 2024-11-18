@@ -33,11 +33,11 @@ RUN install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
     ansible-playbook -vvv /opt/ansible/pmm-docker/post-build.yml && \
     sed -i '/^assumeyes/d' /etc/dnf/dnf.conf
 
-LABEL org.opencontainers.image.created ${BUILD_DATE}
-LABEL org.opencontainers.image.licenses AGPL-3.0
-LABEL org.opencontainers.image.title Percona Monitoring and Management
-LABEL org.opencontainers.image.vendor Percona LLC
-LABEL org.opencontainers.image.version ${VERSION}
+LABEL org.opencontainers.image.created=${BUILD_DATE}
+LABEL org.opencontainers.image.licenses=AGPL-3.0
+LABEL org.opencontainers.image.title="Percona Monitoring and Management"
+LABEL org.opencontainers.image.vendor="Percona LLC"
+LABEL org.opencontainers.image.version=${VERSION}
 
 USER pmm
 
