@@ -1,20 +1,8 @@
 ---
-- name: Wait until Grafana starts
+- name: Stop Grafana
   community.general.supervisorctl:
     name: grafana
-    state: started
-  become: true
-  become_user: pmm
-  become_method: su    
-
-- name: Stop Grafana
-  shell: supervisorctl stop grafana
-  become: true
-  become_user: pmm
-  become_method: su
-
-- name: Remove Grafana from Supervisor jobs
-  shell: supervisorctl remove grafana
+    state: stopped
   become: true
   become_user: pmm
   become_method: su
@@ -53,10 +41,12 @@
     owner: pmm
     group: pmm
     mode: 0644
-    remote_src: yes    
+    remote_src: yes
 
-- name: Restart Grafana service with new plugins 
-  shell: supervisorctl add grafana
+- name: Start Grafana
+  community.general.supervisorctl:
+    name: grafana
+    state: started
   become: true
   become_user: pmm
   become_method: su
