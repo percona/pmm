@@ -283,12 +283,12 @@ type ReleaseNotesResponse struct {
 // If the current version is the latest minor version, it returns the next major version as the latest.
 // If the current version is the latest version, it returns the current version as the latest.
 func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
-	versionServiceUrl, err := envvars.GetPlatformAddress()
+	versionServiceURL, err := envvars.GetPlatformAddress()
 	if err != nil {
 		up.l.WithError(err).Error("Failed to get version service address")
 		return nil, nil, errors.Wrap(err, "failed to get version service address")
 	}
-	u := versionServiceUrl + "/metadata/v2/pmm-server"
+	u := versionServiceURL + "/metadata/v2/pmm-server"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to create request")
@@ -539,12 +539,12 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 		return releaseNotes, nil
 	}
 
-	versionServiceUrl, err := envvars.GetPlatformAddress()
+	versionServiceURL, err := envvars.GetPlatformAddress()
 	if err != nil {
 		up.l.WithError(err).Error("Failed to get version service address")
 		return "", errors.Wrap(err, "failed to get version service address")
 	}
-	u := versionServiceUrl + "/release-notes/v1/pmm/" + versionString
+	u := versionServiceURL + "/release-notes/v1/pmm/" + versionString
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to create request")

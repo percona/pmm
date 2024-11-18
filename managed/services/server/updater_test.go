@@ -287,9 +287,9 @@ func TestUpdater(t *testing.T) {
 			versionServiceURL, err := envvars.GetPlatformAddress() // defaults to production
 			require.NoError(t, err)
 			defer func() {
-				_ = os.Setenv(envvars.EnvPlatformAddress, versionServiceURL)
+				t.Setenv(envvars.EnvPlatformAddress, versionServiceURL)
 			}()
-			_ = os.Setenv(envvars.EnvPlatformAddress, "https://check-dev.percona.com")
+			t.Setenv(envvars.EnvPlatformAddress, "https://check-dev.percona.com")
 			_, latest, err := u.latest(context.Background())
 			require.NoError(t, err)
 			assert.True(t, strings.HasPrefix(latest.Version.String(), "3."),
