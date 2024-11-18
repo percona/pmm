@@ -92,7 +92,6 @@
       - percona-qan-api2
       - percona-dashboards
       - pmm-managed
-      - pmm-update
       - pmm-dump
       - vmproxy
     state: installed
@@ -150,10 +149,10 @@
   register: managed_init_result
   changed_when: True
 
-- name: Disable pmm-update-perform-init
+- name: Disable pmm-update
   ini_file:
     path: /etc/supervisord.d/pmm.ini
-    section: program:pmm-update-perform-init
+    section: program:pmm-update
     option: autostart
     value: "false"
 

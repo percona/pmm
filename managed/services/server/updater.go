@@ -41,7 +41,7 @@ import (
 // defaultLatestPMMImage is the default image name to use when the latest version cannot be determined.
 const (
 	defaultLatestPMMImage        = "perconalab/pmm-server:3-dev-latest"
-	pmmUpdatePerformLog          = "/srv/logs/pmm-update-perform-init.log"
+	pmmUpdateLog                 = "/srv/logs/pmm-update.log"
 	defaultVersionServiceAddress = "https://check-dev.percona.com"
 	updateCheckInterval          = 24 * time.Hour
 	updateCheckResultFresh       = updateCheckInterval + 10*time.Minute
@@ -418,7 +418,7 @@ func (up *Updater) UpdateLog(offset uint32) ([]string, uint32, error) {
 	up.performM.Lock()
 	defer up.performM.Unlock()
 
-	f, err := os.Open(pmmUpdatePerformLog)
+	f, err := os.Open(pmmUpdateLog)
 	if err != nil {
 		return nil, 0, errors.WithStack(err)
 	}

@@ -87,8 +87,8 @@ password = dummy
 username = dummy
 password = dummy
 
-[program:pmm-update-perform-init]
-command = /usr/sbin/pmm-update -run-playbook -playbook=/opt/ansible/pmm-docker/init.yml
+[program:pmm-update]
+command = /usr/bin/ansible-playbook /opt/ansible/pmm-docker/init.yml
 user = pmm
 directory = /
 autorestart = unexpected
@@ -99,8 +99,8 @@ startretries = 3
 startsecs = 1
 stopsignal = TERM
 stopwaitsecs = 300
-stdout_logfile = /srv/logs/pmm-update-perform-init.log
-stdout_logfile_maxbytes = 50MB
+stdout_logfile = /srv/logs/pmm-update.log
+stdout_logfile_maxbytes = 20MB
 stdout_logfile_backups = 3
 redirect_stderr = true
 {{- if not .DisableInternalDB }}

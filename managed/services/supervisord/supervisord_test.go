@@ -122,8 +122,8 @@ func TestParseStatus(t *testing.T) {
 	for str, expected := range map[string]*bool{
 		`pmm-agent                        STOPPED   Sep 20 08:55 AM`:         pointer.ToBool(false),
 		`pmm-managed                      RUNNING   pid 826, uptime 0:19:36`: pointer.ToBool(true),
-		`pmm-update-perform-init               EXITED    Sep 20 07:42 AM`:    nil,
-		`pmm-update-perform-init               STARTING`:                     pointer.ToBool(true), // no last column in that case
+		`pmm-update                       EXITED    Sep 20 07:42 AM`:         nil,
+		`pmm-update                       STARTING`:                          pointer.ToBool(true), // no last column in that case
 	} {
 		assert.Equal(t, expected, parseStatus(str), "%q", str)
 	}
