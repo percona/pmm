@@ -2,6 +2,7 @@ export PACKER_CACHE_DIR := .cache
 export PACKER_VERSION := 1.9.4
 export BOX_VERSION := 202407.23.0
 export PMM_SERVER_IMAGE ?= docker.io/perconalab/pmm-server:3-dev-latest
+export CENTOS_ISO := 2004.01
 
 ## ----------------- PACKER ------------------
 fetch:
