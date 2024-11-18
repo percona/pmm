@@ -269,12 +269,10 @@ func TestUpdater(t *testing.T) {
 	})
 
 	t.Run("TestLatest", func(t *testing.T) {
-		t.Parallel()
 		version.Version = "2.41.0"
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
 
 		t.Run("LatestFromProduction", func(t *testing.T) {
-			t.Parallel()
 			_, latest, err := u.latest(context.Background())
 			require.NoError(t, err)
 			if latest != nil {
@@ -283,7 +281,6 @@ func TestUpdater(t *testing.T) {
 			}
 		})
 		t.Run("LatestFromStaging", func(t *testing.T) {
-			t.Parallel()
 			versionServiceURL, err := envvars.GetPlatformAddress() // defaults to production
 			require.NoError(t, err)
 			defer func() {
