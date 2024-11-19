@@ -157,13 +157,6 @@
     option: autostart
     value: "false"
 
-- name: Disable grafana
-  ini_file:
-    path: /etc/supervisord.d/grafana.ini
-    section: program:grafana
-    option: autostart
-    value: "false"
-
 # During build time, this will be the first start of supervisord.
 - name: Start supervisord
   shell: supervisord -c /etc/supervisord.conf &
