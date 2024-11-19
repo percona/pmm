@@ -83,6 +83,15 @@ type MySQLOptions struct {
 	TLSCa   string `json:"tls_ca"`
 	TLSCert string `json:"tls_cert"`
 	TLSKey  string `json:"tls_key"`
+
+	// TableCount stores last known table count. NULL if unknown.
+	TableCount *int32 `reform:"table_count"`
+
+	// Tablestats group collectors are disabled if there are more than that number of tables.
+	// 0 means tablestats group collectors are always enabled (no limit).
+	// Negative value means tablestats group collectors are always disabled.
+	// See IsMySQLTablestatsGroupEnabled method.
+	TableCountTablestatsGroupLimit int32 `reform:"table_count_tablestats_group_limit"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -172,39 +181,47 @@ type Agent struct {
 	TLS           bool    `reform:"tls"`
 	TLSSkipVerify bool    `reform:"tls_skip_verify"`
 
-	AWSAccessKey *string `reform:"aws_access_key"`
-	AWSSecretKey *string `reform:"aws_secret_key"`
+	LogLevel *string `reform:"log_level"`
 
-	AzureOptions *AzureOptions `reform:"azure_options"`
+	ExporterOptions *ExporterOptions `reform:"exporter_options"`
+	QANOptions      *QANOptions      `reform:"qan_options"`
 
-	// TableCount stores last known table count. NULL if unknown.
-	TableCount *int32 `reform:"table_count"`
-
-	// Tablestats group collectors are disabled if there are more than that number of tables.
-	// 0 means tablestats group collectors are always enabled (no limit).
-	// Negative value means tablestats group collectors are always disabled.
-	// See IsMySQLTablestatsGroupEnabled method.
-	TableCountTablestatsGroupLimit int32 `reform:"table_count_tablestats_group_limit"`
-
-	MaxQueryLength          int32   `reform:"max_query_length"`
-	QueryExamplesDisabled   bool    `reform:"query_examples_disabled"`
-	CommentsParsingDisabled bool    `reform:"comments_parsing_disabled"`
-	MaxQueryLogSize         int64   `reform:"max_query_log_size"`
-	MetricsPath             *string `reform:"metrics_path"`
-	MetricsScheme           *string `reform:"metrics_scheme"`
-
-	RDSBasicMetricsDisabled    bool                `reform:"rds_basic_metrics_disabled"`
-	RDSEnhancedMetricsDisabled bool                `reform:"rds_enhanced_metrics_disabled"`
-	PushMetrics                bool                `reform:"push_metrics"`
-	DisabledCollectors         pq.StringArray      `reform:"disabled_collectors"`
-	MetricsResolutions         *MetricsResolutions `reform:"metrics_resolutions"`
-
+	AWSOptions        *AWSOptions        `reform:"aws_options"`
+	RDSOptions        *RDSOptions        `reform:"rds_options"`
+	AzureOptions      *AzureOptions      `reform:"azure_options"`
 	MySQLOptions      *MySQLOptions      `reform:"mysql_options"`
 	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`
 	PostgreSQLOptions *PostgreSQLOptions `reform:"postgresql_options"`
-	LogLevel          *string            `reform:"log_level"`
+}
+
+type QANOptions struct {
+	MaxQueryLength          int32 `reform:"max_query_length"`
+	QueryExamplesDisabled   bool  `reform:"query_examples_disabled"`
+	CommentsParsingDisabled bool  `reform:"comments_parsing_disabled"`
+	MaxQueryLogSize         int64 `reform:"max_query_log_size"`
+}
+
+type ExporterOptions struct {
+	MetricsPath   *string `reform:"metrics_path"`
+	MetricsScheme *string `reform:"metrics_scheme"`
+
+	PushMetrics bool `reform:"push_metrics"`
+
+	DisabledCollectors pq.StringArray      `reform:"disabled_collectors"`
+	MetricsResolutions *MetricsResolutions `reform:"metrics_resolutions"`
 
 	ExposeExporter bool `reform:"expose_exporter"`
+}
+
+// AWSOptions represents structure for special AWS options.
+type AWSOptions struct {
+	AWSAccessKey *string `reform:"aws_access_key"`
+	AWSSecretKey *string `reform:"aws_secret_key"`
+}
+
+type RDSOptions struct {
+	RDSBasicMetricsDisabled    bool `reform:"rds_basic_metrics_disabled"`
+	RDSEnhancedMetricsDisabled bool `reform:"rds_enhanced_metrics_disabled"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
