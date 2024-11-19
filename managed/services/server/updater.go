@@ -40,7 +40,7 @@ import (
 )
 
 const (
-	pmmUpdateLog           = "/srv/logs/pmm-update.log"
+	pmmInitLog             = "/srv/logs/pmm-init.log"
 	updateCheckInterval    = 24 * time.Hour
 	updateCheckResultFresh = updateCheckInterval + 10*time.Minute
 	updateDefaultTimeout   = 30 * time.Second
@@ -422,7 +422,7 @@ func (up *Updater) UpdateLog(offset uint32) ([]string, uint32, error) {
 	up.performM.Lock()
 	defer up.performM.Unlock()
 
-	f, err := os.Open(pmmUpdateLog)
+	f, err := os.Open(pmmInitLog)
 	if err != nil {
 		return nil, 0, errors.WithStack(err)
 	}
