@@ -1,5 +1,5 @@
 ---
-# This playbook is run by the `pmm-update` supervisord process
+# This playbook is run by the `pmm-init` supervisord process
 - hosts: all
   become: true
   become_method: su

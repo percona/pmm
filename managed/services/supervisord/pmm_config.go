@@ -87,7 +87,7 @@ password = dummy
 username = dummy
 password = dummy
 
-[program:pmm-update]
+[program:pmm-init]
 command = /usr/bin/ansible-playbook /opt/ansible/pmm-docker/init.yml
 user = pmm
 directory = /

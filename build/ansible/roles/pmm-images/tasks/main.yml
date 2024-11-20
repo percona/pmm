@@ -149,10 +149,10 @@
   register: managed_init_result
   changed_when: True
 
-- name: Disable pmm-update
+- name: Disable pmm-init
   ini_file:
     path: /etc/supervisord.d/pmm.ini
-    section: program:pmm-update
+    section: program:pmm-init
     option: autostart
     value: "false"
 
