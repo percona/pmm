@@ -59,51 +59,14 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 		agent.AgentPassword = &agentPassword
 	}
 
-	if agent.AWSAccessKey != nil {
-		awsAccessKey, err := handler(*agent.AWSAccessKey)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		agent.AWSAccessKey = &awsAccessKey
-	}
-
-	if agent.AWSSecretKey != nil {
-		awsSecretKey, err := handler(*agent.AWSSecretKey)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		agent.AWSSecretKey = &awsSecretKey
-	}
-
 	var err error
-	if agent.MySQLOptions != nil {
-		agent.MySQLOptions.TLSCert, err = handler(agent.MySQLOptions.TLSCert)
+	if agent.AWSOptions != nil {
+		agent.AWSOptions.AWSAccessKey, err = handler(agent.AWSOptions.AWSAccessKey)
 		if err != nil {
 			logrus.Warning(err)
 		}
-		agent.MySQLOptions.TLSKey, err = handler(agent.MySQLOptions.TLSKey)
-		if err != nil {
-			logrus.Warning(err)
-		}
-	}
 
-	if agent.PostgreSQLOptions != nil {
-		agent.PostgreSQLOptions.SSLCert, err = handler(agent.PostgreSQLOptions.SSLCert)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		agent.PostgreSQLOptions.SSLKey, err = handler(agent.PostgreSQLOptions.SSLKey)
-		if err != nil {
-			logrus.Warning(err)
-		}
-	}
-
-	if agent.MongoDBOptions != nil {
-		agent.MongoDBOptions.TLSCertificateKey, err = handler(agent.MongoDBOptions.TLSCertificateKey)
-		if err != nil {
-			logrus.Warning(err)
-		}
-		agent.MongoDBOptions.TLSCertificateKeyFilePassword, err = handler(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
+		agent.AWSOptions.AWSSecretKey, err = handler(agent.AWSOptions.AWSSecretKey)
 		if err != nil {
 			logrus.Warning(err)
 		}
@@ -128,7 +91,162 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 		}
 	}
 
+	if agent.MongoDBOptions != nil {
+		agent.MongoDBOptions.TLSCertificateKey, err = handler(agent.MongoDBOptions.TLSCertificateKey)
+		if err != nil {
+			logrus.Warning(err)
+		}
+		agent.MongoDBOptions.TLSCertificateKeyFilePassword, err = handler(agent.MongoDBOptions.TLSCertificateKeyFilePassword)
+		if err != nil {
+			logrus.Warning(err)
+		}
+	}
+
+	if agent.MySQLOptions != nil {
+		agent.MySQLOptions.TLSCert, err = handler(agent.MySQLOptions.TLSCert)
+		if err != nil {
+			logrus.Warning(err)
+		}
+		agent.MySQLOptions.TLSKey, err = handler(agent.MySQLOptions.TLSKey)
+		if err != nil {
+			logrus.Warning(err)
+		}
+	}
+
+	if agent.PostgreSQLOptions != nil {
+		agent.PostgreSQLOptions.SSLCert, err = handler(agent.PostgreSQLOptions.SSLCert)
+		if err != nil {
+			logrus.Warning(err)
+		}
+		agent.PostgreSQLOptions.SSLKey, err = handler(agent.PostgreSQLOptions.SSLKey)
+		if err != nil {
+			logrus.Warning(err)
+		}
+	}
+
 	return agent
+}
+
+// EncryptAWSOptionsHandler returns encrypted AWS Options.
+func EncryptAWSOptionsHandler(e *encryption.Encryption, val any) (any, error) {
+	return azureOptionsHandler(val, e.Encrypt)
+}
+
+// DecryptAWSOptionsHandler returns decrypted AWS Options.
+func DecryptAWSOptionsHandler(e *encryption.Encryption, val any) (any, error) {
+	return azureOptionsHandler(val, e.Decrypt)
+}
+
+func awsOptionsHandler(val any, handler func(string) (string, error)) (any, error) {
+	o := AWSOptions{}
+	value := val.(*sql.NullString) //nolint:forcetypeassert
+	if !value.Valid {
+		return sql.NullString{}, nil
+	}
+
+	err := json.Unmarshal([]byte(value.String), &o)
+	if err != nil {
+		return nil, err
+	}
+
+	o.AWSAccessKey, err = handler(o.AWSAccessKey)
+	if err != nil {
+		return nil, err
+	}
+	o.AWSSecretKey, err = handler(o.AWSSecretKey)
+
+	res, err := json.Marshal(o)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+// EncryptAzureOptionsHandler returns encrypted Azure Options.
+func EncryptAzureOptionsHandler(e *encryption.Encryption, val any) (any, error) {
+	return azureOptionsHandler(val, e.Encrypt)
+}
+
+// DecryptAzureOptionsHandler returns decrypted Azure Options.
+func DecryptAzureOptionsHandler(e *encryption.Encryption, val any) (any, error) {
+	return azureOptionsHandler(val, e.Decrypt)
+}
+
+func azureOptionsHandler(val any, handler func(string) (string, error)) (any, error) {
+	o := AzureOptions{}
+	value := val.(*sql.NullString) //nolint:forcetypeassert
+	if !value.Valid {
+		return sql.NullString{}, nil
+	}
+
+	err := json.Unmarshal([]byte(value.String), &o)
+	if err != nil {
+		return nil, err
+	}
+
+	o.ClientID, err = handler(o.ClientID)
+	if err != nil {
+		return nil, err
+	}
+	o.ClientSecret, err = handler(o.ClientSecret)
+	if err != nil {
+		return nil, err
+	}
+	o.SubscriptionID, err = handler(o.SubscriptionID)
+	if err != nil {
+		return nil, err
+	}
+	o.TenantID, err = handler(o.TenantID)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := json.Marshal(o)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+// EncryptMongoDBOptionsHandler returns encrypted MongoDB Options.
+func EncryptMongoDBOptionsHandler(e *encryption.Encryption, val any) (any, error) {
+	return mongoDBOptionsHandler(val, e.Encrypt)
+}
+
+// DecryptMongoDBOptionsHandler returns decrypted MongoDB Options.
+func DecryptMongoDBOptionsHandler(e *encryption.Encryption, val any) (any, error) {
+	return mongoDBOptionsHandler(val, e.Decrypt)
+}
+
+func mongoDBOptionsHandler(val any, handler func(string) (string, error)) (any, error) {
+	o := MongoDBOptions{}
+	value := val.(*sql.NullString) //nolint:forcetypeassert
+	if !value.Valid {
+		return sql.NullString{}, nil
+	}
+
+	err := json.Unmarshal([]byte(value.String), &o)
+	if err != nil {
+		return nil, err
+	}
+
+	o.TLSCertificateKey, err = handler(o.TLSCertificateKey)
+	if err != nil {
+		return nil, err
+	}
+	o.TLSCertificateKeyFilePassword, err = handler(o.TLSCertificateKeyFilePassword)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := json.Marshal(o)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 // EncryptMySQLOptionsHandler returns encrypted MySQL Options.
@@ -197,92 +315,6 @@ func postgreSQLOptionsHandler(val any, handler func(string) (string, error)) (an
 		return nil, err
 	}
 	o.SSLKey, err = handler(o.SSLKey)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := json.Marshal(o)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-// EncryptMongoDBOptionsHandler returns encrypted MongoDB Options.
-func EncryptMongoDBOptionsHandler(e *encryption.Encryption, val any) (any, error) {
-	return mongoDBOptionsHandler(val, e.Encrypt)
-}
-
-// DecryptMongoDBOptionsHandler returns decrypted MongoDB Options.
-func DecryptMongoDBOptionsHandler(e *encryption.Encryption, val any) (any, error) {
-	return mongoDBOptionsHandler(val, e.Decrypt)
-}
-
-func mongoDBOptionsHandler(val any, handler func(string) (string, error)) (any, error) {
-	o := MongoDBOptions{}
-	value := val.(*sql.NullString) //nolint:forcetypeassert
-	if !value.Valid {
-		return sql.NullString{}, nil
-	}
-
-	err := json.Unmarshal([]byte(value.String), &o)
-	if err != nil {
-		return nil, err
-	}
-
-	o.TLSCertificateKey, err = handler(o.TLSCertificateKey)
-	if err != nil {
-		return nil, err
-	}
-	o.TLSCertificateKeyFilePassword, err = handler(o.TLSCertificateKeyFilePassword)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := json.Marshal(o)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
-// EncryptAzureOptionsHandler returns encrypted Azure Options.
-func EncryptAzureOptionsHandler(e *encryption.Encryption, val any) (any, error) {
-	return azureOptionsHandler(val, e.Encrypt)
-}
-
-// DecryptAzureOptionsHandler returns decrypted Azure Options.
-func DecryptAzureOptionsHandler(e *encryption.Encryption, val any) (any, error) {
-	return azureOptionsHandler(val, e.Decrypt)
-}
-
-func azureOptionsHandler(val any, handler func(string) (string, error)) (any, error) {
-	o := AzureOptions{}
-	value := val.(*sql.NullString) //nolint:forcetypeassert
-	if !value.Valid {
-		return sql.NullString{}, nil
-	}
-
-	err := json.Unmarshal([]byte(value.String), &o)
-	if err != nil {
-		return nil, err
-	}
-
-	o.ClientID, err = handler(o.ClientID)
-	if err != nil {
-		return nil, err
-	}
-	o.ClientSecret, err = handler(o.ClientSecret)
-	if err != nil {
-		return nil, err
-	}
-	o.SubscriptionID, err = handler(o.SubscriptionID)
-	if err != nil {
-		return nil, err
-	}
-	o.TenantID, err = handler(o.TenantID)
 	if err != nil {
 		return nil, err
 	}

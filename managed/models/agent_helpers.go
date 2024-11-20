@@ -28,6 +28,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
 
@@ -640,15 +641,17 @@ func CreateNodeExporter(q *reform.Querier,
 			" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())
 	}
 	row := &Agent{
-		AgentID:            id,
-		AgentType:          NodeExporterType,
-		PMMAgentID:         &pmmAgentID,
-		NodeID:             pmmAgent.RunsOnNodeID,
-		PushMetrics:        pushMetrics,
-		DisabledCollectors: disableCollectors,
-		AgentPassword:      agentPassword,
-		LogLevel:           pointer.ToStringOrNil(logLevel),
-		ExposeExporter:     exposeExporter,
+		AgentID:       id,
+		AgentType:     NodeExporterType,
+		PMMAgentID:    &pmmAgentID,
+		NodeID:        pmmAgent.RunsOnNodeID,
+		AgentPassword: agentPassword,
+		LogLevel:      pointer.ToStringOrNil(logLevel),
+		ExporterOptions: &models.ExporterOptions{
+			ExposeExporter:     exposeExporter,
+			PushMetrics:        pushMetrics,
+			DisabledCollectors: disableCollectors,
+		},
 	}
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
@@ -725,17 +728,19 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		metricsPath = "/metrics"
 	}
 	row := &Agent{
-		PMMAgentID:    pmmAgentID,
-		AgentID:       id,
-		AgentType:     ExternalExporterType,
-		RunsOnNodeID:  runsOnNodeID,
-		ServiceID:     pointer.ToStringOrNil(params.ServiceID),
-		Username:      pointer.ToStringOrNil(params.Username),
-		Password:      pointer.ToStringOrNil(params.Password),
-		MetricsScheme: &scheme,
-		MetricsPath:   &metricsPath,
-		ListenPort:    pointer.ToUint16(uint16(params.ListenPort)),
-		PushMetrics:   params.PushMetrics,
+		PMMAgentID:   pmmAgentID,
+		AgentID:      id,
+		AgentType:    ExternalExporterType,
+		RunsOnNodeID: runsOnNodeID,
+		ServiceID:    pointer.ToStringOrNil(params.ServiceID),
+		Username:     pointer.ToStringOrNil(params.Username),
+		Password:     pointer.ToStringOrNil(params.Password),
+		ListenPort:   pointer.ToUint16(uint16(params.ListenPort)),
+		ExporterOptions: &models.ExporterOptions{
+			PushMetrics:   params.PushMetrics,
+			MetricsPath:   &metricsPath,
+			MetricsScheme: &scheme,
+		},
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
@@ -752,33 +757,24 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 
 // CreateAgentParams params for add common exporter.
 type CreateAgentParams struct {
-	PMMAgentID                     string
-	NodeID                         string
-	ServiceID                      string
-	Username                       string
-	Password                       string
-	AgentPassword                  string
-	CustomLabels                   map[string]string
-	TLS                            bool
-	TLSSkipVerify                  bool
-	MySQLOptions                   *MySQLOptions
-	MongoDBOptions                 *MongoDBOptions
-	PostgreSQLOptions              *PostgreSQLOptions
-	TableCountTablestatsGroupLimit int32
-	MaxQueryLength                 int32
-	QueryExamplesDisabled          bool
-	CommentsParsingDisabled        bool
-	MaxQueryLogSize                int64
-	AWSAccessKey                   string
-	AWSSecretKey                   string
-	RDSBasicMetricsDisabled        bool
-	RDSEnhancedMetricsDisabled     bool
-	AzureOptions                   *AzureOptions
-	PushMetrics                    bool
-	ExposeExporter                 bool
-	DisableCollectors              []string
-	LogLevel                       string
-	MetricsResolutions             *MetricsResolutions
+	PMMAgentID        string
+	NodeID            string
+	ServiceID         string
+	Username          string
+	Password          string
+	AgentPassword     string
+	CustomLabels      map[string]string
+	TLS               bool
+	TLSSkipVerify     bool
+	LogLevel          string
+	ExporterOptions   *ExporterOptions
+	QANOptions        *QANOptions
+	AWSOptions        *AWSOptions
+	AzureOptions      *AzureOptions
+	MongoDBOptions    *MongoDBOptions
+	MySQLOptions      *MySQLOptions
+	PostgreSQLOptions *PostgreSQLOptions
+	RDSOptions        *RDSOptions
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -871,7 +867,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		return nil, err
 	}
 	// check version for agent, if it exists.
-	if params.PushMetrics {
+	if params.ExporterOptions != nil && params.ExporterOptions.PushMetrics {
 		// special case for vmAgent, it always supports push metrics.
 		if agentType != VMAgentType && !IsPushMetricsSupported(pmmAgent.Version) {
 			return nil, status.Errorf(codes.FailedPrecondition, "cannot use push_metrics_enabled with pmm_agent version=%q,"+
@@ -902,33 +898,25 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 
 	row := &Agent{
-		AgentID:                        id,
-		AgentType:                      agentType,
-		PMMAgentID:                     &params.PMMAgentID,
-		ServiceID:                      pointer.ToStringOrNil(params.ServiceID),
-		NodeID:                         pointer.ToStringOrNil(params.NodeID),
-		Username:                       pointer.ToStringOrNil(params.Username),
-		Password:                       pointer.ToStringOrNil(params.Password),
-		AgentPassword:                  pointer.ToStringOrNil(params.AgentPassword),
-		TLS:                            params.TLS,
-		TLSSkipVerify:                  params.TLSSkipVerify,
-		MySQLOptions:                   params.MySQLOptions,
-		MongoDBOptions:                 params.MongoDBOptions,
-		PostgreSQLOptions:              params.PostgreSQLOptions,
-		TableCountTablestatsGroupLimit: params.TableCountTablestatsGroupLimit,
-		MaxQueryLength:                 params.MaxQueryLength,
-		QueryExamplesDisabled:          params.QueryExamplesDisabled,
-		CommentsParsingDisabled:        params.CommentsParsingDisabled,
-		MaxQueryLogSize:                params.MaxQueryLogSize,
-		AWSAccessKey:                   pointer.ToStringOrNil(params.AWSAccessKey),
-		AWSSecretKey:                   pointer.ToStringOrNil(params.AWSSecretKey),
-		RDSBasicMetricsDisabled:        params.RDSBasicMetricsDisabled,
-		RDSEnhancedMetricsDisabled:     params.RDSEnhancedMetricsDisabled,
-		AzureOptions:                   params.AzureOptions,
-		PushMetrics:                    params.PushMetrics,
-		ExposeExporter:                 params.ExposeExporter,
-		DisabledCollectors:             params.DisableCollectors,
-		LogLevel:                       pointer.ToStringOrNil(params.LogLevel),
+		AgentID:           id,
+		AgentType:         agentType,
+		PMMAgentID:        &params.PMMAgentID,
+		ServiceID:         pointer.ToStringOrNil(params.ServiceID),
+		NodeID:            pointer.ToStringOrNil(params.NodeID),
+		Username:          pointer.ToStringOrNil(params.Username),
+		Password:          pointer.ToStringOrNil(params.Password),
+		AgentPassword:     pointer.ToStringOrNil(params.AgentPassword),
+		TLS:               params.TLS,
+		TLSSkipVerify:     params.TLSSkipVerify,
+		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
+		ExporterOptions:   params.ExporterOptions,
+		QANOptions:        params.QANOptions,
+		AWSOptions:        params.AWSOptions,
+		AzureOptions:      params.AzureOptions,
+		MongoDBOptions:    params.MongoDBOptions,
+		MySQLOptions:      params.MySQLOptions,
+		PostgreSQLOptions: params.PostgreSQLOptions,
+		RDSOptions:        params.RDSOptions,
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
@@ -970,7 +958,9 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 	}
 
 	if params.EnablePushMetrics != nil {
-		row.PushMetrics = *params.EnablePushMetrics
+		row.ExporterOptions = &models.ExporterOptions{
+			PushMetrics: *params.EnablePushMetrics,
+		}
 		if row.AgentType == ExternalExporterType {
 			if err := updateExternalExporterParams(q, row); err != nil {
 				return nil, errors.Wrap(err, "failed to update External exporterParams for PushMetrics")
@@ -990,22 +980,25 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		}
 	}
 
-	if row.MetricsResolutions == nil {
-		row.MetricsResolutions = &MetricsResolutions{}
+	if row.ExporterOptions == nil {
+		row.ExporterOptions = &ExporterOptions{}
+	}
+	if row.ExporterOptions.MetricsResolutions == nil {
+		row.ExporterOptions.MetricsResolutions = &MetricsResolutions{}
 	}
 	if params.MetricsResolutions.LR != nil {
-		row.MetricsResolutions.LR = *params.MetricsResolutions.LR
+		row.ExporterOptions.MetricsResolutions.LR = *params.MetricsResolutions.LR
 	}
 	if params.MetricsResolutions.MR != nil {
-		row.MetricsResolutions.MR = *params.MetricsResolutions.MR
+		row.ExporterOptions.MetricsResolutions.MR = *params.MetricsResolutions.MR
 	}
 	if params.MetricsResolutions.HR != nil {
-		row.MetricsResolutions.HR = *params.MetricsResolutions.HR
+		row.ExporterOptions.MetricsResolutions.HR = *params.MetricsResolutions.HR
 	}
 
 	// If all resolutions are empty, then drop whole MetricsResolution field.
-	if row.MetricsResolutions.HR == 0 && row.MetricsResolutions.MR == 0 && row.MetricsResolutions.LR == 0 {
-		row.MetricsResolutions = nil
+	if row.ExporterOptions.MetricsResolutions.HR == 0 && row.ExporterOptions.MetricsResolutions.MR == 0 && row.ExporterOptions.MetricsResolutions.LR == 0 {
+		row.ExporterOptions.MetricsResolutions = nil
 	}
 
 	if err = q.Update(row); err != nil {
@@ -1057,7 +1050,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 // for external exporter, is needed for push_metrics mode.
 func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 	// with push metrics, external exporter must have PMMAgent id without RunsOnNodeID
-	if row.PushMetrics && row.PMMAgentID == nil {
+	if row.ExporterOptions != nil && row.ExporterOptions.PushMetrics && row.PMMAgentID == nil {
 		pmmAgent, err := FindPMMAgentsRunningOnNode(q, pointer.GetString(row.RunsOnNodeID))
 		if err != nil {
 			return err
@@ -1074,7 +1067,7 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 		row.PMMAgentID = pointer.ToString(pmmAgent[0].AgentID)
 	}
 	// without push metrics, external exporter must have RunsOnNodeID without PMMAgentID
-	if !row.PushMetrics && row.RunsOnNodeID == nil {
+	if row.ExporterOptions != nil && !row.ExporterOptions.PushMetrics && row.RunsOnNodeID == nil {
 		pmmAgent, err := FindAgentByID(q, pointer.GetString(row.PMMAgentID))
 		if err != nil {
 			return err

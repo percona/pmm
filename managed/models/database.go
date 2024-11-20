@@ -37,6 +37,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/encryption"
 )
 
@@ -68,13 +69,12 @@ var DefaultAgentEncryptionColumns = []encryption.Table{
 		Columns: []encryption.Column{
 			{Name: "username"},
 			{Name: "password"},
-			{Name: "aws_access_key"},
-			{Name: "aws_secret_key"},
-			{Name: "mongo_db_tls_options", CustomHandler: EncryptMongoDBOptionsHandler},
+			{Name: "agent_password"},
+			{Name: "aws_options", CustomHandler: EncryptAWSOptionsHandler},
 			{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
+			{Name: "mongo_db_tls_options", CustomHandler: EncryptMongoDBOptionsHandler},
 			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
 			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
-			{Name: "agent_password"},
 		},
 	},
 }
@@ -1414,13 +1414,15 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	ap := &CreateAgentParams{
-		PMMAgentID:              PMMServerAgentID,
-		ServiceID:               service.ServiceID,
-		TLS:                     params.SSLMode != DisableSSLMode,
-		TLSSkipVerify:           params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
-		CommentsParsingDisabled: true,
-		Username:                params.Username,
-		Password:                params.Password,
+		PMMAgentID:    PMMServerAgentID,
+		ServiceID:     service.ServiceID,
+		TLS:           params.SSLMode != DisableSSLMode,
+		TLSSkipVerify: params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
+		Username:      params.Username,
+		Password:      params.Password,
+		QANOptions: &models.QANOptions{
+			CommentsParsingDisabled: true,
+		},
 	}
 	if ap.TLS {
 		ap.PostgreSQLOptions = &PostgreSQLOptions{}

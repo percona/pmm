@@ -78,6 +78,81 @@ var v2_42 = version.MustParse("2.42.0-0")
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
 const PMMServerAgentID = string("pmm-server") // a special ID, reserved for PMM Server
 
+// ExporterOptions represents structure for special Exporter options.
+type ExporterOptions struct {
+	ExposeExporter     bool                `reform:"expose_exporter"`
+	PushMetrics        bool                `reform:"push_metrics"`
+	DisabledCollectors pq.StringArray      `reform:"disabled_collectors"`
+	MetricsResolutions *MetricsResolutions `reform:"metrics_resolutions"`
+	MetricsPath        string              `reform:"metrics_path"`
+	MetricsScheme      string              `reform:"metrics_scheme"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c ExporterOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *ExporterOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// QANOptions represents structure for special QAN options.
+type QANOptions struct {
+	MaxQueryLength          int32 `reform:"max_query_length"`
+	MaxQueryLogSize         int64 `reform:"max_query_log_size"`
+	QueryExamplesDisabled   bool  `reform:"query_examples_disabled"`
+	CommentsParsingDisabled bool  `reform:"comments_parsing_disabled"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c QANOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *QANOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// AWSOptions represents structure for special AWS options.
+type AWSOptions struct {
+	AWSAccessKey string `reform:"aws_access_key"`
+	AWSSecretKey string `reform:"aws_secret_key"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c AWSOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *AWSOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// AzureOptions represents structure for special Azure options.
+type AzureOptions struct {
+	SubscriptionID string `json:"subscription_id"`
+	ClientID       string `json:"client_id"`
+	ClientSecret   string `json:"client_secret"`
+	TenantID       string `json:"tenant_id"`
+	ResourceGroup  string `json:"resource_group"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// MongoDBOptions represents structure for special MongoDB options.
+type MongoDBOptions struct {
+	TLSCertificateKey             string   `json:"tls_certificate_key"`
+	TLSCertificateKeyFilePassword string   `json:"tls_certificate_key_file_password"`
+	TLSCa                         string   `json:"tls_ca"`
+	AuthenticationMechanism       string   `json:"authentication_mechanism"`
+	AuthenticationDatabase        string   `json:"authentication_database"`
+	StatsCollections              []string `json:"stats_collections"`
+	CollectionsLimit              int32    `json:"collections_limit"`
+	EnableAllCollectors           bool     `json:"enable_all_collectors"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *MongoDBOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
 // MySQLOptions represents structure for special MySQL options.
 type MySQLOptions struct {
 	TLSCa   string `json:"tls_ca"`
@@ -100,39 +175,6 @@ func (c MySQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *MySQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
-// MongoDBOptions represents structure for special MongoDB options.
-type MongoDBOptions struct {
-	TLSCertificateKey             string   `json:"tls_certificate_key"`
-	TLSCertificateKeyFilePassword string   `json:"tls_certificate_key_file_password"`
-	TLSCa                         string   `json:"tls_ca"`
-	AuthenticationMechanism       string   `json:"authentication_mechanism"`
-	AuthenticationDatabase        string   `json:"authentication_database"`
-	StatsCollections              []string `json:"stats_collections"`
-	CollectionsLimit              int32    `json:"collections_limit"`
-	EnableAllCollectors           bool     `json:"enable_all_collectors"`
-}
-
-// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
-
-// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *MongoDBOptions) Scan(src interface{}) error { return jsonScan(c, src) }
-
-// AzureOptions represents structure for special Azure options.
-type AzureOptions struct {
-	SubscriptionID string `json:"subscription_id"`
-	ClientID       string `json:"client_id"`
-	ClientSecret   string `json:"client_secret"`
-	TenantID       string `json:"tenant_id"`
-	ResourceGroup  string `json:"resource_group"`
-}
-
-// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
-
-// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
-
 // PostgreSQLOptions represents structure for special PostgreSQL options.
 type PostgreSQLOptions struct {
 	SSLCa                  string  `json:"ssl_ca"`
@@ -149,6 +191,18 @@ func (c PostgreSQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *PostgreSQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// RDSOptions represents structure for special RDSOptions options.
+type RDSOptions struct {
+	RDSBasicMetricsDisabled    bool `reform:"rds_basic_metrics_disabled"`
+	RDSEnhancedMetricsDisabled bool `reform:"rds_enhanced_metrics_disabled"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c RDSOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *RDSOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // PMMAgentWithPushMetricsSupport - version of pmmAgent,
 // that support vmagent and push metrics mode
@@ -187,41 +241,11 @@ type Agent struct {
 	QANOptions      *QANOptions      `reform:"qan_options"`
 
 	AWSOptions        *AWSOptions        `reform:"aws_options"`
-	RDSOptions        *RDSOptions        `reform:"rds_options"`
 	AzureOptions      *AzureOptions      `reform:"azure_options"`
-	MySQLOptions      *MySQLOptions      `reform:"mysql_options"`
 	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`
+	MySQLOptions      *MySQLOptions      `reform:"mysql_options"`
 	PostgreSQLOptions *PostgreSQLOptions `reform:"postgresql_options"`
-}
-
-type QANOptions struct {
-	MaxQueryLength          int32 `reform:"max_query_length"`
-	QueryExamplesDisabled   bool  `reform:"query_examples_disabled"`
-	CommentsParsingDisabled bool  `reform:"comments_parsing_disabled"`
-	MaxQueryLogSize         int64 `reform:"max_query_log_size"`
-}
-
-type ExporterOptions struct {
-	MetricsPath   *string `reform:"metrics_path"`
-	MetricsScheme *string `reform:"metrics_scheme"`
-
-	PushMetrics bool `reform:"push_metrics"`
-
-	DisabledCollectors pq.StringArray      `reform:"disabled_collectors"`
-	MetricsResolutions *MetricsResolutions `reform:"metrics_resolutions"`
-
-	ExposeExporter bool `reform:"expose_exporter"`
-}
-
-// AWSOptions represents structure for special AWS options.
-type AWSOptions struct {
-	AWSAccessKey *string `reform:"aws_access_key"`
-	AWSSecretKey *string `reform:"aws_secret_key"`
-}
-
-type RDSOptions struct {
-	RDSBasicMetricsDisabled    bool `reform:"rds_basic_metrics_disabled"`
-	RDSEnhancedMetricsDisabled bool `reform:"rds_enhanced_metrics_disabled"`
+	RDSOptions        *RDSOptions        `reform:"rds_options"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -580,14 +604,18 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 // ExporterURL composes URL to an external exporter.
 func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
-	scheme := pointer.GetString(s.MetricsScheme)
-	path := pointer.GetString(s.MetricsPath)
+	if s.ExporterOptions == nil {
+		s.ExporterOptions = &ExporterOptions{}
+	}
+
+	scheme := s.ExporterOptions.MetricsScheme
+	path := s.ExporterOptions.MetricsPath
 	listenPort := int(pointer.GetUint16(s.ListenPort))
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
 
 	host := "127.0.0.1"
-	if !s.PushMetrics {
+	if !s.ExporterOptions.PushMetrics {
 		node, err := FindNodeByID(q, *s.RunsOnNodeID)
 		if err != nil {
 			return "", err
@@ -625,15 +653,19 @@ func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
 		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
 	}
 
+	if s.MySQLOptions == nil {
+		s.MySQLOptions = &MySQLOptions{}
+	}
+
 	switch {
-	case s.TableCountTablestatsGroupLimit == 0: // server defined
+	case s.MySQLOptions.TableCountTablestatsGroupLimit == 0: // server defined
 		return true
-	case s.TableCountTablestatsGroupLimit < 0: // always disabled
+	case s.MySQLOptions.TableCountTablestatsGroupLimit < 0: // always disabled
 		return false
-	case s.TableCount == nil: // for compatibility with 2.0
+	case s.MySQLOptions.TableCount == nil: // for compatibility with 2.0
 		return true
 	default:
-		return *s.TableCount <= s.TableCountTablestatsGroupLimit
+		return *s.MySQLOptions.TableCount <= s.MySQLOptions.TableCountTablestatsGroupLimit
 	}
 }
 
@@ -692,11 +724,15 @@ func (s Agent) Files() map[string]string {
 
 // TemplateDelimiters returns a pair of safe template delimiters that are not present in agent parameters.
 func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
+	if s.ExporterOptions == nil {
+		s.ExporterOptions = &ExporterOptions{}
+	}
+
 	templateParams := []string{
 		pointer.GetString(svc.Address),
 		pointer.GetString(s.Username),
 		pointer.GetString(s.Password),
-		pointer.GetString(s.MetricsPath),
+		s.ExporterOptions.MetricsPath,
 	}
 
 	switch svc.ServiceType {
