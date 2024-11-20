@@ -1,13 +1,4 @@
 ---
-- name: Stop Grafana
-  community.general.supervisorctl:
-    name: grafana
-    state: stopped
-  become: true
-  become_user: pmm
-  become_method: su
-  register: stop_grafana
-
 - name: Retrieve Percona plugins
   find:
     paths: /usr/share/percona-dashboards/panels/
@@ -44,11 +35,12 @@
     mode: 0644
     remote_src: yes
 
-- name: Start Grafana
-  community.general.supervisorctl:
-    name: grafana
-    state: started
+- name: Restart Grafana service with new plugins 
+  shell: "supervisorctl {{ item }} grafana"
   become: true
   become_user: pmm
   become_method: su
-  when: stop_grafana.changed == true
+  loop:
+    - stop
+    - remove
+    - add
