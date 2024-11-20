@@ -6,6 +6,7 @@
   become: true
   become_user: pmm
   become_method: su
+  register: stop_grafana
 
 - name: Retrieve Percona plugins
   find:
@@ -50,3 +51,4 @@
   become: true
   become_user: pmm
   become_method: su
+  when: stop_grafana.changed == true
