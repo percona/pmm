@@ -80,7 +80,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 	})
 
 	t.Run("DisabledCollector", func(t *testing.T) {
-		exporter.DisabledCollectors = []string{"mysql_connection_list", "stats_memory_metrics"}
+		exporter.ExporterOptions.DisabledCollectors = []string{"mysql_connection_list", "stats_memory_metrics"}
 		actual := proxysqlExporterConfig(node, proxysql, exporter, exposeSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{
 			Type:               inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,

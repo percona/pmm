@@ -774,7 +774,6 @@ type CreateAgentParams struct {
 	MongoDBOptions    *MongoDBOptions
 	MySQLOptions      *MySQLOptions
 	PostgreSQLOptions *PostgreSQLOptions
-	RDSOptions        *RDSOptions
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -916,7 +915,6 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		MongoDBOptions:    params.MongoDBOptions,
 		MySQLOptions:      params.MySQLOptions,
 		PostgreSQLOptions: params.PostgreSQLOptions,
-		RDSOptions:        params.RDSOptions,
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err

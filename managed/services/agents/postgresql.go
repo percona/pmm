@@ -22,8 +22,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
-
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -110,14 +108,14 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		args = append(args, "--max-connections="+strconv.Itoa(int(exporter.PostgreSQLOptions.MaxExporterConnections)))
 	}
 
-	if pointer.GetString(exporter.MetricsPath) != "" {
-		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
+	if exporter.ExporterOptions.MetricsPath != "" {
+		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
-	args = collectors.FilterOutCollectors("--collect.", args, exporter.DisabledCollectors)
+	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
 
 	if !pmmAgentVersion.Less(postgresExporterCollectorsVersion) {
-		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultPostgresExporterCollectors, exporter.DisabledCollectors)
+		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultPostgresExporterCollectors, exporter.ExporterOptions.DisabledCollectors)
 		args = append(args, disableCollectorArgs...)
 	}
 
@@ -168,8 +166,8 @@ func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 		Dsn:                    agent.DSN(service, dnsParams, nil, pmmAgentVersion),
-		MaxQueryLength:         agent.MaxQueryLength,
-		DisableCommentsParsing: agent.CommentsParsingDisabled,
+		MaxQueryLength:         agent.QANOptions.MaxQueryLength,
+		DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
@@ -189,9 +187,9 @@ func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *model
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 		Dsn:                    agent.DSN(service, dnsParams, nil, pmmAgentVersion),
-		DisableQueryExamples:   agent.QueryExamplesDisabled,
-		MaxQueryLength:         agent.MaxQueryLength,
-		DisableCommentsParsing: agent.CommentsParsingDisabled,
+		DisableQueryExamples:   agent.QANOptions.QueryExamplesDisabled,
+		MaxQueryLength:         agent.QANOptions.MaxQueryLength,
+		DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

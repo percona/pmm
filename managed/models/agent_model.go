@@ -110,8 +110,10 @@ func (c *QANOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // AWSOptions represents structure for special AWS options.
 type AWSOptions struct {
-	AWSAccessKey string `reform:"aws_access_key"`
-	AWSSecretKey string `reform:"aws_secret_key"`
+	AWSAccessKey               string `reform:"aws_access_key"`
+	AWSSecretKey               string `reform:"aws_secret_key"`
+	RDSBasicMetricsDisabled    bool   `reform:"rds_basic_metrics_disabled"`
+	RDSEnhancedMetricsDisabled bool   `reform:"rds_enhanced_metrics_disabled"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -192,18 +194,6 @@ func (c PostgreSQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *PostgreSQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
-// RDSOptions represents structure for special RDSOptions options.
-type RDSOptions struct {
-	RDSBasicMetricsDisabled    bool `reform:"rds_basic_metrics_disabled"`
-	RDSEnhancedMetricsDisabled bool `reform:"rds_enhanced_metrics_disabled"`
-}
-
-// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c RDSOptions) Value() (driver.Value, error) { return jsonValue(c) }
-
-// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *RDSOptions) Scan(src interface{}) error { return jsonScan(c, src) }
-
 // PMMAgentWithPushMetricsSupport - version of pmmAgent,
 // that support vmagent and push metrics mode
 // will be released with PMM Agent v2.12.
@@ -245,7 +235,6 @@ type Agent struct {
 	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`
 	MySQLOptions      *MySQLOptions      `reform:"mysql_options"`
 	PostgreSQLOptions *PostgreSQLOptions `reform:"postgresql_options"`
-	RDSOptions        *RDSOptions        `reform:"rds_options"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

@@ -274,13 +274,17 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 		// add RDSExporter Agent
 		if req.RdsExporter {
 			rdsExporter, err := models.CreateAgent(tx.Querier, models.RDSExporterType, &models.CreateAgentParams{
-				PMMAgentID:                 pmmAgentID,
-				NodeID:                     node.NodeID,
-				AWSAccessKey:               req.AwsAccessKey,
-				AWSSecretKey:               req.AwsSecretKey,
-				RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
-				RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
-				PushMetrics:                isPushMode(metricsMode),
+				PMMAgentID: pmmAgentID,
+				NodeID:     node.NodeID,
+				AWSOptions: &models.AWSOptions{
+					AWSAccessKey:               req.AwsAccessKey,
+					AWSSecretKey:               req.AwsSecretKey,
+					RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
+					RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
+				},
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: isPushMode(metricsMode),
+				},
 			})
 			if err != nil {
 				return err
@@ -316,14 +320,18 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 
 			// add MySQL Exporter
 			mysqldExporter, err := models.CreateAgent(tx.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
-				PMMAgentID:                     pmmAgentID,
-				ServiceID:                      service.ServiceID,
-				Username:                       req.Username,
-				Password:                       req.Password,
-				TLS:                            req.Tls,
-				TLSSkipVerify:                  req.TlsSkipVerify,
-				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
-				PushMetrics:                    isPushMode(metricsMode),
+				PMMAgentID:    pmmAgentID,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: isPushMode(metricsMode),
+				},
+				MySQLOptions: &models.MySQLOptions{
+					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				},
 			})
 			if err != nil {
 				return err
@@ -346,14 +354,16 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			// add MySQL PerfSchema QAN Agent
 			if req.QanMysqlPerfschema {
 				qanAgent, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
-					PMMAgentID:              pmmAgentID,
-					ServiceID:               service.ServiceID,
-					Username:                req.Username,
-					Password:                req.Password,
-					TLS:                     req.Tls,
-					TLSSkipVerify:           req.TlsSkipVerify,
-					QueryExamplesDisabled:   req.DisableQueryExamples,
-					CommentsParsingDisabled: req.DisableCommentsParsing,
+					PMMAgentID:    pmmAgentID,
+					ServiceID:     service.ServiceID,
+					Username:      req.Username,
+					Password:      req.Password,
+					TLS:           req.Tls,
+					TLSSkipVerify: req.TlsSkipVerify,
+					QANOptions: &models.QANOptions{
+						QueryExamplesDisabled:   req.DisableQueryExamples,
+						CommentsParsingDisabled: req.DisableCommentsParsing,
+					},
 				})
 				if err != nil {
 					return err
@@ -391,18 +401,23 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 
 			// add PostgreSQL Exporter
 			postgresExporter, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
-				PMMAgentID:                     pmmAgentID,
-				ServiceID:                      service.ServiceID,
-				Username:                       req.Username,
-				Password:                       req.Password,
-				TLS:                            req.Tls,
-				TLSSkipVerify:                  req.TlsSkipVerify,
-				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				PMMAgentID:    pmmAgentID,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: isPushMode(metricsMode),
+				},
+				AWSOptions: &models.AWSOptions{
+					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				},
+
 				PostgreSQLOptions: &models.PostgreSQLOptions{
 					AutoDiscoveryLimit:     req.AutoDiscoveryLimit,
 					MaxExporterConnections: req.MaxPostgresqlExporterConnections,
 				},
-				PushMetrics: isPushMode(metricsMode),
 			})
 			if err != nil {
 				return err

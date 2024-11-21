@@ -115,8 +115,8 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 			args = append(args, "--collector.pbm")
 		}
 
-		args = collectors.FilterOutCollectors("--collector.", args, exporter.DisabledCollectors)
-		args = append(args, collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultEnabledCollectors, exporter.DisabledCollectors)...)
+		args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)
+		args = append(args, collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultEnabledCollectors, exporter.ExporterOptions.DisabledCollectors)...)
 
 		if exporter.MongoDBOptions != nil && len(exporter.MongoDBOptions.StatsCollections) != 0 {
 			args = append(args, "--mongodb.collstats-colls="+strings.Join(exporter.MongoDBOptions.StatsCollections, ","))
@@ -146,7 +146,7 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right, //nolint:goconst
 		}
 
-		args = collectors.FilterOutCollectors("--collect.", args, exporter.DisabledCollectors)
+		args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
 	}
 
 	return args
@@ -166,8 +166,8 @@ func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent,
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
-		DisableQueryExamples: agent.QueryExamplesDisabled,
-		MaxQueryLength:       agent.MaxQueryLength,
+		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
+		MaxQueryLength:       agent.QANOptions.MaxQueryLength,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

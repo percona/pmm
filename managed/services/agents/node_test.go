@@ -206,9 +206,11 @@ func TestNodeExporterConfig(t *testing.T) {
 		t.Parallel()
 		node := &models.Node{}
 		exporter := &models.Agent{
-			AgentID:            "agent-id",
-			AgentType:          models.NodeExporterType,
-			DisabledCollectors: []string{"cpu", "netstat", "netstat.fields", "vmstat", "meminfo"},
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+			ExporterOptions: &models.ExporterOptions{
+				DisabledCollectors: []string{"cpu", "netstat", "netstat.fields", "vmstat", "meminfo"},
+			},
 		}
 		agentVersion := version.MustParse("2.15.1")
 
