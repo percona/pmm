@@ -21,4 +21,4 @@ The prerequisites to install PMM client are:
 
 5. If you use it, install [Docker](https://docs.docker.com/get-docker/).
 
-6. Check system [requirements](../../plan-pmm-installation/hardware_and_system.md#client-requirements).
+6. Check [system requirements](../plan-pmm-installation/hardware_and_system.md#client-requirements).

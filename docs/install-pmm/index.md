@@ -9,9 +9,11 @@
 
 ## Install PMM Server
 
-Install and run at least one PMM Server.
+Install and run at least one PMM Server. Choose from the following options:
 
-Choose from:
+!!! summary alert alert-info "ARM support"
+     PMM Server is not currently available as a native ARM64 build. For ARM-based systems, consider using the Docker or Podman installation methods, which can run x86_64 images via emulation on ARM platforms.
+
 
 | Use | <i class="uil uil-thumbs-up"></i> **Benefits** | <i class="uil uil-thumbs-down"></i> **Drawbacks**|
 |---|---|---
@@ -23,16 +25,22 @@ Choose from:
 
 ## Install PMM Client
 
-Install and run PMM Client on every node where there is a service you want to monitor.
+Install and run PMM Client on every node where there is a service you want to monitor. PMM Client now supports both x86_64 and ARM64 architectures.
 
-The choices are:
+The installation choices are:
 
-- With [Docker](client/index.md#docker);
-- Natively, installed from:
-    - [Linux package](client/index.md#package-manager) (installed with `apt`, `apt-get`, `dnf`, `yum`);
-    - [Binary package](client/index.md#binary-package) (a downloaded `.tar.gz` file).
+    === "With Docker" 
 
-!!! hint alert "Binary is only way to install PMM client without root permissions"
+     [Docker installation](client/index.md#docker) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).=p][\;]
+
+    === "Native installation"      
+
+    - [Linux package](client/index.md#package-manager). Use `apt`, `apt-get`, `dnf`, `yum`. The package manager automatically selects the correct version for your architecture.
+
+    - [Binary package](client/index.md#binary-packa): Download the appropriate `.tar.gz` file for your architecture (x86_64 or ARM64).
+
+!!! hint alert "Tips"
+    Both binary installation and Docker containers can be run without root permissions. When installing on ARM-based systems, ensure you're using ARM64-compatible versions. Performance may vary between architectures.
 
 ## Add services
 On each PMM Client instance, configure the nodes and services you want to monitor. 

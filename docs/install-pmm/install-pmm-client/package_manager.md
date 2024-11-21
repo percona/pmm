@@ -1,6 +1,8 @@
 # Install PMM client with Percona repositories
 
+PMM Client supports both x86_64 and ARM64 architectures.  
 On Debian or Red Hat Linux, install `percona-release` and use a Linux package manager (`apt`/`dnf`) to install PMM Client.
+The package manager will automatically select the appropriate version for your system architecture.
 
 !!! hint alert alert-success "Tip"
     If you have used `percona-release` before, disable and re-enable the repository:
@@ -66,7 +68,7 @@ To manually download package manager:
 
 1. Visit the [Percona Monitoring and Management 3 download](https://www.percona.com/downloads//) page.
 2. Under *Version:*, select the one you want (usually the latest).
-3. Under *Software:*, select the item matching your software platform.
+3. Under *Software:*, select the item matching your software platform and architecture (x86_64 or ARM64).
 4. Click to download the package file:
 
     - For Debian, Ubuntu: `.deb`

@@ -1,16 +1,18 @@
 # Run PMM client as a Docker container
 
-The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/) is a convenient way to run PMM Client as a preconfigured [Docker](https://docs.docker.com/get-docker/) container.
+The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/) is a convenient way to run PMM Client as a preconfigured [Docker](https://docs.docker.com/get-docker/) container. 
+
+The PMM Client Docker image is available for both x86_64 and ARM64 architectures. Docker will automatically pull the correct image for your system architecture.
 {.power-number}
 
-1. Pull the PMM Client docker image.
+1. Pull the PMM Client Docker image:
 
     ```sh
     docker pull \
     percona/pmm-client:2
     ```
 
-2. Use the image as a template to create a persistent data store that preserves local data when the image is updated.
+2. Use the image as a template to create a persistent data store that preserves local data when the image is updated:
 
     ```sh
     docker create \
@@ -38,7 +40,7 @@ The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/)
 !!! hint alert-success "Tips"
     You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
 
-4. Check status.
+3. Check status.
 
     ```sh
     docker exec pmm-client \
@@ -53,8 +55,7 @@ You can now add services with [`pmm-admin`](../../use/commands/pmm-admin.md) by 
     - Adjust host firewall and routing rules to allow Docker communications. ([Read more](../../troubleshoot/checklist.md)
     - For help: `docker run --rm percona/pmm-client:2 --help`
 
-
-    In the GUI.
+    In the GUI:
 
     - Select {{icon.dashboards}} *PMM Dashboards* → {{icon.node}} *System (Node)* → {{icon.node}} *Node Overview*.
     - In the *Node Names* menu, select the new node.

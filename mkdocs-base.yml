@@ -350,8 +350,7 @@ nav:
   - Release notes:
     - Release notes index: release-notes/index.md
     - "PMM 3.0.0-BETA (2024-11-21)": release-notes/3.0.0_Beta.md
-    
-
+  
   - Reference: 
     - Architecture:
       - reference/index.md

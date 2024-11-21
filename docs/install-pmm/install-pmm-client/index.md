@@ -9,7 +9,7 @@ There are different ways to install PMM Client on a node and register it with PM
     - On Debian or Red Hat, download `.deb`/`.rpm` PMM Client packages and manually install them.
 
 !!! hint alert "Binary is only way to install PMM client without root permissions"
-    - [Binary package](binary_package.md): For other Linux distributions, download and unpack generic PMM Client Linux binaries.
+    - [Binary package](binary_package.md): For other Linux distributions, download and unpack generic PMM Client Linux binaries. Ensure you choose the correct package for your architecture (x86_64 or ARM64).
 
 When you have installed PMM Client, you must:
 
