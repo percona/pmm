@@ -422,11 +422,11 @@ func TestRestoreBackup(t *testing.T) {
 				if tc.expectedError == nil {
 					if len(tc.artifact.MetadataList) != 0 && tc.artifact.MetadataList[0].BackupToolData != nil {
 						mockedJobsService.On("StartMongoDBRestoreBackupJob", service, mock.Anything, pointer.GetString(agent.PMMAgentID),
-							time.Duration(0), tc.artifact.Name, tc.artifact.MetadataList[0].BackupToolData.PbmMetadata.Name, mock.Anything, tc.artifact.DataModel,
+							time.Duration(0), tc.artifact.Name, tc.artifact.MetadataList[0].BackupToolData.PbmMetadata.Name, tc.artifact.DataModel,
 							mock.Anything, time.Unix(0, 0), tc.artifact.Folder).Return(nil).Once()
 					} else {
 						mockedJobsService.On("StartMongoDBRestoreBackupJob", service, mock.Anything, pointer.GetString(agent.PMMAgentID),
-							time.Duration(0), tc.artifact.Name, "", mock.Anything, tc.artifact.DataModel,
+							time.Duration(0), tc.artifact.Name, "", tc.artifact.DataModel,
 							mock.Anything, time.Unix(0, 0), tc.artifact.Folder).Return(nil).Once()
 					}
 				}

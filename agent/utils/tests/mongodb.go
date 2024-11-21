@@ -25,7 +25,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm/agent/utils/mongo_fix"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	"github.com/percona/pmm/version"
 )
 
 // GetTestMongoDBDSN returns DNS for MongoDB test database.
@@ -34,7 +35,7 @@ func GetTestMongoDBDSN(tb testing.TB) string {
 	if testing.Short() {
 		tb.Skip("-short flag is passed, skipping test with real database.")
 	}
-	return "mongodb://root:root-password@127.0.0.1:27017/admin"
+	return "mongodb://root:root-password@localhost:27017/admin"
 }
 
 // GetTestMongoDBReplicatedDSN returns DNS for replicated MongoDB test database.
@@ -47,7 +48,7 @@ func GetTestMongoDBReplicatedDSN(tb testing.TB) string {
 }
 
 // GetTestMongoDBWithSSLDSN returns DNS template and files for MongoDB test database with ssl.
-func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentpb.TextFiles) {
+func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentv1.TextFiles) {
 	tb.Helper()
 
 	pathToRoot = filepath.Clean(pathToRoot)
@@ -63,7 +64,7 @@ func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentp
 	certificateKey, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "client.pem")) //nolint:gosec
 	require.NoError(tb, err)
 
-	return dsn, &agentpb.TextFiles{
+	return dsn, &agentv1.TextFiles{
 		Files: map[string]string{
 			"caFilePlaceholder":             string(caFile),
 			"certificateKeyFilePlaceholder": string(certificateKey),
@@ -74,7 +75,7 @@ func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentp
 }
 
 // GetTestMongoDBReplicatedWithSSLDSN returns DNS template and files for replicated MongoDB test database with ssl.
-func GetTestMongoDBReplicatedWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentpb.TextFiles) {
+func GetTestMongoDBReplicatedWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentv1.TextFiles) {
 	tb.Helper()
 
 	if testing.Short() {
@@ -90,7 +91,7 @@ func GetTestMongoDBReplicatedWithSSLDSN(tb testing.TB, pathToRoot string) (strin
 	certificateKey, err := os.ReadFile(filepath.Join(filepath.Clean(pathToRoot), "utils/tests/testdata/", "mongodb/", "client.pem"))
 	require.NoError(tb, err)
 
-	return dsn, &agentpb.TextFiles{
+	return dsn, &agentv1.TextFiles{
 		Files: map[string]string{
 			"caFilePlaceholder":             string(caFile),
 			"certificateKeyFilePlaceholder": string(certificateKey),
@@ -118,7 +119,7 @@ func OpenTestMongoDB(tb testing.TB, dsn string) *mongo.Client {
 }
 
 // MongoDBVersion returns Mongo DB version.
-func MongoDBVersion(tb testing.TB, client *mongo.Client) string {
+func MongoDBVersion(tb testing.TB, client *mongo.Client) *version.Parsed {
 	tb.Helper()
 
 	res := client.Database("admin").RunCommand(context.Background(), primitive.M{"buildInfo": 1})
@@ -131,5 +132,9 @@ func MongoDBVersion(tb testing.TB, client *mongo.Client) string {
 	if err := res.Decode(&bi); err != nil {
 		tb.Fatalf("Cannot decode buildInfo response: %s", err)
 	}
-	return bi.Version
+	parsed, err := version.Parse(bi.Version)
+	if err != nil {
+		tb.Fatalf("Cannot parse version: %s", err)
+	}
+	return parsed
 }

@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/percona-platform/saas/pkg/check"
-	"github.com/percona-platform/saas/pkg/common"
-	"github.com/percona-platform/saas/pkg/starlark"
+	"github.com/percona/saas/pkg/check"
+	"github.com/percona/saas/pkg/common"
+	"github.com/percona/saas/pkg/starlark"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

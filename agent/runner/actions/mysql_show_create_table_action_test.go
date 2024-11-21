@@ -27,7 +27,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/version"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestMySQLShowCreateTable(t *testing.T) {
@@ -44,7 +44,7 @@ func TestMySQLShowCreateTable(t *testing.T) {
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLShowCreateTableParams{
+		params := &agentv1.StartActionRequest_MySQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "city",
 		}
@@ -57,7 +57,7 @@ func TestMySQLShowCreateTable(t *testing.T) {
 
 		var expected string
 		switch {
-		case mySQLVersion.String() == "8.0":
+		case (mySQLVendor == version.PerconaVendor || mySQLVendor == version.OracleVendor) && mySQLVersion.Float() >= 8.0:
 			// https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-19.html
 			// Display width specification for integer data types was deprecated in MySQL 8.0.17,
 			// and now statements that include data type definitions in their output no longer
@@ -123,7 +123,7 @@ CREATE TABLE "city" (
 
 	t.Run("Error", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLShowCreateTableParams{
+		params := &agentv1.StartActionRequest_MySQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "no_such_table",
 		}
@@ -137,7 +137,7 @@ CREATE TABLE "city" (
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLShowCreateTableParams{
+		params := &agentv1.StartActionRequest_MySQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: `city"; DROP TABLE city; --`,
 		}

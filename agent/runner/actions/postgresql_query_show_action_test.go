@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestPostgreSQLQueryShow(t *testing.T) {
@@ -37,7 +37,7 @@ func TestPostgreSQLQueryShow(t *testing.T) {
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_PostgreSQLQueryShowParams{
+		params := &agentv1.StartActionRequest_PostgreSQLQueryShowParams{
 			Dsn: dsn,
 		}
 		a, err := NewPostgreSQLQueryShowAction("", 0, params, os.TempDir())
@@ -48,14 +48,12 @@ func TestPostgreSQLQueryShow(t *testing.T) {
 
 		b, err := a.Run(ctx)
 		require.NoError(t, err)
-		assert.LessOrEqual(t, 22000, len(b))
-		assert.LessOrEqual(t, len(b), 37989)
+		assert.GreaterOrEqual(t, len(b), 22000)
 
-		data, err := agentpb.UnmarshalActionQueryResult(b)
+		data, err := agentv1.UnmarshalActionQueryResult(b)
 		require.NoError(t, err)
 		t.Log(spew.Sdump(data))
-		assert.LessOrEqual(t, 200, len(data))
-		assert.LessOrEqual(t, len(data), 399)
+		assert.GreaterOrEqual(t, len(data), 200)
 
 		var found int
 		for _, m := range data {

@@ -2,7 +2,7 @@
 title: Make a backup
 slug: startbackup
 excerpt: This endpoint allows to make an unscheduled, or ad-hoc, backup of a given service.
-category: 66aa56507e69ed004a736efe
+categorySlug: backup-api
 ---
 
 PMM can backup the monitored services.
@@ -14,15 +14,14 @@ This section describes how to make an ad-hoc backup of a service.
 Here is an example of an API call to create a backup:
 
 ```shell
-curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
-     --request POST \
-     --url https://127.0.0.1/v1/management/backup/Backups/Start \
-     --header 'Accept: application/json' \
+curl --insecure -X POST \
+     --header 'Authorization: Bearer XXXXX' \
      --header 'Content-Type: application/json' \
+     --url https://127.0.0.1/v1/backups:start \
      --data '
 {
-     "service_id": "/service_id/XXXXX",
-     "location_id": "/location_id/XXXXX",
+     "service_id": "2c756c17-e4cd-4180-a3d4-d7a3fe1e4816",
+     "location_id": "0bd7b27d-e54e-4299-a0e2-3fe9990e635d",
      "name": "Test Backup",
      "description": "Test Backup",
      "retry_interval": "60s",

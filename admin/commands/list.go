@@ -29,16 +29,16 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/agentlocal"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 var listResultT = ParseTemplate(`
 Service type{{"\t"}}Service name{{"\t"}}Address and port{{"\t"}}Service ID
 {{ range .Services }}
-{{- .HumanReadableServiceType }}{{"\t"}}{{ .ServiceName }}{{"\t"}}{{ .AddressPort }}{{"\t"}}{{ .ServiceID }}
+{{- .NiceServiceType }}{{"\t"}}{{ .ServiceName }}{{"\t"}}{{ .AddressPort }}{{"\t"}}{{ .ServiceID }}
 {{ end }}
 Agent type{{"\t"}}Status{{"\t"}}Metrics Mode{{"\t"}}Agent ID{{"\t"}}Service ID{{"\t"}}Port
 {{ range .Agents }}
@@ -56,10 +56,12 @@ type listResultAgent struct {
 	Port        int64  `json:"port,omitempty"`
 }
 
+// HumanReadableAgentType returns human-readable agent type.
 func (a listResultAgent) HumanReadableAgentType() string {
 	return types.AgentTypeName(a.AgentType)
 }
 
+// NiceAgentStatus returns human-readable agent status.
 func (a listResultAgent) NiceAgentStatus() string {
 	res := a.Status
 	if res == "" {
@@ -80,7 +82,7 @@ type listResultService struct {
 	Group       string `json:"external_group"`
 }
 
-func (s listResultService) HumanReadableServiceType() string {
+func (s listResultService) NiceServiceType() string {
 	serviceTypeName := types.ServiceTypeName(s.ServiceType)
 
 	if s.ServiceType == types.ServiceTypeExternalService {
@@ -133,17 +135,15 @@ func (cmd *ListCommand) RunCmd() (Result, error) {
 		cmd.NodeID = status.NodeID
 	}
 
-	servicesRes, err := client.Default.Services.ListServices(&services.ListServicesParams{
-		Body: services.ListServicesBody{
-			NodeID: cmd.NodeID,
-		},
+	servicesRes, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
+		NodeID:  pointer.ToString(cmd.NodeID),
 		Context: Ctx,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	agentsRes, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
+	agentsRes, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 		Context: Ctx,
 	})
 	if err != nil {
@@ -221,7 +221,7 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 
 func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent { //nolint:cyclop
 	getStatus := func(s *string) string {
-		res := pointer.GetString(s)
+		res, _ := strings.CutPrefix(pointer.GetString(s), "AGENT_STATUS_")
 		if res == "" {
 			res = "unknown"
 		}

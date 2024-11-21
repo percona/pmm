@@ -20,7 +20,7 @@ import (
 	"context"
 	"time"
 
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
@@ -66,7 +66,7 @@ func NewDataSourceVictoriaMetrics(config DSConfigVM, l *logrus.Entry) (DataSourc
 	}, nil
 }
 
-func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
+func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Config) ([]*telemetryv1.GenericReport_Metric, error) {
 	localCtx, cancel := context.WithTimeout(ctx, d.config.Timeout)
 	defer cancel()
 
@@ -75,20 +75,20 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 		return nil, err
 	}
 
-	var metrics []*pmmv1.ServerMetric_Metric
+	var metrics []*telemetryv1.GenericReport_Metric
 
 	for _, v := range result.(model.Vector) { //nolint:forcetypeassert
 		for _, configItem := range config.Data {
 			if configItem.Label != "" {
 				value := v.Metric[model.LabelName(configItem.Label)]
-				metrics = append(metrics, &pmmv1.ServerMetric_Metric{
+				metrics = append(metrics, &telemetryv1.GenericReport_Metric{
 					Key:   configItem.MetricName,
 					Value: string(value),
 				})
 			}
 
 			if configItem.Value != "" {
-				metrics = append(metrics, &pmmv1.ServerMetric_Metric{
+				metrics = append(metrics, &telemetryv1.GenericReport_Metric{
 					Key:   configItem.MetricName,
 					Value: v.Value.String(),
 				})

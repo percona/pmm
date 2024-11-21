@@ -25,8 +25,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/external"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 var addExternalServerlessResultT = commands.ParseTemplate(`
@@ -37,7 +37,7 @@ Group       : {{ .Service.Group }}
 `)
 
 type addExternalServerlessResult struct {
-	Service *external.AddExternalOKBodyService `json:"service"`
+	Service *mservice.AddServiceOKBodyExternalService `json:"service"`
 }
 
 func (res *addExternalServerlessResult) Result() {}
@@ -125,44 +125,46 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &external.AddExternalParams{
-		Body: external.AddExternalBody{
-			AddNode: &external.AddExternalParamsBodyAddNode{
-				NodeType:      pointer.ToString(external.AddExternalParamsBodyAddNodeNodeTypeREMOTENODE),
-				NodeName:      serviceName,
-				MachineID:     cmd.MachineID,
-				Distro:        cmd.Distro,
-				ContainerID:   cmd.ContainerID,
-				ContainerName: cmd.ContainerName,
-				NodeModel:     cmd.NodeModel,
-				Region:        cmd.Region,
-				Az:            cmd.Az,
-				CustomLabels:  customLabels,
+	params := &mservice.AddServiceParams{
+		Body: mservice.AddServiceBody{
+			External: &mservice.AddServiceParamsBodyExternal{
+				AddNode: &mservice.AddServiceParamsBodyExternalAddNode{
+					NodeType:      pointer.ToString(mservice.AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTENODE),
+					NodeName:      serviceName,
+					MachineID:     cmd.MachineID,
+					Distro:        cmd.Distro,
+					ContainerID:   cmd.ContainerID,
+					ContainerName: cmd.ContainerName,
+					NodeModel:     cmd.NodeModel,
+					Region:        cmd.Region,
+					Az:            cmd.Az,
+					CustomLabels:  customLabels,
+				},
+				Address:             address,
+				ServiceName:         serviceName,
+				Username:            cmd.Username,
+				Password:            cmd.Password,
+				Scheme:              scheme,
+				MetricsPath:         metricsPath,
+				ListenPort:          int64(port),
+				Environment:         cmd.Environment,
+				Cluster:             cmd.Cluster,
+				ReplicationSet:      cmd.ReplicationSet,
+				CustomLabels:        customLabels,
+				MetricsMode:         pointer.ToString(mservice.AddServiceParamsBodyExternalMetricsModeMETRICSMODEPULL),
+				Group:               cmd.Group,
+				SkipConnectionCheck: cmd.SkipConnectionCheck,
 			},
-			Address:             address,
-			ServiceName:         serviceName,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			Scheme:              scheme,
-			MetricsPath:         metricsPath,
-			ListenPort:          int64(port),
-			Environment:         cmd.Environment,
-			Cluster:             cmd.Cluster,
-			ReplicationSet:      cmd.ReplicationSet,
-			CustomLabels:        customLabels,
-			MetricsMode:         pointer.ToString(external.AddExternalBodyMetricsModePULL),
-			Group:               cmd.Group,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.External.AddExternal(params)
+	resp, err := client.Default.ManagementService.AddService(params)
 	if err != nil {
 		return nil, err
 	}
 
 	return &addExternalServerlessResult{
-		Service: resp.Payload.Service,
+		Service: resp.Payload.External.Service,
 	}, nil
 }
 

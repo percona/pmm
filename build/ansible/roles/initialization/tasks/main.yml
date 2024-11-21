@@ -1,0 +1,120 @@
+---
+# This role contains tasks executed during initialization of PMM Server
+
+- name: Detect AMI distribution
+  set_fact:
+    pmm_distribution: "{{ lookup('file', '/srv/pmm-distribution', errors='ignore') | default('none', true) }}"
+
+- name: Set is_ami fact
+  set_fact:
+    is_ami: "{{ pmm_distribution | trim == 'ami' }}"
+
+- name: Get current PMM version (aka 'update from')
+  set_fact:
+    pmm_current_version: "{{ lookup('file', '/srv/grafana/PERCONA_DASHBOARDS_VERSION', errors='ignore') | default('0', true) }}"
+
+- name: Get PMM image version for update
+  set_fact:
+    pmm_image_version: "{{ lookup('file', '/usr/share/percona-dashboards/VERSION', errors='strict') }}"
+
+- name: Set need_initialization fact
+  set_fact:
+    need_initialization: "{{ pmm_current_version == '0' }}"
+
+- name: Set need_upgrade fact
+  set_fact:
+    need_upgrade: "{{ pmm_current_version is version(pmm_image_version, '<') }}"
+
+- name: Print PMM distribution
+  debug:
+    msg: "PMM distribution: {{ pmm_distribution }}, Is AMI: {{ is_ami }}"
+
+- name: Show PMM current and target image versions
+  debug:
+    msg: "Current version: {{ pmm_current_version }}, Image Version: {{ pmm_image_version }}"
+
+- name: Print need_initialization fact
+  debug:
+    msg: "Need initialization: {{ need_initialization }}"
+
+- name: Print need_upgrade fact
+  debug:
+    msg: "Need upgrade: {{ need_upgrade }}"
+
+- name: Execute PMM upgrade & initialization tasks
+  block: # when need_initialization or need_upgrade
+  - name: Enable maintenance mode before upgrade
+    copy:
+      src: maintenance.html
+      dest: /usr/share/pmm-server/maintenance/
+      owner: pmm
+      group: pmm
+      mode: 0644
+
+  - name: Wait for PostgreSQL to become responsive
+    wait_for:
+      host: 127.0.0.1
+      port: 5432
+      timeout: 150
+
+  - name: Create Grafana DB
+    block:
+      - name: Create grafana database in postgres
+        postgresql_db:
+          name: grafana
+          login_user: postgres
+          state: present
+
+      - name: Create grafana user in postgres
+        postgresql_user:
+          db: grafana
+          name: grafana
+          password: grafana
+          priv: 'ALL'
+          expires: infinity
+          login_user: postgres
+          state: present
+        when: not ansible_check_mode
+    when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and need_initialization
+
+  - name: Upgrade/Install dashboards
+    include_role:
+      name: dashboards
+
+  - name: Create a backup directory
+    file:
+      path: /srv/backup
+      state: directory
+      owner: pmm
+      group: pmm
+      mode: 0775
+    when: need_upgrade
+
+  # Note: we want to leave this for some time until we achieve stable builds
+  - name: Output pmm-managed logs
+    shell: sleep 10 && tail -n 300 /srv/logs/pmm-managed.log
+
+  - name: Wait for PMM to be ready
+    ansible.builtin.uri:
+      url: "http://127.0.0.1:7772/v1/server/readyz"
+      status_code: 200
+      method: GET
+    retries: 20
+    delay: 5
+    ignore_errors: true
+
+  - name: Initialize admin password for AMI if needed
+    include_role:
+      name: init-admin-password-ami
+    when: need_initialization and is_ami
+
+  - name: Disable maintenance mode
+    file:
+      state: absent
+      path: /usr/share/pmm-server/maintenance/maintenance.html
+
+  - name: Remove the file provisioned by 'getStatus'
+    file:
+      state: absent
+      path: /srv/pmm-update.json      
+  when: need_initialization or need_upgrade

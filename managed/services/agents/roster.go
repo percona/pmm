@@ -26,11 +26,8 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-type agentGroup string
-
 const (
-	rdsGroup  = agentGroup("rds")
-	rdsSuffix = string("/" + rdsGroup)
+	rdsPrefix = "rds/"
 )
 
 // roster groups several Agent IDs from an Inventory model to a single Group ID, as seen by pmm-agent.
@@ -55,11 +52,11 @@ func newRoster(db *reform.DB) *roster {
 }
 
 // add adds a new group of exporter IDs to the roster.
-func (r *roster) add(pmmAgentID string, group agentGroup, exporters map[*models.Node]*models.Agent) string {
+func (r *roster) add(pmmAgentID string, group string, exporters map[*models.Node]*models.Agent) string {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	groupID := pmmAgentID + "/" + string(group)
+	groupID := pmmAgentID + ":" + group
 	exporterIDs := make([]string, 0, len(exporters))
 	for _, exporter := range exporters {
 		exporterIDs = append(exporterIDs, exporter.AgentID)
@@ -77,7 +74,10 @@ func (r *roster) get(groupID string) (string, []string, error) {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
-	PMMAgentID, ok := strings.CutSuffix(groupID, rdsSuffix)
+	parts := strings.Split(groupID, ":")
+	ok := len(parts) == 2
+
+	PMMAgentID := parts[0]
 	agentIDs := r.m[groupID]
 
 	if agentIDs == nil {
@@ -85,7 +85,9 @@ func (r *roster) get(groupID string) (string, []string, error) {
 			agentIDs = []string{PMMAgentID}
 		} else {
 			rdsExporterType := models.RDSExporterType
-			agents, err := models.FindAgents(r.db.Querier, models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: &rdsExporterType})
+			awsAccessKey := strings.TrimPrefix(parts[1], rdsPrefix)
+			filters := models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: &rdsExporterType, AWSAccessKey: awsAccessKey}
+			agents, err := models.FindAgents(r.db.Querier, filters)
 			if err != nil {
 				return "", nil, err
 			}
@@ -105,7 +107,7 @@ func (r *roster) clear(pmmAgentID string) {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	prefix := pmmAgentID + "/"
+	prefix := pmmAgentID + ":"
 	var toDelete []string
 	for groupID := range r.m {
 		if strings.HasPrefix(groupID, prefix) {

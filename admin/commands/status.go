@@ -25,7 +25,7 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/agentlocal"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventory/v1/types"
 	"github.com/percona/pmm/version"
 )
 
@@ -46,7 +46,7 @@ PMM Client:
 	pmm-admin version: {{ .PMMVersion }}
 	pmm-agent version: {{ .PMMAgentStatus.AgentVersion }}
 Agents:
-{{ range .PMMAgentStatus.Agents }}	{{ .AgentID }} {{ .AgentType | $.HumanReadableAgentType }} {{ .Status | $.NiceAgentStatus }} {{ .Port }}
+{{ range .PMMAgentStatus.Agents }}	{{ .AgentID }} {{ printf "%-29s" (.AgentType | $.HumanReadableAgentType) }} {{ printf "%-15s" (.Status | $.NiceAgentStatus) }} {{ .Port }}
 {{ end }}
 `)
 

@@ -24,8 +24,8 @@ import (
 
 	"github.com/AlekSi/pointer"
 	_ "github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/percona-platform/saas/pkg/check"
-	"github.com/percona-platform/saas/pkg/common"
+	"github.com/percona/saas/pkg/check"
+	"github.com/percona/saas/pkg/common"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/sirupsen/logrus"
@@ -54,9 +54,9 @@ var (
 )
 
 func TestDownloadAdvisors(t *testing.T) {
-	clientID, clientSecret := os.Getenv("OAUTH_PMM_CLIENT_ID"), os.Getenv("OAUTH_PMM_CLIENT_SECRET")
+	clientID, clientSecret := os.Getenv("PMM_DEV_OAUTH_CLIENT_ID"), os.Getenv("PMM_DEV_OAUTH_CLIENT_SECRET")
 	if clientID == "" || clientSecret == "" {
-		t.Skip("Environment variables OAUTH_PMM_CLIENT_ID / OAUTH_PMM_CLIENT_SECRET are not defined, skipping test")
+		t.Skip("Environment variables PMM_DEV_OAUTH_CLIENT_ID / PMM_DEV_OAUTH_CLIENT_SECRET are not defined, skipping test")
 	}
 
 	setupClients(t)
@@ -100,7 +100,7 @@ func TestDownloadAdvisors(t *testing.T) {
 
 	t.Run("disabled telemetry", func(t *testing.T) {
 		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
-			DisableTelemetry: true,
+			EnableTelemetry: pointer.ToBool(false),
 		})
 		require.NoError(t, err)
 
@@ -381,38 +381,6 @@ func TestChangeInterval(t *testing.T) {
 	})
 }
 
-func TestGetSecurityCheckResults(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	t.Cleanup(func() {
-		require.NoError(t, sqlDB.Close())
-	})
-
-	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
-
-	t.Run("STT enabled", func(t *testing.T) {
-		s := New(db, nil, nil, vmClient, clickhouseDB)
-
-		results, err := s.GetSecurityCheckResults()
-		assert.Empty(t, results)
-		require.NoError(t, err)
-	})
-
-	t.Run("STT disabled", func(t *testing.T) {
-		s := New(db, nil, nil, vmClient, clickhouseDB)
-
-		settings, err := models.GetSettings(db)
-		require.NoError(t, err)
-
-		settings.SaaS.STTDisabled = true
-		err = models.SaveSettings(db, settings)
-		require.NoError(t, err)
-
-		results, err := s.GetSecurityCheckResults()
-		assert.Nil(t, results)
-		assert.ErrorIs(t, err, services.ErrAdvisorsDisabled)
-	})
-}
-
 func TestStartChecks(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
@@ -430,7 +398,7 @@ func TestStartChecks(t *testing.T) {
 		assert.EqualError(t, err, "unknown check interval: unknown")
 	})
 
-	t.Run("stt enabled", func(t *testing.T) {
+	t.Run("advisors enabled", func(t *testing.T) {
 		s := New(db, nil, nil, vmClient, clickhouseDB)
 
 		s.localChecksFile = testChecksFile
@@ -442,13 +410,13 @@ func TestStartChecks(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("stt disabled", func(t *testing.T) {
+	t.Run("advisors disabled", func(t *testing.T) {
 		s := New(db, nil, nil, vmClient, clickhouseDB)
 
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.STTDisabled = true
+		settings.SaaS.Enabled = pointer.ToBool(false)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
@@ -719,7 +687,7 @@ func TestGetFailedChecks(t *testing.T) {
 				Interval:  check.Frequent,
 				Target: services.Target{
 					ServiceName: "test_svc1",
-					ServiceID:   "/service_id/test_svc1",
+					ServiceID:   "test_svc1",
 					Labels: map[string]string{
 						"targetLabel": "targetLabelValue",
 					},
@@ -739,7 +707,7 @@ func TestGetFailedChecks(t *testing.T) {
 				Interval:  check.Frequent,
 				Target: services.Target{
 					ServiceName: "test_svc2",
-					ServiceID:   "/service_id/test_svc2",
+					ServiceID:   "test_svc2",
 					Labels: map[string]string{
 						"targetLabel": "targetLabelValue",
 					},
@@ -771,7 +739,7 @@ func TestGetFailedChecks(t *testing.T) {
 				Interval:  check.Frequent,
 				Target: services.Target{
 					ServiceName: "test_svc1",
-					ServiceID:   "/service_id/test_svc1",
+					ServiceID:   "test_svc1",
 					Labels: map[string]string{
 						"targetLabel": "targetLabelValue",
 					},
@@ -791,7 +759,7 @@ func TestGetFailedChecks(t *testing.T) {
 				Interval:  check.Frequent,
 				Target: services.Target{
 					ServiceName: "test_svc2",
-					ServiceID:   "/service_id/test_svc2",
+					ServiceID:   "test_svc2",
 					Labels: map[string]string{
 						"targetLabel": "targetLabelValue",
 					},
@@ -811,19 +779,19 @@ func TestGetFailedChecks(t *testing.T) {
 		s := New(db, nil, nil, vmClient, clickhouseDB)
 		s.alertsRegistry.set(checkResults)
 
-		response, err := s.GetChecksResults(context.Background(), "/service_id/test_svc1")
+		response, err := s.GetChecksResults(context.Background(), "test_svc1")
 		require.NoError(t, err)
 		require.Len(t, response, 1)
 		assert.Equal(t, checkResults[0], response[0])
 	})
 
-	t.Run("STT disabled", func(t *testing.T) {
+	t.Run("Advisors disabled", func(t *testing.T) {
 		s := New(db, nil, nil, vmClient, clickhouseDB)
 
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.STTDisabled = true
+		settings.SaaS.Enabled = pointer.ToBool(false)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 

@@ -22,18 +22,18 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 //nolint:lll
 var listAgentsResultT = commands.ParseTemplate(`
 Agents list.
 
-{{ printf "%-27s" "Agent type" }} {{ printf "%-15s" "Status" }} {{ printf "%-47s" "Agent ID" }} {{ printf "%-47s" "PMM-Agent ID" }} {{ printf "%-47s" "Service ID" }} {{ printf "%-47s" "Port" }}
+{{ printf "%-29s" "Agent type" }} {{ printf "%-15s" "Status" }} {{ printf "%-39s" "Agent ID" }} {{ printf "%-39s" "PMM-Agent ID" }} {{ printf "%-38s" "Service ID" }} {{ printf "%-20s" "Port" }}
 {{ range .Agents }}
-{{- printf "%-27s" .HumanReadableAgentType }} {{ printf "%-15s" .NiceAgentStatus }} {{ .AgentID }}  {{ .PMMAgentID }}  {{ .ServiceID }} {{ .Port }}
+{{- printf "%-29s" .HumanReadableAgentType }} {{ printf "%-15s" .NiceAgentStatus }} {{ printf "%-38s" .AgentID }}  {{ printf "%-38s" .PMMAgentID }}  {{ printf "%-38s" .ServiceID }} {{ .Port }}
 {{ end }}
 `)
 
@@ -90,6 +90,7 @@ func getAgentStatus(status *string) string {
 	if res == "" {
 		res = "UNKNOWN"
 	}
+	res, _ = strings.CutPrefix(res, "AGENT_STATUS_")
 	return res
 }
 
@@ -108,18 +109,14 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	filters := agents.ListAgentsBody{
-		PMMAgentID: cmd.PMMAgentID,
-		ServiceID:  cmd.ServiceID,
-		NodeID:     cmd.NodeID,
-		AgentType:  agentType,
-	}
-
 	params := &agents.ListAgentsParams{
-		Body:    filters,
-		Context: commands.Ctx,
+		PMMAgentID: pointer.ToString(cmd.PMMAgentID),
+		ServiceID:  pointer.ToString(cmd.ServiceID),
+		NodeID:     pointer.ToString(cmd.NodeID),
+		AgentType:  agentType,
+		Context:    commands.Ctx,
 	}
-	agentsRes, err := client.Default.Agents.ListAgents(params)
+	agentsRes, err := client.Default.AgentsService.ListAgents(params)
 	if err != nil {
 		return nil, err
 	}

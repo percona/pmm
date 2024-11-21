@@ -16,8 +16,9 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/admin/pkg/flags"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentQANPostgreSQLPgStatMonitorAgentResultT = commands.ParseTemplate(`
@@ -36,7 +37,7 @@ Query examples       : {{ .Agent.QueryExamplesDisabled }}
 `)
 
 type addAgentQANPostgreSQLPgStatMonitorAgentResult struct {
-	Agent *agents.AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent `json:"qan_postgresql_pgstatmonitor_agent"`
+	Agent *agents.AddAgentOKBodyQANPostgresqlPgstatmonitorAgent `json:"qan_postgresql_pgstatmonitor_agent"`
 }
 
 func (res *addAgentQANPostgreSQLPgStatMonitorAgentResult) Result() {}
@@ -53,7 +54,6 @@ type AddAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
 	Password              string            `help:"PostgreSQL password for QAN agent"`
 	CustomLabels          map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck   bool              `help:"Skip connection check"`
-	CommentsParsing       string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	MaxQueryLength        int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	QueryExamplesDisabled bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                   bool              `help:"Use TLS to connect to the database"`
@@ -61,7 +61,9 @@ type AddAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
 	TLSCAFile             string            `name:"tls-ca-file" help:"TLS CA certificate file"`
 	TLSCertFile           string            `help:"TLS certificate file"`
 	TLSKeyFile            string            `help:"TLS certificate key file"`
-	LogLevel              string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
+
+	flags.CommentsParsingFlags
+	flags.LogLevelFatalFlags
 }
 
 // RunCmd runs the command for AddAgentQANPostgreSQLPgStatMonitorAgentCommand.
@@ -89,34 +91,31 @@ func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Re
 		}
 	}
 
-	disableCommentsParsing := true
-	if cmd.CommentsParsing == "on" {
-		disableCommentsParsing = false
-	}
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			QANPostgresqlPgstatmonitorAgent: &agents.AddAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
+				PMMAgentID:             cmd.PMMAgentID,
+				ServiceID:              cmd.ServiceID,
+				Username:               cmd.Username,
+				Password:               cmd.Password,
+				CustomLabels:           customLabels,
+				SkipConnectionCheck:    cmd.SkipConnectionCheck,
+				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
+				MaxQueryLength:         cmd.MaxQueryLength,
+				DisableQueryExamples:   cmd.QueryExamplesDisabled,
 
-	params := &agents.AddQANPostgreSQLPgStatMonitorAgentParams{
-		Body: agents.AddQANPostgreSQLPgStatMonitorAgentBody{
-			PMMAgentID:             cmd.PMMAgentID,
-			ServiceID:              cmd.ServiceID,
-			Username:               cmd.Username,
-			Password:               cmd.Password,
-			CustomLabels:           customLabels,
-			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: disableCommentsParsing,
-			MaxQueryLength:         cmd.MaxQueryLength,
-			DisableQueryExamples:   cmd.QueryExamplesDisabled,
-
-			TLS:           cmd.TLS,
-			TLSSkipVerify: cmd.TLSSkipVerify,
-			TLSCa:         tlsCa,
-			TLSCert:       tlsCert,
-			TLSKey:        tlsKey,
-			LogLevel:      &cmd.LogLevel,
+				TLS:           cmd.TLS,
+				TLSSkipVerify: cmd.TLSSkipVerify,
+				TLSCa:         tlsCa,
+				TLSCert:       tlsCert,
+				TLSKey:        tlsKey,
+				LogLevel:      cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddQANPostgreSQLPgStatMonitorAgent(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

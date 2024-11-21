@@ -20,7 +20,7 @@ import (
 	"context"
 	"os"
 
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 )
 
@@ -51,8 +51,8 @@ func (d *dsEnvvars) Init(_ context.Context) error {
 	return nil
 }
 
-func (d *dsEnvvars) FetchMetrics(_ context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
-	var metrics []*pmmv1.ServerMetric_Metric
+func (d *dsEnvvars) FetchMetrics(_ context.Context, config Config) ([]*telemetryv1.GenericReport_Metric, error) {
+	var metrics []*telemetryv1.GenericReport_Metric
 
 	check := make(map[string]bool, len(config.Data))
 
@@ -69,7 +69,7 @@ func (d *dsEnvvars) FetchMetrics(_ context.Context, config Config) ([]*pmmv1.Ser
 
 			check[col.MetricName] = true
 
-			metrics = append(metrics, &pmmv1.ServerMetric_Metric{
+			metrics = append(metrics, &telemetryv1.GenericReport_Metric{
 				Key:   col.MetricName,
 				Value: value,
 			})

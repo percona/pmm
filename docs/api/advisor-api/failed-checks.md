@@ -1,7 +1,7 @@
 ---
-title: List of problems detected by Advisors
+title: Get Failed Advisor Checks
 slug: failed-checks
-category: 6291050b9400a1001ae1877d
+categorySlug: advisor-api
 order: 2
-hidden: 0
+hidden: 1
 ---

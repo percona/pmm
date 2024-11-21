@@ -28,10 +28,10 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/agentlocal"
-	"github.com/percona/pmm/admin/cli/flags"
-	inventorypb "github.com/percona/pmm/api/inventorypb/json/client"
-	managementpb "github.com/percona/pmm/api/managementpb/json/client"
-	serverpb "github.com/percona/pmm/api/serverpb/json/client"
+	"github.com/percona/pmm/admin/pkg/flags"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -88,8 +88,13 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(globalFlags.ServerURL.Host, globalFlags.ServerURL.Path, []string{globalFlags.ServerURL.Scheme})
 	if u := globalFlags.ServerURL.User; u != nil {
+		user := u.Username()
 		password, _ := u.Password()
-		transport.DefaultAuthentication = httptransport.BasicAuth(u.Username(), password)
+		if user == "service_token" || user == "api_key" {
+			transport.DefaultAuthentication = httptransport.BearerToken(password)
+		} else {
+			transport.DefaultAuthentication = httptransport.BasicAuth(user, password)
+		}
 	}
 	transport.SetLogger(logrus.WithField("component", "server-transport"))
 	transport.SetDebug(globalFlags.EnableDebug || globalFlags.EnableTrace)
@@ -121,7 +126,7 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 		httpTransport.TLSClientConfig.InsecureSkipVerify = globalFlags.SkipTLSCertificateCheck
 	}
 
-	inventorypb.Default.SetTransport(transport)
-	managementpb.Default.SetTransport(transport)
-	serverpb.Default.SetTransport(transport)
+	inventoryClient.Default.SetTransport(transport)
+	managementClient.Default.SetTransport(transport)
+	serverClient.Default.SetTransport(transport)
 }

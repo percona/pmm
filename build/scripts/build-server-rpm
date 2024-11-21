@@ -26,9 +26,7 @@ is_build_needed() {
     local packages=
 
     # Structure of S3 build cache
-    # s3://pmm-build-cache/PR-BUILDS/7 - el7
     # s3://pmm-build-cache/PR-BUILDS/9 - el9
-    # s3://pmm-build-cache/RELEASE/7 - el7
     # s3://pmm-build-cache/RELEASE/9 - el9
 
     # RPM_EPOCH is set for Feature Builds
@@ -109,14 +107,6 @@ build() {
             echo \"repo_name: ${repo_name}\"
             echo \"rpm_verison: ${rpm_version}\"
 
-            if grep -q 'CentOS Linux 7' /etc/os-release; then
-                # disable fastestmirror plugin, which mostly fails due to CentOS 7 being EOL
-                sudo sed -i 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/fastestmirror.conf
-
-                sudo sed -i -e 's/^\(mirrorlist\)/#\1/g' /etc/yum.repos.d/CentOS-Base.repo
-                sudo sed -i -e 's|^#baseurl.*|baseurl=http://vault.centos.org/centos/\$releasever/os/\$basearch/|g' /etc/yum.repos.d/CentOS-Base.repo
-            fi
-
             sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
 
             # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
@@ -134,7 +124,7 @@ build() {
               sleep 1
             done
 
-            sudo yum-builddep --randomwait=1 -y SOURCES/${spec_name}.spec
+            sudo yum-builddep -y SOURCES/${spec_name}.spec
 
             spectool -C SOURCES -g SOURCES/${spec_name}.spec
             rpmbuild  --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \

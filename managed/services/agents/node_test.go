@@ -20,8 +20,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -42,7 +42,7 @@ func TestAuthWebConfig(t *testing.T) {
 		actual, err := nodeExporterConfig(node, exporter, agentVersion)
 		require.NoError(t, err, "Unable to build node exporter config")
 
-		expected := &agentpb.SetStateRequest_AgentProcess{
+		expected := &agentv1.SetStateRequest_AgentProcess{
 			Env: []string{
 				"HTTP_AUTH=pmm:agent-id",
 			},
@@ -66,7 +66,7 @@ func TestAuthWebConfig(t *testing.T) {
 		actual, err := nodeExporterConfig(node, exporter, agentVersion)
 		require.NoError(t, err, "Unable to build node exporter config")
 
-		expected := &agentpb.SetStateRequest_AgentProcess{
+		expected := &agentv1.SetStateRequest_AgentProcess{
 			Env: []string(nil),
 			TextFiles: map[string]string{
 				"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
@@ -75,6 +75,32 @@ func TestAuthWebConfig(t *testing.T) {
 
 		require.Equal(t, expected.Env, actual.Env)
 		require.Equal(t, expected.TextFiles, actual.TextFiles)
+		require.Contains(t, actual.Args, "--web.config={{ .TextFiles.webConfigPlaceholder }}")
+	})
+
+	t.Run("v3.0.0", func(t *testing.T) {
+		t.Parallel()
+
+		node := &models.Node{}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+		}
+		agentVersion := version.MustParse("3.0.0")
+
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
+		expected := &agentv1.SetStateRequest_AgentProcess{
+			Env: []string(nil),
+			TextFiles: map[string]string{
+				"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
+			},
+		}
+
+		require.Equal(t, expected.Env, actual.Env)
+		require.Equal(t, expected.TextFiles, actual.TextFiles)
+		require.Contains(t, actual.Args, "--web.config.file={{ .TextFiles.webConfigPlaceholder }}")
 	})
 }
 
@@ -96,8 +122,8 @@ func TestNodeExporterConfig(t *testing.T) {
 		actual, err := nodeExporterConfig(node, exporter, agentVersion)
 		require.NoError(t, err, "Unable to build node exporter config")
 
-		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_NODE_EXPORTER,
+		expected := &agentv1.SetStateRequest_AgentProcess{
+			Type:               inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -189,8 +215,8 @@ func TestNodeExporterConfig(t *testing.T) {
 		actual, err := nodeExporterConfig(node, exporter, agentVersion)
 		require.NoError(t, err, "Unable to build node exporter config")
 
-		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_NODE_EXPORTER,
+		expected := &agentv1.SetStateRequest_AgentProcess{
+			Type:               inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -273,8 +299,8 @@ func TestNodeExporterConfig(t *testing.T) {
 		actual, err := nodeExporterConfig(node, exporter, agentVersion)
 		require.NoError(t, err, "Unable to build node exporter config")
 
-		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_NODE_EXPORTER,
+		expected := &agentv1.SetStateRequest_AgentProcess{
+			Type:               inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{

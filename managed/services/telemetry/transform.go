@@ -18,13 +18,13 @@ package telemetry
 import (
 	"encoding/json"
 
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/pkg/errors"
 )
 
 type itemsType []map[string]any
 
-func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*pmmv1.ServerMetric_Metric, error) {
+func transformToJSON(config *Config, metrics []*telemetryv1.GenericReport_Metric) ([]*telemetryv1.GenericReport_Metric, error) {
 	if len(metrics) == 0 {
 		return metrics, nil
 	}
@@ -78,7 +78,7 @@ func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*p
 		return nil, err
 	}
 
-	return []*pmmv1.ServerMetric_Metric{
+	return []*telemetryv1.GenericReport_Metric{
 		{
 			Key:   config.Transform.Metric,
 			Value: string(resultAsJSON),
@@ -86,7 +86,7 @@ func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*p
 	}, nil
 }
 
-func transformExportValues(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*pmmv1.ServerMetric_Metric, error) {
+func transformExportValues(config *Config, metrics []*telemetryv1.GenericReport_Metric) ([]*telemetryv1.GenericReport_Metric, error) {
 	if len(metrics) == 0 {
 		return metrics, nil
 	}
@@ -107,8 +107,8 @@ func transformExportValues(config *Config, metrics []*pmmv1.ServerMetric_Metric)
 	return metrics, nil
 }
 
-func removeEmpty(metrics []*pmmv1.ServerMetric_Metric) []*pmmv1.ServerMetric_Metric {
-	result := make([]*pmmv1.ServerMetric_Metric, 0, len(metrics))
+func removeEmpty(metrics []*telemetryv1.GenericReport_Metric) []*telemetryv1.GenericReport_Metric {
+	result := make([]*telemetryv1.GenericReport_Metric, 0, len(metrics))
 
 	for _, metric := range metrics {
 		if metric.Value != "" {

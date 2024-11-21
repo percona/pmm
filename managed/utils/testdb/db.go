@@ -70,7 +70,8 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 // Please use Open method to recreate DB for each test if you don't need to control migrations.
 func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, migrationVersion *int) {
 	tb.Helper()
-	_, err := models.SetupDB(context.TODO(), db, models.SetupDBParams{
+	ctx := context.TODO()
+	params := models.SetupDBParams{
 		// Uncomment to see all setup queries:
 		// Logf: tb.Logf,
 		Address:          models.DefaultPostgreSQLAddr,
@@ -79,7 +80,9 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, 
 		Password:         password,
 		SetupFixtures:    setupFixtures,
 		MigrationVersion: migrationVersion,
-	})
+	}
+
+	_, err := models.SetupDB(ctx, db, params)
 	require.NoError(tb, err)
 }
 

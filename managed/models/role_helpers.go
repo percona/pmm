@@ -199,7 +199,7 @@ func ChangeDefaultRole(tx *reform.TX, roleID int) error {
 	}
 
 	var p ChangeSettingsParams
-	p.DefaultRoleID = roleID
+	p.DefaultRoleID = &roleID
 
 	_, err := UpdateSettings(tx, &p)
 

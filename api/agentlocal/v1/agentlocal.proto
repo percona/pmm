@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package agentlocal.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+import "inventory/v1/agent_status.proto";
+import "inventory/v1/agents.proto";
+
+// ServerInfo contains information about the PMM Server.
+message ServerInfo {
+  // PMM Server URL in a form https://HOST:PORT/.
+  string url = 1;
+  // PMM Server's TLS certificate validation should be skipped if true.
+  bool insecure_tls = 2;
+  // True if pmm-agent is currently connected to the server.
+  bool connected = 3;
+  // PMM Server version (if agent is connected).
+  string version = 4;
+  // Ping time from pmm-agent to pmm-managed (if agent is connected).
+  google.protobuf.Duration latency = 5;
+  // Clock drift from PMM Server (if agent is connected).
+  google.protobuf.Duration clock_drift = 6;
+}
+
+// AgentInfo contains information about Agent managed by pmm-agent.
+message AgentInfo {
+  string agent_id = 1;
+  inventory.v1.AgentType agent_type = 2;
+  inventory.v1.AgentStatus status = 3;
+  // The current listen port of this Agent (exporter or vmagent).
+  // Zero for other Agent types, or if unknown or not yet supported.
+  uint32 listen_port = 4;
+  string process_exec_path = 5;
+}
+
+message StatusRequest {
+  // Returns network info (latency and clock_drift) if true.
+  bool get_network_info = 1;
+}
+
+message StatusResponse {
+  string agent_id = 1;
+  string runs_on_node_id = 2; //TODO: rename to node_id
+  string node_name = 3;
+  ServerInfo server_info = 4;
+  repeated AgentInfo agents_info = 5;
+  // Config file path if pmm-agent was started with one.
+  string config_filepath = 6;
+  // PMM Agent version.
+  string agent_version = 7;
+  // Shows connection uptime in percentage between agent and server
+  float connection_uptime = 8;
+}
+
+message ReloadRequest {}
+
+// ReloadRequest may not be received by the client due to pmm-agent restart.
+message ReloadResponse {}
+
+// AgentLocal service provides public methods for checking pmm-agent status locally.
+service AgentLocalService {
+  // Status returns current pmm-agent status.
+  rpc Status(StatusRequest) returns (StatusResponse) {
+    option (google.api.http) = {
+      post: "/local/Status"
+      body: "*"
+      additional_bindings: {get: "/local/Status"}
+    };
+  }
+  // Reload reloads pmm-agent configuration.
+  rpc Reload(ReloadRequest) returns (ReloadResponse) {
+    option (google.api.http) = {
+      post: "/local/Reload"
+      body: "*"
+    };
+  }
+}

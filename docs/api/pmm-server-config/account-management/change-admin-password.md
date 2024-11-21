@@ -1,8 +1,8 @@
 ---
 title: Change the administrator's password
 slug: change-admin-password
-category: 626bd6a45c6ea70129427eff
-parentDoc: 626be9a93ab1240284d0d27d
+categorySlug: pmm-server-maintenance
+parentDocSlug: pmm-server-user-accounts
 order: 0
 ---
 

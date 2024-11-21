@@ -1,48 +1,48 @@
 ---
 title: Add a Node
 slug: addnode
-category: 626de009b977e3003179f7dd
+categorySlug: inventory-api
 ---
 
 ## Add a Node
 
-This section describes how to add a Node of any type to the inventory.
+This section describes how to add a Node of any type to PMM Inventory.
 
-In PMM versions prior to 2.40.0, we featured a separate API call for each Node type. Starting with PMM 2.40.0, we have a single API call for all Node types. The API call is `Add` and the Node type is specified in the `node_type` field. The `node_type` field is required. Along with this single API endpoint, we are deprecating the separate API calls for each Node type.
+In PMM version 2, we featured a separate API call for each Node type. Starting with PMM 3.0.0, we have streamlined the process by offering a single API endpoint for all Node types. 
 
-Let's see how to add a Node of type `GENERIC_NODE` using the old and new API calls.
+Previously, the Node type was defined by the endpoint, i.e. `Nodes/AddGeneric`. In the new approach, the Node type must be specified as the top-level property of the request payload. As part of this single API endpoint update, we have deprecated individual API endpoint for each Node type.
 
-Old API call:
+Here's how to add a Node of type `generic` using the old and new API calls.
 
+**Old API call**
+  
 ```shell
 curl --insecure -X POST \
-  -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
-	-H 'Accept: application/json' \
-	-H 'Content-Type: application/json' \
-	--url https://127.0.0.1/v1/inventory/Nodes/AddGeneric \
-	--data '
+     --header 'Authorization: Bearer XXXXX' \
+     --header 'Content-Type: application/json' \
+     --url https://127.0.0.1/v1/inventory/Nodes/AddGeneric \
+     --data '
 {
   "node_name": "mysql-sales-db-prod-1",
   "region": "us-east-1",
   "az": "us-east-1a",
   "address":  "209.0.25.100",
+  "environment": "sales-prod",
   "custom_labels": {
-    "environment": "sales-prod",
     "department":  "sales"
   }
 }
 '
 ```
 
-New API call:
+**New API call**
 
 ```shell
 curl --insecure -X POST \
-  -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
-	-H 'Accept: application/json' \
-	-H 'Content-Type: application/json' \
-	--url https://127.0.0.1/v1/inventory/Nodes/Add \
-	--data '
+     --header 'Authorization: Bearer XXXXX' \
+     --header 'Content-Type: application/json' \
+     --url https://127.0.0.1/v1/inventory/nodes \
+     --data '
 {
   "generic": {
     "node_name": "mysql-sales-db-prod-1",
@@ -58,12 +58,12 @@ curl --insecure -X POST \
 '
 ```
 
-To get the authentication token, please visit [this page](ref:authentication).
-
 You can choose from the following Node types:
 
-- GENERIC_NODE: `generic`
-- CONTAINER_NODE: `container`
-- REMOTE_NODE: `remote`
-- REMOTE_RDS_NODE: `remote_rds`
-- REMOTE_AZURE_DATABASE_NODE: `remote_azure`
+- generic
+- container
+- remote
+- remote_rds
+- remote_azure
+
+To get the authentication token, check [Authentication](ref:authentication).

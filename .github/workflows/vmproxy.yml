@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - v3
       - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
@@ -18,6 +19,7 @@ on:
       - "managed/**"
       - "qan-api2/**"
       - "update/**"
+      - "ui/**"
 
 permissions:
   contents: read
@@ -26,8 +28,6 @@ jobs:
   test:
     name: Tests
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
 
     defaults:
       run:

@@ -5,7 +5,7 @@ package management
 import (
 	context "context"
 
-	check "github.com/percona-platform/saas/pkg/check"
+	check "github.com/percona/saas/pkg/check"
 	mock "github.com/stretchr/testify/mock"
 
 	services "github.com/percona/pmm/managed/services"
@@ -178,36 +178,6 @@ func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]string)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetSecurityCheckResults provides a mock function with given fields:
-func (_m *mockChecksService) GetSecurityCheckResults() ([]services.CheckResult, error) {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetSecurityCheckResults")
-	}
-
-	var r0 []services.CheckResult
-	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]services.CheckResult, error)); ok {
-		return rf()
-	}
-	if rf, ok := ret.Get(0).(func() []services.CheckResult); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]services.CheckResult)
 		}
 	}
 
