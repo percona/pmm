@@ -7,6 +7,7 @@ set -o xtrace
 # 1st-party
 ${bin_dir}/build-server-rpm percona-dashboards grafana-dashboards
 ${bin_dir}/build-server-rpm pmm-managed pmm
+${bin_dir}/build-server-rpm pmm-ui pmm
 ${bin_dir}/build-server-rpm percona-qan-api2 pmm
 ${bin_dir}/build-server-rpm pmm-update pmm
 ${bin_dir}/build-server-rpm pmm-dump

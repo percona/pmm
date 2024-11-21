@@ -11,6 +11,7 @@ main() {
   echo -----------------------------------------
 
   local DOCKER_CONTEXT_DIR="${bin_dir}/../docker/client"
+  local BUILD_DATE=$(date -u +'%F %T%z' | sed 's@^.\{22\}@&:@')
   cp ${build_dir}/tarball/pmm-client-*.tar.gz ${DOCKER_CONTEXT_DIR}/pmm-client.tar.gz
 
   if [ -z "${DOCKER_CLIENT_TAG}" ]; then
@@ -20,7 +21,7 @@ main() {
   CLIENT_IMAGE_VERSION=`echo $DOCKER_CLIENT_TAG | cut -d ':' -f2`
 
   docker buildx build \
-    --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
+    --build-arg BUILD_DATE="$BUILD_DATE" \
     --build-arg VERSION="$CLIENT_IMAGE_VERSION" \
     --progress plain \
     -f ${DOCKER_CONTEXT_DIR}/${docker_file} \
