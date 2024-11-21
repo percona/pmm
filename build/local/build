@@ -70,8 +70,8 @@ parse_params() {
 				NO_CLIENT_DOCKER=0
 				;;
 			--no-client-docker)
-				if [ "$NO_CLIENT_DOCKER" -eq 1 ]; then
-					echo "Error. Mutually exclusive options: --client-docker and --no-client-docker"
+				if [ "$NO_CLIENT" -eq 1 ]; then
+					echo "Error. Mutually exclusive options: --client-docker and --no-client"
 					exit 1
 				fi
 				NO_CLIENT_DOCKER=1
