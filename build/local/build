@@ -427,6 +427,7 @@ main() {
 		# 1st-party components
 		run_build_script build-server-rpm percona-dashboards grafana-dashboards
 		run_build_script build-server-rpm pmm-managed pmm
+		run_build_script build-server-rpm pmm-ui pmm
 		run_build_script build-server-rpm percona-qan-api2 pmm
 		run_build_script build-server-rpm pmm-update pmm
 		run_build_script build-server-rpm pmm-dump

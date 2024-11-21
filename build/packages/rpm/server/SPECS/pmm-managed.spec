@@ -5,7 +5,7 @@
 %global provider        github.com/percona/%{repo}
 %global commit          8f3d007617941033867aea6a134c48b39142427f
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
-%define release         21
+%define release         22
 %define rpm_release     %{release}.%{shortcommit}%{?dist}
 
 # the line below is sed'ed by build/bin/build-server-rpm to set a correct version
@@ -14,7 +14,7 @@
 Name:     pmm-managed
 Version:  %{version}
 Release:  %{rpm_release}
-Summary:  Percona Monitoring and Management management daemon
+Summary:  Percona Monitoring and Management daemon
 
 License:  AGPLv3
 URL:      https://%{provider}
@@ -35,20 +35,17 @@ export PMM_RELEASE_FULLCOMMIT=%{commit}
 export PMM_RELEASE_BRANCH=""
 
 make -C managed release
-make -C ui release
 
 %install
 install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_datadir}/%{name}
-install -d -p %{buildroot}%{_datadir}/pmm-ui
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation %{buildroot}%{_sbindir}/pmm-encryption-rotation
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
 install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-starlark
 
 cp -pa api/swagger %{buildroot}%{_datadir}/%{name}
-cp -pa ui/dist/. %{buildroot}%{_datadir}/pmm-ui
 
 %files
 %license managed/LICENSE
@@ -58,9 +55,11 @@ cp -pa ui/dist/. %{buildroot}%{_datadir}/pmm-ui
 %{_sbindir}/pmm-managed-init
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
-%{_datadir}/pmm-ui
 
 %changelog
+* Wed Nov 20 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-22
+- PMM-13487 Split pmm-managed and pmm-ui rpm specifications
+
 * Mon Sep 23 2024 Jiri Ctvrtka <jiri.ctvrtka@ext.percona.com> - 3.0.0-1
 - PMM-13132 add PMM encryption rotation tool
 
