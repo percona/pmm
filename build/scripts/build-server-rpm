@@ -76,7 +76,7 @@ prepare_spec() {
   fi
 
   if [ "${spec_name}" = "pmm-ui" ]; then
-    local hash=$(get_shasum256 "ui")
+    local hash=$(get_shasum256 "${git_dir}/ui")
     sed -i -e "s/global commit.*/global commit ${hash:0:7}/" ${spec_file}
   else
     sed -i -e "s/global commit.*/global commit ${full_commit}/" ${spec_file}
