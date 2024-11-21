@@ -1,4 +1,4 @@
-# Limit Access to the instance
+# Limit Access to an AWS instance
 
 In the **Security Group** section, which acts like a firewall, you may use the preselected option `Create new based on seller settings` to create a security group with recommended settings. In the **Key Pair** select an already set up EC2 key pair to limit access to your instance.
 
