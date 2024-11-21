@@ -1,3 +1,4 @@
+%global _missing_build_ids_terminate_build 0
 %define debug_package %{nil}
 
 Name:           pmm-client

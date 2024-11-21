@@ -1,4 +1,4 @@
-%undefine _missing_build_ids_terminate_build
+%global _missing_build_ids_terminate_build 0
 %global _dwz_low_mem_die_limit 0
 
 %global repo            pmm

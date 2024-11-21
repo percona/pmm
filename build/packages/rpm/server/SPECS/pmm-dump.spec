@@ -1,4 +1,4 @@
-%undefine _missing_build_ids_terminate_build
+%global _missing_build_ids_terminate_build 0
 
 %global repo            pmm-dump
 %global provider        github.com/percona/%{repo}
