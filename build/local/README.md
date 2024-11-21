@@ -17,7 +17,7 @@ The build process is designed to run on Linux or MacOS. We believe it could be a
 
 Below is a list of prerequisites that are required to build PMM locally.
 
-- OS: Linux (tested on Oracle Linux 9.3, CentOS 7, Ubuntu 22.04.3 LTS), MacOS (tested on Sequoia 15.1)
+- OS: Linux (tested on Oracle Linux 9.3, Ubuntu 22.04.3 LTS), MacOS (tested on Sequoia 15.1)
 - Docker: 25.0.2+
 - Docker buildx plugin: 0.16.0+, https://github.com/docker/buildx
 - make
@@ -27,6 +27,7 @@ Below is a list of prerequisites that are required to build PMM locally.
 - curl
 - jq: 1.6+
 
+Please note, that building some of the PMM internals, such as Grafana, requires at least 8GB of memory available to docker. The number of CPUs, however, does not matter that much.
 
 ## How to use this script to build PMM
 

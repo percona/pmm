@@ -92,6 +92,7 @@
       - percona-qan-api2
       - percona-dashboards
       - pmm-managed
+      - pmm-ui
       - pmm-update
       - pmm-dump
       - vmproxy
