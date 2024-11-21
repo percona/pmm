@@ -336,7 +336,10 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 		_, latest, err := s.updater.latest(ctx)
 		if err != nil {
 			s.l.WithError(err).Error("Failed to get latest version")
-			newImage = defaultLatestPMMImage
+			return nil, status.Error(codes.Unavailable, "Failed to get latest version")
+		} else if latest == nil {
+			s.l.Info("No new version to update to.")
+			return nil, status.Error(codes.FailedPrecondition, "No new version to update to.")
 		} else {
 			newImage = latest.DockerImage
 		}

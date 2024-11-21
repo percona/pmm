@@ -20,6 +20,9 @@ on:
       - "vmproxy/**"
       - "ui/**"
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build
@@ -42,7 +45,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Docker Up
         run: docker compose up -d
@@ -63,7 +66,7 @@ jobs:
         run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm/update run-race-cover RUN_FLAGS='-debug -check'
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@5c47607acb93fed5485fdbf7232e8a31425f672a # v5.0.2
         with:
           file: cover.out
           flags: update

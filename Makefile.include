@@ -14,7 +14,7 @@ init:                 ## Install tools
 	cd tools && go generate -x -tags=tools
 
 	# Install golangci-lint
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.55.2 # Version should match specified in CI
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.62.0 # Version should match specified in CI
 
 release:              ## Build release versions of all components
 	make -C agent release
