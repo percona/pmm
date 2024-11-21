@@ -169,7 +169,7 @@ build() {
     done
 
     # Only these two specs have build dependencies
-    if [[ ${spec_name} =~ ^grafana$|^percona-dashboards$ ]]; then
+    if [[ ${spec_name} =~ ^grafana$ ]]; then
       sleep 2s
       sudo yum-builddep -y SOURCES/${spec_name}.spec
     fi

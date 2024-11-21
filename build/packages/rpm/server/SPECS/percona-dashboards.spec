@@ -17,9 +17,6 @@ License:  AGPLv3
 URL:      https://%{provider}
 Source0:  https://%{provider}/archive/%{commit}.tar.gz
 
-BuildRequires:	nodejs
-Requires:	percona-grafana
-
 %description
 This is a set of Grafana dashboards for database and system monitoring
 using VictoriaMetrics datasource.
