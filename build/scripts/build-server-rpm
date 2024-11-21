@@ -75,7 +75,13 @@ prepare_spec() {
     exit 1
   fi
 
-  sed -i -e "s/global commit.*/global commit ${full_commit}/" ${spec_file}
+  if [ "${spec_name}" = "pmm-ui" ]; then
+    local hash=$(get_shasum256 "ui")
+    sed -i -e "s/global commit.*/global commit ${hash:0:7}/" ${spec_file}
+  else
+    sed -i -e "s/global commit.*/global commit ${full_commit}/" ${spec_file}
+  fi
+
   if [ "${spec_name}" != "grafana" ]; then
     sed -i -e "s/Version:.*/Version: ${pmm_version}/" ${spec_file}
   fi
@@ -92,12 +98,12 @@ prepare_spec() {
   fi
 
   if [ "${spec_name}" != "victorimetrics" ]; then
-    # Substitute the https source with the one on the filesystem
+    # Substitute the https source by pointing to the repo on the filesystem
     sed -i -e "s;\(Source0:[[:space:]]*\)http.*;\1${tar_archive};" ${spec_file}
   fi
 
   if [ -f "${tar_archive}" ]; then
-    echo "${tar_archive}" already exists, skip archiving...
+    echo "Info: ${tar_archive} already exists, skip archiving..."
     return
   fi
 
@@ -190,7 +196,7 @@ build() {
   fi
 
   if ! command -v aws &> /dev/null; then
-    echo "AWS CLI is not installed, skipping upload to S3..."
+    echo "Skipping upload to S3..."
     echo
     echo "Finished building Server RPMs, spec_name: ${spec_name}.spec, repo_name: ${repo_name}"
     echo

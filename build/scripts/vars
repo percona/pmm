@@ -2,7 +2,8 @@
 # directory needs to have them available in its scope to function properly.
 
 bin_dir=$(cd $(dirname $0); pwd -P)
-# Note: `ROOT_DIR` can be passed as ${WORKSPACE} from Jenkins or ${PWD} from GH actions
+# Note: `ROOT_DIR` can be passed as ${WORKSPACE} from Jenkins or ${PWD} from GH actions.
+# It points to the root of [pmm-submodules](https://github.com/percona-lab/pmm-submodules).
 root_dir=${ROOT_DIR:-$(cd $(dirname $0)/../../../../../../../..; pwd -P)}
 build_dir=${root_dir}/build
 
@@ -49,7 +50,7 @@ fi
 rpms_dir=${build_dir}/pmm-server/RPMS
 rpmbuild_dir=${build_dir}/pmm-server/BUILD
 rpmspec_dir=${root_dir}/$(git -C ${root_dir} config -f .gitmodules submodule.pmm.path)/build/packages/rpm/server/SPECS
-rpmbuild_dist=${RPMBUILD_DIST:-"el9"}
+rpmbuild_dist=${RPMBUILD_DIST:-el9}
 source_dir=${build_dir}/source/pmm-client-${pmm_version}
 binary_dir=${build_dir}/binary/pmm-client-${pmm_version}
 client_properties=${build_dir}/pmm-client.properties
@@ -63,3 +64,13 @@ binary_tarball=${build_dir}/tarball/pmm-client-${pmm_version}.tar.gz
 vmagent_commit_hash=58ecb9066574f38f1d1c91ace467316e7f175b09
 # https://github.com/hashicorp/nomad/releases/tag/v1.9.3
 nomad_commit_hash=d92bf1014886c0ff9f882f4a2691d5ae8ad8131c
+
+get_shasum256() {
+  local DIR=${1:-}
+  if [ ! -d "$DIR" ]; then
+    echo -e "Error: directory '$1' does not exist, exiting..."
+    exit 1
+  fi
+
+  find "$DIR" -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d " " -f1 | cut -c 1-8
+}
