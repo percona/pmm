@@ -1,6 +1,6 @@
 # Upgrade PMM Server on AWS
 
-## Change Public IP address
+## Change public IP address
 
 To assign a public IP address for an Amazon EC2 instance, follow these steps:
 {.power-number}

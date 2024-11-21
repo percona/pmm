@@ -21,7 +21,7 @@ pmm-admin add proxysql --username=pmm --password=pmm
 
 ```text
 ProxySQL Service added.
-Service ID  : /service_id/f69df379-6584-4db5-a896-f35ae8c97573
+Service ID  : f69df379-6584-4db5-a896-f35ae8c97573
 Service name: ubuntu-proxysql
 ```
 

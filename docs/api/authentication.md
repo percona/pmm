@@ -21,6 +21,13 @@ Creating multiple tokens for the same service account is beneficial in the follo
 - when a token becomes compromised and needs to be replaced. Instead of revoking the entire service account, you can rotate or replace the affected token without disrupting other applications using the same service account.
 - when you want to implement token lifecycle management. You can set expiration dates for individual tokens, ensuring that they are regularly rotated and reducing the risk of unauthorized access.
 
+## Service Account name management
+
+To prevent node registration failures, PMM automatically manages service account names that exceed 200 characters using a `{prefix}_{hash}` pattern. For example, a very long service account name will be automatically shortened while maintaining uniqueness:
+
+- **original**: `very_long_mysql_database_server_in_production_environment_with_specific_location_details...`
+- **shortened**: `very_long_mysql_database_server_in_prod_4a7b3f9d`
+
 ## Generate a service account and token
 
 PMM uses Grafana service account tokens for authentication. These tokens are randomly generated strings that serve as alternatives to API keys or basic authentication passwords.

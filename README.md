@@ -20,9 +20,11 @@ We use [MkDocs] to convert [Markdown] files into a static HTML website (or [PDF]
 
 The documentation source files are in the `docs` directory. (Other files in this repo are explained in [Directories and files](#directories-and-files).)
 
-The two major PMM versions are kept in separate branches:
+The three major PMM versions are kept in separate branches:
 
-- `main` is for PMM 2.x (latest)
+- `PMM3-branch` is for PMM 3.x (latest)
+
+- `main` is for PMM 2.x 
 
 - `1.x` is for PMM 1.x
 
@@ -159,7 +161,7 @@ View the site at <http://0.0.0.0:8000>
 
 ## Version switching
 
-We use [mike] to build different versions of the documentation. Currently, only two are built, the latest PMM 1 and PMM 2 versions.
+We use [mike] to build different versions of the documentation. Currently, only two are built, the latest PMM 2 and PMM 3 versions.
 
 A [GitHub actions] workflow runs `mike` which in turn runs `mkdocs`. The HTML is committed and pushed to the `publish` branch. The whole branch is then copied (by an internal Percona Jenkins job) to our web server.
 

@@ -7,7 +7,7 @@ How to set up PMM to monitor a [MongoDB] or [Percona Server for MongoDB] databas
 Check that:
 
 - [PMM Server is installed](../../install-pmm-server/index.md) and running with a known IP address or hostname accessible from the client node.
-- [PMM Client is installed](../../install-pmm-client/index.md) and the [node is registered with PMM Server](../../register-client-node/index.md).
+- [PMM Client is installed](../../install-pmm-client/index.md) and the [nodes are registered with PMM Server](../../register-client-node/index.md).
 - You have superuser (root) access on the client host.
 - You have `adminUserAnyDatabase` or superuser role privilege to any database servers that you want to monitor.
 - Your MongoDB server is version 4.0 or higher.
@@ -176,13 +176,11 @@ When you have configured your database server, you can add a MongoDB service wit
 To add a service with the UI:
 {.power-number}
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
+1. Select **PMM Configuration > Add Service > MongoDB**.
 
-2. Select *MongoDB -- Add a remote instance*.
+2. Enter or select values for the fields.
 
-3. Enter or select values for the fields.
-
-4. Click *Add service*.
+3. Click **Add service**.
 
 ![!](../../../_images/PMM_Add_Instance_MongoDB.jpg)
 
@@ -240,21 +238,18 @@ where:
 - `AUTHENTICATION-MECHANISM`: Authentication mechanism. Default is empty. Use `MONGODB-X509` for SSL certificates.
 - `AUTHENTICATION-DATABASE`: Authentication database. Default is empty. Use `$external` for SSL certificates.
 
-
 ## Check the service
 
-### With the user interface
+### From the user interface
 
-To check the servie with the UI:
+To check the servie from the UI:
 {.power-number}
 
-1. Select <i class="uil uil-cog"></i> **Configuration** → {{icon.inventory}} **Inventory**.
+1. Select  **PMM Configuration > Inventory > MongoDB**.
 
-2. Select **MongoDB -- Add a remote instance**.
+2. Enter or select values for the fields.
 
-3. Enter or select values for the fields.
-
-4. Click **Add service**.
+3. Click **Add service**.
 
 ![!](../../../_images/PMM_Add_Instance_MongoDB_TLS.jpg)
 
@@ -291,7 +286,7 @@ To see the query analytics for the service:
 To remove the service from the UI:
 {.power-number}
 
-1. Select <i class="uil uil-cog"></i> **Configuration** → {{icon.inventory}} **Inventory**.
+1. Select **PMM Configuration > Inventory**.
 2. In the **Services** tab, verify the **Service name**, **Addresses**, and any other relevant values used when adding the service.
 3. In the **Options** column, expand the **Details** section and check that the Agents are using the desired data source.
 4. If your MongoDB instance is configured to use TLS, click on the **Use TLS for database connection** check box and fill in TLS certificates and keys.

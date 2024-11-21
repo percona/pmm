@@ -22,7 +22,7 @@ PMM Client collects metrics from [MySQL][ORACLE_MYSQL], [Percona Server for MySQ
 Check that:
 
 - [PMM Server is installed](../../install-pmm-server/index.md) and running with a known IP address accessible from the client node.
-- [PMM Client is installed](../../install-pmm-client/index.md) and the [node is registered with PMM Server](../../register-client-node/index.md).
+- [PMM Client is installed](../../install-pmm-client/index.md) and the [nodes are registered with PMM Server](../../register-client-node/index.md).
 - You have superuser (root) access on the client host.
 
 ## Create a database account for PMM
@@ -348,13 +348,23 @@ There are two ways to install  PMM Client  for monitoring your MySQL database:
 Add the MySQL server as a service using one of the following example commands. 
 Upon successful addition, PMM Client will display "MySQL Service added" along with the service's ID and name. 
 
-Use `--environment` and `--custom-labels` options to set identifying tags for the service.
+1. Select **PMM Configuration > PMM Inventory > Add Service > MySQL**.
 
-```sh
-pmm-admin add mysql --username=pmm --password=<your_password> MYSQL_SERVICE_NAME
-```
+2. Enter or select values for the fields.
 
-### Example configurations
+3. Click **Add service**.
+
+![!](../../../_images/PMM_Add_Instance_MySQL.jpg)
+
+If your MySQL instance is configured to use TLS, click on the *Use TLS for database connections* check box and fill in your TLS certificates and key.
+
+![!](../../../_images/PMM_Add_Instance_MySQL_TLS.jpg)
+
+### On the command line
+
+Add the database server as a service using one of these example commands. If successful, PMM Client will print `MySQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.
+
+??? info "Examples"
 
 #### TLS connection
 
@@ -390,8 +400,7 @@ If your MySQL instance is configured to use TLS:
 To check the service with the UI:
 {.power-number}
 
-
-1. Select <i class="uil uil-cog"></i> **PMM Configuration > PMM Inventory**.
+1. Select **PMM Configuration > PMM Inventory**.
 2. In the **Services** tab, verify the **Service name**, **Addresses**, and any other relevant information in the form.
 3. In the **Options** column, expand the **Details** section and check that the Agents are using the desired data source.
 

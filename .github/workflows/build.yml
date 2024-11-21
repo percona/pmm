@@ -1,4 +1,4 @@
-name: Build PMM Docs 2.x
+name: Build PMM Docs 3.x
 
 on:
   push:
@@ -43,6 +43,6 @@ jobs:
       # Builds Material-themed static web site in 'preview' branch
       - name: Build a themed site (2.x)
         run: |
-          PATH=$PATH:_resources/bin mike deploy 2.x -b preview
-          mike set-default 2.x -b preview
-          mike retitle 2.x "PMM 2.x (LATEST)" -b preview
+          PATH=$PATH:_resources/bin mike deploy 3.x -b preview
+          mike set-default 3.x -b preview
+          mike retitle 3.x "PMM 3.x (LATEST)" -b preview

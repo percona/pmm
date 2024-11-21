@@ -33,9 +33,6 @@ Also, ensure that the Kubernetes cluster has [high availability](https://kuberne
 
 ## Install PMM Server
 
-!!! note alert alert-primary "Availability"
-    This feature is available starting with PMM 2.29.0.
-
 ??? info "Summary"
 
     !!! summary alert alert-info ""

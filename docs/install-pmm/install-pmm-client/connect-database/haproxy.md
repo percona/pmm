@@ -27,7 +27,7 @@ The output of this command should look as follows:
 
 ```txt
 HAProxy Service added.
-Service ID  : /service_id/c481183f-70a2-443f-91e5-cae5cecd06a2
+Service ID  : c481183f-70a2-443f-91e5-cae5cecd06a2
 Service name: Ubuntu-haproxy
 ```
 
@@ -48,8 +48,8 @@ pmm-admin add haproxy --listen-port=8404 --metrics-path=/prom-metrics --scheme=h
 
 Here you can check list of all available flags: [pmm-admin](../../../use/commands/pmm-admin.md).
 
-You can also add HAProxy by UI in Grafana: Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} **PMM Inventory** → {{icon.addinstance}} **Add Instance**.
+You can also add HAProxy by UI: Select  **PMM Configuration > PMM Inventory > Add Instance**.
 
 HAProxy data is visible in the **Advanced Data Exploration** dashboard:
 
-![!](../../../../_images/PMM_Advanced_Data_Exploration_HAProxy.png)
+![!](../../..//_images/PMM_Advanced_Data_Exploration_HAProxy.png)

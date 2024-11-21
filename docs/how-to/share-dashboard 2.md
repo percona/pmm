@@ -18,41 +18,32 @@ When you need to share a dashboard with your team members, you can either send t
 Rendering images requires the Image Renderer plug-in. If your PMM Admin has not installed this for your PMM instance, you will see the following error message under **Share Panel > Link**.
 ![!image](../_images/No_Image_Render_Plugin.png)
 
-To install the dependencies:
+To enable image rendering:
 
-1. Connect to your PMM Server Docker container.
+1. Deploy the Grafana Image Renderer container alongside PMM Server:
 
-    ```sh
-    docker exec -it pmm-server bash
-    ```
+   ```sh
+   docker run -d --name renderer --network=pmm-network grafana/grafana-image-renderer:latest
+   ```
 
-2. Install Grafana plug-ins.
+2. Stop your existing PMM Server container:
 
-    ```sh
-    grafana-cli plugins install grafana-image-renderer
-    ```
+   ```sh 
+   docker stop pmm-server
+   docker rm pmm-server
+   ```
 
-3. Restart Grafana.
+3. Start a new PMM Server container with the required environment variables:
 
-    ```sh
-    supervisorctl restart grafana
-    ```
-
-4. Install libraries.
-
-    ```sh
-    yum install -y libXcomposite libXdamage libXtst cups libXScrnSaver pango \
-    atk adwaita-cursor-theme adwaita-icon-theme at at-spi2-atk at-spi2-core \
-    cairo-gobject colord-libs dconf desktop-file-utils ed emacs-filesystem \
-    gdk-pixbuf2 glib-networking gnutls gsettings-desktop-schemas \
-    gtk-update-icon-cache gtk3 hicolor-icon-theme jasper-libs json-glib \
-    libappindicator-gtk3 libdbusmenu libdbusmenu-gtk3 libepoxy \
-    liberation-fonts liberation-narrow-fonts liberation-sans-fonts \
-    liberation-serif-fonts libgusb libindicator-gtk3 libmodman libproxy \
-    libsoup libwayland-cursor libwayland-egl libxkbcommon m4 mailx nettle \
-    patch psmisc redhat-lsb-core redhat-lsb-submod-security rest spax time \
-    trousers xdg-utils xkeyboard-config alsa-lib
-    ```
+   ```sh
+   docker run -d \
+   --name pmm-server \
+   --network=pmm-network \
+   -p 8443:443 \
+   -e GF_RENDERING_SERVER_URL=http://renderer:8081/render \
+   -e GF_RENDERING_CALLBACK_URL=https://pmm-server:8443/graph/ \
+   percona/pmm-server:latest
+   ```
 
 ## Render Dashboard image
 

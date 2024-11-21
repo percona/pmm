@@ -1,14 +1,10 @@
 # VictoriaMetrics
 
-[VictoriaMetrics](https://victoriametrics.github.io/) is a third-party monitoring solution and time-series database that replaced Prometheus in [PMM 2.12.0](../release-notes/2.12.0.md).
+[VictoriaMetrics](https://victoriametrics.github.io/) is a third-party monitoring solution and time-series database.
 
 ## Push/Pull modes
 
 VictoriaMetrics metrics data can be both 'pushed' to the server and 'pulled' by the server. When setting up services, you can decide which mode to use.
-
-!!! note alert alert-primary ""
-    The 'push' mode is now default for newly-added services.
-    (In PMM 2.12.0 the default mode was 'pull'.)
 
 The mode (push/pull) is controlled by the `--metrics-mode` flag for the `pmm-admin config` and `pmm-admin add` commands.
 
@@ -57,8 +53,7 @@ This instructs VictoriaMetrics to [deduplicate](https://docs.victoriametrics.com
 !!! caution alert alert-warning "Important/Caution"
     This feature is still in [Technical Preview](https://docs.percona.com/percona-monitoring-and-management/details/glossary.html#technical-preview) and is subject to change. We recommend that early adopters use this feature for evaluation purposes only.
 
-
-Starting with PMM 2.40.0, you can now use an external VictoriaMetrics database for monitoring in PMM.
+You can use an external VictoriaMetrics database for monitoring in PMM.
 
 The environment variable `PMM_VM_URL` has been added, which should point to the external VictoriaMetrics database and should have the following format:
 

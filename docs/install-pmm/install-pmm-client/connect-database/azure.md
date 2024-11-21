@@ -8,7 +8,7 @@
 The Microsoft Azure feature is turned off by default. To turn it on:
 {.power-number}
 
-1. Go to <i class="uil uil-cog"></i> **Configuration** → <i class="uil uil-setting"></i> **Settings** → **Advanced Settings**.
+1. Go to  **PMM Configuration > Settings > Advanced Settings**.
 
 2. Click the <i class="uil uil-toggle-off"></i> toggle in the **Technical preview features** section of the page.
 
@@ -142,11 +142,9 @@ You can find more details on how to create DB on Azure at:
 
 ![!](../../../_images/PMM_Add_Instance_Azure_3.png)
 
-In the list of databases on the Discovery page click *Start Monitoring* to add the selected Azure Database to PMM.
+In the list of databases on the Discovery page click **Start Monitoring** to add the selected Azure Database to PMM.
 
-Fill in all required fields and click *Add service*.
-
-![!](../../../_images/PMM_Add_Instance_Azure_4.png)
+Fill in all required fields and click **Add service**.
 
 PMM can use 3 exporters to collect metrics:
 

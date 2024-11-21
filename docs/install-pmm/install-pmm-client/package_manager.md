@@ -7,7 +7,7 @@ On Debian or Red Hat Linux, install `percona-release` and use a Linux package ma
 
     ```sh
     percona-release disable all
-    percona-release enable original release
+    percona-release percona-release enable pmm3-client
     ```
 
 === "Debian-based"
@@ -26,7 +26,7 @@ On Debian or Red Hat Linux, install `percona-release` and use a Linux package ma
         !!! hint "Root permissions"
             ```sh
             apt update
-            apt install -y pmm2-client
+            apt install -y pmm-client
             ```
 
     3. Check.
@@ -48,7 +48,7 @@ On Debian or Red Hat Linux, install `percona-release` and use a Linux package ma
     2. Install the PMM Client package.
 
         ```sh
-        yum install -y pmm2-client
+        yum install -y pmm-client
         ```
 
     3. Check.
@@ -64,7 +64,7 @@ On Debian or Red Hat Linux, install `percona-release` and use a Linux package ma
 To manually download package manager:
 {.power-number}
 
-1. Visit the [Percona Monitoring and Management 2 download](https://www.percona.com/downloads/pmm2/) page.
+1. Visit the [Percona Monitoring and Management 3 download](https://www.percona.com/downloads//) page.
 2. Under *Version:*, select the one you want (usually the latest).
 3. Under *Software:*, select the item matching your software platform.
 4. Click to download the package file:
@@ -89,12 +89,12 @@ To manually download package manager:
 
     Here are the download page links for each supported platform.
 
-    - [Debian 9 (Stretch)](https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/stretch/)
-    - [Debian 10 (Buster)](https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/buster/)
-    - [Debian 11 (Bullseye)](https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/bullseye/)
-    - [Red Hat/CentOS/Oracle 7](https://www.percona.com/downloads/pmm2/{{release}}/binary/redhat/7/)
-    - [Red Hat/CentOS/Oracle 8](https://www.percona.com/downloads/pmm2/{{release}}/binary/redhat/8/)
-    - [Ubuntu 18.04 (Bionic Beaver)](https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/bionic/)
-    - [Ubuntu 20.04 (Focal Fossa)](https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/focal/)
-    - [Ubuntu 22.04 (Jammy Jellyfish)](https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/jammy/)
+    - [Debian 9 (Stretch)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/stretch/)
+    - [Debian 10 (Buster)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/buster/)
+    - [Debian 11 (Bullseye)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/bullseye/)
+    - [Red Hat/CentOS/Oracle 7](https://www.percona.com/downloads/pmm3/{{release}}/binary/redhat/7/)
+    - [Red Hat/CentOS/Oracle 8](https://www.percona.com/downloads/pmm3/{{release}}/binary/redhat/8/)
+    - [Ubuntu 18.04 (Bionic Beaver)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/bionic/)
+    - [Ubuntu 20.04 (Focal Fossa)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/focal/)
+    - [Ubuntu 22.04 (Jammy Jellyfish)](https://www.percona.com/downloads//{{release}}/binary/debian/jammy/)
 

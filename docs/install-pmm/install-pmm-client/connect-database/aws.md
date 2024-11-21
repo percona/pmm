@@ -8,9 +8,9 @@ First of all, ensure that there is the minimal latency between PMM Server and th
 
 Network connectivity can become an issue for VictoriaMetrics to scrape metrics with 1 second resolution.  We strongly suggest that you run PMM Server on AWS (Amazon Web Services) in the same availability zone as Amazon RDS instances.
 
-It is crucial that *enhanced monitoring* be enabled for the Amazon RDS DB instances you intend to monitor.
+It is crucial that **enhanced monitoring** be enabled for the Amazon RDS DB instances you intend to monitor.
 
-Set the *Enable Enhanced Monitoring* option in the settings of your Amazon RDS DB instance.
+Set the **Enable Enhanced Monitoring** option in the settings of your Amazon RDS DB instance.
 
 ![!image](../../../_images/amazon-rds.modify-db-instance.2.png)
 
@@ -160,22 +160,20 @@ This method supports Amazon RDS database instances that use Amazon Aurora, MySQL
 The following steps are needed to add an Amazon RDS database instance to PMM:
 {.power-number}
 
-1. In the PMM web interface, go to <i class="uil uil-cog"></i> **Configuration** → {{icon.inventory}} **PMM Inventory** → {{icon.addinstance}} **Add Instance**.
-
-2. Select **Amazon RDS -- Add a remote instance**.
+1. In the PMM web interface, go to **PMM Configuration > PMM Inventory > Add Instance > Amazon RDS**.
 
     ![!image](../../../_images/PMM_Add_Instance_AWS_RDS.png)
 
-3. Enter the access key ID and the secret access key of your IAM user or leave these fields empty if an IAM role was created.
+2. Enter the access key ID and the secret access key of your IAM user or leave these fields empty if an IAM role was created.
 
-4. Click the **Discover** button for PMM to retrieve the available Amazon RDS
+3. Click the **Discover** button for PMM to retrieve the available Amazon RDS
 instances.
 
     ![!image](../../../_images/PMM_Add_Instance_AWS_RDS_Discover.png)
 
-5. For the instance that you would like to monitor, select the **Start monitoring** button.
+4. For the instance that you would like to monitor, select the **Start monitoring** button.
 
-6. You will see a new page with the number of fields. The list is divided into the following groups: **Main details**, **RDS database**, **Labels**, and **Additional options**. Some already known data, such as already entered **AWS access key**, are filled in automatically, and some fields are optional.
+5. You will see a new page with the number of fields. The list is divided into the following groups: **Main details**, **RDS database**, **Labels**, and **Additional options**. Some already known data, such as already entered **AWS access key**, are filled in automatically, and some fields are optional.
 
     ![!](../../../_images/PMM_Add_Instance_AWS_RDS_Main_Details.png)
 
@@ -197,23 +195,18 @@ instances.
 
     - when adding a MongoDB instance, you will be able to choose using Query Analytics MongoDB profiler.
 
-7. Finally press the **Add service** button to start monitoring your instance.
+6. Finally press the **Add service** button to start monitoring your instance.
 
 ## Adding an Amazon RDS PostgreSQL instance
 
 For PostgreSQL, use the same method described above.
 {.power-number}
 
-1. In the PMM web interface, go to <i class="uil uil-cog"></i> **Configuration** → {{icon.inventory}} **PMM Inventory** → {{icon.addinstance}} **Add Instance**..
-
-2. Select **Amazon RDS -- Add a remote instance**.
-
-    !!! note alert alert-primary ""
-        At the moment of writing this guide, the Add button doesn't mention PostgreSQL but the discovery function already supports it.
+1. In the PMM web interface, go to **PMM Configuration > PMM Inventory > Add Instance > Amazon RDS**.
 
     ![!image](../../../_images/PMM_rds_postgre_02_discover.png)
 
-3. Follow steps 4 to 6 as in the previous section. Fill the form and remember to select `PG Stat Statement` to enable Query Analytics.
+2. Follow steps 4 to 6 as in the previous section. Fill the form and remember to select `PG Stat Statement` to enable Query Analytics.
 
     To get queries for Query Analytics, you need to enable `pg_stat_statements` in `postgres` database of your instance by running:
 

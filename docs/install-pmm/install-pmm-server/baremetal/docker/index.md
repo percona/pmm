@@ -1,21 +1,24 @@
 # Install PMM Server with Docker container
 
-
 This section provides instructions for running PMM Server with Docker based on the [PMM Docker image](https://hub.docker.com/r/percona/pmm-server).
 
 ## Running PMM Server with Watchtower
 
-To enable PMM Server upgrades via the **Upgrade Now** button on the PMM Home dashboard, you need to set up Watchtower alongside PMM Server during installation. Watchtower is a container monitoring tool that updates Docker containers to the latest version when triggered.
+To enable PMM Server upgrades via the **Upgrade page** and the **Upgrade Now** button on the Home dashboard, you must configure Watchtower during the PMM Server installation. Watchtower is a container monitoring tool that helps update Docker containers to their latest version when triggered.
 
-The PMM 3 Beta release will integrate Watchtower commands into the [Easy-install script](../easy-install.md), allowing for a one-step setup of PMM alongside Watchtower. Until then, you can manually test the PMM installation by following the instructions using the instructions provided below.
+The [Easy-install script](../easy-install.md) script includes Watchtower commands, allowing for a one-step setup of PMM alongside Watchtower.
 
-Before proceeding, review the installation prerequisites and choose a method to run PMM Server with Docker based on your preferred data storage option:
+You can also install PMM 3 manually, following the instructions below.
+
+## Installing PMM Server manually
+
+Before starting the installation, review the installation prerequisites below and choose a method to run PMM Server with Docker based on your preferred data storage option:
 
 - [Running Docker with Data container](../docker/run_with_data_container.md)
 - [Running Docker with host directory](../docker/run_with_host_dir.md)
 - [Running Docker with volume](../docker/run_with_vol.md)
 
-**Prerequisites**
+### Manual installation prerequisites
 
 - Install [Docker](https://docs.docker.com/get-docker/) version 17.03 or higher.
 - Ensure your CPU (and any virtualization layer you may be using) supports `x86-64-v2`.

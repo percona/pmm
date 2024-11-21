@@ -22,4 +22,4 @@ Services that do not specify a cluster name should be removed and re-added using
 
       Use `pbm` in manual mode only for restoring sharded cluster backups or other operations that can only be completed via the PBM CLI! Since PMM takes care of the PBM configuration, any unnecessary manual intervention can break the state.
 
-       PMM 2.32 and later require PBM 2.0.1 or newer.
+       PMM 3 and later require PBM 2.0.1 or newer.

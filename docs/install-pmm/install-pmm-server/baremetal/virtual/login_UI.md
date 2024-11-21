@@ -47,7 +47,7 @@ To log in to the PMM user interface:
 
     2. Log into the PMM user interface.
 
-    3. Select **PMM → PMM Settings → SSH Key**.
+    3. Select **PMM Configuration > Settings > SSH Key**.
 
     4. Copy and paste the contents of the `admin.pub` file into the **SSH Key** field.
 

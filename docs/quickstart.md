@@ -84,7 +84,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
                 ```sh
                 apt update
-                apt install -y pmm2-client
+                apt install -y pmm-client
                 ```
 
         === ":material-redhat: Red Hat-based"
@@ -101,7 +101,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             2. Install the PMM Client package:
 
                 ```sh
-                yum install -y pmm2-client
+                yum install -y pmm-client
                 ```
 
     3. Register PMM Client:
@@ -180,7 +180,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
                 ```sh
                 apt update
-                apt install -y pmm2-client
+                apt install -y pmm-client
                 ```
 
         === ":material-redhat: Red Hat-based"
@@ -196,7 +196,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             4. Install the PMM Client package:
 
                 ```sh
-                yum install -y pmm2-client
+                yum install -y pmm-client
                 ```
 
     8. Register PMM Client:
@@ -284,7 +284,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
                 ```sh
                 apt update
-                apt install -y pmm2-client
+                apt install -y pmm-client
                 ```
 
         === ":material-redhat: Red Hat-based"
@@ -300,7 +300,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             2. Install the PMM Client package:
 
                 ```sh
-                yum install -y pmm2-client
+                yum install -y pmm-client
                 ```
 
     4. Register PMM Client:
@@ -341,7 +341,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
                 ```sh
                 apt update
-                apt install -y pmm2-client
+                apt install -y pmm-client
                 ```
 
         === ":material-redhat: Red Hat-based"
@@ -357,7 +357,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             2. Install the PMM Client package:
 
                 ```sh
-                yum install -y pmm2-client
+                yum install -y pmm-client
                 ```
 
     3. Register PMM Client:
@@ -397,7 +397,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
                 ```sh
                 apt update
-                apt install -y pmm2-client
+                apt install -y pmm-client
                 ```
 
         === ":material-redhat: Red Hat-based"
@@ -413,7 +413,7 @@ Once PMM is set up, choose the database or the application that you want it to m
             2. Install the PMM Client package:
 
                 ```sh
-                yum install -y pmm2-client
+                yum install -y pmm-client
                 ```
 
     4. Register PMM Client:

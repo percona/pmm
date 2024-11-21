@@ -1,6 +1,6 @@
-# Register client node on PMM Server
+# Register client nodes on PMM Server
 
-Register your client node with PMM Server.
+Register your client nodes with PMM Server.
 
 ```sh
 pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:443

@@ -1,6 +1,6 @@
 # SSH Key
 
-This section lets you upload your public SSH key to access the PMM Server via SSH (for example, when accessing PMM Server as a [virtual appliance](../install-pmm/install-pmm-server/baremetal/virtual/index.md).
+This section enables you to upload your public SSH key for SSH access to the PMM Server, such as when accessing it as a [virtual appliance](../install-pmm/install-pmm-server/baremetal/virtual/index.md).
 
 ![!](../_images/PMM_Settings_SSH_Key.jpg)
 

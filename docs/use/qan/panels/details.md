@@ -1,4 +1,4 @@
-# Details Panel
+# Details panel
 
 - Selecting an item in the Overview panel opens the **Details panel** with a [Details Tab](#details-tab).
 - If the dimension is **Query**, the panel also contains the [Examples Tab](#examples-tab), [Explain Tab](#explain-tab), and [Tables Tab](#tables-tab).
@@ -36,7 +36,6 @@ For PostgreSQL queries (when using `pg_stat_monitor`) the top query will also be
 Other useful metrics (when using **pg_stat_monitor**) to monitor PostgreSQL Server performance are [Histograms](https://github.com/percona/pg_stat_monitor/blob/master/docs/USER_GUIDE.md#histogram). 
 **Histograms** provide more explicit information about number of queries for fingerprint (`queryid`). Ranges are from 0 seconds up to 100 seconds.  
 
-
 Here is picture of **histogram** in graph:
 
 ![!image](../../../_images/PMM_Query_Analytics_Tabs_Details_Histogram.png)
@@ -62,8 +61,7 @@ The **Explain** tab shows the `explain` output for the selected query, in Classi
 - MongoDB: JSON only.
 - PostgreSQL: Not supported.
 
-Starting with PMM 2.33.0, for MySQL, the *Explain* tab is supported without the *Examples* enabled. If a query in the *Explain* tab contains sensitive data, placeholders will replace them.
-Before you can run Explain, you must specify the values for these placeholders. This image illustrates the query with placeholders.
+The **Explain** tab for MySQL queries works without enabling **Examples**. For security, sensitive data appears as placeholders that you must fill in before running Explain:
 
 ![!image](../../../_images/PMM_Query_Analytics_Tabs_Explain_With_Placeholders.png)
 
@@ -101,4 +99,3 @@ The **Tables** tab shows information on the tables and indexes involved in the s
 The **Plan** tab shows the plan for PostgreSQL queries (only available when using *pg_stat_monitor*).
 
 ![!image](../../../_images/PMM_Query_Analytics_Tabs_Plan.png)
-

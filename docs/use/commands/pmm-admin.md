@@ -59,7 +59,7 @@ PMM communicates with the PMM Server via a PMM agent process.
 `--trace`
 :    Enable trace logging (implies debug).
 
-`--log-level` (This parameter is available starting with PMM 2.29.0.)
+`--log-level` 
 :  Set the level for the logs as per your requirement such as INFO, WARNING, ERROR, and FATAL.
 
 `--json`
@@ -77,7 +77,7 @@ PMM communicates with the PMM Server via a PMM agent process.
 `--group=<group-name>`
 : Group name for external services. Default: `external`
 
-`--expose-exporter` (This flag is availble starting with PMM 2.41.0.)
+`--expose-exporter` 
 : If you enable this flag, any IP address on the local network and anywhere on the internet can access exporter endpoints. If the flag is disabled/not present, exporter endpoints can be accessed only locally. The flag is disabled by default
 
 ## COMMANDS
@@ -116,7 +116,7 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--skip-server`
     : Skip fetching `logs.zip` from PMM Server.
 
-    `--pprof` (This parameter is available starting with PMM 2.29.0)
+    `--pprof`
     : Include performance profiling data in the summary.
 
 ### CONFIGURATION COMMANDS
@@ -149,7 +149,7 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--paths-base=dir`
     : Base path where all binaries, tools and collectors of PMM client are located
 
-    `--agent-password=password` (This parameter i available starting with PMM 2.29.0.)
+    `--agent-password=password`
     : Custom agent password.
 
 #### `pmm-admin register`
@@ -160,7 +160,7 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--server-url=server-url`
     : PMM Server URL in `https://username:password@pmm-server-host/` format.
 
-    `--machine-id="/machine_id/9812826a1c45454a98ba45c56cc4f5b0"`
+    `--machine-id="9812826a1c45454a98ba45c56cc4f5b0"`
     : Node machine-id (default is auto-detected).
 
     `--distro="linux"`
@@ -184,7 +184,7 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--custom-labels=labels`
     : Custom user-assigned labels.
 
-    `--agent-password=password` (This parameter is available starting with PMM 2.29.0.)
+    `--agent-password=password`
     : Custom agent password.
  
 #### `pmm-admin add --pmm-agent-listen-port=LISTEN_PORT`
@@ -346,10 +346,10 @@ When you remove a service, collected data remains on PMM Server for the specifie
         - `push`: agent will push metrics.
         - `pull`: server scrapes metrics from agent.
 
-    `--max-query-length=NUMBER` (This parameter is available starting with PMM 2.32.0.)
+    `--max-query-length=NUMBER` 
     : Limit query length in QAN. Allowed values:
         - -1: No limit.
-        -  0: Default value. The default value is 2048 chars.
+        -  0: Default value. The default value is 4096 chars.
         - >0: Query will be truncated after <NUMBER> chars.
 
         !!! caution ""
@@ -570,7 +570,7 @@ In low resolution we collect metrics from collectors which could take some time:
         - `push`: agent will push metrics.
         - `pull`: server scrapes metrics from agent.
 
-    `--max-query-length=NUMBER` (This parameter is available starting with PMM 2.32.0.)
+    `--max-query-length=NUMBER`
     : Limit query length in QAN. Allowed values:
         - -1: No limit.
         -  0: Default value. The default value is 2048 chars.
@@ -654,7 +654,7 @@ In low resolution we collect metrics from collectors which could take some time:
         - `push`: agent will push metrics.
         - `pull`: server scrapes metrics from agent.
 
-    `--max-query-length=NUMBER` (This parameter is available starting with PMM 2.32.0.)
+    `--max-query-length=NUMBER` 
     : Limit query length in QAN. Allowed values:
         - -1: No limit.
         -  0: Default value. The default value is 2048 chars.
@@ -903,7 +903,7 @@ pmm-admin add mysql --query-source=slowlog --username=pmm --password=pmm sl-mysq
 
 ```txt
 MySQL Service added.
-Service ID  : /service_id/a89191d4-7d75-44a9-b37f-a528e2c4550f
+Service ID  : a89191d4-7d75-44a9-b37f-a528e2c4550f
 Service name: sl-mysql
 ```
 
@@ -917,8 +917,8 @@ pmm-admin status --wait=30s
 ```
 
 ```txt
-Agent ID: /agent_id/c2a55ac6-a12f-4172-8850-4101237a4236
-Node ID : /node_id/29b2cc24-3b90-4892-8d7e-4b44258d9309
+Agent ID: c2a55ac6-a12f-4172-8850-4101237a4236
+Node ID : 29b2cc24-3b90-4892-8d7e-4b44258d9309
 PMM Server:
  URL : https://x.x.x.x:443/
  Version: 2.5.0
@@ -928,8 +928,7 @@ PMM Client:
  Latency : 465.658µs
  pmm-admin version: 2.5.0
  pmm-agent version: 2.5.0
-Agents:
- /agent_id/aeb42475-486c-4f48-a906-9546fc7859e8 mysql_slowlog_agent Running
+Agents: aeb42475-486c-4f48-a906-9546fc7859e8 mysql_slowlog_agent Running
 ```
 
 ### Disable collectors

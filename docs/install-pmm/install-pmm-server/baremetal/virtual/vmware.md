@@ -30,7 +30,7 @@
 
             ```sh
             ovftool --name="PMM Server" --net:NAT=Wi-Fi \
-            https://www.percona.com/downloads/pmm2/{{release}}/ova/pmm-server-{{release}}.ova \
+            https://www.percona.com/downloads/pmm/{{release}}/ova/pmm-server-{{release}}.ova \
             pmm-server-{{release}}.vmx
             ```
 
@@ -92,7 +92,7 @@ To start the guest and get the IP address from the CLI:
     pmm-server.vmx nogui
     ```
 
-[OVA]: https://www.percona.com/downloads/pmm2/{{release}}/ova
+[OVA]: https://www.percona.com/downloads/pmm/{{release}}/ova
 [OVF]: https://wikipedia.org/wiki/Open_Virtualization_Format
 [VirtualBox]: https://www.virtualbox.org/
 [VMware]: https://www.vmware.com/products/workstation-player/

@@ -36,20 +36,10 @@ PMM uses Alertmanager API to get information about failed checks and show them o
 
 ![!](../_images/FrontEndChecks.png)
 
-## Check format versions
-Starting with the 2.28 release, PMM uses Advisor checks format version 2. Format version 1 is deprecated.
+## Format for checks
+Advisor checks use the following format:
 
-# Version 2 advisor checks for PMM 2.28 and newer
-PMM 2.28 upgraded Advisor Checks to version 2, which uses a slightly different structure than version 1 checks, created in 2.7 and earlier. This is because, compared to version 1 checks, checks created in 2.28 and later offer additional support for:
-
-- Multiple queries
-- Victoria Metrics as a data source
-- Database **Family** field
-
-## Format for v.2 checks
-Advisor checks for PMM 2.28 and later use the following format:
-
-??? note alert alert-info "Version 2 Checks Format"
+??? note alert alert-info "Checks Format"
 
     {% raw %}
     ```yaml
@@ -168,6 +158,7 @@ Advisor checks for PMM 2.28 and later use the following format:
 The check script assumes that there is a function with `check_context`, that accepts a _list_ where each item represents the result of a single query specified in the check. Each result itself is a _list_ of _docs_ containing returned rows for SQL databases and documents for MongoDB. It returns zero, one, or several check results that are then converted to alerts.
 
 ## Check severity levels
+
 You can label your advisor checks with one of the following available severity levels: **Emergency**, **Alert**, **Critical**, **Error**, **Warning**, **Notice**, **Info**, **Debug**.
 PMM groups failed checks by their severity, and displays them under **Advisors Checks > Failed Checks**.
 
@@ -179,7 +170,7 @@ Checks can include the following fields:
 - **Name** (string, required): defines machine-readable name (ID).
 - **Summary** (string, required): defines short human-readable description.
 - **Description** (string, required): defines long human-readable description.
-- **Family** (string, required): specifies one of the supported database families: MYSQL, POSTGRESQL, MONGODB. This field is only available for Advisor checks v.2, created for PMM 2.28 and later.
+- **Family** (string, required): specifies one of the supported database families: MYSQL, POSTGRESQL, MONGODB. This field is only available for Advisor checks v.2.
 - **Advisor** (string, required): specifies the advisor to which this check belongs. For local environments, specify **dev**.
 - **Interval** (string/enum, optional): defines running interval. Can be one of the predefined intervals in the UI: Standard, Frequent, Rare.
 - **Queries** (array, required): contains items that specify queries.

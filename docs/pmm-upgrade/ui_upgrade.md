@@ -1,26 +1,22 @@
-# Upgrade PMM Server using the UI
+# Upgrade PMM v3 Server from the UI
 
-!!! caution alert alert-warning "Caution"
-    - While upgrading PMM to version 2.32.0, it fails. This issue has been resolved for PMM version 2.33.0. However, the issue persists on all the versions prior to 2.33.0. For solution, see the [troubleshooting](../troubleshoot/upgrade_issues.md) section.
-    - PMM versions prior to 2.33.0 may not show the latest versions available with instances created from the AWS marketplace in specific environments, including AWS. For solution, see the [troubleshooting](../troubleshoot/upgrade_issues.md#pmm-server-not-showing-latest-versions-available-with-the-instances-created-from-aws) section.
+PMM Server and Client components are installed and updated separately.
 
-Client and server components are installed and updated separately.
+PMM v3 Server can run natively, as a Docker image, a virtual appliance, or an AWS cloud instance. While each environment has its own specific installation and update steps, the UI-based upgrade method is universal and recommended for most users.
 
-PMM Server can run natively, as a Docker image, a virtual appliance, or an AWS cloud instance. Each has its own installation and update steps.
+## Upgrade process
 
-The preferred and simplest way to update PMM Server is with the *PMM Upgrade* panel on the Home page.
+The preferred and simplest way to update PMM v3 Server is via the **Updates** page:
+{.power-number}
 
-![!image](../_images/PMM_Home_Dashboard_Panels_Upgrade.jpg)
+1. Go to **PMM Configuration > Updates** in your PMM web interface. Here you can check the current PMM Server version, the timestamp of the last update check and whether your instance is up-to-date.  
 
-The panel shows:
+2. If an update is available, click the **Update now** button to install the latest version.
 
-- the current server version and release date;
-- whether the server is up to date;
-- the last time a check was made for updates.
+![Update page](../Update_page.png)
 
-Click the refresh button to manually check for updates.
+## Quick upgrade check
 
-If one is available, click the update button to update to the version indicated.
+For a quick overview of your PMM v3 Server's update status, you can also check to the **Upgrade** panel on the **Home** page.
 
-!!! seealso alert alert-info "See also"
-    [PMM Server Docker upgrade](upgrade_docker.md) and [Upgrade PMM agent](upgrade_agent.md)
+![PMM Home Dashboard Upgrade Panel](../_images/PMM_Home_Dashboard_Panels_Upgrade.jpg)

@@ -16,7 +16,7 @@
 !!! caution alert alert-warning "Important/Caution"
     This feature is still in [Technical Preview](https://docs.percona.com/percona-monitoring-and-management/details/glossary.html#technical-preview) and is subject to change. We recommend that early adopters use this feature for testing purposes only.
 
-Starting with PMM 2.38.0, you can filter queries by custom filter groups based on key=value pairs separated from query comments. By default, this feature is disabled.
+Filter queries using custom key=value pairs from query comments. This feature is disabled by default.
 
 ### Supported technologies and agents
 

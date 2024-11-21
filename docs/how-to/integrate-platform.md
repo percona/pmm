@@ -11,16 +11,8 @@ We recommend that you connect with a Percona Account, as this gives you access t
 #### Prerequisites
 To ensure that PMM can establish a connection to Percona Platform:
 
-### Upgrade to PMM 2.27.0 or later
- Before connecting your PMM Server to Percona Platform, make sure you are using PMM version 2.27 or newer. Otherwise, upgrade your PMM installation beforehand.
-
- This is required because, starting with PMM 2.27, Percona Platform has replaced username/password authentication with access token authentication. Access-token authentication increases security and enables federated identity.
-
-  This change did not affect existing connections to PMM Platform, which were not automatically terminated.
-
- For more information, see [Install and set up PMM](../setting-up/index.md).
-
 ### Check that you are a member of an existing Platform organization
+
 1. Log in to [Percona Platform](https://portal.percona.com) using your Percona Account. If you are connecting via GitHub, make sure you set your email address as **public** in your GitHub account. If your email address is private instead, Percona Platform cannot access it to authenticate you.
 
 2. On the **Getting Started** page, check that the **Create organization** step shows an option to view your organization.
@@ -59,20 +51,16 @@ To disconnect a PMM Server, go to > <i class="uil uil-cog"></i> **Configuration 
 
 In situations where you are not able to disconnect servers yourself, ask your PMM Admin to disconnect the server for you. For example, you may not be able to disconnect servers when PMM is moved to a network segment without outbound connections to public networks.
 
-
-!!! note alert alert-primary "Availability"
-    This feature is available starting with PMM 2.29.0.
-
 If you cannot disconnect servers yourself, ask your PMM Admin to disconnect the server for you. For example, you may not be able to disconnect servers when PMM is moved to a network segment without outbound connections to public networks.
 
 If you are a PMM Admin, you can terminate any connections to Percona Platform, even if you are not logged into PMM with a Percona Account. However, we recommend logging in with a Percona Account before disconnecting servers, as this will automatically remove the disconnected servers from Percona Platform as well. 
 
-If you do disconnect servers without being connected with a Percona Account, you'll have to manually remove the unavailable servers from Percona Platform. This ensures that your list of connected PMM instances stays up-to-date in Percona Platform. 
+If you do disconnect servers without being connected with a Percona Account, you'll have to manually remove the unavailable servers from Percona Platform. This ensures that your list of connected PMM instances stays up-to-date in Percona Platform.
 
 To do this, go to [PMM instances](https://portal.percona.com/login), and remove any servers that you have already disconnected from PMM.
 
-
 ## Sign into PMM with your Percona Account
+
 Once you've successfully connected your PMM instance to the Percona Platform, you can also sign into PMM using your Percona Account:
 
 1. Log out of your existing PMM session.

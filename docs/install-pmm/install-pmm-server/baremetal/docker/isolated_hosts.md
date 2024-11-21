@@ -7,8 +7,8 @@ If the host where you will run PMM Server has no internet connection, you can do
 1. On an internet-connected host, download the Docker image and its checksum file.
 
     ```sh
-    wget https://downloads.percona.com/downloads/pmm2/{{release}}/docker/pmm-server-{{release}}.docker
-    wget https://downloads.percona.com/downloads/pmm2/{{release}}/docker/pmm-server-{{release}}.sha256sum
+    wget https://downloads.percona.com/downloads/pmm/{{release}}/docker/pmm-server-{{release}}.docker
+    wget https://downloads.percona.com/downloads/pmm/{{release}}/docker/pmm-server-{{release}}.sha256sum
     ```
 
 2. Copy both files to where you will run PMM Server.

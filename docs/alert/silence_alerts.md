@@ -1,7 +1,7 @@
 # Silence alerts
 
 Create a silence when you want to suppress/stop alerts and their associated notifications for a very specific amount of time. 
-Silences default to today’s current date and have a default duration of two hours. 
+Silences default to today’s current date and have a default duration of two hours.
 
 You can also schedule a silence for a future date and time. This is referred to as a `Pending` silence, which can be observed on the Silences page.
 
@@ -14,6 +14,7 @@ Silenced alerts are still recorded under **Alerting > Fired Alerts** so that you
 You can silence an alert by creating a silence from the **Silences** page.  Here you define labels that match the alert that you want to silence.
 
 To create a new silence:
+{.power-number}
 
 1. Click the **Create silence** button.
 2. Select the start and end date to indicate when the silence should go into effect and expire.
@@ -27,15 +28,16 @@ For more information on working with silences, see [About alerting silences](htt
 
 ## Alerting compatibility
 
-### Template compatibility with previous PMM versions
+### Template compatibility with PMM 2
 
-If you have used Integrated Alerting in previous PMM versions, your custom alert rule templates will be automatically migrated to the new PMM version. After upgrading to the new version, you will find all your alert templates under **Alerting > Alert rule templates**.
+After upgrading from the latest PMM 2 version to PMM 3, you will find all your alert templates under **Alerting > Alert rule templates**.
 
-If you have any templates available in the  ``/srv/ia/templates`` folder, make sure to transfer them to ``/srv/alerting/templates`` as PMM 2.31 and later will look for custom templates in this location.
+If you have any templates available in the  `/srv/ia/templates` folder, make sure to transfer them to `/srv/alerting/templates` as PMM 3 will look for custom templates in this location.
 
 ### Template compatibility with other alerting tools
 
 If you have existing YAML alert templates that you want to leverage in Percona Alerting:
+{.power-number}
 
 1. Go to **Alerting > Alert rule templates** tab and click **Add template** at the top right-hand side of the table.
 2. Upload a local .yaml file that contains the definition of one or more alert templates then click **Add**. Alert templates added in bulk will be displayed individually on **Alert rule templates** page.

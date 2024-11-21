@@ -28,9 +28,9 @@ Most steps can be done with either a user interface or on the command line, but 
 
 | Item          | Value
 |---------------|-----------------------------------------------------------
-| Download page | <https://www.percona.com/downloads/pmm2/{{release}}/ova>
+| Download page | <https://www.percona.com/downloads/pmm/{{release}}/ova>
 | File name     | `pmm-server-{{release}}.ova`
-| VM name       | `PMM2-Server-{{release_date}}-N` (`N`=build number)
+| VM name       | `pmm-Server-{{release_date}}-N` (`N`=build number)
 
 ## VM specifications
 

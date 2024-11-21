@@ -27,7 +27,6 @@ Each binary (exporter, agent) running on a client will get an `agent_type` value
 - `mysqld_exporter` and `qan-mysql-perfschema-agent` are assigned to agents that extract metrics from mysql and its performance schema respectively.
 
 To view the agents running on a service and their health status, click **OK** or **Failed** under the **Monitoring** column. Furthermore, you can also check the properties of a particular agent by clicking the <image src="../../_images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column.
-![!image](../../_images/PMM_Inventory_Service_Agent_Properties.png)
 
 
 ### **Nodes** tab
@@ -38,7 +37,7 @@ Each `node_id` is associated with a `machine_id` (from `/etc/machine-id`). Nodes
 
 By expanding the entry from the options column, you can check the node labels and attributes.
 
-Starting with PMM 2.38.0, you can see the number of agents running on any particular node. When you click on any node, the UI navigates to the view of agents, which is filtered to display only agents related to that specific node. 
+You can see the number of agents running on any particular node. When you click on any node, the UI navigates to the view of agents, which is filtered to display only agents related to that specific node. 
 
 To see the details of the agents running, do the following:
 
@@ -46,7 +45,8 @@ To see the details of the agents running, do the following:
 
 2. Click on the <image src="../../_images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column to view the properties of a specific agent.
 
-3.  On the **Nodes** tab, under the **Options** column, click on the <image src="../../_images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon for the selected node to check the properties and the current health status of an agent.
+3. On the **Nodes** tab, under the **Options** column, click on the <image src="../../_images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon for the selected node to check the properties and the current health status of an agent.
+
      ![!image](../../_images/PMM_Inventory_Node_Agent_Properties.png)
 
 ## Removing items from the inventory

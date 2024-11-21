@@ -40,13 +40,13 @@ Most options can be set via environment variables (shown in parentheses).
 | `--debug`                              | `PMM_AGENT_DEBUG`                   | Enable debug output.
 | `--distro=distro`                      | `PMM_AGENT_SETUP_DISTRO`            | Node OS distribution (default is auto-detected).
 | `--force`                              | `PMM_AGENT_SETUP_FORCE`             | Remove Node with that name and all dependent Services and Agents (if existing).
-| `--id=/agent_id/...`                   | `PMM_AGENT_ID`                      | ID of this pmm-agent.
+| `--id=...`                   | `PMM_AGENT_ID`                      | ID of this pmm-agent.
 | `--listen-address=LISTEN-ADDRESS`      | `PMM_AGENT_LISTEN_ADDRESS`          | Agent local API address.
 | `--listen-port=LISTEN-PORT`            | `PMM_AGENT_LISTEN_PORT`             | Agent local API port.
 | `--machine-id=machine-id`              | `PMM_AGENT_SETUP_MACHINE_ID`        | Node machine ID (default is auto-detected).
 | `--metrics-mode=auto`                  | `PMM_AGENT_SETUP_METRICS_MODE`      | Metrics flow mode for agents node-exporter. Can be `push` (agent will push metrics), `pull` (server scrapes metrics from agent) or `auto` (chosen by server).
 | `--node-model=NODE-MODEL`              | `PMM_AGENT_SETUP_NODE_MODEL`        | Node model.
-| `--paths-base=PATH`                    | `PMM_AGENT_PATHS_BASE`              | Base path for PMM client, where all binaries, tools and collectors are located. If not set, default is `/usr/local/percona/pmm2`.
+| `--paths-base=PATH`                    | `PMM_AGENT_PATHS_BASE`              | Base path for PMM client, where all binaries, tools and collectors are located. If not set, default is `/usr/local/percona/pmm`.
 | `--paths-exporters_base=PATH`          | `PMM_AGENT_PATHS_EXPORTERS_BASE`    | Base path for exporters to use. If not set, or set to a relative path, uses value of `--paths-base` prepended to it.
 | `--paths-mongodb_exporter=PATH`        | `PMM_AGENT_PATHS_MONGODB_EXPORTER`  | Path to `mongodb_exporter`.
 | `--paths-mysqld_exporter=PATH`         | `PMM_AGENT_PATHS_MYSQLD_EXPORTER`   | Path to `mysqld_exporter`.
@@ -64,7 +64,7 @@ Most options can be set via environment variables (shown in parentheses).
 | `--trace`                              | `PMM_AGENT_TRACE`                   | Enable trace output (implies `--debug`).
 | `-h`, `--help`                         |                                     | Show help (synonym for `pmm-agent help`).
 | `--version`                            |                                     | Show application version, PMM version, time-stamp, git commit hash and branch.
-| `--expose-exporter` (This flag is available starting with PMM 2.41.0.)| | If you enable this flag, any IP address on the local network and anywhere on the internet can access node exporter endpoints. If the flag is disabled, node exporter endpoints can be accessed only locally.
+| `--expose-exporter` | | If you enable this flag, any IP address on the local network and anywhere on the internet can access node exporter endpoints. If the flag is disabled, node exporter endpoints can be accessed only locally.
 
 ## CONFIG FILE
 
@@ -78,16 +78,16 @@ Since 2.23.0 this flag could be used for easier setup of PMM agent. With this fl
 
 **Examples:**
 
-- **Case 1:** There are no root permissions for `/usr/local/percona/pmm2` folder or there is a need to change default folder for PMM files.
+- **Case 1:** There are no root permissions for `/usr/local/percona/pmm` folder or there is a need to change default folder for PMM files.
 Command:
 ````
-pmm-agent setup --paths-base=/home/user/custom/pmm2 --config-file=pmm-agent-dev.yaml --server-insecure-tls --server-address=127.0.0.1:443 --server-username=admin --server-password=admin
+pmm-agent setup --paths-base=/home/user/custom/pmm --config-file=pmm-agent-dev.yaml --server-insecure-tls --server-address=127.0.0.1:443 --server-username=admin --server-password=admin
 ````
 Config output:
 ````
 # Updated by `pmm-agent setup`.
 ---
-id: /agent_id/be568008-b1b4-4bd9-98c7-392d1f4b724e
+id: be568008-b1b4-4bd9-98c7-392d1f4b724e
 listen-address: 127.0.0.1
 listen-port: 7777
 server:
@@ -96,21 +96,21 @@ server:
     password: admin
     insecure-tls: true
 paths:
-    paths_base: /home/user/custom/pmm2
-    exporters_base: /home/user/custom/pmm2/exporters
-    node_exporter: /home/user/custom/pmm2/exporters/node_exporter
-    mysqld_exporter: /home/user/custom/pmm2/exporters/mysqld_exporter
-    mongodb_exporter: /home/user/custom/pmm2/exporters/mongodb_exporter
-    postgres_exporter: /home/user/custom/pmm2/exporters/postgres_exporter
-    proxysql_exporter: /home/user/custom/pmm2/exporters/proxysql_exporter
-    rds_exporter: /home/user/custom/pmm2/exporters/rds_exporter
-    azure_exporter: /home/user/custom/pmm2/exporters/azure_exporter
-    vmagent: /home/user/custom/pmm2/exporters/vmagent
+    paths_base: /home/user/custom/pmm
+    exporters_base: /home/user/custom/pmm/exporters
+    node_exporter: /home/user/custom/pmm/exporters/node_exporter
+    mysqld_exporter: /home/user/custom/pmm/exporters/mysqld_exporter
+    mongodb_exporter: /home/user/custom/pmm/exporters/mongodb_exporter
+    postgres_exporter: /home/user/custom/pmm/exporters/postgres_exporter
+    proxysql_exporter: /home/user/custom/pmm/exporters/proxysql_exporter
+    rds_exporter: /home/user/custom/pmm/exporters/rds_exporter
+    azure_exporter: /home/user/custom/pmm/exporters/azure_exporter
+    vmagent: /home/user/custom/pmm/exporters/vmagent
     tempdir: /tmp
-    pt_summary: /home/user/custom/pmm2/tools/pt-summary
-    pt_pg_summary: /home/user/custom/pmm2/tools/pt-pg-summary
-    pt_mysql_summary: /home/user/custom/pmm2/tools/pt-mysql-summary
-    pt_mongodb_summary: /home/user/custom/pmm2/tools/pt-mongodb-summary
+    pt_summary: /home/user/custom/pmm/tools/pt-summary
+    pt_pg_summary: /home/user/custom/pmm/tools/pt-pg-summary
+    pt_mysql_summary: /home/user/custom/pmm/tools/pt-mysql-summary
+    pt_mongodb_summary: /home/user/custom/pmm/tools/pt-mongodb-summary
 ports:
     min: 42000
     max: 51999
@@ -123,13 +123,13 @@ As could be seen above, base for all exporters and tools was changed only by set
 - **Case 2:** The older `--paths-exporters_base` flag could be passed along with the `--paths-base`
 Command:
 ````
-pmm-agent setup --paths-base=/home/user/custom/pmm2 --paths-exporters_base=/home/user/exporters --config-file=pmm-agent-dev.yaml --server-insecure-tls --server-address=127.0.0.1:443 --server-username=admin --server-password=admin
+pmm-agent setup --paths-base=/home/user/custom/pmm --paths-exporters_base=/home/user/exporters --config-file=pmm-agent-dev.yaml --server-insecure-tls --server-address=127.0.0.1:443 --server-username=admin --server-password=admin
 ````
 Config output:
 ````
 # Updated by `pmm-agent setup`.
 ---
-id: /agent_id/afce1917-8836-4857-b3e5-ad372c2ddbe5
+id: afce1917-8836-4857-b3e5-ad372c2ddbe5
 listen-address: 127.0.0.1
 listen-port: 7777
 server:
@@ -138,7 +138,7 @@ server:
     password: admin
     insecure-tls: true
 paths:
-    paths_base: /home/user/custom/pmm2
+    paths_base: /home/user/custom/pmm
     exporters_base: /home/user/exporters
     node_exporter: /home/user/exporters/node_exporter
     mysqld_exporter: /home/user/exporters/mysqld_exporter
@@ -149,10 +149,10 @@ paths:
     azure_exporter: /home/user/exporters/azure_exporter
     vmagent: /home/user/exporters/vmagent
     tempdir: /tmp
-    pt_summary: /home/user/custom/pmm2/tools/pt-summary
-    pt_pg_summary: /home/user/custom/pmm2/tools/pt-pg-summary
-    pt_mysql_summary: /home/user/custom/pmm2/tools/pt-mysql-summary
-    pt_mongodb_summary: /home/user/custom/pmm2/tools/pt-mongodb-summary
+    pt_summary: /home/user/custom/pmm/tools/pt-summary
+    pt_pg_summary: /home/user/custom/pmm/tools/pt-pg-summary
+    pt_mysql_summary: /home/user/custom/pmm/tools/pt-mysql-summary
+    pt_mongodb_summary: /home/user/custom/pmm/tools/pt-mongodb-summary
 ports:
     min: 42000
     max: 51999

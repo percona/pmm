@@ -15,7 +15,7 @@ PMM supports standard as well as custom labels. PMM automatically assigns standa
 
 | **Label Type**| **Object**| **Label name **| **Example** |                                                                                                
 |----------|--------|-------|------------------------------|
-| **Standard**  | Node   | node_id |/node_id/123|                                          
+| **Standard**  | Node   | node_id |123|                                          
 |          | Service|service_type   |   - mysql, mongodb, postgresql etc.                                     
 | **Custom**| Node, Service, Agent| Any string matching regular expression: <br /> [a-zA-Z_][a-zA-Z0-9_]*. <br /> Also, it cannot start with two underscores.| owner="joe"<br/> _rack="12345"|
 

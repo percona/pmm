@@ -35,9 +35,7 @@ The choices are:
 !!! hint alert "Binary is only way to install PMM client without root permissions"
 
 ## Add services
-
-On each PMM Client, you configure then add to PMM Server's inventory the node or service you want to monitor.
-
+On each PMM Client instance, configure the nodes and services you want to monitor. 
 ??? info "Which services you can monitor?"
 
     - [MySQL] (and variants: Percona Server for MySQL, Percona XtraDB Cluster, MariaDB);

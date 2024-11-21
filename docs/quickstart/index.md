@@ -80,11 +80,16 @@ Once PMM is set up, choose the database or the application that you want it to m
                 dpkg -i percona-release_latest.generic_all.deb
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 apt update
-                apt install -y pmm2-client
+                apt install -y pmm-client
                 ```
 
         === ":material-redhat: Red Hat-based"
@@ -92,16 +97,21 @@ Once PMM is set up, choose the database or the application that you want it to m
             Install the following with `root` permission:
             { .power-number} 
 
-            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version.
+            4. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool. If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version.
 
                 ```sh
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
                 ```
 
-            2. Install the PMM Client package:
+            5. Enable the PMM client repository:
 
                 ```sh
-                yum install -y pmm2-client
+                percona-release enable pmm3-client release
+                ```
+            6. Install the PMM Client package:
+
+                ```sh
+                yum install -y pmm-client
                 ```
 
     3. Register PMM Client:
@@ -176,11 +186,16 @@ Once PMM is set up, choose the database or the application that you want it to m
                 dpkg -i percona-release_latest.generic_all.deb
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 apt update
-                apt install -y pmm2-client
+                apt install -y pmm-client
                 ```
 
         === ":material-redhat: Red Hat-based"
@@ -188,15 +203,20 @@ Once PMM is set up, choose the database or the application that you want it to m
             Install the following with `root` permission: 
             { .power-number}   
 
-            3. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
+            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
 
                 ```sh
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
                 ```
-            4. Install the PMM Client package:
+            2. Enable the PMM client repository:
 
                 ```sh
-                yum install -y pmm2-client
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
+
+                ```sh
+                yum install -y pmm-client
                 ```
 
     8. Register PMM Client:
@@ -280,11 +300,16 @@ Once PMM is set up, choose the database or the application that you want it to m
                 dpkg -i percona-release_latest.generic_all.deb
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 apt update
-                apt install -y pmm2-client
+                apt install -y pmm-client
                 ```
 
         === ":material-redhat: Red Hat-based"
@@ -297,10 +322,15 @@ Once PMM is set up, choose the database or the application that you want it to m
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
 
                 ```sh
-                yum install -y pmm2-client
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
+
+                ```sh
+                yum install -y pmm-client
                 ```
 
     4. Register PMM Client:
@@ -337,11 +367,16 @@ Once PMM is set up, choose the database or the application that you want it to m
                 dpkg -i percona-release_latest.generic_all.deb
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 apt update
-                apt install -y pmm2-client
+                apt install -y pmm-client
                 ```
 
         === ":material-redhat: Red Hat-based"
@@ -354,10 +389,15 @@ Once PMM is set up, choose the database or the application that you want it to m
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
 
                 ```sh
-                yum install -y pmm2-client
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
+
+                ```sh
+                yum install -y pmm-client
                 ```
 
     3. Register PMM Client:
@@ -393,11 +433,16 @@ Once PMM is set up, choose the database or the application that you want it to m
                 dpkg -i percona-release_latest.generic_all.deb
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 apt update
-                apt install -y pmm2-client
+                apt install -y pmm-client
                 ```
 
         === ":material-redhat: Red Hat-based"
@@ -410,10 +455,15 @@ Once PMM is set up, choose the database or the application that you want it to m
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
 
                 ```sh
-                yum install -y pmm2-client
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
+
+                ```sh
+                yum install -y pmm-client
                 ```
 
     4. Register PMM Client:

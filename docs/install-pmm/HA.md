@@ -1,7 +1,7 @@
 # Install PMM in HA mode
 
 !!! caution alert alert-warning "Important"
-    This feature has been added in PMM 2.41.0 and is currently in [Technical Preview](https://docs.percona.com/percona-monitoring-and-management/details/glossary.html#technical-preview). Early adopters are advised to use this feature for testing purposes only as it is subject to change.
+    This feature is currently in [Technical Preview](https://docs.percona.com/percona-monitoring-and-management/details/glossary.html#technical-preview). Early adopters are advised to use this feature for testing purposes only as it is subject to change.
 
 Set up PMM using Docker containers in a high-availability (HA) configuration following these instructions. 
 

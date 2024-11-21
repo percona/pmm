@@ -10,7 +10,7 @@ To uninstall PMM client with package manager, do the following steps:
     1. Uninstall the PMM Client package.
 
         ```sh
-        apt remove -y pmm2-client
+        apt remove -y pmm-client
         ```
 
     2. Remove the Percona repository
@@ -27,7 +27,7 @@ To uninstall PMM client with package manager, do the following steps:
     1. Uninstall the PMM Client package.
 
         ```sh
-        yum remove -y pmm2-client
+        yum remove -y pmm-client
         ```
 
     2. Remove the Percona repository

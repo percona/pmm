@@ -20,8 +20,8 @@ This section contains guidelines on how to download and verify the OVA file.
     Download the latest PMM Server OVA and checksum files.
 
     ```sh
-    wget https://www.percona.com/downloads/pmm2/{{release}}/ova/pmm-server-{{release}}.ova
-    wget https://www.percona.com/downloads/pmm2/{{release}}/ova/pmm-server-{{release}}.sha256sum
+    wget https://www.percona.com/downloads/pmm/{{release}}/ova/pmm-server-{{release}}.ova
+    wget https://www.percona.com/downloads/pmm/{{release}}/ova/pmm-server-{{release}}.sha256sum
     ```
 
 ## Verify OVA file from CLI

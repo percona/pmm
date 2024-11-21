@@ -21,8 +21,6 @@ The **Services** tab displays the individual services, the nodes on which they r
 |  Port         | The port number on which the service is running. ||
 |  Options |* You can check **QAN** information and the **Dashboard** for each service by clicking on the **<image src="../../_images/dots-three-vertical.ico" width="15px" aria-label="triple dots"/>** icon </br> </br> * You can also check additional information about the service, by clicking on the **<image src="../../_images/arrow-downward.ico" width="15px" aria-label="downward arrow"/>** icon. This expands the service entry to show reference information like service labels and IDs.|
 
-
-
 ![!image](../_images/PMM_Inventory_Service_Selection.png)
 
 #### Attributes
@@ -33,10 +31,10 @@ These are some of the atributes for a service:
 
 - Every service is related to a certain node via its `node_id` attribute. This feature allows to support monitoring of multiple instances on a single node, with different service names, e.g. `mysql1-3306`, and `mysql1-3307`.
 
-- Starting with PMM 2.41.0, each instance of a service gets a `version` attribute to the response of the endpoint that provides a list of services being monitored by PMM. This makes it easy to visualize the database server version.
+- Each instance of a service gets a `version` attribute to the response of the endpoint that provides a list of services being monitored by PMM. This makes it easy to visualize the database server version.
 
     However, following are the imitations:
-    
+
     - The version is not captured for the internal PostgreSQL database.
     - The version is only captured when a new service is being added to PMM and the agent installed on the client side is equal to or greater than v2.41.0.
     - When a database is upgraded, you will not see the database version updated automatically. It will be updated if you remove and then re-add the service.
@@ -57,7 +55,7 @@ To view the agents running on a service and their health status, click **OK** or
 
 #### Node-service relationship
 
-Starting with PMM 2.40.0, you can click on the link in the **Node Name** column to view the node on which a specific service is running and analyze how node-level resource utilization impacts the performance of those services.
+Click on the link in the **Node Name** column to view the node on which a specific service is running and analyze how node-level resource utilization impacts the performance of those services.
 
 Understanding the relationship between nodes and services is key to gaining insights into the distribution and performance of individual services across nodes.
 
@@ -73,13 +71,11 @@ Understanding the relationship between nodes and services is key to gaining insi
 
 You can edit the labels as follows:
 
-1. From the **Main** menu, navigate to <i class="uil uil-cog"></i> **Configuration → Inventory**.
+1. From the **Main** menu, go to **PMM Configuration > PMM Inventory > Services**.
 
 2. Click on the three dots next to the service you want to edit labels for.
 
-3. Click **Edit**. The **Edit Service** page opens.
-
-4. Edit the labels as per your requirement and click **Save Changes**. The editing service dialogue box opens.
+3. Click **Edit** to change the labels, then click **Save Changes**. 
 
     ![!](../_images/PMM_access_edit_labels.png)
 
@@ -102,63 +98,58 @@ Editing existing labels can impact the following PMM functions:
 
 - **Dashboard data**: Edited labels do not affect the existing time-series(metrics). It will only affect the new time-series(metrics).
 
-
 #### Cluster view
 
 !!! caution alert alert-warning "Disclaimer"
      This feature is still [technical preview](../reference/glossary.md#technical-preview) and is subject to change. We recommend that early adopters use this feature for testing purposes only.
 
+**Organize by Clusters** toggle shows related services grouped into clusters based on their `cluster` label, giving you a consolidated view of your infrastructure.
 
-Starting with PMM 2.40.0, you can choose to view a group of services as a single cluster  with the **Organize by Clusters** toggle. PMM uses the `cluster` label to display services under the same cluster.
-
-![!image](../../_images/PMM_Inventory_cluster_view.png)
+![!image](../_images/PMM_Inventory_cluster_view.png)
 
 Click the downward arrow to view cluster details, including the services running on that cluster, agents, and labels.
 
-![!image](../../_images/PMM_Inventory_cluster_view_details.png)
+![!image](../_images/PMM_Inventory_cluster_view_details.png)
 
 Furthermore, you can filter the clusters by criteria such as Cluster name, Status, Service name, Node name, Monitoring, Address, and Port. 
 
-![!image](../../_images/PMM_Inventory_cluster_view_filter.png)
-
+![!image](../_images/PMM_Inventory_cluster_view_filter.png)
 
 ### **Nodes** tab
 
-Shows where the service and agents run.
+The **Nodes** tab helps you monitor where services and agents are running across your infrastructure. Each node has:
 
-Each `node_id` is associated with a `machine_id` (from `/etc/machine-id`). Nodes also have `node_type` attributes, which give an idea about their nature. Some examples are: generic, container, remote, remote_rds, etc.
+- A unique `node_id` linked to its `machine_id` (from `/etc/machine-id`)
+- A `node_type` attribute (e.g., generic, container, remote, remote_rds) indicating its nature
 
-By expanding the entry from the options column, you can check the node labels and attributes.
+To see node information:
+- Click the expand icon in the **Options** column to see node labels and attributes.
+- Click any node to view its connected agents.
+- Click links in the **Services** column to see running services.
 
-Starting with PMM 2.38.0, you can see the number of agents running on any particular node. When you click on any node, the UI navigates to the view of agents, which is filtered to display only agents related to that specific node. 
-
-Furthermore, starting with PMM 2.40.0, you can see the service running on that specific node when you click on the link in the Services column.
-
-To see the details of the agents running, do the following:
+To see agent details:
 {.power-number}
 
-1. On the **Nodes** tab, under the **Monitoring** column, click **OK** or **Failed** depending on the status of the node that you have selected. A page that provides the user with crucial information regarding the total number of agents deployed on that node is displayed.
+1. In the **Nodes** tab, under the **Monitoring** column, click **OK** or **Failed** based on the node’s status to view information about the total number of agents deployed on that node:
      
      ![!image](../_images/PMM_Inventory_Node_Selection.png)
 
-2. Click on the <image src="../../_images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column to view the properties of a specific agent.
+2. Click on the <image src="../_images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column to view the properties of a specific agent.
 
-3.  On the **Nodes** tab, under the **Options** column, click on the <image src="../../_images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon for the selected node to check the properties and the current health status of an agent.       
+3.  On the **Nodes** tab, under the **Options** column, click on the <image src="../_images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon for the selected node to check the properties and the current health status of an agent.       
      
      ![!image](../_images/PMM_Inventory_Node_Agent_Properties.png)
 
 
-## Removing items from the inventory
+## Remove items from the inventory
 
 To remove items from the inventory:
 {.power-number}
 
-1. Go to <i class="uil uil-cog"></i> **Configuration** > {{icon.inventory}} **Inventory**.
+1. Go to  **PMM Configuration > PMM Inventory**.
 
 2. In the first column, select the items to be removed.
         
     ![!image](../_images/PMM_Inventory_Item_Selection.png)
 
 3. Click **Delete** and confirm the removal.
-
-
