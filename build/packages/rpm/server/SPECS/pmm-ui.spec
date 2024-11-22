@@ -28,10 +28,6 @@ pmm-ui is the frontend application for pmm-managed.
 %setup -q -n %{repo}-%{commit}
 
 %build
-export PMM_RELEASE_VERSION=%{full_pmm_version}
-export PMM_RELEASE_FULLCOMMIT=%{commit}
-export PMM_RELEASE_BRANCH=""
-
 make -C ui release
 
 %install

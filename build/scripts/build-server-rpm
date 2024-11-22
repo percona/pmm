@@ -53,6 +53,7 @@ prepare_spec() {
   local spec_name=$1
   local repo_name=$2
   local spec_file=${rpmbuild_dir}/${spec_name}.spec
+  local full_commit=
 
   mkdir -p ${rpms_dir} ${rpmbuild_dir} 2>/dev/null || :
   cp ${rpmspec_dir}/${spec_name}.spec ${spec_file}
@@ -66,7 +67,12 @@ prepare_spec() {
   fi
   
   local git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
-  local full_commit=$(git -C "${git_dir}" rev-parse HEAD)
+  if [ "${spec_name}" = "pmm-ui" ]; then
+    full_commit=$(get_shasum256 "${git_dir}/ui")
+  else
+    full_commit=$(git -C "${git_dir}" rev-parse HEAD)
+  fi
+
   local short_commit=${full_commit:0:7}
   local tar_archive=${rpmbuild_dir}/${repo_name}-${short_commit}.tar.gz
 
@@ -75,12 +81,7 @@ prepare_spec() {
     exit 1
   fi
 
-  if [ "${spec_name}" = "pmm-ui" ]; then
-    local hash=$(get_shasum256 "${git_dir}/ui")
-    sed -i -e "s/global commit.*/global commit ${hash:0:7}/" ${spec_file}
-  else
-    sed -i -e "s/global commit.*/global commit ${full_commit}/" ${spec_file}
-  fi
+  sed -i -e "s/global commit.*/global commit ${full_commit}/" ${spec_file}
 
   if [ "${spec_name}" != "grafana" ]; then
     sed -i -e "s/Version:.*/Version: ${pmm_version}/" ${spec_file}
@@ -111,7 +112,7 @@ prepare_spec() {
       --format=tar.gz \
       --prefix="${repo_name}-${full_commit}/" \
       -o "${tar_archive}" \
-      "${full_commit}"
+      "$(git -C "${git_dir}" rev-parse HEAD)"
 }
 
 build() {
