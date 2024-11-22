@@ -10,13 +10,15 @@ Download and install PMM Server using `cURL` or `wget`:
 === "cURL"
 
     ```sh
-    curl -fsSL https://www.percona.com/get/pmm | /bin/bash
+    export PMM_REPO=perconalab/pmm-server PMM_TAG=3.0.0-beta
+    curl -fsSL https://raw.githubusercontent.com/percona/pmm/refs/heads/v3/get-pmm.sh | /bin/bash
     ```
 
 === "wget"
 
     ```sh
-    wget -O - https://www.percona.com/get/pmm | /bin/bash
+    export PMM_REPO=perconalab/pmm-server PMM_TAG=3.0.0-beta
+    wget -O - https://raw.githubusercontent.com/percona/pmm/refs/heads/v3/get-pmm.sh | /bin/bash
     ```
 
 
@@ -29,12 +31,12 @@ Download and install PMM Server using `cURL` or `wget`:
     - Can run in Interactive mode to change the default settings:
 
         ```sh
-        curl -fsSLO https://www.percona.com/get/pmm (or wget https://www.percona.com/get/pmm)
+        curl -fsSLO https://raw.githubusercontent.com/percona/pmm/refs/heads/v3/get-pmm.sh (or wget https://raw.githubusercontent.com/percona/pmm/refs/heads/v3/get-pmm.sh)
         chmod +x pmm
         ./pmm --interactive
         ```
 
-[github]: https://github.com/percona/pmm/blob/main/get-pmm.sh
+[github]: https://github.com/percona/pmm/blob/v3/get-pmm.sh
 
 ### Next steps
 

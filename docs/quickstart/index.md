@@ -32,13 +32,13 @@ The Easy-install script only runs on Linux-compatible systems. To use it, run th
     === "cURL"
 
         ```sh
-        curl -fsSL https://www.percona.com/get/pmm | /bin/bash
+        curl -fsSL https://raw.githubusercontent.com/percona/pmm/refs/heads/v3/get-pmm.sh | /bin/bash
         ```
 
     === "wget"
 
         ```sh
-        wget -qO - https://www.percona.com/get/pmm | /bin/bash    
+        wget -qO - https://raw.githubusercontent.com/percona/pmm/refs/heads/v3/get-pmm.sh | /bin/bash    
         ```
 
 2. After the installation is complete, log into PMM with the default `admin:admin` credentials.

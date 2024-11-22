@@ -39,7 +39,7 @@ To upgrade the container:
 3. Pull the latest image.
 
     ```sh
-    docker pull percona/pmm-server:2
+    docker pull perconalab/pmm-server:3.0.0-beta
     ```
 
 4. Rename the original container
@@ -58,7 +58,7 @@ To upgrade the container:
     --publish 443:443 \
     --volumes-from pmm-data \
     --name pmm-server \
-    percona/pmm-server:2
+    perconalab/pmm-server:3.0.0-beta
     ```
 
 

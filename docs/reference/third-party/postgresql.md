@@ -103,5 +103,5 @@ To use PostgreSQL as an external database:
     -e GF_DATABASE_CA_CERT_PATH=$GF_CA_PATH
     -e GF_DATABASE_CLIENT_KEY_PATH=$GF_KEY_PATH
     -e GF_DATABASE_CLIENT_CERT_PATH=$GF_CERT_PATH
-    percona/pmm-server:2
+    perconalab/pmm-server:3.0.0-beta
     ```

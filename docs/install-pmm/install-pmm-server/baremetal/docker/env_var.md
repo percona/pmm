@@ -3,7 +3,7 @@
 Configure PMM Server by setting Docker container environment variables using the `-e var=value` syntax:
 
 ```bash
-docker run -e PMM_DATA_RETENTION=720h -e PMM_DEBUG=true percona/pmm-server:3
+docker run -e PMM_DATA_RETENTION=720h -e PMM_DEBUG=true perconalab/pmm-server:3.0.0-beta
 ```
 
 ## Core configuration variables

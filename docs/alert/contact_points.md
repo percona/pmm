@@ -43,7 +43,7 @@ To use SMTP with a PMM Docker installation:
     *NB: If you are using your Gmail’s SMTP credentials as shown above, you will have to generate an app password and fill it in as the value of your $GF_SMTP_PASSWORD variable.*
 2. Pass in the `.env` file to Docker run using the `--env-file` flag:
     ```
-    docker run --env-file=.env -p 443:443 -p 80:80 percona/pmm-server:2
+    docker run --env-file=.env -p 443:443 -p 80:80 perconalab/pmm-server:3.0.0-beta
     ```
     This command starts a docker container and will keep running as long as the container is also running. Stopping the command (e.g with Ctrl+C) will stop the container hence, subsequent commands should be run in a new terminal.
 

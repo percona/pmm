@@ -231,7 +231,7 @@ To develop custom checks for PMM:
     -e PERCONA_TEST_CHECKS_FILE=/srv/custom-checks.yml \
     -e PERCONA_TEST_CHECKS_DISABLE_START_DELAY=true \
     -e PERCONA_TEST_CHECKS_RESEND_INTERVAL=2s \
-    perconalab/pmm-server:dev-latest
+    perconalab/pmm-server:3-dev-container
     ```
 
 3.  Log into Grafana with credentials **admin/admin**.
