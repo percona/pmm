@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/admin/cli/flags"
+	"github.com/percona/pmm/admin/pkg/flags"
 )
 
 func TestConfigCommandArgs(t *testing.T) {
@@ -91,7 +91,9 @@ func TestConfigCommandArgs(t *testing.T) {
 			NodeAddress: "1.2.3.4",
 			NodeType:    "generic",
 			NodeName:    "node1",
-			LogLevel:    "info",
+			LogLevelFatalFlags: flags.LogLevelFatalFlags{
+				LogLevel: "info",
+			},
 		}
 
 		u, err := url.Parse("http://admin:admin@127.0.0.1")

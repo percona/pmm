@@ -31,11 +31,11 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/cli"
-	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/base"
 	"github.com/percona/pmm/admin/commands/management"
-	"github.com/percona/pmm/admin/logger"
+	"github.com/percona/pmm/admin/pkg/flags"
+	"github.com/percona/pmm/admin/pkg/logger"
 	"github.com/percona/pmm/utils/nodeinfo"
 	"github.com/percona/pmm/version"
 )

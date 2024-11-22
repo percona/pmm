@@ -1,7 +1,7 @@
 ---
 title: Add a Node
 slug: addnode
-category: 66aca9bf17142b005ad4e9fa
+categorySlug: inventory-api
 ---
 
 ## Add a Node
@@ -18,11 +18,10 @@ Here's how to add a Node of type `generic` using the old and new API calls.
   
 ```shell
 curl --insecure -X POST \
-  -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
-	-H 'Accept: application/json' \
-	-H 'Content-Type: application/json' \
-	--url https://127.0.0.1/v1/inventory/Nodes/AddGeneric \
-	--data '
+     --header 'Authorization: Bearer XXXXX' \
+     --header 'Content-Type: application/json' \
+     --url https://127.0.0.1/v1/inventory/Nodes/AddGeneric \
+     --data '
 {
   "node_name": "mysql-sales-db-prod-1",
   "region": "us-east-1",
@@ -40,11 +39,10 @@ curl --insecure -X POST \
 
 ```shell
 curl --insecure -X POST \
-  -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
-	-H 'Accept: application/json' \
-	-H 'Content-Type: application/json' \
-	--url https://127.0.0.1/v1/inventory/Nodes/Add \
-	--data '
+     --header 'Authorization: Bearer XXXXX' \
+     --header 'Content-Type: application/json' \
+     --url https://127.0.0.1/v1/inventory/nodes \
+     --data '
 {
   "generic": {
     "node_name": "mysql-sales-db-prod-1",
@@ -68,4 +66,4 @@ You can choose from the following Node types:
 - remote_rds
 - remote_azure
 
-To get the authentication token, check [the Authentication page](ref:authentication).
+To get the authentication token, check [Authentication](ref:authentication).

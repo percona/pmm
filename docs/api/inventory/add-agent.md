@@ -1,7 +1,7 @@
 ---
 title: Add an Agent
 slug: addagent
-category: 66aca9bf17142b005ad4e9fa
+categorySlug: inventory-api
 ---
 
 ## Add an Agent
@@ -18,11 +18,10 @@ Here's how to add an Agent of type `mysql` using the old and new API calls.
 
 ```shell
 curl --insecure -X POST \
-  -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
-	-H 'Accept: application/json' \
-	-H 'Content-Type: application/json' \
-	--url https://127.0.0.1/v1/inventory/Agents/MySQLdExporter \
-	--data '
+     --header 'Authorization: Bearer XXXXX' \
+     --header 'Content-Type: application/json' \
+     --url https://127.0.0.1/v1/inventory/Agents/MySQLdExporter \
+     --data '
 {
   "pmm_agent_id": "pmm-server",
   "service_id": "13519ec9-eedc-4d21-868c-582e146e1d0e",
@@ -43,11 +42,10 @@ curl --insecure -X POST \
 
 ```shell
 curl --insecure -X POST \
-  -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
-	-H 'Accept: application/json' \
-	-H 'Content-Type: application/json' \
-	--url https://127.0.0.1/v1/inventory/Agents/Add \
-	--data '
+     --header 'Authorization: Bearer XXXXX' \
+     --header 'Content-Type: application/json' \
+     --url https://127.0.0.1/v1/inventory/agents \
+     --data '
 {
   "mysqld_exporter": {
     "pmm_agent_id": "pmm-server",
@@ -83,4 +81,4 @@ You can choose from the following Agent types:
 - qan_postgresql_pgstatements_agent
 - qan_postgresql_pgstatmonitor_agent
 
-To get the authentication token, check [the Authentication page](ref:authentication).
+To get the authentication token, check [Authentication](ref:authentication).

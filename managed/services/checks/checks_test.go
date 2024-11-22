@@ -24,8 +24,8 @@ import (
 
 	"github.com/AlekSi/pointer"
 	_ "github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/percona-platform/saas/pkg/check"
-	"github.com/percona-platform/saas/pkg/common"
+	"github.com/percona/saas/pkg/check"
+	"github.com/percona/saas/pkg/common"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/sirupsen/logrus"

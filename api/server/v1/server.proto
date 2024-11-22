@@ -250,12 +250,12 @@ service ServerService {
       description: "Checks for available PMM Server updates."
     };
   }
-
+  // ListChangeLogs delivers the changelog.
   rpc ListChangeLogs(ListChangeLogsRequest) returns (ListChangeLogsResponse) {
     option (google.api.http) = {get: "/v1/server/updates/changelogs"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List all the changes between the installed version and the latest available version"
-      description: "List all the changes between the installed version and the latest available version"
+      summary: "Get the changelog"
+      description: "Display a changelog comparing the installed version to the latest available version."
     };
   }
   // StartUpdate starts PMM Server update.

@@ -21,7 +21,7 @@ import (
 	"os"
 	"testing"
 
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -94,7 +94,7 @@ func TestEnvVarsDatasource(t *testing.T) {
 		metrics, err := dsEnvVars.FetchMetrics(ctx, *config)
 		require.NoError(t, err)
 
-		expected := []*pmmv1.ServerMetric_Metric{
+		expected := []*telemetryv1.GenericReport_Metric{
 			{Key: "test_env_var1", Value: "1"},
 			{Key: "test_env_var2", Value: "test"},
 			{Key: "test_env_var3", Value: "true"},
@@ -138,7 +138,7 @@ func TestEnvVarsDatasource(t *testing.T) {
 		metrics, err := dsEnvVars.FetchMetrics(ctx, *config)
 		require.NoError(t, err)
 
-		expected := []*pmmv1.ServerMetric_Metric{
+		expected := []*telemetryv1.GenericReport_Metric{
 			{Key: "test_env_var6", Value: "1"},
 			{Key: "test_env_var7", Value: "1"},
 			{Key: "test_env_var8", Value: "1"},

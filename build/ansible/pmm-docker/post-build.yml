@@ -27,38 +27,19 @@
         --server-address=127.0.0.1:8443
         --server-insecure-tls
 
-    - name: Reread supervisord configuration
-      command: supervisorctl reread
-      become: true
-      become_user: pmm
-      become_method: su      
-      register: reread_result
-      changed_when: "'No config updates to processes' not in reread_result.stdout"
-
-    - name: See which service configs changed
-      debug: var=reread_result.stdout_lines
-
-    - name: Stop pmm-managed before deleting the database
-      supervisorctl:
-        name: pmm-managed
-        state: stopped
-      become: true
-      become_user: pmm
-      become_method: su
-
-    - name: Remove pmm-managed database
+    - name: Remove pmm-managed database from PostgreSQL
       postgresql_db:
         login_user: postgres
         name: pmm-managed
         force: true
         state: absent
 
-    - name: Remove pmm-managed role from postgres
+    - name: Remove pmm-managed role from PostgreSQL database
       postgresql_user:
         name: pmm-managed
         state: absent
 
-    - name: Stop supervisord service for docker
+    - name: Stop supervisord service
       command: supervisorctl shutdown
       become: true
       become_user: pmm
@@ -87,6 +68,8 @@
         - /var/log/clickhouse-server
         - /var/log/nginx
         - /var/lib/pgsql
+        - /srv/pmm-encryption.key
+        - /var/cache/yum
 
     - name: Remove users created by installers
       user:
@@ -106,7 +89,7 @@
     # This is due to the way OverlayFS and kernel works. More info https://github.com/moby/moby/issues/25409
     # This step ensures the directory is empty on startup and the contents are recreated.
     # This is not an issue if the folder is in a volume or mounted from the host OS.
-    - name: Recreate /srv/victoriametrics folder
+    - name: Recreate '/srv/victoriametrics' directory
       file:
         state: "{{ item }}"
         path: /srv/victoriametrics

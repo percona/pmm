@@ -54,4 +54,4 @@ Below is a list of affected variables and their new names.
 | `PERCONA_TEST_TELEMETRY_HOST`                 | `PMM_DEV_TELEMETRY_HOST`                   |                                                              |
 | `PERCONA_TEST_TELEMETRY_INTERVAL`             | `PMM_DEV_TELEMETRY_INTERVAL`               |                                                              |
 | `PERCONA_TEST_TELEMETRY_RETRY_BACKOFF`        | `PMM_DEV_TELEMETRY_RETRY_BACKOFF`          |                                                              |                 
-| `PERCONA_TEST_VERSION_SERVICE_URL`            | `PMM_DEV_VERSION_SERVICE_URL`              |                                                              |
+| `PERCONA_TEST_VERSION_SERVICE_URL`            |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS`    |

@@ -21,15 +21,11 @@ services:
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
       - PMM_RELEASE_PATH=/root/go/bin
       - PMM_ENABLE_ACCESS_CONTROL=${PMM_ENABLE_ACCESS_CONTROL:-0}
-      - PMM_DEV_VERSION_SERVICE_URL=${PMM_DEV_VERSION_SERVICE_URL}
       - PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-http://watchtower:8080}
       - PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
       - PMM_RELEASE_VERSION=3.0.0-alpha
-      - GF_RENDERING_SERVER_URL=http://renderer:8081/render
-      - GF_RENDERING_CALLBACK_URL=https://pmm-server:8443/graph/
       # - PMM_DISTRIBUTION_METHOD=${PMM_DISTRIBUTION_METHOD:-docker}
-      - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_DEV_UPDATE_DOCKER_IMAGE:-}
-      # - PMM_DEV_VERSION_SERVICE_URL=http://localhost:11000
+      # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_DEV_UPDATE_DOCKER_IMAGE:-}
       # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
       # - PMM_DEV_PERCONA_PLATFORM_INSECURE=1
       # - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=<public key>
@@ -49,6 +45,8 @@ services:
       # - PMM_POSTGRES_SSL_KEY_PATH=/tmp/certs/pmm-managed.key
       # - PMM_POSTGRES_SSL_CERT_PATH=/tmp/certs/pmm-managed.crt
       # - PMM_DISABLE_BUILTIN_POSTGRES=1
+      - GF_RENDERING_SERVER_URL=http://renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=https://pmm-server:8443/graph/
       # - GF_DATABASE_SSL_MODE=verify-full
       # - GF_DATABASE_CA_CERT_PATH=/tmp/certs/root.crt
       # - GF_DATABASE_CLIENT_KEY_PATH=/tmp/certs/grafana.key
@@ -90,6 +88,10 @@ services:
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
+      # grafana
+#      - "../grafana:/workspace"
+#      - "../grafana/public:/usr/share/grafana/public"
+#      - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
     # command: >
     #   bash -c "
     #     rm -rf /tmp/certs
@@ -102,13 +104,15 @@ services:
 
   renderer:
     image: grafana/grafana-image-renderer:latest
-    ports:
-      - 8081:8081
     environment:
       - RENDERING_VERBOSE_LOGGING=true
       - RENDERING_DUMPIO=true
       - IGNORE_HTTPS_ERRORS=true
       - LOG_LEVEL=debug
+    networks:
+      - ${NETWORK:-default}
+    ports:
+      - 8081:8081
 
   watchtower:
     profiles:

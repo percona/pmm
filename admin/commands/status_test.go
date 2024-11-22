@@ -65,9 +65,9 @@ PMM Client:
 	pmm-admin version: unknown
 	pmm-agent version: 2.5.1
 Agents:
-	1afe233f-b319-4645-be6c-a1e05d4a545b node_exporter Running 3310
-	2c7c0e04-6eef-411d-bcce-51e138e771cc postgresql_pgstatements_agent Running 0
-	4824ac2b-3f1f-4e9b-90d1-3f56b891bb8b postgres_exporter Running 5432
+	1afe233f-b319-4645-be6c-a1e05d4a545b node_exporter                 Running         3310
+	2c7c0e04-6eef-411d-bcce-51e138e771cc postgresql_pgstatements_agent Running         0
+	4824ac2b-3f1f-4e9b-90d1-3f56b891bb8b postgres_exporter             Running         5432
 	`) + "\n"
 	assert.Equal(t, expected, res.String())
 }

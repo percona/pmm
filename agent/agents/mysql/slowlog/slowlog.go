@@ -431,7 +431,7 @@ func makeBuckets(
 		// added here: https://github.com/percona/go-mysql/blob/v3/event/class.go#L56
 		q := v.Fingerprint
 		v.Fingerprint = query.Fingerprint(v.Fingerprint)
-		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength)
+		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength, truncate.GetDefaultMaxQueryLength())
 		mb := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
 				Queryid:              v.Id,
@@ -454,7 +454,7 @@ func makeBuckets(
 
 		if q != "" {
 			explainFingerprint, placeholdersCount := queryparser.GetMySQLFingerprintPlaceholders(q, fingerprint)
-			explainFingerprint, truncated := truncate.Query(explainFingerprint, maxQueryLength)
+			explainFingerprint, truncated := truncate.Query(explainFingerprint, maxQueryLength, truncate.GetDefaultMaxQueryLength())
 			if truncated {
 				mb.Common.IsTruncated = truncated
 			}
@@ -471,7 +471,7 @@ func makeBuckets(
 		}
 
 		if v.Example != nil && !disableQueryExamples {
-			example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
+			example, truncated := truncate.Query(v.Example.Query, maxQueryLength, truncate.GetDefaultMaxQueryLength())
 			if truncated {
 				mb.Common.IsTruncated = truncated
 			}

@@ -15,11 +15,10 @@
 package management
 
 import (
-	"strings"
-
 	"github.com/AlekSi/pointer"
 
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
@@ -50,11 +49,11 @@ func (res *registerResult) String() string {
 //
 //nolint:lll
 type RegisterCommand struct {
-	Address           string            `name:"node-address" arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
-	NodeType          string            `arg:"" enum:"generic,container" default:"generic" help:"Node type, one of: generic, container (default: generic)"`
-	NodeName          string            `arg:"" default:"${hostname}" help:"Node name (autodetected default: ${hostname})"`
-	MachineID         string            `default:"${defaultMachineID}" help:"Node machine-id (default is autodetected)"`
-	Distro            string            `default:"${distro}" help:"Node OS distribution (default is autodetected)"`
+	Address           string            `name:"node-address" arg:"" default:"${nodeIp}" help:"Node address (autodetected, default: ${default})"`
+	NodeType          string            `arg:"" enum:"generic,container" default:"generic" help:"Node type. One of: [${enum}]. Default: ${default}"`
+	NodeName          string            `arg:"" default:"${hostname}" help:"Node name (autodetected, default: ${default})"`
+	MachineID         string            `default:"${defaultMachineID}" help:"Node machine-id (autodetected, default: ${default})"`
+	Distro            string            `default:"${distro}" help:"Node OS distribution (autodetected, default: ${default})"`
 	ContainerID       string            `help:"Container ID"`
 	ContainerName     string            `help:"Container name"`
 	NodeModel         string            `help:"Node model"`
@@ -63,8 +62,9 @@ type RegisterCommand struct {
 	CustomLabels      map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	AgentPassword     string            `help:"Custom password for /metrics endpoint"`
 	Force             bool              `help:"Re-register Node"`
-	MetricsMode       string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+
+	flags.MetricsModeFlags
 }
 
 // RunCmd runs the command for RegisterCommand.
@@ -87,7 +87,7 @@ func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
 			AgentPassword: cmd.AgentPassword,
 
 			Reregister:        cmd.Force,
-			MetricsMode:       pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+			MetricsMode:       cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
 		},
 		Context: commands.Ctx,

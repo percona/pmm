@@ -16,6 +16,7 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
@@ -55,7 +56,8 @@ type AddAgentRDSExporterCommand struct {
 	DisableBasicMetrics    bool              `help:"Disable basic metrics"`
 	DisableEnhancedMetrics bool              `help:"Disable enhanced metrics"`
 	PushMetrics            bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
-	LogLevel               string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
+
+	flags.LogLevelFatalFlags
 }
 
 // RunCmd executes the AddAgentRDSExporterCommand and returns the result.
@@ -73,7 +75,7 @@ func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 				DisableBasicMetrics:    cmd.DisableBasicMetrics,
 				DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
 				PushMetrics:            cmd.PushMetrics,
-				LogLevel:               &cmd.LogLevel,
+				LogLevel:               cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

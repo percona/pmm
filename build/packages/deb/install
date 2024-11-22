@@ -4,6 +4,7 @@ pt-summary /usr/local/percona/pmm/tools/
 pt-mysql-summary /usr/local/percona/pmm/tools/
 pt-mongodb-summary /usr/local/percona/pmm/tools/
 pt-pg-summary /usr/local/percona/pmm/tools/
+nomad /usr/local/percona/pmm/tools/
 node_exporter /usr/local/percona/pmm/exporters/
 mysqld_exporter /usr/local/percona/pmm/exporters/
 postgres_exporter /usr/local/percona/pmm/exporters/
