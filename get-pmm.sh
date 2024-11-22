@@ -492,7 +492,6 @@ start_pmm() {
   msg "Starting PMM Server..."
 
   run_pmm="run -d -p $port:8443 --volume $volume_name:/srv --name $container_name --network $network_name $docker_env_flags --restart always $repo:$tag"
-  msg "\tdocker $run_pmm \n"
 
   run_docker "$run_pmm 1> /dev/null"
   msg "Created PMM Server: $container_name"
