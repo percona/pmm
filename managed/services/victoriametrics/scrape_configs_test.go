@@ -555,11 +555,13 @@ func TestScrapeConfig(t *testing.T) {
 				Address:   pointer.ToString("5.6.7.8"),
 			}
 			agent := &models.Agent{
-				AgentID:                        "75bb30d3-ef4a-4147-97a8-621a996611dd",
-				AgentType:                      models.MySQLdExporterType,
-				ListenPort:                     pointer.ToUint16(12345),
-				TableCount:                     pointer.ToInt32(100500),
-				TableCountTablestatsGroupLimit: 1000,
+				AgentID:    "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:  models.MySQLdExporterType,
+				ListenPort: pointer.ToUint16(12345),
+				MySQLOptions: &models.MySQLOptions{
+					TableCount:                     pointer.ToInt32(100500),
+					TableCountTablestatsGroupLimit: 1000,
+				},
 			}
 
 			expected := []*config.ScrapeConfig{{

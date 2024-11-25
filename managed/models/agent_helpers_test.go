@@ -103,8 +103,10 @@ func TestAgentHelpers(t *testing.T) {
 				PMMAgentID:   pointer.ToString("A4"),
 				RunsOnNodeID: nil,
 				NodeID:       pointer.ToString("N2"),
-				PushMetrics:  true,
-				ListenPort:   pointer.ToUint16(8200),
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: true,
+				},
+				ListenPort: pointer.ToUint16(8200),
 			},
 			&models.Agent{
 				AgentID:      "A6",
@@ -112,8 +114,10 @@ func TestAgentHelpers(t *testing.T) {
 				PMMAgentID:   pointer.ToString("A4"),
 				RunsOnNodeID: nil,
 				NodeID:       pointer.ToString("N2"),
-				PushMetrics:  false,
-				ListenPort:   pointer.ToUint16(8200),
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: false,
+				},
+				ListenPort: pointer.ToUint16(8200),
 			},
 			&models.Agent{
 				AgentID:       "A7",
@@ -121,19 +125,21 @@ func TestAgentHelpers(t *testing.T) {
 				PMMAgentID:    pointer.ToString("A4"),
 				RunsOnNodeID:  nil,
 				NodeID:        pointer.ToString("N1"),
-				PushMetrics:   false,
 				ListenPort:    pointer.ToUint16(8200),
 				TLS:           true,
 				TLSSkipVerify: true,
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: false,
+					MetricsResolutions: &models.MetricsResolutions{
+						HR: 1 * time.Minute,
+						MR: 5 * time.Minute,
+						LR: 15 * time.Minute,
+					},
+				},
 				PostgreSQLOptions: &models.PostgreSQLOptions{
 					SSLCa:   "ssl_ca",
 					SSLCert: "ssl_cert",
 					SSLKey:  "ssl_key",
-				},
-				MetricsResolutions: &models.MetricsResolutions{
-					HR: 1 * time.Minute,
-					MR: 5 * time.Minute,
-					LR: 15 * time.Minute,
 				},
 			},
 			&models.Agent{
@@ -142,10 +148,12 @@ func TestAgentHelpers(t *testing.T) {
 				PMMAgentID:    pointer.ToString("A8"),
 				RunsOnNodeID:  nil,
 				NodeID:        pointer.ToString("N1"),
-				PushMetrics:   false,
 				ListenPort:    pointer.ToUint16(8200),
 				TLS:           true,
 				TLSSkipVerify: true,
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: false,
+				},
 				MongoDBOptions: &models.MongoDBOptions{
 					TLSCertificateKey:             "tls_certificate_key",
 					TLSCertificateKeyFilePassword: "tls_certificate_key_file_password",
@@ -162,10 +170,12 @@ func TestAgentHelpers(t *testing.T) {
 				PMMAgentID:    pointer.ToString("A9"),
 				RunsOnNodeID:  nil,
 				NodeID:        pointer.ToString("N1"),
-				PushMetrics:   false,
 				ListenPort:    pointer.ToUint16(8200),
 				TLS:           true,
 				TLSSkipVerify: true,
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: false,
+				},
 				MongoDBOptions: &models.MongoDBOptions{
 					TLSCertificateKey:             "tls_certificate_key",
 					TLSCertificateKeyFilePassword: "tls_certificate_key_file_password",
@@ -178,15 +188,17 @@ func TestAgentHelpers(t *testing.T) {
 				},
 			},
 			&models.Agent{
-				AgentID:        "A10",
-				AgentType:      models.MongoDBExporterType,
-				PMMAgentID:     pointer.ToString("A10"),
-				RunsOnNodeID:   nil,
-				NodeID:         pointer.ToString("N1"),
-				PushMetrics:    false,
-				ListenPort:     pointer.ToUint16(8200),
-				TLS:            true,
-				TLSSkipVerify:  true,
+				AgentID:       "A10",
+				AgentType:     models.MongoDBExporterType,
+				PMMAgentID:    pointer.ToString("A10"),
+				RunsOnNodeID:  nil,
+				NodeID:        pointer.ToString("N1"),
+				ListenPort:    pointer.ToUint16(8200),
+				TLS:           true,
+				TLSSkipVerify: true,
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: false,
+				},
 				MongoDBOptions: nil, // this test is specific for nil MongoDBOptions
 			},
 		} {
@@ -208,18 +220,20 @@ func TestAgentHelpers(t *testing.T) {
 		require.NoError(t, err)
 		expected := []*models.Agent{
 			{
-				CreatedAt:      now,
-				UpdatedAt:      now,
-				Status:         models.AgentStatusUnknown,
-				AgentID:        "A10",
-				AgentType:      models.MongoDBExporterType,
-				PMMAgentID:     pointer.ToString("A10"),
-				RunsOnNodeID:   nil,
-				NodeID:         pointer.ToString("N1"),
-				PushMetrics:    false,
-				ListenPort:     pointer.ToUint16(8200),
-				TLS:            true,
-				TLSSkipVerify:  true,
+				CreatedAt:     now,
+				UpdatedAt:     now,
+				Status:        models.AgentStatusUnknown,
+				AgentID:       "A10",
+				AgentType:     models.MongoDBExporterType,
+				PMMAgentID:    pointer.ToString("A10"),
+				RunsOnNodeID:  nil,
+				NodeID:        pointer.ToString("N1"),
+				ListenPort:    pointer.ToUint16(8200),
+				TLS:           true,
+				TLSSkipVerify: true,
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: false,
+				},
 				MongoDBOptions: nil, // this test is specific for nil MongoDBOptions
 			},
 			{
@@ -243,15 +257,17 @@ func TestAgentHelpers(t *testing.T) {
 				ListenPort:    pointer.ToUint16OrNil(8200),
 				TLS:           true,
 				TLSSkipVerify: true,
+				ExporterOptions: &models.ExporterOptions{
+					MetricsResolutions: &models.MetricsResolutions{
+						HR: 1 * time.Minute,
+						MR: 5 * time.Minute,
+						LR: 15 * time.Minute,
+					},
+				},
 				PostgreSQLOptions: &models.PostgreSQLOptions{
 					SSLCa:   "ssl_ca",
 					SSLCert: "ssl_cert",
 					SSLKey:  "ssl_key",
-				},
-				MetricsResolutions: &models.MetricsResolutions{
-					HR: 1 * time.Minute,
-					MR: 5 * time.Minute,
-					LR: 15 * time.Minute,
 				},
 			},
 			{
@@ -468,15 +484,17 @@ func TestAgentHelpers(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.Equal(t, &models.Agent{
-				AgentID:       agent.AgentID,
-				AgentType:     models.ExternalExporterType,
-				RunsOnNodeID:  pointer.ToString("N1"),
-				ServiceID:     pointer.ToString("S1"),
-				ListenPort:    pointer.ToUint16(9104),
-				MetricsPath:   pointer.ToString("/metrics"),
-				MetricsScheme: pointer.ToString("http"),
-				CreatedAt:     now,
-				UpdatedAt:     now,
+				AgentID:      agent.AgentID,
+				AgentType:    models.ExternalExporterType,
+				RunsOnNodeID: pointer.ToString("N1"),
+				ServiceID:    pointer.ToString("S1"),
+				ListenPort:   pointer.ToUint16(9104),
+				ExporterOptions: &models.ExporterOptions{
+					MetricsPath:   "/metrics",
+					MetricsScheme: "http",
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
 			}, agent)
 		})
 		t.Run("Invalid listen port", func(t *testing.T) {

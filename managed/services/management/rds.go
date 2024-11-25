@@ -410,7 +410,8 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ExporterOptions: &models.ExporterOptions{
 					PushMetrics: isPushMode(metricsMode),
 				},
-				AWSOptions: &models.AWSOptions{
+				// TODO? PostgresExporter but MySQL Option?
+				MySQLOptions: &models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 				},
 
@@ -440,14 +441,16 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			// add PostgreSQL Pgstatements QAN Agent
 			if req.QanPostgresqlPgstatements {
 				qanAgent, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
-					PMMAgentID:              pmmAgentID,
-					ServiceID:               service.ServiceID,
-					Username:                req.Username,
-					Password:                req.Password,
-					TLS:                     req.Tls,
-					TLSSkipVerify:           req.TlsSkipVerify,
-					QueryExamplesDisabled:   req.DisableQueryExamples,
-					CommentsParsingDisabled: req.DisableCommentsParsing,
+					PMMAgentID:    pmmAgentID,
+					ServiceID:     service.ServiceID,
+					Username:      req.Username,
+					Password:      req.Password,
+					TLS:           req.Tls,
+					TLSSkipVerify: req.TlsSkipVerify,
+					QANOptions: &models.QANOptions{
+						QueryExamplesDisabled:   req.DisableQueryExamples,
+						CommentsParsingDisabled: req.DisableCommentsParsing,
+					},
 				})
 				if err != nil {
 					return err

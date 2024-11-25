@@ -646,12 +646,12 @@ func CreateNodeExporter(q *reform.Querier,
 		PMMAgentID:    &pmmAgentID,
 		NodeID:        pmmAgent.RunsOnNodeID,
 		AgentPassword: agentPassword,
-		LogLevel:      pointer.ToStringOrNil(logLevel),
 		ExporterOptions: &models.ExporterOptions{
 			ExposeExporter:     exposeExporter,
 			PushMetrics:        pushMetrics,
 			DisabledCollectors: disableCollectors,
 		},
+		LogLevel: pointer.ToStringOrNil(logLevel),
 	}
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
@@ -907,7 +907,6 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		AgentPassword:     pointer.ToStringOrNil(params.AgentPassword),
 		TLS:               params.TLS,
 		TLSSkipVerify:     params.TLSSkipVerify,
-		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
 		ExporterOptions:   params.ExporterOptions,
 		QANOptions:        params.QANOptions,
 		AWSOptions:        params.AWSOptions,
@@ -915,6 +914,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		MongoDBOptions:    params.MongoDBOptions,
 		MySQLOptions:      params.MySQLOptions,
 		PostgreSQLOptions: params.PostgreSQLOptions,
+		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
