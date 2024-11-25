@@ -71,7 +71,7 @@ var DefaultAgentEncryptionColumns = []encryption.Table{
 			{Name: "agent_password"},
 			{Name: "aws_options", CustomHandler: EncryptAWSOptionsHandler},
 			{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
-			{Name: "mongo_db_tls_options", CustomHandler: EncryptMongoDBOptionsHandler},
+			{Name: "mongo_options", CustomHandler: EncryptMongoDBOptionsHandler},
 			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
 			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
 		},
@@ -1075,6 +1075,16 @@ var databaseSchema = [][]string{
 	106: {
 		`ALTER TABLE user_flags
 			ADD COLUMN snoozed_pmm_version VARCHAR NOT NULL DEFAULT ''`,
+	},
+	107: {
+		`ALTER TABLE agents ADD COLUMN exporter_options JSONB`,
+		`ALTER TABLE agents ADD COLUMN qan_options JSONB`,
+		`ALTER TABLE agents ADD COLUMN aws_options JSONB`,
+
+		`ALTER TABLE agents ALTER COLUMN azure_options JSONB`,
+		`ALTER TABLE agents ALTER COLUMN mysql_options JSONB`,
+
+		`ALTER TABLE agent RENAME COLUMN mongo_db_tls_options TO mongo_options`,
 	},
 }
 

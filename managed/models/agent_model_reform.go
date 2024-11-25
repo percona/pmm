@@ -52,7 +52,7 @@ func (v *agentTableType) Columns() []string {
 		"qan_options",
 		"aws_options",
 		"azure_options",
-		"mongo_db_tls_options",
+		"mongo_options",
 		"mysql_options",
 		"postgresql_options",
 	}
@@ -103,7 +103,7 @@ var AgentTable = &agentTableType{
 			{Name: "QANOptions", Type: "*QANOptions", Column: "qan_options"},
 			{Name: "AWSOptions", Type: "*AWSOptions", Column: "aws_options"},
 			{Name: "AzureOptions", Type: "*AzureOptions", Column: "azure_options"},
-			{Name: "MongoDBOptions", Type: "*MongoDBOptions", Column: "mongo_db_tls_options"},
+			{Name: "MongoDBOptions", Type: "*MongoDBOptions", Column: "mongo_options"},
 			{Name: "MySQLOptions", Type: "*MySQLOptions", Column: "mysql_options"},
 			{Name: "PostgreSQLOptions", Type: "*PostgreSQLOptions", Column: "postgresql_options"},
 		},

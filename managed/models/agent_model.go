@@ -232,7 +232,7 @@ type Agent struct {
 
 	AWSOptions        *AWSOptions        `reform:"aws_options"`
 	AzureOptions      *AzureOptions      `reform:"azure_options"`
-	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`
+	MongoDBOptions    *MongoDBOptions    `reform:"mongo_options"`
 	MySQLOptions      *MySQLOptions      `reform:"mysql_options"`
 	PostgreSQLOptions *PostgreSQLOptions `reform:"postgresql_options"`
 }
