@@ -76,7 +76,7 @@ func createOriginEncryptionKey() error {
 //nolint:dupword
 func insertTestData(db *sql.DB) error {
 	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{
-		EncryptedItems: []string{"pmm-managed-dev.agents.username", "pmm-managed-dev.agents.password", "pmm-managed-dev.agents.aws_access_key", "pmm-managed-dev.agents.aws_secret_key", "pmm-managed-dev.agents.mongo_db_tls_options", "pmm-managed-dev.agents.azure_options", "pmm-managed-dev.agents.mysql_options", "pmm-managed-dev.agents.postgresql_options", "pmm-managed-dev.agents.agent_password"},
+		EncryptedItems: []string{"pmm-managed-dev.agents.username", "pmm-managed-dev.agents.password", "pmm-managed-dev.agents.agent_password", "pmm-managed-dev.agents.aws_options", "pmm-managed-dev.agents.azure_options", "pmm-managed-dev.agents.mongo_options", "pmm-managed-dev.agents.mysql_options", "pmm-managed-dev.agents.postgresql_options"},
 	})
 	if err != nil {
 		return err

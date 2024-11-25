@@ -129,12 +129,12 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 
 // EncryptAWSOptionsHandler returns encrypted AWS Options.
 func EncryptAWSOptionsHandler(e *encryption.Encryption, val any) (any, error) {
-	return azureOptionsHandler(val, e.Encrypt)
+	return awsOptionsHandler(val, e.Encrypt)
 }
 
 // DecryptAWSOptionsHandler returns decrypted AWS Options.
 func DecryptAWSOptionsHandler(e *encryption.Encryption, val any) (any, error) {
-	return azureOptionsHandler(val, e.Decrypt)
+	return awsOptionsHandler(val, e.Decrypt)
 }
 
 func awsOptionsHandler(val any, handler func(string) (string, error)) (any, error) {
@@ -154,6 +154,9 @@ func awsOptionsHandler(val any, handler func(string) (string, error)) (any, erro
 		return nil, err
 	}
 	o.AWSSecretKey, err = handler(o.AWSSecretKey)
+	if err != nil {
+		return nil, err
+	}
 
 	res, err := json.Marshal(o)
 	if err != nil {
