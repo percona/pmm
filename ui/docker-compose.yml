@@ -4,18 +4,18 @@ services:
     container_name: pmm-server
     # Temporary till we have arm builds
     platform: linux/amd64
-    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-container}
+    image: perconalab/pmm-server-fb:PR-3753-3f4c7d4
     ports:
       - 80:9080
       - 443:8443
     volumes:
       - ./pmm-dev.conf:/etc/nginx/conf.d/pmm-dev.conf:ro
       # Uncomment to persist pmm state
-      # - pmm-data:/srv
+      - pmm-data:/srv
 
       # Uncomment to use custom (FE) grafana code
-      #- '../../grafana/public:/usr/share/grafana/public'
-      #- '../../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini'
+      - '../../grafana/public:/usr/share/grafana/public'
+      - '../../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini'
     environment:
       - PMM_DEBUG=1
       - PERCONA_PORTAL_URL=https://portal-dev.percona.com

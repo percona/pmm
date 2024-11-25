@@ -34,7 +34,8 @@ export const MessagesProvider: FC<PropsWithChildren> = ({ children }) => {
   };
 
   useEffect(() => {
-    const onMessageReceived = (e) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onMessageReceived = (e: any) => {
       if (e.data && e.data.type === 'LOCATION_CHANGE') {
         handleLocationChange(e.data.data.location);
       }
