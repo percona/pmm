@@ -45,7 +45,7 @@ require (
 	github.com/grafana/grafana-api-golang-client v0.27.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.23.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.24.0
 	github.com/hashicorp/go-version v1.7.0
 	github.com/hashicorp/raft v1.7.0
 	github.com/jmoiron/sqlx v1.4.0
@@ -72,7 +72,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/objx v0.5.2
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	go.mongodb.org/mongo-driver v1.17.1
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	golang.org/x/crypto v0.29.0
@@ -80,10 +80,10 @@ require (
 	golang.org/x/sys v0.27.0
 	golang.org/x/text v0.20.0
 	golang.org/x/tools v0.27.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20241021214115-324edc3d5d38
+	google.golang.org/genproto/googleapis/api v0.0.0-20241118233622-e639e219e697
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241118233622-e639e219e697
 	google.golang.org/grpc v1.68.0
-	google.golang.org/protobuf v1.35.1
+	google.golang.org/protobuf v1.35.2
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
@@ -256,7 +256,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.29.0 // indirect
 	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/net v0.31.0 // indirect
-	golang.org/x/oauth2 v0.23.0 // indirect
+	golang.org/x/oauth2 v0.24.0 // indirect
 	golang.org/x/term v0.26.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gotest.tools/v3 v3.3.0 // indirect

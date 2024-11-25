@@ -18,6 +18,9 @@ on:
       - 'update/**'
       - 'vmproxy/**'
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Tests
@@ -36,11 +39,11 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Enable Go build cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        uses: actions/cache@v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -50,7 +53,7 @@ jobs:
 
       - name: Enable Go modules cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        uses: actions/cache@v4
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
@@ -91,7 +94,7 @@ jobs:
         run: docker exec -i pmm-server make -C managed test-update
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
         with:
           file: managed/cover.out
           flags: managed
