@@ -1,11 +1,4 @@
 ---
-- name: Update podman.conf
-  lineinfile:
-    path: /usr/lib/tmpfiles.d/podman.conf
-    regexp: '^x /tmp/storage-run-\*'
-    line: 'R! /tmp/storage-run-*'
-    backrefs: yes
-
 - name: PMM                        | Delete ec2-user EL9
   shell: cd /tmp; nohup sh -c "trap 'userdel -r ec2-user' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
   when:
