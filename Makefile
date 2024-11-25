@@ -8,7 +8,7 @@ endif
 
 env-up: 							## Start devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose up -d --wait
+	docker compose up -d --wait --wait-timeout 100
 
 env-up-rebuild: env-update-image	## Rebuild and start devcontainer. Useful for custom $PMM_SERVER_IMAGE
 	COMPOSE_PROFILES=$(PROFILES) \
@@ -20,7 +20,7 @@ env-update-image:					## Pull latest dev image
 
 env-compose-up: env-update-image
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose up --detach --renew-anon-volumes --remove-orphans --wait
+	docker compose up --detach --renew-anon-volumes --remove-orphans --wait --wait-timeout 100
 
 env-devcontainer:
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-server .devcontainer/setup.py
