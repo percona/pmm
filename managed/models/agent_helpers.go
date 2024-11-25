@@ -28,7 +28,6 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
 
@@ -646,7 +645,7 @@ func CreateNodeExporter(q *reform.Querier,
 		PMMAgentID:    &pmmAgentID,
 		NodeID:        pmmAgent.RunsOnNodeID,
 		AgentPassword: agentPassword,
-		ExporterOptions: &models.ExporterOptions{
+		ExporterOptions: &ExporterOptions{
 			ExposeExporter:     exposeExporter,
 			PushMetrics:        pushMetrics,
 			DisabledCollectors: disableCollectors,
@@ -736,10 +735,10 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		Username:     pointer.ToStringOrNil(params.Username),
 		Password:     pointer.ToStringOrNil(params.Password),
 		ListenPort:   pointer.ToUint16(uint16(params.ListenPort)),
-		ExporterOptions: &models.ExporterOptions{
+		ExporterOptions: &ExporterOptions{
 			PushMetrics:   params.PushMetrics,
-			MetricsPath:   &metricsPath,
-			MetricsScheme: &scheme,
+			MetricsPath:   metricsPath,
+			MetricsScheme: scheme,
 		},
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
@@ -956,7 +955,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 	}
 
 	if params.EnablePushMetrics != nil {
-		row.ExporterOptions = &models.ExporterOptions{
+		row.ExporterOptions = &ExporterOptions{
 			PushMetrics: *params.EnablePushMetrics,
 		}
 		if row.AgentType == ExternalExporterType {

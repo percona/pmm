@@ -180,7 +180,7 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	stype := service.ServiceType
 	switch stype {
 	case models.MySQLServiceType:
-		agent.TableCount = &sInfo.TableCount
+		agent.MySQLOptions.TableCount = &sInfo.TableCount
 		l.Debugf("Updating table count: %d.", sInfo.TableCount)
 		encryptedAgent := models.EncryptAgent(*agent)
 		if err = q.Update(&encryptedAgent); err != nil {

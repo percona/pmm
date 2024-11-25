@@ -37,7 +37,6 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/encryption"
 )
 
@@ -1420,7 +1419,7 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		TLSSkipVerify: params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
 		Username:      params.Username,
 		Password:      params.Password,
-		QANOptions: &models.QANOptions{
+		QANOptions: &QANOptions{
 			CommentsParsingDisabled: true,
 		},
 	}
