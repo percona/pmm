@@ -16,15 +16,10 @@ import {
   Stack,
   List,
 } from '@mui/material';
+import { MenuItem } from 'contexts/navigation/navigation.context.types';
+import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import { FC, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-type MenuItem = {
-  icon?: string;
-  title: string;
-  to?: string;
-  children?: MenuItem[];
-};
 
 const MenuIcon: FC<{ name: string }> = ({ name }) => {
   if (name === 'dashboards') {
@@ -50,34 +45,6 @@ const MenuIcon: FC<{ name: string }> = ({ name }) => {
 
   return null;
 };
-
-const navtree: MenuItem[] = [
-  {
-    icon: 'dashboards',
-    title: 'Dashboards',
-    children: [
-      {
-        title: 'PostgreSQL Instances Overview',
-        to: '/d/postgresql-instance-overview/postgresql-instances-overview',
-      },
-    ],
-  },
-  {
-    icon: 'alerts',
-    title: 'Alerts',
-    to: '/alerts',
-  },
-  {
-    icon: 'settings',
-    title: 'Settings',
-    children: [
-      {
-        title: 'Updates',
-        to: '/updates',
-      },
-    ],
-  },
-];
 
 const NavItem: FC<{ item: MenuItem }> = ({ item }) => {
   const navigate = useNavigate();
@@ -130,6 +97,8 @@ const NavItem: FC<{ item: MenuItem }> = ({ item }) => {
 };
 
 export const SideNav: FC = () => {
+  const { navTree } = useNavigation();
+
   return (
     <Drawer
       open
@@ -146,7 +115,7 @@ export const SideNav: FC = () => {
       <Toolbar />
       <Stack>
         <List>
-          {navtree.map((item) => (
+          {navTree.map((item) => (
             <NavItem key={item.title} item={item} />
           ))}
         </List>

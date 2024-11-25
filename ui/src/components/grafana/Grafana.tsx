@@ -1,24 +1,39 @@
 import { Card, Stack } from '@mui/material';
 import { Page } from 'components/page';
-import { FC, useEffect, useRef } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-export const Grafana: FC<{ url: string }> = () => {
+const mapUrl = (url: string) => {
+  if (url.includes('/graph/alerts')) {
+    return '/graph/alerting';
+  }
+
+  return url;
+};
+
+export const Grafana: FC<{ url: string }> = ({ url: baseUrl }) => {
   const location = useLocation();
   const url = getUrl(location.pathname);
+  const [src] = useState(mapUrl(baseUrl));
   const ref = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     if (url) {
       ref.current?.contentWindow?.postMessage(
         {
-          type: 'NAVIGATE-TO',
-          to: url,
+          type: 'NAVIGATE_TO',
+          data: {
+            to: url,
+          },
         },
         '*'
       );
     }
   }, [url]);
+
+  useEffect(() => {
+    console.log('grafana-src', src);
+  }, [src]);
 
   return (
     <Page>
@@ -31,7 +46,7 @@ export const Grafana: FC<{ url: string }> = () => {
             },
           }}
         >
-          <iframe ref={ref} src="/graph"></iframe>
+          <iframe ref={ref} src={src}></iframe>
         </Stack>
       </Card>
     </Page>

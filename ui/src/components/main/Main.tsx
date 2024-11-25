@@ -4,6 +4,7 @@ import { AppBar } from '../app-bar/AppBar';
 import { useBootstrap } from 'hooks/utils/useBootstrap';
 import { Grafana } from 'components/grafana/Grafana';
 import { SideNav } from 'components/sidenav/SideNav';
+import { MessagesProvider } from 'contexts/messages/messages.provider';
 
 export const Main = () => {
   const { isReady } = useBootstrap();
@@ -25,22 +26,30 @@ export const Main = () => {
   }
 
   return (
-    <Stack>
-      <AppBar />
-      <Stack direction="row">
-        <SideNav />
-        {!isGrafana && <Outlet />}
-        <Stack
-          sx={{
-            flex: 1,
-            visibility: isGrafana ? 'visible' : 'hidden',
-            width: isGrafana ? 'auto' : 0,
-          }}
-        >
-          <Grafana url="" />
+    <MessagesProvider>
+      <Stack>
+        <AppBar />
+        <Stack direction="row">
+          <SideNav />
+          {!isGrafana && <Outlet />}
+          <Stack
+            sx={{
+              flex: 1,
+              visibility: isGrafana ? 'visible' : 'hidden',
+              width: isGrafana ? 'auto' : 0,
+            }}
+          >
+            <Grafana
+              url={
+                isGrafana
+                  ? `/graph${location.pathname}?${location.search}`
+                  : '/graph'
+              }
+            />
+          </Stack>
         </Stack>
       </Stack>
-    </Stack>
+    </MessagesProvider>
   );
 };
 
