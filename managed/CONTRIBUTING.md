@@ -56,7 +56,6 @@ go test -timeout=30s -p 1 ./...
 | Variable                                 | Description                                                                                                         | Default                                  |
 |------------------------------------------|---------------------------------------------------------------------------------------------------------------------|------------------------------------------|
 | PMM_DEV_ADVISOR_STARLARK_ALLOW_RECURSION | Allows recursive functions in checks scripts                                                                        | false                                    |
-| PMM_DEV_VERSION_SERVICE_URL              | Sets versions service URL                                                                                           | https://check.percona.com/versions/v1    |
 | PMM_DEV_ADVISOR_CHECKS_FILE              | Specifies path to local checks file and disables downlading checks files from Percona Platform                      | none                                     |
 | PMM_ADVISOR_CHECKS_DISABLE_START_DELAY   | Disables checks service startup delay                                                                               | false                                    |
 | PMM_DEV_TELEMETRY_INTERVAL               | Sets telemetry reporting interval                                                                                   | 24h                                      |
