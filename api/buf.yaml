@@ -2,6 +2,7 @@ version: v2
 modules:
   - path: .
 deps:
+  - buf.build/alta/protopatch
   - buf.build/envoyproxy/protoc-gen-validate
   - buf.build/googleapis/googleapis
   - buf.build/grpc-ecosystem/grpc-gateway

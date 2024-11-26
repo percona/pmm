@@ -20,6 +20,7 @@ package tools
 import (
 	_ "github.com/BurntSushi/go-sumtype"
 	_ "github.com/Percona-Lab/swagger-order"
+	_ "github.com/alta/protopatch/cmd/protoc-gen-go-patch"
 	_ "github.com/apache/skywalking-eyes/cmd/license-eye"
 	_ "github.com/bufbuild/buf/cmd/buf"
 	_ "github.com/daixiang0/gci"
@@ -56,6 +57,7 @@ import (
 //go:generate go build -o ../bin/mockery github.com/vektra/mockery/v2
 //go:generate go build -o ../bin/protoc-gen-go google.golang.org/protobuf/cmd/protoc-gen-go
 //go:generate go build -o ../bin/protoc-gen-go-grpc google.golang.org/grpc/cmd/protoc-gen-go-grpc
+//go:generate go build -o ../bin/protoc-gen-go-patch github.com/alta/protopatch/cmd/protoc-gen-go-patch
 //go:generate go build -o ../bin/protoc-gen-grpc-gateway github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
 //go:generate go build -o ../bin/protoc-gen-openapiv2 github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
 //go:generate go build -o ../bin/reform gopkg.in/reform.v1/reform
