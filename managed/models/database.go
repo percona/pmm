@@ -1081,8 +1081,8 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents ADD COLUMN qan_options JSONB`,
 		`ALTER TABLE agents ADD COLUMN aws_options JSONB`,
 
-		`ALTER TABLE agents ALTER COLUMN azure_options JSONB USING to_jsonb(azure_options)`,
-		`ALTER TABLE agents ALTER COLUMN mysql_options JSONB USING to_jsonb(mysql_options)`,
+		`ALTER TABLE agents ALTER COLUMN azure_options TYPE JSONB USING to_jsonb(azure_options)`,
+		`ALTER TABLE agents ALTER COLUMN mysql_options TYPE JSONB USING to_jsonb(mysql_options)`,
 
 		`ALTER TABLE agent RENAME COLUMN mongo_db_tls_options TO mongo_options`,
 	},
