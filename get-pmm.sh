@@ -15,8 +15,8 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 
 # Set defaults.
 network_name=${NETWORK_NAME:-pmm-net}
-tag=${PMM_TAG:-3}
-repo=${PMM_REPO:-percona/pmm-server}
+tag=${PMM_TAG:-3.0.0-beta}
+repo=${PMM_REPO:-perconalab/pmm-server}
 port=${PMM_PORT:-443}
 container_name=${CONTAINER_NAME:-pmm-server}
 docker_socket_path=${DOCKER_SOCKET_PATH:-/var/run/docker.sock}
