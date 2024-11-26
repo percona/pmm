@@ -737,8 +737,8 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		ListenPort:   pointer.ToUint16(uint16(params.ListenPort)),
 		ExporterOptions: &ExporterOptions{
 			PushMetrics:   params.PushMetrics,
-			MetricsPath:   metricsPath,
-			MetricsScheme: scheme,
+			MetricsPath:   pointer.ToStringOrNil(metricsPath),
+			MetricsScheme: pointer.ToStringOrNil(scheme),
 		},
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {

@@ -448,8 +448,8 @@ func TestExporterURL(t *testing.T) {
 				ListenPort:   pointer.ToUint16(9121),
 				ExporterOptions: &models.ExporterOptions{
 					PushMetrics:   true,
-					MetricsPath:   "/metrics",
-					MetricsScheme: "http",
+					MetricsPath:   pointer.ToString("/metrics"),
+					MetricsScheme: pointer.ToString("http"),
 				},
 			},
 
@@ -463,8 +463,8 @@ func TestExporterURL(t *testing.T) {
 				Password:     pointer.ToString("secret"),
 				ExporterOptions: &models.ExporterOptions{
 					PushMetrics:   false,
-					MetricsPath:   "/metrics",
-					MetricsScheme: "http",
+					MetricsPath:   pointer.ToString("/metrics"),
+					MetricsScheme: pointer.ToString("http"),
 				},
 			},
 
@@ -478,8 +478,8 @@ func TestExporterURL(t *testing.T) {
 				Password:     pointer.ToString("secret"),
 				ExporterOptions: &models.ExporterOptions{
 					PushMetrics:   false,
-					MetricsPath:   "/metrics",
-					MetricsScheme: "http",
+					MetricsPath:   pointer.ToString("/metrics"),
+					MetricsScheme: pointer.ToString("http"),
 				},
 			},
 
@@ -493,8 +493,8 @@ func TestExporterURL(t *testing.T) {
 				Password:     pointer.ToString("secret"),
 				ExporterOptions: &models.ExporterOptions{
 					PushMetrics:   false,
-					MetricsPath:   "/metrics?format=prometheus&output=json",
-					MetricsScheme: "http",
+					MetricsPath:   pointer.ToString("/metrics?format=prometheus&output=json"),
+					MetricsScheme: pointer.ToString("http"),
 				},
 			},
 
@@ -508,8 +508,8 @@ func TestExporterURL(t *testing.T) {
 				Password:     pointer.ToString("secret"),
 				ExporterOptions: &models.ExporterOptions{
 					PushMetrics:   false,
-					MetricsPath:   "/",
-					MetricsScheme: "http",
+					MetricsPath:   pointer.ToString("/"),
+					MetricsScheme: pointer.ToString("http"),
 				},
 			},
 		} {

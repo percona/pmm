@@ -47,8 +47,8 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 
 	args := getArgs(exporter, tdp, listenAddress, pmmAgentVersion)
 
-	if exporter.ExporterOptions != nil && exporter.ExporterOptions.MetricsPath != "" {
-		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath) //nolint:goconst
+	if exporter.ExporterOptions != nil && exporter.ExporterOptions.MetricsPath != nil {
+		args = append(args, "--web.telemetry-path="+*exporter.ExporterOptions.MetricsPath) //nolint:goconst
 	}
 
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)

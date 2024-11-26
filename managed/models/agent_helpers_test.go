@@ -490,8 +490,8 @@ func TestAgentHelpers(t *testing.T) {
 				ServiceID:    pointer.ToString("S1"),
 				ListenPort:   pointer.ToUint16(9104),
 				ExporterOptions: &models.ExporterOptions{
-					MetricsPath:   "/metrics",
-					MetricsScheme: "http",
+					MetricsPath:   pointer.ToString("/metrics"),
+					MetricsScheme: pointer.ToString("http"),
 				},
 				CreatedAt: now,
 				UpdatedAt: now,

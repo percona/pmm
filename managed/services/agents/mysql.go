@@ -106,8 +106,8 @@ func mysqldExporterConfig(
 
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
 
-	if exporter.ExporterOptions.MetricsPath != "" {
-		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
+	if exporter.ExporterOptions.MetricsPath != nil {
+		args = append(args, "--web.telemetry-path="+*exporter.ExporterOptions.MetricsPath)
 	}
 
 	files := exporter.Files()

@@ -84,8 +84,8 @@ type ExporterOptions struct {
 	PushMetrics        bool                `reform:"push_metrics"`
 	DisabledCollectors pq.StringArray      `reform:"disabled_collectors"`
 	MetricsResolutions *MetricsResolutions `reform:"metrics_resolutions"`
-	MetricsPath        string              `reform:"metrics_path"`
-	MetricsScheme      string              `reform:"metrics_scheme"`
+	MetricsPath        *string             `reform:"metrics_path"`
+	MetricsScheme      *string             `reform:"metrics_scheme"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -597,8 +597,8 @@ func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 		s.ExporterOptions = &ExporterOptions{}
 	}
 
-	scheme := s.ExporterOptions.MetricsScheme
-	path := s.ExporterOptions.MetricsPath
+	scheme := pointer.GetString(s.ExporterOptions.MetricsScheme)
+	path := pointer.GetString(s.ExporterOptions.MetricsPath)
 	listenPort := int(pointer.GetUint16(s.ListenPort))
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
@@ -721,7 +721,7 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 		pointer.GetString(svc.Address),
 		pointer.GetString(s.Username),
 		pointer.GetString(s.Password),
-		s.ExporterOptions.MetricsPath,
+		pointer.GetString(s.ExporterOptions.MetricsPath),
 	}
 
 	switch svc.ServiceType {
