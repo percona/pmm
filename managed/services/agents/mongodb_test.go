@@ -416,8 +416,8 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	})
 }
 
-func TestMongodbExporterConfig2430(t *testing.T) {
-	pmmAgentVersion := version.MustParse("2.43.0")
+func TestMongodbExporterConfig2432(t *testing.T) {
+	pmmAgentVersion := version.MustParse("2.43.2")
 	node := &models.Node{
 		Address: "1.2.3.4",
 	}
