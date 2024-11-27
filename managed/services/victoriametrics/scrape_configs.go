@@ -418,7 +418,10 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 
 	var defaultCollectors []string
 	if !params.pmmAgentVersion.Less(version.MustParse("2.43.0-0")) {
-		defaultCollectors = append(defaultCollectors, "fcv", "pbm")
+		defaultCollectors = append(defaultCollectors, "fcv")
+	}
+	if !params.pmmAgentVersion.Less(version.MustParse("2.43.2-0")) {
+		defaultCollectors = append(defaultCollectors, "pbm")
 	}
 
 	if params.agent.MongoDBOptions != nil && params.agent.MongoDBOptions.EnableAllCollectors {
