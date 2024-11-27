@@ -69,7 +69,7 @@ func createOriginEncryptionKey() error {
 	if err != nil {
 		return err
 	}
-	encryption.DefaultEncryption = encryption.New()
+	encryption.DefaultEncryption, _ = encryption.New()
 	return nil
 }
 
