@@ -1,0 +1,101 @@
+---
+# This role installs and configures Loki (https://github.com/grafana/loki).
+
+- name: Add Grafana RPM repository
+  yum_repository:
+    name: grafana
+    description: Grafana repository
+    baseurl: https://rpm.grafana.com
+    gpgcheck: yes
+    enabled: no
+    gpgkey: https://rpm.grafana.com/gpg.key
+    sslverify: yes
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+
+- name: Install Loki and Promtail
+  yum:
+    name: "{{ item }}"
+    state: latest
+    disablerepo: "*"
+    enablerepo: grafana
+  loop:
+    - loki
+    - promtail
+
+- name: Create loki and promtail users
+  user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid }}"
+    comment: "{{ item.comment }}"
+    shell: "{{ item.shell }}"
+    group: "{{ item.group }}"
+    create_home: false
+  loop:
+    - { name: loki, uid: 1001, comment: "Loki user", shell: "/sbin/nologin", group: pmm, }
+    - { name: promtail, uid: 1002, comment: "Promtail user", shell: "/sbin/nologin", group: pmm, }
+
+- name: Create directories for Loki
+  file:
+    path: /srv/loki/data
+    state: directory
+    owner: pmm
+    group: pmm
+    recurse: true
+
+- name: Copy the supervisord config file for Loki and Promtail
+  copy:
+    src: loki.ini
+    dest: /etc/supervisord.d/loki.ini
+    owner: pmm
+    group: pmm
+
+- name: Copy Loki config file
+  copy:
+    src: config.yml
+    dest: /etc/loki/config.yml
+    owner: pmm
+    group: pmm
+
+- name: Copy Promtail config file
+  copy:
+    src: promtail.yml
+    dest: /srv/loki/promtail.yml
+    owner: pmm
+    group: pmm
+
+- name: Copy the Grafana datasource file
+  copy:
+    src: loki.yml
+    dest: /usr/share/grafana/conf/provisioning/datasources/loki.yml
+    owner: pmm
+    group: pmm
+
+- name: Remove the end of log_format line in nginx.conf
+  command: sed -i 's/^\([[:space:]]*log_format  main\).*/\1/' /etc/nginx/nginx.conf
+
+- name: Remove the log_format in nginx.conf
+  command: sed -i '/log_format/{n;N;d;}' /etc/nginx/nginx.conf
+
+- name: Replace the original log_format with a json one
+  blockinfile:
+    path: /etc/nginx/nginx.conf
+    marker: "{mark}"
+    marker_begin: "#LOG_FORMAT_BEGIN"
+    marker_end: "#LOG_FORMAT_END"
+    insertafter: "log_format"
+    block: "{{ lookup('ansible.builtin.file', '/opt/ansible/roles/loki/files/json_log_format.conf') }}"
+
+- name: Remove ansible markers from nginx.conf
+  command: sed -i '/^#LOG_FORMAT_.*/d' /etc/nginx/nginx.conf
+
+- name: Add Loki location to pmm.conf
+  blockinfile:
+    path: /etc/nginx/conf.d/pmm.conf
+    marker: "{mark}"
+    marker_begin: "#LOKI_LOCATION_BEGIN"
+    marker_end: "#LOKI_LOCATION_END"
+    insertbefore: "# Swagger UI"
+    block: "{{ lookup('ansible.builtin.file', '/opt/ansible/roles/loki/files/loki_location.conf') }}"
+
+- name: Remove ansible markers from pmm.conf
+  command: sed -i '/^#LOKI_LOCATION_.*/d' /etc/nginx/conf.d/pmm.conf
