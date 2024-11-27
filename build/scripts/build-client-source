@@ -61,7 +61,7 @@ main() {
   prepare_tarball percona-toolkit
 
   local noxattrs=
-  if [ $(uname -s) = "Darwin" ]; then
+  if echo $(uname -s) | grep -qi "Darwin"; then
     noxattrs="--no-xattrs"
   fi
 

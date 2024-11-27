@@ -6,18 +6,20 @@ usage() {
 	cat <<-EOF
 Usage: $BASE_NAME [OPTIONS]
 Options:
-			--init                   Clone the source, initialize directories and check for pre-requisites
-			--platform <platform>    Build for a specific platform (defaults to linux/amd64)
-			--no-update              Do not fetch the latest changes from the repo
-			--update-only            Only fetch the latest changes from the repo
-			--client-only            Build only PMM Client (client binaries + docker)
-			--no-client              Do not build PMM Client
-			--no-client-docker       Do not build PMM Client docker image (default)
-			--log-file <path>        Save build logs to a file located at <path> (defaults to PWD)
-															 Note: the log file will get reset on every subsequent run
+      --init                   Clone the source, initialize directories, check for pre-requisites and exit
+      --platform <platform>    Build for a specific platform (defaults to linux/amd64)
+      --no-update              Do not fetch the latest changes from the repo
+      --update-only            Just fetch the latest changes from the repo and halt
+      --client-only            Build only PMM Client (client binaries + docker)
+      --no-client              Do not build PMM Client
+      --no-client-docker       Do not build PMM Client docker image (default)
+      --log-file <path>        Save build logs to a file located at <path> (defaults to $PWD/build.log)
+                               Note: the log file will get reset on every subsequent run
       --release                Mark it as a release build (otherwise it's a feature build)
-	-d  --debug                  Log output in debug mode, which also prints the commands
-	-h  --help                   Display help
+  -d  --debug                  Log output in debug mode, which also prints the commands
+  -h  --help                   Display help
+
+Please note, the script will perform the update of submodules by default on every run unless the '--no-update' option is specified.
 EOF
 }
 
@@ -222,10 +224,10 @@ update() {
 	local UPDATED_SCRIPT="$SUBMODULES/$PATH_TO_SCRIPTS/build/local/build"
 	local MD5SUM=$(md5sum $(dirname $0)/build)
 
-	 if [ "$NO_UPDATE" -eq 1 ]; then
-		echo "Info: skip refreshing the source code from upstream repositories..."
-		return
-	 fi
+  if [ "$NO_UPDATE" -eq 1 ]; then
+    echo "Info: skip refreshing the source code from upstream repositories..."
+    return
+  fi
 
 	cat <<-'EOF' > entrypoint.sh
 		#!/bin/bash -e
@@ -273,10 +275,10 @@ update() {
 
 	cd "$CURDIR" > /dev/null
 
-	if [ -f "$UPDATED_SCRIPT" ] && [ "$MD5SUM" != "$(md5sum $UPDATED_SCRIPT)" ]; then
+	if [ -f "$UPDATED_SCRIPT" ] && [ $(md5sum $UPDATED_SCRIPT) != "$MD5SUM" ]; then
 		echo "The local copy of this script differs from the one fetched from the repo." 
 		echo "Apparently, that version is newer. We will halt to give you the change to run a fresh version."
-		echo "You can copy it over and run it again, i.e. '/bin/bash $(dirname $0)/build --no-update'"
+		echo "You can copy it over and run it again, i.e. '/bin/bash $(dirname $0)/build'"
 		exit 0
 	fi
 }

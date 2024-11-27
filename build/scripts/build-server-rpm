@@ -21,6 +21,16 @@ get_rpm_version() {
   echo "${rpm_version}"
 }
 
+get_shasum256() {
+  local DIR=${1:-}
+  if [ ! -d "$DIR" ]; then
+    echo -e "Error: directory '$1' does not exist, exiting..."
+    exit 1
+  fi
+
+  find "$DIR" -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d " " -f1 | cut -c 1-8
+}
+
 is_build_needed() {
   local spec_name=$1
   local rpm_version=$2
@@ -88,7 +98,7 @@ prepare_spec() {
   fi
 
   if [ -z "${full_pmm_version}" ]; then
-    echo 'The full_pmm_version is not specified.'
+    echo "Fatal: 'full_pmm_version' is not specified, exiting..."
     exit 1
   fi
   sed -i -e "s/%define full_pmm_version.*/%define full_pmm_version ${full_pmm_version}/" ${spec_file}

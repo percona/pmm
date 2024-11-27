@@ -94,3 +94,8 @@ Currently, local builds target the following environments:
 * copy all build scripts to `build/local` to isolate the new build flows from the old ones
 * use the `--debug` parameter to control the verbosity of the logs
 * provide better caching for pmm-qan, pmm-agent, vmproxy and pmm-admin, which all reside in one monorepo, by calculating a sha256sum on their directories
+
+## TODO
+
+- implement the `--init` parameter
+- implement the `--release` parameter
