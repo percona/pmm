@@ -26,7 +26,6 @@ This project is built from several repositories:
 
 * [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/main/admin)
 * [percona/qan-api](https://github.com/percona/pmm/tree/main/qan-api2) query analytics API
-* [percona/pmm-update](https://github.com/percona/pmm/tree/main/update) is a tool for updating packages and OS configuration for PMM
 
 #### Frontends
 
