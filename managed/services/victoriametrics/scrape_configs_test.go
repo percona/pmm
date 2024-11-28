@@ -888,7 +888,7 @@ func TestScrapeConfig(t *testing.T) {
 				node:              node,
 				service:           service,
 				agent:             agent,
-				pmmAgentVersion:   version.MustParse("2.43.0"),
+				pmmAgentVersion:   version.MustParse("2.43.2"),
 				metricsResolution: s,
 			})
 			require.NoError(t, err)
