@@ -11,11 +11,11 @@ Options:
       --no-update              Do not fetch the latest changes from the repo
       --update-only            Just fetch the latest changes from the repo and halt
       --client-only            Build only PMM Client (client binaries + docker)
-      --no-client              Do not build PMM Client
+      --no-client              Do not build PMM Client (this will use local cache)
       --no-client-docker       Do not build PMM Client docker image (default)
       --log-file <path>        Save build logs to a file located at <path> (defaults to $PWD/build.log)
                                Note: the log file will get reset on every subsequent run
-      --release                Mark it as a release build (otherwise it's a feature build)
+      --release-build          Make it a release build (otherwise it's a feature build)
   -d  --debug                  Log output in debug mode, which also prints the commands
   -h  --help                   Display help
 
@@ -34,7 +34,7 @@ parse_params() {
 	LOG_FILE="$(dirname $0)/build.log"
 	BASE_NAME=$(basename $0)
 	PLATFORM=linux/amd64
-	SUBMODULES=pmm-submodules
+	SUBMODULES=.modules
 	PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
 	VAR_PREFIX="__PMM"
 
@@ -64,13 +64,6 @@ parse_params() {
 			--no-client)
 				NO_CLIENT=1; NO_CLIENT_DOCKER=1
 				;;
-			--client-docker)
-				if [ "$NO_CLIENT" -eq 1 ]; then
-					echo "Error. Mutually exclusive options: --client-docker and --no-client"
-					exit 1
-				fi
-				NO_CLIENT_DOCKER=0
-				;;
 			--no-client-docker)
 				if [ "$NO_CLIENT" -eq 1 ]; then
 					echo "Error. Mutually exclusive options: --client-docker and --no-client"
@@ -94,7 +87,7 @@ parse_params() {
 				fi
 				LOG_FILE="$1"
 				;;
-      --release)
+      --release-build)
         RELEASE_BUILD=1
         shift
         ;;
@@ -210,7 +203,7 @@ check_files() {
 		exit 1
 	fi
 
-	if [ ! -f "ci.yml" ] || [ ! -s "ci.yml" ]; then
+	if [ ! -s "ci.yml" ]; then
 		echo "Error: the current directory '$PWD' must contain a non-empty ci.yml file."
 		echo "Please refer to this [README](https://github.com/Percona-Lab/pmm-submodules/blob/v3/README.md#how-to-create-a-feature-build) for more information."
 		exit 1
@@ -221,8 +214,6 @@ check_files() {
 update() {
 	local DEPS=
 	local CURDIR="$PWD"
-	local UPDATED_SCRIPT="$SUBMODULES/$PATH_TO_SCRIPTS/build/local/build"
-	local MD5SUM=$(md5sum $(dirname $0)/build)
 
   if [ "$NO_UPDATE" -eq 1 ]; then
     echo "Info: skip refreshing the source code from upstream repositories..."
@@ -232,7 +223,8 @@ update() {
 	cat <<-'EOF' > entrypoint.sh
 		#!/bin/bash -e
 		DEPS=$(yq -o=json eval-all '. as $item ireduce ({}; . *d $item )' /ci-default.yml /ci.yml | jq '.deps')
-		echo $DEPS | jq -r '[.[] | {name: .name, branch: .branch, path: .path, url: .url}]'
+		DEPS=$(echo "$DEPS" | jq -r '[.[] | {name: .name, branch: .branch, path: .path, url: .url}]')
+    echo "$DEPS"
 	EOF
 
 	chmod +x "$CURDIR/entrypoint.sh"
@@ -251,7 +243,7 @@ update() {
 	rm -f "$CURDIR/entrypoint.sh"
 
 	echo
-	echo "This script rewinds submodule branches as per the joint config of 'ci-default.yml' and 'ci.yml'"
+	echo "This script rewinds submodule branches as per the joint config of '.gitmodules' and 'ci.yml'"
 
 	cd "$SUBMODULES"
 
@@ -274,13 +266,6 @@ update() {
 	git submodule status
 
 	cd "$CURDIR" > /dev/null
-
-	if [ -f "$UPDATED_SCRIPT" ] && [ $(md5sum $UPDATED_SCRIPT) != "$MD5SUM" ]; then
-		echo "The local copy of this script differs from the one fetched from the repo." 
-		echo "Apparently, that version is newer. We will halt to give you the change to run a fresh version."
-		echo "You can copy it over and run it again, i.e. '/bin/bash $(dirname $0)/build'"
-		exit 0
-	fi
 }
 
 get_branch_name() {

@@ -21,7 +21,7 @@ Below is a list of prerequisites that are required to build PMM locally.
 - Docker: 25.0.2+
 - Docker buildx plugin: 0.16.0+, https://github.com/docker/buildx
 - make
-- bash (GNU)
+- bash
 - tar
 - git
 - curl
@@ -32,13 +32,13 @@ Please note, that building some of the PMM internals, such as Grafana, requires 
 ## How to use this script to build PMM
 
 1. Install the prerequisites
-2. Download the `build` script to the user's home directory, e.g.: `curl -o $HOME/build https://raw.githubusercontent.com/percona/pmm/refs/heads/PMM-13487-build-pmm-locally/build/local/build`. 
-3. Change to the user `cd $HOME` directory.
-4. Run `./build --provision` to download the source code using our `https://github.com/percona-lab/pmm-submodules` repository.
-5. Run `./build --help` to display the script usage.
+2. Clone the `pmm` repository - `git clone git@github.com:percona/pmm`.
+3. Change directory to `pmm` - `cd pmm`.
+4. Run `./build --help` to display the script usage.
+5. Run `./build --init` to provision all dependent submodules using `https://github.com/percona-lab/pmm-submodules` repository.
 6. Run `./build` with parameters of your choice to build PMM v3.
 
-Usually, you will want to rebuild PMM whenever there are changes in at least one of its components. All components of PMM are gathered together in one repository - `github.com/percona-lab/pmm-submodules` (or `pmm-submodules`). Therefore, you can run `build` as often as those changes need to be factored in to the next build.
+Usually, you will want to rebuild PMM whenever there are changes in at least one of its components. With the exception of ClickHouse and All components of PMM are gathered together in one repository - `github.com/percona-lab/pmm-submodules` (or `pmm-submodules`). Therefore, you can run `build` as often as those changes need to be factored in to the next build.
 
 Once the build is finished, you can proceed with launching a new instance of PMM Server, or installing a freshly built PMM Client, and testing the changes.
 
@@ -77,21 +77,35 @@ It's important to note, however, that once all changes are made and tested, you 
 
 ## Target environments
 
-Currently, local builds target the following environments:
-- PMM Client
-  - tarball - most Linux environments, noarch
-  - RPM - RHEL9-compatible environments, amd64/aarch64
-  - docker image - docker and Kubernetes environments amd64/aarch64
-- PMM Server
-  - docker image - docker and Kubernetes environments amd64/aarch64
+Currently, Local Builds target the following platforms and distributions:
+
+### PMM Client
+
+| Platform     | tarball | rpm, rpms | deb, deb-src | docker image |
+|--------------|:-------:|:---------:|:------------:|:------------:|
+| linux/amd64  |    X    |     X     |      X       |      X       |
+| linux/arm64  |    X    |     X     |      X       |      X       |
+| darwin/arm64 |    X    |    N/A    |     N/A      |     N/A      |
+
+### PMM Server
+
+| Platform         | AMI     | OVF     | docker image |
+|:----------------:|:-------:|:-------:|:------------:|
+| linux/amd64      |    X    |    X    |      X       |
+| linux/arm64      |    X    |    X    |      X       |
+| darwin/arm64     |    X    |   N/A   |     N/A      |
+
 
 
 ## Ideas to evaluate
 
 * download the sources to a local directory `.modules` w/o using pmm-submodules
 * have a VERSION file, similar to the one in https://github.com/percona-lab/pmm-submodules/blob/v3/VERSION
-* have a package.yml file containing hashes of all build artefacts (PMM components, i.e. grafana, pmm-managed, etc.)
-* copy all build scripts to `build/local` to isolate the new build flows from the old ones
+* have a `package.yml` file containing the bill of all repositories, such as grafana, exporters, etc. along with the following information:
+  * component name
+  * the repository URL
+  * the branch used for the build
+  * the commit hash
 * use the `--debug` parameter to control the verbosity of the logs
 * provide better caching for pmm-qan, pmm-agent, vmproxy and pmm-admin, which all reside in one monorepo, by calculating a sha256sum on their directories
 

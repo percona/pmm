@@ -1,49 +1,44 @@
-/.idea/
-/.vscode/
-*.iml
-
-/api/nginx/*.pem
-bin/
+.idea/
+.vscode/
 
 # System Files
 .DS_Store
 
-cover.out
-crosscover.out
+# development
+.modules/
+bin/
+dist/
+.env
+.netrc
+pmm-agent-dev.yaml
+compose.yml
+ci.yml
+sbom.json
+*.log
+
+api/nginx/*.pem
+api-tests/pmm-api-tests-output.txt
+api-tests/pmm-api-tests-junit-report.xml
 
 agent/testdata/
-
 agent/agents/mysql/slowlog/parser/corpus/
 agent/agents/mysql/slowlog/parser/crashers/
 agent/agents/mysql/slowlog/parser/suppressions/
 agent/agents/mysql/slowlog/parser/parser-fuzz.zip
-
 update/*.runcover.out
 update/*.test
+
+cli-tests/node_modules/
+cli-tests/playwright-report/
+
+qan-api2/logs/
+
+cover.out
+crosscover.out
 
 fuzzing/
 *-fuzz.zip
 *.bench
 
-backoff.png
-pmm-agent-dev.yaml
-compose.yml
-
-/qan-api2/logs/
-
 # ViM temporary files
 *.sw[o,p]
-
-.env
-.netrc
-
-cli-tests/node_modules/
-cli-tests/playwright-report/
-
-api-tests/pmm-api-tests-output.txt
-api-tests/pmm-api-tests-junit-report.xml
-
-packer.log
-
-# Goreleaser
-dist/
