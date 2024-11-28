@@ -415,34 +415,32 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 	if hr != nil {
 		r = append(r, hr)
 	}
+
+	var defaultCollectors []string
+	if !params.pmmAgentVersion.Less(version.MustParse("2.43.0-0")) {
+		defaultCollectors = append(defaultCollectors, "fcv")
+	}
+	if !params.pmmAgentVersion.Less(version.MustParse("2.43.2-0")) {
+		defaultCollectors = append(defaultCollectors, "pbm")
+	}
+
 	if params.agent.MongoDBOptions != nil && params.agent.MongoDBOptions.EnableAllCollectors {
-		defaultCollectors := []string{
-			"dbstats",
-			"indexstats",
-			"collstats",
-		}
+		defaultCollectors = append(defaultCollectors, "dbstats", "indexstats", "collstats")
 		if !params.pmmAgentVersion.Less(version.MustParse("2.41.1-0")) {
 			defaultCollectors = append(defaultCollectors, "shards")
 		}
 		if !params.pmmAgentVersion.Less(version.MustParse("2.42.0-0")) {
 			defaultCollectors = append(defaultCollectors, "currentopmetrics")
 		}
-		if !params.pmmAgentVersion.Less(version.MustParse("2.43.0-0")) {
-			defaultCollectors = append(defaultCollectors, "fcv")
-		}
-		if !params.pmmAgentVersion.Less(version.MustParse("2.43.0-0")) {
-			defaultCollectors = append(defaultCollectors, "pbm")
-		}
+	}
+	defaultCollectors = collectors.FilterOutCollectors("", defaultCollectors, params.agent.DisabledCollectors)
+	lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, defaultCollectors)
+	if err != nil {
+		return nil, err
+	}
 
-		defaultCollectors = collectors.FilterOutCollectors("", defaultCollectors, params.agent.DisabledCollectors)
-		lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, defaultCollectors)
-		if err != nil {
-			return nil, err
-		}
-
-		if lr != nil {
-			r = append(r, lr)
-		}
+	if lr != nil {
+		r = append(r, lr)
 	}
 	return r, nil
 }
