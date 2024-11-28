@@ -24,6 +24,13 @@
     policy: targeted
     state: permissive
 
+- name: Update podman.conf
+  lineinfile:
+    path: /usr/lib/tmpfiles.d/podman.conf
+    regexp: '^x /tmp/storage-run-\*'
+    line: 'R! /tmp/storage-run-*'
+    backrefs: yes
+
 - name: Create a volume on the host
   command: podman volume create pmm-data
   become: true
