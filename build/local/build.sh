@@ -200,18 +200,21 @@ check_files() {
 	# Thouroughly verify the presence of known files, bail out on failure
 	if [ ! -d "$DIR" ] ; then
 		echo "Error: could not locate the '$SUBMODULES' directory."
-    echo "Consider running ./build.sh --init to clone the source code, then try again."
+    echo "Consider running './build.sh --init' to clone the source code, then try again."
+    echo
 		exit 1
 	fi
 
 	if [ ! -d "$DIR/sources" ] || [ ! -d "$DIR/.git" ] || [ ! -f "$DIR/.gitmodules" ] || [ ! -f "$DIR/ci-default.yml" ]; then
 		echo "Error: directory $DIR does not look like a clone of https://github.com/percona-lab/pmm-submodules repository, exiting..."
+    echo
 		exit 1
 	fi
 
 	if [ ! -s "ci.yml" ]; then
 		echo "Error: the current directory '$PWD' must contain a non-empty ci.yml file."
 		echo "Please refer to the following [README](https://github.com/Percona-Lab/pmm-submodules/blob/v3/README.md#how-to-create-a-feature-build) for more information."
+    echo
 		exit 1
 	fi
 }
@@ -388,8 +391,36 @@ initialize() {
   git submodule status
 
   echo "Info: the source code has been cloned to '$SUBMODULES'."
+  echo
+
+  echo "Pulling the docker image $RPMBUILD_DOCKER_IMAGE ..."
+  docker pull --platform="$PLATFORM" "$RPMBUILD_DOCKER_IMAGE"
 
   cd "$CURDIR" > /dev/null
+}
+
+check_if_installed() {
+  local cmd="$1"
+  if ! command -v "$cmd" &> /dev/null; then
+    echo "Error: $cmd is not installed, exiting..."
+    echo
+    return 1
+  fi
+
+  return 0
+}
+
+check_preprequisites() {
+  local commands=("docker" "make" "bash" "tar" "git" "curl" "jq")
+  for cmd in "${commands[@]}"; do
+    check_if_installed "$cmd"
+  done
+
+  if ! docker buildx version &> /dev/null; then
+    echo "Error: 'docker buildx plugin is not installed, exiting..."
+    echo
+    exit 1
+  fi
 }
 
 cleanup() {
@@ -407,6 +438,8 @@ main() {
 
 	# Capture the build logs in the log file
 	exec > >(tee "$LOG_FILE") 2>&1
+
+  check_preprequisites
 
 	if [ "$INITIALIZE" -eq 1 ]; then
     initialize

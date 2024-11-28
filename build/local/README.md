@@ -106,9 +106,14 @@ Currently, Local Builds target the following platforms and distributions:
   * the repository URL
   * the branch used for the build
   * the commit hash
-* use the `--debug` parameter to control the verbosity of the logs
-* provide better caching for pmm-qan, pmm-agent, vmproxy and pmm-admin, which all reside in one monorepo, by calculating a sha256sum on their directories
+* provide better caching for components, which reside in one monorepo, by calculating a sha256sum on their directories:
+  - pmm-ui (:done:)
+  - pmm-qan
+  - pmm-agent
+  - vmproxy
+  - pmm-admin
 
 ## TODO
 
+- use the `--debug` parameter to control the verbosity of the logs
 - implement the `--release` parameter
