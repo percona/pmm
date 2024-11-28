@@ -111,5 +111,4 @@ Currently, Local Builds target the following platforms and distributions:
 
 ## TODO
 
-- implement the `--init` parameter
 - implement the `--release` parameter

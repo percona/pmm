@@ -6,18 +6,18 @@ usage() {
 	cat <<-EOF
 Usage: $BASE_NAME [OPTIONS]
 Options:
-      --init                   Clone the source, initialize directories, check for pre-requisites and exit
-      --platform <platform>    Build for a specific platform (defaults to linux/amd64)
-      --no-update              Do not fetch the latest changes from the repo
-      --update-only            Just fetch the latest changes from the repo and halt
-      --client-only            Build only PMM Client (client binaries + docker)
-      --no-client              Do not build PMM Client (this will use local cache)
-      --no-client-docker       Do not build PMM Client docker image (default)
-      --log-file <path>        Save build logs to a file located at <path> (defaults to $PWD/build.log)
-                               Note: the log file will get reset on every subsequent run
-      --release-build          Make it a release build (otherwise it's a feature build)
-  -d  --debug                  Log output in debug mode, which also prints the commands
-  -h  --help                   Display help
+      --init                  Clone the source, initialize directories, check for pre-requisites and exit
+      --platform <platform>   Build for a specific platform (defaults to linux/amd64)
+      --no-update             Do not fetch the latest changes from the repo
+      --update-only           Just fetch the latest changes from the repo and halt
+      --client-only           Build only PMM Client (client binaries + docker)
+      --no-client             Do not build PMM Client (this will use local cache)
+      --no-client-docker      Do not build PMM Client docker image (default)
+      --log-file <path>       Save build logs to a file located at <path> (defaults to $PWD/build.log)
+                              Note: the log file will get reset on every subsequent run
+      --release-build         Make it a release build (otherwise it's a feature build)
+  -d  --debug                 Log output in debug mode, which also prints the commands
+  -h  --help                  Display help
 
 Please note, the script will perform the update of submodules by default on every run unless the '--no-update' option is specified.
 EOF
@@ -25,6 +25,7 @@ EOF
 
 parse_params() {
 	# All global variables must be defined here
+  INITIALIZE=0
 	NO_UPDATE=0
 	UPDATE_ONLY=0
 	NO_CLIENT=0
@@ -35,6 +36,7 @@ parse_params() {
 	BASE_NAME=$(basename $0)
 	PLATFORM=linux/amd64
 	SUBMODULES=.modules
+  CLONE_BRANCH=v3
 	PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
 	VAR_PREFIX="__PMM"
 
@@ -48,6 +50,9 @@ parse_params() {
 
 	while test "$#" -gt 0; do
 		case "$1" in
+			--init)
+				INITIALIZE=1
+				;;
 			--update-only)
 				UPDATE_ONLY=1; NO_UPDATE=0
 				;;
@@ -192,9 +197,10 @@ rewind() {
 check_files() {
 	local DIR="$1"
 
-	# Thouroughly verify the presence of known files, otherwise bail out
+	# Thouroughly verify the presence of known files, bail out on failure
 	if [ ! -d "$DIR" ] ; then
-		echo "Error: could not locate the 'pmm-submodules' directory."
+		echo "Error: could not locate the '$SUBMODULES' directory."
+    echo "Consider running ./build.sh --init to clone the source code, then try again."
 		exit 1
 	fi
 
@@ -205,7 +211,7 @@ check_files() {
 
 	if [ ! -s "ci.yml" ]; then
 		echo "Error: the current directory '$PWD' must contain a non-empty ci.yml file."
-		echo "Please refer to this [README](https://github.com/Percona-Lab/pmm-submodules/blob/v3/README.md#how-to-create-a-feature-build) for more information."
+		echo "Please refer to the following [README](https://github.com/Percona-Lab/pmm-submodules/blob/v3/README.md#how-to-create-a-feature-build) for more information."
 		exit 1
 	fi
 }
@@ -367,6 +373,25 @@ check_volumes() {
 	cd "$CURDIR" > /dev/null
 }
 
+initialize() {
+  local CURDIR="$PWD"
+  local NPROCS=$(getconf _NPROCESSORS_ONLN)
+
+  if [ -d "$SUBMODULES" ]; then
+    echo "Info: the source code has already been cloned to '$SUBMODULES', exiting..."
+    return
+  fi
+
+  git clone --branch "$CLONE_BRANCH" git@github.com:/Percona-Lab/pmm-submodules.git "$SUBMODULES"
+  cd "$SUBMODULES" > /dev/null
+  git submodule update --init --jobs ${NPROCS:-2}
+  git submodule status
+
+  echo "Info: the source code has been cloned to '$SUBMODULES'."
+
+  cd "$CURDIR" > /dev/null
+}
+
 cleanup() {
 	local CURDIR="$PWD"
 	cd "$SUBMODULES" > /dev/null
@@ -383,7 +408,12 @@ main() {
 	# Capture the build logs in the log file
 	exec > >(tee "$LOG_FILE") 2>&1
 
-	check_files "$SUBMODULES"
+	if [ "$INITIALIZE" -eq 1 ]; then
+    initialize
+    exit 0
+  fi
+  
+  check_files "$SUBMODULES"
 
 	check_volumes
 
