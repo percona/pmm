@@ -80,7 +80,6 @@
   - name: Upgrade/Install dashboards
     include_role:
       name: dashboards
-    when: need_initialization or need_upgrade  
 
   - name: Create a backup directory
     file:
