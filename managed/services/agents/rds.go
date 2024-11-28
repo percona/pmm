@@ -77,6 +77,10 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 			return nil, err
 		}
 
+		if exporter.AWSOptions == nil {
+			exporter.AWSOptions = &models.AWSOptions{}
+		}
+
 		config.Instances = append(config.Instances, rdsInstance{
 			Region:                 pointer.GetString(node.Region),
 			Instance:               node.Address,

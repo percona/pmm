@@ -1085,6 +1085,43 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents ALTER COLUMN mysql_options TYPE JSONB USING to_jsonb(mysql_options)`,
 
 		`ALTER TABLE agents RENAME COLUMN mongo_db_tls_options TO mongo_options`,
+
+		// migrate values into new fields in options and drop original columns
+		`UPDATE agents SET exporter_options = jsonb_set(COALESCE(exporter_options, '{}'::jsonb), '{expose_exporter}', to_jsonb(expose_exporter));`,
+		`UPDATE agents SET exporter_options = jsonb_set(COALESCE(exporter_options, '{}'::jsonb), '{push_metrics}', to_jsonb(push_metrics));`,
+		`UPDATE agents SET exporter_options = jsonb_set(COALESCE(exporter_options, '{}'::jsonb), '{disabled_collectors}', to_jsonb(disabled_collectors));`,
+		`UPDATE agents SET exporter_options = jsonb_set(COALESCE(exporter_options, '{}'::jsonb), '{metrics_resolutions}', to_jsonb(metrics_resolutions));`,
+		`UPDATE agents SET exporter_options = jsonb_set(COALESCE(exporter_options, '{}'::jsonb), '{metrics_path}', to_jsonb(metrics_path));`,
+		`UPDATE agents SET exporter_options = jsonb_set(COALESCE(exporter_options, '{}'::jsonb), '{metrics_scheme}', to_jsonb(metrics_scheme));`,
+		`ALTER TABLE agents DROP COLUMN expose_exporter`,
+		`ALTER TABLE agents DROP COLUMN push_metrics`,
+		`ALTER TABLE agents DROP COLUMN disabled_collectors`,
+		`ALTER TABLE agents DROP COLUMN metrics_resolutions`,
+		`ALTER TABLE agents DROP COLUMN metrics_path`,
+		`ALTER TABLE agents DROP COLUMN metrics_scheme`,
+
+		`UPDATE agents SET qan_options = jsonb_set(COALESCE(qan_options, '{}'::jsonb), '{max_query_length}', to_jsonb(max_query_length));`,
+		`UPDATE agents SET qan_options = jsonb_set(COALESCE(qan_options, '{}'::jsonb), '{max_query_log_size}', to_jsonb(max_query_log_size));`,
+		`UPDATE agents SET qan_options = jsonb_set(COALESCE(qan_options, '{}'::jsonb), '{query_examples_disabled}', to_jsonb(query_examples_disabled));`,
+		`UPDATE agents SET qan_options = jsonb_set(COALESCE(qan_options, '{}'::jsonb), '{comments_parsing_disabled}', to_jsonb(comments_parsing_disabled));`,
+		`ALTER TABLE agents DROP COLUMN max_query_length`,
+		`ALTER TABLE agents DROP COLUMN max_query_log_size`,
+		`ALTER TABLE agents DROP COLUMN query_examples_disabled`,
+		`ALTER TABLE agents DROP COLUMN comments_parsing_disabled`,
+
+		`UPDATE agents SET aws_options = jsonb_set(COALESCE(aws_options, '{}'::jsonb), '{aws_access_key}', to_jsonb(aws_access_key));`,
+		`UPDATE agents SET aws_options = jsonb_set(COALESCE(aws_options, '{}'::jsonb), '{aws_secret_key}', to_jsonb(aws_secret_key));`,
+		`UPDATE agents SET aws_options = jsonb_set(COALESCE(aws_options, '{}'::jsonb), '{rds_basic_metrics_disabled}', to_jsonb(rds_basic_metrics_disabled));`,
+		`UPDATE agents SET aws_options = jsonb_set(COALESCE(aws_options, '{}'::jsonb), '{rds_enhanced_metrics_disabled}', to_jsonb(rds_enhanced_metrics_disabled));`,
+		`ALTER TABLE agents DROP COLUMN aws_access_key`,
+		`ALTER TABLE agents DROP COLUMN aws_secret_key`,
+		`ALTER TABLE agents DROP COLUMN rds_basic_metrics_disabled`,
+		`ALTER TABLE agents DROP COLUMN rds_enhanced_metrics_disabled`,
+
+		`UPDATE agents SET mysql_options = jsonb_set(COALESCE(mysql_options, '{}'::jsonb), '{table_count}', to_jsonb(table_count));`,
+		`UPDATE agents SET mysql_options = jsonb_set(COALESCE(mysql_options, '{}'::jsonb), '{table_count_tablestats_group_limit}', to_jsonb(table_count_tablestats_group_limit));`,
+		`ALTER TABLE agents DROP COLUMN table_count`,
+		`ALTER TABLE agents DROP COLUMN table_count_tablestats_group_limit`,
 	},
 }
 

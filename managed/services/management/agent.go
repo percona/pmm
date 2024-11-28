@@ -123,42 +123,51 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 	}
 
 	ua := &managementv1.UniversalAgent{
-		AgentId:                        agent.AgentID,
-		AgentType:                      string(agent.AgentType),
-		AwsAccessKey:                   agent.AWSOptions.AWSAccessKey,
-		CreatedAt:                      timestamppb.New(agent.CreatedAt),
-		CustomLabels:                   labels,
-		Disabled:                       agent.Disabled,
-		DisabledCollectors:             agent.ExporterOptions.DisabledCollectors,
-		IsConnected:                    s.r.IsConnected(agent.AgentID),
-		IsAgentPasswordSet:             pointer.GetString(agent.AgentPassword) != "",
-		IsAwsSecretKeySet:              agent.AWSOptions.AWSAccessKey != "",
-		IsPasswordSet:                  pointer.GetString(agent.Password) != "",
-		ListenPort:                     uint32(pointer.GetUint16(agent.ListenPort)),
-		LogLevel:                       inventoryv1.LogLevelAPIValue(agent.LogLevel),
-		MaxQueryLength:                 agent.QANOptions.MaxQueryLength,
-		MaxQueryLogSize:                agent.QANOptions.MaxQueryLogSize,
-		MetricsPath:                    pointer.GetString(agent.ExporterOptions.MetricsPath),
-		MetricsScheme:                  pointer.GetString(agent.ExporterOptions.MetricsScheme),
-		NodeId:                         pointer.GetString(agent.NodeID),
-		PmmAgentId:                     pointer.GetString(agent.PMMAgentID),
-		ProcessExecPath:                pointer.GetString(agent.ProcessExecPath),
-		PushMetrics:                    agent.ExporterOptions.PushMetrics,
-		ExposeExporter:                 agent.ExporterOptions.ExposeExporter,
-		QueryExamplesDisabled:          agent.QANOptions.QueryExamplesDisabled,
-		CommentsParsingDisabled:        agent.QANOptions.CommentsParsingDisabled,
-		RdsBasicMetricsDisabled:        agent.AWSOptions.RDSBasicMetricsDisabled,
-		RdsEnhancedMetricsDisabled:     agent.AWSOptions.RDSEnhancedMetricsDisabled,
-		RunsOnNodeId:                   pointer.GetString(agent.RunsOnNodeID),
-		ServiceId:                      pointer.GetString(agent.ServiceID),
-		Status:                         agent.Status,
-		TableCount:                     pointer.GetInt32(agent.MySQLOptions.TableCount),
-		TableCountTablestatsGroupLimit: agent.MySQLOptions.TableCountTablestatsGroupLimit,
-		Tls:                            agent.TLS,
-		TlsSkipVerify:                  agent.TLSSkipVerify,
-		Username:                       pointer.GetString(agent.Username),
-		UpdatedAt:                      timestamppb.New(agent.UpdatedAt),
-		Version:                        pointer.GetString(agent.Version),
+		AgentId:            agent.AgentID,
+		AgentType:          string(agent.AgentType),
+		CreatedAt:          timestamppb.New(agent.CreatedAt),
+		CustomLabels:       labels,
+		Disabled:           agent.Disabled,
+		IsConnected:        s.r.IsConnected(agent.AgentID),
+		IsAgentPasswordSet: pointer.GetString(agent.AgentPassword) != "",
+		IsPasswordSet:      pointer.GetString(agent.Password) != "",
+		ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+		LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
+		NodeId:             pointer.GetString(agent.NodeID),
+		PmmAgentId:         pointer.GetString(agent.PMMAgentID),
+		ProcessExecPath:    pointer.GetString(agent.ProcessExecPath),
+		RunsOnNodeId:       pointer.GetString(agent.RunsOnNodeID),
+		ServiceId:          pointer.GetString(agent.ServiceID),
+		Status:             agent.Status,
+		Tls:                agent.TLS,
+		TlsSkipVerify:      agent.TLSSkipVerify,
+		Username:           pointer.GetString(agent.Username),
+		UpdatedAt:          timestamppb.New(agent.UpdatedAt),
+		Version:            pointer.GetString(agent.Version),
+	}
+
+	if agent.ExporterOptions != nil {
+		ua.DisabledCollectors = agent.ExporterOptions.DisabledCollectors
+		ua.MetricsPath = pointer.GetString(agent.ExporterOptions.MetricsPath)
+		ua.MetricsScheme = pointer.GetString(agent.ExporterOptions.MetricsScheme)
+		ua.PushMetrics = agent.ExporterOptions.PushMetrics
+		ua.ExposeExporter = agent.ExporterOptions.ExposeExporter
+
+	}
+
+	if agent.QANOptions != nil {
+		ua.MaxQueryLength = agent.QANOptions.MaxQueryLength
+		ua.MaxQueryLogSize = agent.QANOptions.MaxQueryLogSize
+		ua.QueryExamplesDisabled = agent.QANOptions.QueryExamplesDisabled
+		ua.CommentsParsingDisabled = agent.QANOptions.CommentsParsingDisabled
+	}
+
+	if agent.AWSOptions != nil {
+		ua.IsAwsSecretKeySet = agent.AWSOptions.AWSAccessKey != ""
+		ua.AwsAccessKey = agent.AWSOptions.AWSAccessKey
+		ua.RdsBasicMetricsDisabled = agent.AWSOptions.RDSBasicMetricsDisabled
+		ua.RdsEnhancedMetricsDisabled = agent.AWSOptions.RDSEnhancedMetricsDisabled
+
 	}
 
 	if agent.AzureOptions != nil {
@@ -171,20 +180,6 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		}
 	}
 
-	if agent.MySQLOptions != nil {
-		ua.MysqlOptions = &managementv1.UniversalAgent_MySQLOptions{
-			IsTlsKeySet: agent.MySQLOptions.TLSKey != "",
-		}
-	}
-
-	if agent.PostgreSQLOptions != nil {
-		ua.PostgresqlOptions = &managementv1.UniversalAgent_PostgreSQLOptions{
-			IsSslKeySet:            agent.PostgreSQLOptions.SSLKey != "",
-			AutoDiscoveryLimit:     agent.PostgreSQLOptions.AutoDiscoveryLimit,
-			MaxExporterConnections: agent.PostgreSQLOptions.MaxExporterConnections,
-		}
-	}
-
 	if agent.MongoDBOptions != nil {
 		ua.MongoDbOptions = &managementv1.UniversalAgent_MongoDBOptions{
 			AuthenticationMechanism:            agent.MongoDBOptions.AuthenticationMechanism,
@@ -194,6 +189,23 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 			StatsCollections:                   agent.MongoDBOptions.StatsCollections,
 			IsTlsCertificateKeySet:             agent.MongoDBOptions.TLSCertificateKey != "",
 			IsTlsCertificateKeyFilePasswordSet: agent.MongoDBOptions.TLSCertificateKeyFilePassword != "",
+		}
+	}
+
+	if agent.MySQLOptions != nil {
+		ua.MysqlOptions = &managementv1.UniversalAgent_MySQLOptions{
+			IsTlsKeySet: agent.MySQLOptions.TLSKey != "",
+		}
+		ua.TableCount = pointer.GetInt32(agent.MySQLOptions.TableCount)
+		ua.TableCountTablestatsGroupLimit = agent.MySQLOptions.TableCountTablestatsGroupLimit
+
+	}
+
+	if agent.PostgreSQLOptions != nil {
+		ua.PostgresqlOptions = &managementv1.UniversalAgent_PostgreSQLOptions{
+			IsSslKeySet:            agent.PostgreSQLOptions.SSLKey != "",
+			AutoDiscoveryLimit:     agent.PostgreSQLOptions.AutoDiscoveryLimit,
+			MaxExporterConnections: agent.PostgreSQLOptions.MaxExporterConnections,
 		}
 	}
 

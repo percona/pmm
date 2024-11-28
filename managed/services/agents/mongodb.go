@@ -21,6 +21,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -47,7 +48,11 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 
 	args := getArgs(exporter, tdp, listenAddress, pmmAgentVersion)
 
-	if exporter.ExporterOptions != nil && exporter.ExporterOptions.MetricsPath != nil {
+	if exporter.ExporterOptions == nil {
+		exporter.ExporterOptions = &models.ExporterOptions{}
+	}
+
+	if pointer.GetString(exporter.ExporterOptions.MetricsPath) != "" {
 		args = append(args, "--web.telemetry-path="+*exporter.ExporterOptions.MetricsPath) //nolint:goconst
 	}
 
@@ -163,6 +168,10 @@ func buildBaseArgs(listenAddress string, tdp *models.DelimiterPair) []string {
 // qanMongoDBProfilerAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
 func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
+	if agent.QANOptions == nil {
+		agent.QANOptions = &models.QANOptions{}
+	}
+
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),

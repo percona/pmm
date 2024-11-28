@@ -84,6 +84,10 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
+	if exporter.PostgreSQLOptions == nil {
+		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{}
+	}
+
 	autoDiscovery := false
 	if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {
 		switch {
@@ -133,6 +137,9 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
+	if exporter.AzureOptions == nil {
+		exporter.AzureOptions = &models.AzureOptions{}
+	}
 	if exporter.AzureOptions != nil {
 		dnsParams.DialTimeout = 5 * time.Second
 	}
@@ -170,6 +177,7 @@ func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models
 	if agent.QANOptions == nil {
 		agent.QANOptions = &models.QANOptions{}
 	}
+
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 		Dsn:                    agent.DSN(service, dnsParams, nil, pmmAgentVersion),
@@ -191,6 +199,10 @@ func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *model
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
+	if agent.QANOptions == nil {
+		agent.QANOptions = &models.QANOptions{}
+	}
+
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 		Dsn:                    agent.DSN(service, dnsParams, nil, pmmAgentVersion),

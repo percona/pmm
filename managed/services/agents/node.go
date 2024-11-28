@@ -35,7 +35,6 @@ var (
 
 func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) {
 	listenAddress := getExporterListenAddress(node, exporter)
-
 	if exporter.ExporterOptions == nil {
 		exporter.ExporterOptions = &models.ExporterOptions{}
 	}
