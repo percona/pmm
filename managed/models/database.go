@@ -60,8 +60,8 @@ const (
 	VerifyFullSSLMode string = "verify-full"
 )
 
-// DefaultAgentEncryptionColumns contains all tables and it's columns to be encrypted in PMM Server DB.
-var DefaultAgentEncryptionColumns = []encryption.Table{
+// DefaultAgentEncryptionColumns since 3.0.0 contains all tables and it's columns to be encrypted in PMM Server DB.
+var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 	{
 		Name:        "agents",
 		Identifiers: []string{"agent_id"},
@@ -72,6 +72,25 @@ var DefaultAgentEncryptionColumns = []encryption.Table{
 			{Name: "aws_options", CustomHandler: EncryptAWSOptionsHandler},
 			{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
 			{Name: "mongo_options", CustomHandler: EncryptMongoDBOptionsHandler},
+			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
+			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
+		},
+	},
+}
+
+// DefaultAgentEncryptionColumns contains all tables and it's columns to be encrypted in PMM Server DB.
+var DefaultAgentEncryptionColumns = []encryption.Table{
+	{
+		Name:        "agents",
+		Identifiers: []string{"agent_id"},
+		Columns: []encryption.Column{
+			{Name: "username"},
+			{Name: "password"},
+			{Name: "agent_password"},
+			{Name: "aws_access_key"},
+			{Name: "aws_secret_key"},
+			{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
+			{Name: "mongo_db_tls_options", CustomHandler: EncryptMongoDBOptionsHandler},
 			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
 			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
 		},
@@ -1122,6 +1141,21 @@ var databaseSchema = [][]string{
 		`UPDATE agents SET mysql_options = jsonb_set(COALESCE(mysql_options, '{}'::jsonb), '{table_count_tablestats_group_limit}', to_jsonb(table_count_tablestats_group_limit));`,
 		`ALTER TABLE agents DROP COLUMN table_count`,
 		`ALTER TABLE agents DROP COLUMN table_count_tablestats_group_limit`,
+
+		// update settings -> encrypted items!!
+		`UPDATE settings SET settings = jsonb_set(settings, '{encrypted_items}', 
+			'[
+				"pmm-managed.agents.username", 
+				"pmm-managed.agents.password", 
+				"pmm-managed.agents.agent_password", 
+				"pmm-managed.agents.aws_options", 
+				"pmm-managed.agents.azure_options", 
+				"pmm-managed.agents.mongo_options",
+				"pmm-managed.agents.mysql_options", 
+				"pmm-managed.agents.postgresql_options"
+			]'::jsonb
+		)
+		WHERE settings ? 'encrypted_items';`,
 	},
 }
 
@@ -1213,7 +1247,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	if err := migrateDB(db, params, DefaultAgentEncryptionColumns); err != nil {
+	if err := migrateDB(db, params); err != nil {
 		return nil, err
 	}
 
@@ -1350,7 +1384,7 @@ func initWithRoot(params SetupDBParams) error {
 }
 
 // migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
+func migrateDB(db *reform.DB, params SetupDBParams) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
@@ -1384,6 +1418,11 @@ func migrateDB(db *reform.DB, params SetupDBParams, itemsToEncrypt []encryption.
 					return errors.Wrapf(err, "failed to execute statement:\n%s", q)
 				}
 			}
+		}
+
+		itemsToEncrypt := DefaultAgentEncryptionColumnsV3
+		if params.MigrationVersion != nil && currentVersion < 107 {
+			itemsToEncrypt = DefaultAgentEncryptionColumns
 		}
 
 		err := EncryptDB(tx, params.Name, itemsToEncrypt)
