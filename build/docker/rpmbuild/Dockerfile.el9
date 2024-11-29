@@ -31,7 +31,7 @@ RUN yum install -y gcc gcc-c++ \
 # keep that format for easier search
 ARG GO_VERSION
 ENV GO_VERSION=${GO_VERSION:-1.23.2}
-ENV GO_RELEASER_VERSION=2.4.1
+ENV GO_RELEASER_VERSION=2.4.8
 ENV NODE_OPTIONS=--max_old_space_size=8000
 
 RUN if [ `uname -i` == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
@@ -42,7 +42,7 @@ RUN if [ `uname -i` == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
     rm /tmp/golang.tar.gz /tmp/goreleaser.rpm && \
     curl -o /usr/bin/yq -fSsL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH} && \
     chmod +x /usr/bin/yq && \
-    yum clean all && rm -rf /var/cache/yum
+    yum clean all && rm -rf /var/cache/yum /var/cache/dnf
 
 
 RUN update-alternatives --install "/usr/bin/go" "go" "/usr/local/go/bin/go" 0
@@ -54,7 +54,9 @@ RUN useradd builder -u 1000 -m -G users,wheel && \
     echo "builder ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers && \
     echo "# macros"                      >  /home/builder/.rpmmacros && \
     echo "%_topdir    /home/builder/rpm" >> /home/builder/.rpmmacros && \
-    mkdir -p /home/builder/rpm /home/builder/.cache/go-build /home/builder/go/pkg/mod && \
+    mkdir -p /home/builder/{rpm,go/pkg} /home/builder/.cache/{go-build,yarn,dnf,go/pkg/mod} && \
+    ln -s /home/builder/.cache/go/pkg/mod /home/builder/go/pkg/mod && \
+    ln -s /home/builder/.cache/dnf /var/cache/dnf && \
     chmod 755 /home/builder && \
     chown -R builder:builder /home/builder
 

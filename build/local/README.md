@@ -117,3 +117,4 @@ Currently, Local Builds target the following platforms and distributions:
 
 - use the `--debug` parameter to control the verbosity of the logs
 - implement the `--release` parameter
+- remove `jq` from prerequisites
