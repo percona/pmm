@@ -1,8 +1,7 @@
 #!/bin/sh
 # NOTE: this script must be executed in a container environment.
 
-set -o errexit
-set -o xtrace
+set_options
 
 usage () {
   cat <<EOF

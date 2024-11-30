@@ -2,8 +2,7 @@
 
 . $(dirname $0)/vars
 
-set -o errexit
-set -o xtrace
+set_options
 
 main() {
   echo -----------------------------------------

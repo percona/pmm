@@ -1,10 +1,8 @@
 #!/bin/bash
 
-
-set -o errexit
-set -o xtrace
-
 . $(dirname $0)/vars
+
+set_options
 
 # build pmm-client
 pmm_version=${pmm_version} ${bin_dir}/build-client

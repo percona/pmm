@@ -1,8 +1,8 @@
 #!/bin/bash
-set -o errexit
-set -o xtrace
 
 . $(dirname $0)/vars
+
+set_options
 
 main() {
   local IMAGE=${1:-ubuntu:focal}

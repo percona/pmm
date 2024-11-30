@@ -1,9 +1,8 @@
 #!/bin/bash
 
-set -o errexit
-set -o xtrace
-
 . $(dirname $0)/vars
+
+set_options
 
 # Important: `bin_dir` and `binary_dir` are different directories. `bin_dir` defines the directory for binary files 
 # inside the container, while `binary_dir` defines the directory for binary files outside the container.

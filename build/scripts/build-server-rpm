@@ -1,8 +1,8 @@
 #!/bin/bash
-set -o errexit
 
 . $(dirname $0)/vars
-set_xtrace
+
+set_options
 
 get_rpm_version() {
   local spec_name=$1
