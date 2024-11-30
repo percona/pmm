@@ -101,20 +101,22 @@
       method: GET
     retries: 20
     delay: 5
+    register: pmm_ready
+    until: pmm_ready.status == 200
     ignore_errors: true
 
   - name: Initialize admin password for AMI if needed
     include_role:
       name: init-admin-password-ami
     when: need_initialization and is_ami
-
-  - name: Disable maintenance mode
-    file:
-      state: absent
-      path: /usr/share/pmm-server/maintenance/maintenance.html
-
-  - name: Remove the file provisioned by 'getStatus'
-    file:
-      state: absent
-      path: /srv/pmm-update.json      
   when: need_initialization or need_upgrade
+
+- name: Disable maintenance mode
+  file:
+    state: absent
+    path: /usr/share/pmm-server/maintenance/maintenance.html
+
+- name: Remove the file provisioned by 'getStatus'
+  file:
+    state: absent
+    path: /srv/pmm-update.json
