@@ -1,5 +1,6 @@
 .idea/
 .vscode/
+*.sw[o,p]
 
 # System Files
 .DS_Store
@@ -8,6 +9,7 @@
 .modules/
 bin/
 dist/
+build/
 .env
 .netrc
 pmm-agent-dev.yaml
@@ -39,6 +41,3 @@ crosscover.out
 fuzzing/
 *-fuzz.zip
 *.bench
-
-# ViM temporary files
-*.sw[o,p]

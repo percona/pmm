@@ -68,7 +68,8 @@ prepare_spec() {
   mkdir -p ${rpms_dir} ${rpmbuild_dir} 2>/dev/null || :
   cp ${rpmspec_dir}/${spec_name}.spec ${spec_file}
   if [ ! -d "${root_dir}/sources/${repo_name}" ]; then
-    # Exit if the repo can't be found in pmm-submodules (e.g. VictoriaMetrics and Nomad)
+    # Exit if the repo is not located in pmm-submodules, e.g. VictoriaMetrics or Nomad,
+    # as they do not have a spec file.
     return
   fi
   if [ ! -f "${spec_file}" ]; then
@@ -108,7 +109,7 @@ prepare_spec() {
     grep -r 'define release' ${spec_file}
   fi
 
-  if [ "${spec_name}" != "victorimetrics" ]; then
+  if [ "${spec_name}" != "victoriametrics" ]; then
     # Substitute the https source by pointing to the repo on the filesystem
     sed -i -e "s;\(Source0:[[:space:]]*\)http.*;\1${tar_archive};" ${spec_file}
   fi
@@ -179,7 +180,7 @@ build() {
     rpmbuild  --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
               --define 'dist .${rpmbuild_dist}' \
               --define 'debug_package %{nil}' \
-              -ba SOURCES/${spec_name}.spec
+              -bb SOURCES/${spec_name}.spec
 
     rm -f SOURCES/${spec_name}.spec*
   "
