@@ -289,12 +289,20 @@ get_branch_name() {
 	echo $(git -C "$path" branch --show-current)
 }
 
+print_duration() {
+  local sec="$1"
+  local min=$((sec / 60))
+  local sec=$((sec % 60))
+  echo "${min}m${sec}s"
+}
+
 run_build_script() {
 	local CURDIR="$PWD"
 	local script="$PATH_TO_SCRIPTS/$1"
 	local script_name="$1"
 	local start_time
 	local end_time
+  local duration
 
 	cd "$SUBMODULES" > /dev/null
 
@@ -313,9 +321,10 @@ run_build_script() {
 		$script
 	fi
 	end_time=$(date +%s)
+  duration=$((end_time - start_time))
 
 	echo ---
-	echo "Execution time for $script_name, sec: $((end_time - start_time))"
+	echo "Execution time for $script_name: $(print_duration $duration)"
 	echo ---
 
 	cd "$CURDIR" > /dev/null
@@ -446,8 +455,6 @@ check_preprequisites() {
     echo
     exit 1
   fi
-
-  echo -e "\rChecking pre-requisites... done."
 }
 
 cleanup() {
