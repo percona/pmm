@@ -31,7 +31,6 @@ Refer to PMM docs for more information - https://docs.percona.com/percona-monito
 %build
 export PMM_RELEASE_VERSION=%{full_pmm_version}
 export PMM_RELEASE_FULLCOMMIT=%{commit}
-export PMM_RELEASE_BRANCH=""
 
 make -C qan-api2 release
 
@@ -48,7 +47,7 @@ install -p -m 0755 ./bin/qan-api2 %{buildroot}%{_sbindir}/%{name}
 %doc qan-api2/README.md
 
 %changelog
-* Wed Apr 1 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-18
+* Mon Apr 1 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-18
 - PMM-12899 Use module and build cache
 
 * Mon Nov 7 2022 Alexander Tymchuk <alexander.tymchuk@percona.com> - 2.0.0-17

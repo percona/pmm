@@ -3,7 +3,7 @@ default: help
 help:                           ## Display this help message
 	@echo "Please use \`make <target>\` where <target> is one of:"
 	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | \
-		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
+		awk -F ':.*?## ' 'NF==2 {printf "  %-30s%s\n", $$1, $$2}'
 	@echo
 
 # `cut` is used to remove first `v` from `git describe` output
@@ -38,10 +38,10 @@ clean:                          ## Remove generated files
 release:                        ## Build pmm-managed release binaries
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 
-release-encryption-rotation:                        ## Build PMM encryption rotation tool
+release-encryption-rotation:    ## Build PMM encryption rotation tool
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-encryption-rotation/...
 
-release-starlark:
+release-starlark:               ## Build pmm-managed-starlark binaries
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-managed-starlark/...
 	$(PMM_RELEASE_PATH)/pmm-managed-starlark --version
 

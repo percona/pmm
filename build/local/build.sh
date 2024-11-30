@@ -8,15 +8,15 @@ Usage: $BASE_NAME [OPTIONS]
 Options:
       --init                  Clone the source, initialize directories, check for pre-requisites and exit
       --platform <platform>   Build for a specific platform (defaults to linux/amd64)
-      --no-update             Do not fetch the latest changes from the repo
-      --update-only           Just fetch the latest changes from the repo and halt
+      --no-update             Do not fetch the latest changes from the repo before building
+      --update-only           Just fetch the latest changes from the repo and exit
       --client-only           Build only PMM Client (client binaries + docker)
       --no-client             Do not build PMM Client (this will use local cache)
       --no-client-docker      Do not build PMM Client docker image (default)
       --log-file <path>       Save build logs to a file located at <path> (defaults to $PWD/build.log)
                               Note: the log file will get reset on every subsequent run
       --release-build         Make it a release build (otherwise it's a feature build)
-  -d  --debug                 Log output in debug mode, which also prints the commands
+  -d  --debug                 Turn on a more verbose output mode, useful for troubleshooting
   -h  --help                  Display help
 
 Please note, the script will perform the update of submodules by default on every run unless the '--no-update' option is specified.
@@ -527,7 +527,7 @@ main() {
 	echo
 	echo "Done building PMM artifacts."
 	echo ---
-	echo "Total execution time, sec: $(($(date +%s) - $START_TIME))"
+  echo "Total execution time: $(print_duration $(($(date +%s) - $START_TIME)))"
 	echo ---
 
 	cleanup

@@ -9,7 +9,6 @@
 .modules/
 bin/
 dist/
-build/
 .env
 .netrc
 pmm-agent-dev.yaml
