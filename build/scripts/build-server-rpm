@@ -1,8 +1,8 @@
 #!/bin/bash
 set -o errexit
-set -o xtrace
 
 . $(dirname $0)/vars
+set_xtrace
 
 get_rpm_version() {
   local spec_name=$1
@@ -158,22 +158,6 @@ build() {
     set -o xtrace
 
     sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
-    sudo chown builder:builder /home/builder/.cache
-    if [ ! -d /home/builder/.cache/go-build ]; then
-      mkdir -p /home/builder/.cache/go-build
-    fi
-    if [ ! -d /home/builder/go ]; then
-      mkdir -p /home/builder/go/pkg/mod
-    fi        
-    if [ ! -w /home/builder/.cache/go-build ]; then
-      sudo chown builder:builder /home/builder/.cache/go-build
-    fi
-    if [ ! -w /home/builder/go/pkg/mod ]; then
-      sudo chown builder:builder /home/builder/go/pkg/mod
-    fi
-    if [ ! -w /home/builder/.cache/yarn ]; then
-      sudo chown builder:builder /home/builder/.cache/yarn
-    fi
 
     rm -rf /home/builder/rpm/RPMS/${spec_name}-*
 

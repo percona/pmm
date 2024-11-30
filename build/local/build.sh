@@ -373,6 +373,30 @@ check_volumes() {
 		fi
 	done
 
+  docker run --rm --platform="$PLATFORM" \
+    -v pmm-gobuild:/home/builder/.cache/go-build \
+    -v pmm-gomod:/home/builder/go/pkg/mod \
+    -v pmm-yarn:/home/builder/.cache/yarn \
+    -v pmm-dnf:/var/cache/dnf \
+    "$RPMBUILD_DOCKER_IMAGE" sh -c "
+      sudo chown builder:builder /home/builder/.cache
+      if [ ! -d /home/builder/.cache/go-build ]; then
+        mkdir -p /home/builder/.cache/go-build
+      fi
+      if [ ! -d /home/builder/go ]; then
+        mkdir -p /home/builder/go/pkg/mod
+      fi        
+      if [ ! -w /home/builder/.cache/go-build ]; then
+        sudo chown builder:builder /home/builder/.cache/go-build
+      fi
+      if [ ! -w /home/builder/go/pkg/mod ]; then
+        sudo chown builder:builder /home/builder/go/pkg/mod
+      fi
+      if [ ! -w /home/builder/.cache/yarn ]; then
+        sudo chown builder:builder /home/builder/.cache/yarn
+      fi
+    "
+
 	cd "$CURDIR" > /dev/null
 }
 
@@ -412,6 +436,7 @@ check_if_installed() {
 
 check_preprequisites() {
   local commands=("docker" "make" "bash" "tar" "git" "curl" "jq")
+  echo "Checking pre-requisites..."
   for cmd in "${commands[@]}"; do
     check_if_installed "$cmd"
   done
@@ -421,6 +446,8 @@ check_preprequisites() {
     echo
     exit 1
   fi
+
+  echo -e "\rChecking pre-requisites... done."
 }
 
 cleanup() {

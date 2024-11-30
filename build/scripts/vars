@@ -64,3 +64,11 @@ binary_tarball=${build_dir}/tarball/pmm-client-${pmm_version}.tar.gz
 vmagent_commit_hash=58ecb9066574f38f1d1c91ace467316e7f175b09
 # https://github.com/hashicorp/nomad/releases/tag/v1.9.3
 nomad_commit_hash=d92bf1014886c0ff9f882f4a2691d5ae8ad8131c
+
+set_xtrace() {
+  if [ "${DEBUG_MODE:-0}" -eq 1 ]; then
+    set -o xtrace
+  else
+    set +o xtrace
+  fi
+}
