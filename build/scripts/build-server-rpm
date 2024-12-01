@@ -104,11 +104,6 @@ prepare_spec() {
   fi
   sed -i -e "s/%define full_pmm_version.*/%define full_pmm_version ${full_pmm_version}/" ${spec_file}
 
-  if [ -n "$pmm_release" ]; then
-    sed -i -e "s/\(%define release.*\)/\1.$pmm_release/" ${spec_file}
-    grep -r 'define release' ${spec_file}
-  fi
-
   if [ "${spec_name}" != "victoriametrics" ]; then
     # Substitute the https source by pointing to the repo on the filesystem
     sed -i -e "s;\(Source0:[[:space:]]*\)http.*;\1${tar_archive};" ${spec_file}
