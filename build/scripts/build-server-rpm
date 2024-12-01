@@ -179,7 +179,8 @@ build() {
     rpmbuild  --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
               --define 'dist .${rpmbuild_dist}' \
               --define 'debug_package %{nil}' \
-              -bb SOURCES/${spec_name}.spec
+              -bb SOURCES/${spec_name}.spec \
+              --rmspec
 
     rm -f SOURCES/${spec_name}.spec*
   "

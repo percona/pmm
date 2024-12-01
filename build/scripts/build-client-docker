@@ -27,11 +27,12 @@ main() {
     -t ${DOCKER_CLIENT_TAG} \
     ${DOCKER_CONTEXT_DIR}
 
-  if [ -n "${PUSH_DOCKER}" ]; then
-    mkdir -p $(dirname ${docker_client_tag_file})
-    echo ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
-    docker push ${DOCKER_CLIENT_TAG}
-  fi
+  mkdir -p $(dirname ${docker_client_tag_file})
+  echo ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
+
+  echo
+  echo "Finished building PMM Client docker image: $DOCKER_CLIENT_TAG"
+  echo  
 }
 
 main

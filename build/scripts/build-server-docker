@@ -46,11 +46,12 @@ main() {
     -t ${DOCKER_TAG} \
     ${docker_root}
 
-  if [ -n "${PUSH_DOCKER}" ]; then
-    mkdir -p $(dirname ${docker_tag_file})
-    echo ${DOCKER_TAG} > ${docker_tag_file}
-    docker push ${DOCKER_TAG}
-  fi
+  mkdir -p $(dirname ${docker_tag_file})
+  echo ${DOCKER_TAG} > ${docker_tag_file}
+
+  echo
+  echo "Finished building PMM Server docker image: $DOCKER_TAG"
+  echo
 }
 
 main
