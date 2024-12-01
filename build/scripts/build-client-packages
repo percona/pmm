@@ -2,9 +2,7 @@
 # NOTE: this script must be executed in a container environment.
 
 set -o errexit
-if [ "$DEBUG_MODE" -eq 1 ]; then
-  set -o xtrace
-fi
+set -o xtrace
 
 usage () {
   cat <<EOF

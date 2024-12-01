@@ -42,7 +42,7 @@ export GOPATH="$(pwd)/_build"
 
 make build-go
 
-export NO_COLOR=1
+export FORCE_COLOR=0
 make deps-js
 make build-js
 
