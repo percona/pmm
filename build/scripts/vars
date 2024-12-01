@@ -28,6 +28,10 @@ fi
 pmm_version=$(cat ${root_dir}/VERSION | awk -F'-' '{print $1}')
 pmm_release=$(cat ${root_dir}/VERSION | awk -F'-' '{print $2}')
 
+if [ -z "$pmm_release" ]; then
+  pmm_release=1
+fi
+
 echo -e "\n---\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_version} pmm_release=${pmm_release} <<<\n---\n"
 
 platform=${PLATFORM:-linux/amd64}
