@@ -1,6 +1,8 @@
 #!/bin/sh
 # NOTE: this script must be executed in a container environment.
 
+. $(dirname $0)/vars
+
 set_options
 
 usage () {
