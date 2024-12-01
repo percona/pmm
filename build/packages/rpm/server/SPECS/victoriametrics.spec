@@ -4,7 +4,7 @@
 %global provider        github.com/VictoriaMetrics/%{repo}
 %global commit          pmm-6401-v1.93.4
 
-Name:           percona-victoriametrics
+Name:           pmm-victoriametrics
 Version:        1.93.4
 Release:        2%{?dist}
 Summary:        VictoriaMetrics monitoring solution and time series database

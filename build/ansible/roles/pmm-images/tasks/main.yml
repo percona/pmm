@@ -88,7 +88,7 @@
   yum:
     name:
       - percona-grafana
-      - percona-victoriametrics
+      - pmm-victoriametrics
       - pmm-qan-api
       - percona-dashboards
       - pmm-managed

@@ -12,10 +12,10 @@ Options:
       --update-only           Just fetch the latest changes from the repo and exit
       --client-only           Build only PMM Client (client binaries + docker)
       --no-client             Do not build PMM Client (this will use local cache)
-      --no-client-docker      Do not build PMM Client docker image (default)
+      --no-client-docker      Do not build PMM Client docker image
       --log-file <path>       Save build logs to a file located at <path> (defaults to $PWD/build.log)
                               Note: the log file will get reset on every subsequent run
-      --release-build         Make it a release build (otherwise it's a feature build)
+      --release-build         Make it a release, or release candidate build (otherwise it's a feature build)
   -d  --debug                 Turn on a more verbose output mode, useful for troubleshooting
   -h  --help                  Display help
 
@@ -29,7 +29,7 @@ parse_params() {
 	NO_UPDATE=0
 	UPDATE_ONLY=0
 	NO_CLIENT=0
-	NO_CLIENT_DOCKER=1
+	NO_CLIENT_DOCKER=0
 	NO_SERVER=0
 	START_TIME=$(date +%s)
 	LOG_FILE="$(dirname $0)/build.log"
@@ -97,6 +97,7 @@ parse_params() {
         ;;
 			--debug | -d)
 				DEBUG_MODE=1
+        set -o xtrace
 				;;
 			--help | -h)
 				usage
