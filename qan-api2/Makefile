@@ -90,14 +90,14 @@ pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench con
 	docker exec $(PMM_CONTAINER) supervisorctl stop qan-api2
 	docker exec -i $(PMM_CONTAINER) clickhouse client -d pmm --query="drop database pmm"
 	docker exec -i $(PMM_CONTAINER) clickhouse client -d pmm --query="create database pmm"
-	docker cp bin/qan-api2 $(PMM_CONTAINER):/usr/sbin/percona-qan-api2
+	docker cp bin/qan-api2 $(PMM_CONTAINER):/usr/sbin/pmm-qan-api
 	docker exec $(PMM_CONTAINER) supervisorctl start qan-api2
 	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
 
 deploy:
 	GOOS=linux GOARCH=amd64 make release
 	docker exec $(PMM_CONTAINER) supervisorctl stop qan-api2
-	docker cp $(PMM_RELEASE_PATH)/qan-api2 $(PMM_CONTAINER):/usr/sbin/percona-qan-api2
+	docker cp $(PMM_RELEASE_PATH)/qan-api2 $(PMM_CONTAINER):/usr/sbin/pmm-qan-api
 	docker exec $(PMM_CONTAINER) supervisorctl start qan-api2
 	docker exec $(PMM_CONTAINER) supervisorctl status
 	docker exec $(PMM_CONTAINER) supervisorctl tail -f qan-api2

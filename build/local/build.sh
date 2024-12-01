@@ -1,7 +1,6 @@
 #!/bin/bash -e
 set -o errexit
 set -o nounset
-set -o xtrace
 
 usage() {
 	cat <<-EOF
@@ -510,7 +509,7 @@ main() {
 		run_build_script build-server-rpm percona-dashboards grafana-dashboards
 		run_build_script build-server-rpm pmm-managed pmm
 		run_build_script build-server-rpm pmm-ui pmm
-		run_build_script build-server-rpm percona-qan-api2 pmm
+		run_build_script build-server-rpm pmm-qan-api pmm
 		run_build_script build-server-rpm pmm-update pmm
 		run_build_script build-server-rpm pmm-dump
 		run_build_script build-server-rpm vmproxy pmm

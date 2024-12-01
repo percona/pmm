@@ -10,7 +10,7 @@
 # The line below is sed'ed by build-server-rpm
 %define full_pmm_version 2.0.0
 
-Name:           percona-qan-api2
+Name:           pmm-qan-api
 Version:        %{version}
 Release:        %{rpm_release}
 Summary:        Query Analytics API for PMM

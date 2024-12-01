@@ -89,7 +89,7 @@
     name:
       - percona-grafana
       - percona-victoriametrics
-      - percona-qan-api2
+      - pmm-qan-api
       - percona-dashboards
       - pmm-managed
       - pmm-ui
