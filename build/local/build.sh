@@ -1,6 +1,7 @@
 #!/bin/bash -e
 set -o errexit
 set -o nounset
+set -o xtrace
 
 usage() {
 	cat <<-EOF
@@ -94,14 +95,11 @@ parse_params() {
 				;;
       --release-build)
         RELEASE_BUILD=1
-        shift
         ;;
 			--debug | -d)
 				DEBUG_MODE=1
-				shift
 				;;
 			--help | -h)
-				shift
 				usage
 				exit 0
 				;;
