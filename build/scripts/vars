@@ -25,19 +25,9 @@ if [[ "${pmm_branch}" =~ ^pmm-3.|^v3$|^main$ ]]; then
   full_pmm_version=${pmm_base_version}
 fi
 
-new_pmm_version=$(cat ${root_dir}/VERSION | awk -F'-' '{print $1}')
-new_pmm_release=$(cat ${root_dir}/VERSION | awk -F'-' '{print $2}')
+pmm_version=$(cat ${root_dir}/VERSION | awk -F'-' '{print $1}')
+pmm_release=$(cat ${root_dir}/VERSION | awk -F'-' '{print $2}')
 
-# Check that we did not redefine pmm_version in some other script
-if [ -n "${pmm_version}" ] && [ "${new_pmm_version}" != "${pmm_version}" ]; then
-  echo "pmm_version is already defined: ${pmm_version}"
-  exit 1
-fi
-
-pmm_version=${new_pmm_version}
-pmm_release=${new_pmm_release}
-unset new_pmm_version
-unset new_pmm_release
 echo -e "\n---\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_version} pmm_release=${pmm_release} <<<\n---\n"
 
 platform=${PLATFORM:-linux/amd64}
