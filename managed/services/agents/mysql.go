@@ -104,8 +104,8 @@ func mysqldExporterConfig(
 		args = append(args, tablestatsGroup...)
 	}
 
-	if exporter.MySQLOptions == nil {
-		exporter.MySQLOptions = &models.MySQLOptions{}
+	if exporter.ExporterOptions == nil {
+		exporter.ExporterOptions = &models.ExporterOptions{}
 	}
 
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
