@@ -99,19 +99,20 @@ Currently, Local Builds target the following platforms and distributions:
 
 ## Ideas to evaluate
 
-* download the sources to a local directory `.modules` w/o using pmm-submodules
+* download the sources to a local directory `.modules` w/o using pmm-submodules ✅
 * have a VERSION file, similar to the one in https://github.com/percona-lab/pmm-submodules/blob/v3/VERSION
-* have a `sbom.json` file containing the bill of all repositories, such as grafana, exporters, etc. along with the following information:
+* have a `sbom.json` file containing the bill of all repositories, such as grafana, exporters, etc. containing the following attributes:
   * component name
   * the repository URL
   * the branch used for the build
   * the path to the repository on disk
   * the commit hash
 * provide better caching for components, which reside in one monorepo, by calculating a sha256sum on their directories:
-  - pmm-ui (:done:)
+  - pmm-ui ✅
   - pmm-qan
   - pmm-agent
   - pmm-admin
+  - pmm-managed
   - vmproxy
 
 ## TODO

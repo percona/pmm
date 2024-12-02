@@ -47,6 +47,7 @@ parse_params() {
 	export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
   # This replaces the old `RPM_EPOCH=1`, which was used for feature builds
 	export RELEASE_BUILD=0
+  export BUILD_SUMMARY=""
 
 	while test "$#" -gt 0; do
 		case "$1" in
@@ -97,7 +98,6 @@ parse_params() {
         ;;
 			--debug | -d)
 				DEBUG_MODE=1
-        set -o xtrace
 				;;
 			--help | -h)
 				usage
@@ -485,6 +485,10 @@ main() {
 	update
 
 	purge_files
+
+  if [ "$DEBUG_MODE" -eq 1 ]; then
+    set -o xtrace
+  fi
 
 	if [ "$NO_CLIENT" -eq 0 ]; then
 		# Build client source: 4m39s from scratch, 0m27s using cache
