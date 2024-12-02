@@ -93,6 +93,10 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress string, pmmAgentVersion *version.Parsed) []string {
 	var args []string
 
+	if exporter.ExporterOptions == nil {
+		exporter.ExporterOptions = &models.ExporterOptions{}
+	}
+
 	switch {
 	case !pmmAgentVersion.Less(v2_25_0): // >= 2.26.0
 		args = buildBaseArgs(listenAddress, tdp)
