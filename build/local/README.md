@@ -18,8 +18,8 @@ The build process is designed to run on Linux or MacOS. We believe it could be a
 Below is a list of prerequisites that are required to build PMM locally.
 
 - OS: Linux (tested on Oracle Linux 9.3, Ubuntu 22.04.3 LTS), MacOS (tested on Sequoia 15.1)
-- Docker: 25.0.2+
-- Docker buildx plugin: 0.16.0+, https://github.com/docker/buildx
+- Docker 25.0.2+
+- Docker [buildx plugin](https://github.com/docker/buildx) 0.16.0+
 - make
 - bash
 - tar
