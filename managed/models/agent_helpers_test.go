@@ -165,17 +165,15 @@ func TestAgentHelpers(t *testing.T) {
 				},
 			},
 			&models.Agent{
-				AgentID:       "A9",
-				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A9"),
-				RunsOnNodeID:  nil,
-				NodeID:        pointer.ToString("N1"),
-				ListenPort:    pointer.ToUint16(8200),
-				TLS:           true,
-				TLSSkipVerify: true,
-				ExporterOptions: &models.ExporterOptions{
-					PushMetrics: false,
-				},
+				AgentID:         "A9",
+				AgentType:       models.MongoDBExporterType,
+				PMMAgentID:      pointer.ToString("A9"),
+				RunsOnNodeID:    nil,
+				NodeID:          pointer.ToString("N1"),
+				ListenPort:      pointer.ToUint16(8200),
+				TLS:             true,
+				TLSSkipVerify:   true,
+				ExporterOptions: &models.ExporterOptions{},
 				MongoDBOptions: &models.MongoDBOptions{
 					TLSCertificateKey:             "tls_certificate_key",
 					TLSCertificateKeyFilePassword: "tls_certificate_key_file_password",
@@ -188,18 +186,16 @@ func TestAgentHelpers(t *testing.T) {
 				},
 			},
 			&models.Agent{
-				AgentID:       "A10",
-				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A10"),
-				RunsOnNodeID:  nil,
-				NodeID:        pointer.ToString("N1"),
-				ListenPort:    pointer.ToUint16(8200),
-				TLS:           true,
-				TLSSkipVerify: true,
-				ExporterOptions: &models.ExporterOptions{
-					PushMetrics: false,
-				},
-				MongoDBOptions: nil, // this test is specific for nil MongoDBOptions
+				AgentID:         "A10",
+				AgentType:       models.MongoDBExporterType,
+				PMMAgentID:      pointer.ToString("A10"),
+				RunsOnNodeID:    nil,
+				NodeID:          pointer.ToString("N1"),
+				ListenPort:      pointer.ToUint16(8200),
+				TLS:             true,
+				TLSSkipVerify:   true,
+				ExporterOptions: &models.ExporterOptions{},
+				MongoDBOptions:  nil, // this test is specific for nil MongoDBOptions
 			},
 		} {
 			require.NoError(t, q.Insert(str))
@@ -220,21 +216,19 @@ func TestAgentHelpers(t *testing.T) {
 		require.NoError(t, err)
 		expected := []*models.Agent{
 			{
-				CreatedAt:     now,
-				UpdatedAt:     now,
-				Status:        models.AgentStatusUnknown,
-				AgentID:       "A10",
-				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A10"),
-				RunsOnNodeID:  nil,
-				NodeID:        pointer.ToString("N1"),
-				ListenPort:    pointer.ToUint16(8200),
-				TLS:           true,
-				TLSSkipVerify: true,
-				ExporterOptions: &models.ExporterOptions{
-					PushMetrics: false,
-				},
-				MongoDBOptions: nil, // this test is specific for nil MongoDBOptions
+				CreatedAt:       now,
+				UpdatedAt:       now,
+				Status:          models.AgentStatusUnknown,
+				AgentID:         "A10",
+				AgentType:       models.MongoDBExporterType,
+				PMMAgentID:      pointer.ToString("A10"),
+				RunsOnNodeID:    nil,
+				NodeID:          pointer.ToString("N1"),
+				ListenPort:      pointer.ToUint16(8200),
+				TLS:             true,
+				TLSSkipVerify:   true,
+				ExporterOptions: &models.ExporterOptions{},
+				MongoDBOptions:  nil, // this test is specific for nil MongoDBOptions
 			},
 			{
 				AgentID:      "A3",
@@ -281,6 +275,9 @@ func TestAgentHelpers(t *testing.T) {
 				ListenPort:    pointer.ToUint16OrNil(8200),
 				TLS:           true,
 				TLSSkipVerify: true,
+				ExporterOptions: &models.ExporterOptions{
+					ExposeExporter: false,
+				},
 				MongoDBOptions: &models.MongoDBOptions{
 					TLSCertificateKey:             "tls_certificate_key",
 					TLSCertificateKeyFilePassword: "tls_certificate_key_file_password",
@@ -292,16 +289,17 @@ func TestAgentHelpers(t *testing.T) {
 				},
 			},
 			{
-				AgentID:       "A9",
-				AgentType:     "mongodb_exporter",
-				NodeID:        pointer.ToStringOrNil("N1"),
-				PMMAgentID:    pointer.ToStringOrNil("A9"),
-				CreatedAt:     now,
-				UpdatedAt:     now,
-				Status:        models.AgentStatusUnknown,
-				ListenPort:    pointer.ToUint16OrNil(8200),
-				TLS:           true,
-				TLSSkipVerify: true,
+				AgentID:         "A9",
+				AgentType:       "mongodb_exporter",
+				NodeID:          pointer.ToStringOrNil("N1"),
+				PMMAgentID:      pointer.ToStringOrNil("A9"),
+				CreatedAt:       now,
+				UpdatedAt:       now,
+				Status:          models.AgentStatusUnknown,
+				ListenPort:      pointer.ToUint16OrNil(8200),
+				TLS:             true,
+				TLSSkipVerify:   true,
+				ExporterOptions: &models.ExporterOptions{},
 				MongoDBOptions: &models.MongoDBOptions{
 					TLSCertificateKey:             "tls_certificate_key",
 					TLSCertificateKeyFilePassword: "tls_certificate_key_file_password",
