@@ -546,8 +546,11 @@ type ListAgentsOKBodyAgentsItems0 struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Log level for exporter.
-	LogLevel string `json:"log_level,omitempty"`
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
 
 	// Limit query length in QAN.
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
@@ -648,6 +651,10 @@ func (o *ListAgentsOKBodyAgentsItems0) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -680,6 +687,60 @@ func (o *ListAgentsOKBodyAgentsItems0) validateCreatedAt(formats strfmt.Registry
 	}
 
 	if err := validate.FormatOf("created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listAgentsOkBodyAgentsItems0TypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listAgentsOkBodyAgentsItems0TypeLogLevelPropEnum = append(listAgentsOkBodyAgentsItems0TypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ListAgentsOKBodyAgentsItems0LogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ListAgentsOKBodyAgentsItems0LogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// ListAgentsOKBodyAgentsItems0LogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ListAgentsOKBodyAgentsItems0LogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// ListAgentsOKBodyAgentsItems0LogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ListAgentsOKBodyAgentsItems0LogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// ListAgentsOKBodyAgentsItems0LogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ListAgentsOKBodyAgentsItems0LogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// ListAgentsOKBodyAgentsItems0LogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ListAgentsOKBodyAgentsItems0LogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// ListAgentsOKBodyAgentsItems0LogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ListAgentsOKBodyAgentsItems0LogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *ListAgentsOKBodyAgentsItems0) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAgentsOkBodyAgentsItems0TypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyAgentsItems0) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

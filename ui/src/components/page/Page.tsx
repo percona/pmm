@@ -8,18 +8,19 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { useUser } from 'contexts/user/user.hooks';
+import { useUser } from 'contexts/user';
 import { Messages } from './Page.messages';
 import { PMM_HOME_URL } from 'constants';
+import { Footer } from 'components/footer';
 
-export const Page: FC<PageProps> = ({ title, children }) => {
+export const Page: FC<PageProps> = ({ title, footer, children }) => {
   const { user } = useUser();
 
   return (
     <Stack
       sx={{
         width: {
-          sm: 800,
+          sm: 1000,
           xs: 'auto',
         },
         p: {
@@ -27,6 +28,7 @@ export const Page: FC<PageProps> = ({ title, children }) => {
         },
         mx: 'auto',
         gap: 3,
+        mt: 1,
       }}
     >
       {!!title && <Typography variant="h2">{title}</Typography>}
@@ -45,6 +47,7 @@ export const Page: FC<PageProps> = ({ title, children }) => {
           </CardActions>
         </Card>
       )}
+      {footer ? footer : <Footer />}
     </Stack>
   );
 };

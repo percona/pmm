@@ -262,7 +262,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 		} else {
 			newN++
 
-			c.Query, c.IsQueryTruncated = truncate.Query(c.Query, maxQueryLength)
+			c.Query, c.IsQueryTruncated = truncate.Query(c.Query, maxQueryLength, truncate.GetDefaultMaxQueryLength())
 		}
 
 		current[c.QueryID] = c

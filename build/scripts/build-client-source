@@ -53,7 +53,26 @@ prepare_vmagent_tarball() {
     if [ -f "${tarball}" ]; then
         echo ${tarball} already exists, skipping download
     else
-        wget https://github.com/VictoriaMetrics/VictoriaMetrics/archive/${commit_hash}.tar.gz -O ${tarball}
+        curl -fsSL -o ${tarball} https://github.com/VictoriaMetrics/VictoriaMetrics/archive/${commit_hash}.tar.gz
+    fi
+}
+
+prepare_nomad_tarball() {
+    local repo_name=nomad
+    local commit_hash=${nomad_commit_hash}
+    local commit_short=${commit_hash::6}
+    local tarball=${source_dir}/${repo_name}-${commit_short}.tar.gz
+    local repo_var=$(
+        echo "${repo_name}_commit" \
+            | sed -e 's:-:_:g' \
+            | tr '[[:lower:]]' '[[:upper:]]'
+    )
+    echo "${repo_var}=$commit_short" >> ${client_properties}
+
+    if [ -f "${tarball}" ]; then
+        echo ${tarball} already exists, skipping download
+    else
+        curl -o ${tarball} -fSsL https://github.com/hashicorp/nomad/archive/${commit_hash}.tar.gz
     fi
 }
 

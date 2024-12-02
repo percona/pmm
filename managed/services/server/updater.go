@@ -35,17 +35,16 @@ import (
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
 
+	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
-// defaultLatestPMMImage is the default image name to use when the latest version cannot be determined.
 const (
-	defaultLatestPMMImage        = "perconalab/pmm-server:3-dev-latest"
-	pmmUpdatePerformLog          = "/srv/logs/pmm-update-perform-init.log"
-	defaultVersionServiceAddress = "https://check-dev.percona.com"
-	updateCheckInterval          = 24 * time.Hour
-	updateCheckResultFresh       = updateCheckInterval + 10*time.Minute
-	updateDefaultTimeout         = 30 * time.Second
+	pmmUpdatePerformLog    = "/srv/logs/pmm-update-perform-init.log"
+	updateCheckInterval    = 24 * time.Hour
+	updateCheckResultFresh = updateCheckInterval + 10*time.Minute
+	updateDefaultTimeout   = 30 * time.Second
+	envfilePath            = "/home/pmm/update/pmm-server.env"
 )
 
 var fileName = "/etc/pmm-server-update-version.json"
@@ -173,6 +172,19 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 		return grpcstatus.Errorf(codes.FailedPrecondition, "failed to check watchtower host")
 	}
 
+	if _, e := os.Stat(envfilePath); e == nil {
+		err := up.updatePodmanEnvironmentVariables(envfilePath, newImageName)
+		if err != nil {
+			up.running = false
+			up.l.WithError(err).Error("Failed to update environment variables file")
+			return errors.Wrap(err, "failed to update environment variables file")
+		}
+	} else if !os.IsNotExist(e) {
+		up.running = false
+		up.l.WithError(e).Error("Failed to check environment variables file")
+		return errors.Wrap(e, "failed to check environment variables file")
+	}
+
 	if err := up.sendRequestToWatchtower(ctx, newImageName); err != nil {
 		up.running = false
 		up.l.WithError(err).Error("Failed to trigger update")
@@ -188,11 +200,15 @@ func (up *Updater) ForceCheckUpdates(ctx context.Context) error {
 
 // LastCheckUpdatesResult returns the result of the last update check.
 func (up *Updater) LastCheckUpdatesResult(ctx context.Context) (*version.UpdateCheckResult, time.Time) {
+	var latest version.DockerVersionInfo
 	installed := up.InstalledPMMVersion()
-	latest, lastCheckTime := up.checkResult(ctx)
+	vi, lastCheckTime := up.checkResult(ctx)
+	if vi != nil {
+		latest = *vi
+	}
 	return &version.UpdateCheckResult{
 		Installed:       installed,
-		Latest:          *latest,
+		Latest:          latest,
 		UpdateAvailable: latest.DockerImage != "",
 		LatestNewsURL:   "https://per.co.na/pmm/" + latest.Version.String(),
 	}, lastCheckTime
@@ -224,7 +240,6 @@ func (up *Updater) latest(ctx context.Context) ([]*version.DockerVersionInfo, *v
 }
 
 func (up *Updater) readFromFile() (*version.DockerVersionInfo, error) {
-	// Read from file, if it's not exist read from ENV variable, if it's not exist get the latest tag from DockerHub.
 	content, err := os.ReadFile(fileName)
 	if err != nil && !os.IsNotExist(err) {
 		up.l.WithError(err).Error("Failed to read file")
@@ -268,11 +283,12 @@ type ReleaseNotesResponse struct {
 // If the current version is the latest minor version, it returns the next major version as the latest.
 // If the current version is the latest version, it returns the current version as the latest.
 func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
-	versionServiceUrl := os.Getenv("PMM_DEV_VERSION_SERVICE_URL")
-	if versionServiceUrl == "" {
-		versionServiceUrl = defaultVersionServiceAddress
+	versionServiceURL, err := envvars.GetPlatformAddress()
+	if err != nil {
+		up.l.WithError(err).Error("Failed to get version service address")
+		return nil, nil, errors.Wrap(err, "failed to get version service address")
 	}
-	u := versionServiceUrl + "/metadata/v1/pmm-server"
+	u := versionServiceURL + "/metadata/v2/pmm-server"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to create request")
@@ -292,11 +308,12 @@ func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*ve
 	}
 
 	if len(metadataResponse.Versions) != 0 {
-		up.l.Infof("Found %d versions", len(metadataResponse.Versions))
+		up.l.Debugf("Found %d versions", len(metadataResponse.Versions))
 		updates, next := up.next(*up.currentVersion(), metadataResponse.Versions)
 		return updates, next, err
 	}
-	return nil, nil, errors.New("no tags found")
+	up.l.Debug("No new PMM version available")
+	return nil, nil, nil
 }
 
 func (up *Updater) parseDockerTag(tag string) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
@@ -475,6 +492,27 @@ func (up *Updater) checkWatchtowerHost() error {
 	return nil
 }
 
+func (up *Updater) updatePodmanEnvironmentVariables(filename string, name string) error {
+	if len(strings.Split(name, "/")) < 3 {
+		name = "docker.io/" + name
+	}
+	file, err := os.ReadFile(filename)
+	if err != nil {
+		return errors.Wrap(err, "failed to read file")
+	}
+	lines := strings.Split(string(file), "\n")
+	for i, line := range lines {
+		if strings.Contains(line, "PMM_IMAGE") {
+			lines[i] = fmt.Sprintf("PMM_IMAGE=%s", name)
+		}
+	}
+	err = os.WriteFile(filename, []byte(strings.Join(lines, "\n")), 0o644)
+	if err != nil {
+		return errors.Wrap(err, "failed to write file")
+	}
+	return nil
+}
+
 func isHostAvailable(host string, port string, timeout time.Duration) bool {
 	conn, err := net.DialTimeout("tcp", net.JoinHostPort(host, port), timeout)
 	if err != nil {
@@ -501,11 +539,12 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 		return releaseNotes, nil
 	}
 
-	versionServiceUrl := os.Getenv("PMM_DEV_VERSION_SERVICE_URL")
-	if versionServiceUrl == "" {
-		versionServiceUrl = defaultVersionServiceAddress
+	versionServiceURL, err := envvars.GetPlatformAddress()
+	if err != nil {
+		up.l.WithError(err).Error("Failed to get version service address")
+		return "", errors.Wrap(err, "failed to get version service address")
 	}
-	u := versionServiceUrl + "/release-notes/v1/pmm/" + versionString
+	u := versionServiceURL + "/release-notes/v1/pmm/" + versionString
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to create request")

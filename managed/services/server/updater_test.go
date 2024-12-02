@@ -29,12 +29,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
 func TestUpdater(t *testing.T) {
 	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 	watchtowerURL, _ := url.Parse("http://watchtower:8080")
+	const tmpDistributionFile = "/tmp/distribution"
 
 	t.Run("TestNextVersion", func(t *testing.T) {
 		type args struct {
@@ -269,11 +271,27 @@ func TestUpdater(t *testing.T) {
 	t.Run("TestLatest", func(t *testing.T) {
 		version.Version = "2.41.0"
 		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
-		_, latest, err := u.latest(context.Background())
-		require.NoError(t, err)
-		assert.NotNil(t, latest)
-		assert.True(t, strings.HasPrefix(latest.Version.String(), "2.") || strings.HasPrefix(latest.Version.String(), "3."),
-			"latest version of PMM should have either a '2.' or '3.' prefix")
+
+		t.Run("LatestFromProduction", func(t *testing.T) {
+			_, latest, err := u.latest(context.Background())
+			require.NoError(t, err)
+			if latest != nil {
+				assert.True(t, strings.HasPrefix(latest.Version.String(), "3."),
+					"latest version of PMM should start with a '3.' prefix")
+			}
+		})
+		t.Run("LatestFromStaging", func(t *testing.T) {
+			versionServiceURL, err := envvars.GetPlatformAddress() // defaults to production
+			require.NoError(t, err)
+			defer func() {
+				t.Setenv(envvars.EnvPlatformAddress, versionServiceURL)
+			}()
+			t.Setenv(envvars.EnvPlatformAddress, "https://check-dev.percona.com")
+			_, latest, err := u.latest(context.Background())
+			require.NoError(t, err)
+			assert.True(t, strings.HasPrefix(latest.Version.String(), "3."),
+				"latest version of PMM should start with a '3.' prefix")
+		})
 	})
 
 	t.Run("TestParseFile", func(t *testing.T) {
@@ -291,5 +309,27 @@ func TestUpdater(t *testing.T) {
 		assert.Equal(t, "2.41.1", latest.Version.String())
 		assert.Equal(t, "2.41.1", latest.DockerImage)
 		assert.Equal(t, time.Date(2024, 3, 20, 15, 48, 7, 145620000, time.UTC), latest.BuildTime)
+	})
+
+	t.Run("TestUpdateEnvFile", func(t *testing.T) {
+		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
+		tmpFile := filepath.Join(os.TempDir(), "pmm-service.env")
+		content := `PMM_WATCHTOWER_HOST=http://watchtower:8080
+PMM_WATCHTOWER_TOKEN=123
+PMM_SERVER_UPDATE_VERSION=docker.io/perconalab/pmm-server:3-dev-container
+PMM_IMAGE=docker.io/perconalab/pmm-server:3-dev-latest
+PMM_DISTRIBUTION_METHOD=ami`
+		err := os.WriteFile(tmpFile, []byte(content), 0o644)
+		require.NoError(t, err)
+
+		err = u.updatePodmanEnvironmentVariables(tmpFile, "perconalab/pmm-server:3-dev-container")
+		require.NoError(t, err)
+		newContent, err := os.ReadFile(tmpFile)
+		require.NoError(t, err)
+		assert.Equal(t, `PMM_WATCHTOWER_HOST=http://watchtower:8080
+PMM_WATCHTOWER_TOKEN=123
+PMM_SERVER_UPDATE_VERSION=docker.io/perconalab/pmm-server:3-dev-container
+PMM_IMAGE=docker.io/perconalab/pmm-server:3-dev-container
+PMM_DISTRIBUTION_METHOD=ami`, string(newContent))
 	})
 }

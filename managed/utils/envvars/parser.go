@@ -33,13 +33,14 @@ import (
 
 const (
 	defaultPlatformAddress    = "https://check.percona.com"
-	envPlatformAddress        = "PMM_DEV_PERCONA_PLATFORM_ADDRESS"
 	envPlatformInsecure       = "PMM_DEV_PERCONA_PLATFORM_INSECURE"
 	envPlatformPublicKey      = "PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY"
 	evnInterfaceToBind        = "PMM_INTERFACE_TO_BIND"
 	envEnableAccessControl    = "PMM_ENABLE_ACCESS_CONTROL"
 	envPlatformAPITimeout     = "PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
+	// EnvPlatformAddress is the environment variable name used to store the URL for Percona Platform.
+	EnvPlatformAddress = "PMM_DEV_PERCONA_PLATFORM_ADDRESS"
 	// ENVvmAgentPrefix is the prefix for environment variables related to the VM agent.
 	ENVvmAgentPrefix = "VMAGENT_"
 )
@@ -96,11 +97,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
-		case "PMM_DEV_VERSION_SERVICE_URL":
-			// skip pmm-managed environment variables that are already handled by kingpin
-			continue
 		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR":
 			// skip env variables for external clickhouse
+			continue
+		case "PMM_WATCHTOWER_TOKEN", "PMM_WATCHTOWER_HOST":
+			// skip watchtower environement variables
+			continue
+		case "PERCONA_TELEMETRY_DISABLE":
+			// skip the Pillars telemetry environment variable
 			continue
 		case "PMM_ENABLE_UPDATES":
 			b, err := strconv.ParseBool(v)
@@ -287,7 +291,7 @@ func GetPlatformAPITimeout(l *logrus.Entry) time.Duration {
 // GetPlatformAddress returns Percona Platform address env variable value if it's present and valid.
 // Otherwise returns default Percona Platform address.
 func GetPlatformAddress() (string, error) {
-	address := os.Getenv(envPlatformAddress)
+	address := os.Getenv(EnvPlatformAddress)
 	if address == "" {
 		logrus.Infof("Using default Percona Platform address %q.", defaultPlatformAddress)
 		return defaultPlatformAddress, nil

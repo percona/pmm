@@ -16,7 +16,7 @@
 package services
 
 import (
-	"github.com/percona-platform/saas/pkg/check"
+	"github.com/percona/saas/pkg/check"
 
 	"github.com/percona/pmm/managed/models"
 )

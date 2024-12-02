@@ -2,15 +2,17 @@
 
 [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a best-of-breed open source database monitoring solution. It helps you reduce complexity, optimize performance, and improve the security of your business-critical database environments, no matter where they are located or deployed.
 PMM helps users to:
-* Reduce Complexity
-* Optimize Database Performance
-* Improve Data Security
+
+- Reduce Complexity
+- Optimize Database Performance
+- Improve Data Security
 
 See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) for more information.
 
 ## Pre-Requisites
 
 Make sure you have the following installed:
+
 - [node 18](https://nodejs.org/en) (you can also use [nvm](https://github.com/nvm-sh/nvm) to manage node versions)
 - [yarn](https://yarnpkg.com/)
 

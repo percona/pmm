@@ -24,7 +24,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona-platform/saas/pkg/check"
+	"github.com/percona/saas/pkg/check"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 

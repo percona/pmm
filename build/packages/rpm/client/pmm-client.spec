@@ -22,7 +22,7 @@ Requires(postun): systemd
 
 AutoReq:        no
 Conflicts:      pmm-client
-Obsoletes:	pmm2-client < 3.0.0
+Obsoletes:      pmm2-client < 3.0.0
 
 %description
 Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL and MongoDB
@@ -198,6 +198,9 @@ fi
 %attr(-,pmm-agent,pmm-agent) /usr/local/percona/pmm
 
 %changelog
+* Fri Nov 8 2024 Nurlan Moldomurov <nurlan.moldomurov@percona.com>
+- PMM-13399 include nomad into pmm client
+
 * Tue Jun 21 2022 Nikita Beletskii <nikita.beletskii@percona.com>
 - PMM-7 remove support for RHEL older then 7
 

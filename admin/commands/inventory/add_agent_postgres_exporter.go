@@ -16,6 +16,7 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
@@ -64,8 +65,9 @@ type AddAgentPostgresExporterCommand struct {
 	TLSCAFile           string            `help:"TLS CA certificate file"`
 	TLSCertFile         string            `help:"TLS certificate file"`
 	TLSKeyFile          string            `help:"TLS certificate key file"`
-	LogLevel            string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
 	AutoDiscoveryLimit  int32             `default:"0" placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
+
+	flags.LogLevelNoFatalFlags
 }
 
 // RunCmd executes the AddAgentPostgresExporterCommand and returns the result.
@@ -113,7 +115,7 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 				TLSCa:         tlsCa,
 				TLSCert:       tlsCert,
 				TLSKey:        tlsKey,
-				LogLevel:      &cmd.LogLevel,
+				LogLevel:      cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

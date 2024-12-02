@@ -35,6 +35,8 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
+	"github.com/percona/pmm/utils/grafana"
+	stringsgen "github.com/percona/pmm/utils/strings"
 )
 
 const (
@@ -362,7 +364,8 @@ func TestServiceAccountPermissions(t *testing.T) {
 	// service token role options: editor, admin
 	// basic auth format is skipped, endpoint /auth/serviceaccount (to get info about currently used token in request) requires Bearer authorization
 	// service_token:token format could be used in pmm-agent and pmm-admin (its transformed into Bearer authorization)
-	nodeName := "test-node"
+	nodeName, err := stringsgen.GenerateRandomString(256)
+	require.NoError(t, err)
 
 	viewerNodeName := fmt.Sprintf("%s-viewer", nodeName)
 	viewerAccountID := createServiceAccountWithRole(t, "Viewer", viewerNodeName)
@@ -520,7 +523,7 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 
 	name := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
 	data, err := json.Marshal(map[string]string{
-		"name": name,
+		"name": grafana.SanitizeSAName(name),
 		"role": role,
 	})
 	require.NoError(t, err)
@@ -582,7 +585,7 @@ func createServiceToken(t *testing.T, serviceAccountID int, nodeName string) (in
 
 	name := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	data, err := json.Marshal(map[string]string{
-		"name": name,
+		"name": grafana.SanitizeSAName(name),
 	})
 	require.NoError(t, err)
 

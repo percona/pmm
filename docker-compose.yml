@@ -21,11 +21,13 @@ services:
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN:-}
       - PMM_RELEASE_PATH=/root/go/bin
       - PMM_ENABLE_ACCESS_CONTROL=${PMM_ENABLE_ACCESS_CONTROL:-0}
-      - PMM_DEV_VERSION_SERVICE_URL=${PMM_DEV_VERSION_SERVICE_URL:-}
       - PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-http://watchtower:8080}
       - PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
       - PMM_RELEASE_VERSION=3.0.0-alpha
-      # - PMM_DEV_VERSION_SERVICE_URL=http://localhost:11000
+      # - PMM_DISTRIBUTION_METHOD=${PMM_DISTRIBUTION_METHOD:-docker}
+      # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_DEV_UPDATE_DOCKER_IMAGE:-}
+      # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
+      # - PMM_DEV_PERCONA_PLATFORM_INSECURE=1
       # - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=<public key>
       # - PMM_DEV_TELEMETRY_INTERVAL=10s
       # - PMM_DEV_TELEMETRY_DISABLE_START_DELAY=1
@@ -43,6 +45,8 @@ services:
       # - PMM_POSTGRES_SSL_KEY_PATH=/tmp/certs/pmm-managed.key
       # - PMM_POSTGRES_SSL_CERT_PATH=/tmp/certs/pmm-managed.crt
       # - PMM_DISABLE_BUILTIN_POSTGRES=1
+      - GF_RENDERING_SERVER_URL=http://renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=https://pmm-server:8443/graph/
       # - GF_DATABASE_SSL_MODE=verify-full
       # - GF_DATABASE_CA_CERT_PATH=/tmp/certs/root.crt
       # - GF_DATABASE_CLIENT_KEY_PATH=/tmp/certs/grafana.key
@@ -80,9 +84,14 @@ services:
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # substitute Makefile in devcontainer
+      - ./managed/testdata/updater/:/home/pmm/.config/systemd/user/
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
+      # grafana
+#      - "../grafana:/workspace"
+#      - "../grafana/public:/usr/share/grafana/public"
+#      - "../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini"
     # command: >
     #   bash -c "
     #     rm -rf /tmp/certs
@@ -93,7 +102,18 @@ services:
     #     /opt/entrypoint.sh
     #   "
 
-# docker run -v /var/run/docker.sock:/var/run/docker.sock -e WATCHTOWER_HTTP_API_UPDATE=1 -e WATCHTOWER_HTTP_API_TOKEN=123 --hostname=watchtower --network=pmm_default docker.io/bupychuk/watchtower
+  renderer:
+    image: grafana/grafana-image-renderer:latest
+    environment:
+      - RENDERING_VERBOSE_LOGGING=true
+      - RENDERING_DUMPIO=true
+      - IGNORE_HTTPS_ERRORS=true
+      - LOG_LEVEL=debug
+    networks:
+      - ${NETWORK:-default}
+    ports:
+      - 8081:8081
+
   watchtower:
     profiles:
       - pmm
@@ -103,11 +123,12 @@ services:
         - WATCHTOWER_HTTP_LISTEN_PORT=8080
         - WATCHTOWER_HTTP_API_UPDATE=1
         - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
+        - WATCHTOWER_NO_RESTART=${WATCHTOWER_NO_RESTART:-0}
     hostname: watchtower
     networks:
       - ${NETWORK:-default}
     volumes:
-        - /var/run/docker.sock:${DOCKER_PATH:-/var/run/docker.sock}
+        - ${DOCKER_PATH:-/var/run/docker.sock}:/var/run/docker.sock
 
   # PMM with external DBs
   ch:

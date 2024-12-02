@@ -38,7 +38,7 @@ import (
 var listResultT = ParseTemplate(`
 Service type{{"\t"}}Service name{{"\t"}}Address and port{{"\t"}}Service ID
 {{ range .Services }}
-{{- .HumanReadableServiceType }}{{"\t"}}{{ .ServiceName }}{{"\t"}}{{ .AddressPort }}{{"\t"}}{{ .ServiceID }}
+{{- .NiceServiceType }}{{"\t"}}{{ .ServiceName }}{{"\t"}}{{ .AddressPort }}{{"\t"}}{{ .ServiceID }}
 {{ end }}
 Agent type{{"\t"}}Status{{"\t"}}Metrics Mode{{"\t"}}Agent ID{{"\t"}}Service ID{{"\t"}}Port
 {{ range .Agents }}
@@ -56,12 +56,14 @@ type listResultAgent struct {
 	Port        int64  `json:"port,omitempty"`
 }
 
+// HumanReadableAgentType returns human-readable agent type.
 func (a listResultAgent) HumanReadableAgentType() string {
 	return types.AgentTypeName(a.AgentType)
 }
 
+// NiceAgentStatus returns human-readable agent status.
 func (a listResultAgent) NiceAgentStatus() string {
-	res, _ := strings.CutPrefix(a.Status, "AGENT_STATUS_")
+	res := a.Status
 	if res == "" {
 		res = "unknown" //nolint:goconst
 	}
@@ -80,7 +82,7 @@ type listResultService struct {
 	Group       string `json:"external_group"`
 }
 
-func (s listResultService) HumanReadableServiceType() string {
+func (s listResultService) NiceServiceType() string {
 	serviceTypeName := types.ServiceTypeName(s.ServiceType)
 
 	if s.ServiceType == types.ServiceTypeExternalService {
@@ -219,7 +221,7 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 
 func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent { //nolint:cyclop
 	getStatus := func(s *string) string {
-		res := pointer.GetString(s)
+		res, _ := strings.CutPrefix(pointer.GetString(s), "AGENT_STATUS_")
 		if res == "" {
 			res = "unknown"
 		}

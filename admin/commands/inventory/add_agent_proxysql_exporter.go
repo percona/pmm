@@ -16,6 +16,7 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
@@ -59,7 +60,8 @@ type AddAgentProxysqlExporterCommand struct {
 	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	ExposeExporter      bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	LogLevel            string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
+
+	flags.LogLevelFatalFlags
 }
 
 // RunCmd executes the AddAgentProxysqlExporterCommand and returns the result.
@@ -80,7 +82,7 @@ func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 				PushMetrics:         cmd.PushMetrics,
 				ExposeExporter:      cmd.ExposeExporter,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:            &cmd.LogLevel,
+				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

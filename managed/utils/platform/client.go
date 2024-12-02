@@ -24,8 +24,8 @@ import (
 	"io"
 	"net/http"
 
-	api "github.com/percona-platform/saas/gen/check/retrieval"
-	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
+	api "github.com/percona/saas/gen/check/retrieval"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -118,8 +118,8 @@ func (c *Client) GetTemplates(ctx context.Context) (*api.GetAllAlertRuleTemplate
 }
 
 // SendTelemetry sends telemetry data to Percona Platform.
-func (c *Client) SendTelemetry(ctx context.Context, report *reporter.ReportRequest) error {
-	const path = "/v1/telemetry/Report"
+func (c *Client) SendTelemetry(ctx context.Context, report *telemetryv1.ReportRequest) error {
+	const path = "/v1/telemetry/GenericReport"
 
 	var accessToken string
 	if ssoDetails, err := models.GetPerconaSSODetails(ctx, c.db.Querier); err == nil {

@@ -19,10 +19,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
@@ -68,9 +67,10 @@ type AddExternalCommand struct {
 	Cluster             string            `placeholder:"east-cluster" help:"Cluster name"`
 	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
+
+	flags.MetricsModeFlags
 }
 
 // GetCredentials returns the credentials for AddExternalCommand.
@@ -135,7 +135,7 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 				Cluster:             cmd.Cluster,
 				ReplicationSet:      cmd.ReplicationSet,
 				CustomLabels:        customLabels,
-				MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
+				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 			},
