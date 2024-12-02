@@ -11,7 +11,7 @@
 # the line below is sed'ed by build/bin/build-server-rpm to set a correct version
 %define full_pmm_version 2.0.0
 
-Name:     vmproxy
+Name:     pmm-vmproxy
 Version:  %{full_pmm_version}
 Release:  %{rpm_release}
 Summary:  Percona VMProxy stateless reverse proxy for VictoriaMetrics

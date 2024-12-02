@@ -353,11 +353,9 @@ purge_files() {
 			echo "Removing $PMM_DIR ..."
 			rm -rf "$PMM_DIR"
 		fi
-	fi
 
-	if [ -d build ]; then
 		echo "Removing build/* ..."
-		rm -rf build/{rpm,srpm,tarball,source_tarball,pmm-client.properties}
+		rm -rvf build/{rpm,srpm,tarball,source_tarball,docker,pmm-client.properties}
 	fi
 	
 	cd "$CURDIR"
@@ -517,7 +515,7 @@ main() {
 		run_build_script build-server-rpm pmm-qan-api pmm
 		run_build_script build-server-rpm pmm-update pmm
 		run_build_script build-server-rpm pmm-dump
-		run_build_script build-server-rpm vmproxy pmm
+		run_build_script build-server-rpm pmm-vmproxy pmm
 
 		# 3rd-party components
 		run_build_script build-server-rpm victoriametrics
@@ -525,6 +523,8 @@ main() {
 
 		run_build_script build-server-docker
 	fi
+
+  set +o xtrace
 
 	echo
 	echo "Done building PMM artifacts."

@@ -12,7 +12,7 @@ ${bin_dir}/build-server-rpm pmm-ui pmm
 ${bin_dir}/build-server-rpm pmm-qan-api pmm
 ${bin_dir}/build-server-rpm pmm-update pmm
 ${bin_dir}/build-server-rpm pmm-dump
-${bin_dir}/build-server-rpm vmproxy pmm
+${bin_dir}/build-server-rpm pmm-vmproxy pmm
 
 # 3rd-party
 ${bin_dir}/build-server-rpm victoriametrics

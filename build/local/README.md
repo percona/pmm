@@ -113,7 +113,7 @@ Currently, Local Builds target the following platforms and distributions:
   - pmm-agent
   - pmm-admin
   - pmm-managed
-  - vmproxy
+  - pmm-vmproxy
 
 ## TODO
 
