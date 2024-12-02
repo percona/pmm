@@ -203,7 +203,7 @@ check_files() {
 		exit 1
 	fi
 
-	if [ ! -d "$DIR/sources" ] || [ ! -d "$DIR/.git" ] || [ ! -f "$DIR/.gitmodules" ] || [ ! -f "$DIR/ci-default.yml" ]; then
+	if [ ! -d "$DIR/sources" ] || [ ! -d "$DIR/.git" ] || [ ! -f "$DIR/.gitmodules" ] || [ ! -f "$DIR/ci.py" ]; then
 		echo "Error: directory $DIR does not look like a clone of https://github.com/percona-lab/pmm-submodules repository, exiting..."
     echo
 		exit 1
@@ -229,18 +229,25 @@ update() {
 
 	cat <<-'EOF' > entrypoint.sh
 		#!/bin/bash -e
-		DEPS=$(yq -o=json eval-all '. as $item ireduce ({}; . *d $item )' /ci-default.yml /ci.yml | jq '.deps')
+
+		git config --global --add safe.directory /app
+
+		rm -f gitmodules.yml
+		python ci.py --convert
+
+		DEPS=$(yq -o=json eval-all '. as $item ireduce ({}; . *d $item )' gitmodules.yml ci.yml | jq '.deps')
 		DEPS=$(echo "$DEPS" | jq -r '[.[] | {name: .name, branch: .branch, path: .path, url: .url}]')
-    echo "$DEPS"
+		echo "$DEPS"
 	EOF
 
 	chmod +x "$CURDIR/entrypoint.sh"
 	# Join the dependencies from ci-default.yml and ci.yml
 	DEPS=$(
 		docker run --rm --platform="$PLATFORM" \
-			-v $ROOT_DIR/ci-default.yml:/ci-default.yml \
-			-v $CURDIR/ci.yml:/ci.yml \
+      -v $ROOT_DIR:/app \
+			-v $CURDIR/ci.yml:/app/ci.yml \
 			-v $CURDIR/entrypoint.sh:/entrypoint.sh \
+      -w /app \
 			--entrypoint=/entrypoint.sh \
 			"$RPMBUILD_DOCKER_IMAGE"
 	)

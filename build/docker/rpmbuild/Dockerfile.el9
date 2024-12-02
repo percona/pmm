@@ -11,7 +11,8 @@ RUN yum update -y && \
     yum install -y --setopt=skip_missing_names_on_install=False \
     nodejs \
     yarn && \
-    yum remove -y nodesource-release-el9-1.noarch
+    yum remove -y nodesource-release-el9-1.noarch && \
+    rm -f /etc/yum.repos.d/nodesource-nsolid.repo
 
 RUN yum install -y gcc gcc-c++ \
     libtool libtool-ltdl \
@@ -25,7 +26,9 @@ RUN yum install -y gcc gcc-c++ \
     tree \
     jq \
     rsync \
-    wget && \
+    wget \
+    python3-pip && \
+    pip install pyaml==24.9.0 GitPython==3.1.43 PyGithub==2.5.0 && \
     yum install -y --enablerepo=ol9_codeready_builder glibc-static
 
 # keep that format for easier search
