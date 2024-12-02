@@ -218,6 +218,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}
 		serviceID = service.ServiceID
 	}
+
+	if agent.ExporterOptions == nil {
+		agent.ExporterOptions = &models.ExporterOptions{}
+	}
+
 	processExecPath := pointer.GetString(agent.ProcessExecPath)
 	switch agent.AgentType {
 	case models.PMMAgentType:
@@ -245,6 +250,10 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.MySQLdExporterType:
+		if agent.MySQLOptions == nil {
+			agent.MySQLOptions = &models.MySQLOptions{}
+		}
+
 		return &inventoryv1.MySQLdExporter{
 			AgentId:                   agent.AgentID,
 			PmmAgentId:                pointer.GetString(agent.PMMAgentID),
@@ -268,6 +277,10 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.MongoDBExporterType:
+		if agent.MongoDBOptions == nil {
+			agent.MongoDBOptions = &models.MongoDBOptions{}
+		}
+
 		exporter := &inventoryv1.MongoDBExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
@@ -286,14 +299,18 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if agent.MongoDBOptions != nil {
-			exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
-			exporter.CollectionsLimit = agent.MongoDBOptions.CollectionsLimit
-			exporter.EnableAllCollectors = agent.MongoDBOptions.EnableAllCollectors
-		}
+
+		exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
+		exporter.CollectionsLimit = agent.MongoDBOptions.CollectionsLimit
+		exporter.EnableAllCollectors = agent.MongoDBOptions.EnableAllCollectors
+
 		return exporter, nil
 
 	case models.PostgresExporterType:
+		if agent.PostgreSQLOptions == nil {
+			agent.PostgreSQLOptions = &models.PostgreSQLOptions{}
+		}
+
 		exporter := &inventoryv1.PostgresExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
@@ -312,12 +329,16 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if agent.PostgreSQLOptions != nil {
-			exporter.AutoDiscoveryLimit = agent.PostgreSQLOptions.AutoDiscoveryLimit
-			exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
-		}
+
+		exporter.AutoDiscoveryLimit = agent.PostgreSQLOptions.AutoDiscoveryLimit
+		exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
+
 		return exporter, nil
 	case models.QANMySQLPerfSchemaAgentType:
+		if agent.QANOptions == nil {
+			agent.QANOptions = &models.QANOptions{}
+		}
+
 		return &inventoryv1.QANMySQLPerfSchemaAgent{
 			AgentId:                agent.AgentID,
 			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
@@ -336,6 +357,10 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.QANMySQLSlowlogAgentType:
+		if agent.QANOptions == nil {
+			agent.QANOptions = &models.QANOptions{}
+		}
+
 		return &inventoryv1.QANMySQLSlowlogAgent{
 			AgentId:                agent.AgentID,
 			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
@@ -354,6 +379,10 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.QANMongoDBProfilerAgentType:
+		if agent.QANOptions == nil {
+			agent.QANOptions = &models.QANOptions{}
+		}
+
 		return &inventoryv1.QANMongoDBProfilerAgent{
 			AgentId:         agent.AgentID,
 			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
@@ -391,6 +420,10 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.QANPostgreSQLPgStatementsAgentType:
+		if agent.QANOptions == nil {
+			agent.QANOptions = &models.QANOptions{}
+		}
+
 		return &inventoryv1.QANPostgreSQLPgStatementsAgent{
 			AgentId:                agent.AgentID,
 			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
@@ -408,6 +441,10 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.QANPostgreSQLPgStatMonitorAgentType:
+		if agent.QANOptions == nil {
+			agent.QANOptions = &models.QANOptions{}
+		}
+
 		return &inventoryv1.QANPostgreSQLPgStatMonitorAgent{
 			AgentId:                agent.AgentID,
 			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
@@ -426,6 +463,10 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.RDSExporterType:
+		if agent.AWSOptions == nil {
+			agent.AWSOptions = &models.AWSOptions{}
+		}
+
 		return &inventoryv1.RDSExporter{
 			AgentId:                 agent.AgentID,
 			PmmAgentId:              pointer.GetString(agent.PMMAgentID),
@@ -467,6 +508,10 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.AzureDatabaseExporterType:
+		if agent.AzureOptions == nil {
+			agent.AzureOptions = &models.AzureOptions{}
+		}
+
 		return &inventoryv1.AzureDatabaseExporter{
 			AgentId:                     agent.AgentID,
 			PmmAgentId:                  pointer.GetString(agent.PMMAgentID),
