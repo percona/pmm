@@ -242,7 +242,8 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 
 	agents := make([]*Agent, len(structs))
 	for i, s := range structs {
-		agents[i] = s.(*Agent) //nolint:forcetypeassert
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		agents[i] = &decryptedAgent
 	}
 
 	return agents, nil
