@@ -31,6 +31,12 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+const (
+	// TODO figure out why it is included as PushMetrics not push_metrics
+	pushMetricsTrue  = "((exporter_options ? 'PushMetrics') AND (exporter_options->>'PushMetrics')::boolean = true)"
+	pushMetricsFalse = "(NOT (exporter_options ? 'PushMetrics') OR (exporter_options->>'PushMetrics')::boolean = false)"
+)
+
 // MySQLOptionsParams contains methods to create MySQLOptions object.
 type MySQLOptionsParams interface {
 	GetTlsCa() string
@@ -473,9 +479,9 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 	}
 
 	if pushMetrics {
-		conditions = append(conditions, "push_metrics")
+		conditions = append(conditions, pushMetricsTrue)
 	} else {
-		conditions = append(conditions, "NOT push_metrics")
+		conditions = append(conditions, pushMetricsFalse)
 	}
 
 	conditions = append(conditions, "NOT disabled", "listen_port IS NOT NULL")
@@ -495,7 +501,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 
 // FindPMMAgentsIDsWithPushMetrics returns pmm-agents-ids with agent, that use push_metrics mode.
 func FindPMMAgentsIDsWithPushMetrics(q *reform.Querier) ([]string, error) {
-	structs, err := q.SelectAllFrom(AgentTable, "WHERE NOT disabled AND pmm_agent_id IS NOT NULL AND push_metrics  ORDER BY agent_id")
+	structs, err := q.SelectAllFrom(AgentTable, fmt.Sprintf("WHERE NOT disabled AND pmm_agent_id IS NOT NULL AND %s ORDER BY agent_id", pushMetricsTrue))
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "Couldn't get agents")
 	}
