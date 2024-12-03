@@ -673,7 +673,10 @@ func (s Agent) Files() map[string]string {
 			if s.MySQLOptions.TLSKey != "" {
 				files["tlsKey"] = s.MySQLOptions.TLSKey
 			}
-			return files
+
+			if len(files) != 0 {
+				return files
+			}
 		}
 		return nil
 	case ProxySQLExporterType:
@@ -687,7 +690,10 @@ func (s Agent) Files() map[string]string {
 			if s.MongoDBOptions.TLSCertificateKey != "" {
 				files[certificateKeyFilePlaceholder] = s.MongoDBOptions.TLSCertificateKey
 			}
-			return files
+
+			if len(files) != 0 {
+				return files
+			}
 		}
 		return nil
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
@@ -703,7 +709,10 @@ func (s Agent) Files() map[string]string {
 			if s.PostgreSQLOptions.SSLKey != "" {
 				files[certificateKeyFilePlaceholder] = s.PostgreSQLOptions.SSLKey
 			}
-			return files
+
+			if len(files) != 0 {
+				return files
+			}
 		}
 		return nil
 	default:
@@ -726,15 +735,15 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 
 	switch svc.ServiceType {
 	case MySQLServiceType:
-		if s.MySQLOptions != nil {
+		if s.MySQLOptions != nil && s.MySQLOptions.TLSKey != "" {
 			templateParams = append(templateParams, s.MySQLOptions.TLSKey)
 		}
 	case MongoDBServiceType:
-		if s.MongoDBOptions != nil {
+		if s.MongoDBOptions != nil && s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
 			templateParams = append(templateParams, s.MongoDBOptions.TLSCertificateKeyFilePassword)
 		}
 	case PostgreSQLServiceType:
-		if s.PostgreSQLOptions != nil {
+		if s.PostgreSQLOptions != nil && s.PostgreSQLOptions.SSLKey != "" {
 			templateParams = append(templateParams, s.PostgreSQLOptions.SSLKey)
 		}
 	case ProxySQLServiceType:
