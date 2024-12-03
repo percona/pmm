@@ -114,6 +114,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
+			"--collector.collstats-limit=0",
 			"--collector.diagnosticdata",
 			"--collector.replicasetstatus",
 			"--compatible-mode",

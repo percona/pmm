@@ -261,6 +261,7 @@ func TestScrapeConfig(t *testing.T) {
 				AgentType:    models.MySQLdExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
+				MySQLOptions: &models.MySQLOptions{},
 			}
 
 			expected := []*config.ScrapeConfig{{
@@ -418,6 +419,7 @@ func TestScrapeConfig(t *testing.T) {
 				ExporterOptions: &models.ExporterOptions{
 					DisabledCollectors: []string{"global_status", "info_schema.innodb_cmp", "info_schema.query_response_time", "perf_schema.eventsstatements", "heartbeat"},
 				},
+				MySQLOptions: &models.MySQLOptions{},
 			}
 
 			expected := []*config.ScrapeConfig{{
