@@ -89,7 +89,7 @@ type ExporterOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c ExporterOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c *ExporterOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *ExporterOptions) Scan(src interface{}) error { return jsonScan(c, src) }
@@ -103,7 +103,7 @@ type QANOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c QANOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c *QANOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *QANOptions) Scan(src interface{}) error { return jsonScan(c, src) }
@@ -117,7 +117,7 @@ type AWSOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c AWSOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c *AWSOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *AWSOptions) Scan(src interface{}) error { return jsonScan(c, src) }
@@ -132,7 +132,7 @@ type AzureOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c *AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
@@ -150,7 +150,7 @@ type MongoDBOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c *MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *MongoDBOptions) Scan(src interface{}) error { return jsonScan(c, src) }
@@ -172,7 +172,7 @@ type MySQLOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c MySQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c *MySQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *MySQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
@@ -189,7 +189,7 @@ type PostgreSQLOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c PostgreSQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c *PostgreSQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *PostgreSQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
