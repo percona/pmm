@@ -154,7 +154,9 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 	s.postgresql.Address = nil
 	s.postgresql.Port = nil
 	s.postgresql.Socket = pointer.ToString("/var/run/postgres")
-	s.exporter.ExporterOptions.DisabledCollectors = []string{"custom_query.hr", "custom_query.hr.directory", "locks"}
+	s.exporter.ExporterOptions = &models.ExporterOptions{
+		DisabledCollectors: []string{"custom_query.hr", "custom_query.hr.directory", "locks"},
+	}
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
