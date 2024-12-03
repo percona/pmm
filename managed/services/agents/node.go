@@ -36,9 +36,6 @@ var (
 
 func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) {
 	listenAddress := getExporterListenAddress(node, exporter)
-	if exporter.ExporterOptions == nil {
-		exporter.ExporterOptions = &models.ExporterOptions{}
-	}
 	tdp := models.TemplateDelimsPair(pointer.GetString(exporter.ExporterOptions.MetricsPath))
 	args := []string{
 		"--collector.textfile.directory.lr=" + pathsBase(agentVersion, tdp.Left, tdp.Right) + "/collectors/textfile-collector/low-resolution",
