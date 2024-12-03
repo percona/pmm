@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
