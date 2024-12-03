@@ -48,8 +48,13 @@ func TestAgent(t *testing.T) {
 
 	t.Run("DSN", func(t *testing.T) {
 		agent := &models.Agent{
-			Username: pointer.ToString("username"),
-			Password: pointer.ToString("s3cur3 p@$$w0r4."),
+			Username:          pointer.ToString("username"),
+			Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+			ExporterOptions:   &models.ExporterOptions{},
+			QANOptions:        &models.QANOptions{},
+			MongoDBOptions:    &models.MongoDBOptions{},
+			MySQLOptions:      &models.MySQLOptions{},
+			PostgreSQLOptions: &models.PostgreSQLOptions{},
 		}
 		service := &models.Service{
 			Address: pointer.ToString("1.2.3.4"),
@@ -80,8 +85,11 @@ func TestAgent(t *testing.T) {
 
 	t.Run("DSN socket", func(t *testing.T) {
 		agent := &models.Agent{
-			Username: pointer.ToString("username"),
-			Password: pointer.ToString("s3cur3 p@$$w0r4."),
+			Username:        pointer.ToString("username"),
+			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			ExporterOptions: &models.ExporterOptions{},
+			QANOptions:      &models.QANOptions{},
+			MySQLOptions:    &models.MySQLOptions{},
 		}
 		service := &models.Service{
 			Socket: pointer.ToString("/var/run/mysqld/mysqld.sock"),
@@ -101,8 +109,11 @@ func TestAgent(t *testing.T) {
 
 	t.Run("DSN timeout", func(t *testing.T) {
 		agent := &models.Agent{
-			Username: pointer.ToString("username"),
-			Password: pointer.ToString("s3cur3 p@$$w0r4."),
+			Username:        pointer.ToString("username"),
+			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			ExporterOptions: &models.ExporterOptions{},
+			QANOptions:      &models.QANOptions{},
+			MongoDBOptions:  &models.MongoDBOptions{},
 		}
 		service := &models.Service{
 			Socket: pointer.ToString("/var/run/mysqld/mysqld.sock"),
@@ -139,6 +150,7 @@ func TestAgent(t *testing.T) {
 			Username:          pointer.ToString("username"),
 			Password:          pointer.ToString("s3cur3 p@$$w0r4."),
 			TLS:               true,
+			ExporterOptions:   &models.ExporterOptions{},
 			MongoDBOptions:    &mongoDBOptions,
 			MySQLOptions:      &mysqlOptions,
 			PostgreSQLOptions: &postgresqlOptions,
@@ -197,10 +209,15 @@ func TestAgent(t *testing.T) {
 
 	t.Run("DSN ssl-skip-verify", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:      pointer.ToString("username"),
-			Password:      pointer.ToString("s3cur3 p@$$w0r4."),
-			TLS:           true,
-			TLSSkipVerify: true,
+			Username:          pointer.ToString("username"),
+			Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+			TLS:               true,
+			TLSSkipVerify:     true,
+			ExporterOptions:   &models.ExporterOptions{},
+			QANOptions:        &models.QANOptions{},
+			MongoDBOptions:    &models.MongoDBOptions{},
+			MySQLOptions:      &models.MySQLOptions{},
+			PostgreSQLOptions: &models.PostgreSQLOptions{},
 		}
 		service := &models.Service{
 			Address: pointer.ToString("1.2.3.4"),
