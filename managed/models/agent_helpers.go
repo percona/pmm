@@ -227,7 +227,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		idx++
 	}
 	if filters.AWSAccessKey != "" {
-		conditions = append(conditions, fmt.Sprintf("aws_access_key = %s", q.Placeholder(idx)))
+		conditions = append(conditions, fmt.Sprintf("(aws_options ? 'aws_access_key' AND aws_options->>'aws_access_key' = %s)", q.Placeholder(idx)))
 		args = append(args, filters.AWSAccessKey)
 	}
 
