@@ -152,7 +152,6 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		ua.MetricsScheme = pointer.GetString(agent.ExporterOptions.MetricsScheme)
 		ua.PushMetrics = agent.ExporterOptions.PushMetrics
 		ua.ExposeExporter = agent.ExporterOptions.ExposeExporter
-
 	}
 
 	if agent.QANOptions != nil {

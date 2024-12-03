@@ -60,7 +60,7 @@ const (
 	VerifyFullSSLMode string = "verify-full"
 )
 
-// DefaultAgentEncryptionColumns since 3.0.0 contains all tables and it's columns to be encrypted in PMM Server DB.
+// DefaultAgentEncryptionColumnsV3 since 3.0.0 contains all tables and it's columns to be encrypted in PMM Server DB.
 var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 	{
 		Name:        "agents",
