@@ -330,7 +330,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
 
-		exporter.AutoDiscoveryLimit = agent.PostgreSQLOptions.AutoDiscoveryLimit
+		exporter.AutoDiscoveryLimit = pointer.GetInt32(agent.PostgreSQLOptions.AutoDiscoveryLimit)
 		exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
 
 		return exporter, nil

@@ -416,7 +416,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				},
 
 				PostgreSQLOptions: &models.PostgreSQLOptions{
-					AutoDiscoveryLimit:     req.AutoDiscoveryLimit,
+					AutoDiscoveryLimit:     pointer.ToInt32(req.AutoDiscoveryLimit),
 					MaxExporterConnections: req.MaxPostgresqlExporterConnections,
 				},
 			})

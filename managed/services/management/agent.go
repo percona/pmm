@@ -203,7 +203,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 	if agent.PostgreSQLOptions != nil {
 		ua.PostgresqlOptions = &managementv1.UniversalAgent_PostgreSQLOptions{
 			IsSslKeySet:            agent.PostgreSQLOptions.SSLKey != "",
-			AutoDiscoveryLimit:     agent.PostgreSQLOptions.AutoDiscoveryLimit,
+			AutoDiscoveryLimit:     pointer.GetInt32(agent.PostgreSQLOptions.AutoDiscoveryLimit),
 			MaxExporterConnections: agent.PostgreSQLOptions.MaxExporterConnections,
 		}
 	}

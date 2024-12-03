@@ -182,7 +182,7 @@ type PostgreSQLOptions struct {
 	SSLCa                  string  `json:"ssl_ca"`
 	SSLCert                string  `json:"ssl_cert"`
 	SSLKey                 string  `json:"ssl_key"`
-	AutoDiscoveryLimit     int32   `json:"auto_discovery_limit"`
+	AutoDiscoveryLimit     *int32  `json:"auto_discovery_limit"`
 	DatabaseCount          int32   `json:"database_count"`
 	PGSMVersion            *string `json:"pgsm_version"`
 	MaxExporterConnections int32   `json:"max_exporter_connections"`

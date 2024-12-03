@@ -22,6 +22,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -84,20 +85,16 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
-	if exporter.PostgreSQLOptions == nil {
-		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{}
-	}
-
 	autoDiscovery := false
 	if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {
 		switch {
-		case exporter.PostgreSQLOptions == nil:
+		case exporter.PostgreSQLOptions.AutoDiscoveryLimit == nil:
 			autoDiscovery = true
-		case exporter.PostgreSQLOptions.AutoDiscoveryLimit == 0: // server defined
+		case pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit) == 0: // server defined
 			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= defaultAutoDiscoveryDatabaseLimit
-		case exporter.PostgreSQLOptions.AutoDiscoveryLimit < 0: // always disabled
+		case pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit) < 0: // always disabled
 		default:
-			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= exporter.PostgreSQLOptions.AutoDiscoveryLimit
+			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit)
 		}
 	}
 	if autoDiscovery {
@@ -107,13 +104,8 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	}
 
 	if !pmmAgentVersion.Less(postgresMaxExporterConnsVersion) &&
-		exporter.PostgreSQLOptions != nil &&
 		exporter.PostgreSQLOptions.MaxExporterConnections != 0 {
 		args = append(args, "--max-connections="+strconv.Itoa(int(exporter.PostgreSQLOptions.MaxExporterConnections)))
-	}
-
-	if exporter.ExporterOptions == nil {
-		exporter.ExporterOptions = &models.ExporterOptions{}
 	}
 
 	if exporter.ExporterOptions.MetricsPath != nil {
@@ -137,10 +129,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
-	if exporter.AzureOptions == nil {
-		exporter.AzureOptions = &models.AzureOptions{}
-	}
-	if exporter.AzureOptions != nil {
+	if exporter.AzureOptions.ClientID != "" {
 		dnsParams.DialTimeout = 5 * time.Second
 	}
 
@@ -174,9 +163,6 @@ func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
-	if agent.QANOptions == nil {
-		agent.QANOptions = &models.QANOptions{}
-	}
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
@@ -198,9 +184,6 @@ func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *model
 		DialTimeout:              1 * time.Second,
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
-	}
-	if agent.QANOptions == nil {
-		agent.QANOptions = &models.QANOptions{}
 	}
 
 	return &agentv1.SetStateRequest_BuiltinAgent{

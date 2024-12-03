@@ -196,10 +196,13 @@ func TestAutoDiscovery(t *testing.T) {
 		DatabaseName: "postgres",
 	}
 	exporter := &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.PostgresExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentID:           "agent-id",
+		AgentType:         models.PostgresExporterType,
+		Username:          pointer.ToString("username"),
+		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		ExporterOptions:   &models.ExporterOptions{},
+		AzureOptions:      &models.AzureOptions{},
+		PostgreSQLOptions: &models.PostgreSQLOptions{},
 	}
 
 	expected := &agentv1.SetStateRequest_AgentProcess{
@@ -240,7 +243,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Database count more than limit - disabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
-			AutoDiscoveryLimit: 5,
+			AutoDiscoveryLimit: pointer.ToInt32(5),
 			DatabaseCount:      10,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -251,7 +254,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Database count equal to limit - enabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
-			AutoDiscoveryLimit: 5,
+			AutoDiscoveryLimit: pointer.ToInt32(5),
 			DatabaseCount:      5,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -262,7 +265,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Database count less than limit - enabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
-			AutoDiscoveryLimit: 5,
+			AutoDiscoveryLimit: pointer.ToInt32(5),
 			DatabaseCount:      3,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -273,7 +276,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Negative limit - disabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
-			AutoDiscoveryLimit: -1,
+			AutoDiscoveryLimit: pointer.ToInt32(-1),
 			DatabaseCount:      3,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -284,7 +287,7 @@ func TestAutoDiscovery(t *testing.T) {
 
 	t.Run("Default - enabled", func(t *testing.T) {
 		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
-			AutoDiscoveryLimit: 0,
+			AutoDiscoveryLimit: pointer.ToInt32(0),
 			DatabaseCount:      3,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)

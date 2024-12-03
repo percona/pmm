@@ -64,7 +64,7 @@ type PostgreSQLOptionsParams interface {
 
 // PostgreSQLExtendedOptionsParams contains extended parameters for PostgreSQL exporter.
 type PostgreSQLExtendedOptionsParams interface {
-	GetAutoDiscoveryLimit() int32
+	GetAutoDiscoveryLimit() *int32
 	GetMaxExporterConnections() int32
 }
 
