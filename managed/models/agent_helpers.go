@@ -32,9 +32,8 @@ import (
 )
 
 const (
-	// TODO figure out why it is included as PushMetrics not push_metrics
-	pushMetricsTrue  = "((exporter_options ? 'PushMetrics') AND (exporter_options->>'PushMetrics')::boolean = true)"
-	pushMetricsFalse = "(NOT (exporter_options ? 'PushMetrics') OR (exporter_options->>'PushMetrics')::boolean = false)"
+	pushMetricsTrue  = "((exporter_options ? 'push_metrics') AND (exporter_options->>'push_metrics')::boolean = true)"
+	pushMetricsFalse = "(NOT (exporter_options ? 'push_metrics') OR (exporter_options->>'push_metrics')::boolean = false)"
 )
 
 // MySQLOptionsParams contains methods to create MySQLOptions object.
