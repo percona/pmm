@@ -80,12 +80,12 @@ const PMMServerAgentID = string("pmm-server") // a special ID, reserved for PMM 
 
 // ExporterOptions represents structure for special Exporter options.
 type ExporterOptions struct {
-	ExposeExporter     bool                `reform:"expose_exporter"`
-	PushMetrics        bool                `reform:"push_metrics"`
-	DisabledCollectors pq.StringArray      `reform:"disabled_collectors"`
-	MetricsResolutions *MetricsResolutions `reform:"metrics_resolutions"`
-	MetricsPath        *string             `reform:"metrics_path"`
-	MetricsScheme      *string             `reform:"metrics_scheme"`
+	ExposeExporter     bool                `json:"expose_exporter"`
+	PushMetrics        bool                `json:"push_metrics"`
+	DisabledCollectors pq.StringArray      `json:"disabled_collectors"`
+	MetricsResolutions *MetricsResolutions `json:"metrics_resolutions"`
+	MetricsPath        *string             `json:"metrics_path"`
+	MetricsScheme      *string             `json:"metrics_scheme"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -96,10 +96,10 @@ func (c *ExporterOptions) Scan(src interface{}) error { return jsonScan(c, src) 
 
 // QANOptions represents structure for special QAN options.
 type QANOptions struct {
-	MaxQueryLength          int32 `reform:"max_query_length"`
-	MaxQueryLogSize         int64 `reform:"max_query_log_size"`
-	QueryExamplesDisabled   bool  `reform:"query_examples_disabled"`
-	CommentsParsingDisabled bool  `reform:"comments_parsing_disabled"`
+	MaxQueryLength          int32 `json:"max_query_length"`
+	MaxQueryLogSize         int64 `json:"max_query_log_size"`
+	QueryExamplesDisabled   bool  `json:"query_examples_disabled"`
+	CommentsParsingDisabled bool  `json:"comments_parsing_disabled"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -110,10 +110,10 @@ func (c *QANOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // AWSOptions represents structure for special AWS options.
 type AWSOptions struct {
-	AWSAccessKey               string `reform:"aws_access_key"`
-	AWSSecretKey               string `reform:"aws_secret_key"`
-	RDSBasicMetricsDisabled    bool   `reform:"rds_basic_metrics_disabled"`
-	RDSEnhancedMetricsDisabled bool   `reform:"rds_enhanced_metrics_disabled"`
+	AWSAccessKey               string `json:"aws_access_key"`
+	AWSSecretKey               string `json:"aws_secret_key"`
+	RDSBasicMetricsDisabled    bool   `json:"rds_basic_metrics_disabled"`
+	RDSEnhancedMetricsDisabled bool   `json:"rds_enhanced_metrics_disabled"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -162,13 +162,13 @@ type MySQLOptions struct {
 	TLSKey  string `json:"tls_key"`
 
 	// TableCount stores last known table count. NULL if unknown.
-	TableCount *int32 `reform:"table_count"`
+	TableCount *int32 `json:"table_count"`
 
 	// Tablestats group collectors are disabled if there are more than that number of tables.
 	// 0 means tablestats group collectors are always enabled (no limit).
 	// Negative value means tablestats group collectors are always disabled.
 	// See IsMySQLTablestatsGroupEnabled method.
-	TableCountTablestatsGroupLimit int32 `reform:"table_count_tablestats_group_limit"`
+	TableCountTablestatsGroupLimit int32 `json:"table_count_tablestats_group_limit"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
