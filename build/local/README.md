@@ -25,7 +25,6 @@ Below is a list of prerequisites that are required to build PMM locally.
 - tar
 - git
 - curl
-- jq: 1.6+
 
 Please note, that building some of the PMM internals, such as Grafana, requires at least 8GB of memory available to docker. The number of CPUs, however, does not matter that much.
 
@@ -117,8 +116,8 @@ Currently, Local Builds target the following platforms and distributions:
 
 ## TODO
 
-- use the `--debug` parameter to control the verbosity of the logs (1/2 done)
+- use the `--debug` parameter to control the verbosity of the logs (1/2 ✅)
 - implement the `--release` parameter
-- remove `jq` from prerequisites
+- remove `jq` from prerequisites ✅
 - output the build summary at the end of the build
 - implement the `--clean` parameter

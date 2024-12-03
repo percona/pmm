@@ -38,7 +38,6 @@ parse_params() {
 	SUBMODULES=.modules
   CLONE_BRANCH=v3
 	PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
-	VAR_PREFIX="__PMM"
 
 	# Exported variables
 	export LOCAL_BUILD=1
@@ -112,32 +111,6 @@ parse_params() {
 		esac
 		shift
 	done
-}
-
-# Function to set a key/value pair
-set_value() {
-	local key="$1"
-	local value="$2"
-	validate_key "$key"
-	eval "${VAR_PREFIX}_${key}=\"${value}\""
-}
-
-# Function to retrieve a value by key
-get_value() {
-	local key="$1"
-	validate_key "$key"
-	local value=$(eval "echo -n ${VAR_PREFIX}_${key}")
-	if [ -z "$value" ]; then
-		echo "Error: variable '${VAR_PREFIX}_${key}' is undefined" >&2
-	fi
-	echo -n "$value"
-}
-
-# Function to unset a key
-unset_value() {
-	local key="$1"
-	validate_key "$key"
-	eval "unset ${VAR_PREFIX}_${key}"
 }
 
 # Function to validate a key (allow only alphanumeric and underscore characters)
@@ -215,6 +188,8 @@ check_files() {
     echo
 		exit 1
 	fi
+
+  mkdir -p "$DIR/build"
 }
 
 # Update submodules and PR branches
@@ -232,45 +207,71 @@ update() {
 
 		git config --global --add safe.directory /app
 
+	  # Join the dependencies from ci-default.yml and ci.yml
 		rm -f gitmodules.yml
 		python ci.py --convert
 
 		DEPS=$(yq -o=json eval-all '. as $item ireduce ({}; . *d $item )' gitmodules.yml ci.yml | jq '.deps')
 		DEPS=$(echo "$DEPS" | jq -r '[.[] | {name: .name, branch: .branch, path: .path, url: .url}]')
-		echo "$DEPS"
+		rm -f gitmodules.yml
+		echo "$DEPS" > /app/build/build.json
+    echo -n > /tmp/deps.txt
+
+		echo "$DEPS" | jq -c '.[]' | while read -r item; do
+			branch=$(echo "$item" | jq -r '.branch')
+			path=$(echo "$item" | jq -r '.path')
+			name=$(echo "$item" | jq -r '.name')
+			echo "name=${name}:path=${path}:branch=${branch}" >> /tmp/deps.txt
+		done
+
+		mv -f /tmp/deps.txt /app/build/deps.txt
 	EOF
 
 	chmod +x "$CURDIR/entrypoint.sh"
-	# Join the dependencies from ci-default.yml and ci.yml
-	DEPS=$(
-		docker run --rm --platform="$PLATFORM" \
-      -v $ROOT_DIR:/app \
-			-v $CURDIR/ci.yml:/app/ci.yml \
-			-v $CURDIR/entrypoint.sh:/entrypoint.sh \
-      -w /app \
-			--entrypoint=/entrypoint.sh \
-			"$RPMBUILD_DOCKER_IMAGE"
-	)
-
-	echo "$DEPS" > sbom.json
+  docker run --rm --platform="$PLATFORM" \
+    -v $ROOT_DIR:/app \
+    -v $CURDIR/ci.yml:/app/ci.yml \
+    -v $CURDIR/entrypoint.sh:/entrypoint.sh \
+    -w /app \
+    --entrypoint=/entrypoint.sh \
+    "$RPMBUILD_DOCKER_IMAGE"
 
 	rm -f "$CURDIR/entrypoint.sh"
+
+  if [ ! -f "$SUBMODULES/build/deps.txt" ]; then
+    echo "Error: could not locate the 'build/deps.txt' file, exiting..."
+    exit 1
+  fi
 
 	echo
 	echo "This script rewinds submodule branches as per the joint config of '.gitmodules' and 'ci.yml'"
 
 	cd "$SUBMODULES"
 
-	echo "$DEPS" | jq -c '.[]' | while read -r item; do
-		branch=$(echo "$item" | jq -r '.branch')
-		path=$(echo "$item" | jq -r '.path')
-		name=$(echo "$item" | jq -r '.name')
+  # Read deps line by line and rewind submodules
+  while IFS= read -r line; do
+    local key="" val="" pair="" name="" path="" branch=""
+
+    # Parse the colon-separated subkeys and subvalues
+    IFS=':' read -r -a pairs <<< "$line"
+    for pair in "${pairs[@]}"; do
+      key="${pair%%=*}"
+      val="${pair#*=}"
+      if [ "$key" = "name" ]; then
+        name="$val"
+      elif [ "$key" = "path" ]; then
+        path="$val"
+      elif [ "$key" = "branch" ]; then
+        branch="$val"
+      fi
+    done
+
 		echo
-		echo "Rewinding submodule '$name' ..."
-		echo "path: ${path}, branch: ${branch}"
+		echo "Rewinding submodule $name ..."
+		echo "path: $path, branch: $branch"
 
 		rewind "$path" "$branch"
-	done
+  done < "build/deps.txt"
 
 	echo
 	echo "Printing git status..."
@@ -280,6 +281,10 @@ update() {
 	git submodule status
 
 	cd "$CURDIR" > /dev/null
+
+  if [ "$UPDATE_ONLY" -eq 1 ]; then
+    exit 0
+  fi
 }
 
 get_branch_name() {
