@@ -2,17 +2,16 @@ FROM oraclelinux:9-slim
 
 RUN microdnf install -y yum
 # enable nodesource repo for nodejs
-RUN curl -sL https://rpm.nodesource.com/setup_18.x | bash -
-RUN curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
+RUN curl -fSsL https://rpm.nodesource.com/setup_18.x | bash -
+RUN curl -fSsL https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
 
-RUN yum update -y && \
+RUN rm -f /etc/yum.repos.d/nodesource-nsolid.repo && \
+    yum update -y && \
     yum install -y crypto-policies-scripts && \
     update-crypto-policies --set DEFAULT:SHA1 && \
     yum install -y --setopt=skip_missing_names_on_install=False \
     nodejs \
-    yarn && \
-    yum remove -y nodesource-release-el9-1.noarch && \
-    rm -f /etc/yum.repos.d/nodesource-nsolid.repo
+    yarn
 
 RUN yum install -y gcc gcc-c++ \
     libtool libtool-ltdl \
