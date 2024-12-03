@@ -1097,11 +1097,11 @@ var databaseSchema = [][]string{
 	},
 	107: {
 		`ALTER TABLE agents ADD COLUMN exporter_options JSONB`,
-		`INSERT INTO agents (exporter_options) VALUES ('{}'::jsonb)`,
+		`UPDATE agents SET exporter_options = '{}'::jsonb`,
 		`ALTER TABLE agents ADD COLUMN qan_options JSONB`,
-		`INSERT INTO agents (qan_options) VALUES ('{}'::jsonb)`,
+		`UPDATE agents SET qan_options = '{}'::jsonb`,
 		`ALTER TABLE agents ADD COLUMN aws_options JSONB`,
-		`INSERT INTO agents (aws_options) VALUES ('{}'::jsonb)`,
+		`UPDATE agents SET aws_options = '{}'::jsonb`,
 
 		`ALTER TABLE agents ALTER COLUMN azure_options TYPE JSONB USING to_jsonb(azure_options)`,
 		`UPDATE agents SET azure_options = '{}'::jsonb WHERE azure_options IS NULL`,
