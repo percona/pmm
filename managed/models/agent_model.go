@@ -484,22 +484,20 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			}
 		}
 
-		if s.MongoDBOptions != nil {
-			if s.MongoDBOptions.TLSCertificateKey != "" {
-				q.Add("tlsCertificateKeyFile", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
-			}
-			if s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
-				q.Add("tlsCertificateKeyFilePassword", s.MongoDBOptions.TLSCertificateKeyFilePassword)
-			}
-			if s.MongoDBOptions.TLSCa != "" {
-				q.Add("tlsCaFile", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
-			}
-			if s.MongoDBOptions.AuthenticationMechanism != "" {
-				q.Add("authMechanism", s.MongoDBOptions.AuthenticationMechanism)
-			}
-			if s.MongoDBOptions.AuthenticationDatabase != "" {
-				q.Add("authSource", s.MongoDBOptions.AuthenticationDatabase)
-			}
+		if s.MongoDBOptions.TLSCertificateKey != "" {
+			q.Add("tlsCertificateKeyFile", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
+		}
+		if s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
+			q.Add("tlsCertificateKeyFilePassword", s.MongoDBOptions.TLSCertificateKeyFilePassword)
+		}
+		if s.MongoDBOptions.TLSCa != "" {
+			q.Add("tlsCaFile", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
+		}
+		if s.MongoDBOptions.AuthenticationMechanism != "" {
+			q.Add("authMechanism", s.MongoDBOptions.AuthenticationMechanism)
+		}
+		if s.MongoDBOptions.AuthenticationDatabase != "" {
+			q.Add("authSource", s.MongoDBOptions.AuthenticationDatabase)
 		}
 
 		address := socket
@@ -642,10 +640,6 @@ func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
 		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
 	}
 
-	if s.MySQLOptions == nil {
-		s.MySQLOptions = &MySQLOptions{}
-	}
-
 	switch {
 	case s.MySQLOptions.TableCountTablestatsGroupLimit == 0: // server defined
 		return true
@@ -662,58 +656,55 @@ func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
 func (s Agent) Files() map[string]string {
 	switch s.AgentType {
 	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
-		if s.MySQLOptions != nil {
-			files := make(map[string]string)
-			if s.MySQLOptions.TLSCa != "" {
-				files["tlsCa"] = s.MySQLOptions.TLSCa
-			}
-			if s.MySQLOptions.TLSCert != "" {
-				files["tlsCert"] = s.MySQLOptions.TLSCert
-			}
-			if s.MySQLOptions.TLSKey != "" {
-				files["tlsKey"] = s.MySQLOptions.TLSKey
-			}
-
-			if len(files) != 0 {
-				return files
-			}
+		files := make(map[string]string)
+		if s.MySQLOptions.TLSCa != "" {
+			files["tlsCa"] = s.MySQLOptions.TLSCa
 		}
+		if s.MySQLOptions.TLSCert != "" {
+			files["tlsCert"] = s.MySQLOptions.TLSCert
+		}
+		if s.MySQLOptions.TLSKey != "" {
+			files["tlsKey"] = s.MySQLOptions.TLSKey
+		}
+
+		if len(files) != 0 {
+			return files
+		}
+
 		return nil
 	case ProxySQLExporterType:
 		return nil
 	case QANMongoDBProfilerAgentType, MongoDBExporterType:
-		if s.MongoDBOptions != nil {
-			files := make(map[string]string)
-			if s.MongoDBOptions.TLSCa != "" {
-				files[caFilePlaceholder] = s.MongoDBOptions.TLSCa
-			}
-			if s.MongoDBOptions.TLSCertificateKey != "" {
-				files[certificateKeyFilePlaceholder] = s.MongoDBOptions.TLSCertificateKey
-			}
-
-			if len(files) != 0 {
-				return files
-			}
+		files := make(map[string]string)
+		if s.MongoDBOptions.TLSCa != "" {
+			files[caFilePlaceholder] = s.MongoDBOptions.TLSCa
 		}
+		if s.MongoDBOptions.TLSCertificateKey != "" {
+			files[certificateKeyFilePlaceholder] = s.MongoDBOptions.TLSCertificateKey
+		}
+
+		if len(files) != 0 {
+			return files
+		}
+
 		return nil
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
-		if s.PostgreSQLOptions != nil {
-			files := make(map[string]string)
+		files := make(map[string]string)
 
-			if s.PostgreSQLOptions.SSLCa != "" {
-				files[caFilePlaceholder] = s.PostgreSQLOptions.SSLCa
-			}
-			if s.PostgreSQLOptions.SSLCert != "" {
-				files[certificateFilePlaceholder] = s.PostgreSQLOptions.SSLCert
-			}
-			if s.PostgreSQLOptions.SSLKey != "" {
-				files[certificateKeyFilePlaceholder] = s.PostgreSQLOptions.SSLKey
-			}
-
-			if len(files) != 0 {
-				return files
-			}
+		if s.PostgreSQLOptions.SSLCa != "" {
+			files[caFilePlaceholder] = s.PostgreSQLOptions.SSLCa
 		}
+		if s.PostgreSQLOptions.SSLCert != "" {
+			files[certificateFilePlaceholder] = s.PostgreSQLOptions.SSLCert
+		}
+		if s.PostgreSQLOptions.SSLKey != "" {
+			files[certificateKeyFilePlaceholder] = s.PostgreSQLOptions.SSLKey
+		}
+
+		if len(files) != 0 {
+			return files
+		}
+
 		return nil
 	default:
 		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
@@ -722,10 +713,6 @@ func (s Agent) Files() map[string]string {
 
 // TemplateDelimiters returns a pair of safe template delimiters that are not present in agent parameters.
 func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
-	if s.ExporterOptions == nil {
-		s.ExporterOptions = &ExporterOptions{}
-	}
-
 	templateParams := []string{
 		pointer.GetString(svc.Address),
 		pointer.GetString(s.Username),
@@ -735,15 +722,15 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 
 	switch svc.ServiceType {
 	case MySQLServiceType:
-		if s.MySQLOptions != nil && s.MySQLOptions.TLSKey != "" {
+		if s.MySQLOptions.TLSKey != "" {
 			templateParams = append(templateParams, s.MySQLOptions.TLSKey)
 		}
 	case MongoDBServiceType:
-		if s.MongoDBOptions != nil && s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
+		if s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
 			templateParams = append(templateParams, s.MongoDBOptions.TLSCertificateKeyFilePassword)
 		}
 	case PostgreSQLServiceType:
-		if s.PostgreSQLOptions != nil && s.PostgreSQLOptions.SSLKey != "" {
+		if s.PostgreSQLOptions.SSLKey != "" {
 			templateParams = append(templateParams, s.PostgreSQLOptions.SSLKey)
 		}
 	case ProxySQLServiceType:

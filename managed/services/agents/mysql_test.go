@@ -37,11 +37,13 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	exporter := &models.Agent{
-		AgentID:       "agent-id",
-		AgentType:     models.MySQLdExporterType,
-		Username:      pointer.ToString("username"),
-		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword: pointer.ToString("agent-password"),
+		AgentID:         "agent-id",
+		AgentType:       models.MySQLdExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword:   pointer.ToString("agent-password"),
+		ExporterOptions: &models.ExporterOptions{},
+		MySQLOptions:    &models.MySQLOptions{},
 	}
 	pmmAgentVersion := version.MustParse("2.21.0")
 
@@ -141,11 +143,12 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 		Port:    pointer.ToUint16(3306),
 	}
 	exporter := &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.MySQLdExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
-		TLS:       true,
+		AgentID:         "agent-id",
+		AgentType:       models.MySQLdExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		TLS:             true,
+		ExporterOptions: &models.ExporterOptions{},
 		MySQLOptions: &models.MySQLOptions{
 			TableCountTablestatsGroupLimit: -1,
 			TLSCa:                          "content-of-tls-ca",
@@ -252,6 +255,7 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 		ExporterOptions: &models.ExporterOptions{
 			DisabledCollectors: []string{"heartbeat", "info_schema.clientstats", "perf_schema.eventsstatements", "custom_query.hr"},
 		},
+		MySQLOptions: &models.MySQLOptions{},
 	}
 	pmmAgentVersion := version.MustParse("2.24.0")
 

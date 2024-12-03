@@ -104,10 +104,6 @@ func mysqldExporterConfig(
 		args = append(args, tablestatsGroup...)
 	}
 
-	if exporter.ExporterOptions == nil {
-		exporter.ExporterOptions = &models.ExporterOptions{}
-	}
-
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
 
 	if exporter.ExporterOptions.MetricsPath != nil {
@@ -158,9 +154,6 @@ func mysqldExporterConfig(
 // qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema built-in agent.
 func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
-	if agent.QANOptions == nil {
-		agent.QANOptions = &models.QANOptions{}
-	}
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
@@ -180,9 +173,6 @@ func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent,
 // qanMySQLSlowlogAgentConfig returns desired configuration of qan-mysql-slowlog built-in agent.
 func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
-	if agent.QANOptions == nil {
-		agent.QANOptions = &models.QANOptions{}
-	}
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
