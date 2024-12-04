@@ -311,10 +311,12 @@ func TestMaxConnections(t *testing.T) {
 		DatabaseName: "postgres",
 	}
 	exporter := &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.PostgresExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentID:         "agent-id",
+		AgentType:       models.PostgresExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		ExporterOptions: &models.ExporterOptions{},
+		AzureOptions:    &models.AzureOptions{},
 		PostgreSQLOptions: &models.PostgreSQLOptions{
 			MaxExporterConnections: 10,
 		},
@@ -384,10 +386,11 @@ func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.PostgresExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentID:         "agent-id",
+		AgentType:       models.PostgresExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		ExporterOptions: &models.ExporterOptions{},
 		AzureOptions: &models.AzureOptions{
 			SubscriptionID: "subscription_id",
 			ClientID:       "client_id",
@@ -395,6 +398,7 @@ func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {
 			TenantID:       "tenant_id",
 			ResourceGroup:  "resource_group",
 		},
+		PostgreSQLOptions: &models.PostgreSQLOptions{},
 	}
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
@@ -436,11 +440,14 @@ func (s *PostgresExporterConfigTestSuite) TestPrometheusWebConfig() {
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.PostgresExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
-		TLS:       true,
+		AgentID:           "agent-id",
+		AgentType:         models.PostgresExporterType,
+		Username:          pointer.ToString("username"),
+		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		TLS:               true,
+		ExporterOptions:   &models.ExporterOptions{},
+		AzureOptions:      &models.AzureOptions{},
+		PostgreSQLOptions: &models.PostgreSQLOptions{},
 	}
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
@@ -485,11 +492,14 @@ func (s *PostgresExporterConfigTestSuite) TestSSLSni() {
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.PostgresExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
-		TLS:       true,
+		AgentID:           "agent-id",
+		AgentType:         models.PostgresExporterType,
+		Username:          pointer.ToString("username"),
+		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		TLS:               true,
+		ExporterOptions:   &models.ExporterOptions{},
+		AzureOptions:      &models.AzureOptions{},
+		PostgreSQLOptions: &models.PostgreSQLOptions{},
 	}
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
@@ -526,5 +536,11 @@ func (s *PostgresExporterConfigTestSuite) TestSSLSni() {
 }
 
 func TestPostgresExporterConfigTestSuite(t *testing.T) {
-	suite.Run(t, &PostgresExporterConfigTestSuite{})
+	suite.Run(t, &PostgresExporterConfigTestSuite{
+		exporter: &models.Agent{
+			ExporterOptions:   &models.ExporterOptions{},
+			AzureOptions:      &models.AzureOptions{},
+			PostgreSQLOptions: &models.PostgreSQLOptions{},
+		},
+	})
 }
