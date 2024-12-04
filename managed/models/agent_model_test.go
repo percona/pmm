@@ -288,10 +288,12 @@ func TestPostgresAgentTLS(t *testing.T) {
 func TestPostgresWithSocket(t *testing.T) {
 	t.Run("empty-password", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:      pointer.ToString("username"),
-			AgentType:     models.PostgresExporterType,
-			TLS:           true,
-			TLSSkipVerify: false,
+			Username:          pointer.ToString("username"),
+			AgentType:         models.PostgresExporterType,
+			TLS:               true,
+			TLSSkipVerify:     false,
+			ExporterOptions:   &models.ExporterOptions{},
+			PostgreSQLOptions: &models.PostgreSQLOptions{},
 		}
 		service := &models.Service{
 			Socket: pointer.ToString("/var/run/postgres"),
@@ -302,7 +304,9 @@ func TestPostgresWithSocket(t *testing.T) {
 
 	t.Run("empty-user-password", func(t *testing.T) {
 		agent := &models.Agent{
-			AgentType: models.PostgresExporterType,
+			AgentType:         models.PostgresExporterType,
+			ExporterOptions:   &models.ExporterOptions{},
+			PostgreSQLOptions: &models.PostgreSQLOptions{},
 		}
 		service := &models.Service{
 			Socket: pointer.ToString("/var/run/postgres"),
@@ -313,7 +317,9 @@ func TestPostgresWithSocket(t *testing.T) {
 
 	t.Run("dir-with-symbols", func(t *testing.T) {
 		agent := &models.Agent{
-			AgentType: models.PostgresExporterType,
+			AgentType:         models.PostgresExporterType,
+			ExporterOptions:   &models.ExporterOptions{},
+			PostgreSQLOptions: &models.PostgreSQLOptions{},
 		}
 		service := &models.Service{
 			Socket: pointer.ToString(`/tmp/123\ A0m\%\$\@\8\,\+\-`),
@@ -326,10 +332,12 @@ func TestPostgresWithSocket(t *testing.T) {
 func TestMongoWithSocket(t *testing.T) {
 	t.Run("empty-password", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:      pointer.ToString("username"),
-			AgentType:     models.MongoDBExporterType,
-			TLS:           true,
-			TLSSkipVerify: false,
+			Username:        pointer.ToString("username"),
+			AgentType:       models.MongoDBExporterType,
+			TLS:             true,
+			TLSSkipVerify:   false,
+			ExporterOptions: &models.ExporterOptions{},
+			MongoDBOptions:  &models.MongoDBOptions{},
 		}
 		service := &models.Service{
 			Socket: pointer.ToString("/tmp/mongodb-27017.sock"),
@@ -340,7 +348,9 @@ func TestMongoWithSocket(t *testing.T) {
 
 	t.Run("empty-user-password", func(t *testing.T) {
 		agent := &models.Agent{
-			AgentType: models.MongoDBExporterType,
+			AgentType:       models.MongoDBExporterType,
+			ExporterOptions: &models.ExporterOptions{},
+			MongoDBOptions:  &models.MongoDBOptions{},
 		}
 		service := &models.Service{
 			Socket: pointer.ToString("/tmp/mongodb-27017.sock"),
@@ -351,7 +361,9 @@ func TestMongoWithSocket(t *testing.T) {
 
 	t.Run("dir-with-symbols", func(t *testing.T) {
 		agent := &models.Agent{
-			AgentType: models.MongoDBExporterType,
+			AgentType:       models.MongoDBExporterType,
+			ExporterOptions: &models.ExporterOptions{},
+			MongoDBOptions:  &models.MongoDBOptions{},
 		}
 		service := &models.Service{
 			Socket: pointer.ToString(`/tmp/123\ A0m\%\$\@\8\,\+\-/mongodb-27017.sock`),
