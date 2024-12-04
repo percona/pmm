@@ -52,7 +52,7 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) *MySQLOptions {
 			TLSKey:  params.GetTlsKey(),
 		}
 	}
-	return &MySQLOptions{}
+	return nil
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
@@ -858,6 +858,32 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 	return false
 }
 
+func prepareOptionsParams(params *CreateAgentParams) *CreateAgentParams {
+	if params.ExporterOptions == nil {
+		params.ExporterOptions = &ExporterOptions{}
+	}
+	if params.QANOptions == nil {
+		params.QANOptions = &QANOptions{}
+	}
+	if params.AWSOptions == nil {
+		params.AWSOptions = &AWSOptions{}
+	}
+	if params.AzureOptions == nil {
+		params.AzureOptions = &AzureOptions{}
+	}
+	if params.MongoDBOptions == nil {
+		params.MongoDBOptions = &MongoDBOptions{}
+	}
+	if params.MySQLOptions == nil {
+		params.MySQLOptions = &MySQLOptions{}
+	}
+	if params.PostgreSQLOptions == nil {
+		params.PostgreSQLOptions = &PostgreSQLOptions{}
+	}
+
+	return params
+}
+
 // CreateAgent creates Agent with given type.
 func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) { //nolint:unparam
 	id := uuid.New().String()
@@ -865,12 +891,14 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		return nil, err
 	}
 
+	params = prepareOptionsParams(params)
+
 	pmmAgent, err := FindAgentByID(q, params.PMMAgentID)
 	if err != nil {
 		return nil, err
 	}
 	// check version for agent, if it exists.
-	if params.ExporterOptions != nil && params.ExporterOptions.PushMetrics {
+	if params.ExporterOptions.PushMetrics {
 		// special case for vmAgent, it always supports push metrics.
 		if agentType != VMAgentType && !IsPushMetricsSupported(pmmAgent.Version) {
 			return nil, status.Errorf(codes.FailedPrecondition, "cannot use push_metrics_enabled with pmm_agent version=%q,"+
