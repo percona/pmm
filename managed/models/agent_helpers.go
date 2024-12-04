@@ -52,7 +52,7 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) *MySQLOptions {
 			TLSKey:  params.GetTlsKey(),
 		}
 	}
-	return nil
+	return &MySQLOptions{}
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
