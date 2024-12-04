@@ -39,11 +39,12 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	exporter := &models.Agent{
-		AgentID:       "agent-id",
-		AgentType:     models.ProxySQLExporterType,
-		Username:      pointer.ToString("username"),
-		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword: pointer.ToString("agent-password"),
+		AgentID:         "agent-id",
+		AgentType:       models.ProxySQLExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword:   pointer.ToString("agent-password"),
+		ExporterOptions: &models.ExporterOptions{},
 	}
 	actual := proxysqlExporterConfig(node, proxysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
@@ -104,10 +105,11 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			Port:    pointer.ToUint16(3306),
 		}
 		exporter := &models.Agent{
-			AgentID:   "agent-id",
-			AgentType: models.ProxySQLExporterType,
-			Username:  pointer.ToString("username"),
-			Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+			AgentID:         "agent-id",
+			AgentType:       models.ProxySQLExporterType,
+			Username:        pointer.ToString("username"),
+			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			ExporterOptions: &models.ExporterOptions{},
 		}
 		actual := proxysqlExporterConfig(node, proxysql, exporter, redactSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{
@@ -144,10 +146,11 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			Port:    pointer.ToUint16(3306),
 		}
 		exporter := &models.Agent{
-			AgentID:   "agent-id",
-			AgentType: models.ProxySQLExporterType,
-			Username:  pointer.ToString("username"),
-			Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+			AgentID:         "agent-id",
+			AgentType:       models.ProxySQLExporterType,
+			Username:        pointer.ToString("username"),
+			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			ExporterOptions: &models.ExporterOptions{},
 		}
 		actual := proxysqlExporterConfig(node, proxysql, exporter, redactSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{
