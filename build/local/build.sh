@@ -207,7 +207,7 @@ update() {
 
 		git config --global --add safe.directory /app
 
-	  # Join the dependencies from ci-default.yml and ci.yml
+	  # Join the dependencies from gitmodules.yml and ci.yml
 		rm -f gitmodules.yml
 		python ci.py --convert
 

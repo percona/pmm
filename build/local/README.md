@@ -47,7 +47,7 @@ Once the build is finished, you can proceed with launching a new instance of PMM
 We use a special docker image to build various PMM artifacts - `perconalab/rpmbuild:3`. It comes provisioned with tools which are required to build PMM artifacts, for example RPM packages. As a build tool, it offers a number of benefits, two most obvious of which are:
 
 - it frees the user from installing dependencies on their host machine
-- it leverages a very powerful docker caching system, which results in reduced build times
+- it leverages a very powerful docker caching system, which results in much reduced build times
 
 During the first run, `build` will create a few directories on the host machine, which are necessary to make use of docker cache. Please be aware, that the docker container's user needs to be able to write to these directories. The docker container's user is `builder` with uid 1000 and gid 1000. You need to make sure that the directories we create on the host are owned by a user with the same uid and gid. If the build fails, this is the first thing to check.
 
@@ -84,15 +84,15 @@ Currently, Local Builds target the following platforms and distributions:
 |--------------|:-------:|:---------:|:------------:|:------------:|
 | linux/amd64  |    X    |     X     |      X       |      X       |
 | linux/arm64  |    X    |     X     |      X       |      X       |
-| darwin/arm64 |    X    |    N/A    |     N/A      |     N/A      |
+| darwin/arm64 |    X    |     -     |      -       |      -       |
 
 ### PMM Server
 
-| Platform         | AMI     | OVF     | docker image |
-|:----------------:|:-------:|:-------:|:------------:|
-| linux/amd64      |    X    |    X    |      X       |
-| linux/arm64      |    X    |    X    |      X       |
-| darwin/arm64     |    X    |   N/A   |     N/A      |
+| Platform         | docker image |
+|------------------|:------------:|
+| linux/amd64      |      X       |
+| linux/arm64      |      X       |
+| darwin/arm64     |      -       |
 
 
 
