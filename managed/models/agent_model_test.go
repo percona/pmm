@@ -249,9 +249,11 @@ func TestAgent(t *testing.T) {
 
 func TestPostgresAgentTLS(t *testing.T) {
 	agent := &models.Agent{
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentType: models.PostgresExporterType,
+		Username:          pointer.ToString("username"),
+		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentType:         models.PostgresExporterType,
+		ExporterOptions:   &models.ExporterOptions{},
+		PostgreSQLOptions: &models.PostgreSQLOptions{},
 	}
 	service := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),

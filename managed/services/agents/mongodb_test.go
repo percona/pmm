@@ -262,6 +262,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
+			"--collector.collstats-limit=0",
 			"--collector.diagnosticdata",
 			"--collector.replicasetstatus",
 			"--compatible-mode",
@@ -450,6 +451,7 @@ func TestMongodbExporterConfig2430(t *testing.T) {
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
+			"--collector.collstats-limit=0",
 			"--collector.diagnosticdata",
 			"--collector.fcv",
 			"--collector.pbm",
@@ -710,6 +712,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 	}
 
 	expectedArgs := []string{
+		"--collector.collstats-limit=0",
 		"--collector.diagnosticdata",
 		"--collector.replicasetstatus",
 		"--compatible-mode",
@@ -727,11 +730,13 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		t.Parallel()
 
 		localExporter := &models.Agent{
-			AgentID:       exporter.AgentID,
-			AgentType:     exporter.AgentType,
-			Username:      exporter.Username,
-			Password:      exporter.Password,
-			AgentPassword: pointer.ToString("agent-custom-password"),
+			AgentID:         exporter.AgentID,
+			AgentType:       exporter.AgentType,
+			Username:        exporter.Username,
+			Password:        exporter.Password,
+			AgentPassword:   pointer.ToString("agent-custom-password"),
+			ExporterOptions: &models.ExporterOptions{},
+			MongoDBOptions:  &models.MongoDBOptions{},
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, localExporter, redactSecrets, pmmAgentVersion)
 
@@ -756,10 +761,12 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		t.Parallel()
 
 		localExporter := &models.Agent{
-			AgentID:   exporter.AgentID,
-			AgentType: exporter.AgentType,
-			Username:  exporter.Username,
-			Password:  exporter.Password,
+			AgentID:         exporter.AgentID,
+			AgentType:       exporter.AgentType,
+			Username:        exporter.Username,
+			Password:        exporter.Password,
+			ExporterOptions: &models.ExporterOptions{},
+			MongoDBOptions:  &models.MongoDBOptions{},
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, localExporter, redactSecrets, pmmAgentVersion)
 
