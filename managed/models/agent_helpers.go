@@ -104,7 +104,7 @@ type MongoDBExtendedOptionsParams interface {
 
 // MongoDBOptionsFromRequest creates MongoDBOptionsParams object from request.
 func MongoDBOptionsFromRequest(params MongoDBOptionsParams) *MongoDBOptions {
-	var mdbOptions *MongoDBOptions
+	mdbOptions := &MongoDBOptions{}
 
 	if params.GetTlsCertificateKey() != "" || params.GetTlsCertificateKeyFilePassword() != "" || params.GetTlsCa() != "" {
 		mdbOptions = &MongoDBOptions{}
@@ -114,9 +114,6 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) *MongoDBOptions {
 	}
 
 	if params.GetAuthenticationMechanism() != "" || params.GetAuthenticationDatabase() != "" {
-		if mdbOptions == nil {
-			mdbOptions = &MongoDBOptions{}
-		}
 		mdbOptions.AuthenticationMechanism = params.GetAuthenticationMechanism()
 		mdbOptions.AuthenticationDatabase = params.GetAuthenticationDatabase()
 	}
@@ -124,9 +121,6 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) *MongoDBOptions {
 	// MongoDB exporter has these parameters but they are not needed for QAN agent.
 	if extendedOptions, ok := params.(MongoDBExtendedOptionsParams); ok {
 		if extendedOptions != nil {
-			if mdbOptions == nil {
-				mdbOptions = &MongoDBOptions{}
-			}
 			mdbOptions.StatsCollections = extendedOptions.GetStatsCollections()
 			mdbOptions.CollectionsLimit = extendedOptions.GetCollectionsLimit()
 			mdbOptions.EnableAllCollectors = extendedOptions.GetEnableAllCollectors()
@@ -1010,9 +1004,6 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		}
 	}
 
-	if row.ExporterOptions == nil {
-		row.ExporterOptions = &ExporterOptions{}
-	}
 	if row.ExporterOptions.MetricsResolutions == nil {
 		row.ExporterOptions.MetricsResolutions = &MetricsResolutions{}
 	}
@@ -1080,7 +1071,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 // for external exporter, is needed for push_metrics mode.
 func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 	// with push metrics, external exporter must have PMMAgent id without RunsOnNodeID
-	if row.ExporterOptions != nil && row.ExporterOptions.PushMetrics && row.PMMAgentID == nil {
+	if row.ExporterOptions.PushMetrics && row.PMMAgentID == nil {
 		pmmAgent, err := FindPMMAgentsRunningOnNode(q, pointer.GetString(row.RunsOnNodeID))
 		if err != nil {
 			return err
@@ -1097,7 +1088,7 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 		row.PMMAgentID = pointer.ToString(pmmAgent[0].AgentID)
 	}
 	// without push metrics, external exporter must have RunsOnNodeID without PMMAgentID
-	if row.ExporterOptions != nil && !row.ExporterOptions.PushMetrics && row.RunsOnNodeID == nil {
+	if !row.ExporterOptions.PushMetrics && row.RunsOnNodeID == nil {
 		pmmAgent, err := FindAgentByID(q, pointer.GetString(row.PMMAgentID))
 		if err != nil {
 			return err

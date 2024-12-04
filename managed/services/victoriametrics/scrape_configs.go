@@ -398,7 +398,7 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 	if hr != nil {
 		r = append(r, hr)
 	}
-	if params.agent.MongoDBOptions != nil && params.agent.MongoDBOptions.EnableAllCollectors {
+	if params.agent.MongoDBOptions.EnableAllCollectors {
 		defaultCollectors := []string{
 			"dbstats",
 			"indexstats",
