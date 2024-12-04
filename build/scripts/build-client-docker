@@ -11,7 +11,7 @@ main() {
 
   local DOCKER_CONTEXT_DIR="${bin_dir}/../docker/client"
   local BUILD_DATE=$(date -u +'%F %T%z' | sed 's@^.\{22\}@&:@')
-  cp ${build_dir}/tarball/pmm-client-*.tar.gz ${DOCKER_CONTEXT_DIR}/pmm-client.tar.gz
+  cp "${build_dir}"/tarball/pmm-client-*.tar.gz "${DOCKER_CONTEXT_DIR}/pmm-client.tar.gz"
 
   if [ -z "${DOCKER_CLIENT_TAG}" ]; then
     DOCKER_CLIENT_TAG="perconalab/pmm-client-fb:${shortcommit}"
@@ -29,6 +29,7 @@ main() {
 
   mkdir -p $(dirname ${docker_client_tag_file})
   echo ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
+  rm -f "${DOCKER_CONTEXT_DIR}/pmm-client.tar.gz"
 
   echo
   echo "Finished building PMM Client docker image: $DOCKER_CLIENT_TAG"
