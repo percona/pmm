@@ -78,25 +78,6 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 	},
 }
 
-// DefaultAgentEncryptionColumns contains all tables and it's columns to be encrypted in PMM Server DB.
-var DefaultAgentEncryptionColumns = []encryption.Table{
-	{
-		Name:        "agents",
-		Identifiers: []string{"agent_id"},
-		Columns: []encryption.Column{
-			{Name: "username"},
-			{Name: "password"},
-			{Name: "agent_password"},
-			{Name: "aws_access_key"},
-			{Name: "aws_secret_key"},
-			{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
-			{Name: "mongo_db_tls_options", CustomHandler: EncryptMongoDBOptionsHandler},
-			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
-			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
-		},
-	},
-}
-
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
 var databaseSchema = [][]string{
 	1: {
@@ -1428,12 +1409,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			}
 		}
 
-		itemsToEncrypt := DefaultAgentEncryptionColumnsV3
-		if params.MigrationVersion != nil && currentVersion < 107 {
-			itemsToEncrypt = DefaultAgentEncryptionColumns
-		}
-
-		err := EncryptDB(tx, params.Name, itemsToEncrypt)
+		err := EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
 		if err != nil {
 			return err
 		}

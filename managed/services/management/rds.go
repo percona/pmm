@@ -410,7 +410,6 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ExporterOptions: &models.ExporterOptions{
 					PushMetrics: isPushMode(metricsMode),
 				},
-				// TODO? PostgresExporter but MySQL Option?
 				MySQLOptions: &models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 				},
