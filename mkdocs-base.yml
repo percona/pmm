@@ -439,32 +439,32 @@ nav:
     -  reference/faq.md
     -  reference/trademark-policy.md
     -  reference/copyright.md
-    - New Install Prototype:
-      - Quickstart Guide: quickstart/index.md
-      - Install PMM Server:
-        - Bare Metal / Virtual:
-          - Easy-install: install-prototype/install-pmm-server/docker-easy-install.md
-          - Docker: install-prototype/install-pmm-server/docker.md
-          - Podman: install-prototype/dummy.md
-          - Virtual Appliance: install-prototype/dummy.md
-        - Kubernetes: install-prototype/dummy.md
-        - Amazon AWS: install-prototype/dummy.md
-        - Azure: install-prototype/dummy.md
-        - Google Cloud: install-prototype/dummy.md
-      - Set up PMM Client:
-        - install-prototype/set-up-pmm-client/index.md
-        - Install PMM Client:
-          - Percona Repositories: install-prototype/set-up-pmm-client/install-pmm-client/percona-repositories.md
-          - Docker image: install-prototype/dummy.md
-          - Manual install: install-prototype/dummy.md
-        - Connect Database:
-          - MySQL:
-            - Self-hosted / AWS EC2: install-prototype/set-up-pmm-client/mysql/self-hosted.md
-            - AWS RDS / AWS Aurora: install-prototype/dummy.md
-            - Azure: install-prototype/dummy.md
-            - Google Cloud: install-prototype/dummy.md
-          - PostgreSQL: install-prototype/dummy.md
-          - MongoDB: install-prototype/dummy.md
-          - ProxySQL: install-prototype/dummy.md
-          - HAproxy: install-prototype/dummy.md
-          - Remote monitoring: install-prototype/dummy.md
+  - New Install prototype:
+    - Quickstart Guide: quickstart/index.md
+    - Install PMM Server:
+      - Bare Metal/Virtual:
+        - Easy-install: install-prototype/install-pmm-server/docker-easy-install.md
+        - Docker: install-prototype/install-pmm-server/docker.md
+        - Podman: install-prototype/dummy.md
+        - Virtual Appliance: install-prototype/dummy.md
+      - Kubernetes: install-prototype/dummy.md
+      - Amazon AWS: install-prototype/dummy.md
+      - Azure: install-prototype/dummy.md
+      - Google Cloud: install-prototype/dummy.md
+    - Set up PMM Client:
+      - install-prototype/set-up-pmm-client/index.md
+      - Install PMM Client:
+        - Percona Repositories: install-prototype/set-up-pmm-client/install-pmm-client/percona-repositories.md
+         - Docker image: install-prototype/dummy.md
+        - Manual install: install-prototype/dummy.md
+      - Connect database:
+        - MySQL:
+          - Self-hosted / AWS EC2: install-prototype/set-up-pmm-client/mysql/self-hosted.md
+          - AWS RDS / AWS Aurora: install-prototype/dummy.md
+          - Azure: install-prototype/dummy.md
+          - Google Cloud: install-prototype/dummy.md
+        - PostgreSQL: install-prototype/dummy.md
+        - MongoDB: install-prototype/dummy.md
+        - ProxySQL: install-prototype/dummy.md
+        - HAproxy: install-prototype/dummy.md
+        - Remote monitoring: install-prototype/dummy.md
