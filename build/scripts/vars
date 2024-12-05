@@ -29,7 +29,7 @@ pmm_version=$(cat ${root_dir}/VERSION | awk -F'-' '{print $1}')
 pmm_release=$(cat ${root_dir}/VERSION | awk -F'-' '{print $2}')
 
 if [ -z "$pmm_release" ]; then
-  pmm_release=1
+  pmm_release=${PMM_RELEASE:-1}
 fi
 
 echo -e "\n---\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_version} pmm_release=${pmm_release} <<<\n---\n"
@@ -59,11 +59,9 @@ vmagent_commit_hash=58ecb9066574f38f1d1c91ace467316e7f175b09
 # https://github.com/hashicorp/nomad/releases/tag/v1.9.3
 nomad_commit_hash=d92bf1014886c0ff9f882f4a2691d5ae8ad8131c
 
-set_options() {
-  set -o errexit
-  if [ "${DEBUG_MODE:-0}" -eq 1 ]; then
-    set -o xtrace
-  else
-    set +o xtrace
-  fi
-}
+set -o errexit
+if [ "${DEBUG_MODE:-0}" -eq 1 ]; then
+  set -o xtrace
+else
+  set +o xtrace
+fi

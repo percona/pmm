@@ -2,8 +2,6 @@
 
 . $(dirname $0)/vars
 
-set_options
-
 get_rpm_version() {
   local spec_name=$1
 

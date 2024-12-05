@@ -2,27 +2,30 @@
 
 . $(dirname $0)/vars
 
-set_options
-
 main() {
   echo -----------------------------------------
   echo "Building docker image for PMM Server..."
   echo -----------------------------------------
 
   local docker_root=$(realpath ${rpms_dir}/..)
-  local pmm_source_dir=$(git config -f .gitmodules submodule.pmm.path)
+  local pmm_dir=$(realpath ${bin_dir}/..)
 
-  cp -r "${root_dir}/${pmm_source_dir}/build/ansible" "${docker_root}/ansible"
-  cp "${root_dir}/${pmm_source_dir}/build/docker/server/"* "${docker_root}"
+  cp -r "${pmm_dir}/ansible" "${docker_root}/ansible"
+  cp "${pmm_dir}/docker/server/"* "${docker_root}"
   cp ${build_dir}/tarball/pmm-client-*.tar.gz "${docker_root}/pmm-client.tar.gz"
 
-  git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
+  if [ -n "$CI" ]; then
+    git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
+  else
+    git -C ${pmm_dir} rev-parse HEAD > ${docker_root}/gitCommit
+  fi
   ls -la ${rpms_dir}
+
   docker run --rm --platform=${platform} -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
     sudo chown -R builder /home/builder/rpm/RPMS
     until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
-        echo "waiting"
-        sleep 1
+      echo "waiting"
+      sleep 1
     done
   "
 
@@ -37,6 +40,7 @@ main() {
     exit 1
   fi
 
+  # git config --global credential.helper "store --file=${pmm_dir}/.git-credentials"
   docker buildx build \
     --build-arg BUILD_DATE="$BUILD_DATE" \
     --build-arg VERSION="$IMAGE_VERSION" \

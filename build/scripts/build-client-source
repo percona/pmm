@@ -2,8 +2,6 @@
 
 . $(dirname $0)/vars
 
-set_options
-
 prepare_tarball() {
   local repo_name=$1
   local commit=$2

@@ -2,8 +2,6 @@
 
 . $(dirname $0)/vars
 
-set_options
-
 main() {
   echo -----------------------------------------
   echo "Building PMM Client source RPM packages..."

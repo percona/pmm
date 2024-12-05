@@ -37,7 +37,7 @@ parse_params() {
 	BASE_NAME=$(basename $0)
 	PLATFORM=linux/amd64
 	SUBMODULES=.modules
-  CLONE_BRANCH=v3
+	CLONE_BRANCH=v3
 	PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
 
 	# Exported variables
@@ -45,9 +45,9 @@ parse_params() {
 	export DEBUG_MODE=0
 	export ROOT_DIR="$(realpath ./${SUBMODULES})"
 	export RPMBUILD_DOCKER_IMAGE=perconalab/rpmbuild:3
-  # This replaces the old `RPM_EPOCH=1`, which was used for feature builds
+	# This replaces the old `RPM_EPOCH=1`, which was used for feature builds
 	export RELEASE_BUILD=0
-  export BUILD_SUMMARY=""
+	export BUILD_SUMMARY=""
 
 	while test "$#" -gt 0; do
 		case "$1" in
@@ -85,9 +85,9 @@ parse_params() {
 				fi
 				PLATFORM="$1"
 				;;
-      --use-s3-cache)
-        USE_S3_CACHE=1
-        ;;
+			--use-s3-cache)
+				USE_S3_CACHE=1
+				;;
 			--log-file)
 				shift
 				if [ -z "$1" ]; then
@@ -96,9 +96,9 @@ parse_params() {
 				fi
 				LOG_FILE="$1"
 				;;
-      --release-build)
-        RELEASE_BUILD=1
-        ;;
+			--release-build)
+				RELEASE_BUILD=1
+				;;
 			--debug | -d)
 				DEBUG_MODE=1
 				;;
@@ -157,10 +157,10 @@ rewind() {
 	if needs_to_pull; then
 		if ! git pull origin; then
 			git reset --hard HEAD~20
-			git pull origin
+			git pull origin > /dev/null
 		fi
 		echo "Submodule has pulled from upstream"
-		git logs -n 2
+		git log --oneline -n 2
 		cd - > /dev/null
 		git add "$DIR"
 	else
