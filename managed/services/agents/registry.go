@@ -321,9 +321,11 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 	}
 	if len(vmAgent) == 0 {
 		if _, err := models.CreateAgent(q, models.VMAgentType, &models.CreateAgentParams{
-			PMMAgentID:  pmmAgentID,
-			PushMetrics: true,
-			NodeID:      runsOnNodeID,
+			PMMAgentID: pmmAgentID,
+			NodeID:     runsOnNodeID,
+			ExporterOptions: &models.ExporterOptions{
+				PushMetrics: true,
+			},
 		}); err != nil {
 			return errors.Wrapf(err, "Can't create 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
 		}
@@ -349,9 +351,9 @@ func removeVMAgentFromPMMAgent(q *reform.Querier, pmmAgentID string) error {
 		return errors.Wrapf(err, "Can't find agents for pmm-agent with ID %q", pmmAgentID)
 	}
 	for _, agent := range agents {
-		if agent.PushMetrics {
+		if agent.ExporterOptions.PushMetrics {
 			logrus.Warnf("disabling push_metrics for agent with unsupported version ID %q with pmm-agent ID %q", agent.AgentID, pmmAgentID)
-			agent.PushMetrics = false
+			agent.ExporterOptions.PushMetrics = false
 			if err := q.Update(agent); err != nil {
 				return errors.Wrapf(err, "Can't set push_metrics=false for agent %q at pmm-agent with ID %q", agent.AgentID, pmmAgentID)
 			}

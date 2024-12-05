@@ -86,20 +86,24 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 			return err
 		}
 
+		mysqlOptions := models.MySQLOptionsFromRequest(req)
+		mysqlOptions.TableCountTablestatsGroupLimit = tablestatsGroupTableLimit
+
 		row, err := models.CreateAgent(tx.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
-			PMMAgentID:                     req.PmmAgentId,
-			ServiceID:                      service.ServiceID,
-			Username:                       req.Username,
-			Password:                       req.Password,
-			AgentPassword:                  req.AgentPassword,
-			TLS:                            req.Tls,
-			TLSSkipVerify:                  req.TlsSkipVerify,
-			MySQLOptions:                   models.MySQLOptionsFromRequest(req),
-			TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
-			PushMetrics:                    isPushMode(req.MetricsMode),
-			ExposeExporter:                 req.ExposeExporter,
-			DisableCollectors:              req.DisableCollectors,
-			LogLevel:                       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
+			PMMAgentID:    req.PmmAgentId,
+			ServiceID:     service.ServiceID,
+			Username:      req.Username,
+			Password:      req.Password,
+			AgentPassword: req.AgentPassword,
+			TLS:           req.Tls,
+			TLSSkipVerify: req.TlsSkipVerify,
+			MySQLOptions:  mysqlOptions,
+			ExporterOptions: &models.ExporterOptions{
+				ExposeExporter:     req.ExposeExporter,
+				PushMetrics:        isPushMode(req.MetricsMode),
+				DisabledCollectors: req.DisableCollectors,
+			},
+			LogLevel: services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		})
 		if err != nil {
 			return err
@@ -113,7 +117,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 				return err
 			}
 			// GetInfoFromService updates the table count in row so, let's also update the response
-			mysql.TableCount = *row.TableCount
+			mysql.TableCount = *row.MySQLOptions.TableCount
 		}
 
 		agent, err := services.ToAPIAgent(tx.Querier, row)
@@ -124,17 +128,19 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 
 		if req.QanMysqlPerfschema {
 			row, err = models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
-				PMMAgentID:              req.PmmAgentId,
-				ServiceID:               service.ServiceID,
-				Username:                req.Username,
-				Password:                req.Password,
-				TLS:                     req.Tls,
-				TLSSkipVerify:           req.TlsSkipVerify,
-				MySQLOptions:            models.MySQLOptionsFromRequest(req),
-				MaxQueryLength:          req.MaxQueryLength,
-				QueryExamplesDisabled:   req.DisableQueryExamples,
-				CommentsParsingDisabled: req.DisableCommentsParsing,
-				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+				PMMAgentID:    req.PmmAgentId,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
+				QANOptions: &models.QANOptions{
+					MaxQueryLength:          req.MaxQueryLength,
+					QueryExamplesDisabled:   req.DisableQueryExamples,
+					CommentsParsingDisabled: req.DisableCommentsParsing,
+				},
+				MySQLOptions: models.MySQLOptionsFromRequest(req),
+				LogLevel:     services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err
@@ -149,18 +155,20 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 
 		if req.QanMysqlSlowlog {
 			row, err = models.CreateAgent(tx.Querier, models.QANMySQLSlowlogAgentType, &models.CreateAgentParams{
-				PMMAgentID:              req.PmmAgentId,
-				ServiceID:               service.ServiceID,
-				Username:                req.Username,
-				Password:                req.Password,
-				TLS:                     req.Tls,
-				TLSSkipVerify:           req.TlsSkipVerify,
-				MySQLOptions:            models.MySQLOptionsFromRequest(req),
-				MaxQueryLength:          req.MaxQueryLength,
-				QueryExamplesDisabled:   req.DisableQueryExamples,
-				CommentsParsingDisabled: req.DisableCommentsParsing,
-				MaxQueryLogSize:         maxSlowlogFileSize,
-				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+				PMMAgentID:    req.PmmAgentId,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
+				MySQLOptions:  models.MySQLOptionsFromRequest(req),
+				QANOptions: &models.QANOptions{
+					MaxQueryLength:          req.MaxQueryLength,
+					QueryExamplesDisabled:   req.DisableQueryExamples,
+					CommentsParsingDisabled: req.DisableCommentsParsing,
+					MaxQueryLogSize:         maxSlowlogFileSize,
+				},
+				LogLevel: services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err

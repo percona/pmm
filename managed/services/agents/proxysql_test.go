@@ -39,11 +39,12 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	exporter := &models.Agent{
-		AgentID:       "agent-id",
-		AgentType:     models.ProxySQLExporterType,
-		Username:      pointer.ToString("username"),
-		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword: pointer.ToString("agent-password"),
+		AgentID:         "agent-id",
+		AgentType:       models.ProxySQLExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword:   pointer.ToString("agent-password"),
+		ExporterOptions: &models.ExporterOptions{},
 	}
 	actual := proxysqlExporterConfig(node, proxysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
@@ -80,7 +81,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 	})
 
 	t.Run("DisabledCollector", func(t *testing.T) {
-		exporter.DisabledCollectors = []string{"mysql_connection_list", "stats_memory_metrics"}
+		exporter.ExporterOptions.DisabledCollectors = []string{"mysql_connection_list", "stats_memory_metrics"}
 		actual := proxysqlExporterConfig(node, proxysql, exporter, exposeSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{
 			Type:               inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
@@ -104,10 +105,11 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			Port:    pointer.ToUint16(3306),
 		}
 		exporter := &models.Agent{
-			AgentID:   "agent-id",
-			AgentType: models.ProxySQLExporterType,
-			Username:  pointer.ToString("username"),
-			Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+			AgentID:         "agent-id",
+			AgentType:       models.ProxySQLExporterType,
+			Username:        pointer.ToString("username"),
+			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			ExporterOptions: &models.ExporterOptions{},
 		}
 		actual := proxysqlExporterConfig(node, proxysql, exporter, redactSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{
@@ -144,10 +146,11 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			Port:    pointer.ToUint16(3306),
 		}
 		exporter := &models.Agent{
-			AgentID:   "agent-id",
-			AgentType: models.ProxySQLExporterType,
-			Username:  pointer.ToString("username"),
-			Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+			AgentID:         "agent-id",
+			AgentType:       models.ProxySQLExporterType,
+			Username:        pointer.ToString("username"),
+			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			ExporterOptions: &models.ExporterOptions{},
 		}
 		actual := proxysqlExporterConfig(node, proxysql, exporter, redactSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{

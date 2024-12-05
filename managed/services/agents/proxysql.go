@@ -20,8 +20,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/AlekSi/pointer"
-
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -57,11 +55,11 @@ func proxysqlExporterConfig(node *models.Node, service *models.Service, exporter
 		args = append(args, "-collect.runtime_mysql_servers")
 	}
 
-	if pointer.GetString(exporter.MetricsPath) != "" {
-		args = append(args, "-web.telemetry-path="+*exporter.MetricsPath)
+	if exporter.ExporterOptions.MetricsPath != "" {
+		args = append(args, "-web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
-	args = collectors.FilterOutCollectors("-collect.", args, exporter.DisabledCollectors)
+	args = collectors.FilterOutCollectors("-collect.", args, exporter.ExporterOptions.DisabledCollectors)
 
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)
 
