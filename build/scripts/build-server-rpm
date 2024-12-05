@@ -42,10 +42,10 @@ is_build_needed() {
   # s3://pmm-build-cache/RELEASE/9 - el9
 
   # Check if this is a release build
-  if [ -z "$RPM_EPOCH"] && [ "$RELEASE_BUILD" = 1 ]; then
+  if [ "$RELEASE_BUILD" = 1 ]; then
     s3_cache_dir=RELEASE
   fi
-  if command -v aws &> /dev/null && [ -z "$LOCAL_BUILD" ]; then
+  if command -v aws &> /dev/null && [ "${USE_S3_CACHE:-0}" -eq 1 ]; then
     aws s3 sync \
         --region us-east-2 \
         --no-sign-request \
@@ -180,21 +180,21 @@ build() {
     rm -f SOURCES/${spec_name}.spec*
   "
 
-  if [ "$LOCAL_BUILD" = 1 ]; then
+  if [ "${USE_S3_CACHE:-0}" -eq 0 ]; then
     echo "Finished building Server RPMs, spec_name: ${spec_name}.spec, repo_name: ${repo_name}"
     echo
     return
   fi
 
   if ! command -v aws &> /dev/null; then
-    echo "Skipping upload to S3..."
+    echo "AWS CLI is not installed, skipping upload to S3..."
     echo
     echo "Finished building Server RPMs, spec_name: ${spec_name}.spec, repo_name: ${repo_name}"
     echo
     return
   fi
 
-  if [ -z "$RPM_EPOCH" ] && [ "$RELEASE_BUILD" = 1 ]; then
+  if [ "$RELEASE_BUILD" = 1 ]; then
     s3_cache_dir=RELEASE
   fi
   aws s3 sync \

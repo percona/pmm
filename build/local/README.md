@@ -58,7 +58,7 @@ In order to save time and to avoid building the same package versions repeatedly
 - before proceeding to building a package, we check if this package version can be found in S3 and we download the package instead of building it;
 - if the package can not be found, we build and upload it to S3 for future reuse.
 
-There is special variable `LOCAL_BUILD`, which needs to be set to '1' in case you don't have AWS CLI installed or you don't want to use the cache. Please be aware, that interacting with Percona's AWS S3 account, i.e. upload and download artefacts, requires authentication and is therefore reserved for Percona's own purposes. This is why, when building packages locally, you are requested to set this variable to '1', which happens to be the default value. Please note, that an attempt to interact with the S3 bucket without proper authorization will lead to a build failure.
+There is special parameter `--use-s3-cache`, which you have to pass in case you have AWS CLI installed or you want to use the build cache. Please be aware, that interacting with Percona's AWS S3 account, i.e. upload and download artefacts, requires authentication and is therefore reserved for Percona's own purposes. This is why, when building packages locally, you are requested to set this variable to '1', which is also the default value. Please note, that an attempt to interact with the S3 bucket without proper authorization will lead to a build failure.
 
 ## Avoiding unnecessary builds
 
