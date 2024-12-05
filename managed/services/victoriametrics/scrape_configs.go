@@ -209,10 +209,6 @@ func scrapeConfigsForNodeExporter(params *scrapeConfigParams) ([]*config.ScrapeC
 	var err error
 	var hrCollect []string
 
-	if params.agent.ExporterOptions == nil {
-		params.agent.ExporterOptions = &models.ExporterOptions{}
-	}
-
 	if params.node.Distro != "darwin" {
 		mrCollect := []string{
 			"hwmon",
@@ -290,10 +286,6 @@ func scrapeConfigsForMySQLdExporter(params *scrapeConfigParams) ([]*config.Scrap
 		"standard.process",
 	}
 
-	if params.agent.ExporterOptions == nil {
-		params.agent.ExporterOptions = &models.ExporterOptions{}
-	}
-
 	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.ExporterOptions.DisabledCollectors)
 
 	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, hrOptions)
@@ -365,10 +357,6 @@ func scrapeConfigsForMySQLdExporter(params *scrapeConfigParams) ([]*config.Scrap
 }
 
 func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
-	if params.agent.ExporterOptions == nil {
-		params.agent.ExporterOptions = &models.ExporterOptions{}
-	}
-
 	// Old pmm-agents doesn't have support of multiple resolution,
 	// so requesting mongodb_exporter metrics in two resolutions increases CPU and Memory usage.
 	if params.pmmAgentVersion == nil || params.pmmAgentVersion.Less(version.MustParse("2.26.0-0")) {
@@ -437,10 +425,6 @@ func scrapeConfigsForPostgresExporter(params *scrapeConfigParams) ([]*config.Scr
 		"standard.go",
 		"standard.process",
 		"postgres",
-	}
-
-	if params.agent.ExporterOptions == nil {
-		params.agent.ExporterOptions = &models.ExporterOptions{}
 	}
 
 	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.ExporterOptions.DisabledCollectors)
@@ -552,10 +536,6 @@ func scrapeConfigsForExternalExporter(s *models.MetricsResolutions, params *scra
 	}
 	interval := s.MR
 
-	if params.agent.ExporterOptions == nil {
-		params.agent.ExporterOptions = &models.ExporterOptions{}
-	}
-
 	cfg := &config.ScrapeConfig{
 		JobName:        jobName(params.agent, "mr"),
 		ScrapeInterval: config.Duration(interval),
@@ -592,10 +572,6 @@ func scrapeConfigsForVMAgent(s *models.MetricsResolutions, params *scrapeConfigP
 		return nil, err
 	}
 	interval := s.MR
-
-	if params.agent.ExporterOptions == nil {
-		params.agent.ExporterOptions = &models.ExporterOptions{}
-	}
 
 	cfg := &config.ScrapeConfig{
 		JobName:        jobName(params.agent, "mr"),

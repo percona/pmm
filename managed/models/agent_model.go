@@ -591,10 +591,6 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 // ExporterURL composes URL to an external exporter.
 func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
-	if s.ExporterOptions == nil {
-		s.ExporterOptions = &ExporterOptions{}
-	}
-
 	scheme := s.ExporterOptions.MetricsScheme
 	path := s.ExporterOptions.MetricsPath
 	listenPort := int(pointer.GetUint16(s.ListenPort))

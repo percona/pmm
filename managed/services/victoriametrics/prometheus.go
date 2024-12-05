@@ -108,9 +108,6 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		}
 
 		mr := *globalResolutions // copy global resolutions
-		if agent.ExporterOptions == nil {
-			agent.ExporterOptions = &models.ExporterOptions{}
-		}
 		if agent.ExporterOptions.MetricsResolutions != nil {
 			if agent.ExporterOptions.MetricsResolutions.MR != 0 {
 				mr.MR = agent.ExporterOptions.MetricsResolutions.MR

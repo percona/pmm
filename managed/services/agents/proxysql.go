@@ -55,10 +55,6 @@ func proxysqlExporterConfig(node *models.Node, service *models.Service, exporter
 		args = append(args, "-collect.runtime_mysql_servers")
 	}
 
-	if exporter.ExporterOptions == nil {
-		exporter.ExporterOptions = &models.ExporterOptions{}
-	}
-
 	if exporter.ExporterOptions.MetricsPath != "" {
 		args = append(args, "-web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}

@@ -189,10 +189,6 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.PostgreSQLServiceType:
-		if agent.PostgreSQLOptions == nil {
-			agent.PostgreSQLOptions = &models.PostgreSQLOptions{}
-		}
-
 		databaseList := sInfo.DatabaseList
 		databaseCount := len(databaseList)
 		excludedDatabaseList := postgresExcludedDatabases()
