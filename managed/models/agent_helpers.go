@@ -64,7 +64,7 @@ type PostgreSQLOptionsParams interface {
 
 // PostgreSQLExtendedOptionsParams contains extended parameters for PostgreSQL exporter.
 type PostgreSQLExtendedOptionsParams interface {
-	GetAutoDiscoveryLimit() *int32
+	GetAutoDiscoveryLimit() int32
 	GetMaxExporterConnections() int32
 }
 
@@ -79,7 +79,7 @@ func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) *PostgreSQLOpt
 
 	// PostgreSQL exporter has these parameters but they are not needed for QAN agent.
 	if extendedOptions, ok := params.(PostgreSQLExtendedOptionsParams); ok && extendedOptions != nil {
-		res.AutoDiscoveryLimit = extendedOptions.GetAutoDiscoveryLimit()
+		res.AutoDiscoveryLimit = pointer.ToInt32(extendedOptions.GetAutoDiscoveryLimit())
 		res.MaxExporterConnections = extendedOptions.GetMaxExporterConnections()
 	}
 
@@ -736,8 +736,8 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		ListenPort:   pointer.ToUint16(uint16(params.ListenPort)),
 		ExporterOptions: &ExporterOptions{
 			PushMetrics:   params.PushMetrics,
-			MetricsPath:   pointer.ToStringOrNil(metricsPath),
-			MetricsScheme: pointer.ToStringOrNil(scheme),
+			MetricsPath:   metricsPath,
+			MetricsScheme: scheme,
 		},
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
@@ -982,9 +982,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 	}
 
 	if params.EnablePushMetrics != nil {
-		row.ExporterOptions = &ExporterOptions{
-			PushMetrics: *params.EnablePushMetrics,
-		}
+		row.ExporterOptions.PushMetrics = *params.EnablePushMetrics
 		if row.AgentType == ExternalExporterType {
 			if err := updateExternalExporterParams(q, row); err != nil {
 				return nil, errors.Wrap(err, "failed to update External exporterParams for PushMetrics")

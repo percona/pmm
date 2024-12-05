@@ -1234,8 +1234,8 @@ func TestScrapeConfig(t *testing.T) {
 				Password:     pointer.ToString("password"),
 				ListenPort:   pointer.ToUint16(12345),
 				ExporterOptions: &models.ExporterOptions{
-					MetricsPath:   pointer.ToString("/some-metric-path"),
-					MetricsScheme: pointer.ToString("https"),
+					MetricsPath:   "/some-metric-path",
+					MetricsScheme: "https",
 				},
 			}
 

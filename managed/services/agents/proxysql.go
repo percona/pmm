@@ -59,8 +59,8 @@ func proxysqlExporterConfig(node *models.Node, service *models.Service, exporter
 		exporter.ExporterOptions = &models.ExporterOptions{}
 	}
 
-	if exporter.ExporterOptions.MetricsPath != nil {
-		args = append(args, "-web.telemetry-path="+*exporter.ExporterOptions.MetricsPath)
+	if exporter.ExporterOptions.MetricsPath != "" {
+		args = append(args, "-web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
 	args = collectors.FilterOutCollectors("-collect.", args, exporter.ExporterOptions.DisabledCollectors)

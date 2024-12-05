@@ -18,8 +18,6 @@ package agents
 import (
 	"sort"
 
-	"github.com/AlekSi/pointer"
-
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -36,7 +34,7 @@ var (
 
 func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) {
 	listenAddress := getExporterListenAddress(node, exporter)
-	tdp := models.TemplateDelimsPair(pointer.GetString(exporter.ExporterOptions.MetricsPath))
+	tdp := models.TemplateDelimsPair(exporter.ExporterOptions.MetricsPath)
 	args := []string{
 		"--collector.textfile.directory.lr=" + pathsBase(agentVersion, tdp.Left, tdp.Right) + "/collectors/textfile-collector/low-resolution",
 		"--collector.textfile.directory.mr=" + pathsBase(agentVersion, tdp.Left, tdp.Right) + "/collectors/textfile-collector/medium-resolution",
@@ -125,8 +123,8 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 
 	args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)
 
-	if exporter.ExporterOptions.MetricsPath != nil {
-		args = append(args, "--web.telemetry-path="+*exporter.ExporterOptions.MetricsPath)
+	if exporter.ExporterOptions.MetricsPath != "" {
+		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
 	args = withLogLevel(args, exporter.LogLevel, agentVersion, false)

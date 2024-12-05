@@ -21,8 +21,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
-
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -49,8 +47,8 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 
 	args := getArgs(exporter, tdp, listenAddress, pmmAgentVersion)
 
-	if pointer.GetString(exporter.ExporterOptions.MetricsPath) != "" {
-		args = append(args, "--web.telemetry-path="+*exporter.ExporterOptions.MetricsPath)
+	if exporter.ExporterOptions.MetricsPath != "" {
+		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)

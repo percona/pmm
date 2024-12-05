@@ -109,8 +109,8 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		args = append(args, "--max-connections="+strconv.Itoa(int(exporter.PostgreSQLOptions.MaxExporterConnections)))
 	}
 
-	if exporter.ExporterOptions.MetricsPath != nil {
-		args = append(args, "--web.telemetry-path="+*exporter.ExporterOptions.MetricsPath)
+	if exporter.ExporterOptions.MetricsPath != "" {
+		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)

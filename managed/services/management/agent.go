@@ -148,8 +148,8 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 
 	if agent.ExporterOptions != nil {
 		ua.DisabledCollectors = agent.ExporterOptions.DisabledCollectors
-		ua.MetricsPath = pointer.GetString(agent.ExporterOptions.MetricsPath)
-		ua.MetricsScheme = pointer.GetString(agent.ExporterOptions.MetricsScheme)
+		ua.MetricsPath = agent.ExporterOptions.MetricsPath
+		ua.MetricsScheme = agent.ExporterOptions.MetricsScheme
 		ua.PushMetrics = agent.ExporterOptions.PushMetrics
 		ua.ExposeExporter = agent.ExporterOptions.ExposeExporter
 	}

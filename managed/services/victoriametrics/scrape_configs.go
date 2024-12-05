@@ -560,8 +560,8 @@ func scrapeConfigsForExternalExporter(s *models.MetricsResolutions, params *scra
 		JobName:        jobName(params.agent, "mr"),
 		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
-		Scheme:         pointer.GetString(params.agent.ExporterOptions.MetricsScheme),
-		MetricsPath:    pointer.GetString(params.agent.ExporterOptions.MetricsPath),
+		Scheme:         params.agent.ExporterOptions.MetricsScheme,
+		MetricsPath:    params.agent.ExporterOptions.MetricsPath,
 	}
 
 	if pointer.GetString(params.agent.Username) != "" {
@@ -601,8 +601,8 @@ func scrapeConfigsForVMAgent(s *models.MetricsResolutions, params *scrapeConfigP
 		JobName:        jobName(params.agent, "mr"),
 		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
-		Scheme:         pointer.GetString(params.agent.ExporterOptions.MetricsScheme),
-		MetricsPath:    pointer.GetString(params.agent.ExporterOptions.MetricsPath),
+		Scheme:         params.agent.ExporterOptions.MetricsScheme,
+		MetricsPath:    params.agent.ExporterOptions.MetricsPath,
 	}
 
 	if pointer.GetString(params.agent.Username) != "" {
