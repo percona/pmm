@@ -248,7 +248,7 @@ update() {
   fi
 
 	echo
-	echo "This script rewinds submodule branches as per the joint config of '.gitmodules' and 'ci.yml'"
+	echo "This script rewinds submodule branches as per the joint config of '.gitmodules' and user-supplied 'ci.yml'"
 
 	cd "$SUBMODULES"
 

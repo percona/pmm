@@ -8,16 +8,15 @@ main() {
   echo -----------------------------------------
 
   local docker_root=$(realpath ${rpms_dir}/..)
-  local pmm_dir=$(realpath ${bin_dir}/..)
 
-  cp -r "${pmm_dir}/ansible" "${docker_root}/ansible"
-  cp "${pmm_dir}/docker/server/"* "${docker_root}"
+  cp -r "${pmm_build_dir}/ansible" "${docker_root}/ansible"
+  cp "${pmm_build_dir}/docker/server/"* "${docker_root}"
   cp ${build_dir}/tarball/pmm-client-*.tar.gz "${docker_root}/pmm-client.tar.gz"
 
   if [ -n "$CI" ]; then
     git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
   else
-    git -C ${pmm_dir} rev-parse HEAD > ${docker_root}/gitCommit
+    git -C ${pmm_build_dir} rev-parse HEAD > ${docker_root}/gitCommit
   fi
   ls -la ${rpms_dir}
 
@@ -40,7 +39,7 @@ main() {
     exit 1
   fi
 
-  # git config --global credential.helper "store --file=${pmm_dir}/.git-credentials"
+  # git config --global credential.helper "store --file=${pmm_build_dir}/.git-credentials"
   docker buildx build \
     --build-arg BUILD_DATE="$BUILD_DATE" \
     --build-arg VERSION="$IMAGE_VERSION" \

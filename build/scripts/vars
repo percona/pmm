@@ -6,6 +6,7 @@ bin_dir=$(cd $(dirname $0); pwd -P)
 # It points to the root of [pmm-submodules](https://github.com/percona-lab/pmm-submodules).
 root_dir=${ROOT_DIR:-$(cd $(dirname $0)/../../../../../../../..; pwd -P)}
 build_dir=${root_dir}/build
+pmm_build_dir=$(realpath ${bin_dir}/..)
 
 # In VERSION file we can have numeric value like '2.0.0' as well as
 # alphanumeric value like '2.0.0-alpha3' which can not be used entirely,
@@ -43,7 +44,7 @@ fi
 
 rpms_dir=${build_dir}/pmm-server/RPMS
 rpmbuild_dir=${build_dir}/pmm-server/BUILD
-rpmspec_dir=${root_dir}/$(git -C ${root_dir} config -f .gitmodules submodule.pmm.path)/build/packages/rpm/server/SPECS
+rpmspec_dir=$(realpath ${bin_dir}/../packages/rpm/server/SPECS)
 rpmbuild_dist=${RPMBUILD_DIST:-el9}
 source_dir=${build_dir}/source/pmm-client-${pmm_version}
 binary_dir=${build_dir}/binary/pmm-client-${pmm_version}

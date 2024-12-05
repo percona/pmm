@@ -8,11 +8,12 @@ main() {
   echo -----------------------------------------
 
   local DOCKER_CONTEXT_DIR="${build_dir}/docker"
-  local DOCKERFILE_DIR="${bin_dir}/../docker/client"
+  local DOCKERFILE_DIR="${pmm_build_dir}/docker/client"
   local BUILD_DATE=$(date -u +'%F %T%z' | sed 's@^.\{22\}@&:@')
   
-  mkdir -p $(dirname ${docker_client_tag_file})
+  mkdir -p "$DOCKER_CONTEXT_DIR"
   cp "${build_dir}"/tarball/pmm-client-*.tar.gz "${DOCKER_CONTEXT_DIR}/pmm-client.tar.gz"
+  cp "$DOCKERFILE_DIR/"* "${DOCKER_CONTEXT_DIR}"
 
   if [ -z "${DOCKER_CLIENT_TAG}" ]; then
     DOCKER_CLIENT_TAG="perconalab/pmm-client-fb:${shortcommit}"
@@ -24,7 +25,7 @@ main() {
     --build-arg BUILD_DATE="$BUILD_DATE" \
     --build-arg VERSION="$CLIENT_IMAGE_VERSION" \
     --progress plain \
-    -f ${DOCKERFILE_DIR}/${docker_file} \
+    -f ${DOCKER_CONTEXT_DIR}/${docker_file} \
     -t ${DOCKER_CLIENT_TAG} \
     ${DOCKER_CONTEXT_DIR}
 
