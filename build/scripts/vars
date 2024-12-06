@@ -67,7 +67,7 @@ vmagent_commit_hash=58ecb9066574f38f1d1c91ace467316e7f175b09
 nomad_commit_hash=d92bf1014886c0ff9f882f4a2691d5ae8ad8131c
 
 set -o errexit
-if [ "${DEBUG_MODE:-0}" -eq 1 ]; then
+if [ "${DEBUG_MODE:-0}" -eq 1 ] || [ -n "${CI:-}" ]; then
   set -o xtrace
 else
   set +o xtrace
