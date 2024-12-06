@@ -13,7 +13,6 @@ Options:
       --client-only           Build only PMM Client (client binaries + docker)
       --no-client             Do not build PMM Client (this will use local cache)
       --no-client-docker      Do not build PMM Client docker image
-      --use-s3-cache          Use S3 cache for the build (defaults to false)
       --log-file <path>       Save build logs to a file located at <path> (defaults to $PWD/build.log)
                               Note: the log file will get reset on every subsequent run
       --release-build         Make it a release, or release candidate build (otherwise it's a feature build)
@@ -84,9 +83,6 @@ parse_params() {
 					exit 1
 				fi
 				PLATFORM="$1"
-				;;
-			--use-s3-cache)
-				USE_S3_CACHE=1
 				;;
 			--log-file)
 				shift
@@ -350,7 +346,6 @@ purge_files() {
 	local tmp_files
 
 	cd "$SUBMODULES" > /dev/null
-	# Remove stale files and directories
 	if [ -d build ]; then
 		echo "Removing stale files and directories..."
 
