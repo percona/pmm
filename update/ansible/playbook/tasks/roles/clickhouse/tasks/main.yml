@@ -1,14 +1,4 @@
 ---
-- name: Stop and remove clickhouse before update | EL7
-  when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
-  command: supervisorctl {{ item }} clickhouse
-  changed_when: True
-  loop:
-    - stop
-    - remove
-
 - name: Find supervisord's socket
   stat:
     path: /var/run/supervisor/supervisor.sock
@@ -107,8 +97,3 @@
   loop:
     - present
     - started
-
-- name: Start clickhouse EL7
-  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-  command: supervisorctl add clickhouse
-  changed_when: True
