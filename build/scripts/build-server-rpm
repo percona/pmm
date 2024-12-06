@@ -203,10 +203,3 @@ build() {
 build "$@"
 
 # vim: expandtab shiftwidth=2 tabstop=2
-
-aws s3 sync s3://pmm-build-cache/PR-BUILDS/el9/percona-dashboards-3.0.0-22.114690f.el9/percona-dashboards-3.0.0-22.114690f.el9.x86_64.rpm 
-  -> build/pmm-server/RPMS/percona-dashboards-3.0.0-22.114690f.el9/percona-dashboards-3.0.0-22.114690f.el9.x86_64.rpm
-
-find /home/ec2-user/workspace/test-ad-feature-build/.modules/build/pmm-server/RPMS/percona-dashboards-3.0.0-22.114690f.el9/x86_64 -type f -name '*-3.0.0-22.114690f.el9.x86_64.rpm'
-
-/home/ec2-user/workspace/test-ad-feature-build/.modules/build/pmm-server/RPMS/percona-dashboards-3.0.0-22.114690f.el9/x86_64’: No such file or directory

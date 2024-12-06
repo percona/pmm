@@ -202,41 +202,13 @@ update() {
     return
   fi
 
-  cat <<-'EOF' > entrypoint.sh
-  #!/bin/bash -e
-
-  git config --global --add safe.directory /app
-
-  # Join the dependencies from gitmodules.yml and ci.yml
-  rm -f gitmodules.yml
-  python ci.py --convert
-
-  DEPS=$(yq -o=json eval-all '. as $item ireduce ({}; . *d $item )' gitmodules.yml ci.yml | jq '.deps')
-  DEPS=$(echo "$DEPS" | jq -r '[.[] | {name: .name, branch: .branch, path: .path, url: .url}]')
-  rm -f gitmodules.yml
-  echo "$DEPS" > /app/build/build.json
-  echo -n > /tmp/deps.txt
-
-  echo "$DEPS" | jq -c '.[]' | while read -r item; do
-    branch=$(echo "$item" | jq -r '.branch')
-    path=$(echo "$item" | jq -r '.path')
-    name=$(echo "$item" | jq -r '.name')
-    echo "name=${name}:path=${path}:branch=${branch}" >> /tmp/deps.txt
-  done
-
-  mv -f /tmp/deps.txt /app/build/deps.txt
-EOF
-
-  chmod +x "$CURDIR/entrypoint.sh"
   docker run --rm --platform="$PLATFORM" \
     -v $ROOT_DIR:/app \
     -v $CURDIR/ci.yml:/app/ci.yml \
-    -v $CURDIR/entrypoint.sh:/entrypoint.sh \
+    -v $CURDIR/build/local/entrypoint.sh:/entrypoint.sh \
     -w /app \
     --entrypoint=/entrypoint.sh \
     "$RPMBUILD_DOCKER_IMAGE"
-
-  rm -f "$CURDIR/entrypoint.sh"
 
   if [ ! -f "$SUBMODULES/build/deps.txt" ]; then
     echo "Error: could not locate the 'build/deps.txt' file, exiting..."
@@ -383,7 +355,8 @@ check_volumes() {
   # Read more in the section about `rpmbuild`.
   for volume in pmm-gobuild pmm-gomod pmm-yarn pmm-dnf; do
     if ! docker volume ls | grep "$volume" >/dev/null; then
-      docker volume create "$volume"
+      docker volume create "$volume" > /dev/null
+      echo "Info: docker volume $volume created."
     else
       echo "Info: docker volume $volume checked."
     fi
