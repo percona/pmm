@@ -65,14 +65,6 @@
 
 - name: Remove old dashboards from SQLite
   block:
-    - name: Restart grafana before deleting data EL7
-      supervisorctl:
-        name: grafana
-        state: stopped
-      become: true
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      ignore_errors: true
-
     - name: Restart grafana before deleting data EL9
       supervisorctl:
         name: grafana
@@ -107,16 +99,6 @@
 - name: Remove the old clickhouse plugin
   shell: grafana cli --pluginsDir /srv/grafana/plugins plugins remove vertamedia-clickhouse-datasource || true
   when: not ansible_check_mode
-
-- name: Restart grafana with new plugins EL7
-  supervisorctl:
-    name: grafana
-    state: restarted
-  become: true
-  ignore_errors: true
-  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-  # TODO: fix the race condition.
-  # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
 
 - name: Restart grafana with new plugins EL9
   supervisorctl:
