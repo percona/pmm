@@ -2,9 +2,8 @@
 # directory needs to have them available in its scope to function properly.
 
 bin_dir=$(cd $(dirname $0); pwd -P)
-# Note: `ROOT_DIR` can be passed as ${WORKSPACE} from Jenkins or ${PWD} from GH actions.
-# It points to the root of [pmm-submodules](https://github.com/percona-lab/pmm-submodules).
-root_dir=${ROOT_DIR:-$(cd $(dirname $0)/../../../../../../../..; pwd -P)}
+# Note: `ROOT_DIR` must always point to the root of [pmm-submodules](https://github.com/percona-lab/pmm-submodules).
+root_dir=${ROOT_DIR:-$(git rev-parse --show-superproject-working-tree)}
 build_dir=${root_dir}/build
 pmm_build_dir=$(realpath ${bin_dir}/..)
 
@@ -51,7 +50,7 @@ fi
 
 rpms_dir=${build_dir}/pmm-server/RPMS
 rpmbuild_dir=${build_dir}/pmm-server/BUILD
-rpmspec_dir=$(realpath ${bin_dir}/../packages/rpm/server/SPECS)
+rpmspec_dir=${pmm_build_dir}/packages/rpm/server/SPECS
 rpmbuild_dist=${RPMBUILD_DIST:-el9}
 source_dir=${build_dir}/source/pmm-client-${pmm_version}
 binary_dir=${build_dir}/binary/pmm-client-${pmm_version}
