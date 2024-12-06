@@ -39,8 +39,9 @@ is_build_needed() {
   # s3://pmm-build-cache/PR-BUILDS/9 - el9
   # s3://pmm-build-cache/RELEASE/9 - el9
 
+  mkdir -p ${rpms_dir}/${spec_name}-${rpm_version}/${arch}
   # Check if this is a release build
-  if [ "$RELEASE_BUILD" = 1 ]; then
+  if [ "${RELEASE_BUILD:-}" = 1 ]; then
     s3_cache_dir=RELEASE
   fi
 
@@ -49,7 +50,7 @@ is_build_needed() {
         --region us-east-2 \
         --no-sign-request \
         s3://pmm-build-cache/${s3_cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version} \
-        ${rpms_dir}/${spec_name}-${rpm_version} || :
+        ${rpms_dir}/${spec_name}-${rpm_version}/${arch}  || :
   fi
 
   packages=$(find ${rpms_dir}/${spec_name}-${rpm_version}/${arch} -type f -name "*-${rpm_version}.${arch}.rpm" | wc -l)
@@ -58,6 +59,10 @@ is_build_needed() {
   [[ ${packages// /} == 0 ]]
 }
 
+# prepare_spec() patches the spec file to provide the actual commit hash and version, and 
+# substitutes the source URL with the local file path. It also archives the source code 
+# from the given submodule to the working directory, and saves it as a tarball for `rpmbuild`
+# which it will use to build SRPMs and RPMs.
 prepare_spec() {
   local spec_name=$1
   local repo_name=$2
@@ -198,3 +203,10 @@ build() {
 build "$@"
 
 # vim: expandtab shiftwidth=2 tabstop=2
+
+aws s3 sync s3://pmm-build-cache/PR-BUILDS/el9/percona-dashboards-3.0.0-22.114690f.el9/percona-dashboards-3.0.0-22.114690f.el9.x86_64.rpm 
+  -> build/pmm-server/RPMS/percona-dashboards-3.0.0-22.114690f.el9/percona-dashboards-3.0.0-22.114690f.el9.x86_64.rpm
+
+find /home/ec2-user/workspace/test-ad-feature-build/.modules/build/pmm-server/RPMS/percona-dashboards-3.0.0-22.114690f.el9/x86_64 -type f -name '*-3.0.0-22.114690f.el9.x86_64.rpm'
+
+/home/ec2-user/workspace/test-ad-feature-build/.modules/build/pmm-server/RPMS/percona-dashboards-3.0.0-22.114690f.el9/x86_64’: No such file or directory

@@ -36,10 +36,9 @@ echo -e "\n---\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_versi
 
 platform=${PLATFORM:-linux/amd64}
 
+default_rpmbuild_docker_image=perconalab/rpmbuild:3
 if [ -n "$CI" ]; then
   default_rpmbuild_docker_image=public.ecr.aws/e7j3v3n0/rpmbuild:3
-else
-  default_rpmbuild_docker_image=perconalab/rpmbuild:3
 fi
 rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-$default_rpmbuild_docker_image}
 
