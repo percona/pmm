@@ -100,4 +100,10 @@ pmm2-ami-el9-rc:
 				  	-only amazon-ebs '-color=false' \
 				  	packer/pmm2.el9.json
 
+pmm2-azure-el9:
+	mkdir -p update && \
+	cp -r ../update/ansible/playbook/* update/ && \
+	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
+	packer build -only azure-arm -var "pmm_version=2.40.1" packer/pmm2.el9.json
+
 ## ----------------- PACKER ------------------
