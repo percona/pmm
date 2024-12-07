@@ -186,7 +186,7 @@ check_files() {
     echo
     exit 1
   fi
-  if [[ "$branch_name" =~ ^main$|^v3$ ]] && [ "$RELEASE_BUILD" = 0]; then
+  if [[ "$branch_name" =~ ^main$|^v3$ ]] && [ "$RELEASE_BUILD" -eq 0 ]; then
     echo "Error: you are not on a feature branch, but on '$branch_name'."
     echo "Please make sure to create a feature branch before proceeding."
     echo
@@ -194,6 +194,19 @@ check_files() {
   fi
 
   mkdir -p "$DIR/build"
+
+  if [ "$RELEASE_BUILD" -eq 0 ]; then
+    local FB_COMMIT=$(git rev-parse HEAD)
+    local PR_NUMBER=$(git ls-remote origin 'refs/pull/*/head' | grep ${FB_COMMIT} | awk -F'/' '{print $3}')
+    local TAG
+    if [ -n "$PR_NUMBER" ]; then
+      TAG="PR-${PR_NUMBER}-${FB_COMMIT:0:7}"
+    else
+      TAG="FB-${FB_COMMIT:0:7}"
+    fi
+    export DOCKER_CLIENT_TAG=perconalab/pmm-client-fb:${TAG}
+    export DOCKER_TAG=perconalab/pmm-server-fb:${TAG}
+  fi
 }
 
 # Update submodules and PR branches
