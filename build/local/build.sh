@@ -168,7 +168,7 @@ check_files() {
   fi
 
   if [ ! -d "$DIR/sources" ] || [ ! -d "$DIR/.git" ] || [ ! -f "$DIR/.gitmodules" ] || [ ! -f "$DIR/ci.py" ]; then
-    echo "Error: directory $DIR does not look like a clone of https://github.com/percona-lab/pmm-submodules repository, exiting..."
+    echo "Error: the contents of directory $DIR do not look like a clone of https://github.com/percona-lab/pmm-submodules repository, exiting..."
     echo
     exit 1
   fi
@@ -180,12 +180,24 @@ check_files() {
     exit 1
   fi
 
+  local branch_name=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  if [ -z "$branch_name" ]; then
+    echo "Error: could not determine the current branch name, exiting..."
+    echo
+    exit 1
+  fi
+  if [[ "$branch_name" =~ ^main$|^v3$ ]] && [ "$RELEASE_BUILD" = 0]; then
+    echo "Error: you are not on a feature branch, but on '$branch_name'."
+    echo "Please make sure to create a feature branch before proceeding."
+    echo
+    exit 1
+  fi
+
   mkdir -p "$DIR/build"
 }
 
 # Update submodules and PR branches
 update() {
-  local DEPS=
   local CURDIR="$PWD"
 
   if [ "$NO_UPDATE" -eq 1 ]; then
@@ -208,6 +220,7 @@ update() {
 
   echo
   echo "This script rewinds submodule branches as per the joint config of '.gitmodules' and user-supplied 'ci.yml'"
+  echo
 
   cd "$SUBMODULES"
 
@@ -304,7 +317,7 @@ run_build_script() {
 }
 
 purge_files() {
-  local CURDIR=$PWD
+  local CURDIR="$PWD"
   local PMM_DIR="build/source/pmm"
   local tmp_files
 
@@ -337,12 +350,6 @@ purge_files() {
 }
 
 check_volumes() {
-  local CURDIR="$PWD"
-
-  if [ -d "$SUBMODULES" ]; then
-    cd "$SUBMODULES" > /dev/null
-  fi
-
   # Create docker volumes to persist package and build cache
   # Read more in the section about `rpmbuild`.
   for volume in pmm-gobuild pmm-gomod pmm-yarn pmm-dnf; do
@@ -377,13 +384,11 @@ check_volumes() {
         sudo chown builder:builder /home/builder/.cache/yarn
       fi
     "
-
-  cd "$CURDIR" > /dev/null
 }
 
 initialize() {
   local CURDIR="$PWD"
-  local NPROCS=$(getconf _NPROCESSORS_ONLN)
+  local NPROCS=$(getconf _NPROCESSORS_ONLN 2>/dev/null)
 
   if [ -d "$SUBMODULES" ]; then
     echo "Info: the source code has already been cloned to '$SUBMODULES', exiting..."
@@ -417,7 +422,7 @@ check_if_installed() {
 }
 
 check_preprequisites() {
-  local commands=("docker" "make" "bash" "tar" "git" "curl" "jq")
+  local commands=("docker" "make" "bash" "tar" "git" "curl")
   echo "Checking pre-requisites..."
   for cmd in "${commands[@]}"; do
     check_if_installed "$cmd"
@@ -440,7 +445,8 @@ cleanup() {
 }
 
 main() {
-  # All global variables are declared in `parse_params`
+  # All global variables are declared in `parse_params` for this script,
+  # and in `scripts/vars` for the other build scripts.
   parse_params "$@"
 
   # Capture the build logs in the log file
