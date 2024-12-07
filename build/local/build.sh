@@ -113,15 +113,6 @@ parse_params() {
   done
 }
 
-# Function to validate a key (allow only alphanumeric and underscore characters)
-validate_key() {
-  local key="$1"
-  if ! [[ "$key" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
-    echo "The key ${key} is invalid, exiting..." >&2
-    exit 1
-  fi
-}
-
 needs_to_pull() {
   local UPSTREAM=${1:-'@{u}'}
   local LOCAL=$(git rev-parse @)
@@ -477,7 +468,7 @@ main() {
     # Build client source: 4m39s from scratch, 0m27s using cache
     run_build_script build-client-source
 
-    # Build client binary: ??? from scratch, 0m20s using cache
+    # Build client binary: 6m25s from scratch, 0m20s using cache
     run_build_script build-client-binary
 
     # Building client source rpm takes 13s (caching does not apply)

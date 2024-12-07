@@ -12,6 +12,8 @@ extract_source_tarball() {
   fi
 }
 
+# gobuild_component() builds a specific PMM component in docker using the provided build command
+# and saves it into the binary directory `bin_dir`.
 gobuild_component() {
     local component=$1
     local parent_component=${2:-$component}
@@ -22,6 +24,7 @@ gobuild_component() {
     local bin_dir=/home/builder/tmp/binary/pmm-client-${pmm_version}
     local archive=$(ls ${source_dir} | grep -e "${parent_component}-\w*\.tar\.gz" | head -n1)
     local build_command
+    local target
     local volume_mounts="-v ${build_dir}:/home/builder/tmp"
     volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
     volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
@@ -80,12 +83,6 @@ gobuild_component() {
         export PMM_RELEASE_PATH=${bin_dir}/bin
 
         sudo chown -R builder:builder /home/builder/tmp
-        if [ ! -w /home/builder/.cache/go-build ]; then
-          sudo chown builder /home/builder/.cache/go-build
-        fi
-        if [ ! -w /home/builder/go/pkg/mod ]; then
-          sudo chown builder /home/builder/go/pkg/mod
-        fi
 
         if [ ${component} = vmagent ]; then
           export PMM_RELEASE_FULLCOMMIT=${vmagent_commit_hash}
@@ -118,6 +115,8 @@ copy_component() {
 }
 
 main() {
+  local pmm_comit=$(git -C "${bin_dir}" rev-parse --short HEAD)
+
   echo -----------------------------------------
   echo "Building PMM Client binary files..."
   echo -----------------------------------------
@@ -159,7 +158,7 @@ main() {
 
   rm -rf ${binary_tarball}
   mkdir -p $(dirname ${binary_tarball})
-  
+
   # Removes pmm binary (aka CLI) in case this is not a feature build - such as RC/GA build
   if [[ "$(basename ${root_dir})" != pmm-submodules_PR-* ]]; then
     rm -f "${binary_dir}/bin/pmm"
@@ -170,6 +169,22 @@ main() {
     noxattrs="--no-xattrs"
   fi
   tar -C $(dirname ${binary_dir}) ${noxattrs} -zcpf ${binary_tarball} $(basename ${binary_dir})
+
+  local s3_tarball_name="pmm-build-cache/${s3_cache_dir}/pmm-client/pmm-client-${pmm_version}-${pmm_commit}.tar.gz"
+  local s3_tarball_url="https://s3.us-east-2.amazonaws.com/${s3_tarball_name}"
+
+  if command -v aws &> /dev/null && [ -n "${CI:-}" ]; then
+    if aws s3 cp \
+      --region us-east-2 \
+      --acl public-read \
+      --no-progress \
+      "${binary_tarball}" \
+      "s3://${s3_tarball_name}"; then
+
+      echo "Uploaded the binary tarball to: ${s3_tarball_url}"
+      echo "${s3_tarball_url}" > "${build_dir}/s3_tarball_url"
+    fi
+  fi
 }
 
 main

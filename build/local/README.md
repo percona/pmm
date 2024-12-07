@@ -96,10 +96,9 @@ Currently, Local Builds target the following platforms and distributions:
 
 
 
-## Ideas to evaluate
+## TODO
 
 * download the sources to a local directory `.modules` w/o using pmm-submodules ✅
-* have a VERSION file, similar to the one in https://github.com/percona-lab/pmm-submodules/blob/v3/VERSION
 * have a `sbom.json` file containing the bill of all repositories, such as grafana, exporters, etc. containing the following attributes:
   * component name
   * the repository URL
@@ -113,11 +112,10 @@ Currently, Local Builds target the following platforms and distributions:
   - pmm-admin
   - pmm-managed
   - pmm-vmproxy
-
-## TODO
-
-- use the `--debug` parameter to control the verbosity of the logs (1/2 ✅)
-- implement the `--release` parameter
-- remove `jq` from prerequisites ✅
-- output the build summary at the end of the build
-- implement the `--clean` parameter
+* use the `--debug` parameter to control the verbosity of the logs (1/2 ✅)
+* remove `jq` from prerequisites ✅
+* do not require `ci.yml` to be present, generate it based on the current branch name of this (percona/pmm) repository ✅
+* output the build summary at the end of the build
+* implement the `--release` parameter
+* implement the `--clean` parameter
+* move the builds and the cache from the host to the container, fully isolating the build process

@@ -6,6 +6,8 @@ bin_dir=$(cd $(dirname $0); pwd -P)
 root_dir=${ROOT_DIR:-$(git rev-parse --show-superproject-working-tree)}
 build_dir=${root_dir}/build
 pmm_build_dir=$(realpath ${bin_dir}/..)
+s3_cache_dir=PR-BUILDS
+[ "${RELEASE_BUILD:-}" = 1 ] && s3_cache_dir=RELEASE
 
 # In VERSION file we can have numeric value like '2.0.0' as well as
 # alphanumeric value like '2.0.0-alpha3' which can not be used entirely,
