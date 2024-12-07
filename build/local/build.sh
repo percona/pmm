@@ -310,6 +310,7 @@ purge_files() {
 
   cd "$SUBMODULES" > /dev/null
   if [ -d build ]; then
+    echo
     echo "Removing stale files and directories..."
 
     if [ -d "build/pmm-server" ]; then
@@ -329,7 +330,7 @@ purge_files() {
     fi
 
     echo "Removing build/* ..."
-    rm -rvf build/{rpm,srpm,tarball,source_tarball,docker,pmm-client.properties}
+    rm -rvf build/{rpm,srpm,binary,tarball,source_tarball,docker,pmm-client.properties}
   fi
   
   cd "$CURDIR"
