@@ -468,7 +468,7 @@ main() {
     # Build client source: 4m39s from scratch, 0m27s using cache
     run_build_script build-client-source
 
-    # Build client binary: 6m25s from scratch, 0m20s using cache
+    # Build client binary: 6m40s from scratch, 0m20s using cache
     run_build_script build-client-binary
 
     # Building client source rpm takes 13s (caching does not apply)
