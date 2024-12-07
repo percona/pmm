@@ -10,13 +10,13 @@ if [ -s ci.yml ]; then
     . ./.git-sources
 else
     # Define variables
-    pmm_commit=$(git submodule status | grep 'sources/pmm/src' | awk -F ' ' '{print $1}')
+    pmm_commit=$(git -C $(git config -f .gitmodules submodule.pmm.path) rev-parse HEAD)
     pmm_branch=$(git config -f .gitmodules submodule.pmm.branch)
     pmm_url=$(git config -f .gitmodules submodule.pmm.url)
     pmm_qa_branch=$(git config -f .gitmodules submodule.pmm-qa.branch)
-    pmm_qa_commit=$(git submodule status | grep 'pmm-qa' | awk -F ' ' '{print $1}')
+    pmm_qa_commit=$(git -C $(git config -f .gitmodules submodule.pmm-qa.path) rev-parse HEAD)
     pmm_ui_tests_branch=$(git config -f .gitmodules submodule.pmm-ui-tests.branch)
-    pmm_ui_tests_commit=$(git submodule status | grep 'pmm-ui-tests' | awk -F ' ' '{print $1}')
+    pmm_ui_tests_commit=$(git -C $(git config -f .gitmodules submodule.pmm-ui-tests.path) rev-parse HEAD)
 fi
 
 fb_commit_sha=$(git rev-parse HEAD)
