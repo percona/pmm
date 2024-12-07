@@ -204,6 +204,7 @@ check_files() {
     else
       TAG="FB-${FB_COMMIT:0:7}"
     fi
+    echo -n "$PR_NUMBER" > "$DIR/build/PR_NUMBER"
     export DOCKER_CLIENT_TAG=perconalab/pmm-client-fb:${TAG}
     export DOCKER_TAG=perconalab/pmm-server-fb:${TAG}
   fi

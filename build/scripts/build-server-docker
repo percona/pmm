@@ -50,7 +50,7 @@ main() {
     ${docker_root}
 
   mkdir -p $(dirname ${docker_tag_file})
-  echo ${DOCKER_TAG} > ${docker_tag_file}
+  echo -n ${DOCKER_TAG} > ${docker_tag_file}
 
   echo
   echo "Finished building PMM Server docker image: $DOCKER_TAG"

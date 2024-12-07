@@ -29,7 +29,7 @@ main() {
     -t ${DOCKER_CLIENT_TAG} \
     ${DOCKER_CONTEXT_DIR}
 
-  echo ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
+  echo -n ${DOCKER_CLIENT_TAG} > ${docker_client_tag_file}
   rm -f "${DOCKER_CONTEXT_DIR}/pmm-client.tar.gz"
 
   echo
