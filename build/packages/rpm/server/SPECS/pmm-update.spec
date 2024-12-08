@@ -1,30 +1,25 @@
-%undefine _missing_build_ids_terminate_build
-
-# TODO: remove it as soon as we remove all noarch pmm-update rpms
-# from 'pmm3-components/yum/laboratory'
-%define _binaries_in_noarch_packages_terminate_build   0
-%define _unpackaged_files_terminate_build   0
+%global _missing_build_ids_terminate_build  0
+%define _binaries_in_noarch_packages_terminate_build  0
+%define _unpackaged_files_terminate_build  0
 
 %global repo            pmm
 %global provider        github.com/percona/%{repo}
-%global import_path     %{provider}
 %global commit	        592eddf656bce32a11bd958af0a32c62bd5ea34c
 %global shortcommit	    %(c=%{commit}; echo ${c:0:7})
-%define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         67
-%define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
+%define release         68
+%define rpm_release     %{release}.%{shortcommit}%{?dist}
 
 # the line below is sed'ed by build/bin/build-server-rpm to set a correct version
 %define full_pmm_version 2.0.0
 
-Name:		pmm-update
+Name:		  pmm-update
 Version:	%{full_pmm_version}
 Release:	%{rpm_release}
 Summary:	Tool for updating packages and OS configuration for PMM Server
 
 License:	AGPLv3
-URL:		https://%{provider}
-Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
+URL:		  https://%{provider}
+Source0:	https://%{provider}/archive/%{commit}.tar.gz
 
 BuildArch:	noarch
 
@@ -34,35 +29,29 @@ BuildArch:	noarch
 
 %prep
 %setup -q -n %{repo}-%{commit}
-mkdir -p src/github.com/percona
-ln -s $(pwd) src/%{provider}
 
 %build
 export PMM_RELEASE_VERSION=%{full_pmm_version}
 export PMM_RELEASE_FULLCOMMIT=%{commit}
-export PMM_RELEASE_BRANCH=""
 
-cd src/github.com/percona/pmm/update
-make release
+make -C update release
 
 
 %install
-install -d %{buildroot}%{_datadir}/%{name}
-cp -pav ./update/ansible %{buildroot}%{_datadir}/%{name}
-
 install -d %{buildroot}%{_sbindir}
-cd src/github.com/percona/pmm/update
-install -p -m 0755 bin/pmm-update %{buildroot}%{_sbindir}/
+install -p -m 0755 update/bin/pmm-update %{buildroot}%{_sbindir}/
 
 
 %files
-%license LICENSE
-%doc README.md
+%license update/LICENSE
+%doc update/README.md
 %{_sbindir}/pmm-update
-%{_datadir}/%{name}
 
 
 %changelog
+* Mon Apr 1 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-68
+- PMM-12899 Use module and build cache
+
 * Thu Dec 8 2022 Michal Kralik <michal.kralik@percona.com> - 2.34.0-67
 - PMM-11207 Migrate pmm-update to monorepo
 
