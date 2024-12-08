@@ -173,13 +173,6 @@ check_files() {
     exit 1
   fi
 
-  if [ ! -s "ci.yml" ]; then
-    echo "Error: the current directory '$PWD' must contain a non-empty ci.yml file."
-    echo "Please refer to the following [README](https://github.com/Percona-Lab/pmm-submodules/blob/v3/README.md#how-to-create-a-feature-build) for more information."
-    echo
-    exit 1
-  fi
-
   local branch_name=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
   if [ -z "$branch_name" ]; then
     echo "Error: could not determine the current branch name, exiting..."
@@ -191,6 +184,26 @@ check_files() {
     echo "Please make sure to create a feature branch before proceeding."
     echo
     exit 1
+  fi
+
+  if [ ! -s "ci.yml" ]; then
+    echo "Warning: the current directory '$PWD' does not contain a non-empty ci.yml file."
+    echo
+    if [ -z "${CI:-}" ]; then
+      echo "This is OK, we will create a default configuration and include your current branch."
+      echo "Will pause for 5 seconds to allow you to cancel the operation."
+      sleep 5
+      echo
+    fi
+
+    printf "deps:\n%2s%s\n%4s%s\n" "  " "- name: pmm" "    " "branch: ${branch_name}" | tee ci.yml
+    echo
+    if [ -z "${CI:-}" ]; then
+      echo "ci.yml created. You can review and modify it as needed."
+      echo
+      echo "To learn more about the file format, please refer to the following [README](https://github.com/Percona-Lab/pmm-submodules/blob/v3/README.md#how-to-create-a-feature-build)."
+      echo
+    fi
   fi
 
   mkdir -p "$DIR/build"
