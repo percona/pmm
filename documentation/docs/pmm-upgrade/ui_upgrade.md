@@ -13,7 +13,7 @@ The preferred and simplest way to update PMM v3 Server is via the **Updates** pa
 
 2. If an update is available, click the **Update now** button to install the latest version.
 
-![Update page](../Update_page.png)
+![Update page](../images/Update_page.png)
 
 ## Quick upgrade check
 
