@@ -38,7 +38,7 @@ You must configure and adding services according to the service type.
 - [ProxySQL](connect-database/proxysql.md)
 - [Amazon RDS](connect-database/aws.md)
 - [Microsoft Azure](connect-database/azure.md)
-- [Google Cloud Platform](connect-database/google) (MySQL and PostgreSQL)
+- [Google Cloud Platform](connect-database/google.md) (MySQL and PostgreSQL)
 - [Linux](connect-database/linux.md)
 - [External services](connect-database/external.md)
 - [HAProxy](connect-database/haproxy.md)

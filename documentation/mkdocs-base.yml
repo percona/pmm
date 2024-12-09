@@ -132,9 +132,6 @@ plugins:
     css_dir: css
     javascript_dir: js
     canonical_version: null
-    versions:
-      - "3"
-      - "2"
 
 extra:
   version:
