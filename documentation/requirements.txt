@@ -1,5 +1,6 @@
-Markdown==3.3.7
+Markdown==3.5.2
 mkdocs
+mkdocs-versioning
 mkdocs-macros-plugin
 mkdocs-exclude
 markdown-include
@@ -12,4 +13,3 @@ mkdocs-section-index
 mkdocs-htmlproofer-plugin
 mkdocs-meta-descriptions-plugin
 mike
-lightgallery
