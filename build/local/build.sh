@@ -469,6 +469,7 @@ check_preprequisites() {
   if [ -z "${GITHUB_API_TOKEN:-}" ]; then
     echo "Error: GITHUB_API_TOKEN is not set, some git operations will fail, exiting..."
     echo
+    exit 1
   fi
 }
 
@@ -544,6 +545,7 @@ main() {
     run_build_script build-server-docker
   fi
 
+  set +o xtrace
   echo
   echo "Done building PMM artifacts."
   echo ---
