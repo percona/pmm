@@ -1,0 +1,47 @@
+name: Test podman.md
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - 'documentation/docs/install-pmm/install-pmm-server/baremetal/podman.md'
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install pandoc
+        run: |
+          wget https://github.com/jgm/pandoc/releases/download/2.18/pandoc-2.18-1-amd64.deb
+          sudo apt-get install -y ./pandoc-2.18-1-amd64.deb
+          rm pandoc-2.18-1-amd64.deb
+
+      - name: Copy test template
+        run: cp documentation/resources/bin/doc_test_template.sh ./documentation/docs_test_podman.sh
+
+      - name: Get CodeBlocks and push them to test template
+        run: pandoc -i documentation/docs/install-pmm/install-pmm-server/baremetal/podman.md --lua-filter documentation/resources/bin/CodeBlock.lua -t html -o /dev/null >> documentation/docs_test_podman.sh
+
+      - name: Run podman tests
+        run: ./documentation/docs_test_podman.sh
+
+      - name: Get debug
+        if: ${{ failure() }}
+        run: |
+          cat ./documentation/docs_test_podman.sh
+          pandoc --version
+          podman version
+          podman ps --all || true
+          systemctl status --user pmm-server || true
+          podman inspect pmm-server || true
+          journalctl -r || true

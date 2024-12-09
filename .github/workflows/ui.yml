@@ -15,6 +15,7 @@ on:
       - "api-tests/**"
       - "cli-tests/**"
       - "docs/**"
+      - "documentation/**"
       - "managed/**"
       - "managed-dev/**"
       - "qan-api2/**"

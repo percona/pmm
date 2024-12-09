@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" height="150" preserveAspectRatio="none" style="width:672px;height:150px" width="672">
+  <defs>
+    <filter height="300%" id="a" width="300%" x="-1" y="-1">
+      <feGaussianBlur result="blurOut" stdDeviation="2"/>
+      <feColorMatrix in="blurOut" result="blurOut2" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/>
+      <feOffset dx="4" dy="4" in="blurOut2" result="blurOut3"/>
+      <feBlend in="SourceGraphic" in2="blurOut3"/>
+    </filter>
+  </defs>
+  <path fill="none" d="M190.3333 15h209v26.2969h-209z"/>
+  <text font-family="Chivo" font-size="14" font-weight="bold" textLength="199" x="195.3333" y="32.9951">
+    Links to popular sections
+  </text>
+  <rect fill="#DAA520" filter="url(#a)" height="30.2969" rx="12.5" ry="12.5" width="138.3333" x="170" y="77.8906" stroke="#a80036" stroke-width="1.5"/>
+  <text font-family="Chivo" font-size="14" textLength="105" x="177" y="97.8857">
+    For Sys Admins
+  </text>
+  <path d="M291.6667 88.3542l-1.1667 3.5H287l2.9167 2.3333-1.1667 3.5 2.9167-2.3333 2.9166 2.3333-1.1666-3.5 2.9166-2.3333h-3.5l-1.1666-3.5"/>
+  <rect fill="#ADD8E6" filter="url(#a)" height="30.2969" rx="12.5" ry="12.5" width="99.3333" x="348.3333" y="77.8906" stroke="#a80036" stroke-width="1.5"/>
+  <text font-family="Chivo" font-size="14" textLength="66" x="355.3333" y="97.8857">
+    For Users
+  </text>
+  <path d="M431 88.3542c-1.2833 0-2.3333 1.3066-2.3333 2.9166 0 1.61 1.05 2.9167 2.3333 2.9167 1.2833 0 2.3333-1.3067 2.3333-2.9167s-1.05-2.9166-2.3333-2.9166m-2.4383 5.8333c-1.2367.0583-2.2284 1.0733-2.2284 2.3333v1.1667h9.3334v-1.1667c0-1.26-.98-2.275-2.2284-2.3333-.63.7117-1.4933 1.1667-2.4383 1.1667-.945 0-1.8083-.455-2.4383-1.1667"/>
+  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/interface.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/interface.html" xlink:type="simple">
+    <text fill="#00F" font-family="Chivo" font-size="14" text-decoration="underline" textLength="96" x="490.6667" y="61.292">
+      User interface
+    </text>
+  </a>
+  <path d="M447.6667 93.0391h10c15 0 5-36.5938 20-36.5938h10" fill="none" stroke="#a80036"/>
+  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/query-analytics.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/query-analytics.html" xlink:type="simple">
+    <text fill="#00F" font-family="Chivo" font-size="14" text-decoration="underline" textLength="148" x="490.6667" y="79.5889">
+      Using Query Analytics
+    </text>
+  </a>
+  <path d="M447.6667 93.0391h10c15 0 5-18.2969 20-18.2969h10" fill="none" stroke="#a80036"/>
+  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/alerting.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/alerting.html" xlink:type="simple">
+    <text fill="#00F" font-family="Chivo" font-size="14" text-decoration="underline" textLength="170" x="490.6667" y="97.8857">
+      Using Percona Alerting
+    </text>
+  </a>
+  </a>
+  <path d="M447.6667 93.0391h10c15 0 5 18.2968 20 18.2968h10" fill="none" stroke="#a80036"/>
+  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/dashboards/" xlink:type="simple">
+    <text fill="#00F" font-family="Chivo" font-size="14" text-decoration="underline" textLength="155" x="490.6667" y="134.4795">
+      Dashboards reference
+    </text>
+  </a>
+  <path d="M447.6667 93.0391h10c15 0 5 36.5937 20 36.5937h10M308.3333 93.0391h40" fill="none" stroke="#a80036"/>
+  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/" xlink:type="simple">
+    <text fill="#00F" font-family="Chivo" font-size="14" text-decoration="underline" textLength="71" x="56" y="61.292">
+      Setting up
+    </text>
+  </a>
+  <path d="M170 93.0391h-10c-15 0-5-36.5938-20-36.5938h-10" fill="none" stroke="#a80036"/>
+  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/configure.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/configure.html" xlink:type="simple">
+    <text fill="#00F" font-family="Chivo" font-size="14" text-decoration="underline" textLength="117" x="10" y="79.5889">
+      How to configure
+    </text>
+  </a>
+  <path d="M170 93.0391h-10c-15 0-5-18.2969-20-18.2969h-10" fill="none" stroke="#a80036"/>
+  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/upgrade.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/upgrade.html" xlink:type="simple">
+    <text fill="#00F" font-family="Chivo" font-size="14" text-decoration="underline" textLength="110" x="17" y="97.8857">
+      How to upgrade
+    </text>
+  </a>
+  <path d="M170 93.0391h-40" fill="none" stroke="#a80036"/>
+  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/commands/pmm-admin.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/commands/pmm-admin.html" xlink:type="simple">
+    <text fill="#00F" font-family="Chivo" font-size="14" text-decoration="underline" textLength="82" x="45" y="116.1826">
+      pmm-admin
+    </text>
+  </a>
+  <path d="M170 93.0391h-10c-15 0-5 18.2968-20 18.2968h-10" fill="none" stroke="#a80036"/>
+  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/architecture.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/architecture.html" xlink:type="simple">
+    <text fill="#00F" font-family="Chivo" font-size="14" text-decoration="underline" textLength="84" x="43" y="134.4795">
+      Architecture
+    </text>
+  </a>
+  <path d="M170 93.0391h-10c-15 0-5 36.5937-20 36.5937h-10" fill="none" stroke="#a80036"/>
+</svg>
