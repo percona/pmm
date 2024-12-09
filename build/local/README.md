@@ -26,6 +26,12 @@ Below is a list of prerequisites that are required to build PMM locally.
 - git
 - curl
 
+Also, it is required to define an environment variable `GITHUB_API_TOKEN` with a valid GitHub Personal Access Token (PAT). This token is used to pull the changes from the `percona-lab/pmm-submodules` and other project repositories. The token must have the following permissions:
+
+- repo:status
+- public_repo
+- read:user
+
 Please note, that building some of the PMM internals, such as Grafana, requires at least 8GB of memory available to docker. The number of CPUs, however, does not matter that much.
 
 ## How to use this script to build PMM

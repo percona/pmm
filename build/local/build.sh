@@ -37,6 +37,7 @@ parse_params() {
   PLATFORM=linux/amd64
   SUBMODULES=.modules
   CLONE_BRANCH=v3
+  BRANCH_NAME=""
   PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
 
   # Exported variables
@@ -131,9 +132,11 @@ needs_to_pull() {
 rewind() {
   local DIR="$1"
   local BRANCH="$2"
+  local NAME="$3"
 
   cd "$DIR" > /dev/null
-  local CURRENT=$(git branch --show-current)
+  local CURRENT=$(git rev-parse --abbrev-ref HEAD)
+  echo "Rewinding submodule ${NAME}..."
   git fetch
 
   if [ "$CURRENT" != "$BRANCH" ]; then
@@ -143,16 +146,18 @@ rewind() {
 
   if needs_to_pull; then
     if ! git pull origin; then
-      git reset --hard HEAD~20
+      git reset --hard HEAD~30
       git pull origin > /dev/null
     fi
-    echo "Submodule has pulled from upstream"
+    echo "Submodule ${NAME} has pulled from upstream"
     git log --oneline -n 2
     cd - > /dev/null
     git add "$DIR"
+    echo
   else
     cd - > /dev/null
-    echo "Submodule is up-to-date with upstream"
+    echo "Submodule ${NAME} is up-to-date with upstream"
+    echo
   fi
 }
 
@@ -173,14 +178,16 @@ check_files() {
     exit 1
   fi
 
-  local branch_name=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-  if [ -z "$branch_name" ]; then
+  # We set this global var here, since git may not be availabe in the `parse_params` function
+  # The value must be taken from percona/pmm repository
+  BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+  if [ -z "$BRANCH_NAME" ]; then
     echo "Error: could not determine the current branch name, exiting..."
     echo
     exit 1
   fi
-  if [[ "$branch_name" =~ ^main$|^v3$ ]] && [ "$RELEASE_BUILD" -eq 0 ]; then
-    echo "Error: you are not on a feature branch, but on '$branch_name'."
+  if [[ "$BRANCH_NAME" =~ ^main$|^v3$ ]] && [ "$RELEASE_BUILD" -eq 0 ]; then
+    echo "Error: you are not on a feature branch, but on '$BRANCH_NAME'."
     echo "Please make sure to create a feature branch before proceeding."
     echo
     exit 1
@@ -190,24 +197,20 @@ check_files() {
     echo "Warning: the current directory '$PWD' does not contain a non-empty ci.yml file."
     echo
     if [ -z "${CI:-}" ]; then
-      echo "This is OK, we will create a default configuration and include your current branch."
-      echo "Will pause for 5 seconds to allow you to cancel the operation."
-      sleep 5
-      echo
-    fi
-
-    printf "deps:\n%2s%s\n%4s%s\n" "  " "- name: pmm" "    " "branch: ${branch_name}" | tee ci.yml
-    echo
-    if [ -z "${CI:-}" ]; then
-      echo "ci.yml created. You can review and modify it as needed."
+      echo "This is OK, we will create a default configuration by searching for your current branch name in all repositories."
+      echo "Pausing for 5 seconds to allow you to cancel the operation in case you want to create the file manually..."
       echo
       echo "To learn more about the file format, please refer to the following [README](https://github.com/Percona-Lab/pmm-submodules/blob/v3/README.md#how-to-create-a-feature-build)."
       echo
+      sleep 5
     fi
+
+    echo -n > ci.yml
   fi
 
   mkdir -p "$DIR/build"
 
+  # Get the PR number and the commit hash for feature builds
   if [ "$RELEASE_BUILD" -eq 0 ]; then
     local FB_COMMIT=$(git rev-parse HEAD)
     local PR_NUMBER=$(git ls-remote origin 'refs/pull/*/head' | grep ${FB_COMMIT} | awk -F'/' '{print $3}')
@@ -226,6 +229,8 @@ check_files() {
 # Update submodules and PR branches
 update() {
   local CURDIR="$PWD"
+  local deps=""
+  local commit=""
 
   if [ "$NO_UPDATE" -eq 1 ]; then
     echo "Info: skip refreshing the source code from upstream repositories..."
@@ -235,13 +240,16 @@ update() {
   docker run --rm --platform="$PLATFORM" \
     -v $ROOT_DIR:/app \
     -v $CURDIR/ci.yml:/app/ci.yml \
+    -v $CURDIR/build/local/ci.py:/app/ci.py \
     -v $CURDIR/build/local/entrypoint.sh:/entrypoint.sh \
     -w /app \
+    -e BRANCH_NAME="$BRANCH_NAME" \
+    -e GITHUB_API_TOKEN="$GITHUB_API_TOKEN" \
     --entrypoint=/entrypoint.sh \
     "$RPMBUILD_DOCKER_IMAGE"
 
-  if [ ! -f "$SUBMODULES/build/deps.txt" ]; then
-    echo "Error: could not locate the 'build/deps.txt' file, exiting..."
+  if [ ! -s "$SUBMODULES/build/deps.txt" ]; then
+    echo "Error: could not find a properly constructed '$SUBMODULES/build/deps.txt' file, exiting..."
     exit 1
   fi
 
@@ -251,34 +259,31 @@ update() {
 
   cd "$SUBMODULES"
 
-  # Read deps line by line and rewind submodules
+  # Loop through submodules and rewind them one-by-one
   while IFS= read -r line; do
-    local key="" val="" pair="" name="" path="" branch=""
+    local key="" val="" pair="" name="" path="" branch="" url="" pairs=()
 
     # Parse the colon-separated subkeys and subvalues
-    IFS=':' read -r -a pairs <<< "$line"
+    IFS='|' read -r -a pairs <<< "$line"
     for pair in "${pairs[@]}"; do
       key="${pair%%=*}"
       val="${pair#*=}"
-      if [ "$key" = "name" ]; then
-        name="$val"
-      elif [ "$key" = "path" ]; then
-        path="$val"
-      elif [ "$key" = "branch" ]; then
-        branch="$val"
+      if [[ "$key" =~ name|path|branch|url ]]; then
+        eval "$key=$val"
       fi
     done
 
-    echo
-    echo "Rewinding submodule $name ..."
-    echo "path: $path, branch: $branch"
+    rewind "$path" "$branch" "$name"
 
-    rewind "$path" "$branch"
+    commit=$(git -C "$path" rev-parse HEAD)
+    echo "name=${name}|path=${path}|url=${url}|branch=${branch}|commit=${commit}" >> "build/deps2.txt"
   done < "build/deps.txt"
 
+  mv -f "build/deps2.txt" "build/deps.txt"
   echo
   echo "Printing git status..."
   git status --short
+
   echo
   echo "Printing git submodule status..."
   git submodule status
@@ -460,6 +465,11 @@ check_preprequisites() {
     echo
     exit 1
   fi
+
+  if [ -z "${GITHUB_API_TOKEN:-}" ]; then
+    echo "Error: GITHUB_API_TOKEN is not set, some git operations will fail, exiting..."
+    echo
+  fi
 }
 
 cleanup() {
@@ -533,8 +543,6 @@ main() {
 
     run_build_script build-server-docker
   fi
-
-  set +o xtrace
 
   echo
   echo "Done building PMM artifacts."
