@@ -39,9 +39,9 @@ Please note, that building some of the PMM internals, such as Grafana, requires 
 1. Install the prerequisites
 2. Clone the `pmm` repository - `git clone git@github.com:percona/pmm`.
 3. Change directory to `pmm` - `cd pmm`.
-4. Run `./build --help` to display the script usage.
-5. Run `./build --init` to provision all dependent submodules using `https://github.com/percona-lab/pmm-submodules` repository.
-6. Run `./build` with parameters of your choice to build PMM v3.
+4. Run `./build.sh --help` to display the script usage.
+5. Run `./build.sh --init` to provision all dependent submodules using `https://github.com/percona-lab/pmm-submodules` repository.
+6. Run `./build.sh` with parameters of your choice to build PMM v3.
 
 Usually, you will want to rebuild PMM whenever there are changes in at least one of its components. With the exception of ClickHouse and All components of PMM are gathered together in one repository - `github.com/percona-lab/pmm-submodules` (or `pmm-submodules`). Therefore, you can run `build.sh` as often as those changes need to be factored in to the next build.
 
