@@ -20,6 +20,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
+          fetch-depth: 0
           sparse-checkout: |
             .github
             documentation
@@ -51,6 +52,7 @@ jobs:
       - name: Build a themed site (3.x)
         working-directory: documentation
         run: |
-          PATH=$PATH:resources/bin mike deploy 3 -b preview -p
+          mike --help
+          mike deploy 3 -b preview -p
           mike set-default 3 -b preview -p
           mike retitle 3 "PMM 3.x (LATEST)" -b preview -p
