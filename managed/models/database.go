@@ -1094,7 +1094,6 @@ var databaseSchema = [][]string{
 
 		`UPDATE agents SET postgresql_options = '{}'::jsonb WHERE postgresql_options IS NULL`,
 
-		// migrate values into new fields in options and drop original columns
 		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{expose_exporter}', to_jsonb(expose_exporter));`,
 		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{push_metrics}', to_jsonb(push_metrics));`,
 		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{disabled_collectors}', to_jsonb(disabled_collectors));`,
@@ -1131,7 +1130,6 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents DROP COLUMN table_count`,
 		`ALTER TABLE agents DROP COLUMN table_count_tablestats_group_limit`,
 
-		// update settings -> encrypted items!!
 		`UPDATE settings SET settings = jsonb_set(settings, '{encrypted_items}', 
 			'[
 				"pmm-managed.agents.username", 
