@@ -63,17 +63,19 @@ func (s *ManagementService) addProxySQL(ctx context.Context, req *managementv1.A
 		}
 
 		row, err := models.CreateAgent(tx.Querier, models.ProxySQLExporterType, &models.CreateAgentParams{
-			PMMAgentID:        req.PmmAgentId,
-			ServiceID:         service.ServiceID,
-			Username:          req.Username,
-			Password:          req.Password,
-			AgentPassword:     req.AgentPassword,
-			TLS:               req.Tls,
-			TLSSkipVerify:     req.TlsSkipVerify,
-			PushMetrics:       isPushMode(req.MetricsMode),
-			ExposeExporter:    req.ExposeExporter,
-			DisableCollectors: req.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:    req.PmmAgentId,
+			ServiceID:     service.ServiceID,
+			Username:      req.Username,
+			Password:      req.Password,
+			AgentPassword: req.AgentPassword,
+			TLS:           req.Tls,
+			TLSSkipVerify: req.TlsSkipVerify,
+			ExporterOptions: &models.ExporterOptions{
+				ExposeExporter:     req.ExposeExporter,
+				PushMetrics:        isPushMode(req.MetricsMode),
+				DisabledCollectors: req.DisableCollectors,
+			},
+			LogLevel: services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		})
 		if err != nil {
 			return err
