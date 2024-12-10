@@ -13,7 +13,7 @@
     sslcacert: /etc/pki/tls/certs/ca-bundle.crt
 
 - name: Install Loki and Promtail
-  yum:
+  dnf:
     name: "{{ item }}"
     state: latest
     disablerepo: "*"
@@ -99,3 +99,14 @@
 
 - name: Remove ansible markers from pmm.conf
   command: sed -i '/^#LOKI_LOCATION_.*/d' /etc/nginx/conf.d/pmm.conf
+
+- name: Clean up dnf cache
+  command: dnf clean all
+
+- name: Remove package cache directories
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/cache/dnf
+    - /var/cache/yum

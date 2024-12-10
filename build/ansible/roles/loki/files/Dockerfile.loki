@@ -1,7 +1,7 @@
 # TODO: the image should be percona/pmm-server:3 once PMM v3 is released.
 
 # To build the image, run the following in the project root directory (mind the dot):
-# docker buildx build --platform=linux/amd64 --progress plain -t perconalab/pmm-server:loki-3.2 -f ./build/ansible/roles/loki/files/Dockerfile.loki .
+# docker buildx build --platform=linux/amd64 --progress plain -t perconalab/pmm-server:loki-3.3.1 -f ./build/ansible/roles/loki/files/Dockerfile.loki .
 FROM perconalab/pmm-server:3-dev-latest
 
 ENV GF_ANALYTICS_CHECK_FOR_UPDATES=false
@@ -17,8 +17,8 @@ USER pmm
 
 EXPOSE 3100
 
-# To launch it: 
-#  `docker run -d --name loki --platform=linux/amd64 -p 3100:3100 -p 443:8443 perconalab/pmm-server:loki-3.2`
+# To launch it:
+#  docker run -d --name loki --platform=linux/amd64 -p 3100:3100 -p 443:8443 perconalab/pmm-server:loki-3.3.1
 
 # To upload data to Loki:
 #  curl -X POST -k \
