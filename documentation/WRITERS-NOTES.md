@@ -2,13 +2,13 @@
 
 ## Formatting
 
-- Line wrapping: Most files don't use line wrapping. Each paragraph or sentence is a complete string of text without newline characters. The rationale is that most viewers and editors have configurable soft-wrap abilities, and every author tends to choose a different hard-wrap column.
+**Line wrapping**
+
+Most files don't use line wrapping. Each paragraph or sentence is a complete string of text without newline characters. The rationale is that most viewers and editors have configurable soft-wrap abilities, and every author tends to choose a different hard-wrap column.
 
 ## Admonitions
 
-Admonitions use a combined MkDocs/Bootstrap definition to get acceptable and similar rendering on both Percona.com (Drupal-based) and Render.com.
-
-Percona.com uses Bootstrap 4. Admonitions are styled as [Alerts](https://getbootstrap.com/docs/4.0/components/alerts/).
+Admonitions use an MkDocs definition to get acceptable rendering on Render.com.
 
 Material for MkDocs theme: https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types
 
@@ -22,16 +22,16 @@ Admonitions are to highlight something special, not to make every point signific
 
 ## Overview
 
-By using a subset of all MkDocs, we can get some alignment between those and Bootstrap.
+The table below summarizes the use of colors in admonitions.
 
-| Admonition                  | MkDocs colour | Bootstrap colour |
-| --------------------------- | ------------- | ---------------- |
-| Notes, info                 | Blue          | Blue             |
-| See also                    | Blue          | Turquoise        |
-| Tip                         | Green         | Green            |
-| Caution, Warning, Important | Amber         | Amber            |
-| Danger                      | Red           | Red              |
-| Summary                     | Turquoise     | Turquoise        |
+| Admonition                  | MkDocs colour |
+| --------------------------- | ------------- |
+| Notes, info                 | Blue          |
+| See also                    | Blue          |
+| Tip                         | Green         |
+| Caution, Warning, Important | Amber         |
+| Danger                      | Red           |
+| Summary                     | Turquoise     |
 
 ### Note, Info
 
@@ -54,14 +54,13 @@ Preferred use is without the label (first form).
 
 Uses same type but different label text:
 
-- Caution: Used to mean 'Continue with care'. Less strong than 'Warning' IMHO.
+- Caution: Used to mean 'Continue with care'. It is less strong than 'Warning'.
 
-- Important: A significant point that deserves emphasis. (MkDocs default for 'important' admonition is green, which is why I don't use it.)
+- Important: A significant point that deserves emphasis. (MkDocs default for 'important' admonition is green, which is why we don't use it.)
 
 Style:
 
 - MkDocs: Amber with triangle/! icon
-- Bootstrap: Yellow with no icon
 
 ```txt
 !!! caution alert alert-warning "Caution"
@@ -73,7 +72,6 @@ Style:
 Anything that has the potential to damage or compromise a user's data or system.
 
 - MkDocs: Red with bolt icon.
-- Boostrap: Red with no icon.
 
 ```txt
 !!! danger alert alert-danger "Danger"
@@ -112,7 +110,6 @@ Group them at the end of the section.
 An exception would be when there is an equivalent or closely related section elsewhere.
 
 - MkDocs: Blue with pen icon (same as note).
-- Bootstrap: Turquoise with no icon.
 
 ```txt
 !!! seealso alert alert-info "See also"

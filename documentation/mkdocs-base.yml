@@ -1,14 +1,16 @@
 # MkDocs configuration
 # Used as base - look for .yml files with INHERIT
+# https://www.mkdocs.org/user-guide/configuration/
+
 site_name: Percona Monitoring and Management
 site_description: Documentation
 site_author: Percona LLC
 site_url: ""
 copyright: Percona LLC, &#169; 2023
 use_directory_urls: false
-repo_name: percona/pmm-doc
-repo_url: https://github.com/percona/pmm-doc/
-edit_uri: edit/PMM3-branch/docs/
+repo_name: percona/pmm
+repo_url: https://github.com/percona/pmm/
+edit_uri: edit/v3/documentation/docs/
 
 theme:
   name: material
