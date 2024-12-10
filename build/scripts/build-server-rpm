@@ -26,7 +26,7 @@ get_shasum256() {
     exit 1
   fi
 
-  find "$DIR" -type f -print0 | sort -z | xargs -0 sha256sum -a 256 | sha256sum -a 256 | cut -d " " -f1 | cut -c 1-8
+  find "$DIR" -type f -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256 | cut -d " " -f1 | cut -c 1-8
 }
 
 is_build_needed() {
