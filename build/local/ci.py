@@ -19,6 +19,7 @@ logging.basicConfig(stream=sys.stdout, format='[%(levelname)s] %(asctime)s: %(me
 
 YAML_EXPORT_CONFIG = 'gitmodules.yml'
 YAML_CONFIG_OVERRIDE = 'ci.yml'
+JSON_EXPORT_CONFIG = '.json'
 SUBMODULES_CONFIG = '.gitmodules'
 GIT_SOURCES_FILE = '.git-sources'
 FORK_OWNER = os.environ.get('FORK_OWNER', '')
@@ -311,7 +312,7 @@ def main():
     parser.add_argument('--prepare', help='prepare feature build')
     parser.add_argument('--global', '-g', dest='global_repo', help='find and use all branches with this name',
                         action='store_true')
-    parser.add_argument('--convert', help='convert .gitmodules config to yml', action='store_true')
+    parser.add_argument('--convert', help='convert .gitmodules config to yml and merge with ci.yml', action='store_true')
     parser.add_argument('--create-config', '-c', dest='create_config', help='find all branches with the same name and create the ci.yml config')
 
     args = parser.parse_args()

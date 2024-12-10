@@ -194,15 +194,16 @@ check_files() {
   fi
 
   if [ ! -s "ci.yml" ]; then
-    echo "Warning: the current directory '$PWD' does not contain a non-empty ci.yml file."
+    echo
+    echo "Warning: the current directory '$PWD' does not contain a non-empty ci.yml file, so we will"
+    echo "create a default configuration by searching for the current branch name in all repositories."
     echo
     if [ -z "${CI:-}" ]; then
-      echo "This is OK, we will create a default configuration by searching for your current branch name in all repositories."
-      echo "Pausing for 5 seconds to allow you to cancel the operation in case you want to create the file manually..."
+      echo "Pausing for 10 seconds to allow you to cancel the operation in case you want to create the file manually..."
       echo
+      sleep 10
       echo "To learn more about the file format, please refer to the following [README](https://github.com/Percona-Lab/pmm-submodules/blob/v3/README.md#how-to-create-a-feature-build)."
       echo
-      sleep 5
     fi
 
     echo -n > ci.yml
@@ -244,7 +245,6 @@ update() {
     -v $CURDIR/build/local/entrypoint.sh:/entrypoint.sh \
     -w /app \
     -e BRANCH_NAME="$BRANCH_NAME" \
-    -e GITHUB_API_TOKEN="$GITHUB_API_TOKEN" \
     --entrypoint=/entrypoint.sh \
     "$RPMBUILD_DOCKER_IMAGE"
 
@@ -462,12 +462,6 @@ check_preprequisites() {
 
   if ! docker buildx version &> /dev/null; then
     echo "Error: 'docker buildx plugin is not installed, exiting..."
-    echo
-    exit 1
-  fi
-
-  if [ -z "${GITHUB_API_TOKEN:-}" ]; then
-    echo "Error: GITHUB_API_TOKEN is not set, some git operations will fail, exiting..."
     echo
     exit 1
   fi
