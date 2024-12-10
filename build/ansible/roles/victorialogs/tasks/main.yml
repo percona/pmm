@@ -19,13 +19,13 @@
     state: absent
 
 - name: Install unzip
-  yum:
+  dnf:
     name: unzip
     state: latest
 
 - name: Download and unarchive victorialogs-datasource
   unarchive:
-    src: "https://github.com/VictoriaMetrics/victorialogs-datasource/releases/download/v0.2.1/victorialogs-datasource-v0.2.1.zip"
+    src: "https://github.com/VictoriaMetrics/victorialogs-datasource/releases/download/v{{ victorialogs_datasource_version }}/victorialogs-datasource-v{{ victorialogs_datasource_version }}.zip"
     dest: /srv/grafana/plugins
     remote_src: yes
 
@@ -60,7 +60,7 @@
     sslcacert: /etc/pki/tls/certs/ca-bundle.crt
 
 - name: Install Promtail
-  yum:
+  dnf:
     name: promtail
     state: latest
     disablerepo: "*"
@@ -142,3 +142,14 @@
 
 - name: Remove ansible markers from pmm.conf
   command: sed -i '/^#VLOGS_LOCATION_.*/d' /etc/nginx/conf.d/pmm.conf
+
+- name: Remove unzip
+  dnf:
+    name: unzip
+    state: absent
+
+- name: Clean dnf cache
+  command: dnf clean all
+
+- name: Remove dnf and yum cache directories
+  command: rm -rf /var/cache/dnf /var/cache/yum
