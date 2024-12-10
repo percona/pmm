@@ -1,13 +1,4 @@
 ---
-- name: Stop and remove Grafana from Supervisor
-  shell: "supervisorctl {{ item }} grafana"
-  become: true
-  become_user: pmm
-  become_method: su
-  loop:
-    - stop
-    - remove
-
 - name: Retrieve Percona plugins
   find:
     paths: /usr/share/percona-dashboards/panels/
@@ -42,7 +33,7 @@
     owner: pmm
     group: pmm
     mode: 0644
-    remote_src: yes    
+    remote_src: yes
 
 - name: Restart Grafana service with new plugins 
   shell: "supervisorctl {{ item }} grafana"
@@ -50,4 +41,6 @@
   become_user: pmm
   become_method: su
   loop:
+    - stop
+    - remove
     - add
