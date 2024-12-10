@@ -1,25 +1,24 @@
-%undefine _missing_build_ids_terminate_build
+%global _missing_build_ids_terminate_build 0
 %global _dwz_low_mem_die_limit 0
 
 %global repo            pmm
 %global provider        github.com/percona/%{repo}
 %global commit          8f3d007617941033867aea6a134c48b39142427f
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
-%define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         20
-%define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
+%define release         22
+%define rpm_release     %{release}.%{shortcommit}%{?dist}
 
 # the line below is sed'ed by build/bin/build-server-rpm to set a correct version
-%define full_pmm_version 2.0.0
+%define full_pmm_version 3.0.0
 
-Name:		pmm-managed
-Version:	%{version}
-Release:	%{rpm_release}
-Summary:	Percona Monitoring and Management management daemon
+Name:     pmm-managed
+Version:  %{version}
+Release:  %{rpm_release}
+Summary:  Percona Monitoring and Management daemon
 
-License:	AGPLv3
-URL:		  https://%{provider}
-Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
+License:  AGPLv3
+URL:      https://%{provider}
+Source0:  https://%{provider}/archive/%{commit}.tar.gz
 
 %description
 pmm-managed manages configuration of PMM server components (VictoriaMetrics,
@@ -28,50 +27,43 @@ See PMM docs for more information.
 
 
 %prep
-%setup -q -n pmm-%{commit}
-mkdir -p src/github.com/percona
-ln -s $(pwd) src/%{provider}
-
+%setup -q -n %{repo}-%{commit}
 
 %build
-
 export PMM_RELEASE_VERSION=%{full_pmm_version}
 export PMM_RELEASE_FULLCOMMIT=%{commit}
-export PMM_RELEASE_BRANCH=""
 
-cd src/github.com/percona/pmm/managed
-make release
-
-cd ../ui
-make release
+make -C managed release
 
 %install
 install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_datadir}/%{name}
-install -d -p %{buildroot}%{_datadir}/pmm-ui
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation %{buildroot}%{_sbindir}/pmm-encryption-rotation
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
 install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-starlark
 
-cd src/github.com/percona/pmm
-cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
-cp -pa ./ui/dist/. %{buildroot}%{_datadir}/pmm-ui
+cp -pa api/swagger %{buildroot}%{_datadir}/%{name}
 
 %files
-%license src/%{provider}/LICENSE
-%doc src/%{provider}/README.md
+%license managed/LICENSE
+%doc managed/README.md
 %{_sbindir}/pmm-managed
 %{_sbindir}/pmm-encryption-rotation
 %{_sbindir}/pmm-managed-init
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
-%{_datadir}/pmm-ui
 
 %changelog
+* Wed Nov 20 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-22
+- PMM-13487 Split pmm-managed and pmm-ui rpm specifications
+
 * Mon Sep 23 2024 Jiri Ctvrtka <jiri.ctvrtka@ext.percona.com> - 3.0.0-1
 - PMM-13132 add PMM encryption rotation tool
+
+* Mon Apr 1 2024 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-2
+- PMM-12899 Use module and build cache
 
 * Fri Mar 22 2024 Matej Kubinec <matej.kubinec@ext.percona.com> - 3.0.0-1
 - PMM-11231 add pmm ui

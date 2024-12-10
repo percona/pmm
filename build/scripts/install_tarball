@@ -77,7 +77,7 @@ ${INSTALL_COMMAND} -m 0755 queries-lr.yaml "${PMM_DIR}"/collectors/custom-querie
 ${INSTALL_COMMAND} -m 0755 queries-mysqld-group-replication.yml "${PMM_DIR}"/collectors/custom-queries/mysql/high-resolution
 
 for FILE in $( ls ${PWD}/bin ); do
-    if [ "x${FILE}" = "xpmm-admin" ] || [ "x${FILE}" = "xpmm-agent" ] || [ "x${FILE}" = "xpmm-agent-entrypoint" ]; then
+    if [[ "${FILE}" =~ pmm-admin|^pmm-agent$|pmm-agent-entrypoint ]]; then
         ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/${FILE} "${PMM_DIR}"/bin
     elif [[ "${FILE}" =~ pt-summary|pt-mysql-summary|pt-pg-summary|pt-mongodb-summary|nomad ]]; then
         ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/"${FILE}" "${PMM_DIR}"/tools
@@ -88,12 +88,12 @@ done
 
 for FILE in example.prom queries-mysqld.yml example-queries-postgres.yml; do
     for RESOLUTION in low medium high; do
-        if [ "x${FILE}" = "xexample.prom" ]; then
-            ${INSTALL_COMMAND} -m 0755 ${FILE} "${PMM_DIR}"/collectors/textfile-collector/${RESOLUTION}-resolution
-        elif [ "x${FILE}" = "xqueries-mysqld.yml" ]; then
-            ${INSTALL_COMMAND} -m 0755 ${FILE} "${PMM_DIR}"/collectors/custom-queries/mysql/${RESOLUTION}-resolution
-        elif [ "x${FILE}" = "xexample-queries-postgres.yml" ]; then
-            ${INSTALL_COMMAND} -m 0755 ${FILE} "${PMM_DIR}"/collectors/custom-queries/postgresql/${RESOLUTION}-resolution
+        if [ "${FILE}" = "example.prom" ]; then
+            ${INSTALL_COMMAND} -m 0755 ${FILE} "${PMM_DIR}/collectors/textfile-collector/${RESOLUTION}-resolution"
+        elif [ "${FILE}" = "queries-mysqld.yml" ]; then
+            ${INSTALL_COMMAND} -m 0755 ${FILE} "${PMM_DIR}/collectors/custom-queries/mysql/${RESOLUTION}-resolution"
+        elif [ "${FILE}" = "example-queries-postgres.yml" ]; then
+            ${INSTALL_COMMAND} -m 0755 ${FILE} "${PMM_DIR}/collectors/custom-queries/postgresql/${RESOLUTION}-resolution"
         fi
     done
 done

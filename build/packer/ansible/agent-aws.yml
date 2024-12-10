@@ -16,7 +16,7 @@
         ansible_architecture_alt: "{% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}none{% endif %}"
 
     - name: Upgrade OS packages
-      yum:
+      dnf:
         name: "*"
         state: latest
 
@@ -24,12 +24,12 @@
       shell: "curl -fsSL https://rpm.nodesource.com/setup_{{ node_version }} | bash -"
 
     - name: Install Oracle EPEL Repo
-      yum:
+      dnf:
         name: oracle-epel-release-el9
         state: latest
 
     - name: Install yum-utils
-      yum:
+      dnf:
         name: yum-utils
         state: latest
 
@@ -37,7 +37,7 @@
       command: yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
 
     - name: Install Docker packages
-      yum:
+      dnf:
         name:
           - docker-ce
           - docker-ce-cli
@@ -53,7 +53,7 @@
         state: started
 
     - name: Install packages
-      yum:
+      dnf:
         name:
           - git
           - jq
@@ -76,12 +76,12 @@
         state: latest
 
     - name: Install Java17
-      yum:
+      dnf:
         name: java-17-openjdk-headless
         state: latest
 
     - name: Install pip3 and ansible
-      yum:
+      dnf:
         name:
           - python3-pip
           - ansible-core
@@ -130,11 +130,12 @@
         mode: "u+x,g+x,o+x"
 
     - name: Install Goreleaser
-      yum:
+      dnf:
         name: https://github.com/goreleaser/goreleaser/releases/download/v{{ goreleaser_version }}/goreleaser-{{ goreleaser_version }}-1.{{ ansible_architecture }}.rpm
+        disable_gpg_check: true
         state: present
 
-    - name: install latest YQ (YAML processor) 
+    - name: Install latest YQ (YAML processor) 
       get_url:
         url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
         dest: /usr/bin/yq
@@ -148,9 +149,9 @@
         name: "{{ item }}"
         virtualenv: /home/ec2-user/venv
       loop: # Lookup versions at: https://pypi.org/search/
-        - pyaml==24.7.0
+        - pyaml==24.9.0
         - GitPython==3.1.43
-        - PyGithub==2.3.0
+        - PyGithub==2.5.0
         - python-digitalocean==1.17.0
         - docker==7.1.0
         - linode-cli==5.50.0
@@ -195,7 +196,6 @@
         name: "{{ item }}"
         source: pull
       loop:
-        - debian:buster
         - debian:bullseye
         - debian:bookworm
         - ubuntu:focal
