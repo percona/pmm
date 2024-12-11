@@ -3,11 +3,6 @@ INHERIT: mkdocs-base.yml
 
 site_url: https://docs.percona.com/percona-monitoring-and-management/
 
-theme:
-  name: material
-  custom_dir: overrides
-
-
 #Google Analytics configuration 
 extra:
   analytics:
