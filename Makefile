@@ -41,3 +41,9 @@ env:								## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGE
 
 rotate-encryption: 							## Rotate encryption key
 	go run ./encryption-rotation/main.go
+
+doc-check-images:   ## Check if all images are used in documentation
+	@bash ./documentation/resources/bin/check-images.sh
+
+doc-remove-images:  ## Remove unused images from documentation
+	@bash ./documentation/resources/bin/check-images.sh -r

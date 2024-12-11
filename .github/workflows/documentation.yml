@@ -49,7 +49,10 @@ jobs:
           git config user.password "${ROBOT_TOKEN}"
           echo "GIT_USER=percona-platform-robot:${ROBOT_TOKEN}" >> $GITHUB_ENV
 
-      # Builds Material-themed static web site in 'publish' branch
+      - name: Check for unused images
+        run: make doc-check-images
+
+          # Builds Material-themed static web site in 'publish' branch
       - name: Build a themed site (3.x)
         working-directory: documentation
         run: |
