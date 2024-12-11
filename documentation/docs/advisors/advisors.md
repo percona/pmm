@@ -45,7 +45,7 @@ To change the frequency of an automatic check:
 
     !!! hint alert alert-success "Tip"
         If you need to share filtered Advisor results with your team members, send them the PMM URL. This saves your search criteria and results.
-4. Click the ![Edit](..//images/edit.png) **Interval** icon in the **Actions** column, next to the check you want to update.
+4. Click the ![Edit](../images/edit.png) **Interval** icon in the **Actions** column, next to the check you want to update.
 5. Chose an interval and click **Save**.
 
 ## Manual checks
