@@ -14,6 +14,7 @@ on:
       - "agent/**"
       - "api-tests/**"
       - "docs/**"
+      - "documentation/**"
       - "managed/**"
       - "qan-api2/**"
       - "update/**"
