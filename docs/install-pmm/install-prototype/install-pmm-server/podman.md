@@ -1,4 +1,4 @@
-# Install PMM Client from a Docker image
+# Install PMM Server - Podman
 
 Hi there 👋
 

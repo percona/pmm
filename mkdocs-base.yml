@@ -445,26 +445,26 @@ nav:
           - Bare Metal/Virtual:
               - Easy-install: install-pmm/install-prototype/install-pmm-server/docker-easy-install.md
               - Docker: install-pmm/install-prototype/install-pmm-server/docker.md
-              - Podman: install-pmm/install-prototype/dummy.md
-              - Virtual Appliance: install-pmm/install-prototype/virtual-appliance.md
-          - Kubernetes: install-pmm/install-prototype/kubernetes.md
-          - Amazon AWS: install-pmm/install-prototype/aws.md
-          - Azure: install-pmm/install-prototype/azure.md
-          - Google Cloud: install-pmm/install-prototype/google-cloud.md
+              - Podman: install-pmm/install-prototype/install-pmm-server/podman.md
+              - Virtual Appliance: install-pmm/install-prototype/install-pmm-server/virtual-appliance.md
+          - Kubernetes: install-pmm/install-prototype/install-pmm-server/kubernetes.md
+          - Amazon AWS: install-pmm/install-prototype/install-pmm-server/aws.md
+          - Azure: install-pmm/install-prototype/install-pmm-server/azure.md
+          - Google Cloud: install-pmm/install-prototype/install-pmm-server/google-cloud.md
       - Set up PMM Client:
           - Overview: install-pmm/install-prototype/install-pmm-client/index.md
           - Install PMM Client:
-              - Percona Repositories: install-pmm/install-prototype/install-pmm-client/repositories.md
-              - Docker image: install-pmm/install-prototype/pmm-client-docker.md
-              - Manual install: install-pmm/install-prototype/pmm-client-manual.md
+              - Percona repositories: install-pmm/install-prototype/install-pmm-client/repositories.md
+              - Docker image: install-pmm/install-prototype/install-pmm-client/pmm-client-docker.md
+              - Manual install: install-pmm/install-prototype/install-pmm-client/pmm-client-manual.md
           - Connect database:
               - MySQL:
                   - Self-hosted / AWS EC2: install-pmm/install-prototype/install-pmm-client/mysql/self-hosted.md
-                  - AWS RDS / AWS Aurora: install-pmm/install-prototype/connect-aws-aurora.md
-                  - Azure: install-pmm/install-prototype/connect-azure.md
-                  - Google Cloud: install-pmm/install-prototype/connect-google-cloud.md
-              - PostgreSQL: install-pmm/install-prototype/connect-postgre.md
-              - MongoDB: install-pmm/install-prototype/connect-mongo.md
-              - ProxySQL: install-pmm/install-prototype/connect-proxy.md
-              - HAproxy: install-pmm/install-prototype/connect-haproxy.md
-              - Remote monitoring: install-pmm/install-prototype/remote-monitoring.md
+                  - AWS RDS / AWS Aurora: install-pmm/install-prototype/install-pmm-client/mysql/aws-aurora.md
+                  - Azure: install-pmm/install-prototype/install-pmm-client/mysql/pmm-client-azure.md
+                  - Google Cloud: install-pmm/install-prototype/install-pmm-client/mysql/connect-google-cloud.md
+              - PostgreSQL: install-pmm/install-prototype/install-pmm-client/connect-postgre.md
+              - MongoDB: install-pmm/install-prototype/install-pmm-client/connect-mongo.md
+              - ProxySQL: install-pmm/install-prototype/install-pmm-client/connect-proxy.md
+              - HAproxy: install-pmm/install-prototype/install-pmm-client/connect-haproxy.md
+              - Remote monitoring: install-pmm/install-prototype/install-pmm-client/remote-monitoring.md
