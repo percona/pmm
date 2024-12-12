@@ -1,5 +1,6 @@
 *                                       @percona/pmm-review-be
 /docs/                                  @percona/pmm-docs
+/documentation/                         @percona/pmm-docs
 /ui/                                    @percona/pmm-review-fe
 /agent/agents/postgres/                 @JiriCtvrtka @percona/pmm-review-be
 /api/                                   @BupycHuk @percona/pmm-review-be
