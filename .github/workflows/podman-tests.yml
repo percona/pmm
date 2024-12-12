@@ -3,7 +3,7 @@ name: Test podman.md
 on:
   push:
     branches:
-      - main
+      - v3
   pull_request:
     paths:
       - 'documentation/docs/install-pmm/install-pmm-server/baremetal/podman.md'
