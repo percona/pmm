@@ -5,9 +5,9 @@ site_description: Documentation
 site_author: Percona LLC
 site_url: ""
 use_directory_urls: false
-repo_name: percona/pmm-doc
-repo_url: https://github.com/percona/pmm-doc
-edit_uri: edit/main/docs/
+repo_name: percona/pmm
+repo_url: https://github.com/percona/pmm
+edit_uri: edit/main/documentation/docs/
 
 theme:
   name: material
@@ -131,12 +131,14 @@ plugins:
   # https://pypi.org/project/mkdocs-htmlproofer-plugin/
   #    htmlproofer: {}
   mike:
-    version_selector: false
+    version_selector: true
     css_dir: css
     javascript_dir: js
     canonical_version: null
 
 extra:
+  version:
+    provider: mike  
   edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
   updated_text: '<i class="uil uil-refresh"></i> Page updated'
 
