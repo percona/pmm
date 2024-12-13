@@ -1,8 +1,8 @@
 # Percona Monitoring and Management (PMM) Documentation
-[![render](https://img.shields.io/badge/pmm--doc-render-Green)](https://pmm-doc.onrender.com/)
-[![Build](https://github.com/percona/pmm-doc/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/percona/pmm-doc/actions/workflows/build.yml)
-[![Helm](https://github.com/percona/pmm-doc/actions/workflows/helm-tests.yml/badge.svg?branch=main)](https://github.com/percona/pmm-doc/actions/workflows/helm-tests.yml)
-[![Podman](https://github.com/percona/pmm-doc/actions/workflows/podman-tests.yml/badge.svg?branch=main)](https://github.com/percona/pmm-doc/actions/workflows/podman-tests.yml)
+[![render](https://img.shields.io/badge/pmm-render-Green)](https://pmm-doc.onrender.com/)
+[![Build](https://github.com/percona/pmm/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/percona/pmm/actions/workflows/documentation.yml)
+[![Helm](https://github.com/percona/pmm/actions/workflows/helm-tests.yml/badge.svg?branch=main)](https://github.com/percona/pmm/actions/workflows/helm-tests.yml)
+[![Podman](https://github.com/percona/pmm/actions/workflows/podman-tests.yml/badge.svg?branch=main)](https://github.com/percona/pmm/actions/workflows/podman-tests.yml)
 
 [Percona Monitoring and Management] (PMM) is a database monitoring solution that is free and open-source.
 
