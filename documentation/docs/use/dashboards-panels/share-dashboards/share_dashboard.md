@@ -1,72 +1,65 @@
-# Share dashboards
+# Share dashboards and panels
 
-When you need to share a dashboard with your team members, you can either send them a direct link to the dashboard, or render and send the dashboard as a .PNG image.
+When you need to share a dashboard with your team members, you can either send them a direct link to the dashboard, or render and send each panel as a .PNG image.
 
-## Share as direct link
+## Share panel via direct link
 
-To share a dashboard with as a direct link:
-{.power-number}
+To share a panel via direct link:
+{ .power-number }
 
-1. Go to the dashboard that you want to share.
-2. Click at the top of the dashboard to display the panel menu.
-3. Click the **Share** button located in the top-right corner of the page and then choose one of the following options:
+1. Go to the dashboard with the panel that you want to share.
+2. Click at the top of the panel to display the panel menu: 
+   ![!image](../../../images/share_panel.png)
 
-   - copy and send the full URL for the dashboard, OR
-   - toggle the **Shorten URL** option to generate a simple link with a unique identifier.
+3. Select **Share** to reveal the **Share Panel** window and either:
+
+
+    - copy and send the full URL for the dashboard, OR
+    - toggle the **Shorten URL** option to generate a simple link with a unique identifier
 
 !!! hint alert alert-success "Tip"
-       If your current domain is different than the one specified in the Grafana .INI configuration file, PMM will ask you to correct this mismatch before you can generate a short URL:
-    
-    ![!image](../../../images/PMM_Common_Panel_Menu_Share.png)
-    
-    
-## Share as a PNG file
+       If your current domain is different than the one specified in the Grafana .INI configuration file, PMM will ask you to correct this mismatch before you can generate a short URL.
 
-Rendering images requires the Image Renderer plug-in. If your PMM Admin has not installed this for your PMM instance, you will see the following error message under **Share > Link**.
-    
-![!image](../../../images/No_Image_Render_Plugin.png)
+## Share a panel as a PNG file
 
-To install the dependencies:
-{.power-number}
+To enable image rendering:
+{ .power-number }
 
-1. Connect to your PMM Server Docker container.
-
+1. Deploy the Grafana Image Renderer container alongside PMM Server:
+   
     ```sh
-    docker exec -it pmm-server bash
+    docker run -d \
+    --name renderer \
+    -e IGNORE_HTTPS_ERRORS=true \
+    grafana/grafana-image-renderer:latest
     ```
 
-2. Install Grafana plug-ins.
+2. Stop your existing PMM Server container:
 
-    ```sh
-    grafana-cli plugins install grafana-image-renderer
+    ```sh 
+    docker stop pmm-server
+    docker rm pmm-server
     ```
 
-3. Restart Grafana.
+3. Start a new PMM Server container with the required environment variables:
 
     ```sh
-    supervisorctl restart grafana
+    docker run -d \
+    --name pmm-server \
+    --network=pmm-network \
+    -p 8443:443 \
+    -e GF_RENDERING_SERVER_URL=http://renderer:8081/render \
+    -e GF_RENDERING_CALLBACK_URL=https://pmm-server:8443/graph/ \
+    perconalab/pmm-server:3.0.0-beta
     ```
 
-4. Install libraries.
+### Render panel image
 
-    ```sh
-    yum install -y libXcomposite libXdamage libXtst cups libXScrnSaver pango \
-    atk adwaita-cursor-theme adwaita-icon-theme at at-spi2-atk at-spi2-core \
-    cairo-gobject colord-libs dconf desktop-file-utils ed emacs-filesystem \
-    gdk-pixbuf2 glib-networking gnutls gsettings-desktop-schemas \
-    gtk-update-icon-cache gtk3 hicolor-icon-theme jasper-libs json-glib \
-    libappindicator-gtk3 libdbusmenu libdbusmenu-gtk3 libepoxy \
-    liberation-fonts liberation-narrow-fonts liberation-sans-fonts \
-    liberation-serif-fonts libgusb libindicator-gtk3 libmodman libproxy \
-    libsoup libwayland-cursor libwayland-egl libxkbcommon m4 mailx nettle \
-    patch psmisc redhat-lsb-core redhat-lsb-submod-security rest spax time \
-    trousers xdg-utils xkeyboard-config alsa-lib
-    ```
+To Render a panel image:
+{ .power-number }
 
-To render the image:
-{.power-number}
-
-1. Go to the dashboard that you want to share.
-2. Click the **Share** button located in the top-right corner of the page and then choose one of the following options:
-3. Click **Direct link rendered image**. This opens a new browser tab.
-4. Wait for the image to be rendered, then use your browser's Image Save function to download the image.
+1. Go to the dashboard with the panel that you want to share.
+2. Click at the top of the panel to display the panel menu.
+3. Select **Share** to reveal the **Share Panel** window.
+4. In the **Link** tab, click **Direct link rendered image**. This opens a new browser tab.
+5. Wait for the image to be rendered, then use your browser's Image Save function to download the image.
