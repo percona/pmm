@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="When you need to share a dashboard with your team members, you can either send them a direct link to the dashboard, or render and send the dashboard as a .PNG image.">
+        <meta name="description" content="When you need to share a dashboard with your team members, you can either send them a direct link to the dashboard, or render and send each panel as a .PNG image.">
       
       
         <meta name="author" content="Percona LLC">
@@ -113,7 +113,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#share-dashboards" class="md-skip">
+        <a href="#share-dashboards-and-panels" class="md-skip">
           Skip to content
         </a>
       
@@ -3421,20 +3421,35 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#share-as-direct-link" class="md-nav__link">
+  <a href="#share-panel-via-direct-link" class="md-nav__link">
     <span class="md-ellipsis">
-      Share as direct link
+      Share panel via direct link
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#share-as-a-png-file" class="md-nav__link">
+  <a href="#share-a-panel-as-a-png-file" class="md-nav__link">
     <span class="md-ellipsis">
-      Share as a PNG file
+      Share a panel as a PNG file
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Share a panel as a PNG file">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#render-panel-image" class="md-nav__link">
+    <span class="md-ellipsis">
+      Render panel image
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -7739,20 +7754,35 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#share-as-direct-link" class="md-nav__link">
+  <a href="#share-panel-via-direct-link" class="md-nav__link">
     <span class="md-ellipsis">
-      Share as direct link
+      Share panel via direct link
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#share-as-a-png-file" class="md-nav__link">
+  <a href="#share-a-panel-as-a-png-file" class="md-nav__link">
     <span class="md-ellipsis">
-      Share as a PNG file
+      Share a panel as a PNG file
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Share a panel as a PNG file">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#render-panel-image" class="md-nav__link">
+    <span class="md-ellipsis">
+      Render panel image
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -7800,67 +7830,64 @@
   
 
 
-<h1 id="share-dashboards">Share dashboards<a class="headerlink" href="#share-dashboards" title="Permanent link">&para;</a></h1>
-<p>When you need to share a dashboard with your team members, you can either send them a direct link to the dashboard, or render and send the dashboard as a .PNG image.</p>
-<h2 id="share-as-direct-link">Share as direct link<a class="headerlink" href="#share-as-direct-link" title="Permanent link">&para;</a></h2>
-<p class="power-number">To share a dashboard with as a direct link:</p>
+<h1 id="share-dashboards-and-panels">Share dashboards and panels<a class="headerlink" href="#share-dashboards-and-panels" title="Permanent link">&para;</a></h1>
+<p>When you need to share a dashboard with your team members, you can either send them a direct link to the dashboard, or render and send each panel as a .PNG image.</p>
+<h2 id="share-panel-via-direct-link">Share panel via direct link<a class="headerlink" href="#share-panel-via-direct-link" title="Permanent link">&para;</a></h2>
+<p class="power-number">To share a panel via direct link:</p>
 <ol>
-<li>Go to the dashboard that you want to share.</li>
-<li>Click at the top of the dashboard to display the panel menu.</li>
+<li>Go to the dashboard with the panel that you want to share.</li>
 <li>
-<p>Click the <strong>Share</strong> button located in the top-right corner of the page and then choose one of the following options:</p>
+<p>Click at the top of the panel to display the panel menu: 
+   <img alt="!image" src="../../../images/share_panel.png" /></p>
 </li>
 <li>
-<p>copy and send the full URL for the dashboard, OR</p>
+<p>Select <strong>Share</strong> to reveal the <strong>Share Panel</strong> window and either:</p>
+<ul>
+<li>copy and send the full URL for the dashboard, OR</li>
+<li>toggle the <strong>Shorten URL</strong> option to generate a simple link with a unique identifier</li>
+</ul>
 </li>
-<li>toggle the <strong>Shorten URL</strong> option to generate a simple link with a unique identifier.</li>
 </ol>
 <div class="admonition hint alert alert-success">
 <p class="admonition-title">Tip</p>
-<p>If your current domain is different than the one specified in the Grafana .INI configuration file, PMM will ask you to correct this mismatch before you can generate a short URL:</p>
-<p><img alt="!image" src="../../../images/PMM_Common_Panel_Menu_Share.png" /></p>
+<p>If your current domain is different than the one specified in the Grafana .INI configuration file, PMM will ask you to correct this mismatch before you can generate a short URL.</p>
 </div>
-<h2 id="share-as-a-png-file">Share as a PNG file<a class="headerlink" href="#share-as-a-png-file" title="Permanent link">&para;</a></h2>
-<p>Rendering images requires the Image Renderer plug-in. If your PMM Admin has not installed this for your PMM instance, you will see the following error message under <strong>Share &gt; Link</strong>.</p>
-<p><img alt="!image" src="../../../images/No_Image_Render_Plugin.png" /></p>
-<p class="power-number">To install the dependencies:</p>
+<h2 id="share-a-panel-as-a-png-file">Share a panel as a PNG file<a class="headerlink" href="#share-a-panel-as-a-png-file" title="Permanent link">&para;</a></h2>
+<p class="power-number">To enable image rendering:</p>
 <ol>
 <li>
-<p>Connect to your PMM Server Docker container.</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>pmm-server<span class="w"> </span>bash
+<p>Deploy the Grafana Image Renderer container alongside PMM Server:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
+--name<span class="w"> </span>renderer<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">IGNORE_HTTPS_ERRORS</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+grafana/grafana-image-renderer:latest
 </code></pre></div>
 </li>
 <li>
-<p>Install Grafana plug-ins.</p>
-<div class="highlight"><pre><span></span><code>grafana-cli<span class="w"> </span>plugins<span class="w"> </span>install<span class="w"> </span>grafana-image-renderer
+<p>Stop your existing PMM Server container:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>stop<span class="w"> </span>pmm-server
+docker<span class="w"> </span>rm<span class="w"> </span>pmm-server
 </code></pre></div>
 </li>
 <li>
-<p>Restart Grafana.</p>
-<div class="highlight"><pre><span></span><code>supervisorctl<span class="w"> </span>restart<span class="w"> </span>grafana
-</code></pre></div>
-</li>
-<li>
-<p>Install libraries.</p>
-<div class="highlight"><pre><span></span><code>yum<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>libXcomposite<span class="w"> </span>libXdamage<span class="w"> </span>libXtst<span class="w"> </span>cups<span class="w"> </span>libXScrnSaver<span class="w"> </span>pango<span class="w"> </span><span class="se">\</span>
-atk<span class="w"> </span>adwaita-cursor-theme<span class="w"> </span>adwaita-icon-theme<span class="w"> </span>at<span class="w"> </span>at-spi2-atk<span class="w"> </span>at-spi2-core<span class="w"> </span><span class="se">\</span>
-cairo-gobject<span class="w"> </span>colord-libs<span class="w"> </span>dconf<span class="w"> </span>desktop-file-utils<span class="w"> </span>ed<span class="w"> </span>emacs-filesystem<span class="w"> </span><span class="se">\</span>
-gdk-pixbuf2<span class="w"> </span>glib-networking<span class="w"> </span>gnutls<span class="w"> </span>gsettings-desktop-schemas<span class="w"> </span><span class="se">\</span>
-gtk-update-icon-cache<span class="w"> </span>gtk3<span class="w"> </span>hicolor-icon-theme<span class="w"> </span>jasper-libs<span class="w"> </span>json-glib<span class="w"> </span><span class="se">\</span>
-libappindicator-gtk3<span class="w"> </span>libdbusmenu<span class="w"> </span>libdbusmenu-gtk3<span class="w"> </span>libepoxy<span class="w"> </span><span class="se">\</span>
-liberation-fonts<span class="w"> </span>liberation-narrow-fonts<span class="w"> </span>liberation-sans-fonts<span class="w"> </span><span class="se">\</span>
-liberation-serif-fonts<span class="w"> </span>libgusb<span class="w"> </span>libindicator-gtk3<span class="w"> </span>libmodman<span class="w"> </span>libproxy<span class="w"> </span><span class="se">\</span>
-libsoup<span class="w"> </span>libwayland-cursor<span class="w"> </span>libwayland-egl<span class="w"> </span>libxkbcommon<span class="w"> </span>m4<span class="w"> </span>mailx<span class="w"> </span>nettle<span class="w"> </span><span class="se">\</span>
-patch<span class="w"> </span>psmisc<span class="w"> </span>redhat-lsb-core<span class="w"> </span>redhat-lsb-submod-security<span class="w"> </span>rest<span class="w"> </span>spax<span class="w"> </span><span class="nb">time</span><span class="w"> </span><span class="se">\</span>
-trousers<span class="w"> </span>xdg-utils<span class="w"> </span>xkeyboard-config<span class="w"> </span>alsa-lib
+<p>Start a new PMM Server container with the required environment variables:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
+--name<span class="w"> </span>pmm-server<span class="w"> </span><span class="se">\</span>
+--network<span class="o">=</span>pmm-network<span class="w"> </span><span class="se">\</span>
+-p<span class="w"> </span><span class="m">8443</span>:443<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">GF_RENDERING_SERVER_URL</span><span class="o">=</span>http://renderer:8081/render<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">GF_RENDERING_CALLBACK_URL</span><span class="o">=</span>https://pmm-server:8443/graph/<span class="w"> </span><span class="se">\</span>
+perconalab/pmm-server:3.0.0-beta
 </code></pre></div>
 </li>
 </ol>
-<p class="power-number">To render the image:</p>
+<h3 id="render-panel-image">Render panel image<a class="headerlink" href="#render-panel-image" title="Permanent link">&para;</a></h3>
+<p class="power-number">To Render a panel image:</p>
 <ol>
-<li>Go to the dashboard that you want to share.</li>
-<li>Click the <strong>Share</strong> button located in the top-right corner of the page and then choose one of the following options:</li>
-<li>Click <strong>Direct link rendered image</strong>. This opens a new browser tab.</li>
+<li>Go to the dashboard with the panel that you want to share.</li>
+<li>Click at the top of the panel to display the panel menu.</li>
+<li>Select <strong>Share</strong> to reveal the <strong>Share Panel</strong> window.</li>
+<li>In the <strong>Link</strong> tab, click <strong>Direct link rendered image</strong>. This opens a new browser tab.</li>
 <li>Wait for the image to be rendered, then use your browser&rsquo;s Image Save function to download the image.</li>
 </ol>
 <div data-banner="data-banner">
@@ -7893,7 +7920,7 @@ trousers<span class="w"> </span>xdg-utils<span class="w"> </span>xkeyboard-confi
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-09
+    2024-12-13
   </span>
 
     
