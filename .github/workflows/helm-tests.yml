@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'documentation/docs/install-pmm/install-pmm-server/baremetal/helm.md'
   pull_request:
     paths:
-      - 'documentation/docs/install-pmm/install-pmm-server/baremetal/helm.md'
+      - 'documentation/docs/setting-up/server/helm.md'
 
   workflow_dispatch:
 
@@ -18,7 +16,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
@@ -26,18 +24,22 @@ jobs:
         run: |
           wget https://github.com/jgm/pandoc/releases/download/2.18/pandoc-2.18-1-amd64.deb
           sudo apt-get install -y ./pandoc-2.18-1-amd64.deb
+          rm ./pandoc-2.18-1-amd64.deb
 
       - name: Copy test template
-        run: cp documentation/resources/bin/doc_test_template.sh documentation/docs_test_helm.sh
+        working-directory: ${{ github.workspace }}/documentation
+        run: cp resources/bin/doc_test_template.sh ./docs_test_helm.sh
 
       - name: Get CodeBlocks and push them to test template
-        run: |
-          pandoc -i documentation/docs/install-pmm/install-pmm-server/baremetal/helm.md --lua-filter documentation/resources/bin/CodeBlock.lua -t html -o /dev/null >> documentation/docs_test_helm.sh
+        working-directory: ${{ github.workspace }}/documentation
+        run: pandoc -i docs/setting-up/server/helm.md --lua-filter resources/bin/CodeBlock.lua -t html -o /dev/null >> docs_test_helm.sh
 
       - name: Start k8s cluster
+        working-directory: ${{ github.workspace }}/documentation
         run: minikube start
 
       - name: Setup storage driver for snapshots
+        working-directory: ${{ github.workspace }}/documentation
         run: |
           minikube addons disable storage-provisioner
           kubectl delete storageclass standard
@@ -46,12 +48,14 @@ jobs:
           kubectl patch storageclass csi-hostpath-sc -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 
       - name: Run helm tests
-        run: ./documentation/docs_test_helm.sh
+        working-directory: ${{ github.workspace }}/documentation
+        run: ./docs_test_helm.sh
 
       - name: Get debug
         if: ${{ failure() }}
+        working-directory: ${{ github.workspace }}/documentation
         run: |
-          cat ./documentation/docs_test_helm.sh
+          cat ./docs_test_helm.sh
           pandoc --version
           helm version
           kubectl get pods
