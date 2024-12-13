@@ -8,10 +8,20 @@ RUN apt-get install -y git wget unzip python3 python3-pip python3-dev fontconfig
 COPY requirements.txt ./requirements.txt
 RUN pip3 install -r requirements.txt
 
-RUN mkdir -p /usr/share/fonts/chivo && cd /usr/share/fonts/chivo && wget -O Chivo.zip https://fonts.google.com/download?family=Chivo && unzip Chivo.zip
-RUN rm /usr/share/fonts/chivo/Chivo.zip && fc-cache -f && apt-get clean
+ADD Chivo.zip /docs/
+RUN unzip /docs/Chivo.zip -d /usr/share/fonts/chivo/ && \
+    ls -la /usr/share/fonts/chivo/ && \
+    rm -rf /usr/share/fonts/chivo/{*.txt,*.ttf} && \
+    mv -f /usr/share/fonts/chivo/static/* /usr/share/fonts/chivo/ && \
+    rm -rf /usr/share/fonts/chivo/static /docs/Chivo.zip && \
+    fc-cache -f -v && apt-get clean
 
 WORKDIR /docs
 
 EXPOSE 8000
 CMD ["mkdocs","build"]
+
+# To build the image: 
+# - download the Chivo font: https://fonts.google.com/download?family=Chivo
+# - put the Chivo.zip file in the project root folder
+# - build: docker buildx build --platform=linux/arm64 --progress=plain -t perconalab/pmm-doc-md:latest -f documentation/resources/Dockerfile.build .

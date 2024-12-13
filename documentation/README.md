@@ -1,8 +1,8 @@
 # Percona Monitoring and Management (PMM) Documentation
 [![render](https://img.shields.io/badge/pmm--doc-render-Green)](https://pmm-doc.onrender.com/)
-[![Build](https://github.com/percona/pmm-doc/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/percona/pmm-doc/actions/workflows/build.yml)
-[![Helm](https://github.com/percona/pmm-doc/actions/workflows/helm-tests.yml/badge.svg?branch=main)](https://github.com/percona/pmm-doc/actions/workflows/helm-tests.yml)
-[![Podman](https://github.com/percona/pmm-doc/actions/workflows/podman-tests.yml/badge.svg?branch=main)](https://github.com/percona/pmm-doc/actions/workflows/podman-tests.yml)
+[![Build](https://github.com/percona/pmm/actions/workflows/documentation.yml/badge.svg?branch=v3)](https://github.com/percona/pmm/actions/workflows/documentation.yml)
+[![Helm](https://github.com/percona/pmm/actions/workflows/helm-tests.yml/badge.svg?branch=v3)](https://github.com/percona/pmm/actions/workflows/helm-tests.yml)
+[![Podman](https://github.com/percona/pmm/actions/workflows/podman-tests.yml/badge.svg?branch=v3)](https://github.com/percona/pmm/actions/workflows/podman-tests.yml)
 
 [Percona Monitoring and Management] (PMM) is a database monitoring solution that is free and open-source.
 
@@ -22,7 +22,7 @@ The documentation source files are in the `docs` directory. (Other files in this
 
 The three major PMM versions are kept in separate branches:
 
-- `PMM3-branch` is for PMM 3.x (latest)
+- `v3` is for PMM 3.x (latest)
 
 - `main` is for PMM 2.x 
 
@@ -40,7 +40,7 @@ If you'd like to have a local copy of PMM documentation, or are thinking about c
 
 2. Clone this repository.
 
-3. Change directory to `pmm-doc`.
+3. Change directory to `pmm`.
 
 4. Use our [PMM documentation Docker image] to *build the documentation*:
 
@@ -113,9 +113,9 @@ View the site at <http://0.0.0.0:8000>
 
 ## Directories and files
 
-- `mkdocs-percona.yml`: MkDocs configuration file. Creates unthemed HTML for hosting on percona.com.
+- `mkdocs-base.yml`: Default MkDocs configuration file. Creates (Material) themed HTML for hosting anywhere.
 
-- `mkdocs.yml`: Default MkDocs configuration file. Creates (Material) themed HTML for hosting anywhere.
+- `mkdocs.yml`: MkDocs configuration file. Adds a google tag for hosting on render.com.
 
 - `mkdocs-pdf.yml`: MkDocs configuration file. Creates themed [PDF](#pdf).
 
@@ -141,21 +141,15 @@ View the site at <http://0.0.0.0:8000>
 
     - `templates`: Stylesheet for PDF output (used by [mkdocs-with-pdf](https://github.com/orzih/mkdocs-with-pdf) extension).
 
-    - `theme`:
-
-        - `main.html`: MkDocs template for HTML published on percona.com.
-
 - `requirements.txt`: Python package dependencies.
 
 - `variables.yml`: Values used throughout the Markdown, including the current PMM version/release number.
 
-- `.spelling`: Words regarded as correct by `mdspell` (See [Spelling and grammar](#spelling-and-grammar).)
-
-- `.github`:
+- `../.github`:
 
     - `workflows`:
 
-        - `build.yml`: Workflow specification for building the documentation via a GitHub action. (Uses `mike` which puts HTML in `publish` branch.)
+        - `documentation.yml`: Workflow specification for building the documentation via a GitHub action. (Uses `mike` which puts HTML in `publish` branch.)
 
 - `site`: When building locally, directory where HTML is put.
 
@@ -173,7 +167,7 @@ Here's how it's done.
 
 - `PMM_Home_Dashboard.jpg` is created by [pmm-screenshots-pw](https://github.com/PaulJacobs-percona/pmm-screenshots-pw). If snapped by hand, it should be 1280x1280 pixels, to match the overlay image.
 
-- `PMM_Home_Dashboard_Overlay.png` is exported from `docs/images/PMM_Home_Dashboard_Overlay.drawio` using <https://app.diagrams.net/>.
+- `PMM_Home_Dashboard_Overlay.png` is exported from `documentation/docs/images/PMM_Home_Dashboard_Overlay.drawio` using <https://app.diagrams.net/>.
 
     1. Go to <https://app.diagrams.net/>
 
@@ -181,7 +175,7 @@ Here's how it's done.
 
     3. Click *Open existing diagram*
 
-    4. Navigate to `pmm-doc/docs/images` and select `PMM_Home_Dashboard_Overlay.drawio`
+    4. Navigate to `documentation/docs/images` and select `PMM_Home_Dashboard_Overlay.drawio`
 
     5. If the dashboard layout has changed, replace the *Guide* Layer with a new screenshot and adjust the elements on the *Overlay* layer as needed (To show layers, click View --> Layers). Untick the *Guide* Layer so it is not exported.
 
@@ -205,14 +199,14 @@ Here's how it's done.
 
     9. Click *Device*
 
-    10. Navigate to `pmm-doc/docs/images` and click `PMM_Home_Dashboard_Overlay.png`
+    10. Navigate to `documentation/docs/images` and click `PMM_Home_Dashboard_Overlay.png`
 
     11. Click *Save* and overwrite the current file
 
 The overlay image is merged with a copy of the latest home dashboard using [composite], one of the [ImageMagick] tools.
 
 ```sh
-composite docs/images/PMM_Home_Dashboard_Overlay.png docs/images/PMM_Home_Dashboard.jpg docs/images/PMM_Home_Dashboard_Numbered.png
+composite documentation/docs/images/PMM_Home_Dashboard_Overlay.png documentation/docs/images/PMM_Home_Dashboard.jpg documentation/docs/images/PMM_Home_Dashboard_Numbered.png
 ```
 
 ## Spelling and grammar
@@ -254,8 +248,8 @@ The plugin is installed in our [PMM documentation Docker image] and by the GitHu
 To enable it for local builds, uncomment the line with `htmlproofer` in the `plugins` section of `mkdocs.yml` and parse the build output for warnings.
 
 [Percona Monitoring and Management]: https://www.percona.com/software/database-tools/percona-monitoring-and-management
-[PMM technical documentation]: https://www.percona.com/doc/percona-monitoring-and-management/
-[Jira]: https://jira.percona.com/browse/PMM
+[PMM technical documentation]: https://docs.percona.com/percona-monitoring-and-management/
+[Jira]: https://perconadev.atlassian.net/browse/PMM
 [MkDocs]: https://www.mkdocs.org/
 [Markdown]: https://daringfireball.net/projects/markdown/
 [Git]: https://git-scm.com
@@ -263,7 +257,7 @@ To enable it for local builds, uncomment the line with `htmlproofer` in the `plu
 [Docker]: https://docs.docker.com/get-docker/
 [PMM documentation Docker image]: https://hub.docker.com/repository/docker/perconalab/pmm-doc-md
 [mike]: https://github.com/jimporter/mike
-[GitHub actions]: https://github.com/percona/pmm-doc/actions
+[GitHub actions]: https://github.com/percona/pmm/actions
 [ImageMagick]: https://imagemagick.org/script/download.php
 [composite]: https://imagemagick.org/script/composite.php
 [Node.js]: https://nodejs.org/en/download/
