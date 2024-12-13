@@ -54,7 +54,7 @@ jobs:
       - name: Check for unused images
         run: make doc-check-images
 
-          # Builds Material-themed static web site in 'publish' branch
+      # Builds Material-themed static web site in 'publish' branch
       - name: Build a themed site (3.x)
         working-directory: documentation
         run: |
