@@ -1,6 +1,4 @@
-#!/bin/bash -e
-set -o errexit
-set -o nounset
+#!/bin/bash -eu
 
 usage() {
   cat <<-EOF
@@ -15,7 +13,7 @@ Options:
       --no-client-docker      Do not build PMM Client docker image
       --log-file <path>       Save build logs to a file located at <path> (defaults to $PWD/build.log)
                               Note: the log file will get reset on every subsequent run
-      --release-build         Make it a release, or release candidate build (otherwise it's a feature build)
+      --release-build         Mark it as release, or release candidate build (otherwise it's a feature build)
   -d  --debug                 Turn on a more verbose output mode, useful for troubleshooting
   -h  --help                  Display help
 
@@ -248,38 +246,17 @@ update() {
     --entrypoint=/entrypoint.sh \
     "$RPMBUILD_DOCKER_IMAGE"
 
-  if [ ! -s "$SUBMODULES/build/deps.txt" ]; then
-    echo "Error: could not find a properly constructed '$SUBMODULES/build/deps.txt' file, exiting..."
+  if [ ! -s "$SUBMODULES/build/build.json" ]; then
+    echo "Error: could not find '$SUBMODULES/build/build.json' file, which means the build failed, exiting..."
     exit 1
   fi
 
   echo
-  echo "This script rewinds submodule branches as per the joint config of '.gitmodules' and user-supplied 'ci.yml'"
+  echo "This script rewinds submodule branches as per the joint config of '.gitmodules' and the user-supplied 'ci.yml'."
   echo
 
   cd "$SUBMODULES"
 
-  # Loop through submodules and rewind them one-by-one
-  while IFS= read -r line; do
-    local key="" val="" pair="" name="" path="" branch="" url="" pairs=()
-
-    # Parse the colon-separated subkeys and subvalues
-    IFS='|' read -r -a pairs <<< "$line"
-    for pair in "${pairs[@]}"; do
-      key="${pair%%=*}"
-      val="${pair#*=}"
-      if [[ "$key" =~ name|path|branch|url ]]; then
-        eval "$key=$val"
-      fi
-    done
-
-    rewind "$path" "$branch" "$name"
-
-    commit=$(git -C "$path" rev-parse HEAD)
-    echo "name=${name}|path=${path}|url=${url}|branch=${branch}|commit=${commit}" >> "build/deps2.txt"
-  done < "build/deps.txt"
-
-  mv -f "build/deps2.txt" "build/deps.txt"
   echo
   echo "Printing git status..."
   git status --short
@@ -454,7 +431,7 @@ check_if_installed() {
 }
 
 check_preprequisites() {
-  local commands=("docker" "make" "bash" "tar" "git" "curl")
+  local commands=("docker" "make" "bash" "tar" "git" "curl" "find" "shasum")
   echo "Checking pre-requisites..."
   for cmd in "${commands[@]}"; do
     check_if_installed "$cmd"
@@ -465,6 +442,9 @@ check_preprequisites() {
     echo
     exit 1
   fi
+
+  echo "Pre-requisites check passed."
+  echo
 }
 
 cleanup() {

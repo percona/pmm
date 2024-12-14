@@ -115,7 +115,8 @@ Currently, Local Builds target the following platforms and distributions:
 * use the `--debug` parameter to control the verbosity of the logs (1/2 ✅)
 * remove `jq` from prerequisites ✅
 * do not require `ci.yml` to be present, generate it based on the current branch name of this (percona/pmm) repository ✅
-* output the build summary at the end of the build
-* implement the `--release` parameter
+* output the build summary at the build completion
+* implement the `--release-build` parameter ✅
 * implement the `--clean` parameter
 * move the builds and the cache from the host to the container, fully isolating the build process
+* cache the `nomad` client component to speed up the builds
