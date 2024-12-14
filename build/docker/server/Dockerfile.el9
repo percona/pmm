@@ -22,7 +22,8 @@ RUN microdnf -y install epel-release && \
 COPY entrypoint.sh /opt/entrypoint.sh
 COPY ansible /opt/ansible
 COPY RPMS /tmp/RPMS
-COPY gitCommit /tmp/gitCommit
+COPY gitCommit /tmp/
+COPY build.json /tmp/
 
 # Use COPY as we want to unarchive it with ansible
 COPY pmm-client.tar.gz /tmp/

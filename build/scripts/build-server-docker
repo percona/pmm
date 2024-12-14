@@ -12,6 +12,11 @@ main() {
   cp -r "${pmm_build_dir}/ansible" "${docker_root}/ansible"
   cp "${pmm_build_dir}/docker/server/"* "${docker_root}"
   cp ${build_dir}/tarball/pmm-client-*.tar.gz "${docker_root}/pmm-client.tar.gz"
+  if [ -s "${root_dir}/build/build.json" ]; then
+    cp "${root_dir}/build/build.json" "${docker_root}/build.json"
+  else
+    echo -n "{}" > "${docker_root}/build.json"
+  fi
 
   if [ -n "$CI" ]; then
     git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
