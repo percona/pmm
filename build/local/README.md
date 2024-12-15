@@ -73,6 +73,9 @@ Sometimes, the changes you make affect only PMM Client. Other times, they affect
 
 It's important to note, however, that once all changes are made and tested, you most probably want to re-build both PMM Client and Server to test them together.
 
+## Troubleshooting
+
+It's possible that the build will fail due to various reasons. The most common reason is that the local state of the project may sometimes get inconsistent. In such cases, you may want to clean the local state and start over. The `build.sh` script offers a `--clean` parameter, which will remove all the directories created by the script, and will reset the state of the project to the initial state.
 
 ## Target environments
 
@@ -112,6 +115,6 @@ Currently, Local Builds target the following platforms and distributions:
 * do not require `ci.yml` to be present, generate it based on the current branch name of this (percona/pmm) repository ✅
 * output the build summary at the build completion
 * implement the `--release-build` parameter ✅
-* implement the `--clean` parameter
+* implement the `--clean` parameter ✅
 * move the builds and the cache from the host to the container, fully isolating the build process
 * cache the `nomad` client component to speed up the builds

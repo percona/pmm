@@ -112,53 +112,6 @@ parse_params() {
   done
 }
 
-needs_to_pull() {
-  local UPSTREAM=${1:-'@{u}'}
-  local LOCAL=$(git rev-parse @)
-  local BASE=$(git merge-base @ "$UPSTREAM")
-  local REMOTE=$(git rev-parse "$UPSTREAM")
-
-  if [ "$LOCAL" = "$REMOTE" ]; then
-    return 1 # false, we are up-to-date
-  fi
-
-  if [ "$LOCAL" = "$BASE" ]; then
-    return 0 # true, we are behind upstream
-  fi
-}
-
-rewind() {
-  local DIR="$1"
-  local BRANCH="$2"
-  local NAME="$3"
-
-  cd "$DIR" > /dev/null
-  local CURRENT=$(git rev-parse --abbrev-ref HEAD)
-  echo "Rewinding submodule ${NAME}..."
-  git fetch
-
-  if [ "$CURRENT" != "$BRANCH" ]; then
-    echo "Currently on $CURRENT, checking out $BRANCH"
-    git checkout "$BRANCH"
-  fi
-
-  if needs_to_pull; then
-    if ! git pull origin; then
-      git reset --hard HEAD~30
-      git pull origin > /dev/null
-    fi
-    echo "Submodule ${NAME} has pulled from upstream"
-    git log --oneline -n 2
-    cd - > /dev/null
-    git add "$DIR"
-    echo
-  else
-    cd - > /dev/null
-    echo "Submodule ${NAME} is up-to-date with upstream"
-    echo
-  fi
-}
-
 check_files() {
   local DIR="$1"
 
@@ -193,8 +146,8 @@ check_files() {
 
   if [ ! -s "ci.yml" ]; then
     echo
-    echo "Warning: the current directory '$PWD' does not contain a non-empty ci.yml file, so we will"
-    echo "create a default configuration by searching for the current branch name in all repositories."
+    echo "Info: since the current directory '$PWD' does not contain a 'ci.yml' file with project dependencies,"
+    echo "we will create a default configuration by searching for the current branch name in all repositories."
     echo
     if [ -z "${CI:-}" ]; then
       echo "Pausing for 10 seconds to allow you to cancel the operation in case you want to create the file manually..."
@@ -232,9 +185,13 @@ update() {
   local commit=""
 
   if [ "$NO_UPDATE" -eq 1 ]; then
+    echo
     echo "Info: skip refreshing the source code from upstream repositories..."
     return
   fi
+
+  echo
+  echo "This script rewinds submodule branches as per the joint config of '.gitmodules' and the user-supplied 'ci.yml'."
 
   docker run --rm --platform="$PLATFORM" \
     -v $ROOT_DIR:/app \
@@ -247,13 +204,10 @@ update() {
     "$RPMBUILD_DOCKER_IMAGE"
 
   if [ ! -s "$SUBMODULES/build/build.json" ]; then
-    echo "Error: could not find '$SUBMODULES/build/build.json' file, which means the build failed, exiting..."
+    echo
+    echo "Error: could not find '$SUBMODULES/build/build.json' file, which means that the build failed, exiting..."
     exit 1
   fi
-
-  echo
-  echo "This script rewinds submodule branches as per the joint config of '.gitmodules' and the user-supplied 'ci.yml'."
-  echo
 
   cd "$SUBMODULES"
 

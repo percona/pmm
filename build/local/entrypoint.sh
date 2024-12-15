@@ -34,11 +34,12 @@ rewind() {
 
   cd "$DIR" > /dev/null
   local CURRENT=$(git rev-parse --abbrev-ref HEAD)
+  echo
   echo "Rewinding submodule ${NAME}..."
   git fetch
 
   if [ "$CURRENT" != "$BRANCH" ]; then
-    echo "Currently on $CURRENT, checking out $BRANCH"
+    echo "Currently on $CURRENT, checking out $BRANCH..."
     git checkout "$BRANCH"
   fi
 
@@ -47,15 +48,13 @@ rewind() {
       git reset --hard HEAD~30
       git pull origin > /dev/null
     fi
-    echo "Submodule ${NAME} has pulled from upstream"
+    echo "Submodule ${NAME} has pulled from upstream."
     git log --oneline -n 2
     cd - > /dev/null
     git add "$DIR"
-    echo
   else
     cd - > /dev/null
-    echo "Submodule ${NAME} is up-to-date with upstream"
-    echo
+    echo "Submodule ${NAME} is up-to-date with upstream."
   fi
 }
 
@@ -85,7 +84,7 @@ while read -r item; do
     commit=$(git ls-remote --heads "$url" "$BRANCH_NAME" | cut -f1)
     if [ -n "$commit" ]; then
       echo
-      echo "Info: branch '$BRANCH_NAME' found in '$name' submodule, will use it instead of the default '$branch' branch"
+      echo "Info: branch '$BRANCH_NAME' found in '$name' submodule, will use it instead of the default '$branch' branch."
       branch="$BRANCH_NAME"
       discovered_branches+=( "$name|$branch|$path|$url" )
     fi
