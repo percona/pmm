@@ -95,11 +95,10 @@ Currently, Local Builds target the following platforms and distributions:
 | darwin/arm64     |      -       |
 
 
-
 ## TODO
 
 * download the sources to a local directory `.modules` w/o using pmm-submodules ✅
-* have a `sbom.json` file containing the bill of all repositories, such as grafana, exporters, etc. containing the following attributes:
+* have a `build.json` file containing the bill of all repositories, such as grafana, exporters, etc. containing the following attributes: ✅
   * component name
   * the repository URL
   * the branch used for the build
@@ -107,10 +106,6 @@ Currently, Local Builds target the following platforms and distributions:
   * the commit hash
 * provide better caching for components, which reside in one monorepo, by calculating a sha256sum on their directories:
   - pmm-ui ✅
-  - pmm-qan
-  - pmm-agent
-  - pmm-admin
-  - pmm-managed
   - pmm-vmproxy
 * use the `--debug` parameter to control the verbosity of the logs (1/2 ✅)
 * remove `jq` from prerequisites ✅
