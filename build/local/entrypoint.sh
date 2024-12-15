@@ -67,6 +67,7 @@ if ! python ci.py --convert; then
 fi
 
 declare deps=$(yq -o=json '.' gitmodules.yml | jq -r '[.deps[] | {name: .name, branch: .branch, path: .path, url: .url}]')
+declare ci_branch
 declare -a discovered_branches
 declare discovered_file="/tmp/ci.yml"
 declare updated_deps="[]"
@@ -87,6 +88,11 @@ while read -r item; do
       echo "Info: branch '$BRANCH_NAME' found in '$name' submodule, will use it instead of the default '$branch' branch"
       branch="$BRANCH_NAME"
       discovered_branches+=( "$name|$branch|$path|$url" )
+    fi
+  elif [ -s "ci.yml" ];
+    ci_branch=$(yq -o=json '.' ci.yml | jq -r --arg name "$name" '.deps[] | select(.name == $name) | .branch')
+    if [ -n "$ci_branch" ]; then
+      branch="$ci_branch"
     fi
   fi
 
