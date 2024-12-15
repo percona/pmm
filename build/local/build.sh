@@ -14,6 +14,7 @@ Options:
       --log-file <path>       Save build logs to a file located at <path> (defaults to $PWD/build.log)
                               Note: the log file will get reset on every subsequent run
       --release-build         Mark it as release, or release candidate build (otherwise it's a feature build)
+      --clean                 Remove the build state and all related files, except 'ci.yml'
   -d  --debug                 Turn on a more verbose output mode, useful for troubleshooting
   -h  --help                  Display help
 
@@ -29,6 +30,7 @@ parse_params() {
   NO_CLIENT=0
   NO_CLIENT_DOCKER=0
   NO_SERVER=0
+  CLEAN=0
   START_TIME=$(date +%s)
   LOG_FILE="$(dirname $0)/build.log"
   BASE_NAME=$(basename $0)
@@ -96,6 +98,9 @@ parse_params() {
         ;;
       --debug | -d)
         DEBUG_MODE=1
+        ;;
+      --clean)
+        CLEAN=1
         ;;
       --help | -h)
         usage
@@ -414,6 +419,12 @@ main() {
   # All global variables are declared in `parse_params` for this script,
   # and in `scripts/vars` for the other build scripts.
   parse_params "$@"
+
+  if [ "$CLEAN" -eq 1 ]; then
+    echo "Cleaning up the build state..."
+    rm -rf "$SUBMODULES/build" build.log
+    exit 0
+  fi
 
   # Capture the build logs in the log file
   exec > >(tee "$LOG_FILE") 2>&1
