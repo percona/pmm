@@ -15,7 +15,7 @@ main() {
   if [ -s "${root_dir}/build/build.json" ]; then
     cp "${root_dir}/build/build.json" "${docker_root}/build.json"
   else
-    echo -n "{}" > "${docker_root}/build.json"
+    echo "{}" > "${docker_root}/build.json"
   fi
 
   if [ -n "$CI" ]; then

@@ -68,7 +68,7 @@ fi
 
 declare deps=$(yq -o=json '.' gitmodules.yml | jq -r '[.deps[] | {name: .name, branch: .branch, path: .path, url: .url}]')
 declare ci_branch
-declare -a discovered_branches
+declare -a discovered_branches=()
 declare discovered_file="/tmp/ci.yml"
 declare updated_deps="[]"
 declare branch path name url commit
@@ -78,7 +78,7 @@ while read -r item; do
   branch=$(echo "$item" | jq -r '.branch')
   path=$(echo "$item" | jq -r '.path')
   name=$(echo "$item" | jq -r '.name')
-  url=$(echo "$item" | jq -r '.url')
+  url=$(echo "$item" | jq -r '.url'| sed 's:\.git::')
 
   # Only run this block when we have a branch and if 'ci.yml' is not present or not empty  
   if [ -n "${BRANCH_NAME:-}" ] && [ ! -s "ci.yml" ]; then
@@ -89,7 +89,7 @@ while read -r item; do
       branch="$BRANCH_NAME"
       discovered_branches+=( "$name|$branch|$path|$url" )
     fi
-  elif [ -s "ci.yml" ];
+  elif [ -s "ci.yml" ]; then
     ci_branch=$(yq -o=json '.' ci.yml | jq -r --arg name "$name" '.deps[] | select(.name == $name) | .branch')
     if [ -n "$ci_branch" ]; then
       branch="$ci_branch"
