@@ -359,10 +359,12 @@ initialize() {
   local NPROCS=$(getconf _NPROCESSORS_ONLN 2>/dev/null)
 
   if [ -d "$SUBMODULES" ]; then
+    echo
     echo "Info: the source code has already been cloned to '$SUBMODULES', exiting..."
     return
   fi
 
+  echo
   git clone --branch "$CLONE_BRANCH" git@github.com:/Percona-Lab/pmm-submodules.git "$SUBMODULES"
   cd "$SUBMODULES" > /dev/null
   git submodule update --init --jobs ${NPROCS:-2}
@@ -370,8 +372,8 @@ initialize() {
 
   echo
   echo "Info: the source code has been cloned to '$SUBMODULES'."
-  echo
 
+  echo
   echo "Pulling the docker image $RPMBUILD_DOCKER_IMAGE ..."
   docker pull --platform="$PLATFORM" "$RPMBUILD_DOCKER_IMAGE"
 
@@ -403,7 +405,6 @@ check_preprequisites() {
   fi
 
   echo "Pre-requisites check passed."
-  echo
 }
 
 cleanup() {
