@@ -402,15 +402,15 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 		if !params.pmmAgentVersion.Less(version.MustParse("2.42.0-0")) {
 			defaultCollectors = append(defaultCollectors, "currentopmetrics")
 		}
-		defaultCollectors = collectors.FilterOutCollectors("", defaultCollectors, params.agent.ExporterOptions.DisabledCollectors)
-		lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, defaultCollectors)
-		if err != nil {
-			return nil, err
-		}
+	}
+	defaultCollectors = collectors.FilterOutCollectors("", defaultCollectors, params.agent.ExporterOptions.DisabledCollectors)
+	lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, defaultCollectors)
+	if err != nil {
+		return nil, err
+	}
 
-		if lr != nil {
-			r = append(r, lr)
-		}
+	if lr != nil {
+		r = append(r, lr)
 	}
 	return r, nil
 }

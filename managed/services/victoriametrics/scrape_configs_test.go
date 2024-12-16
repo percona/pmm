@@ -827,10 +827,12 @@ func TestScrapeConfig(t *testing.T) {
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
-				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
-				AgentType:    models.MongoDBExporterType,
-				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
+				AgentID:         "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:       models.MongoDBExporterType,
+				CustomLabels:    []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:      pointer.ToUint16(12345),
+				ExporterOptions: &models.ExporterOptions{},
+				MongoDBOptions:  &models.MongoDBOptions{},
 			}
 
 			expected := []*config.ScrapeConfig{
@@ -864,7 +866,8 @@ func TestScrapeConfig(t *testing.T) {
 							},
 						}},
 					},
-				}, {
+				},
+				{
 					JobName:        "mongodb_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 					ScrapeInterval: config.Duration(s.LR),
 					ScrapeTimeout:  scrapeTimeout(s.LR),
