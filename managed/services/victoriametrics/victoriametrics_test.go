@@ -230,7 +230,9 @@ func TestVictoriaMetrics(t *testing.T) {
 				CustomLabels:   []byte(`{"_agent_label": "mongodb-baz-push"}`),
 				ListenPort:     pointer.ToUint16(12346),
 				MongoDBOptions: &models.MongoDBOptions{EnableAllCollectors: true},
-				PushMetrics:    true,
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: true,
+				},
 			},
 
 			// Agent with pull model
@@ -242,7 +244,9 @@ func TestVictoriaMetrics(t *testing.T) {
 				CustomLabels:   []byte(`{"_agent_label": "mongodb-baz-pull"}`),
 				ListenPort:     pointer.ToUint16(12346),
 				MongoDBOptions: &models.MongoDBOptions{EnableAllCollectors: true},
-				PushMetrics:    false,
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: false,
+				},
 			},
 		} {
 			check.NoError(db.Insert(str), "%+v", str)
