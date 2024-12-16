@@ -129,7 +129,7 @@ func jobNameMapping(r rune) rune {
 }
 
 func jobName(agent *models.Agent, intervalName string) string {
-	return fmt.Sprintf("%s%s_%s", agent.AgentType, strings.Map(jobNameMapping, agent.AgentID), intervalName)
+	return fmt.Sprintf("%s_%s_%s", agent.AgentType, strings.Map(jobNameMapping, agent.AgentID), intervalName)
 }
 
 func httpClientConfig(agent *models.Agent) config.HTTPClientConfig {
