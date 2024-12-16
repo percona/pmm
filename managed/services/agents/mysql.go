@@ -20,8 +20,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/AlekSi/pointer"
-
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -106,10 +104,10 @@ func mysqldExporterConfig(
 		args = append(args, tablestatsGroup...)
 	}
 
-	args = collectors.FilterOutCollectors("--collect.", args, exporter.DisabledCollectors)
+	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
 
-	if pointer.GetString(exporter.MetricsPath) != "" {
-		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
+	if exporter.ExporterOptions.MetricsPath != "" {
+		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
 	files := exporter.Files()
@@ -156,12 +154,13 @@ func mysqldExporterConfig(
 // qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema built-in agent.
 func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
+
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 		Dsn:                    agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
-		MaxQueryLength:         agent.MaxQueryLength,
-		DisableQueryExamples:   agent.QueryExamplesDisabled,
-		DisableCommentsParsing: agent.CommentsParsingDisabled,
+		MaxQueryLength:         agent.QANOptions.MaxQueryLength,
+		DisableQueryExamples:   agent.QANOptions.QueryExamplesDisabled,
+		DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
@@ -174,13 +173,14 @@ func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent,
 // qanMySQLSlowlogAgentConfig returns desired configuration of qan-mysql-slowlog built-in agent.
 func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
+
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
 		Dsn:                    agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
-		MaxQueryLength:         agent.MaxQueryLength,
-		DisableQueryExamples:   agent.QueryExamplesDisabled,
-		DisableCommentsParsing: agent.CommentsParsingDisabled,
-		MaxQueryLogSize:        agent.MaxQueryLogSize,
+		MaxQueryLength:         agent.QANOptions.MaxQueryLength,
+		DisableQueryExamples:   agent.QANOptions.QueryExamplesDisabled,
+		DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
+		MaxQueryLogSize:        agent.QANOptions.MaxQueryLogSize,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

@@ -38,11 +38,13 @@ func TestMongodbExporterConfig225(t *testing.T) {
 		Port:    pointer.ToUint16(27017),
 	}
 	exporter := &models.Agent{
-		AgentID:       "agent-id",
-		AgentType:     models.MongoDBExporterType,
-		Username:      pointer.ToString("username"),
-		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword: pointer.ToString("agent-password"),
+		AgentID:         "agent-id",
+		AgentType:       models.MongoDBExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword:   pointer.ToString("agent-password"),
+		ExporterOptions: &models.ExporterOptions{},
+		MongoDBOptions:  &models.MongoDBOptions{},
 	}
 
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
@@ -51,6 +53,7 @@ func TestMongodbExporterConfig225(t *testing.T) {
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
+			"--collector.collstats-limit=0",
 			"--compatible-mode",
 			"--discovering-mode",
 			"--mongodb.global-conn-pool",
@@ -97,11 +100,13 @@ func TestMongodbExporterConfig226(t *testing.T) {
 		Port:    pointer.ToUint16(27017),
 	}
 	exporter := &models.Agent{
-		AgentID:       "agent-id",
-		AgentType:     models.MongoDBExporterType,
-		Username:      pointer.ToString("username"),
-		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword: pointer.ToString("agent-password"),
+		AgentID:         "agent-id",
+		AgentType:       models.MongoDBExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword:   pointer.ToString("agent-password"),
+		ExporterOptions: &models.ExporterOptions{},
+		MongoDBOptions:  &models.MongoDBOptions{},
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
@@ -109,6 +114,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
+			"--collector.collstats-limit=0",
 			"--collector.diagnosticdata",
 			"--collector.replicasetstatus",
 			"--compatible-mode",
@@ -242,11 +248,13 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 		Port:    pointer.ToUint16(27017),
 	}
 	exporter := &models.Agent{
-		AgentID:       "agent-id",
-		AgentType:     models.MongoDBExporterType,
-		Username:      pointer.ToString("username"),
-		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword: pointer.ToString("agent-password"),
+		AgentID:         "agent-id",
+		AgentType:       models.MongoDBExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword:   pointer.ToString("agent-password"),
+		ExporterOptions: &models.ExporterOptions{},
+		MongoDBOptions:  &models.MongoDBOptions{},
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
@@ -254,6 +262,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
+			"--collector.collstats-limit=0",
 			"--collector.diagnosticdata",
 			"--collector.replicasetstatus",
 			"--compatible-mode",
@@ -387,11 +396,13 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	})
 
 	t.Run("Enable all collectors and disable some", func(t *testing.T) {
+		exporter.ExporterOptions = &models.ExporterOptions{
+			DisabledCollectors: []string{"dbstats", "topmetrics"},
+		}
 		exporter.MongoDBOptions = &models.MongoDBOptions{
 			EnableAllCollectors: true,
 			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
 		}
-		exporter.DisabledCollectors = []string{"dbstats", "topmetrics"}
 
 		expected.Args = []string{
 			"--collector.collstats",
@@ -426,11 +437,13 @@ func TestMongodbExporterConfig2432(t *testing.T) {
 		Port:    pointer.ToUint16(27017),
 	}
 	exporter := &models.Agent{
-		AgentID:       "agent-id",
-		AgentType:     models.MongoDBExporterType,
-		Username:      pointer.ToString("username"),
-		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword: pointer.ToString("agent-password"),
+		AgentID:         "agent-id",
+		AgentType:       models.MongoDBExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword:   pointer.ToString("agent-password"),
+		ExporterOptions: &models.ExporterOptions{},
+		MongoDBOptions:  &models.MongoDBOptions{},
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
@@ -438,6 +451,7 @@ func TestMongodbExporterConfig2432(t *testing.T) {
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
+			"--collector.collstats-limit=0",
 			"--collector.diagnosticdata",
 			"--collector.fcv",
 			"--collector.pbm",
@@ -506,11 +520,13 @@ func TestMongodbExporterConfig(t *testing.T) {
 		Port:    pointer.ToUint16(27017),
 	}
 	exporter := &models.Agent{
-		AgentID:       "agent-id",
-		AgentType:     models.MongoDBExporterType,
-		Username:      pointer.ToString("username"),
-		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword: pointer.ToString("agent-password"),
+		AgentID:         "agent-id",
+		AgentType:       models.MongoDBExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword:   pointer.ToString("agent-password"),
+		ExporterOptions: &models.ExporterOptions{},
+		MongoDBOptions:  &models.MongoDBOptions{},
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
@@ -597,7 +613,9 @@ func TestMongodbExporterConfig(t *testing.T) {
 	})
 
 	t.Run("DisabledCollectors", func(t *testing.T) {
-		exporter.DisabledCollectors = []string{"topmetrics"}
+		exporter.ExporterOptions = &models.ExporterOptions{
+			DisabledCollectors: []string{"topmetrics"},
+		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{
 			Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
@@ -627,10 +645,12 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 		Port:    pointer.ToUint16(27017),
 	}
 	exporter := &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.MongoDBExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentID:         "agent-id",
+		AgentType:       models.MongoDBExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		ExporterOptions: &models.ExporterOptions{},
+		MongoDBOptions:  &models.MongoDBOptions{},
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	require.NoError(t, err)
@@ -683,13 +703,16 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		Port:    pointer.ToUint16(27017),
 	}
 	exporter := &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.MongoDBExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentID:         "agent-id",
+		AgentType:       models.MongoDBExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		ExporterOptions: &models.ExporterOptions{},
+		MongoDBOptions:  &models.MongoDBOptions{},
 	}
 
 	expectedArgs := []string{
+		"--collector.collstats-limit=0",
 		"--collector.diagnosticdata",
 		"--collector.replicasetstatus",
 		"--compatible-mode",
@@ -707,11 +730,13 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		t.Parallel()
 
 		localExporter := &models.Agent{
-			AgentID:       exporter.AgentID,
-			AgentType:     exporter.AgentType,
-			Username:      exporter.Username,
-			Password:      exporter.Password,
-			AgentPassword: pointer.ToString("agent-custom-password"),
+			AgentID:         exporter.AgentID,
+			AgentType:       exporter.AgentType,
+			Username:        exporter.Username,
+			Password:        exporter.Password,
+			AgentPassword:   pointer.ToString("agent-custom-password"),
+			ExporterOptions: &models.ExporterOptions{},
+			MongoDBOptions:  &models.MongoDBOptions{},
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, localExporter, redactSecrets, pmmAgentVersion)
 
@@ -736,10 +761,12 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		t.Parallel()
 
 		localExporter := &models.Agent{
-			AgentID:   exporter.AgentID,
-			AgentType: exporter.AgentType,
-			Username:  exporter.Username,
-			Password:  exporter.Password,
+			AgentID:         exporter.AgentID,
+			AgentType:       exporter.AgentType,
+			Username:        exporter.Username,
+			Password:        exporter.Password,
+			ExporterOptions: &models.ExporterOptions{},
+			MongoDBOptions:  &models.MongoDBOptions{},
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, localExporter, redactSecrets, pmmAgentVersion)
 

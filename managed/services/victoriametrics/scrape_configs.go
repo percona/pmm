@@ -214,7 +214,7 @@ func scrapeConfigsForNodeExporter(params *scrapeConfigParams) ([]*config.ScrapeC
 			"hwmon",
 			"textfile.mr",
 		}
-		mrCollect = collectors.FilterOutCollectors("", mrCollect, params.agent.DisabledCollectors)
+		mrCollect = collectors.FilterOutCollectors("", mrCollect, params.agent.ExporterOptions.DisabledCollectors)
 		mr, err = scrapeConfigForStandardExporter("mr", params.metricsResolution.MR, params, mrCollect)
 		if err != nil {
 			return nil, err
@@ -227,7 +227,7 @@ func scrapeConfigsForNodeExporter(params *scrapeConfigParams) ([]*config.ScrapeC
 			"uname",
 			"os",
 		}
-		lrCollect = collectors.FilterOutCollectors("", lrCollect, params.agent.DisabledCollectors)
+		lrCollect = collectors.FilterOutCollectors("", lrCollect, params.agent.ExporterOptions.DisabledCollectors)
 		lr, err = scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, lrCollect)
 		if err != nil {
 			return nil, err
@@ -255,7 +255,7 @@ func scrapeConfigsForNodeExporter(params *scrapeConfigParams) ([]*config.ScrapeC
 		"meminfo",
 		"netdev",
 		"time")
-	hrCollect = collectors.FilterOutCollectors("", hrCollect, params.agent.DisabledCollectors)
+	hrCollect = collectors.FilterOutCollectors("", hrCollect, params.agent.ExporterOptions.DisabledCollectors)
 
 	hr, err = scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, hrCollect)
 	if err != nil {
@@ -285,7 +285,8 @@ func scrapeConfigsForMySQLdExporter(params *scrapeConfigParams) ([]*config.Scrap
 		"standard.go",
 		"standard.process",
 	}
-	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.DisabledCollectors)
+
+	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.ExporterOptions.DisabledCollectors)
 
 	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, hrOptions)
 	if err != nil {
@@ -307,7 +308,7 @@ func scrapeConfigsForMySQLdExporter(params *scrapeConfigParams) ([]*config.Scrap
 		mrOptions = append(mrOptions, "perf_schema.tablelocks")
 	}
 
-	mrOptions = collectors.FilterOutCollectors("", mrOptions, params.agent.DisabledCollectors)
+	mrOptions = collectors.FilterOutCollectors("", mrOptions, params.agent.ExporterOptions.DisabledCollectors)
 	mr, err := scrapeConfigForStandardExporter("mr", params.metricsResolution.MR, params, mrOptions)
 	if err != nil {
 		return nil, err
@@ -335,7 +336,7 @@ func scrapeConfigsForMySQLdExporter(params *scrapeConfigParams) ([]*config.Scrap
 			"perf_schema.tableiowaits")
 	}
 
-	lrOptions = collectors.FilterOutCollectors("", lrOptions, params.agent.DisabledCollectors)
+	lrOptions = collectors.FilterOutCollectors("", lrOptions, params.agent.ExporterOptions.DisabledCollectors)
 
 	lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, lrOptions)
 	if err != nil {
@@ -375,7 +376,7 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 		"replicasetstatus",
 		"topmetrics",
 	}
-	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.DisabledCollectors)
+	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.ExporterOptions.DisabledCollectors)
 	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, hrOptions)
 	if err != nil {
 		return nil, err
@@ -393,8 +394,7 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 	if !params.pmmAgentVersion.Less(version.MustParse("2.43.2-0")) {
 		defaultCollectors = append(defaultCollectors, "pbm")
 	}
-
-	if params.agent.MongoDBOptions != nil && params.agent.MongoDBOptions.EnableAllCollectors {
+	if params.agent.MongoDBOptions.EnableAllCollectors {
 		defaultCollectors = append(defaultCollectors, "dbstats", "indexstats", "collstats")
 		if !params.pmmAgentVersion.Less(version.MustParse("2.41.1-0")) {
 			defaultCollectors = append(defaultCollectors, "shards")
@@ -402,15 +402,15 @@ func scrapeConfigsForMongoDBExporter(params *scrapeConfigParams) ([]*config.Scra
 		if !params.pmmAgentVersion.Less(version.MustParse("2.42.0-0")) {
 			defaultCollectors = append(defaultCollectors, "currentopmetrics")
 		}
-	}
-	defaultCollectors = collectors.FilterOutCollectors("", defaultCollectors, params.agent.DisabledCollectors)
-	lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, defaultCollectors)
-	if err != nil {
-		return nil, err
-	}
+		defaultCollectors = collectors.FilterOutCollectors("", defaultCollectors, params.agent.ExporterOptions.DisabledCollectors)
+		lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, defaultCollectors)
+		if err != nil {
+			return nil, err
+		}
 
-	if lr != nil {
-		r = append(r, lr)
+		if lr != nil {
+			r = append(r, lr)
+		}
 	}
 	return r, nil
 }
@@ -423,7 +423,8 @@ func scrapeConfigsForPostgresExporter(params *scrapeConfigParams) ([]*config.Scr
 		"standard.process",
 		"postgres",
 	}
-	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.DisabledCollectors)
+
+	hrOptions = collectors.FilterOutCollectors("", hrOptions, params.agent.ExporterOptions.DisabledCollectors)
 	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, hrOptions)
 	if err != nil {
 		return nil, err
@@ -432,7 +433,7 @@ func scrapeConfigsForPostgresExporter(params *scrapeConfigParams) ([]*config.Scr
 	mrOptions := []string{
 		"custom_query.mr",
 	}
-	mrOptions = collectors.FilterOutCollectors("", mrOptions, params.agent.DisabledCollectors)
+	mrOptions = collectors.FilterOutCollectors("", mrOptions, params.agent.ExporterOptions.DisabledCollectors)
 	mr, err := scrapeConfigForStandardExporter("mr", params.metricsResolution.MR, params, mrOptions)
 	if err != nil {
 		return nil, err
@@ -441,7 +442,7 @@ func scrapeConfigsForPostgresExporter(params *scrapeConfigParams) ([]*config.Scr
 	lrOptions := []string{
 		"custom_query.lr",
 	}
-	lrOptions = collectors.FilterOutCollectors("", lrOptions, params.agent.DisabledCollectors)
+	lrOptions = collectors.FilterOutCollectors("", lrOptions, params.agent.ExporterOptions.DisabledCollectors)
 	lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, lrOptions)
 	if err != nil {
 		return nil, err
@@ -530,14 +531,14 @@ func scrapeConfigsForExternalExporter(s *models.MetricsResolutions, params *scra
 	if err != nil {
 		return nil, err
 	}
-
 	interval := s.MR
+
 	cfg := &config.ScrapeConfig{
 		JobName:        jobName(params.agent, "mr"),
 		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
-		Scheme:         pointer.GetString(params.agent.MetricsScheme),
-		MetricsPath:    pointer.GetString(params.agent.MetricsPath),
+		Scheme:         params.agent.ExporterOptions.MetricsScheme,
+		MetricsPath:    params.agent.ExporterOptions.MetricsPath,
 	}
 
 	if pointer.GetString(params.agent.Username) != "" {
@@ -567,14 +568,14 @@ func scrapeConfigsForVMAgent(s *models.MetricsResolutions, params *scrapeConfigP
 	if err != nil {
 		return nil, err
 	}
-
 	interval := s.MR
+
 	cfg := &config.ScrapeConfig{
 		JobName:        jobName(params.agent, "mr"),
 		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
-		Scheme:         pointer.GetString(params.agent.MetricsScheme),
-		MetricsPath:    pointer.GetString(params.agent.MetricsPath),
+		Scheme:         params.agent.ExporterOptions.MetricsScheme,
+		MetricsPath:    params.agent.ExporterOptions.MetricsPath,
 	}
 
 	if pointer.GetString(params.agent.Username) != "" {
