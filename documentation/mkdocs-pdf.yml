@@ -3,3 +3,16 @@
 INHERIT: mkdocs-base.yml
 
 copyright: Percona LLC and/or its affiliates &copy;2024
+
+plugins:
+  mike:
+    version_selector: false
+  # https://github.com/orzih/mkdocs-with-pdf
+  with-pdf:
+    output_path: "_pdf/PerconaMonitoringAndManagement-2.43.2.pdf"
+    cover_title: "Percona Monitoring and Management Documentation"
+    cover_subtitle: 2.43.2 (October 30, 2024)
+    author: "Percona Technical Documentation Team"
+    cover_logo: docs/images/pmm_pdf_logo.png
+    custom_template_path: resources/templates
+    enabled_if_env: ENABLE_PDF_EXPORT
