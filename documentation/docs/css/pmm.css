@@ -65,3 +65,10 @@
             rgba(0,0,0,0.4) 95%
         );
 }
+
+/* Version switcher overrides */
+
+.md-version__current,
+.md-version__link {
+    font-size: 0.7rem
+}
