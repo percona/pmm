@@ -120,15 +120,6 @@ plugins:
   exclude:
     glob:
       - "setting-up/client/docker.md"
-  # https://github.com/orzih/mkdocs-with-pdf
-  with-pdf:
-    output_path: "pdf/PerconaMonitoringAndManagement-3.0.0-beta.pdf"
-    cover_title: "Percona Monitoring and Management Documentation"
-    cover_subtitle: 3.0.0 (December 11, 2024)
-    author: "Percona Technical Documentation Team"
-    cover_logo: docs/images/Percona_Logo_Color.png
-    custom_template_path: resources/templates
-    enabled_if_env: ENABLE_PDF_EXPORT
   mike:
     version_selector: true
     css_dir: css
