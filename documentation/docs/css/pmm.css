@@ -65,3 +65,9 @@
             rgba(0,0,0,0.4) 95%
         );
 }
+
+/* Remove Github version label from header */
+
+.md-source__fact.md-source__fact--version {
+    display: none;
+}
