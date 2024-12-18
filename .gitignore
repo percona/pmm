@@ -4,6 +4,7 @@
 
 /api/nginx/*.pem
 bin/
+!/documentation/resources/bin/
 
 # System Files
 .DS_Store
