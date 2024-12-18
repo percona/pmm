@@ -327,7 +327,7 @@ scrape_configs:
           labels:
             instance: pmm-server
       follow_redirects: false
-    - job_name: mongodb_exportercfec996c-4fe6-41d9-83cb-e1a3b1fe10a8_hr
+    - job_name: mongodb_exporter_cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8_hr
       honor_timestamps: false
       scrape_interval: 5s
       scrape_timeout: 4500ms
@@ -352,7 +352,7 @@ scrape_configs:
         username: pmm
         password: cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8
       follow_redirects: false
-    - job_name: mongodb_exporterecd8995a-d479-4b4d-bfb7-865bac4ac2fb_hr
+    - job_name: mongodb_exporter_ecd8995a-d479-4b4d-bfb7-865bac4ac2fb_hr
       honor_timestamps: false
       params:
         collect[]:
@@ -382,7 +382,7 @@ scrape_configs:
         username: pmm
         password: ecd8995a-d479-4b4d-bfb7-865bac4ac2fb
       follow_redirects: false
-    - job_name: mongodb_exporterecd8995a-d479-4b4d-bfb7-865bac4ac2fb_lr
+    - job_name: mongodb_exporter_ecd8995a-d479-4b4d-bfb7-865bac4ac2fb_lr
       honor_timestamps: false
       params:
         collect[]:
