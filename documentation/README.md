@@ -24,7 +24,7 @@ The two major PMM versions are kept in separate branches:
 
 - `main` is for PMM 2.x (latest)
 
-- `1.x` is for PMM 1.x
+- `v3` is for PMM 3.x
 
 Before you start, it helps to know what [Git], [Python] and [Docker](https://docs.docker.com/get-docker/) are, what [Markdown] is and how to write it, and how to install and use those things on the command line. (If you don't, consider opening a [Jira] issue instead.)
 
@@ -253,7 +253,7 @@ To enable it for local builds, uncomment the line with `htmlproofer` in the `plu
 
 [Percona Monitoring and Management]: https://www.percona.com/software/database-tools/percona-monitoring-and-management
 [PMM technical documentation]: https://www.percona.com/doc/percona-monitoring-and-management/
-[Jira]: https://jira.percona.com/browse/PMM
+[Jira]: https://perconadev.atlassian.net/browse/PMM
 [MkDocs]: https://www.mkdocs.org/
 [Markdown]: https://daringfireball.net/projects/markdown/
 [Git]: https://git-scm.com
@@ -261,7 +261,7 @@ To enable it for local builds, uncomment the line with `htmlproofer` in the `plu
 [Docker]: https://docs.docker.com/get-docker/
 [PMM documentation Docker image]: https://hub.docker.com/repository/docker/perconalab/pmm-doc-md
 [mike]: https://github.com/jimporter/mike
-[GitHub actions]: https://github.com/percona/pmm-doc/actions
+[GitHub actions]: https://github.com/percona/pmm/actions
 [ImageMagick]: https://imagemagick.org/script/download.php
 [composite]: https://imagemagick.org/script/composite.php
 [Node.js]: https://nodejs.org/en/download/

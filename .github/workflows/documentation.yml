@@ -6,9 +6,6 @@ on:
       - main
     paths:
       - "documentation/**"
-  pull_request:
-    paths:
-      - "documentation/**"
 
   workflow_dispatch:
 
