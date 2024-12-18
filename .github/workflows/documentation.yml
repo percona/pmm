@@ -3,11 +3,7 @@ name: PMM Docs 3.x
 on:
   push:
     branches:
-      - main
       - v3
-    paths:
-      - "documentation/**"
-  pull_request:
     paths:
       - "documentation/**"
 
