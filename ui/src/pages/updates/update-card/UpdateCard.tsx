@@ -23,6 +23,7 @@ import { UpdateInfo } from '../update-info';
 import { UpdateInProgressCard } from '../update-in-progress-card';
 import { useUpdates } from 'contexts/updates';
 import { ChangeLog } from '../change-log';
+import { capitalize } from 'utils/textUtils';
 
 export const UpdateCard: FC = () => {
   const { inProgress, status, setStatus } = useUpdates();
@@ -41,9 +42,10 @@ export const UpdateCard: FC = () => {
             setAuthToken(response.authToken);
           }
         },
-        onError: () => {
+        onError: (e) => {
+          const message = e.isAxiosError ? e.response?.data.message : e.message;
           setStatus(UpdateStatus.Error);
-          enqueueSnackbar(Messages.error, {
+          enqueueSnackbar(message ? capitalize(message) : Messages.error, {
             variant: 'error',
           });
         },
