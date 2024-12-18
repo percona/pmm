@@ -1,0 +1,60 @@
+name: PMM Docs 3.x
+
+on:
+  push:
+    branches:
+      - v3
+    paths:
+      - "documentation/**"
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0 # read more about why this is necessary at https://github.com/jimporter/mike/issues/60
+          sparse-checkout: |
+            .github
+            documentation
+            Makefile
+            Makefile.include
+
+      - name: Setup Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+
+      - name: Setup MkDocs
+        working-directory: documentation
+        run: |
+          python -m pip install --upgrade pip
+          pip install wheel
+          test -f requirements.txt && pip install -r requirements.txt
+
+      - name: Configure git
+        env:
+          ROBOT_TOKEN: ${{ secrets.ROBOT_TOKEN }}
+        run: |
+          git config --global url."https://percona-platform-robot:${ROBOT_TOKEN}@github.com".insteadOf "https://github.com"
+          git config user.name "GitHub Action"
+          git config user.email "github-action@users.noreply.github.com"
+          git config user.password "${ROBOT_TOKEN}"
+          echo "GIT_USER=percona-platform-robot:${ROBOT_TOKEN}" >> $GITHUB_ENV
+
+      - name: Check for unused images
+        run: make doc-check-images
+
+      # Builds Material-themed static web site in 'publish' branch
+      - name: Build a themed site (3.x)
+        working-directory: documentation
+        run: |
+          mike deploy 3 -b publish -p
+          # Note: enable the next line after v3 GA
+          # mike set-default 3 -b publish -p
+          mike retitle 3 "3.x (BETA)" -b publish -p

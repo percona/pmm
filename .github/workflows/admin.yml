@@ -8,12 +8,15 @@ on:
       - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
+    paths-ignore:
+      - "documentation/**"
 
   pull_request:
     paths-ignore:
       - "agent/**"
       - "api-tests/**"
       - "docs/**"
+      - "documentation/**"
       - "managed/**"
       - "qan-api2/**"
       - "update/**"
