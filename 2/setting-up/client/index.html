@@ -7318,13 +7318,13 @@ apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </s
 <p>Here are the download page links for each supported platform.</p>
 <ul>
 <li>[Debian 9 (Stretch)]</li>
-<li><a href="https://www.percona.com/downloads/pmm2/2.43.2/binary/debian/buster/">Debian 10 (Buster)</a></li>
-<li><a href="https://www.percona.com/downloads/pmm2/2.43.2/binary/debian/bullseye/">Debian 11 (Bullseye)</a></li>
-<li><a href="https://www.percona.com/downloads/pmm2/2.43.2/binary/redhat/7/">Red Hat/CentOS/Oracle 7</a></li>
-<li><a href="https://www.percona.com/downloads/pmm2/2.43.2/binary/redhat/8/">Red Hat/CentOS/Oracle 8</a></li>
+<li><a href="https://www.percona.com/downloads/pmm2/2.44.0/binary/debian/buster/">Debian 10 (Buster)</a></li>
+<li><a href="https://www.percona.com/downloads/pmm2/2.44.0/binary/debian/bullseye/">Debian 11 (Bullseye)</a></li>
+<li><a href="https://www.percona.com/downloads/pmm2/2.44.0/binary/redhat/7/">Red Hat/CentOS/Oracle 7</a></li>
+<li><a href="https://www.percona.com/downloads/pmm2/2.44.0/binary/redhat/8/">Red Hat/CentOS/Oracle 8</a></li>
 <li>[Ubuntu 18.04 (Bionic Beaver)]</li>
-<li><a href="https://www.percona.com/downloads/pmm2/2.43.2/binary/debian/focal/">Ubuntu 20.04 (Focal Fossa)</a></li>
-<li><a href="https://www.percona.com/downloads/pmm2/2.43.2/binary/debian/jammy/">Ubuntu 22.04 (Jammy Jellyfish)</a></li>
+<li><a href="https://www.percona.com/downloads/pmm2/2.44.0/binary/debian/focal/">Ubuntu 20.04 (Focal Fossa)</a></li>
+<li><a href="https://www.percona.com/downloads/pmm2/2.44.0/binary/debian/jammy/">Ubuntu 22.04 (Jammy Jellyfish)</a></li>
 </ul>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Debian-based</label><label for="__tabbed_2_2">Red Hat-based</label></div>
 <div class="tabbed-content">
@@ -7342,22 +7342,22 @@ apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </s
 <ol>
 <li>
 <p>Download the PMM Client package:</p>
-<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm2/2.43.2/binary/tarball/pmm2-client-2.43.2-x86_64.tar.gz
+<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm2/2.44.0/binary/tarball/pmm2-client-2.44.0-x86_64.tar.gz
 </code></pre></div>
 </li>
 <li>
 <p>Download the PMM Client package checksum file:</p>
-<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm2/2.43.2/binary/tarball/pmm2-client-2.43.2-x86_64.tar.gz.sha256sum
+<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm2/2.44.0/binary/tarball/pmm2-client-2.44.0-x86_64.tar.gz.sha256sum
 </code></pre></div>
 </li>
 <li>
 <p>Verify the download:</p>
-<div class="highlight"><pre><span></span><code>sha256sum<span class="w"> </span>-c<span class="w"> </span>pmm2-client-2.43.2-x86_64.tar.gz.sha256sum
+<div class="highlight"><pre><span></span><code>sha256sum<span class="w"> </span>-c<span class="w"> </span>pmm2-client-2.44.0-x86_64.tar.gz.sha256sum
 </code></pre></div>
 </li>
 <li>
 <p>Unpack the package and move into the directory:</p>
-<div class="highlight"><pre><span></span><code>tar<span class="w"> </span>xfz<span class="w"> </span>pmm2-client-2.43.2-x86_64.tar.gz<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>pmm2-client-2.43.2
+<div class="highlight"><pre><span></span><code>tar<span class="w"> </span>xfz<span class="w"> </span>pmm2-client-2.44.0-x86_64.tar.gz<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>pmm2-client-2.44.0
 </code></pre></div>
 </li>
 <li>
@@ -7571,7 +7571,7 @@ where YOURPATH replace with you real path, where you have required access.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-12
+    2024-12-19
   </span>
 
     

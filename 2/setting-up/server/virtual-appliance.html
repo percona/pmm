@@ -7714,7 +7714,7 @@
 <div class="admonition summary alert alert-info">
 <p class="admonition-title">Summary</p>
 <ul>
-<li>Download and verify the <a href="https://www.percona.com/downloads/pmm2/2.43.2/ova">latest</a> OVF file.</li>
+<li>Download and verify the <a href="https://www.percona.com/downloads/pmm2/2.44.0/ova">latest</a> OVF file.</li>
 <li>Import it.</li>
 <li>Reconfigure network.</li>
 <li>Start the VM and get IP.</li>
@@ -7743,15 +7743,15 @@
 <tbody>
 <tr>
 <td>Download page</td>
-<td><a href="https://www.percona.com/downloads/pmm2/2.43.2/ova">https://www.percona.com/downloads/pmm2/2.43.2/ova</a></td>
+<td><a href="https://www.percona.com/downloads/pmm2/2.44.0/ova">https://www.percona.com/downloads/pmm2/2.44.0/ova</a></td>
 </tr>
 <tr>
 <td>File name</td>
-<td><code>pmm-server-2.43.2.ova</code></td>
+<td><code>pmm-server-2.44.0.ova</code></td>
 </tr>
 <tr>
 <td>VM name</td>
-<td><code>PMM2-Server-2024-10-30-N</code> (<code>N</code>=build number)</td>
+<td><code>PMM2-Server-2024-12-13-N</code> (<code>N</code>=build number)</td>
 </tr>
 </tbody>
 </table>
@@ -7813,21 +7813,21 @@
 <h3 id="ui">UI<a class="headerlink" href="#ui" title="Permanent link">&para;</a></h3>
 <ol>
 <li>Open a web browser.</li>
-<li><a href="https://www.percona.com/downloads/pmm2/2.43.2/ova">Visit the PMM Server download page</a>.</li>
+<li><a href="https://www.percona.com/downloads/pmm2/2.44.0/ova">Visit the PMM Server download page</a>.</li>
 <li>Choose a <em>Version</em> or use the default (the latest).</li>
-<li>Click the link for <code>pmm-server-2.43.2.ova</code> to download it. Note where your browser saves it.</li>
-<li>Right-click the link for <code>pmm-server-2.43.2.sha256sum</code> and save it in the same place as the <code>.ova</code> file.</li>
+<li>Click the link for <code>pmm-server-2.44.0.ova</code> to download it. Note where your browser saves it.</li>
+<li>Right-click the link for <code>pmm-server-2.44.0.sha256sum</code> and save it in the same place as the <code>.ova</code> file.</li>
 <li>(Optional) <a href="#verify">Verify</a>.</li>
 </ol>
 <h3 id="cli">CLI<a class="headerlink" href="#cli" title="Permanent link">&para;</a></h3>
 <p>Download the latest PMM Server OVA and checksum files.</p>
-<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://www.percona.com/downloads/pmm2/2.43.2/ova/pmm-server-2.43.2.ova
-wget<span class="w"> </span>https://www.percona.com/downloads/pmm2/2.43.2/ova/pmm-server-2.43.2.sha256sum
+<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://www.percona.com/downloads/pmm2/2.44.0/ova/pmm-server-2.44.0.ova
+wget<span class="w"> </span>https://www.percona.com/downloads/pmm2/2.44.0/ova/pmm-server-2.44.0.sha256sum
 </code></pre></div>
 <h2 id="verify">Verify<a class="headerlink" href="#verify" title="Permanent link">&para;</a></h2>
 <h3 id="cli_1">CLI<a class="headerlink" href="#cli_1" title="Permanent link">&para;</a></h3>
 <p>Verify the checksum of the downloaded .ova file.</p>
-<div class="highlight"><pre><span></span><code>shasum<span class="w"> </span>-ca<span class="w"> </span><span class="m">256</span><span class="w"> </span>pmm-server-2.43.2.sha256sum
+<div class="highlight"><pre><span></span><code>shasum<span class="w"> </span>-ca<span class="w"> </span><span class="m">256</span><span class="w"> </span>pmm-server-2.44.0.sha256sum
 </code></pre></div>
 <h2 id="vmware">VMware<a class="headerlink" href="#vmware" title="Permanent link">&para;</a></h2>
 <h3 id="import">Import<a class="headerlink" href="#import" title="Permanent link">&para;</a></h3>
@@ -7861,14 +7861,14 @@ wget<span class="w"> </span>https://www.percona.com/downloads/pmm2/2.43.2/ova/pm
 <li>
 <p>Download and import the OVA file.</p>
 <div class="highlight"><pre><span></span><code>ovftool<span class="w"> </span>--name<span class="o">=</span><span class="s2">&quot;PMM Server&quot;</span><span class="w"> </span>--net:NAT<span class="o">=</span>Wi-Fi<span class="w"> </span><span class="se">\</span>
-https://www.percona.com/downloads/pmm2/2.43.2/ova/pmm-server-2.43.2.ova<span class="w"> </span><span class="se">\</span>
-pmm-server-2.43.2.vmx
+https://www.percona.com/downloads/pmm2/2.44.0/ova/pmm-server-2.44.0.ova<span class="w"> </span><span class="se">\</span>
+pmm-server-2.44.0.vmx
 </code></pre></div>
 </li>
 <li>
 <p>Import an already-downloaded OVA file.</p>
 <div class="highlight"><pre><span></span><code>ovftool<span class="w"> </span>--name<span class="o">=</span><span class="s2">&quot;PMM Server&quot;</span><span class="w"> </span>--net:NAT<span class="o">=</span>WiFi<span class="w"> </span><span class="se">\</span>
-pmm-server-2.43.2.ova<span class="w"> </span><span class="se">\</span>
+pmm-server-2.44.0.ova<span class="w"> </span><span class="se">\</span>
 pmm-server.vmx
 </code></pre></div>
 </li>
@@ -7932,7 +7932,7 @@ pmm-server.vmx<span class="w"> </span>nogui
 </li>
 <li>
 <p>(Optional) Do a &lsquo;dry run&rsquo; import to see what values will be used.</p>
-<div class="highlight"><pre><span></span><code>VBoxManage<span class="w"> </span>import<span class="w"> </span>pmm-server-2.43.2.ova<span class="w"> </span>--dry-run
+<div class="highlight"><pre><span></span><code>VBoxManage<span class="w"> </span>import<span class="w"> </span>pmm-server-2.44.0.ova<span class="w"> </span>--dry-run
 </code></pre></div>
 </li>
 <li>
@@ -7941,13 +7941,13 @@ pmm-server.vmx<span class="w"> </span>nogui
 <ul>
 <li>
 <p>With the default settings.</p>
-<div class="highlight"><pre><span></span><code>VBoxManage<span class="w"> </span>import<span class="w"> </span>pmm-server-2.43.2.ova
+<div class="highlight"><pre><span></span><code>VBoxManage<span class="w"> </span>import<span class="w"> </span>pmm-server-2.44.0.ova
 </code></pre></div>
 </li>
 <li>
 <p>With custom settings (in this example, Name: &ldquo;PMM Server&rdquo;, CPUs: 2, RAM: 8192 MB).</p>
 <div class="highlight"><pre><span></span><code>VBoxManage<span class="w"> </span>import<span class="w"> </span>--vsys<span class="w"> </span><span class="m">0</span><span class="w"> </span>--vmname<span class="w"> </span><span class="s2">&quot;PMM Server&quot;</span><span class="w"> </span><span class="se">\</span>
---cpus<span class="w"> </span><span class="m">2</span><span class="w"> </span>--memory<span class="w"> </span><span class="m">8192</span><span class="w"> </span>pmm-server-2.43.2.ova
+--cpus<span class="w"> </span><span class="m">2</span><span class="w"> </span>--memory<span class="w"> </span><span class="m">8192</span><span class="w"> </span>pmm-server-2.44.0.ova
 </code></pre></div>
 </li>
 </ul>
@@ -8182,7 +8182,7 @@ pmm-server.vmx<span class="w"> </span>nogui
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-12
+    2024-12-19
   </span>
 
     
