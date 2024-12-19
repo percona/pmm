@@ -276,13 +276,13 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			rdsExporter, err := models.CreateAgent(tx.Querier, models.RDSExporterType, &models.CreateAgentParams{
 				PMMAgentID: pmmAgentID,
 				NodeID:     node.NodeID,
-				AWSOptions: &models.AWSOptions{
+				AWSOptions: models.AWSOptions{
 					AWSAccessKey:               req.AwsAccessKey,
 					AWSSecretKey:               req.AwsSecretKey,
 					RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
 					RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
 				},
-				ExporterOptions: &models.ExporterOptions{
+				ExporterOptions: models.ExporterOptions{
 					PushMetrics: isPushMode(metricsMode),
 				},
 			})
@@ -326,10 +326,10 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				Password:      req.Password,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
-				ExporterOptions: &models.ExporterOptions{
+				ExporterOptions: models.ExporterOptions{
 					PushMetrics: isPushMode(metricsMode),
 				},
-				MySQLOptions: &models.MySQLOptions{
+				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 				},
 			})
@@ -360,7 +360,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 					Password:      req.Password,
 					TLS:           req.Tls,
 					TLSSkipVerify: req.TlsSkipVerify,
-					QANOptions: &models.QANOptions{
+					QANOptions: models.QANOptions{
 						QueryExamplesDisabled:   req.DisableQueryExamples,
 						CommentsParsingDisabled: req.DisableCommentsParsing,
 					},
@@ -407,14 +407,14 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				Password:      req.Password,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
-				ExporterOptions: &models.ExporterOptions{
+				ExporterOptions: models.ExporterOptions{
 					PushMetrics: isPushMode(metricsMode),
 				},
-				MySQLOptions: &models.MySQLOptions{
+				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 				},
 
-				PostgreSQLOptions: &models.PostgreSQLOptions{
+				PostgreSQLOptions: models.PostgreSQLOptions{
 					AutoDiscoveryLimit:     pointer.ToInt32(req.AutoDiscoveryLimit),
 					MaxExporterConnections: req.MaxPostgresqlExporterConnections,
 				},
@@ -446,7 +446,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 					Password:      req.Password,
 					TLS:           req.Tls,
 					TLSSkipVerify: req.TlsSkipVerify,
-					QANOptions: &models.QANOptions{
+					QANOptions: models.QANOptions{
 						QueryExamplesDisabled:   req.DisableQueryExamples,
 						CommentsParsingDisabled: req.DisableCommentsParsing,
 					},

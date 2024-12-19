@@ -70,7 +70,7 @@ func (s *ManagementService) addProxySQL(ctx context.Context, req *managementv1.A
 			AgentPassword: req.AgentPassword,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				ExposeExporter:     req.ExposeExporter,
 				PushMetrics:        isPushMode(req.MetricsMode),
 				DisabledCollectors: req.DisableCollectors,

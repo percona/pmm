@@ -101,33 +101,23 @@ func redactWords(agent *models.Agent) []string {
 	if s := pointer.GetString(agent.AgentPassword); s != "" {
 		words = append(words, s)
 	}
-	if agent.AWSOptions != nil {
-		if s := agent.AWSOptions.AWSSecretKey; s != "" {
-			words = append(words, s)
-		}
+	if s := agent.AWSOptions.AWSSecretKey; s != "" {
+		words = append(words, s)
 	}
-	if agent.AzureOptions != nil {
-		if s := agent.AzureOptions.ClientSecret; s != "" {
-			words = append(words, s)
-		}
+	if s := agent.AzureOptions.ClientSecret; s != "" {
+		words = append(words, s)
 	}
-	if agent.MongoDBOptions != nil {
-		if s := agent.MongoDBOptions.TLSCertificateKey; s != "" {
-			words = append(words, s)
-		}
-		if s := agent.MongoDBOptions.TLSCertificateKeyFilePassword; s != "" {
-			words = append(words, s)
-		}
+	if s := agent.MongoDBOptions.TLSCertificateKey; s != "" {
+		words = append(words, s)
 	}
-	if agent.MySQLOptions != nil {
-		if s := agent.MySQLOptions.TLSKey; s != "" {
-			words = append(words, s)
-		}
+	if s := agent.MongoDBOptions.TLSCertificateKeyFilePassword; s != "" {
+		words = append(words, s)
 	}
-	if agent.PostgreSQLOptions != nil {
-		if s := agent.PostgreSQLOptions.SSLKey; s != "" {
-			words = append(words, s)
-		}
+	if s := agent.MySQLOptions.TLSKey; s != "" {
+		words = append(words, s)
+	}
+	if s := agent.PostgreSQLOptions.SSLKey; s != "" {
+		words = append(words, s)
 	}
 
 	return words

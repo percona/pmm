@@ -48,7 +48,7 @@ func TestRDSExporterConfig(t *testing.T) {
 		AgentID:   "agent1",
 		AgentType: models.RDSExporterType,
 		NodeID:    &node1.NodeID,
-		AWSOptions: &models.AWSOptions{
+		AWSOptions: models.AWSOptions{
 			AWSAccessKey:            "access_key1",
 			AWSSecretKey:            "secret_key1",
 			RDSBasicMetricsDisabled: true,
@@ -72,7 +72,7 @@ func TestRDSExporterConfig(t *testing.T) {
 		AgentID:   "agent2",
 		AgentType: models.RDSExporterType,
 		NodeID:    &node2.NodeID,
-		AWSOptions: &models.AWSOptions{
+		AWSOptions: models.AWSOptions{
 			AWSAccessKey: "access_key2",
 			AWSSecretKey: "secret_key2",
 		},
