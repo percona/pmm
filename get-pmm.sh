@@ -475,7 +475,7 @@ start_pmm() {
     # get container tag from inspect
     old_version=$(run_docker "inspect --format='{{.Config.Image}}' $container_name | cut -d':' -f2")
     # if tag starts with 2.x, we need to migrate data
-    if [[ "$old_version" == 2.* ]]; then
+    if [[ "$old_version" == "2" || "$old_version" == 2.* || "$old_version" == "dev-latest" ]]; then
       docker_env_flags=$(migrate_env_vars "$docker_env_flags")
       migrate_pmm_data
     fi
