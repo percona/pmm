@@ -21,7 +21,7 @@ advertise {
 
   # Shall be reachable by Nomad Client nodes.
   # PMM Server public address shall be defined.
-  rpc = "<PMM Server external address>"
+  rpc = "{{ .Node.Address }}"
 }
 
 server {
@@ -34,29 +34,11 @@ tls {
   http = true
   # encrypt Nomad Server <-> Nomad Client communication channel
   rpc  = true
-  ca_file   = "/srv/nomad/certs/<PMM Server external address>-agent-ca.pem"
-  cert_file = "/srv/nomad/certs/global-server-<PMM Server external address>.pem"
-  key_file  = "/srv/nomad/certs/global-server-<PMM Server external address>-key.pem"
+  ca_file   = "/srv/nomad/certs/global-agent-ca.pem"
+  cert_file = "/srv/nomad/certs/global-server-{{ .Node.Address }}.pem"
+  key_file  = "/srv/nomad/certs/global-server-{{ .Node.Address }}-key.pem"
 
   verify_server_hostname = true
-}
-
-# Run local Nomad Agent on PMM Server
-client {
-  enabled = true
-
-  cpu_total_compute = 1000
-  servers = ["127.0.0.1:4647"]
-
-  # disable Docker plugin
-  options = {
-    "driver.denylist" = "docker,qemu,java,exec"
-    "driver.allowlist" = "raw_exec" # Only this task driver can be used in unpriviliged docker container
-  }
-
-  meta {
-    pmm-server = "1"
-  }
 }
 
 # Enabled plugins

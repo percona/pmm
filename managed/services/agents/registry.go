@@ -24,7 +24,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -301,16 +300,10 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 // otherwise ensures that vmAgent not exist for pmm-agent and pmm-agent's agents don't have push_metrics mode,
 // removes it if needed.
 func (r *Registry) addOrRemoveVMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string, pmmAgentVersion *version.Parsed) error {
-	if pmmAgentVersion.Less(models.PMMAgentWithPushMetricsSupport) {
-		// ensure that vmagent not exists and agents dont have push_metrics.
-		return removeVMAgentFromPMMAgent(q, pmmAgentID)
-	}
 	return r.addVMAgentToPMMAgent(q, pmmAgentID, runsOnNodeID)
 }
 
 func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string) error {
-	// TODO remove it after fix
-	// https://jira.percona.com/browse/PMM-4420
 	if runsOnNodeID == "pmm-server" && !r.isExternalVM {
 		return nil
 	}
@@ -320,7 +313,7 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 		return status.Errorf(codes.Internal, "Can't get 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
 	}
 	if len(vmAgent) == 0 {
-		if _, err := models.CreateAgent(q, models.VMAgentType, &models.CreateAgentParams{
+		if _, err := models.CreateAgent(q, vmAgentType, &models.CreateAgentParams{
 			PMMAgentID:  pmmAgentID,
 			PushMetrics: true,
 			NodeID:      runsOnNodeID,
@@ -331,30 +324,21 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 	return nil
 }
 
-func removeVMAgentFromPMMAgent(q *reform.Querier, pmmAgentID string) error {
-	vmAgentType := models.VMAgentType
-	vmAgent, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: &vmAgentType})
+func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string, pmmAgentVersion *version.Parsed) error {
+	if pmmAgentVersion.Less(models.PMMAgentWithPushMetricsSupport) {
+
+	}
+	nomadClientType := models.NomadClientType
+	nomadClient, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: &nomadClientType})
 	if err != nil {
-		return status.Errorf(codes.Internal, "Can't get 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
+		return status.Errorf(codes.Internal, "Can't get 'nomadClient' for pmm-agent with ID %q", pmmAgentID)
 	}
-	if len(vmAgent) != 0 {
-		for _, agent := range vmAgent {
-			if _, err := models.RemoveAgent(q, agent.AgentID, models.RemoveRestrict); err != nil {
-				return errors.Wrapf(err, "Can't remove 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
-			}
-		}
-	}
-	agents, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID})
-	if err != nil {
-		return errors.Wrapf(err, "Can't find agents for pmm-agent with ID %q", pmmAgentID)
-	}
-	for _, agent := range agents {
-		if agent.PushMetrics {
-			logrus.Warnf("disabling push_metrics for agent with unsupported version ID %q with pmm-agent ID %q", agent.AgentID, pmmAgentID)
-			agent.PushMetrics = false
-			if err := q.Update(agent); err != nil {
-				return errors.Wrapf(err, "Can't set push_metrics=false for agent %q at pmm-agent with ID %q", agent.AgentID, pmmAgentID)
-			}
+	if len(nomadClient) == 0 {
+		if _, err := models.CreateAgent(q, nomadClientType, &models.CreateAgentParams{
+			PMMAgentID: pmmAgentID,
+			NodeID:     runsOnNodeID,
+		}); err != nil {
+			return errors.Wrapf(err, "Can't create 'nomadClient' for pmm-agent with ID %q", pmmAgentID)
 		}
 	}
 	return nil

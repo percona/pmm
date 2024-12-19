@@ -82,7 +82,7 @@ func New() *Encryption {
 		if runtime.GOOS == "darwin" { // for development on macOS
 			e.Path = "./encryption.key"
 		} else {
-			e.Path = keyPath
+			e.Path = DefaultEncryptionKeyPath
 		}
 	}
 

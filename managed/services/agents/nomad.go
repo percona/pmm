@@ -29,13 +29,75 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/version"
 )
 
-//go:embed nomad_client.hcl
-var nomadConfigTemplate string
+var nomadConfigTemplate = `log_level = "{{ .LogLevel }}"
 
-func nomadClientConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) {
+disable_update_check = true
+data_dir = "{{ .DataDir }}" # it shall be persistent
+region = "global"
+datacenter = "PMM Deployment"
+name = "PMM Agent {{ .NodeName }}"
+
+ui {
+  enabled = false
+}
+
+addresses {
+  http = "127.0.0.1"
+  rpc = "127.0.0.1"
+}
+
+advertise {
+  # 127.0.0.1 is not applicable here
+  http = "{{ .NodeAddress }}" # filled by PMM Server
+  rpc = "{{ .NodeAddress }}"  # filled by PMM Server
+}
+
+client {
+  enabled = true
+  cpu_total_compute = 1000
+
+  servers = ["{{ .PMMServerAddress }}"] # filled by PMM Server
+
+  # disable Docker plugin
+  options = {
+    "driver.denylist" = "docker,qemu,java,exec"
+    "driver.allowlist" = "raw_exec"
+  }
+
+  # optional lables set to Nomad Client, may be the same as for PMM Agent.
+  meta {
+    pmm-agent = "1"
+  {{- range $key, $value := .Labels }}
+    {{ $key }} = "{{ $value }}"
+  {{- end }}
+  }
+}
+
+server {
+  enabled = false
+}
+
+tls {
+  http = true
+  rpc  = true
+  ca_file   = "{{ .CaFile }}" # filled by PMM Agent
+  cert_file = "{{ .CertFile }}" # filled by PMM Agent
+  key_file  = "{{ .KeyFile }}" # filled by PMM Agent
+
+  verify_server_hostname = true
+}
+
+# Enabled plugins
+plugin "raw_exec" {
+  config {
+      enabled = true
+  }
+}
+`
+
+func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*agentv1.SetStateRequest_AgentProcess, error) {
 	// TODO:
 	// list tls certificates
 	// command to start nomad client
@@ -56,17 +118,16 @@ func nomadClientConfig(node *models.Node, exporter *models.Agent, agentVersion *
 	if err != nil {
 		return nil, err
 	}
-	pathsToCerts := "/srv/nomad/certs"
 
-	caCert, err := readCertFile(pathsToCerts, "nomad-agent-ca.pem")
+	caCert, err := n.GetCACert()
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to read CA certificate")
 	}
-	certFile, err := readCertFile(pathsToCerts, "global-client-nomad.pem")
+	certFile, err := n.GetClientCert()
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to read client certificate")
 	}
-	keyFile, err := readCertFile(pathsToCerts, "global-client-nomad-key.pem")
+	keyFile, err := n.GetClientKey()
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to read client key")
 	}
@@ -100,10 +161,15 @@ func generateNomadClientConfig(node *models.Node, exporter *models.Agent, tdp mo
 	if exporter.LogLevel != nil {
 		logLevel = *exporter.LogLevel
 	}
+	labels, err := models.MergeLabels(node, nil, exporter)
+	if err != nil {
+		return "", errors.Wrap(err, "Failed to get unified labels")
+	}
 
-	nomadConfigParams := map[string]string{
+	nomadConfigParams := map[string]interface{}{
 		"NodeName":         node.NodeName,
 		"NodeID":           node.NodeID,
+		"Labels":           labels,
 		"PMMServerAddress": tdp.Left + "server_host" + tdp.Right + ":4647",
 		"NodeAddress":      node.Address,
 		"CaFile":           "{{ .TextFiles.caCert }}",

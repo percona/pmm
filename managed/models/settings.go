@@ -86,6 +86,10 @@ type Settings struct {
 
 	SaaS Advisors `json:"sass"` // sic :(
 
+	Nomad struct {
+		Enabled *bool `json:"enabled"`
+	}
+
 	Alerting struct {
 		Enabled *bool `json:"enabled"`
 	} `json:"alerting"`
@@ -153,6 +157,14 @@ func (s *Settings) IsAdvisorsEnabled() bool {
 	}
 
 	return AdvisorsEnabledDefault
+}
+
+// IsNomadEnabled returns true if Nomad is enabled.
+func (s *Settings) IsNomadEnabled() bool {
+	if s.Nomad.Enabled != nil {
+		return *s.Nomad.Enabled && s.PMMPublicAddress != ""
+	}
+	return false
 }
 
 // IsAzureDiscoverEnabled returns true if Azure discovery is enabled.
