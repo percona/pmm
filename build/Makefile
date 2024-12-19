@@ -8,8 +8,7 @@ export CENTOS_ISO := 2004.01
 fetch:
 	mkdir -p ${PACKER_CACHE_DIR}/box
 	test -f ${PACKER_CACHE_DIR}/id_rsa_vagrant \
-	    || curl -L https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant \
-		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
+		|| curl -L https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant -o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 
 	# Add the box using Vagrant
