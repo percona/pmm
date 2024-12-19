@@ -94,6 +94,16 @@ func (c ExporterOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *ExporterOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
+// IsEmpty returns true if all ExporterOptions fields are unset or have zero values, otherwise returns false.
+func (c ExporterOptions) IsEmpty() bool {
+	return !c.ExposeExporter &&
+		!c.PushMetrics &&
+		len(c.DisabledCollectors) == 0 &&
+		c.MetricsResolutions == nil &&
+		c.MetricsPath == "" &&
+		c.MetricsScheme == ""
+}
+
 // QANOptions represents structure for special QAN options.
 type QANOptions struct {
 	MaxQueryLength          int32 `json:"max_query_length"`
@@ -107,6 +117,14 @@ func (c QANOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *QANOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if all QANOptions fields are unset or have zero values, otherwise returns false.
+func (c QANOptions) IsEmpty() bool {
+	return c.MaxQueryLength == 0 &&
+		c.MaxQueryLogSize == 0 &&
+		!c.QueryExamplesDisabled &&
+		!c.CommentsParsingDisabled
+}
 
 // AWSOptions represents structure for special AWS options.
 type AWSOptions struct {
@@ -122,6 +140,7 @@ func (c AWSOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *AWSOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
+// IsEmpty returns true if all AWSOptions fields are unset or have zero values, otherwise returns false.
 func (c AWSOptions) IsEmpty() bool {
 	return c.AWSAccessKey == "" &&
 		c.AWSSecretKey == "" &&
@@ -144,6 +163,7 @@ func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
+// IsEmpty returns true if all AzureOptions fields are unset or have zero values, otherwise returns false.
 func (c AzureOptions) IsEmpty() bool {
 	return c.SubscriptionID == "" &&
 		c.ClientID == "" &&
@@ -170,6 +190,7 @@ func (c MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *MongoDBOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
+// IsEmpty returns true if all MongoDBOptions fields are unset or have zero values, otherwise returns false.
 func (c MongoDBOptions) IsEmpty() bool {
 	return c.TLSCertificateKey == "" &&
 		c.TLSCertificateKeyFilePassword == "" &&
@@ -203,6 +224,7 @@ func (c MySQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *MySQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
+// IsEmpty returns true if all MySQLOptions fields are unset or have zero values, otherwise returns false.
 func (c MySQLOptions) IsEmpty() bool {
 	return c.TLSCa == "" &&
 		c.TLSCert == "" &&
@@ -228,6 +250,7 @@ func (c PostgreSQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *PostgreSQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
+// IsEmpty returns true if all PostgreSQLOptions fields are unset or have zero values, otherwise returns false.
 func (c PostgreSQLOptions) IsEmpty() bool {
 	return c.SSLCa == "" &&
 		c.SSLCert == "" &&
