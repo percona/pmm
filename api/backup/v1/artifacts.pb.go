@@ -7,12 +7,13 @@
 package backupv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -693,23 +694,26 @@ func file_backup_v1_artifacts_proto_rawDescGZIP() []byte {
 	return file_backup_v1_artifacts_proto_rawDescData
 }
 
-var file_backup_v1_artifacts_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_backup_v1_artifacts_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_backup_v1_artifacts_proto_goTypes = []any{
-	(BackupStatus)(0),                  // 0: backup.v1.BackupStatus
-	(*Artifact)(nil),                   // 1: backup.v1.Artifact
-	(*ListArtifactsRequest)(nil),       // 2: backup.v1.ListArtifactsRequest
-	(*ListArtifactsResponse)(nil),      // 3: backup.v1.ListArtifactsResponse
-	(*DeleteArtifactRequest)(nil),      // 4: backup.v1.DeleteArtifactRequest
-	(*DeleteArtifactResponse)(nil),     // 5: backup.v1.DeleteArtifactResponse
-	(*PitrTimerange)(nil),              // 6: backup.v1.PitrTimerange
-	(*ListPitrTimerangesRequest)(nil),  // 7: backup.v1.ListPitrTimerangesRequest
-	(*ListPitrTimerangesResponse)(nil), // 8: backup.v1.ListPitrTimerangesResponse
-	(DataModel)(0),                     // 9: backup.v1.DataModel
-	(*timestamppb.Timestamp)(nil),      // 10: google.protobuf.Timestamp
-	(BackupMode)(0),                    // 11: backup.v1.BackupMode
-	(*Metadata)(nil),                   // 12: backup.v1.Metadata
-}
+var (
+	file_backup_v1_artifacts_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_backup_v1_artifacts_proto_msgTypes  = make([]protoimpl.MessageInfo, 8)
+	file_backup_v1_artifacts_proto_goTypes   = []any{
+		(BackupStatus)(0),                  // 0: backup.v1.BackupStatus
+		(*Artifact)(nil),                   // 1: backup.v1.Artifact
+		(*ListArtifactsRequest)(nil),       // 2: backup.v1.ListArtifactsRequest
+		(*ListArtifactsResponse)(nil),      // 3: backup.v1.ListArtifactsResponse
+		(*DeleteArtifactRequest)(nil),      // 4: backup.v1.DeleteArtifactRequest
+		(*DeleteArtifactResponse)(nil),     // 5: backup.v1.DeleteArtifactResponse
+		(*PitrTimerange)(nil),              // 6: backup.v1.PitrTimerange
+		(*ListPitrTimerangesRequest)(nil),  // 7: backup.v1.ListPitrTimerangesRequest
+		(*ListPitrTimerangesResponse)(nil), // 8: backup.v1.ListPitrTimerangesResponse
+		(DataModel)(0),                     // 9: backup.v1.DataModel
+		(*timestamppb.Timestamp)(nil),      // 10: google.protobuf.Timestamp
+		(BackupMode)(0),                    // 11: backup.v1.BackupMode
+		(*Metadata)(nil),                   // 12: backup.v1.Metadata
+	}
+)
+
 var file_backup_v1_artifacts_proto_depIdxs = []int32{
 	9,  // 0: backup.v1.Artifact.data_model:type_name -> backup.v1.DataModel
 	0,  // 1: backup.v1.Artifact.status:type_name -> backup.v1.BackupStatus

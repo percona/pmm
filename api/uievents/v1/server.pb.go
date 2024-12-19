@@ -7,12 +7,13 @@
 package uieventsv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -528,16 +529,19 @@ func file_uievents_v1_server_proto_rawDescGZIP() []byte {
 	return file_uievents_v1_server_proto_rawDescData
 }
 
-var file_uievents_v1_server_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-var file_uievents_v1_server_proto_goTypes = []any{
-	(*NotificationEvent)(nil),   // 0: uievents.v1.NotificationEvent
-	(*FetchingEvent)(nil),       // 1: uievents.v1.FetchingEvent
-	(*DashboardUsageEvent)(nil), // 2: uievents.v1.DashboardUsageEvent
-	(*UserFlowEvent)(nil),       // 3: uievents.v1.UserFlowEvent
-	(*StoreRequest)(nil),        // 4: uievents.v1.StoreRequest
-	(*StoreResponse)(nil),       // 5: uievents.v1.StoreResponse
-	nil,                         // 6: uievents.v1.UserFlowEvent.ParamsEntry
-}
+var (
+	file_uievents_v1_server_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+	file_uievents_v1_server_proto_goTypes  = []any{
+		(*NotificationEvent)(nil),   // 0: uievents.v1.NotificationEvent
+		(*FetchingEvent)(nil),       // 1: uievents.v1.FetchingEvent
+		(*DashboardUsageEvent)(nil), // 2: uievents.v1.DashboardUsageEvent
+		(*UserFlowEvent)(nil),       // 3: uievents.v1.UserFlowEvent
+		(*StoreRequest)(nil),        // 4: uievents.v1.StoreRequest
+		(*StoreResponse)(nil),       // 5: uievents.v1.StoreResponse
+		nil,                         // 6: uievents.v1.UserFlowEvent.ParamsEntry
+	}
+)
+
 var file_uievents_v1_server_proto_depIdxs = []int32{
 	6, // 0: uievents.v1.UserFlowEvent.params:type_name -> uievents.v1.UserFlowEvent.ParamsEntry
 	0, // 1: uievents.v1.StoreRequest.notifications:type_name -> uievents.v1.NotificationEvent

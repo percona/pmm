@@ -103,7 +103,6 @@ func (o *QueryExistsOK) GetPayload() *QueryExistsOKBody {
 }
 
 func (o *QueryExistsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(QueryExistsOKBody)
 
 	// response payload
@@ -177,7 +176,6 @@ func (o *QueryExistsDefault) GetPayload() *QueryExistsDefaultBody {
 }
 
 func (o *QueryExistsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(QueryExistsDefaultBody)
 
 	// response payload
@@ -193,7 +191,6 @@ QueryExistsBody QueryExistsRequest check if provided query exists or not.
 swagger:model QueryExistsBody
 */
 type QueryExistsBody struct {
-
 	// serviceid
 	Serviceid string `json:"serviceid,omitempty"`
 
@@ -234,7 +231,6 @@ QueryExistsDefaultBody query exists default body
 swagger:model QueryExistsDefaultBody
 */
 type QueryExistsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -300,9 +296,7 @@ func (o *QueryExistsDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *QueryExistsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -318,7 +312,6 @@ func (o *QueryExistsDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -347,7 +340,6 @@ QueryExistsDefaultBodyDetailsItems0 query exists default body details items0
 swagger:model QueryExistsDefaultBodyDetailsItems0
 */
 type QueryExistsDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -359,7 +351,6 @@ type QueryExistsDefaultBodyDetailsItems0 struct {
 func (o *QueryExistsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -397,7 +388,6 @@ func (o *QueryExistsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o QueryExistsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -461,7 +451,6 @@ QueryExistsOKBody QueryExistsResponse returns true if query exists.
 swagger:model QueryExistsOKBody
 */
 type QueryExistsOKBody struct {
-
 	// exists
 	Exists bool `json:"exists,omitempty"`
 }

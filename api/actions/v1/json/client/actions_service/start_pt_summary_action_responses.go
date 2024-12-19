@@ -103,7 +103,6 @@ func (o *StartPTSummaryActionOK) GetPayload() *StartPTSummaryActionOKBody {
 }
 
 func (o *StartPTSummaryActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartPTSummaryActionOKBody)
 
 	// response payload
@@ -177,7 +176,6 @@ func (o *StartPTSummaryActionDefault) GetPayload() *StartPTSummaryActionDefaultB
 }
 
 func (o *StartPTSummaryActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartPTSummaryActionDefaultBody)
 
 	// response payload
@@ -193,7 +191,6 @@ StartPTSummaryActionBody start PT summary action body
 swagger:model StartPTSummaryActionBody
 */
 type StartPTSummaryActionBody struct {
-
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -234,7 +231,6 @@ StartPTSummaryActionDefaultBody start PT summary action default body
 swagger:model StartPTSummaryActionDefaultBody
 */
 type StartPTSummaryActionDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -300,9 +296,7 @@ func (o *StartPTSummaryActionDefaultBody) ContextValidate(ctx context.Context, f
 }
 
 func (o *StartPTSummaryActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -318,7 +312,6 @@ func (o *StartPTSummaryActionDefaultBody) contextValidateDetails(ctx context.Con
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -347,7 +340,6 @@ StartPTSummaryActionDefaultBodyDetailsItems0 start PT summary action default bod
 swagger:model StartPTSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTSummaryActionDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -359,7 +351,6 @@ type StartPTSummaryActionDefaultBodyDetailsItems0 struct {
 func (o *StartPTSummaryActionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -397,7 +388,6 @@ func (o *StartPTSummaryActionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o StartPTSummaryActionDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -461,7 +451,6 @@ StartPTSummaryActionOKBody start PT summary action OK body
 swagger:model StartPTSummaryActionOKBody
 */
 type StartPTSummaryActionOKBody struct {
-
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

@@ -8,6 +8,7 @@ package accesscontrolv1beta1
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -161,21 +162,27 @@ type UnimplementedAccessControlServiceServer struct{}
 func (UnimplementedAccessControlServiceServer) CreateRole(context.Context, *CreateRoleRequest) (*CreateRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRole not implemented")
 }
+
 func (UnimplementedAccessControlServiceServer) UpdateRole(context.Context, *UpdateRoleRequest) (*UpdateRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateRole not implemented")
 }
+
 func (UnimplementedAccessControlServiceServer) DeleteRole(context.Context, *DeleteRoleRequest) (*DeleteRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRole not implemented")
 }
+
 func (UnimplementedAccessControlServiceServer) GetRole(context.Context, *GetRoleRequest) (*GetRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRole not implemented")
 }
+
 func (UnimplementedAccessControlServiceServer) ListRoles(context.Context, *ListRolesRequest) (*ListRolesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRoles not implemented")
 }
+
 func (UnimplementedAccessControlServiceServer) AssignRoles(context.Context, *AssignRolesRequest) (*AssignRolesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssignRoles not implemented")
 }
+
 func (UnimplementedAccessControlServiceServer) SetDefaultRole(context.Context, *SetDefaultRoleRequest) (*SetDefaultRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDefaultRole not implemented")
 }

@@ -24,12 +24,14 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_AccessControlService_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CreateRoleRequest
@@ -41,7 +43,6 @@ func request_AccessControlService_CreateRole_0(ctx context.Context, marshaler ru
 
 	msg, err := client.CreateRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AccessControlService_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -54,7 +55,6 @@ func local_request_AccessControlService_CreateRole_0(ctx context.Context, marsha
 
 	msg, err := server.CreateRole(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_AccessControlService_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -84,7 +84,6 @@ func request_AccessControlService_UpdateRole_0(ctx context.Context, marshaler ru
 
 	msg, err := client.UpdateRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AccessControlService_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -114,12 +113,9 @@ func local_request_AccessControlService_UpdateRole_0(ctx context.Context, marsha
 
 	msg, err := server.UpdateRole(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_AccessControlService_DeleteRole_0 = &utilities.DoubleArray{Encoding: map[string]int{"role_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
-)
+var filter_AccessControlService_DeleteRole_0 = &utilities.DoubleArray{Encoding: map[string]int{"role_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_AccessControlService_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DeleteRoleRequest
@@ -151,7 +147,6 @@ func request_AccessControlService_DeleteRole_0(ctx context.Context, marshaler ru
 
 	msg, err := client.DeleteRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AccessControlService_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -184,7 +179,6 @@ func local_request_AccessControlService_DeleteRole_0(ctx context.Context, marsha
 
 	msg, err := server.DeleteRole(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_AccessControlService_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -210,7 +204,6 @@ func request_AccessControlService_GetRole_0(ctx context.Context, marshaler runti
 
 	msg, err := client.GetRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AccessControlService_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -236,7 +229,6 @@ func local_request_AccessControlService_GetRole_0(ctx context.Context, marshaler
 
 	msg, err := server.GetRole(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_AccessControlService_ListRoles_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -245,7 +237,6 @@ func request_AccessControlService_ListRoles_0(ctx context.Context, marshaler run
 
 	msg, err := client.ListRoles(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AccessControlService_ListRoles_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -254,7 +245,6 @@ func local_request_AccessControlService_ListRoles_0(ctx context.Context, marshal
 
 	msg, err := server.ListRoles(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_AccessControlService_AssignRoles_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -267,7 +257,6 @@ func request_AccessControlService_AssignRoles_0(ctx context.Context, marshaler r
 
 	msg, err := client.AssignRoles(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AccessControlService_AssignRoles_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -280,7 +269,6 @@ func local_request_AccessControlService_AssignRoles_0(ctx context.Context, marsh
 
 	msg, err := server.AssignRoles(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_AccessControlService_SetDefaultRole_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -293,7 +281,6 @@ func request_AccessControlService_SetDefaultRole_0(ctx context.Context, marshale
 
 	msg, err := client.SetDefaultRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AccessControlService_SetDefaultRole_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -306,7 +293,6 @@ func local_request_AccessControlService_SetDefaultRole_0(ctx context.Context, ma
 
 	msg, err := server.SetDefaultRole(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterAccessControlServiceHandlerServer registers the http handlers for service AccessControlService to "mux".
@@ -315,7 +301,6 @@ func local_request_AccessControlService_SetDefaultRole_0(ctx context.Context, ma
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAccessControlServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AccessControlServiceServer) error {
-
 	mux.Handle("POST", pattern_AccessControlService_CreateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -338,7 +323,6 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_CreateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("PUT", pattern_AccessControlService_UpdateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -363,7 +347,6 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_UpdateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("DELETE", pattern_AccessControlService_DeleteRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -388,7 +371,6 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_DeleteRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_AccessControlService_GetRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -413,7 +395,6 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_GetRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_AccessControlService_ListRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -438,7 +419,6 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_ListRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_AccessControlService_AssignRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -463,7 +443,6 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_AssignRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_AccessControlService_SetDefaultRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -488,7 +467,6 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_SetDefaultRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -531,7 +509,6 @@ func RegisterAccessControlServiceHandler(ctx context.Context, mux *runtime.Serve
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AccessControlServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AccessControlServiceClient) error {
-
 	mux.Handle("POST", pattern_AccessControlService_CreateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -551,7 +528,6 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_CreateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("PUT", pattern_AccessControlService_UpdateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -573,7 +549,6 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_UpdateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("DELETE", pattern_AccessControlService_DeleteRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -595,7 +570,6 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_DeleteRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_AccessControlService_GetRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -617,7 +591,6 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_GetRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_AccessControlService_ListRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -639,7 +612,6 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_ListRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_AccessControlService_AssignRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -661,7 +633,6 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_AssignRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_AccessControlService_SetDefaultRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -683,7 +654,6 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 		}
 
 		forward_AccessControlService_SetDefaultRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

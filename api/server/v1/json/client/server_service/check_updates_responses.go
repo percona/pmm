@@ -104,7 +104,6 @@ func (o *CheckUpdatesOK) GetPayload() *CheckUpdatesOKBody {
 }
 
 func (o *CheckUpdatesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(CheckUpdatesOKBody)
 
 	// response payload
@@ -178,7 +177,6 @@ func (o *CheckUpdatesDefault) GetPayload() *CheckUpdatesDefaultBody {
 }
 
 func (o *CheckUpdatesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(CheckUpdatesDefaultBody)
 
 	// response payload
@@ -194,7 +192,6 @@ CheckUpdatesDefaultBody check updates default body
 swagger:model CheckUpdatesDefaultBody
 */
 type CheckUpdatesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -260,9 +257,7 @@ func (o *CheckUpdatesDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *CheckUpdatesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -278,7 +273,6 @@ func (o *CheckUpdatesDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -391,7 +385,6 @@ CheckUpdatesDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized prot
 swagger:model CheckUpdatesDefaultBodyDetailsItems0
 */
 type CheckUpdatesDefaultBodyDetailsItems0 struct {
-
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -430,7 +423,6 @@ type CheckUpdatesDefaultBodyDetailsItems0 struct {
 func (o *CheckUpdatesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -495,7 +487,6 @@ func (o *CheckUpdatesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o CheckUpdatesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -586,7 +577,6 @@ CheckUpdatesOKBody check updates OK body
 swagger:model CheckUpdatesOKBody
 */
 type CheckUpdatesOKBody struct {
-
 	// True if there is a PMM Server update available.
 	UpdateAvailable bool `json:"update_available,omitempty"`
 
@@ -695,7 +685,6 @@ func (o *CheckUpdatesOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *CheckUpdatesOKBody) contextValidateInstalled(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Installed != nil {
 
 		if swag.IsZero(o.Installed) { // not required
@@ -716,7 +705,6 @@ func (o *CheckUpdatesOKBody) contextValidateInstalled(ctx context.Context, forma
 }
 
 func (o *CheckUpdatesOKBody) contextValidateLatest(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Latest != nil {
 
 		if swag.IsZero(o.Latest) { // not required
@@ -759,7 +747,6 @@ CheckUpdatesOKBodyInstalled VersionInfo describes component version, or PMM Serv
 swagger:model CheckUpdatesOKBodyInstalled
 */
 type CheckUpdatesOKBodyInstalled struct {
-
 	// User-visible version.
 	Version string `json:"version,omitempty"`
 
@@ -825,7 +812,6 @@ CheckUpdatesOKBodyLatest check updates OK body latest
 swagger:model CheckUpdatesOKBodyLatest
 */
 type CheckUpdatesOKBodyLatest struct {
-
 	// PMM Version.
 	Version string `json:"version,omitempty"`
 

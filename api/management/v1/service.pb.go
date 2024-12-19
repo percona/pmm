@@ -7,14 +7,16 @@
 package managementv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	v1 "github.com/percona/pmm/api/inventory/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
+
+	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -1149,56 +1151,59 @@ func file_management_v1_service_proto_rawDescGZIP() []byte {
 	return file_management_v1_service_proto_rawDescData
 }
 
-var file_management_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_management_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_management_v1_service_proto_goTypes = []any{
-	(UniversalService_Status)(0),          // 0: management.v1.UniversalService.Status
-	(*AddServiceRequest)(nil),             // 1: management.v1.AddServiceRequest
-	(*AddServiceResponse)(nil),            // 2: management.v1.AddServiceResponse
-	(*RemoveServiceRequest)(nil),          // 3: management.v1.RemoveServiceRequest
-	(*RemoveServiceResponse)(nil),         // 4: management.v1.RemoveServiceResponse
-	(*UniversalService)(nil),              // 5: management.v1.UniversalService
-	(*ListServicesRequest)(nil),           // 6: management.v1.ListServicesRequest
-	(*ListServicesResponse)(nil),          // 7: management.v1.ListServicesResponse
-	nil,                                   // 8: management.v1.UniversalService.CustomLabelsEntry
-	(*AddMySQLServiceParams)(nil),         // 9: management.v1.AddMySQLServiceParams
-	(*AddMongoDBServiceParams)(nil),       // 10: management.v1.AddMongoDBServiceParams
-	(*AddPostgreSQLServiceParams)(nil),    // 11: management.v1.AddPostgreSQLServiceParams
-	(*AddProxySQLServiceParams)(nil),      // 12: management.v1.AddProxySQLServiceParams
-	(*AddHAProxyServiceParams)(nil),       // 13: management.v1.AddHAProxyServiceParams
-	(*AddExternalServiceParams)(nil),      // 14: management.v1.AddExternalServiceParams
-	(*AddRDSServiceParams)(nil),           // 15: management.v1.AddRDSServiceParams
-	(*MySQLServiceResult)(nil),            // 16: management.v1.MySQLServiceResult
-	(*MongoDBServiceResult)(nil),          // 17: management.v1.MongoDBServiceResult
-	(*PostgreSQLServiceResult)(nil),       // 18: management.v1.PostgreSQLServiceResult
-	(*ProxySQLServiceResult)(nil),         // 19: management.v1.ProxySQLServiceResult
-	(*HAProxyServiceResult)(nil),          // 20: management.v1.HAProxyServiceResult
-	(*ExternalServiceResult)(nil),         // 21: management.v1.ExternalServiceResult
-	(*RDSServiceResult)(nil),              // 22: management.v1.RDSServiceResult
-	(v1.ServiceType)(0),                   // 23: inventory.v1.ServiceType
-	(*timestamppb.Timestamp)(nil),         // 24: google.protobuf.Timestamp
-	(*UniversalAgent)(nil),                // 25: management.v1.UniversalAgent
-	(*AddAnnotationRequest)(nil),          // 26: management.v1.AddAnnotationRequest
-	(*ListAgentsRequest)(nil),             // 27: management.v1.ListAgentsRequest
-	(*ListAgentVersionsRequest)(nil),      // 28: management.v1.ListAgentVersionsRequest
-	(*RegisterNodeRequest)(nil),           // 29: management.v1.RegisterNodeRequest
-	(*UnregisterNodeRequest)(nil),         // 30: management.v1.UnregisterNodeRequest
-	(*ListNodesRequest)(nil),              // 31: management.v1.ListNodesRequest
-	(*GetNodeRequest)(nil),                // 32: management.v1.GetNodeRequest
-	(*DiscoverRDSRequest)(nil),            // 33: management.v1.DiscoverRDSRequest
-	(*DiscoverAzureDatabaseRequest)(nil),  // 34: management.v1.DiscoverAzureDatabaseRequest
-	(*AddAzureDatabaseRequest)(nil),       // 35: management.v1.AddAzureDatabaseRequest
-	(*AddAnnotationResponse)(nil),         // 36: management.v1.AddAnnotationResponse
-	(*ListAgentsResponse)(nil),            // 37: management.v1.ListAgentsResponse
-	(*ListAgentVersionsResponse)(nil),     // 38: management.v1.ListAgentVersionsResponse
-	(*RegisterNodeResponse)(nil),          // 39: management.v1.RegisterNodeResponse
-	(*UnregisterNodeResponse)(nil),        // 40: management.v1.UnregisterNodeResponse
-	(*ListNodesResponse)(nil),             // 41: management.v1.ListNodesResponse
-	(*GetNodeResponse)(nil),               // 42: management.v1.GetNodeResponse
-	(*DiscoverRDSResponse)(nil),           // 43: management.v1.DiscoverRDSResponse
-	(*DiscoverAzureDatabaseResponse)(nil), // 44: management.v1.DiscoverAzureDatabaseResponse
-	(*AddAzureDatabaseResponse)(nil),      // 45: management.v1.AddAzureDatabaseResponse
-}
+var (
+	file_management_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_management_v1_service_proto_msgTypes  = make([]protoimpl.MessageInfo, 8)
+	file_management_v1_service_proto_goTypes   = []any{
+		(UniversalService_Status)(0),          // 0: management.v1.UniversalService.Status
+		(*AddServiceRequest)(nil),             // 1: management.v1.AddServiceRequest
+		(*AddServiceResponse)(nil),            // 2: management.v1.AddServiceResponse
+		(*RemoveServiceRequest)(nil),          // 3: management.v1.RemoveServiceRequest
+		(*RemoveServiceResponse)(nil),         // 4: management.v1.RemoveServiceResponse
+		(*UniversalService)(nil),              // 5: management.v1.UniversalService
+		(*ListServicesRequest)(nil),           // 6: management.v1.ListServicesRequest
+		(*ListServicesResponse)(nil),          // 7: management.v1.ListServicesResponse
+		nil,                                   // 8: management.v1.UniversalService.CustomLabelsEntry
+		(*AddMySQLServiceParams)(nil),         // 9: management.v1.AddMySQLServiceParams
+		(*AddMongoDBServiceParams)(nil),       // 10: management.v1.AddMongoDBServiceParams
+		(*AddPostgreSQLServiceParams)(nil),    // 11: management.v1.AddPostgreSQLServiceParams
+		(*AddProxySQLServiceParams)(nil),      // 12: management.v1.AddProxySQLServiceParams
+		(*AddHAProxyServiceParams)(nil),       // 13: management.v1.AddHAProxyServiceParams
+		(*AddExternalServiceParams)(nil),      // 14: management.v1.AddExternalServiceParams
+		(*AddRDSServiceParams)(nil),           // 15: management.v1.AddRDSServiceParams
+		(*MySQLServiceResult)(nil),            // 16: management.v1.MySQLServiceResult
+		(*MongoDBServiceResult)(nil),          // 17: management.v1.MongoDBServiceResult
+		(*PostgreSQLServiceResult)(nil),       // 18: management.v1.PostgreSQLServiceResult
+		(*ProxySQLServiceResult)(nil),         // 19: management.v1.ProxySQLServiceResult
+		(*HAProxyServiceResult)(nil),          // 20: management.v1.HAProxyServiceResult
+		(*ExternalServiceResult)(nil),         // 21: management.v1.ExternalServiceResult
+		(*RDSServiceResult)(nil),              // 22: management.v1.RDSServiceResult
+		(v1.ServiceType)(0),                   // 23: inventory.v1.ServiceType
+		(*timestamppb.Timestamp)(nil),         // 24: google.protobuf.Timestamp
+		(*UniversalAgent)(nil),                // 25: management.v1.UniversalAgent
+		(*AddAnnotationRequest)(nil),          // 26: management.v1.AddAnnotationRequest
+		(*ListAgentsRequest)(nil),             // 27: management.v1.ListAgentsRequest
+		(*ListAgentVersionsRequest)(nil),      // 28: management.v1.ListAgentVersionsRequest
+		(*RegisterNodeRequest)(nil),           // 29: management.v1.RegisterNodeRequest
+		(*UnregisterNodeRequest)(nil),         // 30: management.v1.UnregisterNodeRequest
+		(*ListNodesRequest)(nil),              // 31: management.v1.ListNodesRequest
+		(*GetNodeRequest)(nil),                // 32: management.v1.GetNodeRequest
+		(*DiscoverRDSRequest)(nil),            // 33: management.v1.DiscoverRDSRequest
+		(*DiscoverAzureDatabaseRequest)(nil),  // 34: management.v1.DiscoverAzureDatabaseRequest
+		(*AddAzureDatabaseRequest)(nil),       // 35: management.v1.AddAzureDatabaseRequest
+		(*AddAnnotationResponse)(nil),         // 36: management.v1.AddAnnotationResponse
+		(*ListAgentsResponse)(nil),            // 37: management.v1.ListAgentsResponse
+		(*ListAgentVersionsResponse)(nil),     // 38: management.v1.ListAgentVersionsResponse
+		(*RegisterNodeResponse)(nil),          // 39: management.v1.RegisterNodeResponse
+		(*UnregisterNodeResponse)(nil),        // 40: management.v1.UnregisterNodeResponse
+		(*ListNodesResponse)(nil),             // 41: management.v1.ListNodesResponse
+		(*GetNodeResponse)(nil),               // 42: management.v1.GetNodeResponse
+		(*DiscoverRDSResponse)(nil),           // 43: management.v1.DiscoverRDSResponse
+		(*DiscoverAzureDatabaseResponse)(nil), // 44: management.v1.DiscoverAzureDatabaseResponse
+		(*AddAzureDatabaseResponse)(nil),      // 45: management.v1.AddAzureDatabaseResponse
+	}
+)
+
 var file_management_v1_service_proto_depIdxs = []int32{
 	9,  // 0: management.v1.AddServiceRequest.mysql:type_name -> management.v1.AddMySQLServiceParams
 	10, // 1: management.v1.AddServiceRequest.mongodb:type_name -> management.v1.AddMongoDBServiceParams

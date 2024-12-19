@@ -24,12 +24,14 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_PlatformService_Connect_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ConnectRequest
@@ -41,7 +43,6 @@ func request_PlatformService_Connect_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := client.Connect(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_PlatformService_Connect_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -54,7 +55,6 @@ func local_request_PlatformService_Connect_0(ctx context.Context, marshaler runt
 
 	msg, err := server.Connect(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_PlatformService_Disconnect_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -67,7 +67,6 @@ func request_PlatformService_Disconnect_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.Disconnect(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_PlatformService_Disconnect_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -80,7 +79,6 @@ func local_request_PlatformService_Disconnect_0(ctx context.Context, marshaler r
 
 	msg, err := server.Disconnect(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_PlatformService_SearchOrganizationTickets_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -89,7 +87,6 @@ func request_PlatformService_SearchOrganizationTickets_0(ctx context.Context, ma
 
 	msg, err := client.SearchOrganizationTickets(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_PlatformService_SearchOrganizationTickets_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -98,7 +95,6 @@ func local_request_PlatformService_SearchOrganizationTickets_0(ctx context.Conte
 
 	msg, err := server.SearchOrganizationTickets(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_PlatformService_SearchOrganizationEntitlements_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -107,7 +103,6 @@ func request_PlatformService_SearchOrganizationEntitlements_0(ctx context.Contex
 
 	msg, err := client.SearchOrganizationEntitlements(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_PlatformService_SearchOrganizationEntitlements_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -116,7 +111,6 @@ func local_request_PlatformService_SearchOrganizationEntitlements_0(ctx context.
 
 	msg, err := server.SearchOrganizationEntitlements(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_PlatformService_GetContactInformation_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -125,7 +119,6 @@ func request_PlatformService_GetContactInformation_0(ctx context.Context, marsha
 
 	msg, err := client.GetContactInformation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_PlatformService_GetContactInformation_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -134,7 +127,6 @@ func local_request_PlatformService_GetContactInformation_0(ctx context.Context, 
 
 	msg, err := server.GetContactInformation(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_PlatformService_ServerInfo_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -143,7 +135,6 @@ func request_PlatformService_ServerInfo_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.ServerInfo(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_PlatformService_ServerInfo_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -152,7 +143,6 @@ func local_request_PlatformService_ServerInfo_0(ctx context.Context, marshaler r
 
 	msg, err := server.ServerInfo(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_PlatformService_UserStatus_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -161,7 +151,6 @@ func request_PlatformService_UserStatus_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.UserStatus(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_PlatformService_UserStatus_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -170,7 +159,6 @@ func local_request_PlatformService_UserStatus_0(ctx context.Context, marshaler r
 
 	msg, err := server.UserStatus(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterPlatformServiceHandlerServer registers the http handlers for service PlatformService to "mux".
@@ -179,7 +167,6 @@ func local_request_PlatformService_UserStatus_0(ctx context.Context, marshaler r
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterPlatformServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server PlatformServiceServer) error {
-
 	mux.Handle("POST", pattern_PlatformService_Connect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -202,7 +189,6 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_Connect_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_PlatformService_Disconnect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -227,7 +213,6 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_Disconnect_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_PlatformService_SearchOrganizationTickets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -252,7 +237,6 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_SearchOrganizationTickets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_PlatformService_SearchOrganizationEntitlements_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -277,7 +261,6 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_SearchOrganizationEntitlements_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_PlatformService_GetContactInformation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -302,7 +285,6 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_GetContactInformation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_PlatformService_ServerInfo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -327,7 +309,6 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_ServerInfo_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_PlatformService_UserStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -352,7 +333,6 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_UserStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -395,7 +375,6 @@ func RegisterPlatformServiceHandler(ctx context.Context, mux *runtime.ServeMux, 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "PlatformServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client PlatformServiceClient) error {
-
 	mux.Handle("POST", pattern_PlatformService_Connect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -415,7 +394,6 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_Connect_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_PlatformService_Disconnect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -437,7 +415,6 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_Disconnect_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_PlatformService_SearchOrganizationTickets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -459,7 +436,6 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_SearchOrganizationTickets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_PlatformService_SearchOrganizationEntitlements_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -481,7 +457,6 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_SearchOrganizationEntitlements_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_PlatformService_GetContactInformation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -503,7 +478,6 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_GetContactInformation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_PlatformService_ServerInfo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -525,7 +499,6 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_ServerInfo_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_PlatformService_UserStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -547,7 +520,6 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_PlatformService_UserStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

@@ -46,7 +46,6 @@ func (o *LogsReader) ReadResponse(response runtime.ClientResponse, consumer runt
 // NewLogsOK creates a LogsOK with default headers values
 func NewLogsOK(writer io.Writer) *LogsOK {
 	return &LogsOK{
-
 		Payload: writer,
 	}
 }
@@ -103,7 +102,6 @@ func (o *LogsOK) GetPayload() io.Writer {
 }
 
 func (o *LogsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
@@ -175,7 +173,6 @@ func (o *LogsDefault) GetPayload() *LogsDefaultBody {
 }
 
 func (o *LogsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(LogsDefaultBody)
 
 	// response payload
@@ -191,7 +188,6 @@ LogsDefaultBody ErrorResponse is a message returned on HTTP error.
 swagger:model LogsDefaultBody
 */
 type LogsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 

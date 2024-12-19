@@ -61,7 +61,6 @@ ListTemplatesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListTemplatesParams struct {
-
 	/* PageIndex.
 
 	   Index of the requested page, starts from 0.
@@ -172,7 +171,6 @@ func (o *ListTemplatesParams) SetReload(reload *bool) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListTemplatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -188,7 +186,6 @@ func (o *ListTemplatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		}
 		qPageIndex := swag.FormatInt32(qrPageIndex)
 		if qPageIndex != "" {
-
 			if err := r.SetQueryParam("page_index", qPageIndex); err != nil {
 				return err
 			}
@@ -205,7 +202,6 @@ func (o *ListTemplatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		}
 		qPageSize := swag.FormatInt32(qrPageSize)
 		if qPageSize != "" {
-
 			if err := r.SetQueryParam("page_size", qPageSize); err != nil {
 				return err
 			}
@@ -222,7 +218,6 @@ func (o *ListTemplatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		}
 		qReload := swag.FormatBool(qrReload)
 		if qReload != "" {
-
 			if err := r.SetQueryParam("reload", qReload); err != nil {
 				return err
 			}

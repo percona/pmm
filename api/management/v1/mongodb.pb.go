@@ -7,12 +7,14 @@
 package managementv1
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
-	v1 "github.com/percona/pmm/api/inventory/v1"
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+
+	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -570,18 +572,21 @@ func file_management_v1_mongodb_proto_rawDescGZIP() []byte {
 	return file_management_v1_mongodb_proto_rawDescData
 }
 
-var file_management_v1_mongodb_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_management_v1_mongodb_proto_goTypes = []any{
-	(*AddMongoDBServiceParams)(nil),    // 0: management.v1.AddMongoDBServiceParams
-	(*MongoDBServiceResult)(nil),       // 1: management.v1.MongoDBServiceResult
-	nil,                                // 2: management.v1.AddMongoDBServiceParams.CustomLabelsEntry
-	(*AddNodeParams)(nil),              // 3: management.v1.AddNodeParams
-	(MetricsMode)(0),                   // 4: management.v1.MetricsMode
-	(v1.LogLevel)(0),                   // 5: inventory.v1.LogLevel
-	(*v1.MongoDBService)(nil),          // 6: inventory.v1.MongoDBService
-	(*v1.MongoDBExporter)(nil),         // 7: inventory.v1.MongoDBExporter
-	(*v1.QANMongoDBProfilerAgent)(nil), // 8: inventory.v1.QANMongoDBProfilerAgent
-}
+var (
+	file_management_v1_mongodb_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_management_v1_mongodb_proto_goTypes  = []any{
+		(*AddMongoDBServiceParams)(nil),    // 0: management.v1.AddMongoDBServiceParams
+		(*MongoDBServiceResult)(nil),       // 1: management.v1.MongoDBServiceResult
+		nil,                                // 2: management.v1.AddMongoDBServiceParams.CustomLabelsEntry
+		(*AddNodeParams)(nil),              // 3: management.v1.AddNodeParams
+		(MetricsMode)(0),                   // 4: management.v1.MetricsMode
+		(v1.LogLevel)(0),                   // 5: inventory.v1.LogLevel
+		(*v1.MongoDBService)(nil),          // 6: inventory.v1.MongoDBService
+		(*v1.MongoDBExporter)(nil),         // 7: inventory.v1.MongoDBExporter
+		(*v1.QANMongoDBProfilerAgent)(nil), // 8: inventory.v1.QANMongoDBProfilerAgent
+	}
+)
+
 var file_management_v1_mongodb_proto_depIdxs = []int32{
 	3, // 0: management.v1.AddMongoDBServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2, // 1: management.v1.AddMongoDBServiceParams.custom_labels:type_name -> management.v1.AddMongoDBServiceParams.CustomLabelsEntry

@@ -7,14 +7,15 @@
 package platformv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -1284,28 +1285,31 @@ func file_platform_v1_platform_proto_rawDescGZIP() []byte {
 	return file_platform_v1_platform_proto_rawDescData
 }
 
-var file_platform_v1_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
-var file_platform_v1_platform_proto_goTypes = []any{
-	(*ConnectRequest)(nil),                                // 0: platform.v1.ConnectRequest
-	(*ConnectResponse)(nil),                               // 1: platform.v1.ConnectResponse
-	(*DisconnectRequest)(nil),                             // 2: platform.v1.DisconnectRequest
-	(*DisconnectResponse)(nil),                            // 3: platform.v1.DisconnectResponse
-	(*SearchOrganizationTicketsRequest)(nil),              // 4: platform.v1.SearchOrganizationTicketsRequest
-	(*SearchOrganizationTicketsResponse)(nil),             // 5: platform.v1.SearchOrganizationTicketsResponse
-	(*OrganizationTicket)(nil),                            // 6: platform.v1.OrganizationTicket
-	(*SearchOrganizationEntitlementsRequest)(nil),         // 7: platform.v1.SearchOrganizationEntitlementsRequest
-	(*SearchOrganizationEntitlementsResponse)(nil),        // 8: platform.v1.SearchOrganizationEntitlementsResponse
-	(*OrganizationEntitlement)(nil),                       // 9: platform.v1.OrganizationEntitlement
-	(*GetContactInformationRequest)(nil),                  // 10: platform.v1.GetContactInformationRequest
-	(*GetContactInformationResponse)(nil),                 // 11: platform.v1.GetContactInformationResponse
-	(*ServerInfoRequest)(nil),                             // 12: platform.v1.ServerInfoRequest
-	(*ServerInfoResponse)(nil),                            // 13: platform.v1.ServerInfoResponse
-	(*UserStatusRequest)(nil),                             // 14: platform.v1.UserStatusRequest
-	(*UserStatusResponse)(nil),                            // 15: platform.v1.UserStatusResponse
-	(*OrganizationEntitlement_Platform)(nil),              // 16: platform.v1.OrganizationEntitlement.Platform
-	(*GetContactInformationResponse_CustomerSuccess)(nil), // 17: platform.v1.GetContactInformationResponse.CustomerSuccess
-	(*timestamppb.Timestamp)(nil),                         // 18: google.protobuf.Timestamp
-}
+var (
+	file_platform_v1_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+	file_platform_v1_platform_proto_goTypes  = []any{
+		(*ConnectRequest)(nil),                                // 0: platform.v1.ConnectRequest
+		(*ConnectResponse)(nil),                               // 1: platform.v1.ConnectResponse
+		(*DisconnectRequest)(nil),                             // 2: platform.v1.DisconnectRequest
+		(*DisconnectResponse)(nil),                            // 3: platform.v1.DisconnectResponse
+		(*SearchOrganizationTicketsRequest)(nil),              // 4: platform.v1.SearchOrganizationTicketsRequest
+		(*SearchOrganizationTicketsResponse)(nil),             // 5: platform.v1.SearchOrganizationTicketsResponse
+		(*OrganizationTicket)(nil),                            // 6: platform.v1.OrganizationTicket
+		(*SearchOrganizationEntitlementsRequest)(nil),         // 7: platform.v1.SearchOrganizationEntitlementsRequest
+		(*SearchOrganizationEntitlementsResponse)(nil),        // 8: platform.v1.SearchOrganizationEntitlementsResponse
+		(*OrganizationEntitlement)(nil),                       // 9: platform.v1.OrganizationEntitlement
+		(*GetContactInformationRequest)(nil),                  // 10: platform.v1.GetContactInformationRequest
+		(*GetContactInformationResponse)(nil),                 // 11: platform.v1.GetContactInformationResponse
+		(*ServerInfoRequest)(nil),                             // 12: platform.v1.ServerInfoRequest
+		(*ServerInfoResponse)(nil),                            // 13: platform.v1.ServerInfoResponse
+		(*UserStatusRequest)(nil),                             // 14: platform.v1.UserStatusRequest
+		(*UserStatusResponse)(nil),                            // 15: platform.v1.UserStatusResponse
+		(*OrganizationEntitlement_Platform)(nil),              // 16: platform.v1.OrganizationEntitlement.Platform
+		(*GetContactInformationResponse_CustomerSuccess)(nil), // 17: platform.v1.GetContactInformationResponse.CustomerSuccess
+		(*timestamppb.Timestamp)(nil),                         // 18: google.protobuf.Timestamp
+	}
+)
+
 var file_platform_v1_platform_proto_depIdxs = []int32{
 	6,  // 0: platform.v1.SearchOrganizationTicketsResponse.tickets:type_name -> platform.v1.OrganizationTicket
 	18, // 1: platform.v1.OrganizationTicket.create_time:type_name -> google.protobuf.Timestamp

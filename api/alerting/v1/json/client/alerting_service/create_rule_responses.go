@@ -104,7 +104,6 @@ func (o *CreateRuleOK) GetPayload() interface{} {
 }
 
 func (o *CreateRuleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -176,7 +175,6 @@ func (o *CreateRuleDefault) GetPayload() *CreateRuleDefaultBody {
 }
 
 func (o *CreateRuleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(CreateRuleDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ CreateRuleBody create rule body
 swagger:model CreateRuleBody
 */
 type CreateRuleBody struct {
-
 	// Template name.
 	TemplateName string `json:"template_name,omitempty"`
 
@@ -381,9 +378,7 @@ func (o *CreateRuleBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *CreateRuleBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Params); i++ {
-
 		if o.Params[i] != nil {
 
 			if swag.IsZero(o.Params[i]) { // not required
@@ -399,16 +394,13 @@ func (o *CreateRuleBody) contextValidateParams(ctx context.Context, formats strf
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *CreateRuleBody) contextValidateFilters(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Filters); i++ {
-
 		if o.Filters[i] != nil {
 
 			if swag.IsZero(o.Filters[i]) { // not required
@@ -424,7 +416,6 @@ func (o *CreateRuleBody) contextValidateFilters(ctx context.Context, formats str
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -453,7 +444,6 @@ CreateRuleDefaultBody create rule default body
 swagger:model CreateRuleDefaultBody
 */
 type CreateRuleDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -519,9 +509,7 @@ func (o *CreateRuleDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *CreateRuleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -537,7 +525,6 @@ func (o *CreateRuleDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -566,7 +553,6 @@ CreateRuleDefaultBodyDetailsItems0 create rule default body details items0
 swagger:model CreateRuleDefaultBodyDetailsItems0
 */
 type CreateRuleDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -578,7 +564,6 @@ type CreateRuleDefaultBodyDetailsItems0 struct {
 func (o *CreateRuleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -616,7 +601,6 @@ func (o *CreateRuleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o CreateRuleDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -680,7 +664,6 @@ CreateRuleParamsBodyFiltersItems0 Filter represents a single filter condition.
 swagger:model CreateRuleParamsBodyFiltersItems0
 */
 type CreateRuleParamsBodyFiltersItems0 struct {
-
 	// FilterType represents filter matching type.
 	// Enum: ["FILTER_TYPE_UNSPECIFIED","FILTER_TYPE_MATCH","FILTER_TYPE_MISMATCH"]
 	Type *string `json:"type,omitempty"`
@@ -779,7 +762,6 @@ CreateRuleParamsBodyParamsItems0 ParamValue represents a single rule parameter v
 swagger:model CreateRuleParamsBodyParamsItems0
 */
 type CreateRuleParamsBodyParamsItems0 struct {
-
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 

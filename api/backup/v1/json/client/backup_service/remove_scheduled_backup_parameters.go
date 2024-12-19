@@ -60,7 +60,6 @@ RemoveScheduledBackupParams contains all the parameters to send to the API endpo
 	Typically these are written to a http.Request.
 */
 type RemoveScheduledBackupParams struct {
-
 	// ScheduledBackupID.
 	ScheduledBackupID string
 
@@ -130,7 +129,6 @@ func (o *RemoveScheduledBackupParams) SetScheduledBackupID(scheduledBackupID str
 
 // WriteToRequest writes these params to a swagger request
 func (o *RemoveScheduledBackupParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -60,7 +60,6 @@ ListAgentsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListAgentsParams struct {
-
 	/* NodeID.
 
 	   Return only Agents that relate to a specific NodeID.
@@ -150,7 +149,6 @@ func (o *ListAgentsParams) SetServiceID(serviceID *string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListAgentsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -166,7 +164,6 @@ func (o *ListAgentsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		}
 		qNodeID := qrNodeID
 		if qNodeID != "" {
-
 			if err := r.SetQueryParam("node_id", qNodeID); err != nil {
 				return err
 			}
@@ -183,7 +180,6 @@ func (o *ListAgentsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		}
 		qServiceID := qrServiceID
 		if qServiceID != "" {
-
 			if err := r.SetQueryParam("service_id", qServiceID); err != nil {
 				return err
 			}

@@ -7,11 +7,12 @@
 package qanv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -316,16 +317,19 @@ func file_qan_v1_filters_proto_rawDescGZIP() []byte {
 	return file_qan_v1_filters_proto_rawDescData
 }
 
-var file_qan_v1_filters_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
-var file_qan_v1_filters_proto_goTypes = []any{
-	(*GetFilteredMetricsNamesRequest)(nil),  // 0: qan.v1.GetFilteredMetricsNamesRequest
-	(*GetFilteredMetricsNamesResponse)(nil), // 1: qan.v1.GetFilteredMetricsNamesResponse
-	(*ListLabels)(nil),                      // 2: qan.v1.ListLabels
-	(*Values)(nil),                          // 3: qan.v1.Values
-	nil,                                     // 4: qan.v1.GetFilteredMetricsNamesResponse.LabelsEntry
-	(*timestamppb.Timestamp)(nil),           // 5: google.protobuf.Timestamp
-	(*MapFieldEntry)(nil),                   // 6: qan.v1.MapFieldEntry
-}
+var (
+	file_qan_v1_filters_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+	file_qan_v1_filters_proto_goTypes  = []any{
+		(*GetFilteredMetricsNamesRequest)(nil),  // 0: qan.v1.GetFilteredMetricsNamesRequest
+		(*GetFilteredMetricsNamesResponse)(nil), // 1: qan.v1.GetFilteredMetricsNamesResponse
+		(*ListLabels)(nil),                      // 2: qan.v1.ListLabels
+		(*Values)(nil),                          // 3: qan.v1.Values
+		nil,                                     // 4: qan.v1.GetFilteredMetricsNamesResponse.LabelsEntry
+		(*timestamppb.Timestamp)(nil),           // 5: google.protobuf.Timestamp
+		(*MapFieldEntry)(nil),                   // 6: qan.v1.MapFieldEntry
+	}
+)
+
 var file_qan_v1_filters_proto_depIdxs = []int32{
 	5, // 0: qan.v1.GetFilteredMetricsNamesRequest.period_start_from:type_name -> google.protobuf.Timestamp
 	5, // 1: qan.v1.GetFilteredMetricsNamesRequest.period_start_to:type_name -> google.protobuf.Timestamp

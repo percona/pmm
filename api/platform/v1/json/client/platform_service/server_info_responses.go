@@ -103,7 +103,6 @@ func (o *ServerInfoOK) GetPayload() *ServerInfoOKBody {
 }
 
 func (o *ServerInfoOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ServerInfoOKBody)
 
 	// response payload
@@ -177,7 +176,6 @@ func (o *ServerInfoDefault) GetPayload() *ServerInfoDefaultBody {
 }
 
 func (o *ServerInfoDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ServerInfoDefaultBody)
 
 	// response payload
@@ -193,7 +191,6 @@ ServerInfoDefaultBody server info default body
 swagger:model ServerInfoDefaultBody
 */
 type ServerInfoDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,9 +256,7 @@ func (o *ServerInfoDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *ServerInfoDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -277,7 +272,6 @@ func (o *ServerInfoDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -306,7 +300,6 @@ ServerInfoDefaultBodyDetailsItems0 server info default body details items0
 swagger:model ServerInfoDefaultBodyDetailsItems0
 */
 type ServerInfoDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,7 +311,6 @@ type ServerInfoDefaultBodyDetailsItems0 struct {
 func (o *ServerInfoDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -356,7 +348,6 @@ func (o *ServerInfoDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ServerInfoDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -420,7 +411,6 @@ ServerInfoOKBody server info OK body
 swagger:model ServerInfoOKBody
 */
 type ServerInfoOKBody struct {
-
 	// pmm server name
 	PMMServerName string `json:"pmm_server_name,omitempty"`
 

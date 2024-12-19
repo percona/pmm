@@ -103,7 +103,6 @@ func (o *AddAnnotationOK) GetPayload() interface{} {
 }
 
 func (o *AddAnnotationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -175,7 +174,6 @@ func (o *AddAnnotationDefault) GetPayload() *AddAnnotationDefaultBody {
 }
 
 func (o *AddAnnotationDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddAnnotationDefaultBody)
 
 	// response payload
@@ -191,7 +189,6 @@ AddAnnotationBody AddAnnotationRequest is a params to add new annotation.
 swagger:model AddAnnotationBody
 */
 type AddAnnotationBody struct {
-
 	// An annotation description. Required.
 	Text string `json:"text,omitempty"`
 
@@ -238,7 +235,6 @@ AddAnnotationDefaultBody add annotation default body
 swagger:model AddAnnotationDefaultBody
 */
 type AddAnnotationDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -304,9 +300,7 @@ func (o *AddAnnotationDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *AddAnnotationDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -322,7 +316,6 @@ func (o *AddAnnotationDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -351,7 +344,6 @@ AddAnnotationDefaultBodyDetailsItems0 add annotation default body details items0
 swagger:model AddAnnotationDefaultBodyDetailsItems0
 */
 type AddAnnotationDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -363,7 +355,6 @@ type AddAnnotationDefaultBodyDetailsItems0 struct {
 func (o *AddAnnotationDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -401,7 +392,6 @@ func (o *AddAnnotationDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o AddAnnotationDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}

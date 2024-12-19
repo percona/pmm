@@ -103,7 +103,6 @@ func (o *ExplainFingerprintByQueryIDOK) GetPayload() *ExplainFingerprintByQueryI
 }
 
 func (o *ExplainFingerprintByQueryIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ExplainFingerprintByQueryIDOKBody)
 
 	// response payload
@@ -177,7 +176,6 @@ func (o *ExplainFingerprintByQueryIDDefault) GetPayload() *ExplainFingerprintByQ
 }
 
 func (o *ExplainFingerprintByQueryIDDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ExplainFingerprintByQueryIDDefaultBody)
 
 	// response payload
@@ -193,7 +191,6 @@ ExplainFingerprintByQueryIDBody ExplainFingerprintByQueryIDRequest get explain f
 swagger:model ExplainFingerprintByQueryIDBody
 */
 type ExplainFingerprintByQueryIDBody struct {
-
 	// serviceid
 	Serviceid string `json:"serviceid,omitempty"`
 
@@ -234,7 +231,6 @@ ExplainFingerprintByQueryIDDefaultBody explain fingerprint by query ID default b
 swagger:model ExplainFingerprintByQueryIDDefaultBody
 */
 type ExplainFingerprintByQueryIDDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -300,9 +296,7 @@ func (o *ExplainFingerprintByQueryIDDefaultBody) ContextValidate(ctx context.Con
 }
 
 func (o *ExplainFingerprintByQueryIDDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -318,7 +312,6 @@ func (o *ExplainFingerprintByQueryIDDefaultBody) contextValidateDetails(ctx cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -347,7 +340,6 @@ ExplainFingerprintByQueryIDDefaultBodyDetailsItems0 explain fingerprint by query
 swagger:model ExplainFingerprintByQueryIDDefaultBodyDetailsItems0
 */
 type ExplainFingerprintByQueryIDDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -359,7 +351,6 @@ type ExplainFingerprintByQueryIDDefaultBodyDetailsItems0 struct {
 func (o *ExplainFingerprintByQueryIDDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -397,7 +388,6 @@ func (o *ExplainFingerprintByQueryIDDefaultBodyDetailsItems0) UnmarshalJSON(data
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ExplainFingerprintByQueryIDDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -461,7 +451,6 @@ ExplainFingerprintByQueryIDOKBody ExplainFingerprintByQueryIDResponse is explain
 swagger:model ExplainFingerprintByQueryIDOKBody
 */
 type ExplainFingerprintByQueryIDOKBody struct {
-
 	// explain fingerprint
 	ExplainFingerprint string `json:"explain_fingerprint,omitempty"`
 

@@ -103,7 +103,6 @@ func (o *StartAdvisorChecksOK) GetPayload() interface{} {
 }
 
 func (o *StartAdvisorChecksOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -175,7 +174,6 @@ func (o *StartAdvisorChecksDefault) GetPayload() *StartAdvisorChecksDefaultBody 
 }
 
 func (o *StartAdvisorChecksDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartAdvisorChecksDefaultBody)
 
 	// response payload
@@ -191,7 +189,6 @@ StartAdvisorChecksBody start advisor checks body
 swagger:model StartAdvisorChecksBody
 */
 type StartAdvisorChecksBody struct {
-
 	// Names of the checks that should be started.
 	Names []string `json:"names"`
 }
@@ -229,7 +226,6 @@ StartAdvisorChecksDefaultBody start advisor checks default body
 swagger:model StartAdvisorChecksDefaultBody
 */
 type StartAdvisorChecksDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -295,9 +291,7 @@ func (o *StartAdvisorChecksDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *StartAdvisorChecksDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -313,7 +307,6 @@ func (o *StartAdvisorChecksDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -342,7 +335,6 @@ StartAdvisorChecksDefaultBodyDetailsItems0 start advisor checks default body det
 swagger:model StartAdvisorChecksDefaultBodyDetailsItems0
 */
 type StartAdvisorChecksDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -354,7 +346,6 @@ type StartAdvisorChecksDefaultBodyDetailsItems0 struct {
 func (o *StartAdvisorChecksDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -392,7 +383,6 @@ func (o *StartAdvisorChecksDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o StartAdvisorChecksDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}

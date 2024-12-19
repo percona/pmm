@@ -61,7 +61,6 @@ DeleteRoleParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type DeleteRoleParams struct {
-
 	/* ReplacementRoleID.
 
 	   Role ID to be used as a replacement for the role. Additional logic applies.
@@ -152,7 +151,6 @@ func (o *DeleteRoleParams) SetRoleID(roleID int64) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *DeleteRoleParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -168,7 +166,6 @@ func (o *DeleteRoleParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		}
 		qReplacementRoleID := swag.FormatInt64(qrReplacementRoleID)
 		if qReplacementRoleID != "" {
-
 			if err := r.SetQueryParam("replacement_role_id", qReplacementRoleID); err != nil {
 				return err
 			}

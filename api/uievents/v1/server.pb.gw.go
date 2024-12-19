@@ -24,12 +24,14 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_UIEventsService_Store_0(ctx context.Context, marshaler runtime.Marshaler, client UIEventsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StoreRequest
@@ -41,7 +43,6 @@ func request_UIEventsService_Store_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := client.Store(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_UIEventsService_Store_0(ctx context.Context, marshaler runtime.Marshaler, server UIEventsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -54,7 +55,6 @@ func local_request_UIEventsService_Store_0(ctx context.Context, marshaler runtim
 
 	msg, err := server.Store(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterUIEventsServiceHandlerServer registers the http handlers for service UIEventsService to "mux".
@@ -63,7 +63,6 @@ func local_request_UIEventsService_Store_0(ctx context.Context, marshaler runtim
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterUIEventsServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterUIEventsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server UIEventsServiceServer) error {
-
 	mux.Handle("POST", pattern_UIEventsService_Store_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -86,7 +85,6 @@ func RegisterUIEventsServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_UIEventsService_Store_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -129,7 +127,6 @@ func RegisterUIEventsServiceHandler(ctx context.Context, mux *runtime.ServeMux, 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "UIEventsServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterUIEventsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client UIEventsServiceClient) error {
-
 	mux.Handle("POST", pattern_UIEventsService_Store_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -149,16 +146,11 @@ func RegisterUIEventsServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		}
 
 		forward_UIEventsService_Store_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
 }
 
-var (
-	pattern_UIEventsService_Store_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "ui-events", "Store"}, ""))
-)
+var pattern_UIEventsService_Store_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "ui-events", "Store"}, ""))
 
-var (
-	forward_UIEventsService_Store_0 = runtime.ForwardResponseMessage
-)
+var forward_UIEventsService_Store_0 = runtime.ForwardResponseMessage

@@ -24,16 +24,16 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
-
 var (
-	filter_ServerService_Version_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
 )
+
+var filter_ServerService_Version_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_ServerService_Version_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq VersionRequest
@@ -48,7 +48,6 @@ func request_ServerService_Version_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := client.Version(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ServerService_Version_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -64,7 +63,6 @@ func local_request_ServerService_Version_0(ctx context.Context, marshaler runtim
 
 	msg, err := server.Version(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ServerService_Readiness_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -73,7 +71,6 @@ func request_ServerService_Readiness_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := client.Readiness(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ServerService_Readiness_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -82,7 +79,6 @@ func local_request_ServerService_Readiness_0(ctx context.Context, marshaler runt
 
 	msg, err := server.Readiness(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ServerService_LeaderHealthCheck_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -91,7 +87,6 @@ func request_ServerService_LeaderHealthCheck_0(ctx context.Context, marshaler ru
 
 	msg, err := client.LeaderHealthCheck(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ServerService_LeaderHealthCheck_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -100,12 +95,9 @@ func local_request_ServerService_LeaderHealthCheck_0(ctx context.Context, marsha
 
 	msg, err := server.LeaderHealthCheck(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_ServerService_CheckUpdates_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_ServerService_CheckUpdates_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_ServerService_CheckUpdates_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CheckUpdatesRequest
@@ -120,7 +112,6 @@ func request_ServerService_CheckUpdates_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.CheckUpdates(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ServerService_CheckUpdates_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -136,7 +127,6 @@ func local_request_ServerService_CheckUpdates_0(ctx context.Context, marshaler r
 
 	msg, err := server.CheckUpdates(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ServerService_ListChangeLogs_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -145,7 +135,6 @@ func request_ServerService_ListChangeLogs_0(ctx context.Context, marshaler runti
 
 	msg, err := client.ListChangeLogs(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ServerService_ListChangeLogs_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -154,7 +143,6 @@ func local_request_ServerService_ListChangeLogs_0(ctx context.Context, marshaler
 
 	msg, err := server.ListChangeLogs(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ServerService_StartUpdate_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -167,7 +155,6 @@ func request_ServerService_StartUpdate_0(ctx context.Context, marshaler runtime.
 
 	msg, err := client.StartUpdate(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ServerService_StartUpdate_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -180,7 +167,6 @@ func local_request_ServerService_StartUpdate_0(ctx context.Context, marshaler ru
 
 	msg, err := server.StartUpdate(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ServerService_UpdateStatus_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -193,7 +179,6 @@ func request_ServerService_UpdateStatus_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.UpdateStatus(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ServerService_UpdateStatus_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -206,7 +191,6 @@ func local_request_ServerService_UpdateStatus_0(ctx context.Context, marshaler r
 
 	msg, err := server.UpdateStatus(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ServerService_GetSettings_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -215,7 +199,6 @@ func request_ServerService_GetSettings_0(ctx context.Context, marshaler runtime.
 
 	msg, err := client.GetSettings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ServerService_GetSettings_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -224,7 +207,6 @@ func local_request_ServerService_GetSettings_0(ctx context.Context, marshaler ru
 
 	msg, err := server.GetSettings(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ServerService_ChangeSettings_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -237,7 +219,6 @@ func request_ServerService_ChangeSettings_0(ctx context.Context, marshaler runti
 
 	msg, err := client.ChangeSettings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ServerService_ChangeSettings_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -250,7 +231,6 @@ func local_request_ServerService_ChangeSettings_0(ctx context.Context, marshaler
 
 	msg, err := server.ChangeSettings(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterServerServiceHandlerServer registers the http handlers for service ServerService to "mux".
@@ -259,7 +239,6 @@ func local_request_ServerService_ChangeSettings_0(ctx context.Context, marshaler
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterServerServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ServerServiceServer) error {
-
 	mux.Handle("GET", pattern_ServerService_Version_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -282,7 +261,6 @@ func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_Version_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_ServerService_Readiness_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -307,7 +285,6 @@ func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_Readiness_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_ServerService_LeaderHealthCheck_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -332,7 +309,6 @@ func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_LeaderHealthCheck_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_ServerService_CheckUpdates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -357,7 +333,6 @@ func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_CheckUpdates_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_ServerService_ListChangeLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -382,7 +357,6 @@ func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_ListChangeLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_ServerService_StartUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -407,7 +381,6 @@ func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_StartUpdate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_ServerService_UpdateStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -432,7 +405,6 @@ func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_UpdateStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_ServerService_GetSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -457,7 +429,6 @@ func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_GetSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("PUT", pattern_ServerService_ChangeSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -482,7 +453,6 @@ func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_ChangeSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -525,7 +495,6 @@ func RegisterServerServiceHandler(ctx context.Context, mux *runtime.ServeMux, co
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ServerServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ServerServiceClient) error {
-
 	mux.Handle("GET", pattern_ServerService_Version_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -545,7 +514,6 @@ func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_Version_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_ServerService_Readiness_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -567,7 +535,6 @@ func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_Readiness_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_ServerService_LeaderHealthCheck_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -589,7 +556,6 @@ func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_LeaderHealthCheck_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_ServerService_CheckUpdates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -611,7 +577,6 @@ func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_CheckUpdates_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_ServerService_ListChangeLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -633,7 +598,6 @@ func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_ListChangeLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_ServerService_StartUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -655,7 +619,6 @@ func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_StartUpdate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_ServerService_UpdateStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -677,7 +640,6 @@ func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_UpdateStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_ServerService_GetSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -699,7 +661,6 @@ func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_GetSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("PUT", pattern_ServerService_ChangeSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -721,7 +682,6 @@ func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ServerService_ChangeSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

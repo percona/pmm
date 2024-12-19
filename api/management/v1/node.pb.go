@@ -7,13 +7,15 @@
 package managementv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
-	v1 "github.com/percona/pmm/api/inventory/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
+
+	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -1305,32 +1307,35 @@ func file_management_v1_node_proto_rawDescGZIP() []byte {
 	return file_management_v1_node_proto_rawDescData
 }
 
-var file_management_v1_node_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_management_v1_node_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
-var file_management_v1_node_proto_goTypes = []any{
-	(UniversalNode_Status)(0),      // 0: management.v1.UniversalNode.Status
-	(*AddNodeParams)(nil),          // 1: management.v1.AddNodeParams
-	(*RegisterNodeRequest)(nil),    // 2: management.v1.RegisterNodeRequest
-	(*RegisterNodeResponse)(nil),   // 3: management.v1.RegisterNodeResponse
-	(*UnregisterNodeRequest)(nil),  // 4: management.v1.UnregisterNodeRequest
-	(*UnregisterNodeResponse)(nil), // 5: management.v1.UnregisterNodeResponse
-	(*UniversalNode)(nil),          // 6: management.v1.UniversalNode
-	(*ListNodesRequest)(nil),       // 7: management.v1.ListNodesRequest
-	(*ListNodesResponse)(nil),      // 8: management.v1.ListNodesResponse
-	(*GetNodeRequest)(nil),         // 9: management.v1.GetNodeRequest
-	(*GetNodeResponse)(nil),        // 10: management.v1.GetNodeResponse
-	nil,                            // 11: management.v1.AddNodeParams.CustomLabelsEntry
-	nil,                            // 12: management.v1.RegisterNodeRequest.CustomLabelsEntry
-	(*UniversalNode_Service)(nil),  // 13: management.v1.UniversalNode.Service
-	(*UniversalNode_Agent)(nil),    // 14: management.v1.UniversalNode.Agent
-	nil,                            // 15: management.v1.UniversalNode.CustomLabelsEntry
-	(v1.NodeType)(0),               // 16: inventory.v1.NodeType
-	(MetricsMode)(0),               // 17: management.v1.MetricsMode
-	(*v1.GenericNode)(nil),         // 18: inventory.v1.GenericNode
-	(*v1.ContainerNode)(nil),       // 19: inventory.v1.ContainerNode
-	(*v1.PMMAgent)(nil),            // 20: inventory.v1.PMMAgent
-	(*timestamppb.Timestamp)(nil),  // 21: google.protobuf.Timestamp
-}
+var (
+	file_management_v1_node_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_management_v1_node_proto_msgTypes  = make([]protoimpl.MessageInfo, 15)
+	file_management_v1_node_proto_goTypes   = []any{
+		(UniversalNode_Status)(0),      // 0: management.v1.UniversalNode.Status
+		(*AddNodeParams)(nil),          // 1: management.v1.AddNodeParams
+		(*RegisterNodeRequest)(nil),    // 2: management.v1.RegisterNodeRequest
+		(*RegisterNodeResponse)(nil),   // 3: management.v1.RegisterNodeResponse
+		(*UnregisterNodeRequest)(nil),  // 4: management.v1.UnregisterNodeRequest
+		(*UnregisterNodeResponse)(nil), // 5: management.v1.UnregisterNodeResponse
+		(*UniversalNode)(nil),          // 6: management.v1.UniversalNode
+		(*ListNodesRequest)(nil),       // 7: management.v1.ListNodesRequest
+		(*ListNodesResponse)(nil),      // 8: management.v1.ListNodesResponse
+		(*GetNodeRequest)(nil),         // 9: management.v1.GetNodeRequest
+		(*GetNodeResponse)(nil),        // 10: management.v1.GetNodeResponse
+		nil,                            // 11: management.v1.AddNodeParams.CustomLabelsEntry
+		nil,                            // 12: management.v1.RegisterNodeRequest.CustomLabelsEntry
+		(*UniversalNode_Service)(nil),  // 13: management.v1.UniversalNode.Service
+		(*UniversalNode_Agent)(nil),    // 14: management.v1.UniversalNode.Agent
+		nil,                            // 15: management.v1.UniversalNode.CustomLabelsEntry
+		(v1.NodeType)(0),               // 16: inventory.v1.NodeType
+		(MetricsMode)(0),               // 17: management.v1.MetricsMode
+		(*v1.GenericNode)(nil),         // 18: inventory.v1.GenericNode
+		(*v1.ContainerNode)(nil),       // 19: inventory.v1.ContainerNode
+		(*v1.PMMAgent)(nil),            // 20: inventory.v1.PMMAgent
+		(*timestamppb.Timestamp)(nil),  // 21: google.protobuf.Timestamp
+	}
+)
+
 var file_management_v1_node_proto_depIdxs = []int32{
 	16, // 0: management.v1.AddNodeParams.node_type:type_name -> inventory.v1.NodeType
 	11, // 1: management.v1.AddNodeParams.custom_labels:type_name -> management.v1.AddNodeParams.CustomLabelsEntry

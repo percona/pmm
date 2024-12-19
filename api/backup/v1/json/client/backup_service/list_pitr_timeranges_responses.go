@@ -104,7 +104,6 @@ func (o *ListPitrTimerangesOK) GetPayload() *ListPitrTimerangesOKBody {
 }
 
 func (o *ListPitrTimerangesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListPitrTimerangesOKBody)
 
 	// response payload
@@ -178,7 +177,6 @@ func (o *ListPitrTimerangesDefault) GetPayload() *ListPitrTimerangesDefaultBody 
 }
 
 func (o *ListPitrTimerangesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListPitrTimerangesDefaultBody)
 
 	// response payload
@@ -194,7 +192,6 @@ ListPitrTimerangesDefaultBody list pitr timeranges default body
 swagger:model ListPitrTimerangesDefaultBody
 */
 type ListPitrTimerangesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -260,9 +257,7 @@ func (o *ListPitrTimerangesDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *ListPitrTimerangesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -278,7 +273,6 @@ func (o *ListPitrTimerangesDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -307,7 +301,6 @@ ListPitrTimerangesDefaultBodyDetailsItems0 list pitr timeranges default body det
 swagger:model ListPitrTimerangesDefaultBodyDetailsItems0
 */
 type ListPitrTimerangesDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -319,7 +312,6 @@ type ListPitrTimerangesDefaultBodyDetailsItems0 struct {
 func (o *ListPitrTimerangesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -357,7 +349,6 @@ func (o *ListPitrTimerangesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListPitrTimerangesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -421,7 +412,6 @@ ListPitrTimerangesOKBody list pitr timeranges OK body
 swagger:model ListPitrTimerangesOKBody
 */
 type ListPitrTimerangesOKBody struct {
-
 	// timeranges
 	Timeranges []*ListPitrTimerangesOKBodyTimerangesItems0 `json:"timeranges"`
 }
@@ -481,9 +471,7 @@ func (o *ListPitrTimerangesOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ListPitrTimerangesOKBody) contextValidateTimeranges(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Timeranges); i++ {
-
 		if o.Timeranges[i] != nil {
 
 			if swag.IsZero(o.Timeranges[i]) { // not required
@@ -499,7 +487,6 @@ func (o *ListPitrTimerangesOKBody) contextValidateTimeranges(ctx context.Context
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -528,7 +515,6 @@ ListPitrTimerangesOKBodyTimerangesItems0 list pitr timeranges OK body timeranges
 swagger:model ListPitrTimerangesOKBodyTimerangesItems0
 */
 type ListPitrTimerangesOKBodyTimerangesItems0 struct {
-
 	// start_timestamp is the time of the first event in the PITR chunk.
 	// Format: date-time
 	StartTimestamp strfmt.DateTime `json:"start_timestamp,omitempty"`

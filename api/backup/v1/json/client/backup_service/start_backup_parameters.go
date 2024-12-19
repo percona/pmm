@@ -60,7 +60,6 @@ StartBackupParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type StartBackupParams struct {
-
 	// Body.
 	Body StartBackupBody
 
@@ -130,7 +129,6 @@ func (o *StartBackupParams) SetBody(body StartBackupBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *StartBackupParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

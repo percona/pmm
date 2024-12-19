@@ -24,12 +24,14 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_QANService_GetReport_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetReportRequest
@@ -41,7 +43,6 @@ func request_QANService_GetReport_0(ctx context.Context, marshaler runtime.Marsh
 
 	msg, err := client.GetReport(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_QANService_GetReport_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -54,7 +55,6 @@ func local_request_QANService_GetReport_0(ctx context.Context, marshaler runtime
 
 	msg, err := server.GetReport(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_QANService_GetFilteredMetricsNames_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -67,7 +67,6 @@ func request_QANService_GetFilteredMetricsNames_0(ctx context.Context, marshaler
 
 	msg, err := client.GetFilteredMetricsNames(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_QANService_GetFilteredMetricsNames_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -80,7 +79,6 @@ func local_request_QANService_GetFilteredMetricsNames_0(ctx context.Context, mar
 
 	msg, err := server.GetFilteredMetricsNames(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_QANService_GetMetricsNames_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -93,7 +91,6 @@ func request_QANService_GetMetricsNames_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.GetMetricsNames(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_QANService_GetMetricsNames_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -106,7 +103,6 @@ func local_request_QANService_GetMetricsNames_0(ctx context.Context, marshaler r
 
 	msg, err := server.GetMetricsNames(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_QANService_GetMetrics_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -119,7 +115,6 @@ func request_QANService_GetMetrics_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := client.GetMetrics(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_QANService_GetMetrics_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -132,7 +127,6 @@ func local_request_QANService_GetMetrics_0(ctx context.Context, marshaler runtim
 
 	msg, err := server.GetMetrics(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_QANService_GetLabels_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -145,7 +139,6 @@ func request_QANService_GetLabels_0(ctx context.Context, marshaler runtime.Marsh
 
 	msg, err := client.GetLabels(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_QANService_GetLabels_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -158,7 +151,6 @@ func local_request_QANService_GetLabels_0(ctx context.Context, marshaler runtime
 
 	msg, err := server.GetLabels(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_QANService_GetHistogram_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -171,7 +163,6 @@ func request_QANService_GetHistogram_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := client.GetHistogram(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_QANService_GetHistogram_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -184,7 +175,6 @@ func local_request_QANService_GetHistogram_0(ctx context.Context, marshaler runt
 
 	msg, err := server.GetHistogram(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_QANService_ExplainFingerprintByQueryID_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -197,7 +187,6 @@ func request_QANService_ExplainFingerprintByQueryID_0(ctx context.Context, marsh
 
 	msg, err := client.ExplainFingerprintByQueryID(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_QANService_ExplainFingerprintByQueryID_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -210,7 +199,6 @@ func local_request_QANService_ExplainFingerprintByQueryID_0(ctx context.Context,
 
 	msg, err := server.ExplainFingerprintByQueryID(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_QANService_GetQueryPlan_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -236,7 +224,6 @@ func request_QANService_GetQueryPlan_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := client.GetQueryPlan(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_QANService_GetQueryPlan_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -262,7 +249,6 @@ func local_request_QANService_GetQueryPlan_0(ctx context.Context, marshaler runt
 
 	msg, err := server.GetQueryPlan(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_QANService_QueryExists_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -275,7 +261,6 @@ func request_QANService_QueryExists_0(ctx context.Context, marshaler runtime.Mar
 
 	msg, err := client.QueryExists(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_QANService_QueryExists_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -288,7 +273,6 @@ func local_request_QANService_QueryExists_0(ctx context.Context, marshaler runti
 
 	msg, err := server.QueryExists(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_QANService_SchemaByQueryID_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -301,7 +285,6 @@ func request_QANService_SchemaByQueryID_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.SchemaByQueryID(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_QANService_SchemaByQueryID_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -314,7 +297,6 @@ func local_request_QANService_SchemaByQueryID_0(ctx context.Context, marshaler r
 
 	msg, err := server.SchemaByQueryID(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_QANService_GetQueryExample_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -327,7 +309,6 @@ func request_QANService_GetQueryExample_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.GetQueryExample(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_QANService_GetQueryExample_0(ctx context.Context, marshaler runtime.Marshaler, server QANServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -340,7 +321,6 @@ func local_request_QANService_GetQueryExample_0(ctx context.Context, marshaler r
 
 	msg, err := server.GetQueryExample(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterQANServiceHandlerServer registers the http handlers for service QANService to "mux".
@@ -349,7 +329,6 @@ func local_request_QANService_GetQueryExample_0(ctx context.Context, marshaler r
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterQANServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server QANServiceServer) error {
-
 	mux.Handle("POST", pattern_QANService_GetReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -372,7 +351,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetReport_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_GetFilteredMetricsNames_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -397,7 +375,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetFilteredMetricsNames_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_GetMetricsNames_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -422,7 +399,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetMetricsNames_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_GetMetrics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -447,7 +423,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetMetrics_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_GetLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -472,7 +447,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetLabels_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_GetHistogram_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -497,7 +471,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetHistogram_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_ExplainFingerprintByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -522,7 +495,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_ExplainFingerprintByQueryID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_QANService_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -547,7 +519,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetQueryPlan_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -572,7 +543,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_QueryExists_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_SchemaByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -597,7 +567,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_SchemaByQueryID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -622,7 +591,6 @@ func RegisterQANServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetQueryExample_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -665,7 +633,6 @@ func RegisterQANServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "QANServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client QANServiceClient) error {
-
 	mux.Handle("POST", pattern_QANService_GetReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -685,7 +652,6 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetReport_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_GetFilteredMetricsNames_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -707,7 +673,6 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetFilteredMetricsNames_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_GetMetricsNames_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -729,7 +694,6 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetMetricsNames_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_GetMetrics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -751,7 +715,6 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetMetrics_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_GetLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -773,7 +736,6 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetLabels_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_GetHistogram_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -795,7 +757,6 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetHistogram_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_ExplainFingerprintByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -817,7 +778,6 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_ExplainFingerprintByQueryID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("GET", pattern_QANService_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -839,7 +799,6 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetQueryPlan_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -861,7 +820,6 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_QueryExists_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_SchemaByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -883,7 +841,6 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_SchemaByQueryID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_QANService_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -905,7 +862,6 @@ func RegisterQANServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_QANService_GetQueryExample_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

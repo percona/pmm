@@ -7,12 +7,13 @@
 package backupv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -435,17 +436,20 @@ func file_backup_v1_common_proto_rawDescGZIP() []byte {
 	return file_backup_v1_common_proto_rawDescData
 }
 
-var file_backup_v1_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_backup_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_backup_v1_common_proto_goTypes = []any{
-	(DataModel)(0),                // 0: backup.v1.DataModel
-	(BackupMode)(0),               // 1: backup.v1.BackupMode
-	(*File)(nil),                  // 2: backup.v1.File
-	(*PbmMetadata)(nil),           // 3: backup.v1.PbmMetadata
-	(*Metadata)(nil),              // 4: backup.v1.Metadata
-	(*LogChunk)(nil),              // 5: backup.v1.LogChunk
-	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
-}
+var (
+	file_backup_v1_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+	file_backup_v1_common_proto_msgTypes  = make([]protoimpl.MessageInfo, 4)
+	file_backup_v1_common_proto_goTypes   = []any{
+		(DataModel)(0),                // 0: backup.v1.DataModel
+		(BackupMode)(0),               // 1: backup.v1.BackupMode
+		(*File)(nil),                  // 2: backup.v1.File
+		(*PbmMetadata)(nil),           // 3: backup.v1.PbmMetadata
+		(*Metadata)(nil),              // 4: backup.v1.Metadata
+		(*LogChunk)(nil),              // 5: backup.v1.LogChunk
+		(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+	}
+)
+
 var file_backup_v1_common_proto_depIdxs = []int32{
 	2, // 0: backup.v1.Metadata.file_list:type_name -> backup.v1.File
 	6, // 1: backup.v1.Metadata.restore_to:type_name -> google.protobuf.Timestamp

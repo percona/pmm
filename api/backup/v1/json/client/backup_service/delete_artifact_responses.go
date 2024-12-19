@@ -103,7 +103,6 @@ func (o *DeleteArtifactOK) GetPayload() interface{} {
 }
 
 func (o *DeleteArtifactOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -175,7 +174,6 @@ func (o *DeleteArtifactDefault) GetPayload() *DeleteArtifactDefaultBody {
 }
 
 func (o *DeleteArtifactDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(DeleteArtifactDefaultBody)
 
 	// response payload
@@ -191,7 +189,6 @@ DeleteArtifactDefaultBody delete artifact default body
 swagger:model DeleteArtifactDefaultBody
 */
 type DeleteArtifactDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -257,9 +254,7 @@ func (o *DeleteArtifactDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *DeleteArtifactDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -275,7 +270,6 @@ func (o *DeleteArtifactDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -304,7 +298,6 @@ DeleteArtifactDefaultBodyDetailsItems0 delete artifact default body details item
 swagger:model DeleteArtifactDefaultBodyDetailsItems0
 */
 type DeleteArtifactDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -316,7 +309,6 @@ type DeleteArtifactDefaultBodyDetailsItems0 struct {
 func (o *DeleteArtifactDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -354,7 +346,6 @@ func (o *DeleteArtifactDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o DeleteArtifactDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}

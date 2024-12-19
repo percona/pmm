@@ -7,12 +7,13 @@
 package userv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -521,16 +522,19 @@ func file_user_v1_user_proto_rawDescGZIP() []byte {
 	return file_user_v1_user_proto_rawDescData
 }
 
-var file_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-var file_user_v1_user_proto_goTypes = []any{
-	(*GetUserRequest)(nil),               // 0: user.v1.GetUserRequest
-	(*GetUserResponse)(nil),              // 1: user.v1.GetUserResponse
-	(*UpdateUserRequest)(nil),            // 2: user.v1.UpdateUserRequest
-	(*UpdateUserResponse)(nil),           // 3: user.v1.UpdateUserResponse
-	(*ListUsersRequest)(nil),             // 4: user.v1.ListUsersRequest
-	(*ListUsersResponse)(nil),            // 5: user.v1.ListUsersResponse
-	(*ListUsersResponse_UserDetail)(nil), // 6: user.v1.ListUsersResponse.UserDetail
-}
+var (
+	file_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+	file_user_v1_user_proto_goTypes  = []any{
+		(*GetUserRequest)(nil),               // 0: user.v1.GetUserRequest
+		(*GetUserResponse)(nil),              // 1: user.v1.GetUserResponse
+		(*UpdateUserRequest)(nil),            // 2: user.v1.UpdateUserRequest
+		(*UpdateUserResponse)(nil),           // 3: user.v1.UpdateUserResponse
+		(*ListUsersRequest)(nil),             // 4: user.v1.ListUsersRequest
+		(*ListUsersResponse)(nil),            // 5: user.v1.ListUsersResponse
+		(*ListUsersResponse_UserDetail)(nil), // 6: user.v1.ListUsersResponse.UserDetail
+	}
+)
+
 var file_user_v1_user_proto_depIdxs = []int32{
 	6, // 0: user.v1.ListUsersResponse.users:type_name -> user.v1.ListUsersResponse.UserDetail
 	0, // 1: user.v1.UserService.GetUser:input_type -> user.v1.GetUserRequest

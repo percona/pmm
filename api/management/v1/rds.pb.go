@@ -7,12 +7,14 @@
 package managementv1
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
-	v1 "github.com/percona/pmm/api/inventory/v1"
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+
+	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -941,26 +943,29 @@ func file_management_v1_rds_proto_rawDescGZIP() []byte {
 	return file_management_v1_rds_proto_rawDescData
 }
 
-var file_management_v1_rds_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_management_v1_rds_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_management_v1_rds_proto_goTypes = []any{
-	(DiscoverRDSEngine)(0),                    // 0: management.v1.DiscoverRDSEngine
-	(*DiscoverRDSInstance)(nil),               // 1: management.v1.DiscoverRDSInstance
-	(*DiscoverRDSRequest)(nil),                // 2: management.v1.DiscoverRDSRequest
-	(*DiscoverRDSResponse)(nil),               // 3: management.v1.DiscoverRDSResponse
-	(*AddRDSServiceParams)(nil),               // 4: management.v1.AddRDSServiceParams
-	(*RDSServiceResult)(nil),                  // 5: management.v1.RDSServiceResult
-	nil,                                       // 6: management.v1.AddRDSServiceParams.CustomLabelsEntry
-	(MetricsMode)(0),                          // 7: management.v1.MetricsMode
-	(*v1.RemoteRDSNode)(nil),                  // 8: inventory.v1.RemoteRDSNode
-	(*v1.RDSExporter)(nil),                    // 9: inventory.v1.RDSExporter
-	(*v1.MySQLService)(nil),                   // 10: inventory.v1.MySQLService
-	(*v1.MySQLdExporter)(nil),                 // 11: inventory.v1.MySQLdExporter
-	(*v1.QANMySQLPerfSchemaAgent)(nil),        // 12: inventory.v1.QANMySQLPerfSchemaAgent
-	(*v1.PostgreSQLService)(nil),              // 13: inventory.v1.PostgreSQLService
-	(*v1.PostgresExporter)(nil),               // 14: inventory.v1.PostgresExporter
-	(*v1.QANPostgreSQLPgStatementsAgent)(nil), // 15: inventory.v1.QANPostgreSQLPgStatementsAgent
-}
+var (
+	file_management_v1_rds_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_management_v1_rds_proto_msgTypes  = make([]protoimpl.MessageInfo, 6)
+	file_management_v1_rds_proto_goTypes   = []any{
+		(DiscoverRDSEngine)(0),                    // 0: management.v1.DiscoverRDSEngine
+		(*DiscoverRDSInstance)(nil),               // 1: management.v1.DiscoverRDSInstance
+		(*DiscoverRDSRequest)(nil),                // 2: management.v1.DiscoverRDSRequest
+		(*DiscoverRDSResponse)(nil),               // 3: management.v1.DiscoverRDSResponse
+		(*AddRDSServiceParams)(nil),               // 4: management.v1.AddRDSServiceParams
+		(*RDSServiceResult)(nil),                  // 5: management.v1.RDSServiceResult
+		nil,                                       // 6: management.v1.AddRDSServiceParams.CustomLabelsEntry
+		(MetricsMode)(0),                          // 7: management.v1.MetricsMode
+		(*v1.RemoteRDSNode)(nil),                  // 8: inventory.v1.RemoteRDSNode
+		(*v1.RDSExporter)(nil),                    // 9: inventory.v1.RDSExporter
+		(*v1.MySQLService)(nil),                   // 10: inventory.v1.MySQLService
+		(*v1.MySQLdExporter)(nil),                 // 11: inventory.v1.MySQLdExporter
+		(*v1.QANMySQLPerfSchemaAgent)(nil),        // 12: inventory.v1.QANMySQLPerfSchemaAgent
+		(*v1.PostgreSQLService)(nil),              // 13: inventory.v1.PostgreSQLService
+		(*v1.PostgresExporter)(nil),               // 14: inventory.v1.PostgresExporter
+		(*v1.QANPostgreSQLPgStatementsAgent)(nil), // 15: inventory.v1.QANPostgreSQLPgStatementsAgent
+	}
+)
+
 var file_management_v1_rds_proto_depIdxs = []int32{
 	0,  // 0: management.v1.DiscoverRDSInstance.engine:type_name -> management.v1.DiscoverRDSEngine
 	1,  // 1: management.v1.DiscoverRDSResponse.rds_instances:type_name -> management.v1.DiscoverRDSInstance

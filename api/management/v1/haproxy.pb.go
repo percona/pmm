@@ -7,12 +7,14 @@
 package managementv1
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
-	v1 "github.com/percona/pmm/api/inventory/v1"
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+
+	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -362,16 +364,19 @@ func file_management_v1_haproxy_proto_rawDescGZIP() []byte {
 	return file_management_v1_haproxy_proto_rawDescData
 }
 
-var file_management_v1_haproxy_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_management_v1_haproxy_proto_goTypes = []any{
-	(*AddHAProxyServiceParams)(nil), // 0: management.v1.AddHAProxyServiceParams
-	(*HAProxyServiceResult)(nil),    // 1: management.v1.HAProxyServiceResult
-	nil,                             // 2: management.v1.AddHAProxyServiceParams.CustomLabelsEntry
-	(*AddNodeParams)(nil),           // 3: management.v1.AddNodeParams
-	(MetricsMode)(0),                // 4: management.v1.MetricsMode
-	(*v1.HAProxyService)(nil),       // 5: inventory.v1.HAProxyService
-	(*v1.ExternalExporter)(nil),     // 6: inventory.v1.ExternalExporter
-}
+var (
+	file_management_v1_haproxy_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_management_v1_haproxy_proto_goTypes  = []any{
+		(*AddHAProxyServiceParams)(nil), // 0: management.v1.AddHAProxyServiceParams
+		(*HAProxyServiceResult)(nil),    // 1: management.v1.HAProxyServiceResult
+		nil,                             // 2: management.v1.AddHAProxyServiceParams.CustomLabelsEntry
+		(*AddNodeParams)(nil),           // 3: management.v1.AddNodeParams
+		(MetricsMode)(0),                // 4: management.v1.MetricsMode
+		(*v1.HAProxyService)(nil),       // 5: inventory.v1.HAProxyService
+		(*v1.ExternalExporter)(nil),     // 6: inventory.v1.ExternalExporter
+	}
+)
+
 var file_management_v1_haproxy_proto_depIdxs = []int32{
 	3, // 0: management.v1.AddHAProxyServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2, // 1: management.v1.AddHAProxyServiceParams.custom_labels:type_name -> management.v1.AddHAProxyServiceParams.CustomLabelsEntry

@@ -61,7 +61,6 @@ GetLogsMixin5Params contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetLogsMixin5Params struct {
-
 	// Limit.
 	//
 	// Format: int64
@@ -163,7 +162,6 @@ func (o *GetLogsMixin5Params) SetRestoreID(restoreID string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetLogsMixin5Params) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -179,7 +177,6 @@ func (o *GetLogsMixin5Params) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		}
 		qLimit := swag.FormatInt64(qrLimit)
 		if qLimit != "" {
-
 			if err := r.SetQueryParam("limit", qLimit); err != nil {
 				return err
 			}
@@ -196,7 +193,6 @@ func (o *GetLogsMixin5Params) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		}
 		qOffset := swag.FormatInt64(qrOffset)
 		if qOffset != "" {
-
 			if err := r.SetQueryParam("offset", qOffset); err != nil {
 				return err
 			}

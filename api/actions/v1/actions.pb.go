@@ -7,13 +7,14 @@
 package actionsv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -2860,43 +2861,46 @@ func file_actions_v1_actions_proto_rawDescGZIP() []byte {
 	return file_actions_v1_actions_proto_rawDescData
 }
 
-var file_actions_v1_actions_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_actions_v1_actions_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
-var file_actions_v1_actions_proto_goTypes = []any{
-	(ActionType)(0),                                      // 0: actions.v1.ActionType
-	(*GetActionRequest)(nil),                             // 1: actions.v1.GetActionRequest
-	(*GetActionResponse)(nil),                            // 2: actions.v1.GetActionResponse
-	(*StartMySQLExplainActionParams)(nil),                // 3: actions.v1.StartMySQLExplainActionParams
-	(*StartMySQLExplainActionResult)(nil),                // 4: actions.v1.StartMySQLExplainActionResult
-	(*StartMySQLExplainJSONActionParams)(nil),            // 5: actions.v1.StartMySQLExplainJSONActionParams
-	(*StartMySQLExplainJSONActionResult)(nil),            // 6: actions.v1.StartMySQLExplainJSONActionResult
-	(*StartMySQLExplainTraditionalJSONActionParams)(nil), // 7: actions.v1.StartMySQLExplainTraditionalJSONActionParams
-	(*StartMySQLExplainTraditionalJSONActionResult)(nil), // 8: actions.v1.StartMySQLExplainTraditionalJSONActionResult
-	(*StartMySQLShowCreateTableActionParams)(nil),        // 9: actions.v1.StartMySQLShowCreateTableActionParams
-	(*StartMySQLShowCreateTableActionResult)(nil),        // 10: actions.v1.StartMySQLShowCreateTableActionResult
-	(*StartMySQLShowTableStatusActionParams)(nil),        // 11: actions.v1.StartMySQLShowTableStatusActionParams
-	(*StartMySQLShowTableStatusActionResult)(nil),        // 12: actions.v1.StartMySQLShowTableStatusActionResult
-	(*StartMySQLShowIndexActionParams)(nil),              // 13: actions.v1.StartMySQLShowIndexActionParams
-	(*StartMySQLShowIndexActionResult)(nil),              // 14: actions.v1.StartMySQLShowIndexActionResult
-	(*StartPostgreSQLShowCreateTableActionParams)(nil),   // 15: actions.v1.StartPostgreSQLShowCreateTableActionParams
-	(*StartPostgreSQLShowCreateTableActionResult)(nil),   // 16: actions.v1.StartPostgreSQLShowCreateTableActionResult
-	(*StartPostgreSQLShowIndexActionParams)(nil),         // 17: actions.v1.StartPostgreSQLShowIndexActionParams
-	(*StartPostgreSQLShowIndexActionResult)(nil),         // 18: actions.v1.StartPostgreSQLShowIndexActionResult
-	(*StartMongoDBExplainActionParams)(nil),              // 19: actions.v1.StartMongoDBExplainActionParams
-	(*StartMongoDBExplainActionResult)(nil),              // 20: actions.v1.StartMongoDBExplainActionResult
-	(*StartPTPgSummaryActionParams)(nil),                 // 21: actions.v1.StartPTPgSummaryActionParams
-	(*StartPTPgSummaryActionResult)(nil),                 // 22: actions.v1.StartPTPgSummaryActionResult
-	(*StartPTMongoDBSummaryActionParams)(nil),            // 23: actions.v1.StartPTMongoDBSummaryActionParams
-	(*StartPTMongoDBSummaryActionResult)(nil),            // 24: actions.v1.StartPTMongoDBSummaryActionResult
-	(*StartPTMySQLSummaryActionParams)(nil),              // 25: actions.v1.StartPTMySQLSummaryActionParams
-	(*StartPTMySQLSummaryActionResult)(nil),              // 26: actions.v1.StartPTMySQLSummaryActionResult
-	(*StartPTSummaryActionRequest)(nil),                  // 27: actions.v1.StartPTSummaryActionRequest
-	(*StartPTSummaryActionResponse)(nil),                 // 28: actions.v1.StartPTSummaryActionResponse
-	(*CancelActionRequest)(nil),                          // 29: actions.v1.CancelActionRequest
-	(*CancelActionResponse)(nil),                         // 30: actions.v1.CancelActionResponse
-	(*StartServiceActionRequest)(nil),                    // 31: actions.v1.StartServiceActionRequest
-	(*StartServiceActionResponse)(nil),                   // 32: actions.v1.StartServiceActionResponse
-}
+var (
+	file_actions_v1_actions_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_actions_v1_actions_proto_msgTypes  = make([]protoimpl.MessageInfo, 32)
+	file_actions_v1_actions_proto_goTypes   = []any{
+		(ActionType)(0),                                      // 0: actions.v1.ActionType
+		(*GetActionRequest)(nil),                             // 1: actions.v1.GetActionRequest
+		(*GetActionResponse)(nil),                            // 2: actions.v1.GetActionResponse
+		(*StartMySQLExplainActionParams)(nil),                // 3: actions.v1.StartMySQLExplainActionParams
+		(*StartMySQLExplainActionResult)(nil),                // 4: actions.v1.StartMySQLExplainActionResult
+		(*StartMySQLExplainJSONActionParams)(nil),            // 5: actions.v1.StartMySQLExplainJSONActionParams
+		(*StartMySQLExplainJSONActionResult)(nil),            // 6: actions.v1.StartMySQLExplainJSONActionResult
+		(*StartMySQLExplainTraditionalJSONActionParams)(nil), // 7: actions.v1.StartMySQLExplainTraditionalJSONActionParams
+		(*StartMySQLExplainTraditionalJSONActionResult)(nil), // 8: actions.v1.StartMySQLExplainTraditionalJSONActionResult
+		(*StartMySQLShowCreateTableActionParams)(nil),        // 9: actions.v1.StartMySQLShowCreateTableActionParams
+		(*StartMySQLShowCreateTableActionResult)(nil),        // 10: actions.v1.StartMySQLShowCreateTableActionResult
+		(*StartMySQLShowTableStatusActionParams)(nil),        // 11: actions.v1.StartMySQLShowTableStatusActionParams
+		(*StartMySQLShowTableStatusActionResult)(nil),        // 12: actions.v1.StartMySQLShowTableStatusActionResult
+		(*StartMySQLShowIndexActionParams)(nil),              // 13: actions.v1.StartMySQLShowIndexActionParams
+		(*StartMySQLShowIndexActionResult)(nil),              // 14: actions.v1.StartMySQLShowIndexActionResult
+		(*StartPostgreSQLShowCreateTableActionParams)(nil),   // 15: actions.v1.StartPostgreSQLShowCreateTableActionParams
+		(*StartPostgreSQLShowCreateTableActionResult)(nil),   // 16: actions.v1.StartPostgreSQLShowCreateTableActionResult
+		(*StartPostgreSQLShowIndexActionParams)(nil),         // 17: actions.v1.StartPostgreSQLShowIndexActionParams
+		(*StartPostgreSQLShowIndexActionResult)(nil),         // 18: actions.v1.StartPostgreSQLShowIndexActionResult
+		(*StartMongoDBExplainActionParams)(nil),              // 19: actions.v1.StartMongoDBExplainActionParams
+		(*StartMongoDBExplainActionResult)(nil),              // 20: actions.v1.StartMongoDBExplainActionResult
+		(*StartPTPgSummaryActionParams)(nil),                 // 21: actions.v1.StartPTPgSummaryActionParams
+		(*StartPTPgSummaryActionResult)(nil),                 // 22: actions.v1.StartPTPgSummaryActionResult
+		(*StartPTMongoDBSummaryActionParams)(nil),            // 23: actions.v1.StartPTMongoDBSummaryActionParams
+		(*StartPTMongoDBSummaryActionResult)(nil),            // 24: actions.v1.StartPTMongoDBSummaryActionResult
+		(*StartPTMySQLSummaryActionParams)(nil),              // 25: actions.v1.StartPTMySQLSummaryActionParams
+		(*StartPTMySQLSummaryActionResult)(nil),              // 26: actions.v1.StartPTMySQLSummaryActionResult
+		(*StartPTSummaryActionRequest)(nil),                  // 27: actions.v1.StartPTSummaryActionRequest
+		(*StartPTSummaryActionResponse)(nil),                 // 28: actions.v1.StartPTSummaryActionResponse
+		(*CancelActionRequest)(nil),                          // 29: actions.v1.CancelActionRequest
+		(*CancelActionResponse)(nil),                         // 30: actions.v1.CancelActionResponse
+		(*StartServiceActionRequest)(nil),                    // 31: actions.v1.StartServiceActionRequest
+		(*StartServiceActionResponse)(nil),                   // 32: actions.v1.StartServiceActionResponse
+	}
+)
+
 var file_actions_v1_actions_proto_depIdxs = []int32{
 	3,  // 0: actions.v1.StartServiceActionRequest.mysql_explain:type_name -> actions.v1.StartMySQLExplainActionParams
 	5,  // 1: actions.v1.StartServiceActionRequest.mysql_explain_json:type_name -> actions.v1.StartMySQLExplainJSONActionParams

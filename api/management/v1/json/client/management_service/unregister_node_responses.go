@@ -103,7 +103,6 @@ func (o *UnregisterNodeOK) GetPayload() *UnregisterNodeOKBody {
 }
 
 func (o *UnregisterNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(UnregisterNodeOKBody)
 
 	// response payload
@@ -177,7 +176,6 @@ func (o *UnregisterNodeDefault) GetPayload() *UnregisterNodeDefaultBody {
 }
 
 func (o *UnregisterNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(UnregisterNodeDefaultBody)
 
 	// response payload
@@ -193,7 +191,6 @@ UnregisterNodeDefaultBody unregister node default body
 swagger:model UnregisterNodeDefaultBody
 */
 type UnregisterNodeDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,9 +256,7 @@ func (o *UnregisterNodeDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *UnregisterNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -277,7 +272,6 @@ func (o *UnregisterNodeDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -306,7 +300,6 @@ UnregisterNodeDefaultBodyDetailsItems0 unregister node default body details item
 swagger:model UnregisterNodeDefaultBodyDetailsItems0
 */
 type UnregisterNodeDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,7 +311,6 @@ type UnregisterNodeDefaultBodyDetailsItems0 struct {
 func (o *UnregisterNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -356,7 +348,6 @@ func (o *UnregisterNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o UnregisterNodeDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -420,7 +411,6 @@ UnregisterNodeOKBody unregister node OK body
 swagger:model UnregisterNodeOKBody
 */
 type UnregisterNodeOKBody struct {
-
 	// Warning message if there are more service tokens attached to service account.
 	Warning string `json:"warning,omitempty"`
 }

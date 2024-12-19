@@ -103,7 +103,6 @@ func (o *GetActionOK) GetPayload() *GetActionOKBody {
 }
 
 func (o *GetActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetActionOKBody)
 
 	// response payload
@@ -177,7 +176,6 @@ func (o *GetActionDefault) GetPayload() *GetActionDefaultBody {
 }
 
 func (o *GetActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetActionDefaultBody)
 
 	// response payload
@@ -193,7 +191,6 @@ GetActionDefaultBody get action default body
 swagger:model GetActionDefaultBody
 */
 type GetActionDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,9 +256,7 @@ func (o *GetActionDefaultBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *GetActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -277,7 +272,6 @@ func (o *GetActionDefaultBody) contextValidateDetails(ctx context.Context, forma
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -306,7 +300,6 @@ GetActionDefaultBodyDetailsItems0 get action default body details items0
 swagger:model GetActionDefaultBodyDetailsItems0
 */
 type GetActionDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,7 +311,6 @@ type GetActionDefaultBodyDetailsItems0 struct {
 func (o *GetActionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -356,7 +348,6 @@ func (o *GetActionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetActionDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -420,7 +411,6 @@ GetActionOKBody get action OK body
 swagger:model GetActionOKBody
 */
 type GetActionOKBody struct {
-
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

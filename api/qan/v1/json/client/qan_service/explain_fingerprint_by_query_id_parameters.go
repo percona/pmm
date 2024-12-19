@@ -60,7 +60,6 @@ ExplainFingerprintByQueryIDParams contains all the parameters to send to the API
 	Typically these are written to a http.Request.
 */
 type ExplainFingerprintByQueryIDParams struct {
-
 	/* Body.
 
 	   ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.
@@ -133,7 +132,6 @@ func (o *ExplainFingerprintByQueryIDParams) SetBody(body ExplainFingerprintByQue
 
 // WriteToRequest writes these params to a swagger request
 func (o *ExplainFingerprintByQueryIDParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

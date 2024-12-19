@@ -104,7 +104,6 @@ func (o *ListAdvisorChecksOK) GetPayload() *ListAdvisorChecksOKBody {
 }
 
 func (o *ListAdvisorChecksOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListAdvisorChecksOKBody)
 
 	// response payload
@@ -178,7 +177,6 @@ func (o *ListAdvisorChecksDefault) GetPayload() *ListAdvisorChecksDefaultBody {
 }
 
 func (o *ListAdvisorChecksDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListAdvisorChecksDefaultBody)
 
 	// response payload
@@ -194,7 +192,6 @@ ListAdvisorChecksDefaultBody list advisor checks default body
 swagger:model ListAdvisorChecksDefaultBody
 */
 type ListAdvisorChecksDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -260,9 +257,7 @@ func (o *ListAdvisorChecksDefaultBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *ListAdvisorChecksDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -278,7 +273,6 @@ func (o *ListAdvisorChecksDefaultBody) contextValidateDetails(ctx context.Contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -307,7 +301,6 @@ ListAdvisorChecksDefaultBodyDetailsItems0 list advisor checks default body detai
 swagger:model ListAdvisorChecksDefaultBodyDetailsItems0
 */
 type ListAdvisorChecksDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -319,7 +312,6 @@ type ListAdvisorChecksDefaultBodyDetailsItems0 struct {
 func (o *ListAdvisorChecksDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -357,7 +349,6 @@ func (o *ListAdvisorChecksDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) e
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListAdvisorChecksDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -421,7 +412,6 @@ ListAdvisorChecksOKBody list advisor checks OK body
 swagger:model ListAdvisorChecksOKBody
 */
 type ListAdvisorChecksOKBody struct {
-
 	// checks
 	Checks []*ListAdvisorChecksOKBodyChecksItems0 `json:"checks"`
 }
@@ -481,9 +471,7 @@ func (o *ListAdvisorChecksOKBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListAdvisorChecksOKBody) contextValidateChecks(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Checks); i++ {
-
 		if o.Checks[i] != nil {
 
 			if swag.IsZero(o.Checks[i]) { // not required
@@ -499,7 +487,6 @@ func (o *ListAdvisorChecksOKBody) contextValidateChecks(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -528,7 +515,6 @@ ListAdvisorChecksOKBodyChecksItems0 AdvisorCheck contains check name and status.
 swagger:model ListAdvisorChecksOKBodyChecksItems0
 */
 type ListAdvisorChecksOKBodyChecksItems0 struct {
-
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 

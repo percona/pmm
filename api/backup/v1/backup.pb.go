@@ -7,16 +7,18 @@
 package backupv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	v1 "github.com/percona/pmm/api/inventory/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
+
+	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -1495,37 +1497,40 @@ func file_backup_v1_backup_proto_rawDescGZIP() []byte {
 	return file_backup_v1_backup_proto_rawDescData
 }
 
-var file_backup_v1_backup_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
-var file_backup_v1_backup_proto_goTypes = []any{
-	(*StartBackupRequest)(nil),                     // 0: backup.v1.StartBackupRequest
-	(*StartBackupResponse)(nil),                    // 1: backup.v1.StartBackupResponse
-	(*ListArtifactCompatibleServicesRequest)(nil),  // 2: backup.v1.ListArtifactCompatibleServicesRequest
-	(*ListArtifactCompatibleServicesResponse)(nil), // 3: backup.v1.ListArtifactCompatibleServicesResponse
-	(*ScheduledBackup)(nil),                        // 4: backup.v1.ScheduledBackup
-	(*ScheduleBackupRequest)(nil),                  // 5: backup.v1.ScheduleBackupRequest
-	(*ScheduleBackupResponse)(nil),                 // 6: backup.v1.ScheduleBackupResponse
-	(*ListScheduledBackupsRequest)(nil),            // 7: backup.v1.ListScheduledBackupsRequest
-	(*ListScheduledBackupsResponse)(nil),           // 8: backup.v1.ListScheduledBackupsResponse
-	(*ChangeScheduledBackupRequest)(nil),           // 9: backup.v1.ChangeScheduledBackupRequest
-	(*ChangeScheduledBackupResponse)(nil),          // 10: backup.v1.ChangeScheduledBackupResponse
-	(*RemoveScheduledBackupRequest)(nil),           // 11: backup.v1.RemoveScheduledBackupRequest
-	(*RemoveScheduledBackupResponse)(nil),          // 12: backup.v1.RemoveScheduledBackupResponse
-	(*GetLogsRequest)(nil),                         // 13: backup.v1.GetLogsRequest
-	(*GetLogsResponse)(nil),                        // 14: backup.v1.GetLogsResponse
-	(*durationpb.Duration)(nil),                    // 15: google.protobuf.Duration
-	(DataModel)(0),                                 // 16: backup.v1.DataModel
-	(*v1.MySQLService)(nil),                        // 17: inventory.v1.MySQLService
-	(*v1.MongoDBService)(nil),                      // 18: inventory.v1.MongoDBService
-	(*timestamppb.Timestamp)(nil),                  // 19: google.protobuf.Timestamp
-	(BackupMode)(0),                                // 20: backup.v1.BackupMode
-	(*LogChunk)(nil),                               // 21: backup.v1.LogChunk
-	(*ListArtifactsRequest)(nil),                   // 22: backup.v1.ListArtifactsRequest
-	(*DeleteArtifactRequest)(nil),                  // 23: backup.v1.DeleteArtifactRequest
-	(*ListPitrTimerangesRequest)(nil),              // 24: backup.v1.ListPitrTimerangesRequest
-	(*ListArtifactsResponse)(nil),                  // 25: backup.v1.ListArtifactsResponse
-	(*DeleteArtifactResponse)(nil),                 // 26: backup.v1.DeleteArtifactResponse
-	(*ListPitrTimerangesResponse)(nil),             // 27: backup.v1.ListPitrTimerangesResponse
-}
+var (
+	file_backup_v1_backup_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+	file_backup_v1_backup_proto_goTypes  = []any{
+		(*StartBackupRequest)(nil),                     // 0: backup.v1.StartBackupRequest
+		(*StartBackupResponse)(nil),                    // 1: backup.v1.StartBackupResponse
+		(*ListArtifactCompatibleServicesRequest)(nil),  // 2: backup.v1.ListArtifactCompatibleServicesRequest
+		(*ListArtifactCompatibleServicesResponse)(nil), // 3: backup.v1.ListArtifactCompatibleServicesResponse
+		(*ScheduledBackup)(nil),                        // 4: backup.v1.ScheduledBackup
+		(*ScheduleBackupRequest)(nil),                  // 5: backup.v1.ScheduleBackupRequest
+		(*ScheduleBackupResponse)(nil),                 // 6: backup.v1.ScheduleBackupResponse
+		(*ListScheduledBackupsRequest)(nil),            // 7: backup.v1.ListScheduledBackupsRequest
+		(*ListScheduledBackupsResponse)(nil),           // 8: backup.v1.ListScheduledBackupsResponse
+		(*ChangeScheduledBackupRequest)(nil),           // 9: backup.v1.ChangeScheduledBackupRequest
+		(*ChangeScheduledBackupResponse)(nil),          // 10: backup.v1.ChangeScheduledBackupResponse
+		(*RemoveScheduledBackupRequest)(nil),           // 11: backup.v1.RemoveScheduledBackupRequest
+		(*RemoveScheduledBackupResponse)(nil),          // 12: backup.v1.RemoveScheduledBackupResponse
+		(*GetLogsRequest)(nil),                         // 13: backup.v1.GetLogsRequest
+		(*GetLogsResponse)(nil),                        // 14: backup.v1.GetLogsResponse
+		(*durationpb.Duration)(nil),                    // 15: google.protobuf.Duration
+		(DataModel)(0),                                 // 16: backup.v1.DataModel
+		(*v1.MySQLService)(nil),                        // 17: inventory.v1.MySQLService
+		(*v1.MongoDBService)(nil),                      // 18: inventory.v1.MongoDBService
+		(*timestamppb.Timestamp)(nil),                  // 19: google.protobuf.Timestamp
+		(BackupMode)(0),                                // 20: backup.v1.BackupMode
+		(*LogChunk)(nil),                               // 21: backup.v1.LogChunk
+		(*ListArtifactsRequest)(nil),                   // 22: backup.v1.ListArtifactsRequest
+		(*DeleteArtifactRequest)(nil),                  // 23: backup.v1.DeleteArtifactRequest
+		(*ListPitrTimerangesRequest)(nil),              // 24: backup.v1.ListPitrTimerangesRequest
+		(*ListArtifactsResponse)(nil),                  // 25: backup.v1.ListArtifactsResponse
+		(*DeleteArtifactResponse)(nil),                 // 26: backup.v1.DeleteArtifactResponse
+		(*ListPitrTimerangesResponse)(nil),             // 27: backup.v1.ListPitrTimerangesResponse
+	}
+)
+
 var file_backup_v1_backup_proto_depIdxs = []int32{
 	15, // 0: backup.v1.StartBackupRequest.retry_interval:type_name -> google.protobuf.Duration
 	16, // 1: backup.v1.StartBackupRequest.data_model:type_name -> backup.v1.DataModel
