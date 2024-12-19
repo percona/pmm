@@ -1,0 +1,18 @@
+# MkDocs configuration for PDF output
+# Usage: ENABLE_PDF_EXPORT=1 mkdocs build -f mkdocs-pdf.yml
+INHERIT: mkdocs-base.yml
+
+copyright: Percona LLC and/or its affiliates &copy;2024
+
+plugins:
+  mike:
+    version_selector: false
+  # https://github.com/orzih/mkdocs-with-pdf
+  with-pdf:
+    output_path: "pdf/PerconaMonitoringAndManagement-2.44.0.pdf"
+    cover_title: "Percona Monitoring and Management Documentation"
+    cover_subtitle: 2.44.0 (December 13, 2024)
+    author: "Percona Technical Documentation Team"
+    cover_logo: docs/images/pmm_pdf_logo.png
+    custom_template_path: resources/templates
+    enabled_if_env: ENABLE_PDF_EXPORT

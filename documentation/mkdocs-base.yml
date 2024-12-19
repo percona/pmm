@@ -1,0 +1,398 @@
+# MkDocs configuration
+# Used as base - look for .yml files with INHERIT
+site_name: Percona Monitoring and Management
+site_description: Documentation
+site_author: Percona LLC
+site_url: ""
+use_directory_urls: false
+repo_name: percona/pmm
+repo_url: https://github.com/percona/pmm
+edit_uri: edit/main/documentation/docs/
+
+theme:
+  name: material
+  custom_dir: overrides
+  logo: assets/pmm-mark.svg
+  favicon: assets/pmm-fav.svg
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    edit: material/file-edit-outline
+    view: material/file-eye-outline
+
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Color theme set to Automatic. Click to change
+    - media: "(prefers-color-scheme: light)"
+      scheme: percona-light
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Color theme set to Light Mode. Click to change
+    - media: "(prefers-color-scheme: dark)"
+      scheme: percona-dark
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Color theme set to Dark Mode. Click to change
+
+  # Theme features
+
+  features:
+    - search.highlight
+    - navigation.top
+    - content.tabs.link
+    - content.code.copy
+    - navigation.tracking
+    - content.action.edit
+    - content.action.view
+
+extra_css:
+  - https://unicons.iconscout.com/release/v4.0.8/css/line.css
+  - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
+  - css/extra.css
+  - css/nocopy.css
+  - css/design.css
+  - css/osano.css
+  - css/pmm.css
+
+extra_javascript:
+  - js/promptremover.js
+  - js/consent.js
+  - js/version-select.js
+
+markdown_extensions:
+  attr_list: {}
+  toc:
+    permalink: true
+  admonition: {}
+  footnotes: {}
+  def_list: {}
+  meta: {}
+  md_in_html: {}
+  smarty:
+      {smart_angled_quotes: true}
+  pymdownx.details: {}
+  pymdownx.mark: {}
+  pymdownx.smartsymbols: {}
+  pymdownx.tilde: {}
+  pymdownx.superfences: {}
+  pymdownx.tabbed:
+    alternate_style: true
+  pymdownx.tasklist:
+    custom_checkbox: true
+  pymdownx.snippets:
+      base_path: ["snippets"]
+      auto_append:
+        - services-banner.md
+  pymdownx.highlight:
+    use_pygments: true
+  pymdownx.emoji:
+    emoji_index: !!python/name:material.extensions.emoji.twemoji
+    emoji_generator: !!python/name:material.extensions.emoji.to_svg
+    options:
+      custom_icons:
+        - overrides/.icons
+
+plugins:
+  search:
+    separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  git-revision-date: {}
+  meta-descriptions:
+    export_csv: false
+    quiet: false
+    enable_checks: false
+    min_length: 50
+    max_length: 160
+  # https://mkdocs-macros-plugin.readthedocs.io/en/latest/
+  macros:
+    include_yaml:
+      - "variables.yml"
+  # https://pypi.org/project/mkdocs-exclude/
+  exclude:
+    glob:
+      - "setting-up/client/docker.md"
+  mike:
+    version_selector: true
+    css_dir: css
+    javascript_dir: js
+    canonical_version: null
+
+extra:
+  version:
+    provider: mike  
+  edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
+  updated_text: '<i class="uil uil-refresh"></i> Page updated'
+
+# Common navigation for percona.com, render.com and PDF
+nav:
+  - Welcome: index.md
+  - Quickstart guide: quickstart/index.md
+  - Setting up:
+      - setting-up/index.md
+      - Server:
+          - setting-up/server/index.md
+          - setting-up/server/network.md
+          - setting-up/server/docker.md
+          - setting-up/server/podman.md
+          - setting-up/server/helm.md
+          - setting-up/server/virtual-appliance.md
+          - setting-up/server/aws.md
+          - setting-up/server/easy-install.md
+      - Client:
+          - setting-up/client/index.md
+          - setting-up/client/mysql.md
+          - setting-up/client/mongodb.md
+          - setting-up/client/postgresql.md
+          - setting-up/client/proxysql.md
+          - setting-up/client/aws.md
+          - setting-up/client/azure.md
+          - setting-up/client/google.md
+          - setting-up/client/linux.md
+          - setting-up/client/external.md
+          - setting-up/client/haproxy.md
+          - setting-up/client/remote.md
+  - Get started:
+      - get-started/index.md
+      - get-started/interface.md
+      - Percona Alerting:
+          - get-started/alerting.md
+          - get-started/alert-templates.md
+      - Backup and Restore:
+          - get-started/backup/index.md
+          - get-started/backup/prepare_storage_location.md
+          - MongoDB backups:
+              - get-started/backup/backup_mongo.md
+              - get-started/backup/mongo-prerequisites.md
+              - get-started/backup/create_mongo_on_demand.md
+              - get-started/backup/create_PITR_mongo.md
+              - get-started/backup/restore_MongoDB_backups.md
+              - get-started/backup/mongodb_limitations.md
+          - MySQL backups:
+              - get-started/backup/backup_mysql.md
+              - get-started/backup/mysql_prerequisites.md
+              - get-started/backup/create_mysql_backup.md
+              - get-started/backup/restore_mysql_backup.md
+          - get-started/backup/edit_scheduled.md
+          - get-started/backup/delete_a_backup.md
+      - Roles and permissions:
+          - get-started/roles-and-permissions/index.md
+          - get-started/roles-and-permissions/configure_access_roles.md
+          - get-started/roles-and-permissions/lbac.md
+          - get-started/roles-and-permissions/access_roles.md
+          - get-started/roles-and-permissions/manage_roles.md
+          - get-started/roles-and-permissions/assign_roles.md
+          - get-started/roles-and-permissions/use_case.md
+      - get-started/query-analytics.md
+      - Advisors:
+          - get-started/advisors.md
+          - get-started/advisors-details.md
+  - How to:
+      - how-to/index.md
+      - how-to/configure.md
+      - how-to/manage-users.md
+      - how-to/upgrade.md
+      - how-to/secure.md
+      - how-to/optimize.md
+      - how-to/HA.md
+      - how-to/annotate.md
+      - how-to/share-dashboard.md
+      - how-to/extend-metrics.md
+      - how-to/troubleshoot.md
+      - how-to/PMM_dump.md
+      - Integrate with Percona Platform:
+          - how-to/integrate-platform.md
+          - how-to/account-info.md
+  - Details:
+      - details/index.md
+      - details/architecture.md
+      - details/interface.md
+      - details/pmm_components_and_versions.md
+      - details/personal_data_handling.md
+      - Develop Advisor checks:
+          - details/develop-checks/index.md
+      - PMM Inventory:
+          - details/dashboards/dashboard-inventory.md
+      - Dashboards:
+          - details/dashboards/index.md
+          - Manage dashboards:
+              - details/dashboards/dashboard-manage-dashboards.md
+          - PMM dashboards:
+              - Insight:
+                  - details/dashboards/dashboard-home.md
+                  - details/dashboards/dashboard-advanced-data-exploration.md
+                  - details/dashboards/dashboard-victoriametrics.md
+                  - details/dashboards/dashboard-victoriametrics-agents-overview.md
+              - Environments:
+                  - details/dashboards/dashboard-env-overview.md
+                  - details/dashboards/dashboard-environent-summary.md
+              - Kubernetes:
+                  - details/dashboards/kubernetes_cluster_summary.md
+                  - details/dashboards/kubernetes_pods_status.md
+                  - details/dashboards/kubernetes_volume.md
+                  - details/dashboards/kubernetes_monitor_operators.md
+                  - details/dashboards/kubernetes_monitor_db_clusters_managed.md
+              - DBaas:
+                  - details/dashboards/dashboard-cluster-summary.md
+              - OS dashboards:
+                  - details/dashboards/dashboard-cpu-utilization-details.md
+                  - details/dashboards/dashboard-disk-details.md
+                  - details/dashboards/dashboard-network-details.md
+                  - details/dashboards/dashboard-memory-details.md
+                  - details/dashboards/dashboard-node-temperature-details.md
+                  - details/dashboards/dashboard-nodes-compare.md
+                  - details/dashboards/dashboard-nodes-overview.md
+                  - details/dashboards/dashboard-node-summary.md
+                  - details/dashboards/dashboard-numa-details.md
+                  - details/dashboards/dashboard-processes-details.md
+              - Prometheus dashboards:
+                  - details/dashboards/dashboard-prometheus-exporter-status.md
+                  - details/dashboards/dashboard-prometheus-exporters-overview.md
+              - MySQL dashboards:
+                  - details/dashboards/dashboard-mysql-amazon-aurora-details.md
+                  - details/dashboards/dashboard-mysql-command-handler-counters-compare.md
+                  - details/dashboards/dashboard-mysql-innodb-compression-details.md
+                  - details/dashboards/dashboard-mysql-innodb-details.md
+                  - details/dashboards/dashboard-mysql-myisam-aria-details.md
+                  - details/dashboards/dashboard-mysql-myrocks-details.md
+                  - details/dashboards/dashboard-mysql-instance-summary.md
+                  - details/dashboards/dashboard-mysql-instances-compare.md
+                  - details/dashboards/dashboard-mysql-instances-overview.md
+                  - details/dashboards/dashboard-mysql-wait-event-analyses-details.md
+                  - details/dashboards/dashboard-mysql-performance-schema-details.md
+                  - details/dashboards/dashboard-mysql-query-response-time-details.md
+                  - details/dashboards/dashboard-mysql-replication-summary.md
+                  - details/dashboards/dashboard-mysql-group-replication-summary.md
+                  - details/dashboards/dashboard-mysql-table-details.md
+                  - details/dashboards/dashboard-mysql-user-details.md
+                  - details/dashboards/dashboard-mysql-tokudb-details.md
+              - MongoDB dashboards:
+                  - details/dashboards/dashboard-replsetsummary.md
+                  - details/dashboards/dashboard-sharded-cluster-summary.md
+                  - details/dashboards/dashboard-mongodb_collection_overview.md
+                  - details/dashboards/dashboard-mongodb-experimental_collection_details.md
+                  - details/dashboards/dashboard-mongodb_oplog.md
+                  - details/dashboards/dashboard-cluster-summary.md
+                  - details/dashboards/dashboard-mongodb-router-summary.md
+                  - details/dashboards/dashboard-replsetsummary.md
+                  - details/dashboards/dashboard-mongodb-instance-summary.md
+                  - details/dashboards/dashboard-mongodb-instances-overview.md
+                  - details/dashboards/dashboard-mongodb-instances-compare.md
+                  - details/dashboards/dashboard-mongodb-inmemory-details.md
+                  - details/dashboards/dashboard-mongodb-mmapv1-details.md
+                  - details/dashboards/dashboard-mongodb-wiredtiger-details.md
+              - PostgreSQL dashboards:
+                  - details/dashboards/dashboard-postgresql-instances-overview.md
+                  - details/dashboards/dashboard-postgresql-instance-summary.md
+                  - details/dashboards/dashboard-postgresql-instances-compare.md
+                  - details/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.md
+              - ProxySQL dashboards:
+                  - details/dashboards/dashboard-proxysql-instance-summary.md
+              - HA dashboards:
+                  - details/dashboards/dashboard-pxc-galera-node-summary.md
+                  - details/dashboards/dashboard-pxc-galera-cluster-summary.md
+                  - details/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
+                  - details/dashboards/dashboard-pxc-galera-nodes-compare.md
+                  - details/dashboards/dashboard-haproxy-instance-summary.md
+      - Commands:
+          - details/commands/index.md
+          - details/commands/pmm-admin.md
+          - details/commands/pmm-agent.md
+      - details/query-analytics.md
+      - details/api.md
+      - details/victoria-metrics.md
+      - details/clickhouse.md
+      - details/postgresql.md
+      - details/glossary.md
+  - DBaaS:
+      - "Introduction": dbaas/index.md
+      - dbaas/architecture.md
+      - "Setting up":
+          - "Setting up DBaaS": dbaas/setting-up.html#setting-up-dbaas
+          - "Create a Kubernetes Cluster": dbaas/setting-up.html#create-a-kubernetes-cluster
+          - "Deleting Kubernetes clusters ": dbaas/setting-up.html#deleting-clusters
+      - "Getting started":
+          - "Activating DBaaS": dbaas/get-started.html#getting-started-with-dbaas
+          - "Add a Kubernetes cluster automatically": dbaas/get-started.html#getting-started-with-dbaas
+          - "Add a Kubernetes cluster manually": dbaas/get-started.html#add-a-kubernetes-cluster
+          - "Manage allowed component versions": dbaas/get-started.html#manage-allowed-component-versions
+          - "Troubleshooting":
+              - "OLM installation": dbaas/troubleshoot-kubernetes.html#troubleshooting-olm-installation
+              - "Operators installation": dbaas/troubleshoot-kubernetes.html#troubleshooting-operators-installation
+      - "Managing Database clusters":
+          - "Add a DB Cluster": dbaas/databases.html#add-a-db-cluster
+          - "Manage a DB Cluster": dbaas/databases.html#edit-a-db-cluster
+          - "Delete a DB Cluster": dbaas/databases.html#delete-a-db-cluster
+          - "Create a database cluster from a template": dbaas/DBaaS_template.md
+      - "Backup and restore": dbaas/backup_restore.md
+  - faq.md
+  - Release notes:
+      - release-notes/index.md    
+      - "PMM 2.43.2": release-notes/2.43.2.md
+      - "PMM 2.43.1": release-notes/2.43.1.md
+      - "PMM 2.43.0": release-notes/2.43.0.md
+      - "PMM 2.42.0": release-notes/2.42.0.md
+      - "PMM 2.41.2": release-notes/2.41.2.md
+      - "PMM 2.41.1": release-notes/2.41.1.md
+      - "PMM 2.41.0": release-notes/2.41.0.md
+      - "PMM 2.40.1": release-notes/2.40.1.md
+      - "PMM 2.40.0": release-notes/2.40.0.md
+      - "PMM 2.39.0": release-notes/2.39.0.md
+      - "PMM 2.38.1": release-notes/2.38.1.md
+      - "PMM 2.38.0": release-notes/2.38.0.md
+      - "PMM 2.37.1": release-notes/2.37.1.md
+      - "PMM 2.37.0": release-notes/2.37.0.md
+      - "PMM 2.36.0": release-notes/2.36.0.md
+      - "PMM 2.35.0": release-notes/2.35.0.md
+      - "PMM 2.34.0": release-notes/2.34.0.md
+      - "PMM 2.33.0": release-notes/2.33.0.md
+      - "PMM 2.32.0": release-notes/2.32.0.md
+      - "PMM 2.31.0": release-notes/2.31.0.md
+      - "PMM 2.30.0": release-notes/2.30.0.md
+      - "PMM 2.29.1": release-notes/2.29.1.md
+      - "PMM 2.29.0": release-notes/2.29.0.md
+      - "PMM 2.28.0": release-notes/2.28.0.md
+      - "PMM 2.27.0": release-notes/2.27.0.md
+      - "PMM 2.26.0": release-notes/2.26.0.md
+      - "PMM 2.25.0": release-notes/2.25.0.md
+      - "PMM 2.24.0": release-notes/2.24.0.md
+      - "PMM 2.23.0": release-notes/2.23.0.md
+      - "PMM 2.22.0": release-notes/2.22.0.md
+      - "PMM 2.21.0": release-notes/2.21.0.md
+      - "PMM 2.20.0": release-notes/2.20.0.md
+      - "PMM 2.19.0": release-notes/2.19.0.md
+      - "PMM 2.18.0": release-notes/2.18.0.md
+      - "PMM 2.17.0": release-notes/2.17.0.md
+      - "PMM 2.16.0": release-notes/2.16.0.md
+      - "PMM 2.15.1": release-notes/2.15.1.md
+      - "PMM 2.15.0": release-notes/2.15.0.md
+      - "PMM 2.14.0": release-notes/2.14.0.md
+      - "PMM 2.13.0": release-notes/2.13.0.md
+      - "PMM 2.12.0": release-notes/2.12.0.md
+      - "PMM 2.11.1": release-notes/2.11.1.md
+      - "PMM 2.11.0": release-notes/2.11.0.md
+      - "PMM 2.10.1": release-notes/2.10.1.md
+      - "PMM 2.10.0": release-notes/2.10.0.md
+      - "PMM 2.9.1": release-notes/2.9.1.md
+      - "PMM 2.9.0": release-notes/2.9.0.md
+      - "PMM 2.8.0": release-notes/2.8.0.md
+      - "PMM 2.7.0": release-notes/2.7.0.md
+      - "PMM 2.6.1": release-notes/2.6.1.md
+      - "PMM 2.6.0": release-notes/2.6.0.md
+      - "PMM 2.5.0": release-notes/2.5.0.md
+      - "PMM 2.4.0": release-notes/2.4.0.md
+      - "PMM 2.3.0": release-notes/2.3.0.md
+      - "PMM 2.2.2": release-notes/2.2.2.md
+      - "PMM 2.2.1": release-notes/2.2.1.md
+      - "PMM 2.2.0": release-notes/2.2.0.md
+      - "PMM 2.1.0": release-notes/2.1.0.md
+      - "PMM 2.0.1": release-notes/2.0.1.md
+      - "PMM 2.0.0": release-notes/2.0.0.md
+  - Reference:
+      - "Copyright and licensing information": copyright.md
+      - trademark-policy.md
