@@ -159,13 +159,8 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 	ua.QueryExamplesDisabled = agent.QANOptions.QueryExamplesDisabled
 	ua.CommentsParsingDisabled = agent.QANOptions.CommentsParsingDisabled
 
-	// AWS options
-	ua.IsAwsSecretKeySet = agent.AWSOptions.AWSAccessKey != ""
-	ua.AwsAccessKey = agent.AWSOptions.AWSAccessKey
-	ua.RdsBasicMetricsDisabled = agent.AWSOptions.RDSBasicMetricsDisabled
-	ua.RdsEnhancedMetricsDisabled = agent.AWSOptions.RDSEnhancedMetricsDisabled
-
-	if !agent.AzureOptions.IsEmpty() {
+	switch agent.AgentType {
+	case models.AzureDatabaseExporterType:
 		ua.AzureOptions = &managementv1.UniversalAgent_AzureOptions{
 			ClientId:          agent.AzureOptions.ClientID,
 			IsClientSecretSet: agent.AzureOptions.ClientSecret != "",
@@ -173,9 +168,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 			SubscriptionId:    agent.AzureOptions.SubscriptionID,
 			ResourceGroup:     agent.AzureOptions.ResourceGroup,
 		}
-	}
-
-	if !agent.MongoDBOptions.IsEmpty() {
+	case models.MongoDBExporterType, models.QANMongoDBProfilerAgentType:
 		ua.MongoDbOptions = &managementv1.UniversalAgent_MongoDBOptions{
 			AuthenticationMechanism:            agent.MongoDBOptions.AuthenticationMechanism,
 			AuthenticationDatabase:             agent.MongoDBOptions.AuthenticationDatabase,
@@ -185,23 +178,23 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 			IsTlsCertificateKeySet:             agent.MongoDBOptions.TLSCertificateKey != "",
 			IsTlsCertificateKeyFilePasswordSet: agent.MongoDBOptions.TLSCertificateKeyFilePassword != "",
 		}
-	}
-
-	if !agent.MySQLOptions.IsEmpty() {
+	case models.MySQLdExporterType, models.QANMySQLSlowlogAgentType, models.QANMySQLPerfSchemaAgentType:
 		ua.MysqlOptions = &managementv1.UniversalAgent_MySQLOptions{
 			IsTlsKeySet: agent.MySQLOptions.TLSKey != "",
 		}
 		ua.TableCount = pointer.GetInt32(agent.MySQLOptions.TableCount)
 		ua.TableCountTablestatsGroupLimit = agent.MySQLOptions.TableCountTablestatsGroupLimit
-
-	}
-
-	if !agent.PostgreSQLOptions.IsEmpty() {
+	case models.PostgresExporterType, models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
 		ua.PostgresqlOptions = &managementv1.UniversalAgent_PostgreSQLOptions{
 			IsSslKeySet:            agent.PostgreSQLOptions.SSLKey != "",
 			AutoDiscoveryLimit:     pointer.GetInt32(agent.PostgreSQLOptions.AutoDiscoveryLimit),
 			MaxExporterConnections: agent.PostgreSQLOptions.MaxExporterConnections,
 		}
+	case models.RDSExporterType:
+		ua.IsAwsSecretKeySet = agent.AWSOptions.AWSAccessKey != ""
+		ua.AwsAccessKey = agent.AWSOptions.AWSAccessKey
+		ua.RdsBasicMetricsDisabled = agent.AWSOptions.RDSBasicMetricsDisabled
+		ua.RdsEnhancedMetricsDisabled = agent.AWSOptions.RDSEnhancedMetricsDisabled
 	}
 
 	return ua, nil
