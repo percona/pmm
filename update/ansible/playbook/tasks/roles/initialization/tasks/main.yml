@@ -214,14 +214,14 @@
             name: sqlite-to-postgres
           tags:
             - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
+
+        - name: Change default admin id
+          postgresql_query:
+            db: grafana
+            query: UPDATE "user" SET id='1' WHERE login='admin';
+          when: not ansible_check_mode
+
       when: is_database_sqlite.stat.exists
-
-    - name: Change default admin id
-      postgresql_query:
-        db: grafana
-        query: UPDATE "user" SET id='1' WHERE login='admin';
-      when: not ansible_check_mode
-
   when: docker_upgrade
 
 - name: Copy file with image version
