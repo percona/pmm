@@ -151,9 +151,9 @@ func TestAgent(t *testing.T) {
 			Password:          pointer.ToString("s3cur3 p@$$w0r4."),
 			TLS:               true,
 			ExporterOptions:   models.ExporterOptions{},
-			MongoDBOptions:    &mongoDBOptions,
-			MySQLOptions:      &mysqlOptions,
-			PostgreSQLOptions: &postgresqlOptions,
+			MongoDBOptions:    mongoDBOptions,
+			MySQLOptions:      mysqlOptions,
+			PostgreSQLOptions: postgresqlOptions,
 		}
 		service := &models.Service{
 			Address: pointer.ToString("1.2.3.4"),
