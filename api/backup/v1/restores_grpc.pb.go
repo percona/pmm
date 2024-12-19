@@ -8,7 +8,6 @@ package backupv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -102,11 +101,9 @@ type UnimplementedRestoreServiceServer struct{}
 func (UnimplementedRestoreServiceServer) ListRestores(context.Context, *ListRestoresRequest) (*ListRestoresResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRestores not implemented")
 }
-
 func (UnimplementedRestoreServiceServer) GetLogs(context.Context, *RestoreServiceGetLogsRequest) (*RestoreServiceGetLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLogs not implemented")
 }
-
 func (UnimplementedRestoreServiceServer) RestoreBackup(context.Context, *RestoreBackupRequest) (*RestoreBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RestoreBackup not implemented")
 }

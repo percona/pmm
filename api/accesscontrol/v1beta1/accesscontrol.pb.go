@@ -7,14 +7,13 @@
 package accesscontrolv1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -955,27 +954,24 @@ func file_accesscontrol_v1beta1_accesscontrol_proto_rawDescGZIP() []byte {
 	return file_accesscontrol_v1beta1_accesscontrol_proto_rawDescData
 }
 
-var (
-	file_accesscontrol_v1beta1_accesscontrol_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
-	file_accesscontrol_v1beta1_accesscontrol_proto_goTypes  = []any{
-		(*CreateRoleRequest)(nil),          // 0: accesscontrol.v1beta1.CreateRoleRequest
-		(*CreateRoleResponse)(nil),         // 1: accesscontrol.v1beta1.CreateRoleResponse
-		(*UpdateRoleRequest)(nil),          // 2: accesscontrol.v1beta1.UpdateRoleRequest
-		(*UpdateRoleResponse)(nil),         // 3: accesscontrol.v1beta1.UpdateRoleResponse
-		(*DeleteRoleRequest)(nil),          // 4: accesscontrol.v1beta1.DeleteRoleRequest
-		(*DeleteRoleResponse)(nil),         // 5: accesscontrol.v1beta1.DeleteRoleResponse
-		(*GetRoleRequest)(nil),             // 6: accesscontrol.v1beta1.GetRoleRequest
-		(*GetRoleResponse)(nil),            // 7: accesscontrol.v1beta1.GetRoleResponse
-		(*SetDefaultRoleRequest)(nil),      // 8: accesscontrol.v1beta1.SetDefaultRoleRequest
-		(*SetDefaultRoleResponse)(nil),     // 9: accesscontrol.v1beta1.SetDefaultRoleResponse
-		(*AssignRolesRequest)(nil),         // 10: accesscontrol.v1beta1.AssignRolesRequest
-		(*AssignRolesResponse)(nil),        // 11: accesscontrol.v1beta1.AssignRolesResponse
-		(*ListRolesRequest)(nil),           // 12: accesscontrol.v1beta1.ListRolesRequest
-		(*ListRolesResponse)(nil),          // 13: accesscontrol.v1beta1.ListRolesResponse
-		(*ListRolesResponse_RoleData)(nil), // 14: accesscontrol.v1beta1.ListRolesResponse.RoleData
-	}
-)
-
+var file_accesscontrol_v1beta1_accesscontrol_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_accesscontrol_v1beta1_accesscontrol_proto_goTypes = []any{
+	(*CreateRoleRequest)(nil),          // 0: accesscontrol.v1beta1.CreateRoleRequest
+	(*CreateRoleResponse)(nil),         // 1: accesscontrol.v1beta1.CreateRoleResponse
+	(*UpdateRoleRequest)(nil),          // 2: accesscontrol.v1beta1.UpdateRoleRequest
+	(*UpdateRoleResponse)(nil),         // 3: accesscontrol.v1beta1.UpdateRoleResponse
+	(*DeleteRoleRequest)(nil),          // 4: accesscontrol.v1beta1.DeleteRoleRequest
+	(*DeleteRoleResponse)(nil),         // 5: accesscontrol.v1beta1.DeleteRoleResponse
+	(*GetRoleRequest)(nil),             // 6: accesscontrol.v1beta1.GetRoleRequest
+	(*GetRoleResponse)(nil),            // 7: accesscontrol.v1beta1.GetRoleResponse
+	(*SetDefaultRoleRequest)(nil),      // 8: accesscontrol.v1beta1.SetDefaultRoleRequest
+	(*SetDefaultRoleResponse)(nil),     // 9: accesscontrol.v1beta1.SetDefaultRoleResponse
+	(*AssignRolesRequest)(nil),         // 10: accesscontrol.v1beta1.AssignRolesRequest
+	(*AssignRolesResponse)(nil),        // 11: accesscontrol.v1beta1.AssignRolesResponse
+	(*ListRolesRequest)(nil),           // 12: accesscontrol.v1beta1.ListRolesRequest
+	(*ListRolesResponse)(nil),          // 13: accesscontrol.v1beta1.ListRolesResponse
+	(*ListRolesResponse_RoleData)(nil), // 14: accesscontrol.v1beta1.ListRolesResponse.RoleData
+}
 var file_accesscontrol_v1beta1_accesscontrol_proto_depIdxs = []int32{
 	14, // 0: accesscontrol.v1beta1.ListRolesResponse.roles:type_name -> accesscontrol.v1beta1.ListRolesResponse.RoleData
 	0,  // 1: accesscontrol.v1beta1.AccessControlService.CreateRole:input_type -> accesscontrol.v1beta1.CreateRoleRequest

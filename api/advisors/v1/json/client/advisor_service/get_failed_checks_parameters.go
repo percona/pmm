@@ -61,6 +61,7 @@ GetFailedChecksParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetFailedChecksParams struct {
+
 	/* PageIndex.
 
 	   Index of the requested page, starts from 0.
@@ -171,6 +172,7 @@ func (o *GetFailedChecksParams) SetServiceID(serviceID *string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetFailedChecksParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -186,6 +188,7 @@ func (o *GetFailedChecksParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		}
 		qPageIndex := swag.FormatInt32(qrPageIndex)
 		if qPageIndex != "" {
+
 			if err := r.SetQueryParam("page_index", qPageIndex); err != nil {
 				return err
 			}
@@ -202,6 +205,7 @@ func (o *GetFailedChecksParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		}
 		qPageSize := swag.FormatInt32(qrPageSize)
 		if qPageSize != "" {
+
 			if err := r.SetQueryParam("page_size", qPageSize); err != nil {
 				return err
 			}
@@ -218,6 +222,7 @@ func (o *GetFailedChecksParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		}
 		qServiceID := qrServiceID
 		if qServiceID != "" {
+
 			if err := r.SetQueryParam("service_id", qServiceID); err != nil {
 				return err
 			}

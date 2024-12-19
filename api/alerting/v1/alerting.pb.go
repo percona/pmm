@@ -7,17 +7,15 @@
 package alertingv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	v1 "github.com/percona/pmm/api/management/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	v1 "github.com/percona/pmm/api/management/v1"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -1554,40 +1552,37 @@ func file_alerting_v1_alerting_proto_rawDescGZIP() []byte {
 	return file_alerting_v1_alerting_proto_rawDescData
 }
 
-var (
-	file_alerting_v1_alerting_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-	file_alerting_v1_alerting_proto_msgTypes  = make([]protoimpl.MessageInfo, 20)
-	file_alerting_v1_alerting_proto_goTypes   = []any{
-		(TemplateSource)(0),            // 0: alerting.v1.TemplateSource
-		(FilterType)(0),                // 1: alerting.v1.FilterType
-		(*BoolParamDefinition)(nil),    // 2: alerting.v1.BoolParamDefinition
-		(*FloatParamDefinition)(nil),   // 3: alerting.v1.FloatParamDefinition
-		(*StringParamDefinition)(nil),  // 4: alerting.v1.StringParamDefinition
-		(*ParamDefinition)(nil),        // 5: alerting.v1.ParamDefinition
-		(*Template)(nil),               // 6: alerting.v1.Template
-		(*ListTemplatesRequest)(nil),   // 7: alerting.v1.ListTemplatesRequest
-		(*ListTemplatesResponse)(nil),  // 8: alerting.v1.ListTemplatesResponse
-		(*CreateTemplateRequest)(nil),  // 9: alerting.v1.CreateTemplateRequest
-		(*CreateTemplateResponse)(nil), // 10: alerting.v1.CreateTemplateResponse
-		(*UpdateTemplateRequest)(nil),  // 11: alerting.v1.UpdateTemplateRequest
-		(*UpdateTemplateResponse)(nil), // 12: alerting.v1.UpdateTemplateResponse
-		(*DeleteTemplateRequest)(nil),  // 13: alerting.v1.DeleteTemplateRequest
-		(*DeleteTemplateResponse)(nil), // 14: alerting.v1.DeleteTemplateResponse
-		(*Filter)(nil),                 // 15: alerting.v1.Filter
-		(*ParamValue)(nil),             // 16: alerting.v1.ParamValue
-		(*CreateRuleRequest)(nil),      // 17: alerting.v1.CreateRuleRequest
-		(*CreateRuleResponse)(nil),     // 18: alerting.v1.CreateRuleResponse
-		nil,                            // 19: alerting.v1.Template.LabelsEntry
-		nil,                            // 20: alerting.v1.Template.AnnotationsEntry
-		nil,                            // 21: alerting.v1.CreateRuleRequest.CustomLabelsEntry
-		(ParamUnit)(0),                 // 22: alerting.v1.ParamUnit
-		(ParamType)(0),                 // 23: alerting.v1.ParamType
-		(*durationpb.Duration)(nil),    // 24: google.protobuf.Duration
-		(v1.Severity)(0),               // 25: management.v1.Severity
-		(*timestamppb.Timestamp)(nil),  // 26: google.protobuf.Timestamp
-	}
-)
-
+var file_alerting_v1_alerting_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_alerting_v1_alerting_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_alerting_v1_alerting_proto_goTypes = []any{
+	(TemplateSource)(0),            // 0: alerting.v1.TemplateSource
+	(FilterType)(0),                // 1: alerting.v1.FilterType
+	(*BoolParamDefinition)(nil),    // 2: alerting.v1.BoolParamDefinition
+	(*FloatParamDefinition)(nil),   // 3: alerting.v1.FloatParamDefinition
+	(*StringParamDefinition)(nil),  // 4: alerting.v1.StringParamDefinition
+	(*ParamDefinition)(nil),        // 5: alerting.v1.ParamDefinition
+	(*Template)(nil),               // 6: alerting.v1.Template
+	(*ListTemplatesRequest)(nil),   // 7: alerting.v1.ListTemplatesRequest
+	(*ListTemplatesResponse)(nil),  // 8: alerting.v1.ListTemplatesResponse
+	(*CreateTemplateRequest)(nil),  // 9: alerting.v1.CreateTemplateRequest
+	(*CreateTemplateResponse)(nil), // 10: alerting.v1.CreateTemplateResponse
+	(*UpdateTemplateRequest)(nil),  // 11: alerting.v1.UpdateTemplateRequest
+	(*UpdateTemplateResponse)(nil), // 12: alerting.v1.UpdateTemplateResponse
+	(*DeleteTemplateRequest)(nil),  // 13: alerting.v1.DeleteTemplateRequest
+	(*DeleteTemplateResponse)(nil), // 14: alerting.v1.DeleteTemplateResponse
+	(*Filter)(nil),                 // 15: alerting.v1.Filter
+	(*ParamValue)(nil),             // 16: alerting.v1.ParamValue
+	(*CreateRuleRequest)(nil),      // 17: alerting.v1.CreateRuleRequest
+	(*CreateRuleResponse)(nil),     // 18: alerting.v1.CreateRuleResponse
+	nil,                            // 19: alerting.v1.Template.LabelsEntry
+	nil,                            // 20: alerting.v1.Template.AnnotationsEntry
+	nil,                            // 21: alerting.v1.CreateRuleRequest.CustomLabelsEntry
+	(ParamUnit)(0),                 // 22: alerting.v1.ParamUnit
+	(ParamType)(0),                 // 23: alerting.v1.ParamType
+	(*durationpb.Duration)(nil),    // 24: google.protobuf.Duration
+	(v1.Severity)(0),               // 25: management.v1.Severity
+	(*timestamppb.Timestamp)(nil),  // 26: google.protobuf.Timestamp
+}
 var file_alerting_v1_alerting_proto_depIdxs = []int32{
 	22, // 0: alerting.v1.ParamDefinition.unit:type_name -> alerting.v1.ParamUnit
 	23, // 1: alerting.v1.ParamDefinition.type:type_name -> alerting.v1.ParamType

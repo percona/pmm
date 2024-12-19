@@ -103,6 +103,7 @@ func (o *ListUsersOK) GetPayload() *ListUsersOKBody {
 }
 
 func (o *ListUsersOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListUsersOKBody)
 
 	// response payload
@@ -176,6 +177,7 @@ func (o *ListUsersDefault) GetPayload() *ListUsersDefaultBody {
 }
 
 func (o *ListUsersDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListUsersDefaultBody)
 
 	// response payload
@@ -191,6 +193,7 @@ ListUsersDefaultBody list users default body
 swagger:model ListUsersDefaultBody
 */
 type ListUsersDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -256,7 +259,9 @@ func (o *ListUsersDefaultBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *ListUsersDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -272,6 +277,7 @@ func (o *ListUsersDefaultBody) contextValidateDetails(ctx context.Context, forma
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -300,6 +306,7 @@ ListUsersDefaultBodyDetailsItems0 list users default body details items0
 swagger:model ListUsersDefaultBodyDetailsItems0
 */
 type ListUsersDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -311,6 +318,7 @@ type ListUsersDefaultBodyDetailsItems0 struct {
 func (o *ListUsersDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -348,6 +356,7 @@ func (o *ListUsersDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListUsersDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -411,6 +420,7 @@ ListUsersOKBody list users OK body
 swagger:model ListUsersOKBody
 */
 type ListUsersOKBody struct {
+
 	// users
 	Users []*ListUsersOKBodyUsersItems0 `json:"users"`
 }
@@ -470,7 +480,9 @@ func (o *ListUsersOKBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *ListUsersOKBody) contextValidateUsers(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Users); i++ {
+
 		if o.Users[i] != nil {
 
 			if swag.IsZero(o.Users[i]) { // not required
@@ -486,6 +498,7 @@ func (o *ListUsersOKBody) contextValidateUsers(ctx context.Context, formats strf
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -514,6 +527,7 @@ ListUsersOKBodyUsersItems0 list users OK body users items0
 swagger:model ListUsersOKBodyUsersItems0
 */
 type ListUsersOKBodyUsersItems0 struct {
+
 	// user id
 	UserID int64 `json:"user_id,omitempty"`
 

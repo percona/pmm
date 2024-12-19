@@ -7,11 +7,10 @@
 package inventoryv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -121,13 +120,10 @@ func file_inventory_v1_log_level_proto_rawDescGZIP() []byte {
 	return file_inventory_v1_log_level_proto_rawDescData
 }
 
-var (
-	file_inventory_v1_log_level_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_inventory_v1_log_level_proto_goTypes   = []any{
-		(LogLevel)(0), // 0: inventory.v1.LogLevel
-	}
-)
-
+var file_inventory_v1_log_level_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_inventory_v1_log_level_proto_goTypes = []any{
+	(LogLevel)(0), // 0: inventory.v1.LogLevel
+}
 var file_inventory_v1_log_level_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

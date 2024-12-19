@@ -8,7 +8,6 @@ package backupv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -132,19 +131,15 @@ type UnimplementedLocationsServiceServer struct{}
 func (UnimplementedLocationsServiceServer) ListLocations(context.Context, *ListLocationsRequest) (*ListLocationsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListLocations not implemented")
 }
-
 func (UnimplementedLocationsServiceServer) AddLocation(context.Context, *AddLocationRequest) (*AddLocationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddLocation not implemented")
 }
-
 func (UnimplementedLocationsServiceServer) ChangeLocation(context.Context, *ChangeLocationRequest) (*ChangeLocationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeLocation not implemented")
 }
-
 func (UnimplementedLocationsServiceServer) RemoveLocation(context.Context, *RemoveLocationRequest) (*RemoveLocationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveLocation not implemented")
 }
-
 func (UnimplementedLocationsServiceServer) TestLocationConfig(context.Context, *TestLocationConfigRequest) (*TestLocationConfigResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TestLocationConfig not implemented")
 }

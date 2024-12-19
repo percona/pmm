@@ -8,7 +8,6 @@ package actionsv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -117,15 +116,12 @@ type UnimplementedActionsServiceServer struct{}
 func (UnimplementedActionsServiceServer) GetAction(context.Context, *GetActionRequest) (*GetActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAction not implemented")
 }
-
 func (UnimplementedActionsServiceServer) StartServiceAction(context.Context, *StartServiceActionRequest) (*StartServiceActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartServiceAction not implemented")
 }
-
 func (UnimplementedActionsServiceServer) StartPTSummaryAction(context.Context, *StartPTSummaryActionRequest) (*StartPTSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTSummaryAction not implemented")
 }
-
 func (UnimplementedActionsServiceServer) CancelAction(context.Context, *CancelActionRequest) (*CancelActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelAction not implemented")
 }

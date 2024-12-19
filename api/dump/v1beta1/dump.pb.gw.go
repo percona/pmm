@@ -24,14 +24,12 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_DumpService_StartDump_0(ctx context.Context, marshaler runtime.Marshaler, client DumpServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartDumpRequest
@@ -43,6 +41,7 @@ func request_DumpService_StartDump_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := client.StartDump(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_DumpService_StartDump_0(ctx context.Context, marshaler runtime.Marshaler, server DumpServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -55,6 +54,7 @@ func local_request_DumpService_StartDump_0(ctx context.Context, marshaler runtim
 
 	msg, err := server.StartDump(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_DumpService_ListDumps_0(ctx context.Context, marshaler runtime.Marshaler, client DumpServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -63,6 +63,7 @@ func request_DumpService_ListDumps_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := client.ListDumps(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_DumpService_ListDumps_0(ctx context.Context, marshaler runtime.Marshaler, server DumpServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -71,6 +72,7 @@ func local_request_DumpService_ListDumps_0(ctx context.Context, marshaler runtim
 
 	msg, err := server.ListDumps(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_DumpService_DeleteDump_0(ctx context.Context, marshaler runtime.Marshaler, client DumpServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -83,6 +85,7 @@ func request_DumpService_DeleteDump_0(ctx context.Context, marshaler runtime.Mar
 
 	msg, err := client.DeleteDump(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_DumpService_DeleteDump_0(ctx context.Context, marshaler runtime.Marshaler, server DumpServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -95,9 +98,12 @@ func local_request_DumpService_DeleteDump_0(ctx context.Context, marshaler runti
 
 	msg, err := server.DeleteDump(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_DumpService_GetDumpLogs_0 = &utilities.DoubleArray{Encoding: map[string]int{"dump_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var (
+	filter_DumpService_GetDumpLogs_0 = &utilities.DoubleArray{Encoding: map[string]int{"dump_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+)
 
 func request_DumpService_GetDumpLogs_0(ctx context.Context, marshaler runtime.Marshaler, client DumpServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetDumpLogsRequest
@@ -129,6 +135,7 @@ func request_DumpService_GetDumpLogs_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := client.GetDumpLogs(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_DumpService_GetDumpLogs_0(ctx context.Context, marshaler runtime.Marshaler, server DumpServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -161,6 +168,7 @@ func local_request_DumpService_GetDumpLogs_0(ctx context.Context, marshaler runt
 
 	msg, err := server.GetDumpLogs(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_DumpService_UploadDump_0(ctx context.Context, marshaler runtime.Marshaler, client DumpServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -173,6 +181,7 @@ func request_DumpService_UploadDump_0(ctx context.Context, marshaler runtime.Mar
 
 	msg, err := client.UploadDump(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_DumpService_UploadDump_0(ctx context.Context, marshaler runtime.Marshaler, server DumpServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -185,6 +194,7 @@ func local_request_DumpService_UploadDump_0(ctx context.Context, marshaler runti
 
 	msg, err := server.UploadDump(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterDumpServiceHandlerServer registers the http handlers for service DumpService to "mux".
@@ -193,6 +203,7 @@ func local_request_DumpService_UploadDump_0(ctx context.Context, marshaler runti
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterDumpServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterDumpServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server DumpServiceServer) error {
+
 	mux.Handle("POST", pattern_DumpService_StartDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -215,6 +226,7 @@ func RegisterDumpServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_DumpService_StartDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_DumpService_ListDumps_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -239,6 +251,7 @@ func RegisterDumpServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_DumpService_ListDumps_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_DumpService_DeleteDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -263,6 +276,7 @@ func RegisterDumpServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_DumpService_DeleteDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_DumpService_GetDumpLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -287,6 +301,7 @@ func RegisterDumpServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_DumpService_GetDumpLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_DumpService_UploadDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -311,6 +326,7 @@ func RegisterDumpServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_DumpService_UploadDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -353,6 +369,7 @@ func RegisterDumpServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "DumpServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterDumpServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client DumpServiceClient) error {
+
 	mux.Handle("POST", pattern_DumpService_StartDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -372,6 +389,7 @@ func RegisterDumpServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_DumpService_StartDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_DumpService_ListDumps_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -393,6 +411,7 @@ func RegisterDumpServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_DumpService_ListDumps_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_DumpService_DeleteDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -414,6 +433,7 @@ func RegisterDumpServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_DumpService_DeleteDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_DumpService_GetDumpLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -435,6 +455,7 @@ func RegisterDumpServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_DumpService_GetDumpLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_DumpService_UploadDump_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -456,6 +477,7 @@ func RegisterDumpServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_DumpService_UploadDump_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil

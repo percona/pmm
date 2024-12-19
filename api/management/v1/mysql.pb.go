@@ -7,14 +7,12 @@
 package managementv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	v1 "github.com/percona/pmm/api/inventory/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-
-	v1 "github.com/percona/pmm/api/inventory/v1"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -591,22 +589,19 @@ func file_management_v1_mysql_proto_rawDescGZIP() []byte {
 	return file_management_v1_mysql_proto_rawDescData
 }
 
-var (
-	file_management_v1_mysql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-	file_management_v1_mysql_proto_goTypes  = []any{
-		(*AddMySQLServiceParams)(nil),      // 0: management.v1.AddMySQLServiceParams
-		(*MySQLServiceResult)(nil),         // 1: management.v1.MySQLServiceResult
-		nil,                                // 2: management.v1.AddMySQLServiceParams.CustomLabelsEntry
-		(*AddNodeParams)(nil),              // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                   // 4: management.v1.MetricsMode
-		(v1.LogLevel)(0),                   // 5: inventory.v1.LogLevel
-		(*v1.MySQLService)(nil),            // 6: inventory.v1.MySQLService
-		(*v1.MySQLdExporter)(nil),          // 7: inventory.v1.MySQLdExporter
-		(*v1.QANMySQLPerfSchemaAgent)(nil), // 8: inventory.v1.QANMySQLPerfSchemaAgent
-		(*v1.QANMySQLSlowlogAgent)(nil),    // 9: inventory.v1.QANMySQLSlowlogAgent
-	}
-)
-
+var file_management_v1_mysql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_management_v1_mysql_proto_goTypes = []any{
+	(*AddMySQLServiceParams)(nil),      // 0: management.v1.AddMySQLServiceParams
+	(*MySQLServiceResult)(nil),         // 1: management.v1.MySQLServiceResult
+	nil,                                // 2: management.v1.AddMySQLServiceParams.CustomLabelsEntry
+	(*AddNodeParams)(nil),              // 3: management.v1.AddNodeParams
+	(MetricsMode)(0),                   // 4: management.v1.MetricsMode
+	(v1.LogLevel)(0),                   // 5: inventory.v1.LogLevel
+	(*v1.MySQLService)(nil),            // 6: inventory.v1.MySQLService
+	(*v1.MySQLdExporter)(nil),          // 7: inventory.v1.MySQLdExporter
+	(*v1.QANMySQLPerfSchemaAgent)(nil), // 8: inventory.v1.QANMySQLPerfSchemaAgent
+	(*v1.QANMySQLSlowlogAgent)(nil),    // 9: inventory.v1.QANMySQLSlowlogAgent
+}
 var file_management_v1_mysql_proto_depIdxs = []int32{
 	3, // 0: management.v1.AddMySQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2, // 1: management.v1.AddMySQLServiceParams.custom_labels:type_name -> management.v1.AddMySQLServiceParams.CustomLabelsEntry

@@ -104,6 +104,7 @@ func (o *SearchOrganizationTicketsOK) GetPayload() *SearchOrganizationTicketsOKB
 }
 
 func (o *SearchOrganizationTicketsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(SearchOrganizationTicketsOKBody)
 
 	// response payload
@@ -177,6 +178,7 @@ func (o *SearchOrganizationTicketsDefault) GetPayload() *SearchOrganizationTicke
 }
 
 func (o *SearchOrganizationTicketsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(SearchOrganizationTicketsDefaultBody)
 
 	// response payload
@@ -192,6 +194,7 @@ SearchOrganizationTicketsDefaultBody search organization tickets default body
 swagger:model SearchOrganizationTicketsDefaultBody
 */
 type SearchOrganizationTicketsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -257,7 +260,9 @@ func (o *SearchOrganizationTicketsDefaultBody) ContextValidate(ctx context.Conte
 }
 
 func (o *SearchOrganizationTicketsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -273,6 +278,7 @@ func (o *SearchOrganizationTicketsDefaultBody) contextValidateDetails(ctx contex
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -301,6 +307,7 @@ SearchOrganizationTicketsDefaultBodyDetailsItems0 search organization tickets de
 swagger:model SearchOrganizationTicketsDefaultBodyDetailsItems0
 */
 type SearchOrganizationTicketsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -312,6 +319,7 @@ type SearchOrganizationTicketsDefaultBodyDetailsItems0 struct {
 func (o *SearchOrganizationTicketsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -349,6 +357,7 @@ func (o *SearchOrganizationTicketsDefaultBodyDetailsItems0) UnmarshalJSON(data [
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o SearchOrganizationTicketsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -412,6 +421,7 @@ SearchOrganizationTicketsOKBody search organization tickets OK body
 swagger:model SearchOrganizationTicketsOKBody
 */
 type SearchOrganizationTicketsOKBody struct {
+
 	// Support tickets belonging to the Percona Portal Organization.
 	Tickets []*SearchOrganizationTicketsOKBodyTicketsItems0 `json:"tickets"`
 }
@@ -471,7 +481,9 @@ func (o *SearchOrganizationTicketsOKBody) ContextValidate(ctx context.Context, f
 }
 
 func (o *SearchOrganizationTicketsOKBody) contextValidateTickets(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Tickets); i++ {
+
 		if o.Tickets[i] != nil {
 
 			if swag.IsZero(o.Tickets[i]) { // not required
@@ -487,6 +499,7 @@ func (o *SearchOrganizationTicketsOKBody) contextValidateTickets(ctx context.Con
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -515,6 +528,7 @@ SearchOrganizationTicketsOKBodyTicketsItems0 OrganizationTicket contains informa
 swagger:model SearchOrganizationTicketsOKBodyTicketsItems0
 */
 type SearchOrganizationTicketsOKBodyTicketsItems0 struct {
+
 	// Ticket number.
 	Number string `json:"number,omitempty"`
 

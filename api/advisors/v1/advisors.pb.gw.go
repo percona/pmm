@@ -24,14 +24,12 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_AdvisorService_ListFailedServices_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListFailedServicesRequest
@@ -39,6 +37,7 @@ func request_AdvisorService_ListFailedServices_0(ctx context.Context, marshaler 
 
 	msg, err := client.ListFailedServices(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_AdvisorService_ListFailedServices_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -47,9 +46,12 @@ func local_request_AdvisorService_ListFailedServices_0(ctx context.Context, mars
 
 	msg, err := server.ListFailedServices(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_AdvisorService_GetFailedChecks_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_AdvisorService_GetFailedChecks_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_AdvisorService_GetFailedChecks_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetFailedChecksRequest
@@ -64,6 +66,7 @@ func request_AdvisorService_GetFailedChecks_0(ctx context.Context, marshaler run
 
 	msg, err := client.GetFailedChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_AdvisorService_GetFailedChecks_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -79,6 +82,7 @@ func local_request_AdvisorService_GetFailedChecks_0(ctx context.Context, marshal
 
 	msg, err := server.GetFailedChecks(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_AdvisorService_StartAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -91,6 +95,7 @@ func request_AdvisorService_StartAdvisorChecks_0(ctx context.Context, marshaler 
 
 	msg, err := client.StartAdvisorChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_AdvisorService_StartAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -103,6 +108,7 @@ func local_request_AdvisorService_StartAdvisorChecks_0(ctx context.Context, mars
 
 	msg, err := server.StartAdvisorChecks(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_AdvisorService_ListAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -111,6 +117,7 @@ func request_AdvisorService_ListAdvisorChecks_0(ctx context.Context, marshaler r
 
 	msg, err := client.ListAdvisorChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_AdvisorService_ListAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -119,6 +126,7 @@ func local_request_AdvisorService_ListAdvisorChecks_0(ctx context.Context, marsh
 
 	msg, err := server.ListAdvisorChecks(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_AdvisorService_ListAdvisors_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -127,6 +135,7 @@ func request_AdvisorService_ListAdvisors_0(ctx context.Context, marshaler runtim
 
 	msg, err := client.ListAdvisors(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_AdvisorService_ListAdvisors_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -135,6 +144,7 @@ func local_request_AdvisorService_ListAdvisors_0(ctx context.Context, marshaler 
 
 	msg, err := server.ListAdvisors(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_AdvisorService_ChangeAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -147,6 +157,7 @@ func request_AdvisorService_ChangeAdvisorChecks_0(ctx context.Context, marshaler
 
 	msg, err := client.ChangeAdvisorChecks(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_AdvisorService_ChangeAdvisorChecks_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -159,6 +170,7 @@ func local_request_AdvisorService_ChangeAdvisorChecks_0(ctx context.Context, mar
 
 	msg, err := server.ChangeAdvisorChecks(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterAdvisorServiceHandlerServer registers the http handlers for service AdvisorService to "mux".
@@ -167,6 +179,7 @@ func local_request_AdvisorService_ChangeAdvisorChecks_0(ctx context.Context, mar
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAdvisorServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AdvisorServiceServer) error {
+
 	mux.Handle("GET", pattern_AdvisorService_ListFailedServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -189,6 +202,7 @@ func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_AdvisorService_ListFailedServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_AdvisorService_GetFailedChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -213,6 +227,7 @@ func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_AdvisorService_GetFailedChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_AdvisorService_StartAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -237,6 +252,7 @@ func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_AdvisorService_StartAdvisorChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_AdvisorService_ListAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -261,6 +277,7 @@ func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_AdvisorService_ListAdvisorChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_AdvisorService_ListAdvisors_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -285,6 +302,7 @@ func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_AdvisorService_ListAdvisors_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_AdvisorService_ChangeAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -309,6 +327,7 @@ func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_AdvisorService_ChangeAdvisorChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -351,6 +370,7 @@ func RegisterAdvisorServiceHandler(ctx context.Context, mux *runtime.ServeMux, c
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AdvisorServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AdvisorServiceClient) error {
+
 	mux.Handle("GET", pattern_AdvisorService_ListFailedServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -370,6 +390,7 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_AdvisorService_ListFailedServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_AdvisorService_GetFailedChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -391,6 +412,7 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_AdvisorService_GetFailedChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_AdvisorService_StartAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -412,6 +434,7 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_AdvisorService_StartAdvisorChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_AdvisorService_ListAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -433,6 +456,7 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_AdvisorService_ListAdvisorChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_AdvisorService_ListAdvisors_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -454,6 +478,7 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_AdvisorService_ListAdvisors_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_AdvisorService_ChangeAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -475,6 +500,7 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_AdvisorService_ChangeAdvisorChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil

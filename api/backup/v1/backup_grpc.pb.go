@@ -8,7 +8,6 @@ package backupv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -207,39 +206,30 @@ type UnimplementedBackupServiceServer struct{}
 func (UnimplementedBackupServiceServer) StartBackup(context.Context, *StartBackupRequest) (*StartBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartBackup not implemented")
 }
-
 func (UnimplementedBackupServiceServer) ListArtifactCompatibleServices(context.Context, *ListArtifactCompatibleServicesRequest) (*ListArtifactCompatibleServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListArtifactCompatibleServices not implemented")
 }
-
 func (UnimplementedBackupServiceServer) ScheduleBackup(context.Context, *ScheduleBackupRequest) (*ScheduleBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ScheduleBackup not implemented")
 }
-
 func (UnimplementedBackupServiceServer) ListScheduledBackups(context.Context, *ListScheduledBackupsRequest) (*ListScheduledBackupsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListScheduledBackups not implemented")
 }
-
 func (UnimplementedBackupServiceServer) ChangeScheduledBackup(context.Context, *ChangeScheduledBackupRequest) (*ChangeScheduledBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeScheduledBackup not implemented")
 }
-
 func (UnimplementedBackupServiceServer) RemoveScheduledBackup(context.Context, *RemoveScheduledBackupRequest) (*RemoveScheduledBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveScheduledBackup not implemented")
 }
-
 func (UnimplementedBackupServiceServer) GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLogs not implemented")
 }
-
 func (UnimplementedBackupServiceServer) ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListArtifacts not implemented")
 }
-
 func (UnimplementedBackupServiceServer) DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteArtifact not implemented")
 }
-
 func (UnimplementedBackupServiceServer) ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPitrTimeranges not implemented")
 }

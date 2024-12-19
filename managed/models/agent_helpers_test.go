@@ -104,7 +104,7 @@ func TestAgentHelpers(t *testing.T) {
 				RunsOnNodeID: nil,
 				NodeID:       pointer.ToString("N2"),
 				ListenPort:   pointer.ToUint16(8200),
-				ExporterOptions: &models.ExporterOptions{
+				ExporterOptions: models.ExporterOptions{
 					PushMetrics: true,
 				},
 			},
@@ -125,14 +125,14 @@ func TestAgentHelpers(t *testing.T) {
 				ListenPort:    pointer.ToUint16(8200),
 				TLS:           true,
 				TLSSkipVerify: true,
-				ExporterOptions: &models.ExporterOptions{
+				ExporterOptions: models.ExporterOptions{
 					MetricsResolutions: &models.MetricsResolutions{
 						HR: 1 * time.Minute,
 						MR: 5 * time.Minute,
 						LR: 15 * time.Minute,
 					},
 				},
-				PostgreSQLOptions: &models.PostgreSQLOptions{
+				PostgreSQLOptions: models.PostgreSQLOptions{
 					SSLCa:   "ssl_ca",
 					SSLCert: "ssl_cert",
 					SSLKey:  "ssl_key",
@@ -147,7 +147,7 @@ func TestAgentHelpers(t *testing.T) {
 				ListenPort:    pointer.ToUint16(8200),
 				TLS:           true,
 				TLSSkipVerify: true,
-				MongoDBOptions: &models.MongoDBOptions{
+				MongoDBOptions: models.MongoDBOptions{
 					TLSCertificateKey:             "tls_certificate_key",
 					TLSCertificateKeyFilePassword: "tls_certificate_key_file_password",
 					TLSCa:                         "tls_ca",
@@ -166,7 +166,7 @@ func TestAgentHelpers(t *testing.T) {
 				ListenPort:    pointer.ToUint16(8200),
 				TLS:           true,
 				TLSSkipVerify: true,
-				MongoDBOptions: &models.MongoDBOptions{
+				MongoDBOptions: models.MongoDBOptions{
 					TLSCertificateKey:             "tls_certificate_key",
 					TLSCertificateKeyFilePassword: "tls_certificate_key_file_password",
 					TLSCa:                         "tls_ca",
@@ -218,13 +218,13 @@ func TestAgentHelpers(t *testing.T) {
 				ListenPort:        pointer.ToUint16(8200),
 				TLS:               true,
 				TLSSkipVerify:     true,
-				ExporterOptions:   &models.ExporterOptions{},
-				QANOptions:        &models.QANOptions{},
-				AWSOptions:        &models.AWSOptions{},
-				AzureOptions:      &models.AzureOptions{},
-				MongoDBOptions:    &models.MongoDBOptions{},
-				MySQLOptions:      &models.MySQLOptions{},
-				PostgreSQLOptions: &models.PostgreSQLOptions{},
+				ExporterOptions:   models.ExporterOptions{},
+				QANOptions:        models.QANOptions{},
+				AWSOptions:        models.AWSOptions{},
+				AzureOptions:      models.AzureOptions{},
+				MongoDBOptions:    models.MongoDBOptions{},
+				MySQLOptions:      models.MySQLOptions{},
+				PostgreSQLOptions: models.PostgreSQLOptions{},
 			},
 			{
 				AgentID:           "A3",
@@ -235,13 +235,13 @@ func TestAgentHelpers(t *testing.T) {
 				UpdatedAt:         now,
 				NodeID:            pointer.ToString("N1"),
 				Status:            models.AgentStatusUnknown,
-				ExporterOptions:   &models.ExporterOptions{},
-				QANOptions:        &models.QANOptions{},
-				AWSOptions:        &models.AWSOptions{},
-				AzureOptions:      &models.AzureOptions{},
-				MongoDBOptions:    &models.MongoDBOptions{},
-				MySQLOptions:      &models.MySQLOptions{},
-				PostgreSQLOptions: &models.PostgreSQLOptions{},
+				ExporterOptions:   models.ExporterOptions{},
+				QANOptions:        models.QANOptions{},
+				AWSOptions:        models.AWSOptions{},
+				AzureOptions:      models.AzureOptions{},
+				MongoDBOptions:    models.MongoDBOptions{},
+				MySQLOptions:      models.MySQLOptions{},
+				PostgreSQLOptions: models.PostgreSQLOptions{},
 			},
 			{
 				AgentID:       "A7",
@@ -254,19 +254,19 @@ func TestAgentHelpers(t *testing.T) {
 				ListenPort:    pointer.ToUint16OrNil(8200),
 				TLS:           true,
 				TLSSkipVerify: true,
-				ExporterOptions: &models.ExporterOptions{
+				ExporterOptions: models.ExporterOptions{
 					MetricsResolutions: &models.MetricsResolutions{
 						HR: 1 * time.Minute,
 						MR: 5 * time.Minute,
 						LR: 15 * time.Minute,
 					},
 				},
-				QANOptions:     &models.QANOptions{},
-				AWSOptions:     &models.AWSOptions{},
-				AzureOptions:   &models.AzureOptions{},
-				MongoDBOptions: &models.MongoDBOptions{},
-				MySQLOptions:   &models.MySQLOptions{},
-				PostgreSQLOptions: &models.PostgreSQLOptions{
+				QANOptions:     models.QANOptions{},
+				AWSOptions:     models.AWSOptions{},
+				AzureOptions:   models.AzureOptions{},
+				MongoDBOptions: models.MongoDBOptions{},
+				MySQLOptions:   models.MySQLOptions{},
+				PostgreSQLOptions: models.PostgreSQLOptions{
 					SSLCa:   "ssl_ca",
 					SSLCert: "ssl_cert",
 					SSLKey:  "ssl_key",
@@ -283,11 +283,11 @@ func TestAgentHelpers(t *testing.T) {
 				ListenPort:      pointer.ToUint16OrNil(8200),
 				TLS:             true,
 				TLSSkipVerify:   true,
-				ExporterOptions: &models.ExporterOptions{},
-				QANOptions:      &models.QANOptions{},
-				AWSOptions:      &models.AWSOptions{},
-				AzureOptions:    &models.AzureOptions{},
-				MongoDBOptions: &models.MongoDBOptions{
+				ExporterOptions: models.ExporterOptions{},
+				QANOptions:      models.QANOptions{},
+				AWSOptions:      models.AWSOptions{},
+				AzureOptions:    models.AzureOptions{},
+				MongoDBOptions: models.MongoDBOptions{
 					TLSCertificateKey:             "tls_certificate_key",
 					TLSCertificateKeyFilePassword: "tls_certificate_key_file_password",
 					TLSCa:                         "tls_ca",
@@ -296,8 +296,8 @@ func TestAgentHelpers(t *testing.T) {
 					StatsCollections:              nil,
 					CollectionsLimit:              0, // no limit
 				},
-				MySQLOptions:      &models.MySQLOptions{},
-				PostgreSQLOptions: &models.PostgreSQLOptions{},
+				MySQLOptions:      models.MySQLOptions{},
+				PostgreSQLOptions: models.PostgreSQLOptions{},
 			},
 			{
 				AgentID:         "A9",
@@ -310,11 +310,11 @@ func TestAgentHelpers(t *testing.T) {
 				ListenPort:      pointer.ToUint16OrNil(8200),
 				TLS:             true,
 				TLSSkipVerify:   true,
-				ExporterOptions: &models.ExporterOptions{},
-				QANOptions:      &models.QANOptions{},
-				AWSOptions:      &models.AWSOptions{},
-				AzureOptions:    &models.AzureOptions{},
-				MongoDBOptions: &models.MongoDBOptions{
+				ExporterOptions: models.ExporterOptions{},
+				QANOptions:      models.QANOptions{},
+				AWSOptions:      models.AWSOptions{},
+				AzureOptions:    models.AzureOptions{},
+				MongoDBOptions: models.MongoDBOptions{
 					TLSCertificateKey:             "tls_certificate_key",
 					TLSCertificateKeyFilePassword: "tls_certificate_key_file_password",
 					TLSCa:                         "tls_ca",
@@ -324,8 +324,8 @@ func TestAgentHelpers(t *testing.T) {
 					CollectionsLimit:              79014,
 					EnableAllCollectors:           true,
 				},
-				MySQLOptions:      &models.MySQLOptions{},
-				PostgreSQLOptions: &models.PostgreSQLOptions{},
+				MySQLOptions:      models.MySQLOptions{},
+				PostgreSQLOptions: models.PostgreSQLOptions{},
 			},
 		}
 		assert.Equal(t, expected, agents)
@@ -346,13 +346,13 @@ func TestAgentHelpers(t *testing.T) {
 			CreatedAt:         now,
 			UpdatedAt:         now,
 			Status:            models.AgentStatusUnknown,
-			ExporterOptions:   &models.ExporterOptions{},
-			QANOptions:        &models.QANOptions{},
-			AWSOptions:        &models.AWSOptions{},
-			AzureOptions:      &models.AzureOptions{},
-			MongoDBOptions:    &models.MongoDBOptions{},
-			MySQLOptions:      &models.MySQLOptions{},
-			PostgreSQLOptions: &models.PostgreSQLOptions{},
+			ExporterOptions:   models.ExporterOptions{},
+			QANOptions:        models.QANOptions{},
+			AWSOptions:        models.AWSOptions{},
+			AzureOptions:      models.AzureOptions{},
+			MongoDBOptions:    models.MongoDBOptions{},
+			MySQLOptions:      models.MySQLOptions{},
+			PostgreSQLOptions: models.PostgreSQLOptions{},
 		}, {
 			AgentID:           "A3",
 			AgentType:         models.NodeExporterType,
@@ -362,13 +362,13 @@ func TestAgentHelpers(t *testing.T) {
 			CreatedAt:         now,
 			UpdatedAt:         now,
 			Status:            models.AgentStatusUnknown,
-			ExporterOptions:   &models.ExporterOptions{},
-			QANOptions:        &models.QANOptions{},
-			AWSOptions:        &models.AWSOptions{},
-			AzureOptions:      &models.AzureOptions{},
-			MongoDBOptions:    &models.MongoDBOptions{},
-			MySQLOptions:      &models.MySQLOptions{},
-			PostgreSQLOptions: &models.PostgreSQLOptions{},
+			ExporterOptions:   models.ExporterOptions{},
+			QANOptions:        models.QANOptions{},
+			AWSOptions:        models.AWSOptions{},
+			AzureOptions:      models.AzureOptions{},
+			MongoDBOptions:    models.MongoDBOptions{},
+			MySQLOptions:      models.MySQLOptions{},
+			PostgreSQLOptions: models.PostgreSQLOptions{},
 		}}
 		assert.Equal(t, expected, agents)
 	})
@@ -388,13 +388,13 @@ func TestAgentHelpers(t *testing.T) {
 			CreatedAt:         now,
 			UpdatedAt:         now,
 			Status:            models.AgentStatusUnknown,
-			ExporterOptions:   &models.ExporterOptions{},
-			QANOptions:        &models.QANOptions{},
-			AWSOptions:        &models.AWSOptions{},
-			AzureOptions:      &models.AzureOptions{},
-			MongoDBOptions:    &models.MongoDBOptions{},
-			MySQLOptions:      &models.MySQLOptions{},
-			PostgreSQLOptions: &models.PostgreSQLOptions{},
+			ExporterOptions:   models.ExporterOptions{},
+			QANOptions:        models.QANOptions{},
+			AWSOptions:        models.AWSOptions{},
+			AzureOptions:      models.AzureOptions{},
+			MongoDBOptions:    models.MongoDBOptions{},
+			MySQLOptions:      models.MySQLOptions{},
+			PostgreSQLOptions: models.PostgreSQLOptions{},
 		}}
 		assert.Equal(t, expected, agents)
 	})
@@ -414,13 +414,13 @@ func TestAgentHelpers(t *testing.T) {
 			CreatedAt:         now,
 			UpdatedAt:         now,
 			Status:            models.AgentStatusUnknown,
-			ExporterOptions:   &models.ExporterOptions{},
-			QANOptions:        &models.QANOptions{},
-			AWSOptions:        &models.AWSOptions{},
-			AzureOptions:      &models.AzureOptions{},
-			MongoDBOptions:    &models.MongoDBOptions{},
-			MySQLOptions:      &models.MySQLOptions{},
-			PostgreSQLOptions: &models.PostgreSQLOptions{},
+			ExporterOptions:   models.ExporterOptions{},
+			QANOptions:        models.QANOptions{},
+			AWSOptions:        models.AWSOptions{},
+			AzureOptions:      models.AzureOptions{},
+			MongoDBOptions:    models.MongoDBOptions{},
+			MySQLOptions:      models.MySQLOptions{},
+			PostgreSQLOptions: models.PostgreSQLOptions{},
 		}}
 		assert.Equal(t, expected, agents)
 
@@ -435,13 +435,13 @@ func TestAgentHelpers(t *testing.T) {
 			CreatedAt:         now,
 			UpdatedAt:         now,
 			Status:            models.AgentStatusUnknown,
-			ExporterOptions:   &models.ExporterOptions{},
-			QANOptions:        &models.QANOptions{},
-			AWSOptions:        &models.AWSOptions{},
-			AzureOptions:      &models.AzureOptions{},
-			MongoDBOptions:    &models.MongoDBOptions{},
-			MySQLOptions:      &models.MySQLOptions{},
-			PostgreSQLOptions: &models.PostgreSQLOptions{},
+			ExporterOptions:   models.ExporterOptions{},
+			QANOptions:        models.QANOptions{},
+			AWSOptions:        models.AWSOptions{},
+			AzureOptions:      models.AzureOptions{},
+			MongoDBOptions:    models.MongoDBOptions{},
+			MySQLOptions:      models.MySQLOptions{},
+			PostgreSQLOptions: models.PostgreSQLOptions{},
 		}}
 		assert.Equal(t, expected, agents)
 
@@ -476,13 +476,13 @@ func TestAgentHelpers(t *testing.T) {
 			RunsOnNodeID:      pointer.ToString("N1"),
 			CreatedAt:         now,
 			UpdatedAt:         now,
-			ExporterOptions:   &models.ExporterOptions{},
-			QANOptions:        &models.QANOptions{},
-			AWSOptions:        &models.AWSOptions{},
-			AzureOptions:      &models.AzureOptions{},
-			MongoDBOptions:    &models.MongoDBOptions{},
-			MySQLOptions:      &models.MySQLOptions{},
-			PostgreSQLOptions: &models.PostgreSQLOptions{},
+			ExporterOptions:   models.ExporterOptions{},
+			QANOptions:        models.QANOptions{},
+			AWSOptions:        models.AWSOptions{},
+			AzureOptions:      models.AzureOptions{},
+			MongoDBOptions:    models.MongoDBOptions{},
+			MySQLOptions:      models.MySQLOptions{},
+			PostgreSQLOptions: models.PostgreSQLOptions{},
 		}
 		agent, err = models.RemoveAgent(q, "A1", models.RemoveCascade)
 		assert.Equal(t, expected, agent)
@@ -545,7 +545,7 @@ func TestAgentHelpers(t *testing.T) {
 				RunsOnNodeID: pointer.ToString("N1"),
 				ServiceID:    pointer.ToString("S1"),
 				ListenPort:   pointer.ToUint16(9104),
-				ExporterOptions: &models.ExporterOptions{
+				ExporterOptions: models.ExporterOptions{
 					MetricsPath:   "/metrics",
 					MetricsScheme: "http",
 				},

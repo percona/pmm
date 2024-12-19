@@ -24,14 +24,12 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_AgentLocalService_Status_0(ctx context.Context, marshaler runtime.Marshaler, client AgentLocalServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StatusRequest
@@ -43,6 +41,7 @@ func request_AgentLocalService_Status_0(ctx context.Context, marshaler runtime.M
 
 	msg, err := client.Status(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_AgentLocalService_Status_0(ctx context.Context, marshaler runtime.Marshaler, server AgentLocalServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -55,9 +54,12 @@ func local_request_AgentLocalService_Status_0(ctx context.Context, marshaler run
 
 	msg, err := server.Status(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_AgentLocalService_Status_1 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_AgentLocalService_Status_1 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_AgentLocalService_Status_1(ctx context.Context, marshaler runtime.Marshaler, client AgentLocalServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StatusRequest
@@ -72,6 +74,7 @@ func request_AgentLocalService_Status_1(ctx context.Context, marshaler runtime.M
 
 	msg, err := client.Status(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_AgentLocalService_Status_1(ctx context.Context, marshaler runtime.Marshaler, server AgentLocalServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -87,6 +90,7 @@ func local_request_AgentLocalService_Status_1(ctx context.Context, marshaler run
 
 	msg, err := server.Status(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_AgentLocalService_Reload_0(ctx context.Context, marshaler runtime.Marshaler, client AgentLocalServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -99,6 +103,7 @@ func request_AgentLocalService_Reload_0(ctx context.Context, marshaler runtime.M
 
 	msg, err := client.Reload(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_AgentLocalService_Reload_0(ctx context.Context, marshaler runtime.Marshaler, server AgentLocalServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -111,6 +116,7 @@ func local_request_AgentLocalService_Reload_0(ctx context.Context, marshaler run
 
 	msg, err := server.Reload(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterAgentLocalServiceHandlerServer registers the http handlers for service AgentLocalService to "mux".
@@ -119,6 +125,7 @@ func local_request_AgentLocalService_Reload_0(ctx context.Context, marshaler run
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAgentLocalServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterAgentLocalServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AgentLocalServiceServer) error {
+
 	mux.Handle("POST", pattern_AgentLocalService_Status_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -141,6 +148,7 @@ func RegisterAgentLocalServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_AgentLocalService_Status_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_AgentLocalService_Status_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -165,6 +173,7 @@ func RegisterAgentLocalServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_AgentLocalService_Status_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_AgentLocalService_Reload_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -189,6 +198,7 @@ func RegisterAgentLocalServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_AgentLocalService_Reload_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -231,6 +241,7 @@ func RegisterAgentLocalServiceHandler(ctx context.Context, mux *runtime.ServeMux
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AgentLocalServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterAgentLocalServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AgentLocalServiceClient) error {
+
 	mux.Handle("POST", pattern_AgentLocalService_Status_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -250,6 +261,7 @@ func RegisterAgentLocalServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_AgentLocalService_Status_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_AgentLocalService_Status_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -271,6 +283,7 @@ func RegisterAgentLocalServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_AgentLocalService_Status_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_AgentLocalService_Reload_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -292,6 +305,7 @@ func RegisterAgentLocalServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_AgentLocalService_Reload_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil

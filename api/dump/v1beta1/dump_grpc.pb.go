@@ -8,7 +8,6 @@ package dumpv1beta1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -128,19 +127,15 @@ type UnimplementedDumpServiceServer struct{}
 func (UnimplementedDumpServiceServer) StartDump(context.Context, *StartDumpRequest) (*StartDumpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartDump not implemented")
 }
-
 func (UnimplementedDumpServiceServer) ListDumps(context.Context, *ListDumpsRequest) (*ListDumpsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListDumps not implemented")
 }
-
 func (UnimplementedDumpServiceServer) DeleteDump(context.Context, *DeleteDumpRequest) (*DeleteDumpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteDump not implemented")
 }
-
 func (UnimplementedDumpServiceServer) GetDumpLogs(context.Context, *GetDumpLogsRequest) (*GetDumpLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDumpLogs not implemented")
 }
-
 func (UnimplementedDumpServiceServer) UploadDump(context.Context, *UploadDumpRequest) (*UploadDumpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UploadDump not implemented")
 }

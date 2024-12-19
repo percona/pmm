@@ -60,6 +60,7 @@ ListActiveServiceTypesParams contains all the parameters to send to the API endp
 	Typically these are written to a http.Request.
 */
 type ListActiveServiceTypesParams struct {
+
 	// Body.
 	Body interface{}
 
@@ -129,6 +130,7 @@ func (o *ListActiveServiceTypesParams) SetBody(body interface{}) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListActiveServiceTypesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

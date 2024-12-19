@@ -7,12 +7,11 @@
 package serverv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	anypb "google.golang.org/protobuf/types/known/anypb"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -134,14 +133,11 @@ func file_server_v1_httperror_proto_rawDescGZIP() []byte {
 	return file_server_v1_httperror_proto_rawDescData
 }
 
-var (
-	file_server_v1_httperror_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-	file_server_v1_httperror_proto_goTypes  = []any{
-		(*HttpError)(nil), // 0: server.v1.HttpError
-		(*anypb.Any)(nil), // 1: google.protobuf.Any
-	}
-)
-
+var file_server_v1_httperror_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_server_v1_httperror_proto_goTypes = []any{
+	(*HttpError)(nil), // 0: server.v1.HttpError
+	(*anypb.Any)(nil), // 1: google.protobuf.Any
+}
 var file_server_v1_httperror_proto_depIdxs = []int32{
 	1, // 0: server.v1.HttpError.details:type_name -> google.protobuf.Any
 	1, // [1:1] is the sub-list for method output_type

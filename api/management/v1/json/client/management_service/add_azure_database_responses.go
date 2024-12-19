@@ -104,6 +104,7 @@ func (o *AddAzureDatabaseOK) GetPayload() interface{} {
 }
 
 func (o *AddAzureDatabaseOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -175,6 +176,7 @@ func (o *AddAzureDatabaseDefault) GetPayload() *AddAzureDatabaseDefaultBody {
 }
 
 func (o *AddAzureDatabaseDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddAzureDatabaseDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ AddAzureDatabaseBody add azure database body
 swagger:model AddAzureDatabaseBody
 */
 type AddAzureDatabaseBody struct {
+
 	// Azure database location.
 	Region string `json:"region,omitempty"`
 
@@ -360,6 +363,7 @@ AddAzureDatabaseDefaultBody add azure database default body
 swagger:model AddAzureDatabaseDefaultBody
 */
 type AddAzureDatabaseDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -425,7 +429,9 @@ func (o *AddAzureDatabaseDefaultBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *AddAzureDatabaseDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -441,6 +447,7 @@ func (o *AddAzureDatabaseDefaultBody) contextValidateDetails(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -469,6 +476,7 @@ AddAzureDatabaseDefaultBodyDetailsItems0 add azure database default body details
 swagger:model AddAzureDatabaseDefaultBodyDetailsItems0
 */
 type AddAzureDatabaseDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -480,6 +488,7 @@ type AddAzureDatabaseDefaultBodyDetailsItems0 struct {
 func (o *AddAzureDatabaseDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -517,6 +526,7 @@ func (o *AddAzureDatabaseDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) er
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o AddAzureDatabaseDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}

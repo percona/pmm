@@ -146,30 +146,26 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		Version:            pointer.GetString(agent.Version),
 	}
 
-	if agent.ExporterOptions != nil {
-		ua.DisabledCollectors = agent.ExporterOptions.DisabledCollectors
-		ua.MetricsPath = agent.ExporterOptions.MetricsPath
-		ua.MetricsScheme = agent.ExporterOptions.MetricsScheme
-		ua.PushMetrics = agent.ExporterOptions.PushMetrics
-		ua.ExposeExporter = agent.ExporterOptions.ExposeExporter
-	}
+	// Exporter options
+	ua.DisabledCollectors = agent.ExporterOptions.DisabledCollectors
+	ua.MetricsPath = agent.ExporterOptions.MetricsPath
+	ua.MetricsScheme = agent.ExporterOptions.MetricsScheme
+	ua.PushMetrics = agent.ExporterOptions.PushMetrics
+	ua.ExposeExporter = agent.ExporterOptions.ExposeExporter
 
-	if agent.QANOptions != nil {
-		ua.MaxQueryLength = agent.QANOptions.MaxQueryLength
-		ua.MaxQueryLogSize = agent.QANOptions.MaxQueryLogSize
-		ua.QueryExamplesDisabled = agent.QANOptions.QueryExamplesDisabled
-		ua.CommentsParsingDisabled = agent.QANOptions.CommentsParsingDisabled
-	}
+	// QAN options
+	ua.MaxQueryLength = agent.QANOptions.MaxQueryLength
+	ua.MaxQueryLogSize = agent.QANOptions.MaxQueryLogSize
+	ua.QueryExamplesDisabled = agent.QANOptions.QueryExamplesDisabled
+	ua.CommentsParsingDisabled = agent.QANOptions.CommentsParsingDisabled
 
-	if agent.AWSOptions != nil {
-		ua.IsAwsSecretKeySet = agent.AWSOptions.AWSAccessKey != ""
-		ua.AwsAccessKey = agent.AWSOptions.AWSAccessKey
-		ua.RdsBasicMetricsDisabled = agent.AWSOptions.RDSBasicMetricsDisabled
-		ua.RdsEnhancedMetricsDisabled = agent.AWSOptions.RDSEnhancedMetricsDisabled
+	// AWS options
+	ua.IsAwsSecretKeySet = agent.AWSOptions.AWSAccessKey != ""
+	ua.AwsAccessKey = agent.AWSOptions.AWSAccessKey
+	ua.RdsBasicMetricsDisabled = agent.AWSOptions.RDSBasicMetricsDisabled
+	ua.RdsEnhancedMetricsDisabled = agent.AWSOptions.RDSEnhancedMetricsDisabled
 
-	}
-
-	if agent.AzureOptions != nil {
+	if !agent.AzureOptions.IsEmpty() {
 		ua.AzureOptions = &managementv1.UniversalAgent_AzureOptions{
 			ClientId:          agent.AzureOptions.ClientID,
 			IsClientSecretSet: agent.AzureOptions.ClientSecret != "",
@@ -179,7 +175,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		}
 	}
 
-	if agent.MongoDBOptions != nil {
+	if !agent.MongoDBOptions.IsEmpty() {
 		ua.MongoDbOptions = &managementv1.UniversalAgent_MongoDBOptions{
 			AuthenticationMechanism:            agent.MongoDBOptions.AuthenticationMechanism,
 			AuthenticationDatabase:             agent.MongoDBOptions.AuthenticationDatabase,
@@ -191,7 +187,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		}
 	}
 
-	if agent.MySQLOptions != nil {
+	if !agent.MySQLOptions.IsEmpty() {
 		ua.MysqlOptions = &managementv1.UniversalAgent_MySQLOptions{
 			IsTlsKeySet: agent.MySQLOptions.TLSKey != "",
 		}
@@ -200,7 +196,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 
 	}
 
-	if agent.PostgreSQLOptions != nil {
+	if !agent.PostgreSQLOptions.IsEmpty() {
 		ua.PostgresqlOptions = &managementv1.UniversalAgent_PostgreSQLOptions{
 			IsSslKeySet:            agent.PostgreSQLOptions.SSLKey != "",
 			AutoDiscoveryLimit:     pointer.GetInt32(agent.PostgreSQLOptions.AutoDiscoveryLimit),

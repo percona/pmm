@@ -103,6 +103,7 @@ func (o *GetServiceOK) GetPayload() *GetServiceOKBody {
 }
 
 func (o *GetServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetServiceOKBody)
 
 	// response payload
@@ -176,6 +177,7 @@ func (o *GetServiceDefault) GetPayload() *GetServiceDefaultBody {
 }
 
 func (o *GetServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetServiceDefaultBody)
 
 	// response payload
@@ -191,6 +193,7 @@ GetServiceDefaultBody get service default body
 swagger:model GetServiceDefaultBody
 */
 type GetServiceDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -256,7 +259,9 @@ func (o *GetServiceDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *GetServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -272,6 +277,7 @@ func (o *GetServiceDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -300,6 +306,7 @@ GetServiceDefaultBodyDetailsItems0 get service default body details items0
 swagger:model GetServiceDefaultBodyDetailsItems0
 */
 type GetServiceDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -311,6 +318,7 @@ type GetServiceDefaultBodyDetailsItems0 struct {
 func (o *GetServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -348,6 +356,7 @@ func (o *GetServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetServiceDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -411,6 +420,7 @@ GetServiceOKBody get service OK body
 swagger:model GetServiceOKBody
 */
 type GetServiceOKBody struct {
+
 	// external
 	External *GetServiceOKBodyExternal `json:"external,omitempty"`
 
@@ -613,6 +623,7 @@ func (o *GetServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *GetServiceOKBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.External != nil {
 
 		if swag.IsZero(o.External) { // not required
@@ -633,6 +644,7 @@ func (o *GetServiceOKBody) contextValidateExternal(ctx context.Context, formats 
 }
 
 func (o *GetServiceOKBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Haproxy != nil {
 
 		if swag.IsZero(o.Haproxy) { // not required
@@ -653,6 +665,7 @@ func (o *GetServiceOKBody) contextValidateHaproxy(ctx context.Context, formats s
 }
 
 func (o *GetServiceOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Mongodb != nil {
 
 		if swag.IsZero(o.Mongodb) { // not required
@@ -673,6 +686,7 @@ func (o *GetServiceOKBody) contextValidateMongodb(ctx context.Context, formats s
 }
 
 func (o *GetServiceOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Mysql != nil {
 
 		if swag.IsZero(o.Mysql) { // not required
@@ -693,6 +707,7 @@ func (o *GetServiceOKBody) contextValidateMysql(ctx context.Context, formats str
 }
 
 func (o *GetServiceOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Postgresql != nil {
 
 		if swag.IsZero(o.Postgresql) { // not required
@@ -713,6 +728,7 @@ func (o *GetServiceOKBody) contextValidatePostgresql(ctx context.Context, format
 }
 
 func (o *GetServiceOKBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Proxysql != nil {
 
 		if swag.IsZero(o.Proxysql) { // not required
@@ -755,6 +771,7 @@ GetServiceOKBodyExternal ExternalService represents a generic External service i
 swagger:model GetServiceOKBodyExternal
 */
 type GetServiceOKBodyExternal struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -813,6 +830,7 @@ GetServiceOKBodyHaproxy HAProxyService represents a generic HAProxy service inst
 swagger:model GetServiceOKBodyHaproxy
 */
 type GetServiceOKBodyHaproxy struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -868,6 +886,7 @@ GetServiceOKBodyMongodb MongoDBService represents a generic MongoDB instance.
 swagger:model GetServiceOKBodyMongodb
 */
 type GetServiceOKBodyMongodb struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -938,6 +957,7 @@ GetServiceOKBodyMysql MySQLService represents a generic MySQL instance.
 swagger:model GetServiceOKBodyMysql
 */
 type GetServiceOKBodyMysql struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1008,6 +1028,7 @@ GetServiceOKBodyPostgresql PostgreSQLService represents a generic PostgreSQL ins
 swagger:model GetServiceOKBodyPostgresql
 */
 type GetServiceOKBodyPostgresql struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1084,6 +1105,7 @@ GetServiceOKBodyProxysql ProxySQLService represents a generic ProxySQL instance.
 swagger:model GetServiceOKBodyProxysql
 */
 type GetServiceOKBodyProxysql struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

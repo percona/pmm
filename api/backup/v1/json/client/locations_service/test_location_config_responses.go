@@ -103,6 +103,7 @@ func (o *TestLocationConfigOK) GetPayload() interface{} {
 }
 
 func (o *TestLocationConfigOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -174,6 +175,7 @@ func (o *TestLocationConfigDefault) GetPayload() *TestLocationConfigDefaultBody 
 }
 
 func (o *TestLocationConfigDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(TestLocationConfigDefaultBody)
 
 	// response payload
@@ -189,6 +191,7 @@ TestLocationConfigBody test location config body
 swagger:model TestLocationConfigBody
 */
 type TestLocationConfigBody struct {
+
 	// filesystem config
 	FilesystemConfig *TestLocationConfigParamsBodyFilesystemConfig `json:"filesystem_config,omitempty"`
 
@@ -271,6 +274,7 @@ func (o *TestLocationConfigBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *TestLocationConfigBody) contextValidateFilesystemConfig(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.FilesystemConfig != nil {
 
 		if swag.IsZero(o.FilesystemConfig) { // not required
@@ -291,6 +295,7 @@ func (o *TestLocationConfigBody) contextValidateFilesystemConfig(ctx context.Con
 }
 
 func (o *TestLocationConfigBody) contextValidateS3Config(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.S3Config != nil {
 
 		if swag.IsZero(o.S3Config) { // not required
@@ -333,6 +338,7 @@ TestLocationConfigDefaultBody test location config default body
 swagger:model TestLocationConfigDefaultBody
 */
 type TestLocationConfigDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -398,7 +404,9 @@ func (o *TestLocationConfigDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *TestLocationConfigDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -414,6 +422,7 @@ func (o *TestLocationConfigDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -442,6 +451,7 @@ TestLocationConfigDefaultBodyDetailsItems0 test location config default body det
 swagger:model TestLocationConfigDefaultBodyDetailsItems0
 */
 type TestLocationConfigDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -453,6 +463,7 @@ type TestLocationConfigDefaultBodyDetailsItems0 struct {
 func (o *TestLocationConfigDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -490,6 +501,7 @@ func (o *TestLocationConfigDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o TestLocationConfigDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -553,6 +565,7 @@ TestLocationConfigParamsBodyFilesystemConfig FilesystemLocationConfig represents
 swagger:model TestLocationConfigParamsBodyFilesystemConfig
 */
 type TestLocationConfigParamsBodyFilesystemConfig struct {
+
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -590,6 +603,7 @@ TestLocationConfigParamsBodyS3Config S3LocationConfig represents S3 bucket confi
 swagger:model TestLocationConfigParamsBodyS3Config
 */
 type TestLocationConfigParamsBodyS3Config struct {
+
 	// endpoint
 	Endpoint string `json:"endpoint,omitempty"`
 

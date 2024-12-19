@@ -7,14 +7,12 @@
 package managementv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
+	v1 "github.com/percona/pmm/api/inventory/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	v1 "github.com/percona/pmm/api/inventory/v1"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -1280,27 +1278,24 @@ func file_management_v1_agent_proto_rawDescGZIP() []byte {
 	return file_management_v1_agent_proto_rawDescData
 }
 
-var (
-	file_management_v1_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_management_v1_agent_proto_msgTypes  = make([]protoimpl.MessageInfo, 11)
-	file_management_v1_agent_proto_goTypes   = []any{
-		(UpdateSeverity)(0),                      // 0: management.v1.UpdateSeverity
-		(*UniversalAgent)(nil),                   // 1: management.v1.UniversalAgent
-		(*ListAgentsRequest)(nil),                // 2: management.v1.ListAgentsRequest
-		(*ListAgentsResponse)(nil),               // 3: management.v1.ListAgentsResponse
-		(*AgentVersions)(nil),                    // 4: management.v1.AgentVersions
-		(*ListAgentVersionsRequest)(nil),         // 5: management.v1.ListAgentVersionsRequest
-		(*ListAgentVersionsResponse)(nil),        // 6: management.v1.ListAgentVersionsResponse
-		(*UniversalAgent_MySQLOptions)(nil),      // 7: management.v1.UniversalAgent.MySQLOptions
-		(*UniversalAgent_AzureOptions)(nil),      // 8: management.v1.UniversalAgent.AzureOptions
-		(*UniversalAgent_MongoDBOptions)(nil),    // 9: management.v1.UniversalAgent.MongoDBOptions
-		(*UniversalAgent_PostgreSQLOptions)(nil), // 10: management.v1.UniversalAgent.PostgreSQLOptions
-		nil,                                      // 11: management.v1.UniversalAgent.CustomLabelsEntry
-		(*timestamppb.Timestamp)(nil),            // 12: google.protobuf.Timestamp
-		(v1.LogLevel)(0),                         // 13: inventory.v1.LogLevel
-	}
-)
-
+var file_management_v1_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_management_v1_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_management_v1_agent_proto_goTypes = []any{
+	(UpdateSeverity)(0),                      // 0: management.v1.UpdateSeverity
+	(*UniversalAgent)(nil),                   // 1: management.v1.UniversalAgent
+	(*ListAgentsRequest)(nil),                // 2: management.v1.ListAgentsRequest
+	(*ListAgentsResponse)(nil),               // 3: management.v1.ListAgentsResponse
+	(*AgentVersions)(nil),                    // 4: management.v1.AgentVersions
+	(*ListAgentVersionsRequest)(nil),         // 5: management.v1.ListAgentVersionsRequest
+	(*ListAgentVersionsResponse)(nil),        // 6: management.v1.ListAgentVersionsResponse
+	(*UniversalAgent_MySQLOptions)(nil),      // 7: management.v1.UniversalAgent.MySQLOptions
+	(*UniversalAgent_AzureOptions)(nil),      // 8: management.v1.UniversalAgent.AzureOptions
+	(*UniversalAgent_MongoDBOptions)(nil),    // 9: management.v1.UniversalAgent.MongoDBOptions
+	(*UniversalAgent_PostgreSQLOptions)(nil), // 10: management.v1.UniversalAgent.PostgreSQLOptions
+	nil,                                      // 11: management.v1.UniversalAgent.CustomLabelsEntry
+	(*timestamppb.Timestamp)(nil),            // 12: google.protobuf.Timestamp
+	(v1.LogLevel)(0),                         // 13: inventory.v1.LogLevel
+}
 var file_management_v1_agent_proto_depIdxs = []int32{
 	8,  // 0: management.v1.UniversalAgent.azure_options:type_name -> management.v1.UniversalAgent.AzureOptions
 	12, // 1: management.v1.UniversalAgent.created_at:type_name -> google.protobuf.Timestamp

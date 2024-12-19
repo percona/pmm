@@ -8,7 +8,6 @@ package qanv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -222,43 +221,33 @@ type UnimplementedQANServiceServer struct{}
 func (UnimplementedQANServiceServer) GetReport(context.Context, *GetReportRequest) (*GetReportResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReport not implemented")
 }
-
 func (UnimplementedQANServiceServer) GetFilteredMetricsNames(context.Context, *GetFilteredMetricsNamesRequest) (*GetFilteredMetricsNamesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFilteredMetricsNames not implemented")
 }
-
 func (UnimplementedQANServiceServer) GetMetricsNames(context.Context, *GetMetricsNamesRequest) (*GetMetricsNamesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMetricsNames not implemented")
 }
-
 func (UnimplementedQANServiceServer) GetMetrics(context.Context, *GetMetricsRequest) (*GetMetricsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMetrics not implemented")
 }
-
 func (UnimplementedQANServiceServer) GetLabels(context.Context, *GetLabelsRequest) (*GetLabelsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLabels not implemented")
 }
-
 func (UnimplementedQANServiceServer) GetHistogram(context.Context, *GetHistogramRequest) (*GetHistogramResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHistogram not implemented")
 }
-
 func (UnimplementedQANServiceServer) ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExplainFingerprintByQueryID not implemented")
 }
-
 func (UnimplementedQANServiceServer) GetQueryPlan(context.Context, *GetQueryPlanRequest) (*GetQueryPlanResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetQueryPlan not implemented")
 }
-
 func (UnimplementedQANServiceServer) QueryExists(context.Context, *QueryExistsRequest) (*QueryExistsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryExists not implemented")
 }
-
 func (UnimplementedQANServiceServer) SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SchemaByQueryID not implemented")
 }
-
 func (UnimplementedQANServiceServer) GetQueryExample(context.Context, *GetQueryExampleRequest) (*GetQueryExampleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetQueryExample not implemented")
 }

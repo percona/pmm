@@ -2907,6 +2907,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	if m.AwsPartitions != nil {
+
 		if all {
 			switch v := interface{}(m.GetAwsPartitions()).(type) {
 			case interface{ ValidateAll() error }:
@@ -2935,6 +2936,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnableAdvisor != nil {

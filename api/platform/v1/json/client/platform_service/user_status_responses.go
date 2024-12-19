@@ -103,6 +103,7 @@ func (o *UserStatusOK) GetPayload() *UserStatusOKBody {
 }
 
 func (o *UserStatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(UserStatusOKBody)
 
 	// response payload
@@ -176,6 +177,7 @@ func (o *UserStatusDefault) GetPayload() *UserStatusDefaultBody {
 }
 
 func (o *UserStatusDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(UserStatusDefaultBody)
 
 	// response payload
@@ -191,6 +193,7 @@ UserStatusDefaultBody user status default body
 swagger:model UserStatusDefaultBody
 */
 type UserStatusDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -256,7 +259,9 @@ func (o *UserStatusDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *UserStatusDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -272,6 +277,7 @@ func (o *UserStatusDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -300,6 +306,7 @@ UserStatusDefaultBodyDetailsItems0 user status default body details items0
 swagger:model UserStatusDefaultBodyDetailsItems0
 */
 type UserStatusDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -311,6 +318,7 @@ type UserStatusDefaultBodyDetailsItems0 struct {
 func (o *UserStatusDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -348,6 +356,7 @@ func (o *UserStatusDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o UserStatusDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -411,6 +420,7 @@ UserStatusOKBody user status OK body
 swagger:model UserStatusOKBody
 */
 type UserStatusOKBody struct {
+
 	// is platform user
 	IsPlatformUser bool `json:"is_platform_user,omitempty"`
 }

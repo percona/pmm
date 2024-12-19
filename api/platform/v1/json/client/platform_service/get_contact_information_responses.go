@@ -103,6 +103,7 @@ func (o *GetContactInformationOK) GetPayload() *GetContactInformationOKBody {
 }
 
 func (o *GetContactInformationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetContactInformationOKBody)
 
 	// response payload
@@ -176,6 +177,7 @@ func (o *GetContactInformationDefault) GetPayload() *GetContactInformationDefaul
 }
 
 func (o *GetContactInformationDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetContactInformationDefaultBody)
 
 	// response payload
@@ -191,6 +193,7 @@ GetContactInformationDefaultBody get contact information default body
 swagger:model GetContactInformationDefaultBody
 */
 type GetContactInformationDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -256,7 +259,9 @@ func (o *GetContactInformationDefaultBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *GetContactInformationDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -272,6 +277,7 @@ func (o *GetContactInformationDefaultBody) contextValidateDetails(ctx context.Co
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -300,6 +306,7 @@ GetContactInformationDefaultBodyDetailsItems0 get contact information default bo
 swagger:model GetContactInformationDefaultBodyDetailsItems0
 */
 type GetContactInformationDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -311,6 +318,7 @@ type GetContactInformationDefaultBodyDetailsItems0 struct {
 func (o *GetContactInformationDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -348,6 +356,7 @@ func (o *GetContactInformationDefaultBodyDetailsItems0) UnmarshalJSON(data []byt
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetContactInformationDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -411,6 +420,7 @@ GetContactInformationOKBody get contact information OK body
 swagger:model GetContactInformationOKBody
 */
 type GetContactInformationOKBody struct {
+
 	// URL to open a new support ticket.
 	NewTicketURL string `json:"new_ticket_url,omitempty"`
 
@@ -466,6 +476,7 @@ func (o *GetContactInformationOKBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *GetContactInformationOKBody) contextValidateCustomerSuccess(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.CustomerSuccess != nil {
 
 		if swag.IsZero(o.CustomerSuccess) { // not required
@@ -508,6 +519,7 @@ GetContactInformationOKBodyCustomerSuccess CustomerSuccess contains the contanct
 swagger:model GetContactInformationOKBodyCustomerSuccess
 */
 type GetContactInformationOKBodyCustomerSuccess struct {
+
 	// name
 	Name string `json:"name,omitempty"`
 

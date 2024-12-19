@@ -8,7 +8,6 @@ package advisorsv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -147,23 +146,18 @@ type UnimplementedAdvisorServiceServer struct{}
 func (UnimplementedAdvisorServiceServer) ListFailedServices(context.Context, *ListFailedServicesRequest) (*ListFailedServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListFailedServices not implemented")
 }
-
 func (UnimplementedAdvisorServiceServer) GetFailedChecks(context.Context, *GetFailedChecksRequest) (*GetFailedChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFailedChecks not implemented")
 }
-
 func (UnimplementedAdvisorServiceServer) StartAdvisorChecks(context.Context, *StartAdvisorChecksRequest) (*StartAdvisorChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartAdvisorChecks not implemented")
 }
-
 func (UnimplementedAdvisorServiceServer) ListAdvisorChecks(context.Context, *ListAdvisorChecksRequest) (*ListAdvisorChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAdvisorChecks not implemented")
 }
-
 func (UnimplementedAdvisorServiceServer) ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAdvisors not implemented")
 }
-
 func (UnimplementedAdvisorServiceServer) ChangeAdvisorChecks(context.Context, *ChangeAdvisorChecksRequest) (*ChangeAdvisorChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeAdvisorChecks not implemented")
 }

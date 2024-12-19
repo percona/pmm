@@ -103,6 +103,7 @@ func (o *GetQueryPlanOK) GetPayload() *GetQueryPlanOKBody {
 }
 
 func (o *GetQueryPlanOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetQueryPlanOKBody)
 
 	// response payload
@@ -176,6 +177,7 @@ func (o *GetQueryPlanDefault) GetPayload() *GetQueryPlanDefaultBody {
 }
 
 func (o *GetQueryPlanDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetQueryPlanDefaultBody)
 
 	// response payload
@@ -191,6 +193,7 @@ GetQueryPlanDefaultBody get query plan default body
 swagger:model GetQueryPlanDefaultBody
 */
 type GetQueryPlanDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -256,7 +259,9 @@ func (o *GetQueryPlanDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *GetQueryPlanDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -272,6 +277,7 @@ func (o *GetQueryPlanDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -300,6 +306,7 @@ GetQueryPlanDefaultBodyDetailsItems0 get query plan default body details items0
 swagger:model GetQueryPlanDefaultBodyDetailsItems0
 */
 type GetQueryPlanDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -311,6 +318,7 @@ type GetQueryPlanDefaultBodyDetailsItems0 struct {
 func (o *GetQueryPlanDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -348,6 +356,7 @@ func (o *GetQueryPlanDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetQueryPlanDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -411,6 +420,7 @@ GetQueryPlanOKBody GetQueryPlanResponse contains planid and query_plan.
 swagger:model GetQueryPlanOKBody
 */
 type GetQueryPlanOKBody struct {
+
 	// planid
 	Planid string `json:"planid,omitempty"`
 

@@ -24,14 +24,12 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_ManagementService_AddAnnotation_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddAnnotationRequest
@@ -43,6 +41,7 @@ func request_ManagementService_AddAnnotation_0(ctx context.Context, marshaler ru
 
 	msg, err := client.AddAnnotation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ManagementService_AddAnnotation_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -55,9 +54,12 @@ func local_request_ManagementService_AddAnnotation_0(ctx context.Context, marsha
 
 	msg, err := server.AddAnnotation(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_ManagementService_ListAgents_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_ManagementService_ListAgents_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_ManagementService_ListAgents_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListAgentsRequest
@@ -72,6 +74,7 @@ func request_ManagementService_ListAgents_0(ctx context.Context, marshaler runti
 
 	msg, err := client.ListAgents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ManagementService_ListAgents_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -87,6 +90,7 @@ func local_request_ManagementService_ListAgents_0(ctx context.Context, marshaler
 
 	msg, err := server.ListAgents(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_ManagementService_ListAgentVersions_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -95,6 +99,7 @@ func request_ManagementService_ListAgentVersions_0(ctx context.Context, marshale
 
 	msg, err := client.ListAgentVersions(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ManagementService_ListAgentVersions_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -103,6 +108,7 @@ func local_request_ManagementService_ListAgentVersions_0(ctx context.Context, ma
 
 	msg, err := server.ListAgentVersions(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_ManagementService_RegisterNode_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -115,6 +121,7 @@ func request_ManagementService_RegisterNode_0(ctx context.Context, marshaler run
 
 	msg, err := client.RegisterNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ManagementService_RegisterNode_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -127,9 +134,12 @@ func local_request_ManagementService_RegisterNode_0(ctx context.Context, marshal
 
 	msg, err := server.RegisterNode(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_ManagementService_UnregisterNode_0 = &utilities.DoubleArray{Encoding: map[string]int{"node_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var (
+	filter_ManagementService_UnregisterNode_0 = &utilities.DoubleArray{Encoding: map[string]int{"node_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+)
 
 func request_ManagementService_UnregisterNode_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq UnregisterNodeRequest
@@ -161,6 +171,7 @@ func request_ManagementService_UnregisterNode_0(ctx context.Context, marshaler r
 
 	msg, err := client.UnregisterNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ManagementService_UnregisterNode_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -193,9 +204,12 @@ func local_request_ManagementService_UnregisterNode_0(ctx context.Context, marsh
 
 	msg, err := server.UnregisterNode(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_ManagementService_ListNodes_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_ManagementService_ListNodes_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_ManagementService_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListNodesRequest
@@ -210,6 +224,7 @@ func request_ManagementService_ListNodes_0(ctx context.Context, marshaler runtim
 
 	msg, err := client.ListNodes(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ManagementService_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -225,6 +240,7 @@ func local_request_ManagementService_ListNodes_0(ctx context.Context, marshaler 
 
 	msg, err := server.ListNodes(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_ManagementService_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -250,6 +266,7 @@ func request_ManagementService_GetNode_0(ctx context.Context, marshaler runtime.
 
 	msg, err := client.GetNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ManagementService_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -275,6 +292,7 @@ func local_request_ManagementService_GetNode_0(ctx context.Context, marshaler ru
 
 	msg, err := server.GetNode(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_ManagementService_AddService_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -287,6 +305,7 @@ func request_ManagementService_AddService_0(ctx context.Context, marshaler runti
 
 	msg, err := client.AddService(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ManagementService_AddService_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -299,9 +318,12 @@ func local_request_ManagementService_AddService_0(ctx context.Context, marshaler
 
 	msg, err := server.AddService(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_ManagementService_ListServices_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_ManagementService_ListServices_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_ManagementService_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListServicesRequest
@@ -316,6 +338,7 @@ func request_ManagementService_ListServices_0(ctx context.Context, marshaler run
 
 	msg, err := client.ListServices(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ManagementService_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -331,6 +354,7 @@ func local_request_ManagementService_ListServices_0(ctx context.Context, marshal
 
 	msg, err := server.ListServices(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_ManagementService_DiscoverRDS_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -343,6 +367,7 @@ func request_ManagementService_DiscoverRDS_0(ctx context.Context, marshaler runt
 
 	msg, err := client.DiscoverRDS(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ManagementService_DiscoverRDS_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -355,6 +380,7 @@ func local_request_ManagementService_DiscoverRDS_0(ctx context.Context, marshale
 
 	msg, err := server.DiscoverRDS(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_ManagementService_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -367,6 +393,7 @@ func request_ManagementService_DiscoverAzureDatabase_0(ctx context.Context, mars
 
 	msg, err := client.DiscoverAzureDatabase(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ManagementService_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -379,6 +406,7 @@ func local_request_ManagementService_DiscoverAzureDatabase_0(ctx context.Context
 
 	msg, err := server.DiscoverAzureDatabase(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_ManagementService_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -391,6 +419,7 @@ func request_ManagementService_AddAzureDatabase_0(ctx context.Context, marshaler
 
 	msg, err := client.AddAzureDatabase(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ManagementService_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -403,9 +432,12 @@ func local_request_ManagementService_AddAzureDatabase_0(ctx context.Context, mar
 
 	msg, err := server.AddAzureDatabase(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_ManagementService_RemoveService_0 = &utilities.DoubleArray{Encoding: map[string]int{"service_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var (
+	filter_ManagementService_RemoveService_0 = &utilities.DoubleArray{Encoding: map[string]int{"service_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+)
 
 func request_ManagementService_RemoveService_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RemoveServiceRequest
@@ -437,6 +469,7 @@ func request_ManagementService_RemoveService_0(ctx context.Context, marshaler ru
 
 	msg, err := client.RemoveService(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ManagementService_RemoveService_0(ctx context.Context, marshaler runtime.Marshaler, server ManagementServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -469,6 +502,7 @@ func local_request_ManagementService_RemoveService_0(ctx context.Context, marsha
 
 	msg, err := server.RemoveService(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterManagementServiceHandlerServer registers the http handlers for service ManagementService to "mux".
@@ -477,6 +511,7 @@ func local_request_ManagementService_RemoveService_0(ctx context.Context, marsha
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterManagementServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ManagementServiceServer) error {
+
 	mux.Handle("POST", pattern_ManagementService_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -499,6 +534,7 @@ func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_AddAnnotation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_ManagementService_ListAgents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -523,6 +559,7 @@ func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_ListAgents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_ManagementService_ListAgentVersions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -547,6 +584,7 @@ func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_ListAgentVersions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ManagementService_RegisterNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -571,6 +609,7 @@ func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_RegisterNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("DELETE", pattern_ManagementService_UnregisterNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -595,6 +634,7 @@ func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_UnregisterNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_ManagementService_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -619,6 +659,7 @@ func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_ManagementService_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -643,6 +684,7 @@ func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ManagementService_AddService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -667,6 +709,7 @@ func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_AddService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_ManagementService_ListServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -691,6 +734,7 @@ func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ManagementService_DiscoverRDS_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -715,6 +759,7 @@ func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_DiscoverRDS_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ManagementService_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -739,6 +784,7 @@ func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_DiscoverAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ManagementService_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -763,6 +809,7 @@ func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_AddAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("DELETE", pattern_ManagementService_RemoveService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -787,6 +834,7 @@ func RegisterManagementServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_RemoveService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -829,6 +877,7 @@ func RegisterManagementServiceHandler(ctx context.Context, mux *runtime.ServeMux
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ManagementServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ManagementServiceClient) error {
+
 	mux.Handle("POST", pattern_ManagementService_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -848,6 +897,7 @@ func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_AddAnnotation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_ManagementService_ListAgents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -869,6 +919,7 @@ func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_ListAgents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_ManagementService_ListAgentVersions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -890,6 +941,7 @@ func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_ListAgentVersions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ManagementService_RegisterNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -911,6 +963,7 @@ func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_RegisterNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("DELETE", pattern_ManagementService_UnregisterNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -932,6 +985,7 @@ func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_UnregisterNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_ManagementService_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -953,6 +1007,7 @@ func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_ManagementService_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -974,6 +1029,7 @@ func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ManagementService_AddService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -995,6 +1051,7 @@ func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_AddService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_ManagementService_ListServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1016,6 +1073,7 @@ func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ManagementService_DiscoverRDS_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1037,6 +1095,7 @@ func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_DiscoverRDS_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ManagementService_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1058,6 +1117,7 @@ func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_DiscoverAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ManagementService_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1079,6 +1139,7 @@ func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_AddAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("DELETE", pattern_ManagementService_RemoveService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1100,6 +1161,7 @@ func RegisterManagementServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 
 		forward_ManagementService_RemoveService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil

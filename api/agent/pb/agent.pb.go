@@ -7,12 +7,10 @@
 package pb
 
 import (
-	reflect "reflect"
-
+	v1 "github.com/percona/pmm/api/agent/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-
-	v1 "github.com/percona/pmm/api/agent/v1"
+	reflect "reflect"
 )
 
 const (
@@ -47,7 +45,6 @@ var file_agent_pb_agent_proto_goTypes = []any{
 	(*v1.AgentMessage)(nil),  // 0: agent.v1.AgentMessage
 	(*v1.ServerMessage)(nil), // 1: agent.v1.ServerMessage
 }
-
 var file_agent_pb_agent_proto_depIdxs = []int32{
 	0, // 0: agent.Agent.Connect:input_type -> agent.v1.AgentMessage
 	1, // 1: agent.Agent.Connect:output_type -> agent.v1.ServerMessage

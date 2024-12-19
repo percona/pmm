@@ -7,15 +7,13 @@
 package agentlocalv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
+	v1 "github.com/percona/pmm/api/inventory/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
-
-	v1 "github.com/percona/pmm/api/inventory/v1"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -249,7 +247,7 @@ type StatusResponse struct {
 	unknownFields protoimpl.UnknownFields
 
 	AgentId      string       `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	RunsOnNodeId string       `protobuf:"bytes,2,opt,name=runs_on_node_id,json=runsOnNodeId,proto3" json:"runs_on_node_id,omitempty"` // TODO: rename to node_id
+	RunsOnNodeId string       `protobuf:"bytes,2,opt,name=runs_on_node_id,json=runsOnNodeId,proto3" json:"runs_on_node_id,omitempty"` //TODO: rename to node_id
 	NodeName     string       `protobuf:"bytes,3,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	ServerInfo   *ServerInfo  `protobuf:"bytes,4,opt,name=server_info,json=serverInfo,proto3" json:"server_info,omitempty"`
 	AgentsInfo   []*AgentInfo `protobuf:"bytes,5,rep,name=agents_info,json=agentsInfo,proto3" json:"agents_info,omitempty"`
@@ -531,21 +529,18 @@ func file_agentlocal_v1_agentlocal_proto_rawDescGZIP() []byte {
 	return file_agentlocal_v1_agentlocal_proto_rawDescData
 }
 
-var (
-	file_agentlocal_v1_agentlocal_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-	file_agentlocal_v1_agentlocal_proto_goTypes  = []any{
-		(*ServerInfo)(nil),          // 0: agentlocal.v1.ServerInfo
-		(*AgentInfo)(nil),           // 1: agentlocal.v1.AgentInfo
-		(*StatusRequest)(nil),       // 2: agentlocal.v1.StatusRequest
-		(*StatusResponse)(nil),      // 3: agentlocal.v1.StatusResponse
-		(*ReloadRequest)(nil),       // 4: agentlocal.v1.ReloadRequest
-		(*ReloadResponse)(nil),      // 5: agentlocal.v1.ReloadResponse
-		(*durationpb.Duration)(nil), // 6: google.protobuf.Duration
-		(v1.AgentType)(0),           // 7: inventory.v1.AgentType
-		(v1.AgentStatus)(0),         // 8: inventory.v1.AgentStatus
-	}
-)
-
+var file_agentlocal_v1_agentlocal_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_agentlocal_v1_agentlocal_proto_goTypes = []any{
+	(*ServerInfo)(nil),          // 0: agentlocal.v1.ServerInfo
+	(*AgentInfo)(nil),           // 1: agentlocal.v1.AgentInfo
+	(*StatusRequest)(nil),       // 2: agentlocal.v1.StatusRequest
+	(*StatusResponse)(nil),      // 3: agentlocal.v1.StatusResponse
+	(*ReloadRequest)(nil),       // 4: agentlocal.v1.ReloadRequest
+	(*ReloadResponse)(nil),      // 5: agentlocal.v1.ReloadResponse
+	(*durationpb.Duration)(nil), // 6: google.protobuf.Duration
+	(v1.AgentType)(0),           // 7: inventory.v1.AgentType
+	(v1.AgentStatus)(0),         // 8: inventory.v1.AgentStatus
+}
 var file_agentlocal_v1_agentlocal_proto_depIdxs = []int32{
 	6, // 0: agentlocal.v1.ServerInfo.latency:type_name -> google.protobuf.Duration
 	6, // 1: agentlocal.v1.ServerInfo.clock_drift:type_name -> google.protobuf.Duration

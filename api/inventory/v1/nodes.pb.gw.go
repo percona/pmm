@@ -24,16 +24,16 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
-var filter_NodesService_ListNodes_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var (
+	filter_NodesService_ListNodes_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
 
 func request_NodesService_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, client NodesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListNodesRequest
@@ -48,6 +48,7 @@ func request_NodesService_ListNodes_0(ctx context.Context, marshaler runtime.Mar
 
 	msg, err := client.ListNodes(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_NodesService_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -63,6 +64,7 @@ func local_request_NodesService_ListNodes_0(ctx context.Context, marshaler runti
 
 	msg, err := server.ListNodes(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_NodesService_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -88,6 +90,7 @@ func request_NodesService_GetNode_0(ctx context.Context, marshaler runtime.Marsh
 
 	msg, err := client.GetNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_NodesService_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -113,6 +116,7 @@ func local_request_NodesService_GetNode_0(ctx context.Context, marshaler runtime
 
 	msg, err := server.GetNode(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_NodesService_AddNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -125,6 +129,7 @@ func request_NodesService_AddNode_0(ctx context.Context, marshaler runtime.Marsh
 
 	msg, err := client.AddNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_NodesService_AddNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -137,9 +142,12 @@ func local_request_NodesService_AddNode_0(ctx context.Context, marshaler runtime
 
 	msg, err := server.AddNode(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_NodesService_RemoveNode_0 = &utilities.DoubleArray{Encoding: map[string]int{"node_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var (
+	filter_NodesService_RemoveNode_0 = &utilities.DoubleArray{Encoding: map[string]int{"node_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+)
 
 func request_NodesService_RemoveNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RemoveNodeRequest
@@ -171,6 +179,7 @@ func request_NodesService_RemoveNode_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := client.RemoveNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_NodesService_RemoveNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -203,6 +212,7 @@ func local_request_NodesService_RemoveNode_0(ctx context.Context, marshaler runt
 
 	msg, err := server.RemoveNode(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterNodesServiceHandlerServer registers the http handlers for service NodesService to "mux".
@@ -211,6 +221,7 @@ func local_request_NodesService_RemoveNode_0(ctx context.Context, marshaler runt
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterNodesServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server NodesServiceServer) error {
+
 	mux.Handle("GET", pattern_NodesService_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -233,6 +244,7 @@ func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		}
 
 		forward_NodesService_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_NodesService_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -257,6 +269,7 @@ func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		}
 
 		forward_NodesService_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_NodesService_AddNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -281,6 +294,7 @@ func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		}
 
 		forward_NodesService_AddNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("DELETE", pattern_NodesService_RemoveNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -305,6 +319,7 @@ func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		}
 
 		forward_NodesService_RemoveNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -347,6 +362,7 @@ func RegisterNodesServiceHandler(ctx context.Context, mux *runtime.ServeMux, con
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "NodesServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client NodesServiceClient) error {
+
 	mux.Handle("GET", pattern_NodesService_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -366,6 +382,7 @@ func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		}
 
 		forward_NodesService_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("GET", pattern_NodesService_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -387,6 +404,7 @@ func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		}
 
 		forward_NodesService_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_NodesService_AddNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -408,6 +426,7 @@ func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		}
 
 		forward_NodesService_AddNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("DELETE", pattern_NodesService_RemoveNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -429,6 +448,7 @@ func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		}
 
 		forward_NodesService_RemoveNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil

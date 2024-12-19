@@ -7,15 +7,14 @@
 package dumpv1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -951,28 +950,25 @@ func file_dump_v1beta1_dump_proto_rawDescGZIP() []byte {
 	return file_dump_v1beta1_dump_proto_rawDescData
 }
 
-var (
-	file_dump_v1beta1_dump_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_dump_v1beta1_dump_proto_msgTypes  = make([]protoimpl.MessageInfo, 13)
-	file_dump_v1beta1_dump_proto_goTypes   = []any{
-		(DumpStatus)(0),               // 0: dump.v1beta1.DumpStatus
-		(*Dump)(nil),                  // 1: dump.v1beta1.Dump
-		(*StartDumpRequest)(nil),      // 2: dump.v1beta1.StartDumpRequest
-		(*StartDumpResponse)(nil),     // 3: dump.v1beta1.StartDumpResponse
-		(*ListDumpsRequest)(nil),      // 4: dump.v1beta1.ListDumpsRequest
-		(*ListDumpsResponse)(nil),     // 5: dump.v1beta1.ListDumpsResponse
-		(*DeleteDumpRequest)(nil),     // 6: dump.v1beta1.DeleteDumpRequest
-		(*DeleteDumpResponse)(nil),    // 7: dump.v1beta1.DeleteDumpResponse
-		(*GetDumpLogsRequest)(nil),    // 8: dump.v1beta1.GetDumpLogsRequest
-		(*GetDumpLogsResponse)(nil),   // 9: dump.v1beta1.GetDumpLogsResponse
-		(*LogChunk)(nil),              // 10: dump.v1beta1.LogChunk
-		(*SFTPParameters)(nil),        // 11: dump.v1beta1.SFTPParameters
-		(*UploadDumpRequest)(nil),     // 12: dump.v1beta1.UploadDumpRequest
-		(*UploadDumpResponse)(nil),    // 13: dump.v1beta1.UploadDumpResponse
-		(*timestamppb.Timestamp)(nil), // 14: google.protobuf.Timestamp
-	}
-)
-
+var file_dump_v1beta1_dump_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_dump_v1beta1_dump_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_dump_v1beta1_dump_proto_goTypes = []any{
+	(DumpStatus)(0),               // 0: dump.v1beta1.DumpStatus
+	(*Dump)(nil),                  // 1: dump.v1beta1.Dump
+	(*StartDumpRequest)(nil),      // 2: dump.v1beta1.StartDumpRequest
+	(*StartDumpResponse)(nil),     // 3: dump.v1beta1.StartDumpResponse
+	(*ListDumpsRequest)(nil),      // 4: dump.v1beta1.ListDumpsRequest
+	(*ListDumpsResponse)(nil),     // 5: dump.v1beta1.ListDumpsResponse
+	(*DeleteDumpRequest)(nil),     // 6: dump.v1beta1.DeleteDumpRequest
+	(*DeleteDumpResponse)(nil),    // 7: dump.v1beta1.DeleteDumpResponse
+	(*GetDumpLogsRequest)(nil),    // 8: dump.v1beta1.GetDumpLogsRequest
+	(*GetDumpLogsResponse)(nil),   // 9: dump.v1beta1.GetDumpLogsResponse
+	(*LogChunk)(nil),              // 10: dump.v1beta1.LogChunk
+	(*SFTPParameters)(nil),        // 11: dump.v1beta1.SFTPParameters
+	(*UploadDumpRequest)(nil),     // 12: dump.v1beta1.UploadDumpRequest
+	(*UploadDumpResponse)(nil),    // 13: dump.v1beta1.UploadDumpResponse
+	(*timestamppb.Timestamp)(nil), // 14: google.protobuf.Timestamp
+}
 var file_dump_v1beta1_dump_proto_depIdxs = []int32{
 	0,  // 0: dump.v1beta1.Dump.status:type_name -> dump.v1beta1.DumpStatus
 	14, // 1: dump.v1beta1.Dump.start_time:type_name -> google.protobuf.Timestamp

@@ -7,14 +7,12 @@
 package qanv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
+	v1 "github.com/percona/pmm/api/inventory/v1"
 	_ "google.golang.org/genproto/googleapis/api/visibility"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-
-	v1 "github.com/percona/pmm/api/inventory/v1"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -2789,20 +2787,17 @@ func file_qan_v1_collector_proto_rawDescGZIP() []byte {
 	return file_qan_v1_collector_proto_rawDescData
 }
 
-var (
-	file_qan_v1_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-	file_qan_v1_collector_proto_goTypes  = []any{
-		(*CollectRequest)(nil),  // 0: qan.v1.CollectRequest
-		(*MetricsBucket)(nil),   // 1: qan.v1.MetricsBucket
-		(*CollectResponse)(nil), // 2: qan.v1.CollectResponse
-		nil,                     // 3: qan.v1.MetricsBucket.LabelsEntry
-		nil,                     // 4: qan.v1.MetricsBucket.WarningsEntry
-		nil,                     // 5: qan.v1.MetricsBucket.ErrorsEntry
-		(v1.AgentType)(0),       // 6: inventory.v1.AgentType
-		(ExampleType)(0),        // 7: qan.v1.ExampleType
-	}
-)
-
+var file_qan_v1_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_qan_v1_collector_proto_goTypes = []any{
+	(*CollectRequest)(nil),  // 0: qan.v1.CollectRequest
+	(*MetricsBucket)(nil),   // 1: qan.v1.MetricsBucket
+	(*CollectResponse)(nil), // 2: qan.v1.CollectResponse
+	nil,                     // 3: qan.v1.MetricsBucket.LabelsEntry
+	nil,                     // 4: qan.v1.MetricsBucket.WarningsEntry
+	nil,                     // 5: qan.v1.MetricsBucket.ErrorsEntry
+	(v1.AgentType)(0),       // 6: inventory.v1.AgentType
+	(ExampleType)(0),        // 7: qan.v1.ExampleType
+}
 var file_qan_v1_collector_proto_depIdxs = []int32{
 	1, // 0: qan.v1.CollectRequest.metrics_bucket:type_name -> qan.v1.MetricsBucket
 	6, // 1: qan.v1.MetricsBucket.agent_type:type_name -> inventory.v1.AgentType

@@ -104,6 +104,7 @@ func (o *SearchOrganizationEntitlementsOK) GetPayload() *SearchOrganizationEntit
 }
 
 func (o *SearchOrganizationEntitlementsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(SearchOrganizationEntitlementsOKBody)
 
 	// response payload
@@ -177,6 +178,7 @@ func (o *SearchOrganizationEntitlementsDefault) GetPayload() *SearchOrganization
 }
 
 func (o *SearchOrganizationEntitlementsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(SearchOrganizationEntitlementsDefaultBody)
 
 	// response payload
@@ -192,6 +194,7 @@ SearchOrganizationEntitlementsDefaultBody search organization entitlements defau
 swagger:model SearchOrganizationEntitlementsDefaultBody
 */
 type SearchOrganizationEntitlementsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -257,7 +260,9 @@ func (o *SearchOrganizationEntitlementsDefaultBody) ContextValidate(ctx context.
 }
 
 func (o *SearchOrganizationEntitlementsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -273,6 +278,7 @@ func (o *SearchOrganizationEntitlementsDefaultBody) contextValidateDetails(ctx c
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -301,6 +307,7 @@ SearchOrganizationEntitlementsDefaultBodyDetailsItems0 search organization entit
 swagger:model SearchOrganizationEntitlementsDefaultBodyDetailsItems0
 */
 type SearchOrganizationEntitlementsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -312,6 +319,7 @@ type SearchOrganizationEntitlementsDefaultBodyDetailsItems0 struct {
 func (o *SearchOrganizationEntitlementsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -349,6 +357,7 @@ func (o *SearchOrganizationEntitlementsDefaultBodyDetailsItems0) UnmarshalJSON(d
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o SearchOrganizationEntitlementsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -412,6 +421,7 @@ SearchOrganizationEntitlementsOKBody search organization entitlements OK body
 swagger:model SearchOrganizationEntitlementsOKBody
 */
 type SearchOrganizationEntitlementsOKBody struct {
+
 	// entitlements
 	Entitlements []*SearchOrganizationEntitlementsOKBodyEntitlementsItems0 `json:"entitlements"`
 }
@@ -471,7 +481,9 @@ func (o *SearchOrganizationEntitlementsOKBody) ContextValidate(ctx context.Conte
 }
 
 func (o *SearchOrganizationEntitlementsOKBody) contextValidateEntitlements(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Entitlements); i++ {
+
 		if o.Entitlements[i] != nil {
 
 			if swag.IsZero(o.Entitlements[i]) { // not required
@@ -487,6 +499,7 @@ func (o *SearchOrganizationEntitlementsOKBody) contextValidateEntitlements(ctx c
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -515,6 +528,7 @@ SearchOrganizationEntitlementsOKBodyEntitlementsItems0 OrganizationEntitlement c
 swagger:model SearchOrganizationEntitlementsOKBodyEntitlementsItems0
 */
 type SearchOrganizationEntitlementsOKBodyEntitlementsItems0 struct {
+
 	// Entitlement number.
 	Number string `json:"number,omitempty"`
 
@@ -633,6 +647,7 @@ func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) ContextValidate
 }
 
 func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) contextValidatePlatform(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Platform != nil {
 
 		if swag.IsZero(o.Platform) { // not required
@@ -675,6 +690,7 @@ SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform Platform indicate
 swagger:model SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform
 */
 type SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform struct {
+
 	// Flag indicates that security advisors are covered by this entitlement.
 	SecurityAdvisor *string `json:"security_advisor,omitempty"`
 

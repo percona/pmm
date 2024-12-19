@@ -7,11 +7,10 @@
 package common
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -151,15 +150,12 @@ func file_common_common_proto_rawDescGZIP() []byte {
 	return file_common_common_proto_rawDescData
 }
 
-var (
-	file_common_common_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-	file_common_common_proto_goTypes  = []any{
-		(*StringArray)(nil), // 0: common.StringArray
-		(*StringMap)(nil),   // 1: common.StringMap
-		nil,                 // 2: common.StringMap.ValuesEntry
-	}
-)
-
+var file_common_common_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_common_common_proto_goTypes = []any{
+	(*StringArray)(nil), // 0: common.StringArray
+	(*StringMap)(nil),   // 1: common.StringMap
+	nil,                 // 2: common.StringMap.ValuesEntry
+}
 var file_common_common_proto_depIdxs = []int32{
 	2, // 0: common.StringMap.values:type_name -> common.StringMap.ValuesEntry
 	1, // [1:1] is the sub-list for method output_type

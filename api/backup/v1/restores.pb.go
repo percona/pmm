@@ -7,15 +7,14 @@
 package backupv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -720,24 +719,21 @@ func file_backup_v1_restores_proto_rawDescGZIP() []byte {
 	return file_backup_v1_restores_proto_rawDescData
 }
 
-var (
-	file_backup_v1_restores_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_backup_v1_restores_proto_msgTypes  = make([]protoimpl.MessageInfo, 7)
-	file_backup_v1_restores_proto_goTypes   = []any{
-		(RestoreStatus)(0),                    // 0: backup.v1.RestoreStatus
-		(*RestoreHistoryItem)(nil),            // 1: backup.v1.RestoreHistoryItem
-		(*ListRestoresRequest)(nil),           // 2: backup.v1.ListRestoresRequest
-		(*ListRestoresResponse)(nil),          // 3: backup.v1.ListRestoresResponse
-		(*RestoreServiceGetLogsRequest)(nil),  // 4: backup.v1.RestoreServiceGetLogsRequest
-		(*RestoreServiceGetLogsResponse)(nil), // 5: backup.v1.RestoreServiceGetLogsResponse
-		(*RestoreBackupRequest)(nil),          // 6: backup.v1.RestoreBackupRequest
-		(*RestoreBackupResponse)(nil),         // 7: backup.v1.RestoreBackupResponse
-		(DataModel)(0),                        // 8: backup.v1.DataModel
-		(*timestamppb.Timestamp)(nil),         // 9: google.protobuf.Timestamp
-		(*LogChunk)(nil),                      // 10: backup.v1.LogChunk
-	}
-)
-
+var file_backup_v1_restores_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_backup_v1_restores_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_backup_v1_restores_proto_goTypes = []any{
+	(RestoreStatus)(0),                    // 0: backup.v1.RestoreStatus
+	(*RestoreHistoryItem)(nil),            // 1: backup.v1.RestoreHistoryItem
+	(*ListRestoresRequest)(nil),           // 2: backup.v1.ListRestoresRequest
+	(*ListRestoresResponse)(nil),          // 3: backup.v1.ListRestoresResponse
+	(*RestoreServiceGetLogsRequest)(nil),  // 4: backup.v1.RestoreServiceGetLogsRequest
+	(*RestoreServiceGetLogsResponse)(nil), // 5: backup.v1.RestoreServiceGetLogsResponse
+	(*RestoreBackupRequest)(nil),          // 6: backup.v1.RestoreBackupRequest
+	(*RestoreBackupResponse)(nil),         // 7: backup.v1.RestoreBackupResponse
+	(DataModel)(0),                        // 8: backup.v1.DataModel
+	(*timestamppb.Timestamp)(nil),         // 9: google.protobuf.Timestamp
+	(*LogChunk)(nil),                      // 10: backup.v1.LogChunk
+}
 var file_backup_v1_restores_proto_depIdxs = []int32{
 	8,  // 0: backup.v1.RestoreHistoryItem.data_model:type_name -> backup.v1.DataModel
 	0,  // 1: backup.v1.RestoreHistoryItem.status:type_name -> backup.v1.RestoreStatus

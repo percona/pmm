@@ -104,6 +104,7 @@ func (o *GetFailedChecksOK) GetPayload() *GetFailedChecksOKBody {
 }
 
 func (o *GetFailedChecksOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetFailedChecksOKBody)
 
 	// response payload
@@ -177,6 +178,7 @@ func (o *GetFailedChecksDefault) GetPayload() *GetFailedChecksDefaultBody {
 }
 
 func (o *GetFailedChecksDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetFailedChecksDefaultBody)
 
 	// response payload
@@ -192,6 +194,7 @@ GetFailedChecksDefaultBody get failed checks default body
 swagger:model GetFailedChecksDefaultBody
 */
 type GetFailedChecksDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -257,7 +260,9 @@ func (o *GetFailedChecksDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *GetFailedChecksDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -273,6 +278,7 @@ func (o *GetFailedChecksDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -301,6 +307,7 @@ GetFailedChecksDefaultBodyDetailsItems0 get failed checks default body details i
 swagger:model GetFailedChecksDefaultBodyDetailsItems0
 */
 type GetFailedChecksDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -312,6 +319,7 @@ type GetFailedChecksDefaultBodyDetailsItems0 struct {
 func (o *GetFailedChecksDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -349,6 +357,7 @@ func (o *GetFailedChecksDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) err
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetFailedChecksDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -412,6 +421,7 @@ GetFailedChecksOKBody get failed checks OK body
 swagger:model GetFailedChecksOKBody
 */
 type GetFailedChecksOKBody struct {
+
 	// Total number of results.
 	TotalItems int32 `json:"total_items,omitempty"`
 
@@ -477,7 +487,9 @@ func (o *GetFailedChecksOKBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *GetFailedChecksOKBody) contextValidateResults(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Results); i++ {
+
 		if o.Results[i] != nil {
 
 			if swag.IsZero(o.Results[i]) { // not required
@@ -493,6 +505,7 @@ func (o *GetFailedChecksOKBody) contextValidateResults(ctx context.Context, form
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -521,6 +534,7 @@ GetFailedChecksOKBodyResultsItems0 CheckResult represents the check results for 
 swagger:model GetFailedChecksOKBodyResultsItems0
 */
 type GetFailedChecksOKBodyResultsItems0 struct {
+
 	// summary
 	Summary string `json:"summary,omitempty"`
 

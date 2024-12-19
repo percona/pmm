@@ -7,14 +7,13 @@
 package backupv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -933,25 +932,22 @@ func file_backup_v1_locations_proto_rawDescGZIP() []byte {
 	return file_backup_v1_locations_proto_rawDescData
 }
 
-var (
-	file_backup_v1_locations_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
-	file_backup_v1_locations_proto_goTypes  = []any{
-		(*FilesystemLocationConfig)(nil),   // 0: backup.v1.FilesystemLocationConfig
-		(*S3LocationConfig)(nil),           // 1: backup.v1.S3LocationConfig
-		(*Location)(nil),                   // 2: backup.v1.Location
-		(*ListLocationsRequest)(nil),       // 3: backup.v1.ListLocationsRequest
-		(*ListLocationsResponse)(nil),      // 4: backup.v1.ListLocationsResponse
-		(*AddLocationRequest)(nil),         // 5: backup.v1.AddLocationRequest
-		(*AddLocationResponse)(nil),        // 6: backup.v1.AddLocationResponse
-		(*ChangeLocationRequest)(nil),      // 7: backup.v1.ChangeLocationRequest
-		(*ChangeLocationResponse)(nil),     // 8: backup.v1.ChangeLocationResponse
-		(*RemoveLocationRequest)(nil),      // 9: backup.v1.RemoveLocationRequest
-		(*RemoveLocationResponse)(nil),     // 10: backup.v1.RemoveLocationResponse
-		(*TestLocationConfigRequest)(nil),  // 11: backup.v1.TestLocationConfigRequest
-		(*TestLocationConfigResponse)(nil), // 12: backup.v1.TestLocationConfigResponse
-	}
-)
-
+var file_backup_v1_locations_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_backup_v1_locations_proto_goTypes = []any{
+	(*FilesystemLocationConfig)(nil),   // 0: backup.v1.FilesystemLocationConfig
+	(*S3LocationConfig)(nil),           // 1: backup.v1.S3LocationConfig
+	(*Location)(nil),                   // 2: backup.v1.Location
+	(*ListLocationsRequest)(nil),       // 3: backup.v1.ListLocationsRequest
+	(*ListLocationsResponse)(nil),      // 4: backup.v1.ListLocationsResponse
+	(*AddLocationRequest)(nil),         // 5: backup.v1.AddLocationRequest
+	(*AddLocationResponse)(nil),        // 6: backup.v1.AddLocationResponse
+	(*ChangeLocationRequest)(nil),      // 7: backup.v1.ChangeLocationRequest
+	(*ChangeLocationResponse)(nil),     // 8: backup.v1.ChangeLocationResponse
+	(*RemoveLocationRequest)(nil),      // 9: backup.v1.RemoveLocationRequest
+	(*RemoveLocationResponse)(nil),     // 10: backup.v1.RemoveLocationResponse
+	(*TestLocationConfigRequest)(nil),  // 11: backup.v1.TestLocationConfigRequest
+	(*TestLocationConfigResponse)(nil), // 12: backup.v1.TestLocationConfigResponse
+}
 var file_backup_v1_locations_proto_depIdxs = []int32{
 	0,  // 0: backup.v1.Location.filesystem_config:type_name -> backup.v1.FilesystemLocationConfig
 	1,  // 1: backup.v1.Location.s3_config:type_name -> backup.v1.S3LocationConfig

@@ -290,6 +290,7 @@ func (m *UpdateRoleRequest) validate(all bool) error {
 	}
 
 	if m.Title != nil {
+
 		if utf8.RuneCountInString(m.GetTitle()) < 1 {
 			err := UpdateRoleRequestValidationError{
 				field:  "Title",
@@ -300,6 +301,7 @@ func (m *UpdateRoleRequest) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
+
 	}
 
 	if m.Filter != nil {

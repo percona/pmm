@@ -104,6 +104,7 @@ func (o *RestoreBackupOK) GetPayload() *RestoreBackupOKBody {
 }
 
 func (o *RestoreBackupOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(RestoreBackupOKBody)
 
 	// response payload
@@ -177,6 +178,7 @@ func (o *RestoreBackupDefault) GetPayload() *RestoreBackupDefaultBody {
 }
 
 func (o *RestoreBackupDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(RestoreBackupDefaultBody)
 
 	// response payload
@@ -192,6 +194,7 @@ RestoreBackupBody restore backup body
 swagger:model RestoreBackupBody
 */
 type RestoreBackupBody struct {
+
 	// Service identifier where backup should be restored.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -257,6 +260,7 @@ RestoreBackupDefaultBody restore backup default body
 swagger:model RestoreBackupDefaultBody
 */
 type RestoreBackupDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -322,7 +326,9 @@ func (o *RestoreBackupDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *RestoreBackupDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -338,6 +344,7 @@ func (o *RestoreBackupDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -366,6 +373,7 @@ RestoreBackupDefaultBodyDetailsItems0 restore backup default body details items0
 swagger:model RestoreBackupDefaultBodyDetailsItems0
 */
 type RestoreBackupDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -377,6 +385,7 @@ type RestoreBackupDefaultBodyDetailsItems0 struct {
 func (o *RestoreBackupDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -414,6 +423,7 @@ func (o *RestoreBackupDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o RestoreBackupDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -477,6 +487,7 @@ RestoreBackupOKBody restore backup OK body
 swagger:model RestoreBackupOKBody
 */
 type RestoreBackupOKBody struct {
+
 	// Unique restore identifier.
 	RestoreID string `json:"restore_id,omitempty"`
 }

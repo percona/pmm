@@ -7,12 +7,11 @@
 package qanv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -626,21 +625,18 @@ func file_qan_v1_profile_proto_rawDescGZIP() []byte {
 	return file_qan_v1_profile_proto_rawDescData
 }
 
-var (
-	file_qan_v1_profile_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-	file_qan_v1_profile_proto_goTypes  = []any{
-		(*GetReportRequest)(nil),      // 0: qan.v1.GetReportRequest
-		(*ReportMapFieldEntry)(nil),   // 1: qan.v1.ReportMapFieldEntry
-		(*GetReportResponse)(nil),     // 2: qan.v1.GetReportResponse
-		(*Row)(nil),                   // 3: qan.v1.Row
-		(*Metric)(nil),                // 4: qan.v1.Metric
-		(*Stat)(nil),                  // 5: qan.v1.Stat
-		nil,                           // 6: qan.v1.Row.MetricsEntry
-		(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
-		(*Point)(nil),                 // 8: qan.v1.Point
-	}
-)
-
+var file_qan_v1_profile_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_qan_v1_profile_proto_goTypes = []any{
+	(*GetReportRequest)(nil),      // 0: qan.v1.GetReportRequest
+	(*ReportMapFieldEntry)(nil),   // 1: qan.v1.ReportMapFieldEntry
+	(*GetReportResponse)(nil),     // 2: qan.v1.GetReportResponse
+	(*Row)(nil),                   // 3: qan.v1.Row
+	(*Metric)(nil),                // 4: qan.v1.Metric
+	(*Stat)(nil),                  // 5: qan.v1.Stat
+	nil,                           // 6: qan.v1.Row.MetricsEntry
+	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(*Point)(nil),                 // 8: qan.v1.Point
+}
 var file_qan_v1_profile_proto_depIdxs = []int32{
 	7, // 0: qan.v1.GetReportRequest.period_start_from:type_name -> google.protobuf.Timestamp
 	7, // 1: qan.v1.GetReportRequest.period_start_to:type_name -> google.protobuf.Timestamp

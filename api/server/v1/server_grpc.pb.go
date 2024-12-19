@@ -8,7 +8,6 @@ package serverv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -194,35 +193,27 @@ type UnimplementedServerServiceServer struct{}
 func (UnimplementedServerServiceServer) Version(context.Context, *VersionRequest) (*VersionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
 }
-
 func (UnimplementedServerServiceServer) Readiness(context.Context, *ReadinessRequest) (*ReadinessResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Readiness not implemented")
 }
-
 func (UnimplementedServerServiceServer) LeaderHealthCheck(context.Context, *LeaderHealthCheckRequest) (*LeaderHealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LeaderHealthCheck not implemented")
 }
-
 func (UnimplementedServerServiceServer) CheckUpdates(context.Context, *CheckUpdatesRequest) (*CheckUpdatesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckUpdates not implemented")
 }
-
 func (UnimplementedServerServiceServer) ListChangeLogs(context.Context, *ListChangeLogsRequest) (*ListChangeLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListChangeLogs not implemented")
 }
-
 func (UnimplementedServerServiceServer) StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartUpdate not implemented")
 }
-
 func (UnimplementedServerServiceServer) UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateStatus not implemented")
 }
-
 func (UnimplementedServerServiceServer) GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSettings not implemented")
 }
-
 func (UnimplementedServerServiceServer) ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeSettings not implemented")
 }

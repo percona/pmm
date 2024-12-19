@@ -103,6 +103,7 @@ func (o *ReadinessOK) GetPayload() interface{} {
 }
 
 func (o *ReadinessOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -174,6 +175,7 @@ func (o *ReadinessDefault) GetPayload() *ReadinessDefaultBody {
 }
 
 func (o *ReadinessDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ReadinessDefaultBody)
 
 	// response payload
@@ -189,6 +191,7 @@ ReadinessDefaultBody readiness default body
 swagger:model ReadinessDefaultBody
 */
 type ReadinessDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -254,7 +257,9 @@ func (o *ReadinessDefaultBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *ReadinessDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -270,6 +275,7 @@ func (o *ReadinessDefaultBody) contextValidateDetails(ctx context.Context, forma
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -382,6 +388,7 @@ ReadinessDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protoco
 swagger:model ReadinessDefaultBodyDetailsItems0
 */
 type ReadinessDefaultBodyDetailsItems0 struct {
+
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -420,6 +427,7 @@ type ReadinessDefaultBodyDetailsItems0 struct {
 func (o *ReadinessDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent
@@ -484,6 +492,7 @@ func (o *ReadinessDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ReadinessDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// A URL/resource name that uniquely identifies the type of the serialized
 		// protocol buffer message. This string must contain at least
 		// one "/" character. The last segment of the URL's path must represent

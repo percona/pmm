@@ -8,7 +8,6 @@ package inventoryv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -147,23 +146,18 @@ type UnimplementedAgentsServiceServer struct{}
 func (UnimplementedAgentsServiceServer) ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
 }
-
 func (UnimplementedAgentsServiceServer) GetAgent(context.Context, *GetAgentRequest) (*GetAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAgent not implemented")
 }
-
 func (UnimplementedAgentsServiceServer) GetAgentLogs(context.Context, *GetAgentLogsRequest) (*GetAgentLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAgentLogs not implemented")
 }
-
 func (UnimplementedAgentsServiceServer) AddAgent(context.Context, *AddAgentRequest) (*AddAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAgent not implemented")
 }
-
 func (UnimplementedAgentsServiceServer) ChangeAgent(context.Context, *ChangeAgentRequest) (*ChangeAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeAgent not implemented")
 }
-
 func (UnimplementedAgentsServiceServer) RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveAgent not implemented")
 }

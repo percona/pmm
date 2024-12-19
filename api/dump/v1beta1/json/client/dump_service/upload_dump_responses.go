@@ -103,6 +103,7 @@ func (o *UploadDumpOK) GetPayload() interface{} {
 }
 
 func (o *UploadDumpOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -174,6 +175,7 @@ func (o *UploadDumpDefault) GetPayload() *UploadDumpDefaultBody {
 }
 
 func (o *UploadDumpDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(UploadDumpDefaultBody)
 
 	// response payload
@@ -189,6 +191,7 @@ UploadDumpBody upload dump body
 swagger:model UploadDumpBody
 */
 type UploadDumpBody struct {
+
 	// dump ids
 	DumpIds []string `json:"dump_ids"`
 
@@ -244,6 +247,7 @@ func (o *UploadDumpBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *UploadDumpBody) contextValidateSftpParameters(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.SftpParameters != nil {
 
 		if swag.IsZero(o.SftpParameters) { // not required
@@ -286,6 +290,7 @@ UploadDumpDefaultBody upload dump default body
 swagger:model UploadDumpDefaultBody
 */
 type UploadDumpDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -351,7 +356,9 @@ func (o *UploadDumpDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *UploadDumpDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -367,6 +374,7 @@ func (o *UploadDumpDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -395,6 +403,7 @@ UploadDumpDefaultBodyDetailsItems0 upload dump default body details items0
 swagger:model UploadDumpDefaultBodyDetailsItems0
 */
 type UploadDumpDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -406,6 +415,7 @@ type UploadDumpDefaultBodyDetailsItems0 struct {
 func (o *UploadDumpDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -443,6 +453,7 @@ func (o *UploadDumpDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o UploadDumpDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -506,6 +517,7 @@ UploadDumpParamsBodySftpParameters upload dump params body sftp parameters
 swagger:model UploadDumpParamsBodySftpParameters
 */
 type UploadDumpParamsBodySftpParameters struct {
+
 	// address
 	Address string `json:"address,omitempty"`
 

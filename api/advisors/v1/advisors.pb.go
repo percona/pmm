@@ -7,16 +7,14 @@
 package advisorsv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
+	v1 "github.com/percona/pmm/api/management/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-
-	v1 "github.com/percona/pmm/api/management/v1"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -1548,36 +1546,33 @@ func file_advisors_v1_advisors_proto_rawDescGZIP() []byte {
 	return file_advisors_v1_advisors_proto_rawDescData
 }
 
-var (
-	file_advisors_v1_advisors_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-	file_advisors_v1_advisors_proto_msgTypes  = make([]protoimpl.MessageInfo, 20)
-	file_advisors_v1_advisors_proto_goTypes   = []any{
-		(AdvisorCheckInterval)(0),           // 0: advisors.v1.AdvisorCheckInterval
-		(AdvisorCheckFamily)(0),             // 1: advisors.v1.AdvisorCheckFamily
-		(*AdvisorCheckResult)(nil),          // 2: advisors.v1.AdvisorCheckResult
-		(*CheckResultSummary)(nil),          // 3: advisors.v1.CheckResultSummary
-		(*CheckResult)(nil),                 // 4: advisors.v1.CheckResult
-		(*AdvisorCheck)(nil),                // 5: advisors.v1.AdvisorCheck
-		(*Advisor)(nil),                     // 6: advisors.v1.Advisor
-		(*ChangeAdvisorCheckParams)(nil),    // 7: advisors.v1.ChangeAdvisorCheckParams
-		(*StartAdvisorChecksRequest)(nil),   // 8: advisors.v1.StartAdvisorChecksRequest
-		(*StartAdvisorChecksResponse)(nil),  // 9: advisors.v1.StartAdvisorChecksResponse
-		(*ListAdvisorChecksRequest)(nil),    // 10: advisors.v1.ListAdvisorChecksRequest
-		(*ListAdvisorChecksResponse)(nil),   // 11: advisors.v1.ListAdvisorChecksResponse
-		(*ListAdvisorsRequest)(nil),         // 12: advisors.v1.ListAdvisorsRequest
-		(*ListAdvisorsResponse)(nil),        // 13: advisors.v1.ListAdvisorsResponse
-		(*ChangeAdvisorChecksRequest)(nil),  // 14: advisors.v1.ChangeAdvisorChecksRequest
-		(*ChangeAdvisorChecksResponse)(nil), // 15: advisors.v1.ChangeAdvisorChecksResponse
-		(*ListFailedServicesRequest)(nil),   // 16: advisors.v1.ListFailedServicesRequest
-		(*ListFailedServicesResponse)(nil),  // 17: advisors.v1.ListFailedServicesResponse
-		(*GetFailedChecksRequest)(nil),      // 18: advisors.v1.GetFailedChecksRequest
-		(*GetFailedChecksResponse)(nil),     // 19: advisors.v1.GetFailedChecksResponse
-		nil,                                 // 20: advisors.v1.AdvisorCheckResult.LabelsEntry
-		nil,                                 // 21: advisors.v1.CheckResult.LabelsEntry
-		(v1.Severity)(0),                    // 22: management.v1.Severity
-	}
-)
-
+var file_advisors_v1_advisors_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_advisors_v1_advisors_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_advisors_v1_advisors_proto_goTypes = []any{
+	(AdvisorCheckInterval)(0),           // 0: advisors.v1.AdvisorCheckInterval
+	(AdvisorCheckFamily)(0),             // 1: advisors.v1.AdvisorCheckFamily
+	(*AdvisorCheckResult)(nil),          // 2: advisors.v1.AdvisorCheckResult
+	(*CheckResultSummary)(nil),          // 3: advisors.v1.CheckResultSummary
+	(*CheckResult)(nil),                 // 4: advisors.v1.CheckResult
+	(*AdvisorCheck)(nil),                // 5: advisors.v1.AdvisorCheck
+	(*Advisor)(nil),                     // 6: advisors.v1.Advisor
+	(*ChangeAdvisorCheckParams)(nil),    // 7: advisors.v1.ChangeAdvisorCheckParams
+	(*StartAdvisorChecksRequest)(nil),   // 8: advisors.v1.StartAdvisorChecksRequest
+	(*StartAdvisorChecksResponse)(nil),  // 9: advisors.v1.StartAdvisorChecksResponse
+	(*ListAdvisorChecksRequest)(nil),    // 10: advisors.v1.ListAdvisorChecksRequest
+	(*ListAdvisorChecksResponse)(nil),   // 11: advisors.v1.ListAdvisorChecksResponse
+	(*ListAdvisorsRequest)(nil),         // 12: advisors.v1.ListAdvisorsRequest
+	(*ListAdvisorsResponse)(nil),        // 13: advisors.v1.ListAdvisorsResponse
+	(*ChangeAdvisorChecksRequest)(nil),  // 14: advisors.v1.ChangeAdvisorChecksRequest
+	(*ChangeAdvisorChecksResponse)(nil), // 15: advisors.v1.ChangeAdvisorChecksResponse
+	(*ListFailedServicesRequest)(nil),   // 16: advisors.v1.ListFailedServicesRequest
+	(*ListFailedServicesResponse)(nil),  // 17: advisors.v1.ListFailedServicesResponse
+	(*GetFailedChecksRequest)(nil),      // 18: advisors.v1.GetFailedChecksRequest
+	(*GetFailedChecksResponse)(nil),     // 19: advisors.v1.GetFailedChecksResponse
+	nil,                                 // 20: advisors.v1.AdvisorCheckResult.LabelsEntry
+	nil,                                 // 21: advisors.v1.CheckResult.LabelsEntry
+	(v1.Severity)(0),                    // 22: management.v1.Severity
+}
 var file_advisors_v1_advisors_proto_depIdxs = []int32{
 	22, // 0: advisors.v1.AdvisorCheckResult.severity:type_name -> management.v1.Severity
 	20, // 1: advisors.v1.AdvisorCheckResult.labels:type_name -> advisors.v1.AdvisorCheckResult.LabelsEntry

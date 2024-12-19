@@ -89,7 +89,7 @@ type ExporterOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c *ExporterOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c ExporterOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *ExporterOptions) Scan(src interface{}) error { return jsonScan(c, src) }
@@ -103,7 +103,7 @@ type QANOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c *QANOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c QANOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *QANOptions) Scan(src interface{}) error { return jsonScan(c, src) }
@@ -117,10 +117,17 @@ type AWSOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c *AWSOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c AWSOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *AWSOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+func (c AWSOptions) IsEmpty() bool {
+	return c.AWSAccessKey == "" &&
+		c.AWSSecretKey == "" &&
+		!c.RDSBasicMetricsDisabled &&
+		!c.RDSEnhancedMetricsDisabled
+}
 
 // AzureOptions represents structure for special Azure options.
 type AzureOptions struct {
@@ -132,10 +139,18 @@ type AzureOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c *AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+func (c AzureOptions) IsEmpty() bool {
+	return c.SubscriptionID == "" &&
+		c.ClientID == "" &&
+		c.ClientSecret == "" &&
+		c.TenantID == "" &&
+		c.ResourceGroup == ""
+}
 
 // MongoDBOptions represents structure for special MongoDB options.
 type MongoDBOptions struct {
@@ -150,10 +165,21 @@ type MongoDBOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c *MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *MongoDBOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+func (c MongoDBOptions) IsEmpty() bool {
+	return c.TLSCertificateKey == "" &&
+		c.TLSCertificateKeyFilePassword == "" &&
+		c.TLSCa == "" &&
+		c.AuthenticationMechanism == "" &&
+		c.AuthenticationDatabase == "" &&
+		len(c.StatsCollections) == 0 &&
+		c.CollectionsLimit == 0 &&
+		!c.EnableAllCollectors
+}
 
 // MySQLOptions represents structure for special MySQL options.
 type MySQLOptions struct {
@@ -172,10 +198,18 @@ type MySQLOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c *MySQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c MySQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *MySQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+func (c MySQLOptions) IsEmpty() bool {
+	return c.TLSCa == "" &&
+		c.TLSCert == "" &&
+		c.TLSKey == "" &&
+		c.TableCount == nil &&
+		c.TableCountTablestatsGroupLimit == 0
+}
 
 // PostgreSQLOptions represents structure for special PostgreSQL options.
 type PostgreSQLOptions struct {
@@ -189,10 +223,20 @@ type PostgreSQLOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c *PostgreSQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c PostgreSQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *PostgreSQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+func (c PostgreSQLOptions) IsEmpty() bool {
+	return c.SSLCa == "" &&
+		c.SSLCert == "" &&
+		c.SSLKey == "" &&
+		c.AutoDiscoveryLimit == nil &&
+		c.DatabaseCount == 0 &&
+		c.PGSMVersion == nil &&
+		c.MaxExporterConnections == 0
+}
 
 // PMMAgentWithPushMetricsSupport - version of pmmAgent,
 // that support vmagent and push metrics mode
@@ -227,14 +271,14 @@ type Agent struct {
 
 	LogLevel *string `reform:"log_level"`
 
-	ExporterOptions *ExporterOptions `reform:"exporter_options"`
-	QANOptions      *QANOptions      `reform:"qan_options"`
+	ExporterOptions ExporterOptions `reform:"exporter_options"`
+	QANOptions      QANOptions      `reform:"qan_options"`
 
-	AWSOptions        *AWSOptions        `reform:"aws_options"`
-	AzureOptions      *AzureOptions      `reform:"azure_options"`
-	MongoDBOptions    *MongoDBOptions    `reform:"mongo_options"`
-	MySQLOptions      *MySQLOptions      `reform:"mysql_options"`
-	PostgreSQLOptions *PostgreSQLOptions `reform:"postgresql_options"`
+	AWSOptions        AWSOptions        `reform:"aws_options"`
+	AzureOptions      AzureOptions      `reform:"azure_options"`
+	MongoDBOptions    MongoDBOptions    `reform:"mongo_options"`
+	MySQLOptions      MySQLOptions      `reform:"mysql_options"`
+	PostgreSQLOptions PostgreSQLOptions `reform:"postgresql_options"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

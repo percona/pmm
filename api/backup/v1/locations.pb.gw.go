@@ -24,14 +24,12 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_LocationsService_ListLocations_0(ctx context.Context, marshaler runtime.Marshaler, client LocationsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListLocationsRequest
@@ -39,6 +37,7 @@ func request_LocationsService_ListLocations_0(ctx context.Context, marshaler run
 
 	msg, err := client.ListLocations(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_LocationsService_ListLocations_0(ctx context.Context, marshaler runtime.Marshaler, server LocationsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -47,6 +46,7 @@ func local_request_LocationsService_ListLocations_0(ctx context.Context, marshal
 
 	msg, err := server.ListLocations(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_LocationsService_AddLocation_0(ctx context.Context, marshaler runtime.Marshaler, client LocationsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -59,6 +59,7 @@ func request_LocationsService_AddLocation_0(ctx context.Context, marshaler runti
 
 	msg, err := client.AddLocation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_LocationsService_AddLocation_0(ctx context.Context, marshaler runtime.Marshaler, server LocationsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -71,6 +72,7 @@ func local_request_LocationsService_AddLocation_0(ctx context.Context, marshaler
 
 	msg, err := server.AddLocation(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_LocationsService_ChangeLocation_0(ctx context.Context, marshaler runtime.Marshaler, client LocationsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -100,6 +102,7 @@ func request_LocationsService_ChangeLocation_0(ctx context.Context, marshaler ru
 
 	msg, err := client.ChangeLocation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_LocationsService_ChangeLocation_0(ctx context.Context, marshaler runtime.Marshaler, server LocationsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -129,9 +132,12 @@ func local_request_LocationsService_ChangeLocation_0(ctx context.Context, marsha
 
 	msg, err := server.ChangeLocation(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
-var filter_LocationsService_RemoveLocation_0 = &utilities.DoubleArray{Encoding: map[string]int{"location_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var (
+	filter_LocationsService_RemoveLocation_0 = &utilities.DoubleArray{Encoding: map[string]int{"location_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+)
 
 func request_LocationsService_RemoveLocation_0(ctx context.Context, marshaler runtime.Marshaler, client LocationsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RemoveLocationRequest
@@ -163,6 +169,7 @@ func request_LocationsService_RemoveLocation_0(ctx context.Context, marshaler ru
 
 	msg, err := client.RemoveLocation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_LocationsService_RemoveLocation_0(ctx context.Context, marshaler runtime.Marshaler, server LocationsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -195,6 +202,7 @@ func local_request_LocationsService_RemoveLocation_0(ctx context.Context, marsha
 
 	msg, err := server.RemoveLocation(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_LocationsService_TestLocationConfig_0(ctx context.Context, marshaler runtime.Marshaler, client LocationsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -207,6 +215,7 @@ func request_LocationsService_TestLocationConfig_0(ctx context.Context, marshale
 
 	msg, err := client.TestLocationConfig(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_LocationsService_TestLocationConfig_0(ctx context.Context, marshaler runtime.Marshaler, server LocationsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -219,6 +228,7 @@ func local_request_LocationsService_TestLocationConfig_0(ctx context.Context, ma
 
 	msg, err := server.TestLocationConfig(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterLocationsServiceHandlerServer registers the http handlers for service LocationsService to "mux".
@@ -227,6 +237,7 @@ func local_request_LocationsService_TestLocationConfig_0(ctx context.Context, ma
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterLocationsServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterLocationsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server LocationsServiceServer) error {
+
 	mux.Handle("GET", pattern_LocationsService_ListLocations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -249,6 +260,7 @@ func RegisterLocationsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		}
 
 		forward_LocationsService_ListLocations_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_LocationsService_AddLocation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -273,6 +285,7 @@ func RegisterLocationsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		}
 
 		forward_LocationsService_AddLocation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("PUT", pattern_LocationsService_ChangeLocation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -297,6 +310,7 @@ func RegisterLocationsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		}
 
 		forward_LocationsService_ChangeLocation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("DELETE", pattern_LocationsService_RemoveLocation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -321,6 +335,7 @@ func RegisterLocationsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		}
 
 		forward_LocationsService_RemoveLocation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_LocationsService_TestLocationConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -345,6 +360,7 @@ func RegisterLocationsServiceHandlerServer(ctx context.Context, mux *runtime.Ser
 		}
 
 		forward_LocationsService_TestLocationConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -387,6 +403,7 @@ func RegisterLocationsServiceHandler(ctx context.Context, mux *runtime.ServeMux,
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "LocationsServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterLocationsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client LocationsServiceClient) error {
+
 	mux.Handle("GET", pattern_LocationsService_ListLocations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -406,6 +423,7 @@ func RegisterLocationsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		}
 
 		forward_LocationsService_ListLocations_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_LocationsService_AddLocation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -427,6 +445,7 @@ func RegisterLocationsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		}
 
 		forward_LocationsService_AddLocation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("PUT", pattern_LocationsService_ChangeLocation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -448,6 +467,7 @@ func RegisterLocationsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		}
 
 		forward_LocationsService_ChangeLocation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("DELETE", pattern_LocationsService_RemoveLocation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -469,6 +489,7 @@ func RegisterLocationsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		}
 
 		forward_LocationsService_RemoveLocation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_LocationsService_TestLocationConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -490,6 +511,7 @@ func RegisterLocationsServiceHandlerClient(ctx context.Context, mux *runtime.Ser
 		}
 
 		forward_LocationsService_TestLocationConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
