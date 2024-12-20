@@ -5638,6 +5638,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../release-notes/2.44.0.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PMM 2.44.0
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../release-notes/2.43.2.html" class="md-nav__link">
         
   
@@ -7471,7 +7492,7 @@
 <li><code>--service-id=service-id</code>: Service ID.</li>
 <li><code>--force</code>: Remove service with that name or ID and all dependent services and agents.</li>
 </ul>
-<p>Note: When you remove a service, collected data remains on PMM Server for the specified <a href="../../faq.html#retention">retention period</a>.</p>
+<p>Note: When you remove a service, collected data remains on PMM Server for the specified <a href="../../faq.html">retention period</a>.</p>
 </div>
 <div class="tabbed-block">
 <p>Annotate an event. (<a href="../../how-to/annotate.html">Read more</a>)</p>
@@ -7621,9 +7642,13 @@
 <p>This command adds MongoDB to PMM monitoring with only the default collectors enabled. It&rsquo;s the simplest way to start monitoring a MongoDB instance without enabling additional collectors.</p>
 </div>
 <div class="tabbed-block">
+<div class="admonition caution alert alert-warning">
+<p class="admonition-title">Warning</p>
+</div>
+<p>Before using <code>--enable-all-collectors</code> with MongoDB Service, be aware that the MongoDB exporter&rsquo;s memory usage may increase significantly when monitoring MongoDB clusters, especially with sharding and multiple collections. If you frequently create new collections or work with many collections, disable the <code>collstats</code>collector to prevent memory consumption issues.</p>
 <p>To enable all collectors, pass the parameter <code>--enable-all-collectors</code> in the <code>pmm-admin add mongodb</code> command.
 This will enable <code>collstats</code>, <code>dbstats</code>, <code>indexstats</code>, <code>topmetrics</code>, <code>currentopmetrics</code> and <code>fcv</code> collectors.</p>
-<p>Examples:</p>
+<p>Examples: </p>
 <ol>
 <li>
 <p>To add MongoDB with all collectors (<code>diagnosticdata</code>, <code>replicasetstatus</code>, <code>collstats</code>, <code>dbstats</code>, <code>indexstats</code>, <code>currentopmetrics</code>, <code>topmetrics</code> and <code>fcv</code>) with default limit detected by PMM (currently &lt;=200 collections, but subject to change):</p>
@@ -7686,7 +7711,7 @@ This will enable <code>collstats</code>, <code>dbstats</code>, <code>indexstats<
 </div>
 <div class="tabbed-block">
 <p>To enable only some collectors, pass the parameter <code>--enable-all-collectors</code> along with the parameter <code>--disable-collectors</code>.</p>
-<p>Examples:</p>
+<p>Examples: </p>
 <ol>
 <li>
 <p>If you want all collectors except <code>topmetrics</code>, specify  <code>--enable-all-collectors --disable-collectors=topmetrics</code></p>
@@ -8129,7 +8154,7 @@ Agents:
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-19
+    2024-12-20
   </span>
 
     
