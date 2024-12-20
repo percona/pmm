@@ -24,7 +24,7 @@ Before starting the upgrade, complete these preparation steps to ensure you can 
 
     ```sh
     # Replace <version> with the latest PMM version
-    docker pull perconalab/pmm-server:3.0.0-beta
+    docker pull percona/pmm-server:3
     ```
 
 ## Upgrade steps

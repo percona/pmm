@@ -7,7 +7,7 @@ To run Docker with the host directory:
 1. Pull the image:
 
     ```sh
-    docker pull perconalab/pmm-server:3.0.0-beta
+    docker pull percona/pmm-server:3
     ```
 
 2. Run the image:
@@ -20,7 +20,7 @@ To run Docker with the host directory:
     --volumes-from pmm-data \
     --network=pmm_default \
     --name pmm-server \
-    perconalab/pmm-server:3.0.0-beta
+    percona/pmm-server:3
     ```
 
 3. Change the password for the default `admin` user:

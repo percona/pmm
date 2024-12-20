@@ -7,7 +7,7 @@ To run Docker with volume:
 1. Pull the image:
 
     ```sh
-    docker pull perconalab/pmm-server:3.0.0-beta
+    docker pull percona/pmm-server:3
     ```
 
 2. Create a volume:
@@ -26,7 +26,7 @@ To run Docker with volume:
     --volumes-from pmm-data \
     --network=pmm_default \
     --name pmm-server \
-    perconalab/pmm-server:3.0.0-beta
+    percona/pmm-server:3
     ```
 
 4. Change the password for the default `admin` user, replacing `your_secure_password123` with a strong, unique password:
