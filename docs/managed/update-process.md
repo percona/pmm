@@ -10,7 +10,7 @@ This performs the following actions:
 
 **Notes**
 - `pmm-update` does not handle rollbacks in case of errors
-- `pmm-update` requires root priveleges to run
+- `pmm-update` requires root privileges to run
 
 ## Testing a custom pmm-update build
 

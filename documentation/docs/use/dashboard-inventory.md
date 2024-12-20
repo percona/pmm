@@ -25,7 +25,7 @@ The **Services** tab displays the individual services, the nodes on which they r
 
 #### Attributes
 
-These are some of the atributes for a service:
+These are some of the attributes for a service:
 
 - Each instance of a service gets a `service_type` attribute so one can clearly tell what type of database it is, for instance: `mysql`, `postgresql`, `mongodb`, etc. 
 
@@ -92,7 +92,7 @@ Editing existing labels can impact the following PMM functions:
 
     Update the alert rules promptly after editing the labels for a smooth alerting experience.
 
-- **Scheduled backup**s: Editing the cluster label will remove all scheduled backups for the imapcted service or cluster.
+- **Scheduled backup**s: Editing the cluster label will remove all scheduled backups for the impacted service or cluster.
 
     To prevent any issues, make sure to recreate your backups once you've configured the cluster.
 

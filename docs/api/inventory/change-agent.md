@@ -10,7 +10,7 @@ This section describes how to change Agent attributes.
 
 > 📘 Info
 > 
-> Not all attrbutes can be chaged. For example, you cannot change the Agent type nor its ID.
+> Not all attributes can be changed. For example, you cannot change the Agent type nor its ID.
 
 In PMM versions prior to 3.0.0, we featured a separate API call for each Agent type. Starting with PMM 3.0.0, we have streamlined the process by offering a single API endpoint for all Agent types. 
 
