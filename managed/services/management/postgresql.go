@@ -72,7 +72,7 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 			AgentPassword: req.AgentPassword,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				ExposeExporter:     req.ExposeExporter,
 				PushMetrics:        isPushMode(req.MetricsMode),
 				DisabledCollectors: req.DisableCollectors,
@@ -113,7 +113,7 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 				ServiceID:  service.ServiceID,
 				Username:   req.Username,
 				Password:   req.Password,
-				QANOptions: &models.QANOptions{
+				QANOptions: models.QANOptions{
 					MaxQueryLength:          req.MaxQueryLength,
 					QueryExamplesDisabled:   req.DisableQueryExamples,
 					CommentsParsingDisabled: req.DisableCommentsParsing,
@@ -142,7 +142,7 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 				Password:      req.Password,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
-				QANOptions: &models.QANOptions{
+				QANOptions: models.QANOptions{
 					MaxQueryLength:          req.MaxQueryLength,
 					QueryExamplesDisabled:   req.DisableQueryExamples,
 					CommentsParsingDisabled: req.DisableCommentsParsing,

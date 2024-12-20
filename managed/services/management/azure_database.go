@@ -277,7 +277,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 			Password:      req.Password,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
-			MySQLOptions: &models.MySQLOptions{
+			MySQLOptions: models.MySQLOptions{
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 			},
 		})
@@ -303,7 +303,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 				Password:      req.Password,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
-				QANOptions: &models.QANOptions{
+				QANOptions: models.QANOptions{
 					QueryExamplesDisabled: req.DisableQueryExamples,
 				},
 			})

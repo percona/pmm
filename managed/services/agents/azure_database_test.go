@@ -59,7 +59,7 @@ func TestAzureExporterConfig(t *testing.T) {
 		AgentType: models.AzureDatabaseExporterType,
 		NodeID:    &node1.NodeID,
 		ServiceID: &service1.ServiceID,
-		AzureOptions: &models.AzureOptions{
+		AzureOptions: models.AzureOptions{
 			ClientID:       "azure_database_client_id",
 			ClientSecret:   "azure_database_client_secret",
 			TenantID:       "azure_database_tenant_id",

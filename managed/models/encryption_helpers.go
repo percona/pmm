@@ -60,7 +60,7 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 	}
 
 	var err error
-	if agent.AWSOptions != nil {
+	if !agent.AWSOptions.IsEmpty() {
 		agent.AWSOptions.AWSAccessKey, err = handler(agent.AWSOptions.AWSAccessKey)
 		if err != nil {
 			logrus.Warning(err)
@@ -72,7 +72,7 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 		}
 	}
 
-	if agent.AzureOptions != nil {
+	if !agent.AzureOptions.IsEmpty() {
 		agent.AzureOptions.ClientID, err = handler(agent.AzureOptions.ClientID)
 		if err != nil {
 			logrus.Warning(err)
@@ -91,7 +91,7 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 		}
 	}
 
-	if agent.MongoDBOptions != nil {
+	if !agent.MongoDBOptions.IsEmpty() {
 		agent.MongoDBOptions.TLSCertificateKey, err = handler(agent.MongoDBOptions.TLSCertificateKey)
 		if err != nil {
 			logrus.Warning(err)
@@ -102,7 +102,7 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 		}
 	}
 
-	if agent.MySQLOptions != nil {
+	if !agent.MySQLOptions.IsEmpty() {
 		agent.MySQLOptions.TLSCert, err = handler(agent.MySQLOptions.TLSCert)
 		if err != nil {
 			logrus.Warning(err)
@@ -113,7 +113,7 @@ func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
 		}
 	}
 
-	if agent.PostgreSQLOptions != nil {
+	if !agent.PostgreSQLOptions.IsEmpty() {
 		agent.PostgreSQLOptions.SSLCert, err = handler(agent.PostgreSQLOptions.SSLCert)
 		if err != nil {
 			logrus.Warning(err)
