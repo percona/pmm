@@ -59,7 +59,6 @@ Run the example codes below in a `mongo` session to:
             pwd: "pmm",
             roles: [
                 { role: "explainRole", db: "admin" },
-                { role: "clusterMonitor", db: "admin" },
                 { role: "read", db: "local" },
                 { "db" : "admin", "role" : "readWrite", "collection": "" },
                 { "db" : "admin", "role" : "backup" },
