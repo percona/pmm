@@ -149,7 +149,7 @@ jobs:
       - name: Check spelling of md files
         uses: crate-ci/typos@9d890159570d5018df91fedfa40b4730cd4a81b1 # v1.28.4
         with:
-          files: "**/*.md"
+          files: "**/*.md documentation/**/*.md"
 
   merge-gatekeeper:
     needs: [ check, typos_check ]
