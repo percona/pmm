@@ -47,13 +47,13 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
     5. Pull PMM 3 Server image:
 
         ```sh
-        docker pull perconalab/pmm-server:3.0.0-beta
+        docker pull percona/pmm-server:3
         ```
 
     6. Run new container with existing volume:
    
         ```sh
-        docker run -d -v pmm-server-data:/srv -p 443:8443 --name pmm-server --restart always perconalab/pmm-server:3.0.0-beta
+        docker run -d -v pmm-server-data:/srv -p 443:8443 --name pmm-server --restart always percona/pmm-server:3
         ```
 
 === "PMM 2 with data container"
@@ -96,13 +96,13 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
     5. Pull PMM 3 Server image:
    
         ```sh
-        docker pull perconalab/pmm-server:3.0.0-beta
+        docker pull percona/pmm-server:3
         ``` 
 
     6. Run new container with existing data container:
 
         ```sh
-        docker run -d --volumes-from pmm-server-data -p 443:8443 --name pmm-server --restart always perconalab/pmm-server:3.0.0-beta
+        docker run -d --volumes-from pmm-server-data -p 443:8443 --name pmm-server --restart always percona/pmm-server:3
         ``` 
 
 ## Step 3: Migrate PMM 2 Clients to PMM 3

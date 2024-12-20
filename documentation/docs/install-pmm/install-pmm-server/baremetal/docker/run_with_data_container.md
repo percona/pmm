@@ -9,7 +9,7 @@ To run Docker with data container:
     ```sh
     docker create --volume /srv \
     --name pmm-data \
-    perconalab/pmm-server:3.0.0-beta /bin/true
+    percona/pmm-server:3 /bin/true
     ```
 
     !!! caution alert alert-warning "Important"
@@ -38,7 +38,7 @@ To run Docker with data container:
     --volumes-from pmm-data \
     --network=pmm_default \
     --name pmm-server \
-    perconalab/pmm-server:3.0.0-beta
+    percona/pmm-server:3
     ```
 
 4. Change the password for the default `admin` user, replacing `your_secure_password123` with a strong, unique password:

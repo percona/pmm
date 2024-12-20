@@ -20,7 +20,7 @@ For container-based installation, if your certificates are in a directory called
 ```sh
 docker run -d -p 443:443 --volumes-from pmm-data \
   --name pmm-server -v /etc/pmm-certs:/srv/nginx \
-  --restart always perconalab/pmm-server:3.0.0-beta
+  --restart always percona/pmm-server:3
 ```
 
 !!! note alert alert-primary ""
@@ -66,7 +66,7 @@ docker run \
 -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
 -v /your_directory_with/certs:/etc/pki/tls/certs \
 --volumes-from pmm-client-data \
-percona/pmm-client:2
+percona/pmm-client:3
 ```
 
 
