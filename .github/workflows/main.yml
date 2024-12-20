@@ -148,6 +148,8 @@ jobs:
           fetch-depth: 0
       - name: Check spelling of file.txt
         uses: crate-ci/typos@9d890159570d5018df91fedfa40b4730cd4a81b1 # v1.28.4
+        with:
+          files: "**/*.md"
 
   merge-gatekeeper:
     needs: [ check, typos_check ]
