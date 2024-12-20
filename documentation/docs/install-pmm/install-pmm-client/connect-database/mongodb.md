@@ -53,29 +53,29 @@ Run the example codes below in a `mongo` session to:
             "roles": []
          });
 
-=== "Ceate/update user and assign created roles"
+=== "Create/update user and assign created roles"
         db.getSiblingDB("admin").createUser({
             user: "pmm",
             pwd: "pmm",
             roles: [
-                { role: "explainRole", db: "admin" },
-                { role: "read", db: "local" },
-                { "db" : "admin", "role" : "readWrite", "collection": "" },
-                { "db" : "admin", "role" : "backup" },
-                { "db" : "admin", "role" : "clusterMonitor" },
-                { "db" : "admin", "role" : "restore" },
-                { "db" : "admin", "role" : "pbmAnyAction" }
+                { db: "admin", role: "explainRole" },
+                { db: "local", role: "read" },
+                { db: "admin", role: "readWrite", collection: "" },
+                { db: "admin", role: "backup" },
+                { db: "admin", role: "clusterMonitor" },
+                { db: "admin", role: "restore" },
+                { db: "admin", role: "pbmAnyAction" }
             ]
         })
         db.getSiblingDB("admin").updateUser("pmm", {
         roles: [
-            { role: "explainRole", db: "admin" },
-            { role: "read", db: "local" },
-            { "db" : "admin", "role" : "readWrite", "collection": "" },
-            { "db" : "admin", "role" : "backup" },
-            { "db" : "admin", "role" : "clusterMonitor" },
-            { "db" : "admin", "role" : "restore" },
-            { "db" : "admin", "role" : "pbmAnyAction" }
+            { db: "admin", role: "explainRole" },
+            { db: "local", role: "read" },
+            { db: "admin", role: "readWrite", collection: "" },
+            { db: "admin", role: "backup" },
+            { db: "admin", role: "clusterMonitor" },
+            { db: "admin", role: "restore" },
+            { db: "admin", role: "pbmAnyAction" }
         ]
         })
 
@@ -240,7 +240,7 @@ where:
 
 ### From the user interface
 
-To check the servie from the UI:
+To check the service from the UI:
 {.power-number}
 
 1. Select  **PMM Configuration > Inventory > MongoDB**.
