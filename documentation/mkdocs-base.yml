@@ -1,0 +1,429 @@
+# MkDocs configuration
+# Used as base - look for .yml files with INHERIT
+# https://www.mkdocs.org/user-guide/configuration/
+
+site_name: Percona Monitoring and Management
+site_description: Documentation
+site_author: Percona LLC
+site_url: ""
+use_directory_urls: false
+repo_name: percona/pmm
+repo_url: https://github.com/percona/pmm/
+edit_uri: edit/v3/documentation/docs/
+
+theme:
+  name: material
+  custom_dir: overrides
+  logo: assets/pmm-mark.svg
+  favicon: assets/pmm-fav.svg
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    edit: material/file-edit-outline
+    view: material/file-eye-outline
+
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Color theme set to Automatic. Click to change
+    - media: "(prefers-color-scheme: light)"
+      scheme: percona-light
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Color theme set to Light Mode. Click to change
+    - media: "(prefers-color-scheme: dark)"
+      scheme: percona-dark
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Color theme set to Dark Mode. Click to change
+
+  # Theme features
+
+  features:
+    - search.highlight
+    - navigation.top
+    - content.tabs.link
+    - content.code.copy
+    - navigation.tracking
+    - content.action.edit
+    - content.action.view
+
+extra_css:
+  - https://unicons.iconscout.com/release/v3.0.3/css/line.css
+  - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
+  - css/extra.css
+  - css/nocopy.css
+  - css/design.css
+  - css/osano.css
+  - css/pmm.css
+
+extra_javascript:
+  - js/promptremover.js
+  - js/consent.js
+  - js/version-select.js
+
+markdown_extensions:
+  attr_list: {}
+  toc:
+    permalink: true
+  admonition: {}
+  footnotes: {}
+  def_list: {}
+  meta: {}
+  md_in_html: {}
+  smarty:
+      smart_angled_quotes: true
+  pymdownx.details: {}
+  pymdownx.mark: {}
+  pymdownx.smartsymbols: {}
+  pymdownx.tilde: {}
+  pymdownx.superfences: {}
+  pymdownx.tabbed:
+    alternate_style: true
+  pymdownx.tasklist:
+    custom_checkbox: true
+  pymdownx.snippets:
+      base_path: ["snippets"]
+      auto_append:
+        - services-banner.md
+  pymdownx.highlight:
+    use_pygments: true
+  pymdownx.emoji:
+    emoji_index: !!python/name:material.extensions.emoji.twemoji
+    emoji_generator: !!python/name:material.extensions.emoji.to_svg
+    options:
+      custom_icons:
+        - overrides/.icons
+
+plugins:
+  search:
+    separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  git-revision-date: {}
+  meta-descriptions:
+    export_csv: false
+    quiet: false
+    enable_checks: false
+    min_length: 50
+    max_length: 160
+  # https://mkdocs-macros-plugin.readthedocs.io/en/latest/
+  macros:
+    include_yaml:
+      - "variables.yml"
+  # https://pypi.org/project/mkdocs-exclude/
+  exclude:
+    glob:
+      - "setting-up/client/docker.md"
+  mike:
+    version_selector: true
+    css_dir: css
+    javascript_dir: js
+    canonical_version: null
+
+extra:
+  version:
+    provider: mike
+  edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
+  updated_text: '<i class="uil uil-refresh"></i> Page updated'
+
+# Common navigation for percona.com, render.com and PDF
+nav:
+  - Home: index.md  
+  - Discover:
+    - discover-pmm/why-pmm.md
+    - discover-pmm/features.md
+  - Quickstart guide: quickstart.md
+  - Install:
+    - install-pmm/index.md
+    - Plan your PMM installation: 
+      - install-pmm/plan-pmm-installation/hardware_and_system.md
+      - install-pmm/plan-pmm-installation/network_and_firewall.md
+    - Install PMM in HA mode: install-pmm/HA.md  
+    - Install PMM Server:
+      - install-pmm/install-pmm-server/index.md
+      - install-pmm/install-pmm-server/prerequisites.md
+      - Bare metal:
+        - Docker:
+          - install-pmm/install-pmm-server/baremetal/docker/easy-install.md  
+          - install-pmm/install-pmm-server/baremetal/docker/index.md
+          - install-pmm/install-pmm-server/baremetal/docker/run_with_vol.md
+          - install-pmm/install-pmm-server/baremetal/docker/run_with_data_container.md
+          - install-pmm/install-pmm-server/baremetal/docker/run_with_host_dir.md      
+          - install-pmm/install-pmm-server/baremetal/docker/backup_container.md      
+          - install-pmm/install-pmm-server/baremetal/docker/restore_container.md      
+          - install-pmm/install-pmm-server/baremetal/docker/remove_container.md      
+          - install-pmm/install-pmm-server/baremetal/docker/env_var.md      
+          - install-pmm/install-pmm-server/baremetal/docker/preview_env_var.md      
+          - install-pmm/install-pmm-server/baremetal/docker/isolated_hosts.md        
+        - Podman:
+          - install-pmm/install-pmm-server/baremetal/podman/index.md
+          - install-pmm/install-pmm-server/baremetal/podman/backup_container_podman.md
+          - install-pmm/install-pmm-server/baremetal/podman/restore_container_podman.md
+          - install-pmm/install-pmm-server/baremetal/podman/remove_container_podman.md
+        - Virtual Applinace:
+          - install-pmm/install-pmm-server/baremetal/virtual/index.md
+          - install-pmm/install-pmm-server/baremetal/virtual/download_ova.md
+          - install-pmm/install-pmm-server/baremetal/virtual/vmware.md
+          - install-pmm/install-pmm-server/baremetal/virtual/virtualbox.md
+          - install-pmm/install-pmm-server/baremetal/virtual/login_UI.md
+          - install-pmm/install-pmm-server/baremetal/virtual/remove_virtual_machine.md
+      - Helm: 
+        - install-pmm/install-pmm-server/baremetal/helm/index.md
+        - install-pmm/install-pmm-server/baremetal/helm/backup_container_helm.md
+        - install-pmm/install-pmm-server/baremetal/helm/restore_container_helm.md            
+      - AWS Marketplace:
+        - install-pmm/install-pmm-server/aws/aws.md
+        - install-pmm/install-pmm-server/aws/limit_access.md
+        - install-pmm/install-pmm-server/aws/settings.md
+        - install-pmm/install-pmm-server/aws/run.md
+        - install-pmm/install-pmm-server/aws/back_pmm_server.md
+        - install-pmm/install-pmm-server/aws/restore_pmm_server.md
+        - install-pmm/install-pmm-server/aws/remove_pmm_server.md
+    - Set up PMM Client:
+      - Install PMM Client:
+        - install-pmm/install-pmm-client/index.md
+        - install-pmm/install-pmm-client/prerequisites.md
+        - Percona repositories: install-pmm/install-pmm-client/package_manager.md          
+        - Images: install-pmm/install-pmm-client/docker.md
+        - Manual binaries: install-pmm/install-pmm-client/binary_package.md          
+        - Register Client node: install-pmm/register-client-node/index.md 
+        - Add services to PMM: 
+          - install-pmm/install-pmm-client/connect-database/index.md
+          - MySQL: install-pmm/install-pmm-client/connect-database/mysql.md
+          - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
+          - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
+          - AWS: install-pmm/install-pmm-client/connect-database/aws.md
+          - Azure: install-pmm/install-pmm-client/connect-database/azure.md
+          - Google Cloud: install-pmm/install-pmm-client/connect-database/google.md
+          - Linux: install-pmm/install-pmm-client/connect-database/linux.md
+          - Remote: install-pmm/install-pmm-client/connect-database/remote.md
+          - External:
+            - install-pmm/install-pmm-client/connect-database/external.md
+            - HAproxy: install-pmm/install-pmm-client/connect-database/haproxy.md
+            - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
+        - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
+
+  - Upgrade: 
+    - Upgrade PMM Server: 
+      - pmm-upgrade/index.md
+      - pmm-upgrade/ui_upgrade.md
+      - Manual upgrade:     
+        - pmm-upgrade/upgrade_docker.md
+        - pmm-upgrade/upgrade_podman.md
+      - Upgrade PMM Server in K8s: 
+        - pmm-upgrade/upgrade_helm.md
+      - pmm-upgrade/migrating_from_pmm_2.md
+      - pmm-upgrade/upgrade_aws.md
+    - Upgrade PMM Client:       
+      - pmm-upgrade/upgrade_client.md
+
+  - Uninstall:
+    - Uninstall PMM Client: 
+      - Docker: uninstall-pmm/uninstall_docker.md
+      - Helm: uninstall-pmm/uninstall_helm.md 
+      - Package manager: uninstall-pmm/uninstall_package_manager.md
+    - uninstall-pmm/unregister_client.md
+
+  - Use:
+    - use/using-pmm.md
+    - PMM user interface:
+      - reference/ui/ui_components.md  
+      - reference/ui/log_in.md
+      - reference/ui/timezone.md
+    - PMM Inventory: use/dashboard-inventory.md
+    - Metrics monitoring: 
+      - use/monitor.md
+      - PMM metrics: 
+        - use/metrics/index.md
+        - use/metrics/extend_metrics.md
+      - Optimize:
+        - optimize/improve_perf.md
+        - optimize/disable_table_stats.md
+        - optimize/change_number_tables.md
+      - Dashboards:
+        - use/dashboards-panels/index.md
+        - Manage dashboards:
+          - use/dashboards-panels/manage-dashboards/create-folders.md
+          - use/dashboards-panels/manage-dashboards/manage-folders.md
+          - use/dashboard-panels/set-custom-dashboard
+        - Share dashboards and panels: use/dashboards-panels/share-dashboards/share_dashboard.md
+        - Annotate: use/dashboards-panels/annotate/annotate.md              
+
+    - Query Analytics:
+      - use/qan/index.md
+      - use/qan/qan_mongo.md
+      - use/qan/share_link.md
+      - Panels on QAN dashboard:
+        - use/qan/panels/overview.md
+        - use/qan/panels/filters.md
+        - use/qan/panels/details.md
+    - Advisors:
+      - advisors/advisors.md
+      - advisors/advisor-details.md 
+      - advisors/develop-advisor-checks.md
+    - Percona Alerting:
+      - alert/index.md
+      - alert/alert_rules.md
+      - alert/alert_notifications.md
+      - alert/templates_list.md
+      - alert/silence_alerts.md
+    - Backup and restore: 
+      - backup/index.md
+      - backup/prepare_storage_location.md
+      - MongoDB backups:
+        - backup/mongodb-backup/backup_mongo.md
+        - backup/mongodb-backup/mongo_prerequisites.md
+        - backup/mongodb-backup/create_mongo_on_demand.md
+        - backup/mongodb-backup/create_PITR_mongo.md
+        - backup/mongodb-backup/restore_MongoDB_backups.md
+        - backup/mongodb-backup/mongodb_limitations.md
+      - MySQL backups:
+        - backup/mysql-backup/mysql_prerequisites.md
+        - backup/mysql-backup/backup_mysql.md
+        - backup/mysql-backup/create_mysql_backup.md
+        - backup/mysql-backup/restore_mysql_backup.md
+      - backup/edit_scheduled.md
+      - backup/delete_a_backup.md
+    - PMM commands:
+      - use/commands/index.md
+      - use/commands/pmm-admin.md
+      - use/commands/pmm-agent.md
+  - Configure:      
+    - configure-pmm/configure.md
+    - configure-pmm/metrics_res.md
+    - configure-pmm/advanced_settings.md
+    - configure-pmm/ssh.md
+    - Security in PMM:
+      - pmm-admin/security/index.md
+      - pmm-admin/security/ssl_encryption.md 
+      - pmm-admin/security/grafana_cookies.md  
+      - pmm-admin/security/data_encryption.md  
+    - Percona Platform:
+      - configure-pmm/percona_platform/integrate_with_percona_platform.md
+      - configure-pmm/percona_platform/check_percona_platform.md
+  - Administer:
+    - pmm-admin/index.md
+    - Manage users:
+      - pmm-admin/manage-users/index.md
+      - pmm-admin/manage-users/add_users.md
+      - pmm-admin/manage-users/edit_users.md
+      - pmm-admin/manage-users/delete_users.md
+    - Roles and permissions:
+      - pmm-admin/roles/index.md
+      - Access Control:
+        - pmm-admin/roles/access-control/intro.md
+        - pmm-admin/roles/access-control/labels.md
+        - pmm-admin/roles/access-control/config_access_cntrl.md
+        - pmm-admin/roles/access-control/create_roles.md
+        - pmm-admin/roles/access-control/manage_roles.md
+        - pmm-admin/roles/access-control/assign_roles.md
+        - pmm-admin/roles/access-control/usecase.md
+
+
+  - Troubleshoot:
+    - troubleshoot/index.md
+    - troubleshoot/checklist.md
+    - troubleshoot/upgrade_issues.md
+    - troubleshoot/config_issues.md
+    - troubleshoot/alerting_issues.md
+    - troubleshoot/qan_issues.md
+    - troubleshoot/plugin_issues.md
+    - troubleshoot/pmm_dump.md
+
+  - Release notes:
+    - Release notes index: release-notes/index.md
+    - "PMM 3.0.0-BETA (2024-11-22)": release-notes/3.0.0_Beta.md
+  
+  - Reference: 
+    - Architecture:
+      - reference/index.md
+      - Third-party components in PMM: 
+        - reference/third-party/victoria.md
+        - reference/third-party/clickhouse.md
+        - reference/third-party/postgresql.md
+      - reference/pmm_components_and_versions.md
+      - reference/personal_data_handling.md
+      - PMM API:
+        - api/index.md
+        - api/authentication.md
+      
+    - PMM dashboards:
+      - Insight:
+        - reference/dashboards/dashboard-home.md
+        - reference/dashboards/dashboard-advanced-data-exploration.md
+        - reference/dashboards/dashboard-victoriametrics.md
+        - reference/dashboards/dashboard-victoriametrics-agents-overview.md
+      - Environments:
+        - reference/dashboards/dashboard-env-overview.md
+        - reference/dashboards/dashboard-environent-summary.md
+      - Kubernetes:
+        - reference/dashboards/kubernetes_cluster_summary.md
+        - reference/dashboards/kubernetes_monitor_operators.md
+        - reference/dashboards/kubernetes_monitor_db_clusters_managed.md
+      - OS Dashboards:
+        - reference/dashboards/dashboard-cpu-utilization-details.md
+        - reference/dashboards/dashboard-disk-details.md
+        - reference/dashboards/dashboard-network-details.md
+        - reference/dashboards/dashboard-memory-details.md
+        - reference/dashboards/dashboard-node-temperature-details.md
+        - reference/dashboards/dashboard-nodes-compare.md
+        - reference/dashboards/dashboard-nodes-overview.md
+        - reference/dashboards/dashboard-node-summary.md
+        - reference/dashboards/dashboard-numa-details.md
+        - reference/dashboards/dashboard-processes-details.md
+      - Prometheus dashboards:
+        - reference/dashboards/dashboard-prometheus-exporter-status.md
+        - reference/dashboards/dashboard-prometheus-exporters-overview.md
+      - MySQL dashboards:
+        - reference/dashboards/dashboard-mysql-amazon-aurora-details.md
+        - reference/dashboards/dashboard-mysql-command-handler-counters-compare.md
+        - reference/dashboards/dashboard-mysql-innodb-compression-details.md
+        - reference/dashboards/dashboard-mysql-innodb-details.md
+        - reference/dashboards/dashboard-mysql-myisam-aria-details.md
+        - reference/dashboards/dashboard-mysql-myrocks-details.md
+        - reference/dashboards/dashboard-mysql-instance-summary.md
+        - reference/dashboards/dashboard-mysql-instances-compare.md
+        - reference/dashboards/dashboard-mysql-instances-overview.md
+        - reference/dashboards/dashboard-mysql-wait-event-analyses-details.md
+        - reference/dashboards/dashboard-mysql-performance-schema-details.md
+        - reference/dashboards/dashboard-mysql-query-response-time-details.md
+        - reference/dashboards/dashboard-mysql-replication-summary.md
+        - reference/dashboards/dashboard-mysql-group-replication-summary.md
+        - reference/dashboards/dashboard-mysql-table-details.md
+        - reference/dashboards/dashboard-mysql-user-details.md
+        - reference/dashboards/dashboard-mysql-tokudb-details.md
+      - MongoDB dashboards:
+        - reference/dashboards/dashboard-mongodb-experimental_collection_overview.md
+        - reference/dashboards/dashboard-mongodb-experimental_collection_details.md
+        - reference/dashboards/dashboard-mongodb-experimental_oplog.md
+        - reference/dashboards/dashboard-mongodb-cluster-summary.md
+        - reference/dashboards/dashboard-mongodb-instance-summary.md
+        - reference/dashboards/dashboard-mongodb-instances-overview.md
+        - reference/dashboards/dashboard-mongodb-instances-compare.md
+        - reference/dashboards/dashboard-mongodb-replset-summary.md
+        - reference/dashboards/dashboard-mongodb-inmemory-details.md
+        - reference/dashboards/dashboard-mongodb-mmapv1-details.md
+        - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
+      - PostgreSQL dashboards:
+        - reference/dashboards/dashboard-postgresql-instances-overview.md
+        - reference/dashboards/dashboard-postgresql-instance-summary.md
+        - reference/dashboards/dashboard-postgresql-instances-compare.md
+        - reference/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.md
+      - ProxySQL dashboards:
+        - reference/dashboards/dashboard-proxysql-instance-summary.md
+      - HA dashboards:
+        - reference/dashboards/dashboard-pxc-galera-node-summary.md
+        - reference/dashboards/dashboard-pxc-galera-cluster-summary.md
+        - reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
+        - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
+        - reference/dashboards/dashboard-haproxy-instance-summary.md
+
+    -  reference/glossary.md
+    -  reference/faq.md
+    -  reference/trademark-policy.md
+    -  reference/copyright.md

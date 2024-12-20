@@ -80,11 +80,11 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 		config.Instances = append(config.Instances, rdsInstance{
 			Region:                 pointer.GetString(node.Region),
 			Instance:               node.Address,
-			AWSAccessKey:           pointer.GetString(exporter.AWSAccessKey),
-			AWSSecretKey:           pointer.GetString(exporter.AWSSecretKey),
+			AWSAccessKey:           exporter.AWSOptions.AWSAccessKey,
+			AWSSecretKey:           exporter.AWSOptions.AWSSecretKey,
 			Labels:                 labels,
-			DisableBasicMetrics:    exporter.RDSBasicMetricsDisabled,
-			DisableEnhancedMetrics: exporter.RDSEnhancedMetricsDisabled,
+			DisableBasicMetrics:    exporter.AWSOptions.RDSBasicMetricsDisabled,
+			DisableEnhancedMetrics: exporter.AWSOptions.RDSEnhancedMetricsDisabled,
 		})
 
 		if redactMode != exposeSecrets {

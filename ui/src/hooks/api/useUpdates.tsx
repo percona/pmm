@@ -12,6 +12,7 @@ import {
   StartUpdateResponse,
 } from 'types/updates.types';
 import { AxiosError } from 'axios';
+import { ApiError } from 'types/api.types';
 
 export const useCheckUpdates = (
   options?: UseQueryOptions<GetUpdatesResponse>
@@ -36,7 +37,7 @@ export const useCheckUpdates = (
   });
 
 export const useStartUpdate = (
-  options?: UseMutationOptions<StartUpdateResponse, unknown, StartUpdateBody>
+  options?: UseMutationOptions<StartUpdateResponse, ApiError, StartUpdateBody>
 ) =>
   useMutation({
     mutationFn: (args) => startUpdate(args),
