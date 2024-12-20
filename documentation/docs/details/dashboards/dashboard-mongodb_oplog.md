@@ -2,4 +2,4 @@
 
 This realtime dashboard contains Oplog details such as Recovery Window, Processing Time, Buffer Capacity, and Oplog Operations.
 
-![!image](../../images/Mongodb_Oplog.png)
+![Updated Oplog Details dashboard](../../images/Oplog_Details.png)

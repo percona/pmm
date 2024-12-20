@@ -213,7 +213,7 @@ PMM communicates with the PMM Server via a PMM agent process.
     - `--service-id=service-id`: Service ID.
     - `--force`: Remove service with that name or ID and all dependent services and agents.
 
-    Note: When you remove a service, collected data remains on PMM Server for the specified [retention period](../../faq.md#retention).
+    Note: When you remove a service, collected data remains on PMM Server for the specified [retention period](../../faq.md).
 
 === "pmm-admin annotate"
 
@@ -337,7 +337,7 @@ MongoDB exporter includes the following collectors:
 - `topmetrics`
 - `currentop`: This only collects operations running for longer than one minute and ignores operations in the admin and local databases.
 - `fcv` (Feature Compatibility Version)
-
+  
 ##### Advanced options
 
 PMM starts the MongoDB exporter by default only with `diagnosticdata` and `replicasetstatus` collectors enabled.
@@ -370,10 +370,13 @@ FLAGS:
 
 === "Enable all collectors"
 
+    !!! caution alert alert-warning "Warning"
+      Before using `--enable-all-collectors` with MongoDB Service, be aware that the MongoDB exporter's memory usage may increase significantly when monitoring MongoDB clusters, especially with sharding and multiple collections. If you frequently create new collections or work with many collections, disable the `collstats`collector to prevent memory consumption issues.
+     
     To enable all collectors, pass the parameter `--enable-all-collectors` in the `pmm-admin add mongodb` command.
     This will enable `collstats`, `dbstats`, `indexstats`, `topmetrics`, `currentopmetrics` and `fcv` collectors.
 
-    Examples:
+    Examples: 
 
     1. To add MongoDB with all collectors (`diagnosticdata`, `replicasetstatus`, `collstats`, `dbstats`, `indexstats`, `currentopmetrics`, `topmetrics` and `fcv`) with default limit detected by PMM (currently <=200 collections, but subject to change):
 
@@ -420,7 +423,7 @@ FLAGS:
         | `db2`    | **Only** for collection `col1` |
 
     5. Enable all collectors and limit monitoring for `dbstats`, `indexstats`, `collstats` and `topmetrics` for all collections in `db1` and `col1` collection in `db2`, without limiting `max-collections-limit` for a number of collections in `db1`:
-
+    
         ```
         pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 --stats-collections=db1,db2.col1 mongodb_srv_1 127.0.0.1:27017
         ```
@@ -428,7 +431,7 @@ FLAGS:
 
     To enable only some collectors, pass the parameter `--enable-all-collectors` along with the parameter `--disable-collectors`.
 
-    Examples:
+    Examples: 
 
     1.  If you want all collectors except `topmetrics`, specify  ```
     --enable-all-collectors --disable-collectors=topmetrics
@@ -612,7 +615,7 @@ In low resolution we collect metrics from collectors which could take some time:
 
     `--disable-queryexamples`
     : Disable collection of query examples. Applicable only if `query-source` is set to `pgstatmonitor`.
-
+    
     `--environment=<environment>`
     : Environment name.
 
