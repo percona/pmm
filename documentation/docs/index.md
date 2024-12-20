@@ -14,7 +14,7 @@ Percona Monitoring and Management (PMM) is an open source database observability
 
     Would you like to see a preview of our Home page? Take a look at our free, live [demo](https://pmmdemo.percona.com/).
 
-<div data-grid markdown><div data-banner markdown>
+<div class="no-pdf" data-grid markdown><div data-banner markdown>
 
 ## :material-telescope: Discover { .title }
 
@@ -33,7 +33,7 @@ Ready to dive into PMM? Follow our simple, step-by-step installation instruction
 
 </div><div data-banner markdown>
 
-## :fontawesome-solid-gear: Configure { .title }
+## :material-cog: Configure { .title }
 
 Are you ready to begin configuring PMM  but need help figuring out how to begin? Let's dive in together.
 
@@ -49,6 +49,3 @@ Looking for reliable and easy-to-use resources to tackle your daily challenges w
 
 </div>
 </div>
-
-
-
