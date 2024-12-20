@@ -20,16 +20,17 @@ doc-build:          ## Build documentation
 
 	mkdocs build -f $(DIR)/mkdocs.yml
 
-doc-build-pdf:			## Build documentation in PDF format
-	# @docker buildx build --platform=linux/amd64 --progress=plain -t perconalab/pmm-doc-md:latest -f documentation/resources/Dockerfile.build .
+doc-build-pdf:      ## Build documentation in PDF format
 	docker run --rm --platform=linux/amd64 -v $(DIR):/docs -w /build -e ENABLE_PDF_EXPORT=1 perconalab/pmm-doc-md:latest \
-		bash -c "
+		bash -c " \
 			cp -r /docs/* /build/ && \
-			ls -la /build && \
 			git init && \
 			git config user.email 'doc-team@percona.com' && \
 			git add --all && \
-			git commit -am 'Initial commit' && \
+			git commit -am 'Initial commit' > /dev/null && \
 			mkdocs build -f mkdocs-pdf.yml && \
-			cp /build/site/pdf/*.pdf /docs/
+			cp /build/site/pdf/*.pdf /docs/ \
 		"
+
+doc-build-image:    ## Build perconalab/pmm-doc-md:latest image
+	# @docker buildx build --platform=linux/amd64 --progress=plain -t perconalab/pmm-doc-md:latest -f documentation/resources/Dockerfile.build .
