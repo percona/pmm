@@ -146,10 +146,10 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
-      - name: Check spelling of file.txt
+      - name: Check spelling of md files
         uses: crate-ci/typos@9d890159570d5018df91fedfa40b4730cd4a81b1 # v1.28.4
         with:
-          files: "**/*.md"
+          files: ./**/*.md
 
   merge-gatekeeper:
     needs: [ check, typos_check ]
