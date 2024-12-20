@@ -60,7 +60,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 	}()
 
 	pmmAgentID := pointer.GetString(agent.PMMAgentID)
-	if !agent.PushMetrics && (service.ServiceType == models.ExternalServiceType || service.ServiceType == models.HAProxyServiceType) {
+	if !agent.ExporterOptions.PushMetrics && (service.ServiceType == models.ExternalServiceType || service.ServiceType == models.HAProxyServiceType) {
 		pmmAgentID = models.PMMServerAgentID
 	}
 
