@@ -41,7 +41,7 @@ $ curl --silent -X POST --netrc \
 {"id":2,"message":"User created"}
 ```
 
-This can be acheived with Ansible with a task such as:
+This can be achieved with Ansible with a task such as:
 ```yaml
 - name: Create a new user
   uri:
