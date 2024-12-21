@@ -8,6 +8,7 @@
 # development
 .modules/
 bin/
+!/documentation/resources/bin/
 dist/
 .env
 .netrc
