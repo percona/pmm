@@ -24,9 +24,6 @@ COPY entrypoint.sh /opt/entrypoint.sh
 COPY ansible /opt/ansible
 COPY gitCommit build.json /tmp/
 
-# COPY RPMS /tmp/RPMS
-# COPY pmm-client.tar.gz /tmp/
-
 RUN --mount=type=bind,source=RPMS,target=/tmp/RPMS \
     --mount=type=bind,source=pmm-client.tar.gz,target=/tmp/pmm-client.tar.gz \
     install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
