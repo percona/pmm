@@ -21,11 +21,11 @@ RUN microdnf -y install epel-release && \
                         dnf clean all && \
                         rm -rf /var/cache/dnf
 
-COPY entrypoint.sh ansible /opt/
-# COPY RPMS /tmp/RPMS
+COPY entrypoint.sh /opt/entrypoint.sh
+COPY ansible /opt/ansible
 COPY gitCommit build.json /tmp/
 
-# Use COPY as we want to unarchive it with ansible
+# COPY RPMS /tmp/RPMS
 # COPY pmm-client.tar.gz /tmp/
 
 RUN --mount=type=bind,source=RPMS,target=/tmp/RPMS \
@@ -41,8 +41,8 @@ LABEL org.opencontainers.image.licenses=AGPL-3.0
 LABEL org.opencontainers.image.title="Percona Monitoring and Management"
 LABEL org.opencontainers.image.vendor="Percona LLC"
 LABEL org.opencontainers.image.version=${VERSION}
-LABEL org.opencontainers.image.source=https://github.com/percona/pmm/blob/main/build/docker/server/Dockerfile.el9
-LABEL org.opencontainers.image.docs=https://docs.percona.com/percona-monitoring-and-management/setting-up/server/docker.html
+LABEL org.opencontainers.image.source=https://github.com/percona/pmm/blob/v3/build/docker/server/Dockerfile.el9
+LABEL org.opencontainers.image.docs=https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/baremetal/docker/index.html
 
 USER pmm
 
