@@ -41,7 +41,7 @@ def install_go():
     """Installs Go toolchain."""
 
     run_commands([
-        "curl -sS https://raw.githubusercontent.com/travis-ci/gimme/v1.5.5/gimme -o /usr/local/bin/gimme",
+        "curl -sS https://raw.githubusercontent.com/travis-ci/gimme/v1.5.6/gimme -o /usr/local/bin/gimme",
         "chmod +x /usr/local/bin/gimme"
     ])
 

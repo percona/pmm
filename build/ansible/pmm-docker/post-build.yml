@@ -61,7 +61,6 @@
         state: absent
       loop:
         - /srv/logs
-        - /tmp/RPMS
         - /var/log/dnf.log
         - /var/log/secure
         - /var/log/wtmp
