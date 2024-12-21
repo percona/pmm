@@ -79,7 +79,7 @@ while read -r item; do
   name=$(echo "$item" | jq -r '.name')
   url=$(echo "$item" | jq -r '.url'| sed 's:\.git::')
 
-  # Only run this block when we have a branch and if 'ci.yml' is not present or not empty  
+  # Only run this block if we have a branch and if 'ci.yml' is not present or not empty  
   if [ -n "${BRANCH_NAME:-}" ] && [ ! -s "ci.yml" ]; then
     commit=$(git ls-remote --heads "$url" "$BRANCH_NAME" | cut -f1)
     if [ -n "$commit" ]; then
