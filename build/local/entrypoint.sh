@@ -109,7 +109,7 @@ if [[ "${#discovered_branches[@]}" -gt 0 ]]; then
   echo "deps:" > "$discovered_file"
 
   for item in "${discovered_branches[@]}"; do
-    echo "$item" | IFS='|' read -r name branch path url
+    IFS='|' read -r name branch path url <<< "$item"
     echo "  - name: $name" >> "$discovered_file"
     echo "    branch: $branch" >> "$discovered_file"
     echo "    path: $path" >> "$discovered_file"
@@ -120,7 +120,7 @@ fi
 if [ ! -s "ci.yml" ]; then
   echo
   echo "Info: generating 'ci.yml'..."
-  cat "$discovered_file" > ci.yml
+  cat "$discovered_file" | tee ci.yml
 fi
 
 rm -f gitmodules.yml
