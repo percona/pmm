@@ -125,13 +125,15 @@ In some places, we have used variables themselves to solve the problem. In other
 
 ## Icons
 
-Currently, we have three different sources of icons:
+Currently, we use three different sets of icons:
 
 - Native Mkdocs Material icons and emojis
 - Iconscount Unicons
 - FontAwesome Icons
 
-The preference should be given to Material Theme Icons, since they were initially designed for `mkdocs` project and work very well with it. In rare cases, when an icon cannot be found in Mkdocs Material, you can find a suitable one on Iconscout. FontAwesome icons do not play well with Mkdocs, so use them with caution and don't forget to apply additional CSS styles in case they don't render well in PDF.
+The preference should be given to Mkdocs Material icons, since they were initially designed for `mkdocs` project and work very well with it. In rare cases, when an icon cannot be found in Mkdocs Material, you can find a suitable one on Iconscout. FontAwesome icons do not play well with Mkdocs, so use them with caution and don't forget to apply additional CSS styles in case they don't render well in PDF.
+
+Ideally, we should migrate to using just the two first sets.
 
 Use HTML for icons:
 

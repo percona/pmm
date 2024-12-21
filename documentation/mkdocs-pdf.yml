@@ -1,5 +1,5 @@
 # MkDocs configuration for PDF output
-# Usage: ENABLE_PDF_EXPORT=1 mkdocs build -f mkdocs-pdf.yml
+# Usage: mkdocs build -f mkdocs-pdf.yml
 INHERIT: mkdocs-base.yml
 
 plugins:
@@ -13,4 +13,3 @@ plugins:
     author: "Percona Technical Documentation Team"
     cover_logo: docs/images/Percona_Logo_Color.png
     custom_template_path: resources/templates
-    enabled_if_env: ENABLE_PDF_EXPORT

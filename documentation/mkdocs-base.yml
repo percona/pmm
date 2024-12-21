@@ -78,7 +78,7 @@ markdown_extensions:
   meta: {}
   md_in_html: {}
   smarty:
-      smart_angled_quotes: true
+    smart_angled_quotes: true
   pymdownx.details: {}
   pymdownx.mark: {}
   pymdownx.smartsymbols: {}
