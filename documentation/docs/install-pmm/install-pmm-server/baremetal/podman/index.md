@@ -166,7 +166,8 @@ On the other hand, the manual method offers a simpler setup with complete contro
     4. Go to `https://localhost:8443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
 
     For information on manually upgrading, see [Upgrade PMM Server using Podman](../../../../pmm-upgrade/upgrade_podman.md).
-=======
+
+
 ## Run as non-privileged user to start PMM
 
 ??? info "Summary"
