@@ -14,7 +14,7 @@ doc-check-images:   ## Check if all images are used in documentation
 doc-remove-images:  ## Remove unused images from documentation
 	@ACTION=remove $(DIR)/resources/bin/check-images.sh
 
-doc-build:          ## Build documentation
+doc-build:          ## Build documentation (used in CI)
 	# This command is used to build and deploy a preview to onrender.com
 	# Preview URL: https://pmm-doc.onrender.com
 
