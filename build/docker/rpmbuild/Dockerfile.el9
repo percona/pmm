@@ -56,9 +56,7 @@ RUN useradd builder -u 1000 -m -G users,wheel && \
     echo "builder ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers && \
     echo "# macros"                      >  /home/builder/.rpmmacros && \
     echo "%_topdir    /home/builder/rpm" >> /home/builder/.rpmmacros && \
-    mkdir -p /home/builder/{rpm,go/pkg} /home/builder/.cache/{go-build,yarn,dnf,go/pkg/mod} && \
-    ln -s /home/builder/.cache/go/pkg/mod /home/builder/go/pkg/mod && \
-    ln -s /home/builder/.cache/dnf /var/cache/dnf && \
+    mkdir -p /home/builder/{rpm,go/pkg} /home/builder/.cache/{go-build,yarn} && \
     chmod 755 /home/builder && \
     chown -R builder:builder /home/builder
 
