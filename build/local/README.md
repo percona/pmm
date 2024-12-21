@@ -18,10 +18,10 @@ The build process is designed to run on Linux or MacOS. We believe it could be a
 Below is a list of prerequisites that are required to build PMM locally.
 
 - OS: Linux (tested on Oracle Linux 9.3, Ubuntu 22.04.3 LTS), MacOS (tested on Sequoia 15.1)
-- Docker 25.0.2+
+- Docker 25.0.2+ (Note: Docker Desktop with Apple chip v4.37.0, v4.37.1 are incompatible)
 - Docker [buildx plugin](https://github.com/docker/buildx) 0.16.0+
-- make
 - bash
+- make
 - tar
 - git
 - curl
@@ -115,6 +115,7 @@ Currently, Local Builds target the following platforms and distributions:
 * do not require `ci.yml` to be present, generate it based on the current branch name of this (percona/pmm) repository ✅
 * output the build summary at the build completion
 * implement the `--release-build` parameter ✅
+* implement the `--release-no` parameter
 * implement the `--clean` parameter ✅
 * move the builds and the cache from the host to the container, fully isolating the build process
 * cache the `nomad` client component to speed up the builds
