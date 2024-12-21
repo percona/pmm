@@ -10,16 +10,15 @@ ENV PS1="[\u@\h \W] # "
 
 WORKDIR /opt
 
-RUN microdnf -y install epel-release && \
+RUN --mount=type=cache,target=/var/cache/dnf \
+    microdnf -y install epel-release && \
     microdnf -y install ansible-core \
                         ansible-collection-community-general \
                         ansible-collection-community-postgresql \
                         ansible-collection-ansible-posix \
                         glibc-langpack-en \
                         yum \
-                        vi && \
-                        dnf clean all && \
-                        rm -rf /var/cache/dnf
+                        vi
 
 COPY entrypoint.sh /opt/entrypoint.sh
 COPY ansible /opt/ansible

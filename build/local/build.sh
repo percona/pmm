@@ -320,12 +320,14 @@ purge_files() {
 check_volumes() {
   # Create docker volumes to persist package and build cache
   # Read more in the section about `rpmbuild`.
+  echo
+  echo "Checking Docker volumes..."
   for volume in pmm-gobuild pmm-gomod pmm-yarn pmm-dnf; do
     if ! docker volume ls | grep "$volume" >/dev/null; then
       docker volume create "$volume" > /dev/null
-      echo "Info: docker volume $volume created."
+      echo "Docker volume $volume created."
     else
-      echo "Info: docker volume $volume checked."
+      echo "Docker volume $volume checked."
     fi
   done
 
@@ -352,6 +354,7 @@ check_volumes() {
         sudo chown builder:builder /home/builder/.cache/yarn
       fi
     "
+  echo "Docker volumes are ready."
 }
 
 initialize() {
