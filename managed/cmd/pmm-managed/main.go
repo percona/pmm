@@ -573,7 +573,7 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 	return qan.NewClient(conn, db)
 }
 
-func migrateDB(ctx context.Context, sqlDB *sql.DB, params database.SetupDBParams) {
+func migrateDB(ctx context.Context, sqlDB *sql.DB, params database.SetupDBParams, grafanaClient *grafana.Client) {
 	l := logrus.WithField("component", "migration")
 	params.Logf = l.Debugf
 	params.SetupFixtures = dbUtils.SetupFixtures
@@ -588,7 +588,7 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params database.SetupDBParams
 		default:
 		}
 		l.Infof("Migrating database...")
-		_, err := database.SetupDB(timeoutCtx, sqlDB, params)
+		_, err := database.SetupDB(timeoutCtx, sqlDB, params, grafanaClient)
 		if err == nil {
 			return
 		}
@@ -801,8 +801,11 @@ func main() { //nolint:maintidx,cyclop
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
+	grafanaClient := grafana.NewClient(*grafanaAddrF)
+	prom.MustRegister(grafanaClient)
+
 	if haService.Bootstrap() {
-		migrateDB(ctx, sqlDB, setupParams)
+		migrateDB(ctx, sqlDB, setupParams, grafanaClient)
 	}
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
@@ -905,9 +908,6 @@ func main() { //nolint:maintidx,cyclop
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
-
-	grafanaClient := grafana.NewClient(*grafanaAddrF)
-	prom.MustRegister(grafanaClient)
 
 	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
 	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams)

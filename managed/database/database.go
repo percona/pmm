@@ -38,6 +38,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/encryption"
 )
@@ -1197,7 +1198,7 @@ type SetupDBParams struct {
 }
 
 // SetupDB checks minimal required PostgreSQL version and runs database migrations. Optionally creates database and adds initial data.
-func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.DB, error) {
+func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, grafanaClient *grafana.Client) (*reform.DB, error) {
 	var logger reform.Logger
 	if params.Logf != nil {
 		logger = reform.NewPrintfLogger(params.Logf)
@@ -1217,7 +1218,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	if err := migrateDB(db, params); err != nil {
+	if err := migrateDB(db, params, grafanaClient); err != nil {
 		return nil, err
 	}
 
@@ -1354,7 +1355,7 @@ func initWithRoot(params SetupDBParams) error {
 }
 
 // migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params SetupDBParams) error {
+func migrateDB(db *reform.DB, params SetupDBParams, grafanaClient *grafana.Client) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
@@ -1409,6 +1410,11 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		}
 
 		err = setupPMMServerAgents(tx.Querier, params)
+		if err != nil {
+			return err
+		}
+
+		err = grafanaClient.MigrateToServiceAccounts(context.TODO())
 		if err != nil {
 			return err
 		}

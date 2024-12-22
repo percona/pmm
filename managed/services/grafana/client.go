@@ -432,6 +432,21 @@ func (c *Client) testDeleteUser(ctx context.Context, userID int, authHeaders htt
 	return c.do(ctx, "DELETE", "/api/admin/users/"+strconv.Itoa(userID), "", authHeaders, nil, nil)
 }
 
+// MigrateToServiceAccounts convert all current API keys into Serivce accounts.
+func (c *Client) MigrateToServiceAccounts(ctx context.Context) error {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = c.migrateToServiceAccounts(ctx, authHeaders)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // CreateServiceAccount creates service account and token with Admin role.
 func (c *Client) CreateServiceAccount(ctx context.Context, nodeName string, reregister bool) (int, string, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
@@ -671,6 +686,14 @@ type serviceToken struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 	Role string `json:"role"`
+}
+
+func (c *Client) migrateToServiceAccounts(ctx context.Context, authHeaders http.Header) error {
+	if err := c.do(ctx, "POST", "/api/serviceaccounts/migrate", "", authHeaders, nil, nil); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName string, reregister bool, authHeaders http.Header) (int, error) {

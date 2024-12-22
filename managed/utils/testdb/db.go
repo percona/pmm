@@ -26,6 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/database"
+	"github.com/percona/pmm/managed/services/grafana"
 	dbUtils "github.com/percona/pmm/managed/utils/database"
 )
 
@@ -83,7 +84,9 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures dbUtils.SetupFixturesMode,
 		MigrationVersion: migrationVersion,
 	}
 
-	_, err := database.SetupDB(ctx, db, params)
+	grafanaClient := grafana.NewClient("127.0.0.1:3000")
+
+	_, err := database.SetupDB(ctx, db, params, grafanaClient)
 	require.NoError(tb, err)
 }
 
