@@ -31,6 +31,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
@@ -41,7 +42,7 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	t.Helper()
 	check := require.New(t)
 
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	check.NoError(err)

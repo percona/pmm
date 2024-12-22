@@ -25,11 +25,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 func TestSettings(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	defer func() {
 		require.NoError(t, sqlDB.Close())
 	}()

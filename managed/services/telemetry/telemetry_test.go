@@ -23,8 +23,6 @@ import (
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2"
-	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -33,9 +31,11 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
-	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/testdb"
+	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 )
 
 const (
@@ -148,7 +148,7 @@ func TestRunTelemetryService(t *testing.T) {
 		},
 	}
 
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
 	})

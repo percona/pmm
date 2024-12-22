@@ -187,8 +187,8 @@ type CreateNodeParams struct {
 	Password      *string
 }
 
-// createNodeWithID creates a Node with given ID.
-func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *CreateNodeParams) (*Node, error) {
+// CreateNodeWithID creates a Node with given ID.
+func CreateNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *CreateNodeParams) (*Node, error) {
 	if err := checkUniqueNodeID(q, id); err != nil {
 		return nil, err
 	}
@@ -239,7 +239,7 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 // CreateNode creates a Node.
 func CreateNode(q *reform.Querier, nodeType NodeType, params *CreateNodeParams) (*Node, error) {
 	id := uuid.New().String()
-	return createNodeWithID(q, id, nodeType, params)
+	return CreateNodeWithID(q, id, nodeType, params)
 }
 
 // RemoveNode removes single Node.

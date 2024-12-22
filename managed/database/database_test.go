@@ -14,7 +14,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 //nolint:dupword
-package models_test
+package database_test
 
 import (
 	"database/sql"
@@ -26,6 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -62,7 +63,7 @@ func getTX(t *testing.T, db *sql.DB) (*sql.Tx, func()) {
 
 func TestDatabaseChecks(t *testing.T) {
 	t.Run("Nodes", func(t *testing.T) {
-		db := testdb.Open(t, models.SkipFixtures, nil)
+		db := testdb.Open(t, database.SkipFixtures, nil)
 		defer func() {
 			require.NoError(t, db.Close())
 		}()
@@ -136,7 +137,7 @@ func TestDatabaseChecks(t *testing.T) {
 	})
 
 	t.Run("Services", func(t *testing.T) {
-		db := testdb.Open(t, models.SkipFixtures, nil)
+		db := testdb.Open(t, database.SkipFixtures, nil)
 		defer func() {
 			require.NoError(t, db.Close())
 		}()
@@ -185,7 +186,7 @@ func TestDatabaseChecks(t *testing.T) {
 	})
 
 	t.Run("Agents", func(t *testing.T) {
-		db := testdb.Open(t, models.SkipFixtures, nil)
+		db := testdb.Open(t, database.SkipFixtures, nil)
 		defer func() {
 			require.NoError(t, db.Close())
 		}()

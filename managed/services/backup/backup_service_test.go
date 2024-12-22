@@ -28,6 +28,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -69,7 +70,7 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 
 func TestPerformBackup(t *testing.T) {
 	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -243,7 +244,7 @@ func TestPerformBackup(t *testing.T) {
 
 func TestRestoreBackup(t *testing.T) {
 	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -481,7 +482,7 @@ func TestRestoreBackup(t *testing.T) {
 
 func TestCheckArtifactModePreconditions(t *testing.T) {
 	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())

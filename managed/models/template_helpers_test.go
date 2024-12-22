@@ -22,20 +22,21 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
-	"github.com/percona/promconfig"
-	"github.com/percona/saas/pkg/alert"
-	"github.com/percona/saas/pkg/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/promconfig"
+	"github.com/percona/saas/pkg/alert"
+	"github.com/percona/saas/pkg/common"
 )
 
 func TestRuleTemplates(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	t.Run("create", func(t *testing.T) {

@@ -27,6 +27,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -100,7 +101,7 @@ func TestIsPostgreSQLSSLSniSupported(t *testing.T) {
 	models.Now = func() time.Time {
 		return now
 	}
-	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	sqlDB := testdb.Open(t, database.SetupFixtures, nil)
 	defer func() {
 		models.Now = origNowF
 		require.NoError(t, sqlDB.Close())

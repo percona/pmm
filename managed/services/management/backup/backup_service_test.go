@@ -38,6 +38,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/scheduler"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
@@ -82,7 +83,7 @@ func TestStartBackup(t *testing.T) {
 	t.Run("mysql", func(t *testing.T) {
 		backupService := &mockBackupService{}
 		mockedPbmPITRService := &mockPbmPITRService{}
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		backupSvc := NewBackupsService(db, backupService, nil, nil, nil, mockedPbmPITRService)
 		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name(), "cluster")
@@ -136,7 +137,7 @@ func TestStartBackup(t *testing.T) {
 	})
 
 	t.Run("mongodb", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name(), "cluster")
 
@@ -252,7 +253,7 @@ func TestStartBackup(t *testing.T) {
 
 func TestScheduledBackups(t *testing.T) {
 	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	t.Cleanup(func() {
 		_ = sqlDB.Close()
@@ -429,7 +430,7 @@ func TestScheduledBackups(t *testing.T) {
 
 func TestGetLogs(t *testing.T) {
 	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	backupService := &mockBackupService{}
 	schedulerService := &mockScheduleService{}
@@ -507,7 +508,7 @@ func TestGetLogs(t *testing.T) {
 
 func TestListPitrTimeranges(t *testing.T) {
 	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
 	})
@@ -602,7 +603,7 @@ func TestListPitrTimeranges(t *testing.T) {
 }
 
 func TestArtifactMetadataListToProto(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
 	})

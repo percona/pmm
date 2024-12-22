@@ -33,6 +33,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/version"
 )
 
@@ -525,12 +526,12 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
 		q := make(url.Values)
 
-		sslmode := DisableSSLMode
+		sslmode := database.DisableSSLMode
 		if s.TLS {
 			if s.TLSSkipVerify {
-				sslmode = RequireSSLMode
+				sslmode = database.RequireSSLMode
 			} else {
-				sslmode = VerifyCaSSLMode
+				sslmode = database.VerifyCaSSLMode
 			}
 			if dsnParams.PostgreSQLSupportsSSLSNI {
 				q.Set("sslsni", "0")

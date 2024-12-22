@@ -24,6 +24,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -31,7 +32,7 @@ func TestRoster(t *testing.T) {
 	setup := func(t *testing.T) (*roster, func(t *testing.T)) {
 		t.Helper()
 
-		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+		sqlDB := testdb.Open(t, database.SetupFixtures, nil)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 		teardown := func(t *testing.T) {

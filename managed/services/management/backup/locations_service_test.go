@@ -31,13 +31,14 @@ import (
 
 	backuppb "github.com/percona/pmm/api/backup/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestCreateBackupLocation(t *testing.T) {
 	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
@@ -102,7 +103,7 @@ func TestCreateBackupLocation(t *testing.T) {
 
 func TestListBackupLocations(t *testing.T) {
 	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
@@ -173,7 +174,7 @@ func TestListBackupLocations(t *testing.T) {
 
 func TestChangeBackupLocation(t *testing.T) {
 	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
@@ -273,7 +274,7 @@ func TestChangeBackupLocation(t *testing.T) {
 
 func TestRemoveBackupLocation(t *testing.T) {
 	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
@@ -328,7 +329,7 @@ func TestRemoveBackupLocation(t *testing.T) {
 
 func TestVerifyBackupLocationValidation(t *testing.T) {
 	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}

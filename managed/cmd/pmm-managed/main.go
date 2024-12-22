@@ -73,6 +73,7 @@ import (
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
+	"github.com/percona/pmm/managed/database"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
@@ -103,6 +104,7 @@ import (
 	"github.com/percona/pmm/managed/services/victoriametrics"
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
+	dbUtils "github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
@@ -571,10 +573,10 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 	return qan.NewClient(conn, db)
 }
 
-func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) {
+func migrateDB(ctx context.Context, sqlDB *sql.DB, params database.SetupDBParams) {
 	l := logrus.WithField("component", "migration")
 	params.Logf = l.Debugf
-	params.SetupFixtures = models.SetupFixtures
+	params.SetupFixtures = dbUtils.SetupFixtures
 
 	const timeout = 5 * time.Minute
 	timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
@@ -586,7 +588,7 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 		default:
 		}
 		l.Infof("Migrating database...")
-		_, err := models.SetupDB(timeoutCtx, sqlDB, params)
+		_, err := database.SetupDB(timeoutCtx, sqlDB, params)
 		if err == nil {
 			return
 		}
@@ -633,7 +635,7 @@ func main() { //nolint:maintidx,cyclop
 	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").Default("127.0.0.1:9911").String()
 
 	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
-		Default(models.DefaultPostgreSQLAddr).
+		Default(database.DefaultPostgreSQLAddr).
 		Envar("PMM_POSTGRES_ADDR").
 		String()
 	postgresDBNameF := kingpin.Flag("postgres-name", "PostgreSQL database name").
@@ -645,9 +647,9 @@ func main() { //nolint:maintidx,cyclop
 		Envar("PMM_POSTGRES_USERNAME").
 		String()
 	postgresSSLModeF := kingpin.Flag("postgres-ssl-mode", "PostgreSQL SSL mode").
-		Default(models.DisableSSLMode).
+		Default(dbUtils.DisableSSLMode).
 		Envar("PMM_POSTGRES_SSL_MODE").
-		Enum(models.DisableSSLMode, models.RequireSSLMode, models.VerifyCaSSLMode, models.VerifyFullSSLMode)
+		Enum(dbUtils.DisableSSLMode, dbUtils.RequireSSLMode, dbUtils.VerifyCaSSLMode, dbUtils.VerifyFullSSLMode)
 	postgresSSLCAPathF := kingpin.Flag("postgres-ssl-ca-path", "PostgreSQL SSL CA root certificate path").
 		Envar("PMM_POSTGRES_SSL_CA_PATH").
 		String()
@@ -742,8 +744,8 @@ func main() { //nolint:maintidx,cyclop
 		l.Panicf("Failed to load config: %+v", err)
 	}
 	// in order to reproduce postgres behaviour.
-	if *postgresSSLModeF == models.RequireSSLMode && *postgresSSLCAPathF != "" {
-		*postgresSSLModeF = models.VerifyCaSSLMode
+	if *postgresSSLModeF == dbUtils.RequireSSLMode && *postgresSSLCAPathF != "" {
+		*postgresSSLModeF = dbUtils.VerifyCaSSLMode
 	}
 	ds := cfg.Config.Services.Telemetry.DataSources
 
@@ -755,7 +757,7 @@ func main() { //nolint:maintidx,cyclop
 	pmmdb.DSN.DB = *postgresDBNameF
 	q := make(url.Values)
 	q.Set("sslmode", *postgresSSLModeF)
-	if *postgresSSLModeF != models.DisableSSLMode {
+	if *postgresSSLModeF != dbUtils.DisableSSLMode {
 		q.Set("sslrootcert", *postgresSSLCAPathF)
 		q.Set("sslcert", *postgresSSLCertPathF)
 		q.Set("sslkey", *postgresSSLKeyPathF)
@@ -782,7 +784,7 @@ func main() { //nolint:maintidx,cyclop
 		l.Panicf("cannot load victoriametrics params problem: %+v", err)
 	}
 
-	setupParams := models.SetupDBParams{
+	setupParams := database.SetupDBParams{
 		Address:     *postgresAddrF,
 		Name:        *postgresDBNameF,
 		Username:    *postgresDBUsernameF,
@@ -793,7 +795,7 @@ func main() { //nolint:maintidx,cyclop
 		SSLCertPath: *postgresSSLCertPathF,
 	}
 
-	sqlDB, err := models.OpenDB(setupParams)
+	sqlDB, err := database.OpenDB(setupParams)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
 	}

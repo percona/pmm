@@ -24,8 +24,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	_ "github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/percona/saas/pkg/check"
-	"github.com/percona/saas/pkg/common"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/sirupsen/logrus"
@@ -36,9 +34,12 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/platform"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/version"
+	"github.com/percona/saas/pkg/check"
+	"github.com/percona/saas/pkg/common"
 )
 
 const (
@@ -60,7 +61,7 @@ func TestDownloadAdvisors(t *testing.T) {
 	}
 
 	setupClients(t)
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
 	})
@@ -153,7 +154,7 @@ func TestLoadLocalChecks(t *testing.T) {
 }
 
 func TestCollectAdvisors(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
 	})
@@ -221,7 +222,7 @@ func TestCollectAdvisors(t *testing.T) {
 
 func TestDisableChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 		t.Cleanup(func() {
 			require.NoError(t, sqlDB.Close())
 		})
@@ -250,7 +251,7 @@ func TestDisableChecks(t *testing.T) {
 	})
 
 	t.Run("disable same check twice", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 		t.Cleanup(func() {
 			require.NoError(t, sqlDB.Close())
 		})
@@ -282,7 +283,7 @@ func TestDisableChecks(t *testing.T) {
 	})
 
 	t.Run("disable unknown check", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 		t.Cleanup(func() {
 			require.NoError(t, sqlDB.Close())
 		})
@@ -305,7 +306,7 @@ func TestDisableChecks(t *testing.T) {
 
 func TestEnableChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 		t.Cleanup(func() {
 			require.NoError(t, sqlDB.Close())
 		})
@@ -338,7 +339,7 @@ func TestEnableChecks(t *testing.T) {
 
 func TestChangeInterval(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 		t.Cleanup(func() {
 			require.NoError(t, sqlDB.Close())
 		})
@@ -382,7 +383,7 @@ func TestChangeInterval(t *testing.T) {
 }
 
 func TestStartChecks(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
 	})
@@ -580,7 +581,7 @@ func setupClients(t *testing.T) {
 
 func TestFindTargets(t *testing.T) {
 	t.Parallel()
-	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	sqlDB := testdb.Open(t, database.SetupFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
 	})
@@ -665,7 +666,7 @@ func TestFilterChecksByInterval(t *testing.T) {
 }
 
 func TestGetFailedChecks(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
 	})

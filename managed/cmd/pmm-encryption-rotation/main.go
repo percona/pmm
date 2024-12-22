@@ -24,8 +24,9 @@ import (
 	"github.com/alecthomas/kong"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/database"
 	encryptionService "github.com/percona/pmm/managed/services/encryption"
+	dbUtils "github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
@@ -39,7 +40,7 @@ func main() {
 
 	logrus.Infof("PMM Encryption Rotation Tools version: %s", version.Version)
 
-	sqlDB, err := models.OpenDB(setupParams())
+	sqlDB, err := database.OpenDB(setupParams())
 	if err != nil {
 		logrus.Error(err)
 		os.Exit(codeDBConnectionFailed)
@@ -62,7 +63,7 @@ type flags struct {
 	SSLCertPath string `name:"postgres-ssl-cert-path" help:"PostgreSQL SSL certificate path" type:"path"`
 }
 
-func setupParams() models.SetupDBParams {
+func setupParams() database.SetupDBParams {
 	var opts flags
 	kong.Parse(
 		&opts,
@@ -74,15 +75,15 @@ func setupParams() models.SetupDBParams {
 			NoExpandSubcommands: true,
 		}),
 		kong.Vars{
-			"address":             models.DefaultPostgreSQLAddr,
-			"disable_sslmode":     models.DisableSSLMode,
-			"require_sslmode":     models.RequireSSLMode,
-			"verify_sslmode":      models.VerifyCaSSLMode,
-			"verify_full_sslmode": models.VerifyFullSSLMode,
+			"address":             database.DefaultPostgreSQLAddr,
+			"disable_sslmode":     dbUtils.DisableSSLMode,
+			"require_sslmode":     dbUtils.RequireSSLMode,
+			"verify_sslmode":      dbUtils.VerifyCaSSLMode,
+			"verify_full_sslmode": dbUtils.VerifyFullSSLMode,
 		},
 	)
 
-	return models.SetupDBParams{
+	return database.SetupDBParams{
 		Address:     opts.Address,
 		Name:        opts.DBName,
 		Username:    opts.DBUsername,

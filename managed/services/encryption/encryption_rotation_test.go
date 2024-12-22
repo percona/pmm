@@ -25,6 +25,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
@@ -39,7 +40,7 @@ const (
 )
 
 func TestEncryptionRotation(t *testing.T) {
-	db := testdb.Open(t, models.SkipFixtures, nil)
+	db := testdb.Open(t, database.SkipFixtures, nil)
 	defer db.Close() //nolint:errcheck
 
 	err := createOriginEncryptionKey()

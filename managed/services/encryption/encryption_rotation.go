@@ -28,7 +28,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/database"
 	"github.com/percona/pmm/managed/utils/encryption"
 )
 
@@ -130,7 +130,7 @@ func pmmServerStatusWithRetries(status string) bool {
 func rotateEncryptionKey(db *reform.DB, dbName string) error {
 	return db.InTransaction(func(tx *reform.TX) error {
 		logrus.Infof("DB %s is being decrypted", dbName)
-		err := models.DecryptDB(tx, dbName, models.DefaultAgentEncryptionColumnsV3)
+		err := database.DecryptDB(tx, dbName, database.DefaultAgentEncryptionColumnsV3)
 		if err != nil {
 			return err
 		}
@@ -144,7 +144,7 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 		logrus.Infof("New encryption key generated")
 
 		logrus.Infof("DB %s is being encrypted", dbName)
-		err = models.EncryptDB(tx, dbName, models.DefaultAgentEncryptionColumnsV3)
+		err = database.EncryptDB(tx, dbName, database.DefaultAgentEncryptionColumnsV3)
 		if err != nil {
 			if e := encryption.RestoreOldEncryptionKey(); e != nil {
 				return errors.Wrap(err, e.Error())

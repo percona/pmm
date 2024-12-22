@@ -29,6 +29,7 @@ import (
 
 	rolev1beta1 "github.com/percona/pmm/api/accesscontrol/v1beta1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/utils/logger"
@@ -39,7 +40,7 @@ func TestAccessControlService(t *testing.T) {
 	ctx := logger.Set(context.Background(), t.Name())
 	uuid.SetRand(&tests.IDReader{})
 
-	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	sqlDB := testdb.Open(t, database.SetupFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	defer func(t *testing.T) {

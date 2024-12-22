@@ -37,7 +37,7 @@ import (
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
-	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/utils/logger"
@@ -49,7 +49,7 @@ func TestRDSService(t *testing.T) {
 	uuid.SetRand(&tests.IDReader{})
 	defer uuid.SetRand(nil)
 
-	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	sqlDB := testdb.Open(t, database.SetupFixtures, nil)
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 

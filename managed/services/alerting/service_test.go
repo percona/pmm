@@ -29,6 +29,7 @@ import (
 
 	alerting "github.com/percona/pmm/api/alerting/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/platform"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
@@ -50,7 +51,7 @@ func TestCollect(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	platformClient, err := platform.NewClient(db, devPlatformAddress)
 	require.NoError(t, err)
@@ -116,7 +117,7 @@ func TestDownloadTemplates(t *testing.T) {
 		t.Skip("Environment variables PMM_DEV_OAUTH_CLIENT_ID / PMM_DEV_OAUTH_CLIENT_SECRET are not defined, skipping test")
 	}
 
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	platformClient, err := platform.NewClient(db, devPlatformAddress)
 	require.NoError(t, err)
@@ -164,7 +165,7 @@ func TestDownloadTemplates(t *testing.T) {
 func TestTemplateValidation(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB := testdb.Open(t, database.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	platformClient, err := platform.NewClient(db, devPlatformAddress)
 	require.NoError(t, err)

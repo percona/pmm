@@ -578,8 +578,8 @@ func ExtractPmmAgentID(agent *Agent) (string, error) {
 	}
 }
 
-// createPMMAgentWithID creates PMMAgent with given ID.
-func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
+// CreatePMMAgentWithID creates PMMAgent with given ID.
+func CreatePMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
@@ -610,7 +610,7 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 // CreatePMMAgent creates PMMAgent.
 func CreatePMMAgent(q *reform.Querier, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
 	id := uuid.New().String()
-	return createPMMAgentWithID(q, id, runsOnNodeID, customLabels)
+	return CreatePMMAgentWithID(q, id, runsOnNodeID, customLabels)
 }
 
 // CreateNodeExporter creates NodeExporter.

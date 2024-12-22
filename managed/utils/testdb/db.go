@@ -25,7 +25,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/database"
+	dbUtils "github.com/percona/pmm/managed/utils/database"
 )
 
 const (
@@ -34,16 +35,16 @@ const (
 )
 
 // Open recreates testing PostgreSQL database and returns an open connection to it.
-func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersion *int) *sql.DB {
+func Open(tb testing.TB, setupFixtures dbUtils.SetupFixturesMode, migrationVersion *int) *sql.DB {
 	tb.Helper()
 
-	setupParams := models.SetupDBParams{
+	setupParams := database.SetupDBParams{
 		Address:  "127.0.0.1:5432",
 		Username: username,
 		Password: password,
 	}
 
-	db, err := models.OpenDB(setupParams)
+	db, err := database.OpenDB(setupParams)
 	require.NoError(tb, err)
 
 	_, err = db.Exec(`DROP DATABASE IF EXISTS "` + testDatabase + `"`)
@@ -55,7 +56,7 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 	require.NoError(tb, err)
 
 	setupParams.Name = testDatabase
-	db, err = models.OpenDB(setupParams)
+	db, err = database.OpenDB(setupParams)
 	require.NoError(tb, err)
 	SetupDB(tb, db, setupFixtures, migrationVersion)
 
@@ -68,13 +69,13 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 
 // SetupDB runs PostgreSQL database migrations and optionally adds initial data for testing DB.
 // Please use Open method to recreate DB for each test if you don't need to control migrations.
-func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, migrationVersion *int) {
+func SetupDB(tb testing.TB, db *sql.DB, setupFixtures dbUtils.SetupFixturesMode, migrationVersion *int) {
 	tb.Helper()
 	ctx := context.TODO()
-	params := models.SetupDBParams{
+	params := database.SetupDBParams{
 		// Uncomment to see all setup queries:
 		// Logf: tb.Logf,
-		Address:          models.DefaultPostgreSQLAddr,
+		Address:          database.DefaultPostgreSQLAddr,
 		Name:             newName(11),
 		Username:         username,
 		Password:         password,
@@ -82,7 +83,7 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, 
 		MigrationVersion: migrationVersion,
 	}
 
-	_, err := models.SetupDB(ctx, db, params)
+	_, err := database.SetupDB(ctx, db, params)
 	require.NoError(tb, err)
 }
 

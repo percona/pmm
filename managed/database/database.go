@@ -18,7 +18,7 @@
 // Package models provides functionality for handling database models and related tasks.
 //
 //nolint:lll
-package models
+package database
 
 import (
 	"context"
@@ -37,6 +37,8 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/encryption"
 )
 
@@ -49,15 +51,6 @@ const (
 	DefaultPostgreSQLAddr = "127.0.0.1:5432"
 	// PMMServerPostgreSQLNodeName is a special Node Name representing PMM Server's External PostgreSQL Node.
 	PMMServerPostgreSQLNodeName = "pmm-server-db"
-
-	// DisableSSLMode represent disable PostgreSQL ssl mode.
-	DisableSSLMode string = "disable"
-	// RequireSSLMode represent require PostgreSQL ssl mode.
-	RequireSSLMode string = "require"
-	// VerifyCaSSLMode represent verify-ca PostgreSQL ssl mode.
-	VerifyCaSSLMode string = "verify-ca"
-	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode.
-	VerifyFullSSLMode string = "verify-full"
 )
 
 // DefaultAgentEncryptionColumnsV3 since 3.0.0 contains all tables and it's columns to be encrypted in PMM Server DB.
@@ -69,11 +62,11 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "username"},
 			{Name: "password"},
 			{Name: "agent_password"},
-			{Name: "aws_options", CustomHandler: EncryptAWSOptionsHandler},
-			{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
-			{Name: "mongo_options", CustomHandler: EncryptMongoDBOptionsHandler},
-			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
-			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
+			{Name: "aws_options", CustomHandler: models.EncryptAWSOptionsHandler},
+			{Name: "azure_options", CustomHandler: models.EncryptAzureOptionsHandler},
+			{Name: "mongo_options", CustomHandler: models.EncryptMongoDBOptionsHandler},
+			{Name: "mysql_options", CustomHandler: models.EncryptMySQLOptionsHandler},
+			{Name: "postgresql_options", CustomHandler: models.EncryptPostgreSQLOptionsHandler},
 		},
 	},
 }
@@ -160,7 +153,7 @@ var databaseSchema = [][]string{
 			FOREIGN KEY (runs_on_node_id) REFERENCES nodes (node_id),
 			FOREIGN KEY (pmm_agent_id) REFERENCES agents (agent_id),
 			CONSTRAINT runs_on_node_id_xor_pmm_agent_id CHECK ((runs_on_node_id IS NULL) <> (pmm_agent_id IS NULL)),
-			CONSTRAINT runs_on_node_id_only_for_pmm_agent CHECK ((runs_on_node_id IS NULL) <> (agent_type='` + string(PMMAgentType) + `'))
+			CONSTRAINT runs_on_node_id_only_for_pmm_agent CHECK ((runs_on_node_id IS NULL) <> (agent_type='` + string(models.PMMAgentType) + `'))
 		)`,
 
 		`CREATE TABLE agent_nodes (
@@ -322,9 +315,9 @@ var databaseSchema = [][]string{
 			DROP CONSTRAINT agents_metrics_url_check`,
 		`ALTER TABLE agents
 			ADD CONSTRAINT node_id_or_service_id_for_non_pmm_agent CHECK (
-				(node_id IS NULL) <> (service_id IS NULL) OR (agent_type = '` + string(PMMAgentType) + `')),
+				(node_id IS NULL) <> (service_id IS NULL) OR (agent_type = '` + string(models.PMMAgentType) + `')),
 			ADD CONSTRAINT runs_on_node_id_only_for_pmm_agent_and_external
-				CHECK ((runs_on_node_id IS NULL) <> (agent_type='` + string(PMMAgentType) + `' OR agent_type='` + string(ExternalExporterType) + `' ))`,
+				CHECK ((runs_on_node_id IS NULL) <> (agent_type='` + string(models.PMMAgentType) + `' OR agent_type='` + string(models.ExternalExporterType) + `' ))`,
 		`ALTER TABLE agents RENAME COLUMN metrics_url TO metrics_path`,
 		`ALTER TABLE agents
 			ADD CONSTRAINT agents_metrics_path_check CHECK (metrics_path <> '')`,
@@ -365,7 +358,7 @@ var databaseSchema = [][]string{
 		`ALTER TABLE services
 			ADD COLUMN external_group VARCHAR NOT NULL DEFAULT ''`,
 
-		`UPDATE services SET external_group = 'external' WHERE service_type = '` + string(ExternalServiceType) + `'`,
+		`UPDATE services SET external_group = 'external' WHERE service_type = '` + string(models.ExternalServiceType) + `'`,
 
 		`ALTER TABLE services
 			ALTER COLUMN external_group DROP DEFAULT`,
@@ -373,9 +366,9 @@ var databaseSchema = [][]string{
 		// Only service with type external can have non empty value of group.
 		`ALTER TABLE services
 			ADD CONSTRAINT services_external_group_check CHECK (
-				(service_type <> '` + string(ExternalServiceType) + `' AND external_group = '')
+				(service_type <> '` + string(models.ExternalServiceType) + `' AND external_group = '')
 				OR
-				(service_type = '` + string(ExternalServiceType) + `' AND external_group <> '')
+				(service_type = '` + string(models.ExternalServiceType) + `' AND external_group <> '')
 			)`,
 	},
 
@@ -393,7 +386,7 @@ var databaseSchema = [][]string{
 	21: {
 		`ALTER TABLE agents
 			ADD CONSTRAINT runs_on_node_id_only_for_pmm_agent
-            CHECK (((runs_on_node_id IS NULL) <> (agent_type='` + string(PMMAgentType) + `'))  OR (agent_type='` + string(ExternalExporterType) + `'))`,
+            CHECK (((runs_on_node_id IS NULL) <> (agent_type='` + string(models.PMMAgentType) + `'))  OR (agent_type='` + string(models.ExternalExporterType) + `'))`,
 	},
 
 	22: {
@@ -1154,11 +1147,11 @@ var databaseSchema = [][]string{
 func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	q := make(url.Values)
 	if params.SSLMode == "" {
-		params.SSLMode = DisableSSLMode
+		params.SSLMode = database.DisableSSLMode
 	}
 
 	q.Set("sslmode", params.SSLMode)
-	if params.SSLMode != DisableSSLMode {
+	if params.SSLMode != database.DisableSSLMode {
 		q.Set("sslrootcert", params.SSLCAPath)
 		q.Set("sslcert", params.SSLCertPath)
 		q.Set("sslkey", params.SSLKeyPath)
@@ -1188,16 +1181,6 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	return db, nil
 }
 
-// SetupFixturesMode defines if SetupDB adds initial data to the database or not.
-type SetupFixturesMode int
-
-const (
-	// SetupFixtures adds initial data to the database.
-	SetupFixtures SetupFixturesMode = iota
-	// SkipFixtures skips adding initial data to the database. Useful for tests.
-	SkipFixtures
-)
-
 // SetupDBParams represents SetupDB parameters.
 type SetupDBParams struct {
 	Logf             reform.Printf
@@ -1209,7 +1192,7 @@ type SetupDBParams struct {
 	SSLCAPath        string
 	SSLKeyPath       string
 	SSLCertPath      string
-	SetupFixtures    SetupFixturesMode
+	SetupFixtures    database.SetupFixturesMode
 	MigrationVersion *int
 }
 
@@ -1259,7 +1242,7 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 		return nil
 	}
 
-	settings, err := GetSettings(tx)
+	settings, err := models.GetSettings(tx)
 	if err != nil {
 		return err
 	}
@@ -1302,7 +1285,7 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 		encryptedItems = prepared
 	}
 
-	_, err = UpdateSettings(tx, &ChangeSettingsParams{
+	_, err = models.UpdateSettings(tx, &models.ChangeSettingsParams{
 		EncryptedItems: encryptedItems,
 	})
 	if err != nil {
@@ -1314,7 +1297,7 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 
 // checkVersion checks minimal required PostgreSQL server version.
 func checkVersion(ctx context.Context, db reform.DBTXContext) error {
-	PGVersion, err := GetPostgreSQLVersion(ctx, db)
+	PGVersion, err := models.GetPostgreSQLVersion(ctx, db)
 	if err != nil {
 		return err
 	}
@@ -1412,16 +1395,16 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return err
 		}
 
-		if params.SetupFixtures == SkipFixtures {
+		if params.SetupFixtures == database.SkipFixtures {
 			return nil
 		}
 
 		// fill settings with defaults
-		s, err := GetSettings(tx)
+		s, err := models.GetSettings(tx)
 		if err != nil {
 			return err
 		}
-		if err = SaveSettings(tx, s); err != nil {
+		if err = models.SaveSettings(tx, s); err != nil {
 			return err
 		}
 
@@ -1436,7 +1419,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 
 func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
-	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
+	node, err := models.CreateNodeWithID(q, models.PMMServerNodeID, models.GenericNodeType, &models.CreateNodeParams{
 		NodeName: "pmm-server",
 		Address:  "127.0.0.1",
 	})
@@ -1447,10 +1430,10 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		}
 		return err
 	}
-	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
+	if _, err = models.CreatePMMAgentWithID(q, models.PMMServerAgentID, node.NodeID, nil); err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
+	if _, err = models.CreateNodeExporter(q, models.PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
 		return err
 	}
 	address, port, err := parsePGAddress(params.Address)
@@ -1458,7 +1441,7 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 	if params.Address != DefaultPostgreSQLAddr {
-		if node, err = CreateNode(q, RemoteNodeType, &CreateNodeParams{
+		if node, err = models.CreateNode(q, models.RemoteNodeType, &models.CreateNodeParams{
 			NodeName: PMMServerPostgreSQLNodeName,
 			Address:  address,
 		}); err != nil {
@@ -1469,7 +1452,7 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	// create PostgreSQL Service and associated Agents
-	service, err := AddNewService(q, PostgreSQLServiceType, &AddDBMSServiceParams{
+	service, err := models.AddNewService(q, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
 		ServiceName: PMMServerPostgreSQLServiceName,
 		NodeID:      node.NodeID,
 		Database:    params.Name,
@@ -1480,19 +1463,19 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	ap := &CreateAgentParams{
-		PMMAgentID:    PMMServerAgentID,
+	ap := &models.CreateAgentParams{
+		PMMAgentID:    models.PMMServerAgentID,
 		ServiceID:     service.ServiceID,
-		TLS:           params.SSLMode != DisableSSLMode,
-		TLSSkipVerify: params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
+		TLS:           params.SSLMode != database.DisableSSLMode,
+		TLSSkipVerify: params.SSLMode == database.DisableSSLMode || params.SSLMode == database.VerifyCaSSLMode,
 		Username:      params.Username,
 		Password:      params.Password,
-		QANOptions: &QANOptions{
+		QANOptions: &models.QANOptions{
 			CommentsParsingDisabled: true,
 		},
 	}
 	if ap.TLS {
-		ap.PostgreSQLOptions = &PostgreSQLOptions{}
+		ap.PostgreSQLOptions = &models.PostgreSQLOptions{}
 		for path, field := range map[string]*string{
 			params.SSLCAPath:   &ap.PostgreSQLOptions.SSLCa,
 			params.SSLCertPath: &ap.PostgreSQLOptions.SSLCert,
@@ -1508,11 +1491,11 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 			*field = string(content)
 		}
 	}
-	_, err = CreateAgent(q, PostgresExporterType, ap)
+	_, err = models.CreateAgent(q, models.PostgresExporterType, ap)
 	if err != nil {
 		return err
 	}
-	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, ap)
+	_, err = models.CreateAgent(q, models.QANPostgreSQLPgStatementsAgentType, ap)
 	if err != nil {
 		return err
 	}

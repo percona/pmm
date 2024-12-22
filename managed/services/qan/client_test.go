@@ -33,13 +33,14 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/database"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
 )
 
 func TestClient(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	sqlDB := testdb.Open(t, database.SetupFixtures, nil)
 	reformL := sqlmetrics.NewReform("test", "test", t.Logf)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 	ctx := logger.Set(context.Background(), t.Name())
@@ -433,7 +434,7 @@ func TestClient(t *testing.T) {
 }
 
 func TestClientPerformance(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	sqlDB := testdb.Open(t, database.SetupFixtures, nil)
 	reformL := sqlmetrics.NewReform("test", "test", t.Logf)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 	defer func() {
