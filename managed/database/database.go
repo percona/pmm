@@ -1218,7 +1218,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams, grafanaCl
 		return nil, errCV
 	}
 
-	if err := migrateDB(db, params, grafanaClient); err != nil {
+	if err := migrateDB(ctx, db, params, grafanaClient); err != nil {
 		return nil, err
 	}
 
@@ -1355,7 +1355,7 @@ func initWithRoot(params SetupDBParams) error {
 }
 
 // migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params SetupDBParams, grafanaClient *grafana.Client) error {
+func migrateDB(ctx context.Context, db *reform.DB, params SetupDBParams, grafanaClient *grafana.Client) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
@@ -1414,7 +1414,7 @@ func migrateDB(db *reform.DB, params SetupDBParams, grafanaClient *grafana.Clien
 			return err
 		}
 
-		err = grafanaClient.MigrateToServiceAccounts(context.TODO())
+		err = grafanaClient.MigrateToServiceAccounts(ctx)
 		if err != nil {
 			return err
 		}
