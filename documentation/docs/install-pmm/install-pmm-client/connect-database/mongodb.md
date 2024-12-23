@@ -242,7 +242,7 @@ where:
 
 ### From the user interface
 
-To check the servie from the UI:
+To check the service from the UI:
 {.power-number}
 
 1. Select  **PMM Configuration > Inventory > MongoDB**.
