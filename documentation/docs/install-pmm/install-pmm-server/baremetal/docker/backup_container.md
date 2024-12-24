@@ -5,7 +5,7 @@
 
     !!! summary alert alert-info ""
         - Stop and rename the `pmm-server` container.
-        - Take a local copy of the `pmm-data` container's `/srv` directory.
+        - Take a local copy of the `pmm-server` container's `/srv` directory.
 
     ---
 
@@ -15,8 +15,9 @@
     To check used Grafana plugins:
 
     ```sh
-    docker exec -it pmm-server ls /var/lib/grafana/plugins
+    docker exec -t pmm-server ls -l /var/lib/grafana/plugins
     ```
+
 To backup container:
 {.power-number}
 
@@ -26,13 +27,13 @@ To backup container:
     docker stop pmm-server
     ```
 
-2. Move the image:
+2. Rename the image:
 
     ```sh
     docker rename pmm-server pmm-server-backup
     ```
 
-3. Create a subdirectory (e.g., `pmm-data-backup`) and move to it:
+3. Create a subdirectory (e.g., `pmm-data-backup`) and change directory to make it current:
 
     ```sh
     mkdir pmm-data-backup && cd pmm-data-backup
@@ -41,5 +42,5 @@ To backup container:
 4. Back up the data:
 
     ```sh
-    docker cp pmm-data:/srv .
+    docker cp pmm-server-backup:/srv .
     ```
