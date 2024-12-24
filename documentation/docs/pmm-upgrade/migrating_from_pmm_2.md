@@ -1,6 +1,6 @@
 # Migrate PMM 2 to PMM 3
 
-PMM 3 introduces significant architectural changes that require gradual transition from PMM 2:
+PMM 3 introduces significant architectural changes that require gradual transition from PMM 2
 
 ## Step 1: Upgrade PMM 2 Server to the latest version
 

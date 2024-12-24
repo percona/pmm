@@ -4,9 +4,9 @@
 
     !!! summary alert alert-info ""
         - Stop the container.
-        - Remove (delete) the container.
-        - Remove (delete) the data volume.
-        - Remove (delete) the image.
+        - Remove the container.
+        - Remove the data volume.
+        - Remove the image.
 
     ---
 
