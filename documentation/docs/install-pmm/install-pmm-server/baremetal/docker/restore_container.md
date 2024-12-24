@@ -5,8 +5,9 @@
     !!! summary alert alert-info ""
         - Stop and remove the container.
         - Restore (rename) the backup container.
-        - Restore saved data to the data container.
-        - Restore permissions to the data.
+        - Restore saved data to the data volume.
+        - Restore permissions to the directories.
+        - Start the container.
 
     ---
 

@@ -33,7 +33,7 @@ To backup container:
     docker rename pmm-server pmm-server-backup
     ```
 
-3. Create a subdirectory (e.g., `pmm-data-backup`) and change directory to make it current:
+3. Create a subdirectory (e.g., `pmm-data-backup`) and change directory to it:
 
     ```sh
     mkdir pmm-data-backup && cd pmm-data-backup
