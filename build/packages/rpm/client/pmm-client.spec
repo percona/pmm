@@ -52,18 +52,18 @@ if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml.bak ]; then
         /^[^[:space:]]/!d
     }' "/usr/local/percona/pmm/config/pmm-agent.yaml" > "/usr/local/percona/pmm/config/pmm-agent.yaml.tmp" && mv "/usr/local/percona/pmm/config/pmm-agent.yaml.tmp" "/usr/local/percona/pmm/config/pmm-agent.yaml"
 
-    if [ -d /usr/local/percona/pmm2/config ] && [ ! "$(ls -A /usr/local/percona/pmm2/config)" ]; then
+    if [ -d /usr/local/percona/pmm2/config ] && [ -z "$(ls -A /usr/local/percona/pmm2/config)" ]; then
        rmdir /usr/local/percona/pmm2/config
     fi
 
-    if [ -d /usr/local/percona/pmm2 ] && [ ! "$(ls -A /usr/local/percona/pmm2)" ]; then
+    if [ -d /usr/local/percona/pmm2 ] && [ -z "$(ls -A /usr/local/percona/pmm2)" ]; then
        rmdir /usr/local/percona/pmm2
     fi
 
     if ! getent passwd pmm-agent > /dev/null 2>&1; then
        /usr/sbin/groupadd -r pmm-agent
        /usr/sbin/useradd -M -r -g pmm-agent -d /usr/local/percona/ -s /bin/false -c "PMM Agent User" pmm-agent
-       chown -R pmm-agent:pmm-agent /usr/local/percona/
+       chown -R pmm-agent:pmm-agent /usr/local/percona/pmm
     fi
     /usr/bin/systemctl enable pmm-agent >/dev/null 2>&1 || :
     /usr/bin/systemctl daemon-reload
@@ -187,11 +187,11 @@ if [ $1 -eq 0 ]; then
     if [ -f /usr/local/percona/pmm/config/pmm-agent.yaml.bak ]; then
         rm -r /usr/local/percona/pmm/config/pmm-agent.yaml.bak
     fi
-    if [ -d /usr/local/percona/pmm/config ] && [ ! "$(ls -A /usr/local/percona/pmm/config)" ]; then
+    if [ -d /usr/local/percona/pmm/config ] && [ -z "$(ls -A /usr/local/percona/pmm/config)" ]; then
        rmdir /usr/local/percona/pmm/config
     fi
 
-    if [ -d /usr/local/percona/pmm ] && [ ! "$(ls -A /usr/local/percona/pmm)" ]; then
+    if [ -d /usr/local/percona/pmm ] && [ -z "$(ls -A /usr/local/percona/pmm)" ]; then
        rmdir /usr/local/percona/pmm
     fi
 
