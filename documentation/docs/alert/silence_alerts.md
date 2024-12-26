@@ -7,7 +7,7 @@ You can also schedule a silence for a future date and time. This is referred to 
 
 During a silence, PMM continues to track metrics but does not trigger alerts or send notifications to any specified contact points. Once the silence expires alerts and notifications will resume.
 
-Silenced alerts are still recorded under **Alerting > Fired Alerts** so that you can review them later. Silenced alerts show up as **Surpressed** and are disabled for as long as it's specified in the **Silence Duration**, or until you remove a silence.
+Silenced alerts are still recorded under **Alerting > Fired Alerts** so that you can review them later. Silenced alerts show up as **Suppressed** and are disabled for as long as it's specified in the **Silence Duration**, or until you remove a silence.
 
 ## Using silences
 

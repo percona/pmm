@@ -41,7 +41,7 @@ To delete multiple dashboards at once:
 
 To move dashboards from one folder to another (requires **Editor** rights):
 
-#### From the Dasboards page
+#### From the Dashboards page
 
 1. On the **Dashboards** page, enter the name of the dashboard you want to move in the search bar.
 2. Check the box next to the dashboard name.

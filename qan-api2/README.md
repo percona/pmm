@@ -28,7 +28,7 @@ curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_
 curl -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z"}'  http://127.0.0.1:9922/v1/qan/metrics:getFilters 
 ```
 
-## Get list of availible metrics.
+## Get list of available metrics.
 
 ```bash
 curl -s -X POST -d '{}' http://127.0.0.1:9922/v1/qan/metrics:getNames | jq`
@@ -84,7 +84,7 @@ curl -s -X POST -d '{}' http://127.0.0.1:9922/v1/qan/metrics:getNames | jq`
 }
 ```
 
-## Get Query Exemples
+## Get Query Examples
 
 `curl 'http://localhost:9922/v1/qan/query:getExample ' -X POST -d '{"filter_by":"1D410B4BE5060972","group_by":"queryid","limit":5,"period_start_from":"2018-12-31T22:00:00+00:00","period_start_to":"2019-01-01T06:00:00+00:00"}' -s | jq`
 

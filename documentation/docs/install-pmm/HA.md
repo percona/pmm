@@ -125,7 +125,7 @@ To set up ClickHouse:
         clickhouse/clickhouse-server:23.8.2.7-alpine
         ```
     
-    === "Run services on a seperate instance"
+    === "Run services on a separate instance"
 
         ```sh
         docker run -d \
@@ -186,7 +186,7 @@ To set up VictoriaMetrics:
         --influxListenAddr=:8089
         ```
     
-    === "Run services on a seperate instance"
+    === "Run services on a separate instance"
 
         ```sh
         docker run -d \
@@ -265,7 +265,7 @@ To set up PostgreSQL:
     
 6. Run the PostgreSQL container.
 
-    You can either run all the services on the same instance or on a seperate instance.
+    You can either run all the services on the same instance or on a separate instance.
 
     !!! note alert alert-primary "Note"
         It is recommended to use absolute paths instead of relative paths for volume mounts.
@@ -286,7 +286,7 @@ To set up PostgreSQL:
             postgres -c shared_preload_libraries=pg_stat_statements
         ```
         
-    === "Run services on a seperate instance"
+    === "Run services on a separate instance"
     
         ```sh
            docker run -d \
@@ -360,7 +360,7 @@ The PMM Server orchestrates the collection, storage, and visualization of metric
         ${PMM_DOCKER_IMAGE}
         ```
     
-    === "Run services on a seperate instance"
+    === "Run services on a separate instance"
     
         ```sh
         docker run -d \
@@ -430,7 +430,7 @@ The PMM Server orchestrates the collection, storage, and visualization of metric
         ${PMM_DOCKER_IMAGE}
         ```
     
-    === "Run services on a seperate instance"
+    === "Run services on a separate instance"
     
         ```sh
         docker run -d \
@@ -500,7 +500,7 @@ The PMM Server orchestrates the collection, storage, and visualization of metric
         ${PMM_DOCKER_IMAGE}
         ```
     
-    === "Run services on a seperate instance"
+    === "Run services on a separate instance"
     
         ```sh
         docker run -d \
