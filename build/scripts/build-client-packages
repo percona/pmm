@@ -446,8 +446,8 @@ ARCH=
 OS=
 SUBMODULE_BRANCH="v3"
 INSTALL=0
-RPM_RELEASE=6
-DEB_RELEASE=6
+RPM_RELEASE=7
+DEB_RELEASE=7
 
 if [ -n "$pmm_release" ]; then
     RPM_RELEASE="$RPM_RELEASE.$pmm_release"

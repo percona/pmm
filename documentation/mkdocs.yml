@@ -1,0 +1,23 @@
+# MkDocs configuration for default Material-themed build
+INHERIT: mkdocs-base.yml
+
+site_url: https://docs.percona.com/percona-monitoring-and-management/
+
+#Google Analytics configuration 
+extra:
+  analytics:
+    provider: google
+    property: G-J4J70BNH0G
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thank you for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: >- 
+            Thank you for your feedback! Help us improve by following this <a href="https://docs.google.com/forms/d/1bkWACehjqlwA0AKf-qTJcXvYbOSYgze8iTPXjntqmNo/edit" target="_blank" rel="noopener">feedback form</a>.
