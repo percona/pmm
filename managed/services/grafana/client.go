@@ -233,7 +233,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	if token != "" {
 		role, err := c.getRoleForServiceToken(ctx, token)
 		if err != nil {
-			if err == ErrIsNotServiceAccount {
+			if errors.Is(err, ErrIsNotServiceAccount) {
 				role, err := c.getRoleForAPIKey(ctx, authHeaders)
 				return authUser{
 					role:   role,
