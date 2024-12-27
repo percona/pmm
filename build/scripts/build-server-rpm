@@ -33,12 +33,14 @@ is_build_needed() {
     if [ -n "$RPM_EPOCH" ]; then
         aws s3 sync \
             --region us-east-2 \
+            --no-progress \
             --no-sign-request \
             s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
             ${rpms_dir}/${spec_name}-${rpm_version}
     else
         aws s3 sync \
             --region us-east-2 \
+            --no-progress \
             --no-sign-request \
             s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
             ${rpms_dir}/${spec_name}-${rpm_version}
@@ -142,12 +144,14 @@ build() {
         if [ -n "$RPM_EPOCH" ]; then
             aws s3 sync \
                 --region us-east-2 \
+                --no-progress \
                 ${rpms_dir}/${spec_name}-${rpm_version} \
                 s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
                 || :
         else
             aws s3 sync \
                 --region us-east-2 \
+                --no-progress \
                 ${rpms_dir}/${spec_name}-${rpm_version} \
                 s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
                 || :
