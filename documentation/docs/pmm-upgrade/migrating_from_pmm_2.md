@@ -113,6 +113,14 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
 Depending on your initial installation method, update PMM Clients using your operating system's package manager or by updating from a tarball.
 For detailed instructions, see the [Upgrade PMM Client topic](../pmm-upgrade/upgrade_client.md).
 
+## Step 4: Migration of API Keys
+!!! caution alert alert-warning "Important"
+In PMM 3 Server, API Keys are deprecated and should not be used.
+
+To migrate all API Keys, admin users need to log in to Grafana.
+Once logged in, you will see a popup window with details about the migrated API Keys. If no popup appears, it is likely that there were no API Keys to migrate.
+In the menu, go to **Administration -> Users and Access -> Service Accounts**. Verify that all API Keys have been migrated and that the API Keys menu is no longer visible.
+
 ### Post-migration steps
 
 After you finish migrating:
