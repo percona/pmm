@@ -10,7 +10,8 @@ ENV PS1="[\u@\h \W] # "
 
 WORKDIR /opt
 
-RUN microdnf -y install epel-release && \
+RUN --mount=type=cache,target=/var/cache/dnf \
+    microdnf -y install epel-release && \
     microdnf -y install ansible-core \
                         ansible-collection-community-general \
                         ansible-collection-community-postgresql \
@@ -21,13 +22,14 @@ RUN microdnf -y install epel-release && \
 
 COPY entrypoint.sh /opt/entrypoint.sh
 COPY ansible /opt/ansible
-COPY RPMS /tmp/RPMS
 COPY gitCommit /tmp/gitCommit
 
 # Use COPY as we want to unarchive it with ansible
 COPY pmm-client.tar.gz /tmp/
 
-RUN install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
+RUN --mount=type=bind,source=RPMS,target=/tmp/RPMS \
+    --mount=type=bind,source=pmm-client.tar.gz,target=/tmp/pmm-client.tar.gz \
+    install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
     install -T -p -m 644 /opt/ansible/hosts /etc/ansible/hosts && \
     ansible-playbook -vvv /opt/ansible/pmm-docker/main.yml && \
     ansible-playbook -vvv /opt/ansible/pmm-docker/post-build.yml && \
