@@ -43,8 +43,12 @@ import (
 	"github.com/percona/pmm/utils/grafana"
 )
 
-// ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
-var ErrFailedToGetToken = errors.New("failed to get token")
+var (
+	// ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
+	ErrFailedToGetToken = errors.New("failed to get token")
+	// ErrIsNotServiceAccount means that provided auth header is not Service account. Most likely it is API Key.
+	ErrIsNotServiceAccount = errors.New("Auth method is not service account token")
+)
 
 const (
 	pmmServiceTokenName   = "pmm-agent-st" //nolint:gosec
@@ -111,7 +115,7 @@ func (e *clientError) Error() string {
 // do makes HTTP request with given parameters, and decodes JSON response with 200 OK status
 // to respBody. It returns wrapped clientError on any other status, or other fatal errors.
 // Ctx is used only for cancelation.
-func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte, respBody interface{}) error {
+func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte, target interface{}) error {
 	u := url.URL{
 		Scheme:   "http",
 		Host:     c.addr,
@@ -151,8 +155,8 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		return errors.WithStack(cErr)
 	}
 
-	if respBody != nil {
-		if err = json.Unmarshal(b, respBody); err != nil {
+	if len(b) > 0 && target != nil {
+		if err = json.Unmarshal(b, target); err != nil {
 			return errors.WithStack(err)
 		}
 	}
@@ -229,7 +233,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	if token != "" {
 		role, err := c.getRoleForServiceToken(ctx, token)
 		if err != nil {
-			if strings.Contains(err.Error(), "Auth method is not service account token") {
+			if errors.Is(err, ErrIsNotServiceAccount) {
 				role, err := c.getRoleForAPIKey(ctx, authHeaders)
 				return authUser{
 					role:   role,
@@ -334,6 +338,10 @@ func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role
 	var k map[string]interface{}
 	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k); err != nil {
 		return none, err
+	}
+
+	if k == nil {
+		return none, ErrIsNotServiceAccount
 	}
 
 	if id, _ := k["orgId"].(float64); id != 1 {
