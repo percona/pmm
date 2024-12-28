@@ -201,10 +201,6 @@
         path: /var/run/supervisor/supervisor.sock
       register: is_supervisor_running
 
-    - name: Supervisord start EL7         | Start supervisord for docker
-      when: is_docker and not is_supervisor_running.stat.exists and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      shell: supervisord -c /etc/supervisord.conf &
-
     - name: Supervisord start EL9        | Start supervisord for docker
       when: is_docker and not is_supervisor_running.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       shell: /usr/local/bin/supervisord -c /etc/supervisord.conf &
@@ -238,12 +234,6 @@
     # See https://github.com/Supervisor/supervisor/issues/1264 for explanation
     # why we do reread + stop/remove/add instead of using supervisorctl Ansible module.
 
-    - name: Reread supervisord configuration EL7
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      command: supervisorctl reread
-      register: reread_result
-      changed_when: "'No config updates to processes' not in reread_result.stdout"
-
     - name: Reread supervisord configuration EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       command: /usr/local/bin/supervisorctl reread
@@ -253,13 +243,6 @@
 
     - name: Check reread results
       debug: var=reread_result.stdout_lines
-
-    - name: Restart pmm-managed EL7
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      command: supervisorctl {{ item }} pmm-managed
-      become: true
-      changed_when: true
-      with_items: ["stop", "remove", "add"]
 
     - name: Restart pmm-managed EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
@@ -339,12 +322,6 @@
         regexp: "set -o errexit"
         replace: ""
 
-    - name: Reread supervisord configuration again EL7
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      command: supervisorctl reread
-      register: reread_result
-      changed_when: "'No config updates to processes' not in reread_result.stdout"
-
     - name: Reread supervisord configuration again EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       command: /usr/local/bin/supervisorctl reread
@@ -353,19 +330,6 @@
 
     - name: Check reread results
       debug: var=reread_result.stdout_lines
-
-    - name: Restart services EL7
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      command: supervisorctl {{ item.1 }} {{ item.0 }}
-      become: true
-      changed_when: true
-      with_nested:
-        - - alertmanager
-          - nginx
-          - grafana
-          - qan-api2
-          - pmm-agent
-        - ["stop", "remove", "add"]
 
     - name: Restart services EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9' and is_docker
@@ -437,12 +401,6 @@
       register: managed_init_result
       changed_when: True
 
-    - name: Reread pmm-update-perform-init supervisor config EL7
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      command: supervisorctl reread
-      register: reread_init__result
-      changed_when: "'No config updates to processes' not in reread_init__result.stdout"
-
     - name: Reread pmm-update-perform-init supervisor config EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       command: /usr/local/bin/supervisorctl reread
@@ -450,25 +408,12 @@
       changed_when: "'No config updates to processes' not in reread_init__result.stdout"
 
     # restarting pmm-managed to regenerate /etc/alertmanager.yml
-    - name: Restart pmm-managed EL7
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      command: supervisorctl {{ item }} pmm-managed
-      become: true
-      changed_when: true
-      with_items: ["stop", "remove", "add"]
-
     - name: Restart pmm-managed EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       command: /usr/local/bin/supervisorctl {{ item }} pmm-managed
       become: true
       changed_when: true
       with_items: ["stop", "remove", "add"]
-
-    - name: Update/restart other services EL7
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      command: supervisorctl update
-      register: update_result
-      changed_when: "'updated' in update_result.stdout"
 
     - name: Update/restart other services EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
@@ -491,12 +436,6 @@
 
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.
-    - name: Get supervisord logs EL7
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      shell: supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
-      register: maintail_result
-      changed_when: False
-
     - name: Get supervisord logs EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       shell: /usr/local/bin/supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
