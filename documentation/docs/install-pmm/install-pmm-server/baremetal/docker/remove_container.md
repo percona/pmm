@@ -4,8 +4,9 @@
 
     !!! summary alert alert-info ""
         - Stop the container.
-        - Remove (delete) both the server and data containers.
-        - Remove (delete) both images.
+        - Remove the container.
+        - Remove the data volume.
+        - Remove the image.
 
     ---
 
@@ -21,14 +22,20 @@ To remove the container:
     docker stop pmm-server
     ```
 
-2. Remove containers.
+2. Remove the container.
 
     ```sh
-    docker rm pmm-server pmm-data
+    docker rm pmm-server
     ```
 
-3. Remove the image.
+3. Remove the data volume.
 
     ```sh
-    docker rmi $(docker images | grep "percona/pmm-server" | awk {'print $3'})
+    docker volume rm pmm-data
+    ```
+
+4. Remove the image.
+
+    ```sh
+    docker rmi $(docker images | grep "percona/pmm-server" | awk '{print $3}')
     ```

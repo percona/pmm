@@ -14,7 +14,6 @@ You can also install PMM 3 manually, following the instructions below.
 
 Before starting the installation, review the installation prerequisites below and choose a method to run PMM Server with Docker based on your preferred data storage option:
 
-- [Running Docker with Data container](../docker/run_with_data_container.md)
 - [Running Docker with host directory](../docker/run_with_host_dir.md)
 - [Running Docker with volume](../docker/run_with_vol.md)
 
@@ -35,7 +34,7 @@ Before starting the installation, review the installation prerequisites below an
 
     !!! summary alert alert-info ""
         - Pull the Docker image.
-        - Copy it to create a persistent data container.
+        - Choose how you want to store data.
         - Run the image.
         - Open the PMM UI in a browser.
 
