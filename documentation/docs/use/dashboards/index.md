@@ -69,7 +69,7 @@
 [VictoriaMetrics Agents Overview]: dashboard-victoriametrics-agents-overview.md
 [PMM Inventory]: dashboard-inventory.md
 [Environment Overview]: dashboard-env-overview.md
-[Environment Summary]: dashboard-environent-summary.md
+[Environment Summary]: dashboard-environment-summary.md
 [CPU Utilization Details]: dashboard-cpu-utilization-details.md
 [Disk Details]: dashboard-disk-details.md
 [Network Details]: dashboard-network-details.md
