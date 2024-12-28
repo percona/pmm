@@ -1,8 +1,28 @@
 @media print {
-    /* Adjusts positioning of admonition icon */
-    .md-typeset :is(.admonition-title,summary):before {
-      top: 0.6rem;
-      left: 0.6rem;
-    }
+  /* Adjusts positioning of admonition icon */
+  .md-typeset :is(.admonition-title,summary):before {
+    top: 0.6rem;
+    left: 0.6rem;
   }
+
+  /* Do not render html tags with this class in PDF */
+  .no-pdf {
+    display: none !important;
+  }
+
+  /* Modify rendering of numbered lists in PDF */
+  .power-number+ol>li::before,
+  .power-number+ol ol>li::before {
+    background-color: var(--md-default-bg-color);
+    color: var(--md-typeset-color);
+    border-radius: 0;
+    width: 1.5em;
+    margin-left: -1.7em;
+    opacity: 1;
+  }
+
+  .tabbed-content {
+    display: contents;
+  }
+}
   

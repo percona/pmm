@@ -29,12 +29,12 @@ Delete the search text and press Enter to see the full list again.
 
 - The first column is the object’s identifier. For **Query**, it is the query’s [Fingerprint](../../../reference/glossary.md#fingerprint).
 - The second column is the **Main metric**, containing a reduced graphical representation of the metric over time, called a **sparkline**, and a horizontal meter, filled to reflect a percentage of the total value.
-- Additional values are revealed as mouse-over tool-tips.
+- Additional values are revealed as mouse-over tooltips.
 
-## Tool-tips
+## Tooltips
 
-- For the **Query** dimension, hovering over the information icon <i class="fa fa-info-circle"></i> reveals the query ID and its example.
-- Hovering on a column header reveals an informative tool-tip for that column.
+- For the **Query** dimension, hovering over the information icon :material-information: reveals the query ID and its example.
+- Hovering on a column header reveals an informative tooltip for that column.
 - Hovering on the main metric sparkline highlights the data point and a tooltip shows the data value under the cursor.
 
 ![!image](../../../images/PMM_Query_Analytics_Main_Metric_Sparkline.jpg)
