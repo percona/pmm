@@ -7,6 +7,7 @@ replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.21.0-percon
 require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
+	github.com/alta/protopatch v0.5.4-0.20241029232439-aa5698f2d7a2
 	github.com/apache/skywalking-eyes v0.6.0
 	github.com/bufbuild/buf v1.47.0
 	github.com/daixiang0/gci v0.13.0
@@ -86,6 +87,7 @@ require (
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
+	github.com/fatih/structtag v1.2.0 // indirect
 	github.com/felixge/fgprof v0.9.5 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
