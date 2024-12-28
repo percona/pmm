@@ -33,12 +33,14 @@ is_build_needed() {
     if [ -n "$RPM_EPOCH" ]; then
         aws s3 sync \
             --region us-east-2 \
+            --no-progress \
             --no-sign-request \
             s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
             ${rpms_dir}/${spec_name}-${rpm_version}
     else
         aws s3 sync \
             --region us-east-2 \
+            --no-progress \
             --no-sign-request \
             s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
             ${rpms_dir}/${spec_name}-${rpm_version}
@@ -124,13 +126,16 @@ build() {
               sleep 1
             done
 
-            sudo yum-builddep -y SOURCES/${spec_name}.spec
+            if [[ ${spec_name} =~ ^grafana|^percona-dashboards ]]; then
+                sudo yum-builddep -y SOURCES/${spec_name}.spec
+            fi
 
             spectool -C SOURCES -g SOURCES/${spec_name}.spec
             rpmbuild  --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
                       --define 'dist .${rpmbuild_dist}' \
                       --define 'debug_package %{nil}' \
-                      -ba SOURCES/${spec_name}.spec
+                      -bb SOURCES/${spec_name}.spec \
+                      --rmspec
 
             rm -f SOURCES/${spec_name}.spec*
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
@@ -139,12 +144,14 @@ build() {
         if [ -n "$RPM_EPOCH" ]; then
             aws s3 sync \
                 --region us-east-2 \
+                --no-progress \
                 ${rpms_dir}/${spec_name}-${rpm_version} \
                 s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
                 || :
         else
             aws s3 sync \
                 --region us-east-2 \
+                --no-progress \
                 ${rpms_dir}/${spec_name}-${rpm_version} \
                 s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
                 || :
