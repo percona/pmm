@@ -1,7 +1,7 @@
 ---
-# This role installs and configures Victorialogs (https://docs.victoriametrics.com/victorialogs/quickstart/).
+# This role installs and configures VictoriaLogs (https://docs.victoriametrics.com/victorialogs/quickstart/).
 
-- name: Download and unarchive AWS installer
+- name: Download and unarchive VictoriaLogs
   unarchive:
     src: "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v{{ victorialogs_version }}-victorialogs/victoria-logs-linux-amd64-v{{ victorialogs_version }}-victorialogs.tar.gz"
     dest: /tmp
@@ -18,14 +18,9 @@
     path: /tmp/victoria-logs-prod
     state: absent
 
-- name: Install unzip
-  dnf:
-    name: unzip
-    state: latest
-
 - name: Download and unarchive victorialogs-datasource
   unarchive:
-    src: "https://github.com/VictoriaMetrics/victorialogs-datasource/releases/download/v{{ victorialogs_datasource_version }}/victoriametrics-logs-datasource-v{{ victorialogs_datasource_version }}.zip"
+    src: "https://github.com/VictoriaMetrics/victorialogs-datasource/releases/download/v{{ victorialogs_datasource_version }}/victoriametrics-logs-datasource-v{{ victorialogs_datasource_version }}.tar.gz"
     dest: /srv/grafana/plugins
     remote_src: yes
 
@@ -142,11 +137,6 @@
 
 - name: Remove ansible markers from pmm.conf
   command: sed -i '/^#VLOGS_LOCATION_.*/d' /etc/nginx/conf.d/pmm.conf
-
-- name: Remove unzip
-  dnf:
-    name: unzip
-    state: absent
 
 - name: Clean dnf cache
   command: dnf clean all
