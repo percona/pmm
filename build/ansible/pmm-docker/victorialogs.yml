@@ -3,7 +3,7 @@
   become: yes
   gather_facts: yes
   vars:
-    victorialogs_version: "1.3.2"
-    victorialogs_datasource_version: "0.10.0"
+    victorialogs_version: "1.4.0"
+    victorialogs_datasource_version: "0.13.2"
   roles:
     - victorialogs

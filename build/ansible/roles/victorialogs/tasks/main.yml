@@ -25,7 +25,7 @@
 
 - name: Download and unarchive victorialogs-datasource
   unarchive:
-    src: "https://github.com/VictoriaMetrics/victorialogs-datasource/releases/download/v{{ victorialogs_datasource_version }}/victorialogs-datasource-v{{ victorialogs_datasource_version }}.zip"
+    src: "https://github.com/VictoriaMetrics/victorialogs-datasource/releases/download/v{{ victorialogs_datasource_version }}/victoriametrics-logs-datasource-v{{ victorialogs_datasource_version }}.zip"
     dest: /srv/grafana/plugins
     remote_src: yes
 
@@ -34,16 +34,16 @@
     path: "{{ item }}"
     state: absent
   loop:
-    - /srv/grafana/plugins/victorialogs-datasource/victorialogs_backend_plugin_darwin_amd64
-    - /srv/grafana/plugins/victorialogs-datasource/victorialogs_backend_plugin_darwin_arm64
-    - /srv/grafana/plugins/victorialogs-datasource/victorialogs_backend_plugin_linux_386
-    - /srv/grafana/plugins/victorialogs-datasource/victorialogs_backend_plugin_linux_arm
-    - /srv/grafana/plugins/victorialogs-datasource/victorialogs_backend_plugin_linux_arm64
-    - /srv/grafana/plugins/victorialogs-datasource/victorialogs_backend_plugin_windows_amd64.exe
+    - /srv/grafana/plugins/victoriametrics-logs-datasource/victorialogs_backend_plugin_darwin_amd64
+    - /srv/grafana/plugins/victoriametrics-logs-datasource/victorialogs_backend_plugin_darwin_arm64
+    - /srv/grafana/plugins/victoriametrics-logs-datasource/victorialogs_backend_plugin_linux_386
+    - /srv/grafana/plugins/victoriametrics-logs-datasource/victorialogs_backend_plugin_linux_arm
+    - /srv/grafana/plugins/victoriametrics-logs-datasource/victorialogs_backend_plugin_linux_arm64
+    - /srv/grafana/plugins/victoriametrics-logs-datasource/victorialogs_backend_plugin_windows_amd64.exe
 
-- name: Change ownership of victorialogs-datasource
+- name: Change ownership of victoriametrics-logs-datasource
   file:
-    path: /srv/grafana/plugins/victorialogs-datasource
+    path: /srv/grafana/plugins/victoriametrics-logs-datasource
     owner: pmm
     group: pmm
     recurse: yes
@@ -106,11 +106,11 @@
     owner: pmm
     group: pmm
 
-- name: Add victorialogs-datasource to unsigned plugins
+- name: Add victoriametrics-logs-datasource to unsigned plugins
   lineinfile:
     dest: /etc/grafana/grafana.ini
     regexp: '^allow_loading_unsigned_plugins'
-    line: 'allow_loading_unsigned_plugins = grafana-polystat-panel,pmm-app,pmm-check-panel-home,pmm-update,pmm-qan-app-panel,pmm-pt-summary-panel,pmm-pt-summary-datasource,victorialogs-datasource'
+    line: 'allow_loading_unsigned_plugins = grafana-polystat-panel,pmm-app,pmm-check-panel-home,pmm-update,pmm-qan-app-panel,pmm-pt-summary-panel,pmm-pt-summary-datasource,victoriametrics-logs-datasource'
     state: present
 
 - name: Remove the end of log_format line in nginx.conf

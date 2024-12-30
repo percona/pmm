@@ -6,7 +6,7 @@ datasources:
     # displayed in Grafana panels and queries.
   - name: VictoriaLogs
     # <string, required> Sets the data source type.
-    type: victorialogs-datasource
+    type: victoriametrics-logs-datasource
     uid: victorialogs
     # <string, required> Sets the access mode, either
     # proxy or direct (Server or Browser in the UI).
