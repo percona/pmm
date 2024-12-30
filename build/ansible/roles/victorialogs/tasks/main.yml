@@ -34,12 +34,12 @@
     path: "{{ item }}"
     state: absent
   loop:
-    - /srv/grafana/plugins/victoriametrics-logs-datasource/victorialogs_backend_plugin_darwin_amd64
-    - /srv/grafana/plugins/victoriametrics-logs-datasource/victorialogs_backend_plugin_darwin_arm64
-    - /srv/grafana/plugins/victoriametrics-logs-datasource/victorialogs_backend_plugin_linux_386
-    - /srv/grafana/plugins/victoriametrics-logs-datasource/victorialogs_backend_plugin_linux_arm
-    - /srv/grafana/plugins/victoriametrics-logs-datasource/victorialogs_backend_plugin_linux_arm64
-    - /srv/grafana/plugins/victoriametrics-logs-datasource/victorialogs_backend_plugin_windows_amd64.exe
+    - /srv/grafana/plugins/victoriametrics-logs-datasource/victoriametrics_logs_backend_plugin_darwin_amd64
+    - /srv/grafana/plugins/victoriametrics-logs-datasource/victoriametrics_logs_backend_plugin_darwin_arm64
+    - /srv/grafana/plugins/victoriametrics-logs-datasource/victoriametrics_logs_backend_plugin_linux_386
+    - /srv/grafana/plugins/victoriametrics-logs-datasource/victoriametrics_logs_backend_plugin_linux_arm
+    - /srv/grafana/plugins/victoriametrics-logs-datasource/victoriametrics_logs_backend_plugin_linux_arm64
+    - /srv/grafana/plugins/victoriametrics-logs-datasource/victoriametrics_logs_backend_plugin_windows_amd64.exe
 
 - name: Change ownership of victoriametrics-logs-datasource
   file:
