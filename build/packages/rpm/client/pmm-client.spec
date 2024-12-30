@@ -52,13 +52,22 @@ if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml.bak ]; then
         /^[^[:space:]]/!d
     }' "/usr/local/percona/pmm/config/pmm-agent.yaml" > "/usr/local/percona/pmm/config/pmm-agent.yaml.tmp" && mv "/usr/local/percona/pmm/config/pmm-agent.yaml.tmp" "/usr/local/percona/pmm/config/pmm-agent.yaml"
 
-    if [ -d /usr/local/percona/pmm2/config ] && [ ! "$(ls -A /usr/local/percona/pmm2/config)" ]; then
+    if [ -d /usr/local/percona/pmm2/config ] && [ -z "$(ls -A /usr/local/percona/pmm2/config)" ]; then
        rmdir /usr/local/percona/pmm2/config
     fi
 
-    if [ -d /usr/local/percona/pmm2 ] && [ ! "$(ls -A /usr/local/percona/pmm2)" ]; then
+    if [ -d /usr/local/percona/pmm2 ] && [ -z "$(ls -A /usr/local/percona/pmm2)" ]; then
        rmdir /usr/local/percona/pmm2
     fi
+
+    if ! getent passwd pmm-agent > /dev/null 2>&1; then
+       /usr/sbin/groupadd -r pmm-agent
+       /usr/sbin/useradd -M -r -g pmm-agent -d /usr/local/percona/ -s /bin/false -c "PMM Agent User" pmm-agent
+       chown -R pmm-agent:pmm-agent /usr/local/percona/pmm
+    fi
+    /usr/bin/systemctl enable pmm-agent >/dev/null 2>&1 || :
+    /usr/bin/systemctl daemon-reload
+    /usr/bin/systemctl start pmm-agent.service
 fi
 
 %build
@@ -122,7 +131,7 @@ install -m 0644 config/pmm-agent.service %{buildroot}/%{_unitdir}/pmm-agent.serv
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-if [ $1 == 1 ]; then
+if [ $1 -eq 1 ]; then
   if ! getent passwd pmm-agent > /dev/null 2>&1; then
     /usr/sbin/groupadd -r pmm-agent
     /usr/sbin/useradd -M -r -g pmm-agent -d /usr/local/percona/ -s /bin/false -c pmm-agent pmm-agent > /dev/null 2>&1
@@ -132,7 +141,6 @@ if [ $1 -eq 2 ]; then
     /usr/bin/systemctl stop pmm-agent.service >/dev/null 2>&1 ||:
 fi
 
-
 %post
 for file in pmm-admin pmm-agent
 do
@@ -140,7 +148,7 @@ do
   %{__ln_s} -f /usr/local/percona/pmm/bin/$file /usr/sbin/$file
 done
 %systemd_post pmm-agent.service
-if [ $1 == 1 ]; then
+if [ $1 -eq 1 ]; then
     if [ ! -f /usr/local/percona/pmm/config/pmm-agent.yaml ]; then
         install -d -m 0755 /usr/local/percona/pmm/config
         install -m 0660 -o pmm-agent -g pmm-agent /dev/null /usr/local/percona/pmm/config/pmm-agent.yaml
@@ -164,21 +172,29 @@ fi
 
 %postun
 case "$1" in
-   0) # This is a yum remove.
-      /usr/sbin/userdel pmm-agent
-      %systemd_postun_with_restart pmm-agent.service
-   ;;
    1) # This is a yum upgrade.
       %systemd_postun_with_restart pmm-agent.service
    ;;
 esac
-if [ $1 == 0 ]; then
+if [ $1 -eq 0 ]; then
+  %systemd_postun_with_restart pmm-agent.service
   if /usr/bin/id -g pmm-agent > /dev/null 2>&1; then
     /usr/sbin/userdel pmm-agent > /dev/null 2>&1
     /usr/sbin/groupdel pmm-agent > /dev/null 2>&1 || true
     if [ -f /usr/local/percona/pmm/config/pmm-agent.yaml ]; then
         rm -r /usr/local/percona/pmm/config/pmm-agent.yaml
     fi
+    if [ -f /usr/local/percona/pmm/config/pmm-agent.yaml.bak ]; then
+        rm -r /usr/local/percona/pmm/config/pmm-agent.yaml.bak
+    fi
+    if [ -d /usr/local/percona/pmm/config ] && [ -z "$(ls -A /usr/local/percona/pmm/config)" ]; then
+       rmdir /usr/local/percona/pmm/config
+    fi
+
+    if [ -d /usr/local/percona/pmm ] && [ -z "$(ls -A /usr/local/percona/pmm)" ]; then
+       rmdir /usr/local/percona/pmm
+    fi
+
     for file in pmm-admin pmm-agent
     do
       if [ -L /usr/sbin/$file ]; then
@@ -190,7 +206,6 @@ if [ $1 == 0 ]; then
     done
   fi
 fi
-
 
 %files
 %config %{_unitdir}/pmm-agent.service
