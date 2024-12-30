@@ -4,6 +4,7 @@
 
 /api/nginx/*.pem
 bin/
+!/documentation/resources/bin/
 
 # System Files
 .DS_Store
@@ -17,9 +18,6 @@ agent/agents/mysql/slowlog/parser/corpus/
 agent/agents/mysql/slowlog/parser/crashers/
 agent/agents/mysql/slowlog/parser/suppressions/
 agent/agents/mysql/slowlog/parser/parser-fuzz.zip
-
-update/*.runcover.out
-update/*.test
 
 fuzzing/
 *-fuzz.zip
