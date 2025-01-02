@@ -4,7 +4,7 @@ The following table lists all the PMM client/server components and their version
 
 | PMM client/server component |Version | Documentation |Location on GitHub|
 |-----------------------------|--------|---------------|------------------|
-| Grafana  | 9.2.20*    | [Grafana Documentation](https://grafana.com/docs/grafana/latest/)|[Github Grafana](https://github.com/percona-platform/grafana)|
+| Grafana  | 11.1.8*    | [Grafana Documentation](https://grafana.com/docs/grafana/latest/)|[Github Grafana](https://github.com/percona-platform/grafana)|
 | VictoriaMetrics| 1.93.4    | [VictoriaMetrics Documentation](https://docs.victoriametrics.com/)|[Github VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics)    |
 | Nginx    | 1.20.1 | [Nginx Documentation](http://nginx.org/en/docs/)|[Github Nginx](https://github.com/nginx/nginx-releases)                                                    |
 | Percona Distribution for PostgreSQL  | 14.5    | [Percona Distribution for PostgreSQL 14 Documentation](https://www.percona.com/doc/postgresql/LATEST/index.html)|              |
