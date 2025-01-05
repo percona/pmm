@@ -47,7 +47,7 @@ var (
 	// ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
 	ErrFailedToGetToken = errors.New("failed to get token")
 	// ErrIsNotServiceAccount means that provided auth header is not Service account. Most likely it is API Key.
-	ErrIsNotServiceAccount = errors.New("Auth method is not service account token")
+	ErrIsNotServiceAccount = errors.New("auth method is not service account token")
 )
 
 const (
@@ -227,13 +227,15 @@ var emptyUser = authUser{
 // getAuthUser returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
 // Otherwise, it returns a role in the default organization (with ID 1).
 // Ctx is used only for cancelation.
-func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
+func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error) {
 	// Check if API Key or Service Token is authorized.
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
 		role, err := c.getRoleForServiceToken(ctx, token)
 		if err != nil {
 			if errors.Is(err, ErrIsNotServiceAccount) {
+				l.Warning("you should migrate your API Key into Service Account")
+
 				role, err := c.getRoleForAPIKey(ctx, authHeaders)
 				return authUser{
 					role:   role,
