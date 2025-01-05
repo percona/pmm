@@ -232,23 +232,23 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
 		role, err := c.getRoleForServiceToken(ctx, token)
-		if err != nil {
-			if errors.Is(err, ErrIsNotServiceAccount) {
-				l.Warning("you should migrate your API Key into Service Account")
-
-				role, err := c.getRoleForAPIKey(ctx, authHeaders)
-				return authUser{
-					role:   role,
-					userID: 0,
-				}, err
-			}
-
-			return emptyUser, err
+		if err == nil {
+			return authUser{
+				role:   role,
+				userID: 0,
+			}, nil
 		}
-		return authUser{
-			role:   role,
-			userID: 0,
-		}, nil
+		if errors.Is(err, ErrIsNotServiceAccount) {
+			l.Warning("you should migrate your API Key into Service Account")
+
+			role, err := c.getRoleForAPIKey(ctx, authHeaders)
+			return authUser{
+				role:   role,
+				userID: 0,
+			}, err
+		}
+
+		return emptyUser, err
 	}
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
