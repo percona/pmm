@@ -25,12 +25,7 @@ type PackageInfo struct {
 	Repo        string     `json:"repo"`
 }
 
-// UpdateInstalledResult represents `pmm-update -installed` result.
-type UpdateInstalledResult struct {
-	Installed PackageInfo `json:"installed"`
-}
-
-// UpdateCheckResult represents `pmm-update -check` result.
+// UpdateCheckResult describes the latest update check result.
 type UpdateCheckResult struct {
 	Installed       PackageInfo       `json:"installed"`
 	Latest          DockerVersionInfo `json:"latest,omitempty"`
