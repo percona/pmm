@@ -195,6 +195,8 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		ua.AwsAccessKey = agent.AWSOptions.AWSAccessKey
 		ua.RdsBasicMetricsDisabled = agent.AWSOptions.RDSBasicMetricsDisabled
 		ua.RdsEnhancedMetricsDisabled = agent.AWSOptions.RDSEnhancedMetricsDisabled
+	default:
+		// Do nothing.
 	}
 
 	return ua, nil
