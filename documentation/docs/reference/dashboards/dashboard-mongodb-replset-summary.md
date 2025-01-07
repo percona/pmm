@@ -12,7 +12,7 @@ Operations are classified by legacy wire protocol type (insert, update, and dele
 
 ## Max Member Ping Time - by service name
 
-This metric can show a correlation with the replication lag value.
+This metric can showygjhgj a correlation with the replication lag value.
 
 ## Max Heartbeat Time
 
