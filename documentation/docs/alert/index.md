@@ -13,5 +13,5 @@ Percona Alerting is powered by Grafana infrastructure. It leverages Grafana's ad
 Depending on the datasources that you want to query, and the complexity of your required evaluation criteria, Percona Alerting enables you to create the following types of alerts:
 
 - **Percona templated alerts**: alerts based on a set of Percona-supplied templates with common events and expressions for alerting.
-If you you want to use custom expressions for the alert rules, you can create your own alert rule templates.
+If you you want to use custom expressions in alert rules, you can create your own alert rule templates.
 - **Grafana managed alerts**: alerts that handle complex conditions and can span multiple different data sources like SQL, Prometheus, InfluxDB, etc. These alerts are stored and executed by Grafana.
