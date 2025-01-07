@@ -123,7 +123,7 @@ A policy will match an alert if the alert’s labels match all the matching labe
 This can be useful, for example, when you want to send notifications to a catch-all contact point as well as to one of more specific contact points handled by subsequent policies.
 6. Toggle **Override grouping** if you do not want to use root policy grouping.
 7. Toggle **Override general timings** to specify how often you want to wait until the initial notification is sent for a new group. When this is disabled, PMM uses root policy group timings instead.
-8. Add a mute timing if you want to mute notifications or this policy for a specific, regular interval. For example, you can create a mute to suppress trivial notifications during weekends.  Mute timings are different from silences in the sense that they are recurring, while silences have a fixed start and end time.
+8. Add a mute timing if you want to mute notifications or this policy for a specific, regular interval. For example, you can create a mute to suppress trivial notifications during weekends. Mute timings are different from silences in the sense that they are recurring, while silences have a fixed start and end time.
    
     !!! caution alert alert-warning "Important"
-        Time specified in mute timing must be in UTC and military format i.e. 14:00 not 2:00 PM.
+        Time specified in mute timing must be in UTC format, i.e. 14:00, not 2:00 PM.
