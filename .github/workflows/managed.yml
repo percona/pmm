@@ -7,6 +7,8 @@ on:
       - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
+    paths-ignore:
+      - "documentation/**"
 
   pull_request:
     paths-ignore:
@@ -15,10 +17,14 @@ on:
       - 'api-tests/**'
       - 'cli-tests/**'
       - 'docs/**'
+      - "documentation/**"
       - 'qan-api2/**'
       - 'update/**'
       - 'vmproxy/**'
       - "ui/**"
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -39,7 +45,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Launch PMM Server (see docker-compose.yml)
         run: |
@@ -77,7 +83,7 @@ jobs:
         run: docker exec -i pmm-server make -C managed test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@5c47607acb93fed5485fdbf7232e8a31425f672a # v5.0.2
         with:
           file: managed/cover.out
           flags: managed

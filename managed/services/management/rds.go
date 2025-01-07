@@ -225,6 +225,11 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDSServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:cyclop,maintidx
 	rds := &managementv1.RDSServiceResult{}
 
+	pmmAgentID := models.PMMServerAgentID
+	if req.GetPmmAgentId() != "" {
+		pmmAgentID = req.GetPmmAgentId()
+	}
+
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		// tweak according to API docs
 		if req.NodeName == "" {
@@ -261,15 +266,25 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 		}
 		rds.Node = invNode.(*inventoryv1.RemoteRDSNode) //nolint:forcetypeassert
 
+		metricsMode, err := supportedMetricsMode(tx.Querier, req.MetricsMode, pmmAgentID)
+		if err != nil {
+			return err
+		}
+
 		// add RDSExporter Agent
 		if req.RdsExporter {
 			rdsExporter, err := models.CreateAgent(tx.Querier, models.RDSExporterType, &models.CreateAgentParams{
-				PMMAgentID:                 models.PMMServerAgentID,
-				NodeID:                     node.NodeID,
-				AWSAccessKey:               req.AwsAccessKey,
-				AWSSecretKey:               req.AwsSecretKey,
-				RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
-				RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
+				PMMAgentID: pmmAgentID,
+				NodeID:     node.NodeID,
+				AWSOptions: &models.AWSOptions{
+					AWSAccessKey:               req.AwsAccessKey,
+					AWSSecretKey:               req.AwsSecretKey,
+					RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
+					RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
+				},
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: isPushMode(metricsMode),
+				},
 			})
 			if err != nil {
 				return err
@@ -303,20 +318,20 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			}
 			rds.Mysql = invService.(*inventoryv1.MySQLService) //nolint:forcetypeassert
 
-			_, err = supportedMetricsMode(tx.Querier, req.MetricsMode, models.PMMServerAgentID)
-			if err != nil {
-				return err
-			}
-
 			// add MySQL Exporter
 			mysqldExporter, err := models.CreateAgent(tx.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
-				PMMAgentID:                     models.PMMServerAgentID,
-				ServiceID:                      service.ServiceID,
-				Username:                       req.Username,
-				Password:                       req.Password,
-				TLS:                            req.Tls,
-				TLSSkipVerify:                  req.TlsSkipVerify,
-				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				PMMAgentID:    pmmAgentID,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: isPushMode(metricsMode),
+				},
+				MySQLOptions: &models.MySQLOptions{
+					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				},
 			})
 			if err != nil {
 				return err
@@ -339,14 +354,16 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			// add MySQL PerfSchema QAN Agent
 			if req.QanMysqlPerfschema {
 				qanAgent, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
-					PMMAgentID:              models.PMMServerAgentID,
-					ServiceID:               service.ServiceID,
-					Username:                req.Username,
-					Password:                req.Password,
-					TLS:                     req.Tls,
-					TLSSkipVerify:           req.TlsSkipVerify,
-					QueryExamplesDisabled:   req.DisableQueryExamples,
-					CommentsParsingDisabled: req.DisableCommentsParsing,
+					PMMAgentID:    pmmAgentID,
+					ServiceID:     service.ServiceID,
+					Username:      req.Username,
+					Password:      req.Password,
+					TLS:           req.Tls,
+					TLSSkipVerify: req.TlsSkipVerify,
+					QANOptions: &models.QANOptions{
+						QueryExamplesDisabled:   req.DisableQueryExamples,
+						CommentsParsingDisabled: req.DisableCommentsParsing,
+					},
 				})
 				if err != nil {
 					return err
@@ -382,22 +399,23 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			}
 			rds.Postgresql = invService.(*inventoryv1.PostgreSQLService) //nolint:forcetypeassert
 
-			_, err = supportedMetricsMode(tx.Querier, req.MetricsMode, models.PMMServerAgentID)
-			if err != nil {
-				return err
-			}
-
 			// add PostgreSQL Exporter
 			postgresExporter, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
-				PMMAgentID:                     models.PMMServerAgentID,
-				ServiceID:                      service.ServiceID,
-				Username:                       req.Username,
-				Password:                       req.Password,
-				TLS:                            req.Tls,
-				TLSSkipVerify:                  req.TlsSkipVerify,
-				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				PMMAgentID:    pmmAgentID,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
+				ExporterOptions: &models.ExporterOptions{
+					PushMetrics: isPushMode(metricsMode),
+				},
+				MySQLOptions: &models.MySQLOptions{
+					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				},
+
 				PostgreSQLOptions: &models.PostgreSQLOptions{
-					AutoDiscoveryLimit:     req.AutoDiscoveryLimit,
+					AutoDiscoveryLimit:     pointer.ToInt32(req.AutoDiscoveryLimit),
 					MaxExporterConnections: req.MaxPostgresqlExporterConnections,
 				},
 			})
@@ -422,14 +440,16 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			// add PostgreSQL Pgstatements QAN Agent
 			if req.QanPostgresqlPgstatements {
 				qanAgent, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
-					PMMAgentID:              models.PMMServerAgentID,
-					ServiceID:               service.ServiceID,
-					Username:                req.Username,
-					Password:                req.Password,
-					TLS:                     req.Tls,
-					TLSSkipVerify:           req.TlsSkipVerify,
-					QueryExamplesDisabled:   req.DisableQueryExamples,
-					CommentsParsingDisabled: req.DisableCommentsParsing,
+					PMMAgentID:    pmmAgentID,
+					ServiceID:     service.ServiceID,
+					Username:      req.Username,
+					Password:      req.Password,
+					TLS:           req.Tls,
+					TLSSkipVerify: req.TlsSkipVerify,
+					QANOptions: &models.QANOptions{
+						QueryExamplesDisabled:   req.DisableQueryExamples,
+						CommentsParsingDisabled: req.DisableCommentsParsing,
+					},
 				})
 				if err != nil {
 					return err
@@ -452,13 +472,12 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 		return nil, errTx
 	}
 
-	s.state.RequestStateUpdate(ctx, models.PMMServerAgentID)
+	s.state.RequestStateUpdate(ctx, pmmAgentID)
 
 	res := &managementv1.AddServiceResponse{
 		Service: &managementv1.AddServiceResponse_Rds{
 			Rds: rds,
 		},
 	}
-
 	return res, nil
 }

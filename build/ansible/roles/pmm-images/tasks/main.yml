@@ -29,9 +29,8 @@
   yum:
     name:
       - python3-pip
-      - python3.11-pip
-      - python3.11-psycopg2
       - rsync
+    state: latest
 
 - name: Create groups
   group:
@@ -93,7 +92,6 @@
       - percona-qan-api2
       - percona-dashboards
       - pmm-managed
-      - pmm-update
       - pmm-dump
       - vmproxy
     state: installed
@@ -144,3 +142,33 @@
     state: touch
     owner: pmm
     group: pmm
+
+# Launch pmm-managed-init first as it may update supervisord configuration on start
+- name: Generate new supervisor config
+  command: pmm-managed-init
+  register: managed_init_result
+  changed_when: True
+
+- name: Disable pmm-init
+  ini_file:
+    path: /etc/supervisord.d/pmm.ini
+    section: program:pmm-init
+    option: autostart
+    value: "false"
+
+# During build time, this will be the first start of supervisord.
+- name: Start supervisord
+  shell: supervisord -c /etc/supervisord.conf &
+  become: true
+  become_user: pmm
+  become_method: su
+
+- name: Run initialization playbook
+  include_role:
+    name: initialization
+
+- name: Check supervisord logs
+  shell: sleep 10 && tail -n 200 /srv/logs/supervisord.log
+
+- name: Check grafana logs
+  shell: cat /srv/logs/grafana.log

@@ -27,7 +27,6 @@ import (
 	"net"
 	"net/url"
 	"os"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -60,6 +59,24 @@ const (
 	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode.
 	VerifyFullSSLMode string = "verify-full"
 )
+
+// DefaultAgentEncryptionColumnsV3 since 3.0.0 contains all tables and it's columns to be encrypted in PMM Server DB.
+var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
+	{
+		Name:        "agents",
+		Identifiers: []string{"agent_id"},
+		Columns: []encryption.Column{
+			{Name: "username"},
+			{Name: "password"},
+			{Name: "agent_password"},
+			{Name: "aws_options", CustomHandler: EncryptAWSOptionsHandler},
+			{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
+			{Name: "mongo_options", CustomHandler: EncryptMongoDBOptionsHandler},
+			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
+			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
+		},
+	},
+}
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
 var databaseSchema = [][]string{
@@ -1059,6 +1076,74 @@ var databaseSchema = [][]string{
 		`ALTER TABLE user_flags
 			ADD COLUMN snoozed_pmm_version VARCHAR NOT NULL DEFAULT ''`,
 	},
+	107: {
+		`ALTER TABLE agents ADD COLUMN exporter_options JSONB`,
+		`UPDATE agents SET exporter_options = '{}'::jsonb`,
+		`ALTER TABLE agents ADD COLUMN qan_options JSONB`,
+		`UPDATE agents SET qan_options = '{}'::jsonb`,
+		`ALTER TABLE agents ADD COLUMN aws_options JSONB`,
+		`UPDATE agents SET aws_options = '{}'::jsonb`,
+
+		`ALTER TABLE agents ALTER COLUMN azure_options TYPE JSONB USING to_jsonb(azure_options)`,
+		`UPDATE agents SET azure_options = '{}'::jsonb WHERE azure_options IS NULL`,
+		`ALTER TABLE agents ALTER COLUMN mysql_options TYPE JSONB USING to_jsonb(mysql_options)`,
+		`UPDATE agents SET mysql_options = '{}'::jsonb WHERE mysql_options IS NULL`,
+
+		`ALTER TABLE agents RENAME COLUMN mongo_db_tls_options TO mongo_options`,
+		`UPDATE agents SET mongo_options = '{}'::jsonb WHERE mongo_options IS NULL`,
+
+		`UPDATE agents SET postgresql_options = '{}'::jsonb WHERE postgresql_options IS NULL`,
+
+		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{expose_exporter}', to_jsonb(expose_exporter));`,
+		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{push_metrics}', to_jsonb(push_metrics));`,
+		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{disabled_collectors}', to_jsonb(disabled_collectors));`,
+		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{metrics_resolutions}', to_jsonb(metrics_resolutions));`,
+		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{metrics_path}', to_jsonb(metrics_path));`,
+		`UPDATE agents SET exporter_options = jsonb_set(exporter_options, '{metrics_scheme}', to_jsonb(metrics_scheme));`,
+		`ALTER TABLE agents DROP COLUMN expose_exporter`,
+		`ALTER TABLE agents DROP COLUMN push_metrics`,
+		`ALTER TABLE agents DROP COLUMN disabled_collectors`,
+		`ALTER TABLE agents DROP COLUMN metrics_resolutions`,
+		`ALTER TABLE agents DROP COLUMN metrics_path`,
+		`ALTER TABLE agents DROP COLUMN metrics_scheme`,
+
+		`UPDATE agents SET qan_options = jsonb_set(qan_options, '{max_query_length}', to_jsonb(max_query_length));`,
+		`UPDATE agents SET qan_options = jsonb_set(qan_options, '{max_query_log_size}', to_jsonb(max_query_log_size));`,
+		`UPDATE agents SET qan_options = jsonb_set(qan_options, '{query_examples_disabled}', to_jsonb(query_examples_disabled));`,
+		`UPDATE agents SET qan_options = jsonb_set(qan_options, '{comments_parsing_disabled}', to_jsonb(comments_parsing_disabled));`,
+		`ALTER TABLE agents DROP COLUMN max_query_length`,
+		`ALTER TABLE agents DROP COLUMN max_query_log_size`,
+		`ALTER TABLE agents DROP COLUMN query_examples_disabled`,
+		`ALTER TABLE agents DROP COLUMN comments_parsing_disabled`,
+
+		`UPDATE agents SET aws_options = jsonb_set(aws_options, '{aws_access_key}', to_jsonb(aws_access_key));`,
+		`UPDATE agents SET aws_options = jsonb_set(aws_options, '{aws_secret_key}', to_jsonb(aws_secret_key));`,
+		`UPDATE agents SET aws_options = jsonb_set(aws_options, '{rds_basic_metrics_disabled}', to_jsonb(rds_basic_metrics_disabled));`,
+		`UPDATE agents SET aws_options = jsonb_set(aws_options, '{rds_enhanced_metrics_disabled}', to_jsonb(rds_enhanced_metrics_disabled));`,
+		`ALTER TABLE agents DROP COLUMN aws_access_key`,
+		`ALTER TABLE agents DROP COLUMN aws_secret_key`,
+		`ALTER TABLE agents DROP COLUMN rds_basic_metrics_disabled`,
+		`ALTER TABLE agents DROP COLUMN rds_enhanced_metrics_disabled`,
+
+		`UPDATE agents SET mysql_options = jsonb_set(mysql_options, '{table_count}', to_jsonb(table_count));`,
+		`UPDATE agents SET mysql_options = jsonb_set(mysql_options, '{table_count_tablestats_group_limit}', to_jsonb(table_count_tablestats_group_limit));`,
+		`ALTER TABLE agents DROP COLUMN table_count`,
+		`ALTER TABLE agents DROP COLUMN table_count_tablestats_group_limit`,
+
+		`UPDATE settings SET settings = jsonb_set(settings, '{encrypted_items}', 
+			'[
+				"pmm-managed.agents.username", 
+				"pmm-managed.agents.password", 
+				"pmm-managed.agents.agent_password", 
+				"pmm-managed.agents.aws_options", 
+				"pmm-managed.agents.azure_options", 
+				"pmm-managed.agents.mongo_options",
+				"pmm-managed.agents.mysql_options", 
+				"pmm-managed.agents.postgresql_options"
+			]'::jsonb
+		)
+		WHERE settings ? 'encrypted_items';`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1149,27 +1234,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	agentColumnsToEncrypt := []encryption.Column{
-		{Name: "username"},
-		{Name: "password"},
-		{Name: "aws_access_key"},
-		{Name: "aws_secret_key"},
-		{Name: "mongo_db_tls_options", CustomHandler: EncryptMongoDBOptionsHandler},
-		{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
-		{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
-		{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
-		{Name: "agent_password"},
-	}
-
-	itemsToEncrypt := []encryption.Table{
-		{
-			Name:        "agents",
-			Identifiers: []string{"agent_id"},
-			Columns:     agentColumnsToEncrypt,
-		},
-	}
-
-	if err := migrateDB(db, params, itemsToEncrypt); err != nil {
+	if err := migrateDB(db, params); err != nil {
 		return nil, err
 	}
 
@@ -1177,8 +1242,20 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 }
 
 // EncryptDB encrypts a set of columns in a specific database and table.
-func EncryptDB(tx *reform.TX, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
-	if len(itemsToEncrypt) == 0 {
+func EncryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table) error {
+	return dbEncryption(tx, database, itemsToEncrypt, encryption.EncryptItems, true)
+}
+
+// DecryptDB decrypts a set of columns in a specific database and table.
+func DecryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table) error {
+	return dbEncryption(tx, database, itemsToEncrypt, encryption.DecryptItems, false)
+}
+
+func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
+	encryptionHandler func(tx *reform.TX, tables []encryption.Table) error,
+	expectedState bool,
+) error {
+	if len(items) == 0 {
 		return nil
 	}
 
@@ -1186,42 +1263,47 @@ func EncryptDB(tx *reform.TX, params SetupDBParams, itemsToEncrypt []encryption.
 	if err != nil {
 		return err
 	}
-	alreadyEncrypted := make(map[string]bool)
+	currentColumns := make(map[string]bool)
 	for _, v := range settings.EncryptedItems {
-		alreadyEncrypted[v] = true
+		currentColumns[v] = true
 	}
 
-	notEncrypted := []encryption.Table{}
-	newlyEncrypted := []string{}
-	for _, table := range itemsToEncrypt {
+	tables := []encryption.Table{}
+	prepared := []string{}
+	for _, table := range items {
 		columns := []encryption.Column{}
 		for _, column := range table.Columns {
-			dbTableColumn := fmt.Sprintf("%s.%s.%s", params.Name, table.Name, column.Name)
-			if alreadyEncrypted[dbTableColumn] {
+			dbTableColumn := fmt.Sprintf("%s.%s.%s", database, table.Name, column.Name)
+			if currentColumns[dbTableColumn] == expectedState {
 				continue
 			}
 
 			columns = append(columns, column)
-			newlyEncrypted = append(newlyEncrypted, dbTableColumn)
+			prepared = append(prepared, dbTableColumn)
 		}
 		if len(columns) == 0 {
 			continue
 		}
 
 		table.Columns = columns
-		notEncrypted = append(notEncrypted, table)
+		tables = append(tables, table)
 	}
-
-	if len(notEncrypted) == 0 {
+	if len(tables) == 0 {
 		return nil
 	}
 
-	err = encryption.EncryptItems(tx, notEncrypted)
+	err = encryptionHandler(tx, tables)
 	if err != nil {
 		return err
 	}
+
+	encryptedItems := []string{}
+	if expectedState {
+		encryptedItems = prepared
+	}
+
 	_, err = UpdateSettings(tx, &ChangeSettingsParams{
-		EncryptedItems: slices.Concat(settings.EncryptedItems, newlyEncrypted),
+		EncryptedItems: encryptedItems,
 	})
 	if err != nil {
 		return err
@@ -1289,7 +1371,7 @@ func initWithRoot(params SetupDBParams) error {
 }
 
 // migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params SetupDBParams, itemsToEncrypt []encryption.Table) error {
+func migrateDB(db *reform.DB, params SetupDBParams) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
@@ -1325,7 +1407,7 @@ func migrateDB(db *reform.DB, params SetupDBParams, itemsToEncrypt []encryption.
 			}
 		}
 
-		err := EncryptDB(tx, params, itemsToEncrypt)
+		err := EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
 		if err != nil {
 			return err
 		}
@@ -1399,13 +1481,15 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	ap := &CreateAgentParams{
-		PMMAgentID:              PMMServerAgentID,
-		ServiceID:               service.ServiceID,
-		TLS:                     params.SSLMode != DisableSSLMode,
-		TLSSkipVerify:           params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
-		CommentsParsingDisabled: true,
-		Username:                params.Username,
-		Password:                params.Password,
+		PMMAgentID:    PMMServerAgentID,
+		ServiceID:     service.ServiceID,
+		TLS:           params.SSLMode != DisableSSLMode,
+		TLSSkipVerify: params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
+		Username:      params.Username,
+		Password:      params.Password,
+		QANOptions: &QANOptions{
+			CommentsParsingDisabled: true,
+		},
 	}
 	if ap.TLS {
 		ap.PostgreSQLOptions = &PostgreSQLOptions{}

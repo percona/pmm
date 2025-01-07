@@ -1,49 +1,25 @@
 ---
 # This role contains tasks executed during initialization of PMM Server
-- name: detect /srv/pmm-distribution
-  slurp:
-    path: /srv/pmm-distribution
-  register: pmm_distribution
-  ignore_errors: True
 
-- name: detect AMI
+- name: Detect AMI distribution
   set_fact:
-    is_ami: "{{ pmm_distribution['content'] | b64decode | trim == 'ami' }}"
-  when: pmm_distribution['failed'] == false
+    pmm_distribution: "{{ lookup('file', '/srv/pmm-distribution', errors='ignore') | default('none', true) }}"
 
-- name: Set PMM distribution
+- name: Set is_ami fact
   set_fact:
-    is_ami: "False"
-  when: pmm_distribution['failed'] == true
+    is_ami: "{{ pmm_distribution | trim == 'ami' }}"
 
-- name: Get current version
-  slurp:
-    src: /srv/grafana/PERCONA_DASHBOARDS_VERSION
-  register: current_version_file
-  ignore_errors: True
-
-- name: Get image version
-  slurp:
-    src: /usr/share/percona-dashboards/VERSION
-  register: image_version_file
-
-- name: Set current version if VERSION doesn't exist
+- name: Get current PMM version (aka 'update from')
   set_fact:
-    pmm_current_version: "0.0"
-  when: current_version_file['failed'] == true
+    pmm_current_version: "{{ lookup('file', '/srv/grafana/PERCONA_DASHBOARDS_VERSION', errors='ignore') | default('0', true) }}"
 
-- name: Setting current PMM version
+- name: Get PMM image version for update
   set_fact:
-    pmm_current_version: "{{ current_version_file['content'] | b64decode | trim }}"
-  when: current_version_file['failed'] != true
-
-- name: Setting current PMM image version
-  set_fact:
-    pmm_image_version: "{{ image_version_file['content'] | b64decode | trim }}"
+    pmm_image_version: "{{ lookup('file', '/usr/share/percona-dashboards/VERSION', errors='strict') }}"
 
 - name: Set need_initialization fact
   set_fact:
-    need_initialization: "{{ current_version_file['failed'] == true }}"
+    need_initialization: "{{ pmm_current_version == '0' }}"
 
 - name: Set need_upgrade fact
   set_fact:
@@ -53,9 +29,9 @@
   debug:
     msg: "PMM distribution: {{ pmm_distribution }}, Is AMI: {{ is_ami }}"
 
-- name: Print current PMM and image versions
+- name: Show PMM current and target image versions
   debug:
-    msg: "Current version: {{ pmm_current_version }} Image Version: {{ pmm_image_version }}"
+    msg: "Current version: {{ pmm_current_version }}, Image Version: {{ pmm_image_version }}"
 
 - name: Print need_initialization fact
   debug:
@@ -65,8 +41,8 @@
   debug:
     msg: "Need upgrade: {{ need_upgrade }}"
 
-- name: Perform upgrade & init tasks
-  block:
+- name: Execute PMM upgrade & initialization tasks
+  block: # when need_initialization or need_upgrade
   - name: Enable maintenance mode before upgrade
     copy:
       src: maintenance.html
@@ -75,7 +51,13 @@
       group: pmm
       mode: 0644
 
-  - name: Create grafana DB
+  - name: Wait for PostgreSQL to become responsive
+    wait_for:
+      host: 127.0.0.1
+      port: 5432
+      timeout: 150
+
+  - name: Create Grafana DB
     block:
       - name: Create grafana database in postgres
         postgresql_db:
@@ -99,15 +81,6 @@
     include_role:
       name: dashboards
 
-  - name: Copy file with image version
-    copy:
-      src: /usr/share/percona-dashboards/VERSION
-      dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
-      owner: pmm
-      group: pmm
-      mode: 0644
-      remote_src: yes
-
   - name: Create a backup directory
     file:
       path: /srv/backup
@@ -128,20 +101,22 @@
       method: GET
     retries: 20
     delay: 5
+    register: pmm_ready
+    until: pmm_ready.status == 200
     ignore_errors: true
 
-  - name: init admin password on AMI
+  - name: Initialize admin password for AMI if needed
     include_role:
       name: init-admin-password-ami
     when: need_initialization and is_ami
-
-  - name: Disable maintenance mode
-    file:
-      state: absent
-      path: /usr/share/pmm-server/maintenance/maintenance.html
-
-  - name: Remove the file provisioned by 'getStatus'
-    file:
-      state: absent
-      path: /srv/pmm-update.json      
   when: need_initialization or need_upgrade
+
+- name: Disable maintenance mode
+  file:
+    state: absent
+    path: /usr/share/pmm-server/maintenance/maintenance.html
+
+- name: Remove the file provisioned by 'getStatus'
+  file:
+    state: absent
+    path: /srv/pmm-update.json

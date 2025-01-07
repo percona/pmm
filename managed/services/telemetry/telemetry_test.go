@@ -23,8 +23,8 @@ import (
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2"
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
-	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
+	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -82,7 +82,11 @@ func TestRunTelemetryService(t *testing.T) {
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)
 
-	expectedServerMetrics := []*pmmv1.ServerMetric_Metric{
+	expectedServerMetrics := []*telemetryv1.GenericReport_Metric{
+		{
+			Key:   "DistributionMethod",
+			Value: pmmv1.DistributionMethod_AMI.String(),
+		},
 		{
 			Key:   "key",
 			Value: "value",
@@ -96,11 +100,10 @@ func TestRunTelemetryService(t *testing.T) {
 			Value: "value3",
 		},
 	}
-	expectedReport := &reporter.ReportRequest{
-		Metrics: []*pmmv1.ServerMetric{
+	expectedReport := &telemetryv1.ReportRequest{
+		Reports: []*telemetryv1.GenericReport{
 			{
-				DistributionMethod: pmmv1.DistributionMethod_AMI,
-				Metrics:            expectedServerMetrics,
+				Metrics: expectedServerMetrics,
 			},
 		},
 	}
@@ -176,7 +179,7 @@ func TestRunTelemetryService(t *testing.T) {
 				tDistributionMethod: 0,
 				dus:                 tt.fields.dus,
 				portalClient:        tt.mockTelemetrySender(),
-				sendCh:              make(chan *pmmv1.ServerMetric, sendChSize),
+				sendCh:              make(chan *telemetryv1.GenericReport, sendChSize),
 			}
 			s.Run(ctx)
 		})
@@ -274,14 +277,14 @@ func getDistributionUtilService(t *testing.T, l *logrus.Entry) distributionUtilS
 	return dus
 }
 
-func initMockTelemetrySender(t *testing.T, expectedReport *reporter.ReportRequest, timesCall int) func() sender {
+func initMockTelemetrySender(t *testing.T, expectedReport *telemetryv1.ReportRequest, timesCall int) func() sender {
 	t.Helper()
 	return func() sender {
 		var mockTelemetrySender mockSender
 		mockTelemetrySender.Test(t)
 		mockTelemetrySender.On("SendTelemetry",
 			mock.Anything,
-			mock.MatchedBy(func(report *reporter.ReportRequest) bool {
+			mock.MatchedBy(func(report *telemetryv1.ReportRequest) bool {
 				return matchExpectedReport(report, expectedReport)
 			}),
 		).
@@ -295,9 +298,18 @@ func initMockTelemetrySender(t *testing.T, expectedReport *reporter.ReportReques
 	}
 }
 
-func matchExpectedReport(report *reporter.ReportRequest, expectedReport *reporter.ReportRequest) bool {
-	return len(report.Metrics) == 1 &&
-		expectedReport.Metrics[0].DistributionMethod.String() == "AMI"
+func valueIsInArray(items []*telemetryv1.GenericReport_Metric, value string) bool {
+	for _, item := range items {
+		if item.Value == value {
+			return true
+		}
+	}
+
+	return false
+}
+
+func matchExpectedReport(report *telemetryv1.ReportRequest, expectedReport *telemetryv1.ReportRequest) bool {
+	return len(report.Reports) == 1 && valueIsInArray(expectedReport.Reports[0].Metrics, "AMI")
 }
 
 func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval time.Duration) ServiceConfig {

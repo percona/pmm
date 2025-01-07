@@ -1,6 +1,7 @@
 # Host Makefile.
 
 include Makefile.include
+-include documentation/Makefile
 
 ifeq ($(PROFILES),)
 PROFILES := 'pmm'
@@ -38,3 +39,6 @@ TARGET ?= _bash
 env:								## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash
 	COMPOSE_PROFILES=$(PROFILES) \
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-server make $(TARGET)
+
+rotate-encryption: 							## Rotate encryption key
+	go run ./encryption-rotation/main.go

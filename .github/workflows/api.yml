@@ -1,0 +1,40 @@
+name: Docs
+on:
+  push:
+    branches:
+      - main
+      - v3
+    paths:
+      - "api/**"
+      - "docs/api/**"
+
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Sync API Docs
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Detect PMM version and API ID
+        run: |
+          # For reference:
+          # PMM 2: VERSION=v2, ID=626badcabbc59c02acc1a53f
+          # PMM 3: VERSION=v3, ID=622892a957a7410330bc6184
+          export VERSION=$(cat api/swagger/swagger.json | jq -r '.info.version')
+          export ID=$(cat api/swagger/swagger.json | jq -r '."x-readme-id"')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "ID=$ID" >> $GITHUB_ENV
+
+      - name: Sync API spec
+        uses: readmeio/rdme@51a80867c45de15e2b41af0c4bd5bbc61b932804 # v8.6.6
+        with:
+          rdme: openapi ./api/swagger/swagger.json --version=${{ env.VERSION }} --id=${{ env.ID }} --key=${{ secrets.README_TOKEN }}
+
+      - name: Sync Markdown docs
+        uses: readmeio/rdme@51a80867c45de15e2b41af0c4bd5bbc61b932804 # v8.6.6
+        with: 
+          rdme: docs ./docs/api --version=${{ env.VERSION }} --key=${{ secrets.README_TOKEN }}

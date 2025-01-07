@@ -21,8 +21,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
-
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -38,6 +36,7 @@ var (
 	v2_41_1                    = version.MustParse("2.41.1-0")
 	v2_42_0                    = version.MustParse("2.42.0-0")
 	v2_43_0                    = version.MustParse("2.43.0-0")
+	v2_43_2                    = version.MustParse("2.43.2-0")
 )
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
@@ -49,18 +48,15 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 
 	args := getArgs(exporter, tdp, listenAddress, pmmAgentVersion)
 
-	if pointer.GetString(exporter.MetricsPath) != "" {
-		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath) //nolint:goconst
+	if exporter.ExporterOptions.MetricsPath != "" {
+		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)
 
 	sort.Strings(args)
 
-	database := ""
-	if exporter.MongoDBOptions != nil {
-		database = exporter.MongoDBOptions.AuthenticationDatabase
-	}
+	database := exporter.MongoDBOptions.AuthenticationDatabase
 	env := []string{
 		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: database}, tdp, pmmAgentVersion)),
 	}
@@ -78,7 +74,7 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 		res.RedactWords = redactWords(exporter)
 	}
 
-	if err := ensureAuthParams(exporter, res, pmmAgentVersion, v2_27_99); err != nil {
+	if err := ensureAuthParams(exporter, res, pmmAgentVersion, v2_28_00, false); err != nil {
 		return nil, err
 	}
 
@@ -95,7 +91,7 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 		args = append(args, "--discovering-mode")
 
 		defaultEnabledCollectors := []string{"diagnosticdata", "replicasetstatus"}
-		collectAll := exporter.MongoDBOptions != nil && exporter.MongoDBOptions.EnableAllCollectors
+		collectAll := exporter.MongoDBOptions.EnableAllCollectors
 
 		if !pmmAgentVersion.Less(v2_26_0) {
 			defaultEnabledCollectors = []string{}
@@ -113,27 +109,25 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 		if !pmmAgentVersion.Less(v2_43_0) { // >= 2.43.0, enable by default
 			args = append(args, "--collector.fcv")
 		}
-		if !pmmAgentVersion.Less(v2_43_0) { // >= 2.43.0, enable pbm collector by default
+		if !pmmAgentVersion.Less(v2_43_2) { // >= 2.43.2, enable pbm collector by default
 			args = append(args, "--collector.pbm")
 		}
 
-		args = collectors.FilterOutCollectors("--collector.", args, exporter.DisabledCollectors)
-		args = append(args, collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultEnabledCollectors, exporter.DisabledCollectors)...)
+		args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)
+		args = append(args, collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultEnabledCollectors, exporter.ExporterOptions.DisabledCollectors)...)
 
-		if exporter.MongoDBOptions != nil && len(exporter.MongoDBOptions.StatsCollections) != 0 {
+		if len(exporter.MongoDBOptions.StatsCollections) != 0 {
 			args = append(args, "--mongodb.collstats-colls="+strings.Join(exporter.MongoDBOptions.StatsCollections, ","))
 			if !pmmAgentVersion.Less(v2_26_0) {
 				args = append(args, "--mongodb.indexstats-colls="+strings.Join(exporter.MongoDBOptions.StatsCollections, ","))
 			}
 		}
 
-		if exporter.MongoDBOptions != nil {
-			collstatsLimit := int32(200)
-			if exporter.MongoDBOptions.CollectionsLimit != -1 {
-				collstatsLimit = exporter.MongoDBOptions.CollectionsLimit
-			}
-			args = append(args, fmt.Sprintf("--collector.collstats-limit=%d", collstatsLimit))
+		collstatsLimit := int32(200)
+		if exporter.MongoDBOptions.CollectionsLimit != -1 {
+			collstatsLimit = exporter.MongoDBOptions.CollectionsLimit
 		}
+		args = append(args, fmt.Sprintf("--collector.collstats-limit=%d", collstatsLimit))
 
 	case !pmmAgentVersion.Less(newMongoExporterPMMVersion): // >= 2.10.0
 		args = buildBaseArgs(listenAddress, tdp)
@@ -148,7 +142,7 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right, //nolint:goconst
 		}
 
-		args = collectors.FilterOutCollectors("--collect.", args, exporter.DisabledCollectors)
+		args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
 	}
 
 	return args
@@ -165,11 +159,12 @@ func buildBaseArgs(listenAddress string, tdp *models.DelimiterPair) []string {
 // qanMongoDBProfilerAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
 func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
+
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
-		DisableQueryExamples: agent.QueryExamplesDisabled,
-		MaxQueryLength:       agent.MaxQueryLength,
+		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
+		MaxQueryLength:       agent.QANOptions.MaxQueryLength,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

@@ -226,9 +226,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.DefaultRoleID = *params.DefaultRoleID
 	}
 
-	if len(params.EncryptedItems) != 0 {
+	if params.EncryptedItems != nil {
 		settings.EncryptedItems = params.EncryptedItems
 	}
+
 	err = SaveSettings(q, settings)
 	if err != nil {
 		return nil, err

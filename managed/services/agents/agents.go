@@ -101,11 +101,21 @@ func redactWords(agent *models.Agent) []string {
 	if s := pointer.GetString(agent.AgentPassword); s != "" {
 		words = append(words, s)
 	}
-	if s := pointer.GetString(agent.AWSSecretKey); s != "" {
-		words = append(words, s)
+	if agent.AWSOptions != nil {
+		if s := agent.AWSOptions.AWSSecretKey; s != "" {
+			words = append(words, s)
+		}
 	}
 	if agent.AzureOptions != nil {
 		if s := agent.AzureOptions.ClientSecret; s != "" {
+			words = append(words, s)
+		}
+	}
+	if agent.MongoDBOptions != nil {
+		if s := agent.MongoDBOptions.TLSCertificateKey; s != "" {
+			words = append(words, s)
+		}
+		if s := agent.MongoDBOptions.TLSCertificateKeyFilePassword; s != "" {
 			words = append(words, s)
 		}
 	}
@@ -116,14 +126,6 @@ func redactWords(agent *models.Agent) []string {
 	}
 	if agent.PostgreSQLOptions != nil {
 		if s := agent.PostgreSQLOptions.SSLKey; s != "" {
-			words = append(words, s)
-		}
-	}
-	if agent.MongoDBOptions != nil {
-		if s := agent.MongoDBOptions.TLSCertificateKey; s != "" {
-			words = append(words, s)
-		}
-		if s := agent.MongoDBOptions.TLSCertificateKeyFilePassword; s != "" {
 			words = append(words, s)
 		}
 	}
@@ -141,7 +143,9 @@ func pathsBase(agentVersion *version.Parsed, tdpLeft, tdpRight string) string {
 }
 
 // ensureAuthParams updates agent start parameters to contain prometheus webconfig.
-func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_AgentProcess, agentVersion *version.Parsed, minAuthVersion *version.Parsed) error {
+func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_AgentProcess,
+	agentVersion *version.Parsed, minAuthVersion *version.Parsed, useNewTLSConfig bool,
+) error {
 	if agentVersion.Less(minAuthVersion) {
 		params.Env = append(params.Env, fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()))
 	} else {
@@ -155,7 +159,11 @@ func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_Ag
 		}
 		params.TextFiles["webConfigPlaceholder"] = wcf
 		// see https://github.com/prometheus/exporter-toolkit/tree/v0.1.0/https
-		params.Args = append(params.Args, "--web.config="+params.TemplateLeftDelim+" .TextFiles.webConfigPlaceholder "+params.TemplateRightDelim)
+		if useNewTLSConfig {
+			params.Args = append(params.Args, "--web.config.file="+params.TemplateLeftDelim+" .TextFiles.webConfigPlaceholder "+params.TemplateRightDelim)
+		} else {
+			params.Args = append(params.Args, "--web.config="+params.TemplateLeftDelim+" .TextFiles.webConfigPlaceholder "+params.TemplateRightDelim)
+		}
 	}
 
 	return nil
@@ -164,11 +172,12 @@ func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_Ag
 // getExporterListenAddress returns the appropriate listen address to use for a given exporter.
 func getExporterListenAddress(_ *models.Node, exporter *models.Agent) string {
 	switch {
-	case exporter.ExposeExporter:
+	case exporter.ExporterOptions.ExposeExporter:
 		return "0.0.0.0"
-	case exporter.PushMetrics:
+	case exporter.ExporterOptions.PushMetrics:
 		return "127.0.0.1"
-	default:
-		return "0.0.0.0"
+
 	}
+
+	return "0.0.0.0"
 }

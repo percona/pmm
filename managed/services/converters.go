@@ -18,6 +18,7 @@ package services
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
@@ -217,6 +218,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}
 		serviceID = service.ServiceID
 	}
+
 	processExecPath := pointer.GetString(agent.ProcessExecPath)
 	switch agent.AgentType {
 	case models.PMMAgentType:
@@ -235,12 +237,12 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:       labels,
-			PushMetricsEnabled: agent.PushMetrics,
-			DisabledCollectors: agent.DisabledCollectors,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
+			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           inventoryv1.LogLevel(inventoryv1.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporter:     agent.ExposeExporter,
-			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}, nil
 
 	case models.MySQLdExporterType:
@@ -255,15 +257,15 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			CustomLabels:              labels,
 			Tls:                       agent.TLS,
 			TlsSkipVerify:             agent.TLSSkipVerify,
-			TablestatsGroupTableLimit: agent.TableCountTablestatsGroupLimit,
+			TablestatsGroupTableLimit: agent.MySQLOptions.TableCountTablestatsGroupLimit,
 			TablestatsGroupDisabled:   !agent.IsMySQLTablestatsGroupEnabled(),
-			TableCount:                pointer.GetInt32(agent.TableCount),
-			PushMetricsEnabled:        agent.PushMetrics,
-			DisabledCollectors:        agent.DisabledCollectors,
+			TableCount:                pointer.GetInt32(agent.MySQLOptions.TableCount),
+			PushMetricsEnabled:        agent.ExporterOptions.PushMetrics,
+			DisabledCollectors:        agent.ExporterOptions.DisabledCollectors,
 			ProcessExecPath:           processExecPath,
-			LogLevel:                  inventoryv1.LogLevel(inventoryv1.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporter:            agent.ExposeExporter,
-			MetricsResolutions:        ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:                  inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			ExposeExporter:            agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions:        ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}, nil
 
 	case models.MongoDBExporterType:
@@ -278,18 +280,18 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			CustomLabels:       labels,
 			Tls:                agent.TLS,
 			TlsSkipVerify:      agent.TLSSkipVerify,
-			PushMetricsEnabled: agent.PushMetrics,
-			DisabledCollectors: agent.DisabledCollectors,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
+			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           inventoryv1.LogLevel(inventoryv1.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporter:     agent.ExposeExporter,
-			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if agent.MongoDBOptions != nil {
-			exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
-			exporter.CollectionsLimit = agent.MongoDBOptions.CollectionsLimit
-			exporter.EnableAllCollectors = agent.MongoDBOptions.EnableAllCollectors
-		}
+
+		exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
+		exporter.CollectionsLimit = agent.MongoDBOptions.CollectionsLimit
+		exporter.EnableAllCollectors = agent.MongoDBOptions.EnableAllCollectors
+
 		return exporter, nil
 
 	case models.PostgresExporterType:
@@ -304,17 +306,17 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			CustomLabels:       labels,
 			Tls:                agent.TLS,
 			TlsSkipVerify:      agent.TLSSkipVerify,
-			PushMetricsEnabled: agent.PushMetrics,
-			DisabledCollectors: agent.DisabledCollectors,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
+			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           inventoryv1.LogLevel(inventoryv1.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporter:     agent.ExposeExporter,
-			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if agent.PostgreSQLOptions != nil {
-			exporter.AutoDiscoveryLimit = agent.PostgreSQLOptions.AutoDiscoveryLimit
-			exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
-		}
+
+		exporter.AutoDiscoveryLimit = pointer.GetInt32(agent.PostgreSQLOptions.AutoDiscoveryLimit)
+		exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
+
 		return exporter, nil
 	case models.QANMySQLPerfSchemaAgentType:
 		return &inventoryv1.QANMySQLPerfSchemaAgent{
@@ -327,11 +329,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			CustomLabels:           labels,
 			Tls:                    agent.TLS,
 			TlsSkipVerify:          agent.TLSSkipVerify,
-			MaxQueryLength:         agent.MaxQueryLength,
-			QueryExamplesDisabled:  agent.QueryExamplesDisabled,
-			DisableCommentsParsing: agent.CommentsParsingDisabled,
+			MaxQueryLength:         agent.QANOptions.MaxQueryLength,
+			QueryExamplesDisabled:  agent.QANOptions.QueryExamplesDisabled,
+			DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 			ProcessExecPath:        processExecPath,
-			LogLevel:               inventoryv1.LogLevel(inventoryv1.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
 	case models.QANMySQLSlowlogAgentType:
@@ -345,11 +347,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			CustomLabels:           labels,
 			Tls:                    agent.TLS,
 			TlsSkipVerify:          agent.TLSSkipVerify,
-			QueryExamplesDisabled:  agent.QueryExamplesDisabled,
-			DisableCommentsParsing: agent.CommentsParsingDisabled,
-			MaxSlowlogFileSize:     agent.MaxQueryLogSize,
+			QueryExamplesDisabled:  agent.QANOptions.QueryExamplesDisabled,
+			DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
+			MaxSlowlogFileSize:     agent.QANOptions.MaxQueryLogSize,
 			ProcessExecPath:        processExecPath,
-			LogLevel:               inventoryv1.LogLevel(inventoryv1.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
 	case models.QANMongoDBProfilerAgentType:
@@ -363,9 +365,9 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			CustomLabels:    labels,
 			Tls:             agent.TLS,
 			TlsSkipVerify:   agent.TLSSkipVerify,
-			MaxQueryLength:  agent.MaxQueryLength,
+			MaxQueryLength:  agent.QANOptions.MaxQueryLength,
 			ProcessExecPath: processExecPath,
-			LogLevel:        inventoryv1.LogLevel(inventoryv1.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			LogLevel:        inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}, nil
 
@@ -381,12 +383,12 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			CustomLabels:       labels,
 			Tls:                agent.TLS,
 			TlsSkipVerify:      agent.TLSSkipVerify,
-			PushMetricsEnabled: agent.PushMetrics,
-			DisabledCollectors: agent.DisabledCollectors,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
+			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           inventoryv1.LogLevel(inventoryv1.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporter:     agent.ExposeExporter,
-			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}, nil
 
 	case models.QANPostgreSQLPgStatementsAgentType:
@@ -398,12 +400,12 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			Disabled:               agent.Disabled,
 			Status:                 inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			CustomLabels:           labels,
-			MaxQueryLength:         agent.MaxQueryLength,
-			DisableCommentsParsing: agent.CommentsParsingDisabled,
+			MaxQueryLength:         agent.QANOptions.MaxQueryLength,
+			DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 			Tls:                    agent.TLS,
 			TlsSkipVerify:          agent.TLSSkipVerify,
 			ProcessExecPath:        processExecPath,
-			LogLevel:               inventoryv1.LogLevel(inventoryv1.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
 	case models.QANPostgreSQLPgStatMonitorAgentType:
@@ -415,13 +417,13 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			Disabled:               agent.Disabled,
 			Status:                 inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			CustomLabels:           labels,
-			MaxQueryLength:         agent.MaxQueryLength,
+			MaxQueryLength:         agent.QANOptions.MaxQueryLength,
 			Tls:                    agent.TLS,
 			TlsSkipVerify:          agent.TLSSkipVerify,
-			QueryExamplesDisabled:  agent.QueryExamplesDisabled,
-			DisableCommentsParsing: agent.CommentsParsingDisabled,
+			QueryExamplesDisabled:  agent.QANOptions.QueryExamplesDisabled,
+			DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 			ProcessExecPath:        processExecPath,
-			LogLevel:               inventoryv1.LogLevel(inventoryv1.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
 	case models.RDSExporterType:
@@ -430,16 +432,16 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			PmmAgentId:              pointer.GetString(agent.PMMAgentID),
 			NodeId:                  nodeID,
 			Disabled:                agent.Disabled,
-			AwsAccessKey:            pointer.GetString(agent.AWSAccessKey),
+			AwsAccessKey:            agent.AWSOptions.AWSAccessKey,
 			Status:                  inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ListenPort:              uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:            labels,
-			BasicMetricsDisabled:    agent.RDSBasicMetricsDisabled,
-			EnhancedMetricsDisabled: agent.RDSEnhancedMetricsDisabled,
-			PushMetricsEnabled:      agent.PushMetrics,
+			BasicMetricsDisabled:    agent.AWSOptions.RDSBasicMetricsDisabled,
+			EnhancedMetricsDisabled: agent.AWSOptions.RDSEnhancedMetricsDisabled,
+			PushMetricsEnabled:      agent.ExporterOptions.PushMetrics,
 			ProcessExecPath:         processExecPath,
-			LogLevel:                inventoryv1.LogLevel(inventoryv1.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			MetricsResolutions:      ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:                inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			MetricsResolutions:      ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}, nil
 
 	case models.ExternalExporterType:
@@ -456,13 +458,13 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ServiceId:          pointer.GetString(agent.ServiceID),
 			Username:           pointer.GetString(agent.Username),
 			Disabled:           agent.Disabled,
-			Scheme:             pointer.GetString(agent.MetricsScheme),
-			MetricsPath:        pointer.GetString(agent.MetricsPath),
+			Scheme:             agent.ExporterOptions.MetricsScheme,
+			MetricsPath:        agent.ExporterOptions.MetricsPath,
 			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:       labels,
-			PushMetricsEnabled: agent.PushMetrics,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
 			ProcessExecPath:    processExecPath,
-			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}, nil
 
 	case models.AzureDatabaseExporterType:
@@ -476,8 +478,8 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ListenPort:                  uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:                labels,
 			ProcessExecPath:             processExecPath,
-			LogLevel:                    inventoryv1.LogLevel(inventoryv1.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			MetricsResolutions:          ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:                    inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			MetricsResolutions:          ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}, nil
 
 	case models.VMAgentType:
@@ -521,10 +523,10 @@ func SpecifyLogLevel(variant, minLogLevel inventoryv1.LogLevel) string {
 
 	// downgrade instead of return API error
 	if variant < minLogLevel {
-		return minLogLevel.String()
+		variant = minLogLevel
 	}
 
-	return variant.String()
+	return strings.ToLower(strings.TrimPrefix(variant.String(), "LOG_LEVEL_"))
 }
 
 // nodeTypes maps protobuf types to their string types.

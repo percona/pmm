@@ -1,8 +1,8 @@
 ---
 title: Change the administrator's password
 slug: change-admin-password
-category: 66acab7b0bf230001846b5e2
-parentDoc: 66acad52c21a1a0036295235
+categorySlug: pmm-server-maintenance
+parentDocSlug: pmm-server-user-accounts
 order: 0
 ---
 
@@ -10,7 +10,7 @@ order: 0
 
 Your new PMM Server will start up with a default set of credentials for the administrator account. When you first login via the UI, you will be prompted to change this to a new password in order to secure the account.
 
-When automating the deployment and/or management of your PMM Server, it is prefereable to use the available APIs instead of relying upon human interaction.
+When automating the deployment and/or management of your PMM Server, it is preferable to use the available APIs instead of relying upon human interaction.
 
 The [authentication](authentication) overview explains the different ways that you can programmatically access the API, using either [basic](authentication#basic-http-authentication), or [token-based](authentication#bearer-authentication) authentication. **Note:** for basic authentication, you can use the same approach for standard credentials if you haven't yet created a token.
 
@@ -61,7 +61,7 @@ You can check this using Ansible with a task such as:
 
 ### Changing the password following initial installation
 
-**Caution:** Once you have changed the password, you need to use the new password from then on. Should you be doing this for an account that is used elsewhere then you may find that the account gets blocked due to too many failed login attemps. You should disconnect any clients using the same account before proceeding to avoid such issues.
+**Caution:** Once you have changed the password, you need to use the new password from then on. Should you be doing this for an account that is used elsewhere then you may find that the account gets blocked due to too many failed login attempts. You should disconnect any clients using the same account before proceeding to avoid such issues.
 
 The [payload](https://grafana.com/docs/grafana/latest/http_api/user/#change-password) for changing a user's password is:
 ```json

@@ -56,7 +56,7 @@ var defaultPostgresExporterCollectors = []string{
 const defaultAutoDiscoveryDatabaseLimit = 50
 
 func postgresExcludedDatabases() []string {
-	return []string{"template0", "template1", "postgres", "cloudsqladmin", "pmm-managed-dev", "azure_maintenance", "rdsadmin"}
+	return []string{"template0", "template1", "cloudsqladmin", "pmm-managed-dev", "azure_maintenance", "rdsadmin"}
 }
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
@@ -89,13 +89,13 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	autoDiscovery := false
 	if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {
 		switch {
-		case exporter.PostgreSQLOptions == nil:
+		case exporter.PostgreSQLOptions.AutoDiscoveryLimit == nil:
 			autoDiscovery = true
-		case exporter.PostgreSQLOptions.AutoDiscoveryLimit == 0: // server defined
+		case pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit) == 0: // server defined
 			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= defaultAutoDiscoveryDatabaseLimit
-		case exporter.PostgreSQLOptions.AutoDiscoveryLimit < 0: // always disabled
+		case pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit) < 0: // always disabled
 		default:
-			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= exporter.PostgreSQLOptions.AutoDiscoveryLimit
+			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= pointer.GetInt32(exporter.PostgreSQLOptions.AutoDiscoveryLimit)
 		}
 	}
 	if autoDiscovery {
@@ -105,19 +105,18 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	}
 
 	if !pmmAgentVersion.Less(postgresMaxExporterConnsVersion) &&
-		exporter.PostgreSQLOptions != nil &&
 		exporter.PostgreSQLOptions.MaxExporterConnections != 0 {
 		args = append(args, "--max-connections="+strconv.Itoa(int(exporter.PostgreSQLOptions.MaxExporterConnections)))
 	}
 
-	if pointer.GetString(exporter.MetricsPath) != "" {
-		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
+	if exporter.ExporterOptions.MetricsPath != "" {
+		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
-	args = collectors.FilterOutCollectors("--collect.", args, exporter.DisabledCollectors)
+	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
 
 	if !pmmAgentVersion.Less(postgresExporterCollectorsVersion) {
-		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultPostgresExporterCollectors, exporter.DisabledCollectors)
+		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultPostgresExporterCollectors, exporter.ExporterOptions.DisabledCollectors) //nolint:lll
 		args = append(args, disableCollectorArgs...)
 	}
 
@@ -131,7 +130,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
-	if exporter.AzureOptions != nil {
+	if exporter.AzureOptions.ClientID != "" {
 		dnsParams.DialTimeout = 5 * time.Second
 	}
 
@@ -150,7 +149,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		res.RedactWords = redactWords(exporter)
 	}
 
-	if err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion); err != nil {
+	if err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false); err != nil {
 		return nil, err
 	}
 
@@ -165,11 +164,12 @@ func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
+
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 		Dsn:                    agent.DSN(service, dnsParams, nil, pmmAgentVersion),
-		MaxQueryLength:         agent.MaxQueryLength,
-		DisableCommentsParsing: agent.CommentsParsingDisabled,
+		MaxQueryLength:         agent.QANOptions.MaxQueryLength,
+		DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
@@ -186,12 +186,13 @@ func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *model
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
+
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 		Dsn:                    agent.DSN(service, dnsParams, nil, pmmAgentVersion),
-		DisableQueryExamples:   agent.QueryExamplesDisabled,
-		MaxQueryLength:         agent.MaxQueryLength,
-		DisableCommentsParsing: agent.CommentsParsingDisabled,
+		DisableQueryExamples:   agent.QANOptions.QueryExamplesDisabled,
+		MaxQueryLength:         agent.QANOptions.MaxQueryLength,
+		DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

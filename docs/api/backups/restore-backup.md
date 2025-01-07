@@ -2,23 +2,22 @@
 title: Restore from a backup
 slug: restorebackup
 excerpt: This endpoint allows to restore a database from a previously made backup.
-category: 66acac6024b4bc0022d980f3
+categorySlug: backup-api
 ---
 
-PMM can backup the monitored services.
+PMM can restore a service (database) from a backup.
 
-This section describes making ad-hoc backups from a service.
+This section describes restoring a service from a backup taken before.
 
 ### Restoring From a Backup
 
 Here is an example of an API call to restore from a backup:
 
 ```shell
-curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
-     --request POST \
-     --url https://127.0.0.1/v1/management/backup/Backups/Restore \
-     --header 'Accept: application/json' \
+curl --insecure -X POST \
+     --header 'Authorization: Bearer XXXXX' \
      --header 'Content-Type: application/json' \
+     --url https://127.0.0.1/v1/backups/restores:start \
      --data '
 {
      "service_id": "40499c38-522d-4ed1-ab3f-8a099684f46d",
@@ -32,7 +31,7 @@ You require an authentication token, which is described [here](ref:authenticatio
 
 Also, you require the [service_id](ref:listservices) and [location_id](ref:listlocations).
 
-You can defined a `name` and a `description` for each backup. You can also configure `retry_interval` and `retries` if required.
+You can define a `name` and a `description` for each backup. You can also configure `retry_interval` and the number of `retries` if required.
 
 ### Error messages
 
