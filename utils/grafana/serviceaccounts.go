@@ -28,8 +28,6 @@ import (
 // on orgID number. Let's reserve 10 chars. It will cover almost one million orgIDs.
 // Sanitizing, ensure its length by hashing postfix when length is exceeded.
 // MD5 is used because it has fixed length 32 chars.
-//
-// Be aware that the same method is implemented in the Grafana repo, and all changes should be reflected there as well!
 func SanitizeSAName(name string) string {
 	if len(name) <= 180 {
 		return name
