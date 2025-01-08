@@ -20,9 +20,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/AlekSi/pointer"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
