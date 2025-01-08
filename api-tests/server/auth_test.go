@@ -585,7 +585,7 @@ func createServiceToken(t *testing.T, serviceAccountID int, nodeName string) (in
 
 	name := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	data, err := json.Marshal(map[string]string{
-		"name": grafana.SanitizeSAName(name),
+		"name": name,
 	})
 	require.NoError(t, err)
 

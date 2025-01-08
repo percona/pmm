@@ -394,7 +394,7 @@ func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, 
 	count := 0
 	for _, token := range tokens {
 		serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
-		if !strings.HasPrefix(token.Name, grafana.SanitizeSAName(serviceTokenName)) {
+		if !strings.HasPrefix(token.Name, serviceTokenName) {
 			count++
 		}
 	}
@@ -689,7 +689,7 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	}
 
 	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
-	b, err := json.Marshal(serviceAccount{Name: grafana.SanitizeSAName(serviceAccountName), Role: role.String(), Force: reregister})
+	b, err := json.Marshal(serviceAccount{Name: serviceAccountName, Role: role.String(), Force: reregister})
 	if err != nil {
 		return 0, errors.WithStack(err)
 	}
@@ -723,7 +723,7 @@ func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, n
 		}
 	}
 
-	b, err := json.Marshal(serviceToken{Name: grafana.SanitizeSAName(serviceTokenName), Role: admin.String()})
+	b, err := json.Marshal(serviceToken{Name: serviceTokenName, Role: admin.String()})
 	if err != nil {
 		return 0, "", errors.WithStack(err)
 	}
@@ -746,7 +746,7 @@ func (c *Client) serviceTokenExists(ctx context.Context, serviceAccountID int, n
 
 	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	for _, token := range tokens {
-		if !strings.HasPrefix(token.Name, grafana.SanitizeSAName(serviceTokenName)) {
+		if !strings.HasPrefix(token.Name, serviceTokenName) {
 			continue
 		}
 
@@ -764,7 +764,7 @@ func (c *Client) deletePMMAgentServiceToken(ctx context.Context, serviceAccountI
 
 	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	for _, token := range tokens {
-		if strings.HasPrefix(token.Name, grafana.SanitizeSAName(serviceTokenName)) {
+		if strings.HasPrefix(token.Name, serviceTokenName) {
 			if err := c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d/tokens/%d", serviceAccountID, token.ID), "", authHeaders, nil, nil); err != nil {
 				return err
 			}
