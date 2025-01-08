@@ -57,11 +57,11 @@ theme:
 extra_css:
   - https://unicons.iconscout.com/release/v3.0.3/css/line.css
   - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
-  - css/extra.css
   - css/nocopy.css
   - css/design.css
   - css/osano.css
   - css/pmm.css
+  - css/extra.css
 
 extra_javascript:
   - js/promptremover.js
@@ -78,7 +78,7 @@ markdown_extensions:
   meta: {}
   md_in_html: {}
   smarty:
-      smart_angled_quotes: true
+    smart_angled_quotes: true
   pymdownx.details: {}
   pymdownx.mark: {}
   pymdownx.smartsymbols: {}
