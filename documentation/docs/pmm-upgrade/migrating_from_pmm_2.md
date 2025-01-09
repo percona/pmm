@@ -113,21 +113,38 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
 Depending on your initial installation method, update PMM Clients using your operating system's package manager or by updating from a tarball.
 For detailed instructions, see the [Upgrade PMM Client topic](../pmm-upgrade/upgrade_client.md).
 
-## Step 4: Migration of API Keys
-!!! caution alert alert-warning "Important"
-In PMM 3 Server, API Keys are deprecated and should not be used.
+## Step 4: Migrate your API keys to service accounts
 
-To migrate all API Keys, an admin user needs to log in to Grafana.
-Once logged in, you will see a popup window with details about the migrated API Keys. If no popup appears, it is likely that there were no API Keys to migrate.
-In the menu, go to **Administration -> Users and Access -> Service Accounts**. Verify that all API Keys have been migrated and that the API Keys menu is no longer visible.
+PMM 3 replaces API keys with service accounts to enhance security and simplify access management. You can trigger this API key conversion from the UI or from the CLI.
+	
+### From the UI:
+PMM automatically migrates existing API Keys to Service Accounts when you first log in as an Admin user. The migration results are displayed in a popup dialog box. If no popup appears, it likely means there are no API Keys to migrate—this is typical for PMM Servers without connected services.
+	
+### From CLI
+You can also trigger the conversion with the following command, replacing `admin:admin` with your credentials:
+	
+	```sh
+	Copycurl -X POST http://localhost:3000/api/serviceaccounts/migrate \
+	-u admin:admin \
+	-H "Content-Type: application/json
+	```
+	
+The response will display the migration details.
+	  
+	??? example "Expected output"
+	
+	```
+	{"total":3,"migrated":3,"failed":0,"failedApikeyIDs":[],"failedDetails":[]}
+	```    
+	
+### Verify the conversion
+	
+To verify the that API keys were successfully migrated, go to **Administration > Users and Access > Service Accounts** where you can check the list of service accounts available and confirm that the **API Keys** menu is no longer displayed.
 
-You can also perform this via a CLI command:
+If any API keys fail to migrate, you can either: 
 
-`curl -X POST http://localhost:3000/api/serviceaccounts/migrate -u admin:admin -H "Content-Type: application/json"`
-
-Please replace admin:admin with your valid credentials. You will get the migration details in the response. Example:
-
-`{"total":3,"migrated":3,"failed":0,"failedApikeyIDs":[],"failedDetails":[]}`.
+- delete the problematic API keys and create new service accounts
+- keep using the existing API keys until you're ready to replace them
 
 ### Post-migration steps
 
