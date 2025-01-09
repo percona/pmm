@@ -47,7 +47,7 @@ var (
 	// ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
 	ErrFailedToGetToken = errors.New("failed to get token")
 	// ErrIsNotServiceAccount means that provided auth header is not Service account. Most likely it is API Key.
-	ErrIsNotServiceAccount = errors.New("auth method is not service account token")
+	ErrIsNotServiceAccount = errors.New("not a service account token")
 )
 
 const (
