@@ -117,7 +117,7 @@ For detailed instructions, see the [Upgrade PMM Client topic](../pmm-upgrade/upg
 !!! caution alert alert-warning "Important"
 In PMM 3 Server, API Keys are deprecated and should not be used.
 
-To migrate all API Keys, admin users need to log in to Grafana.
+To migrate all API Keys, an admin user needs to log in to Grafana.
 Once logged in, you will see a popup window with details about the migrated API Keys. If no popup appears, it is likely that there were no API Keys to migrate.
 In the menu, go to **Administration -> Users and Access -> Service Accounts**. Verify that all API Keys have been migrated and that the API Keys menu is no longer visible.
 
