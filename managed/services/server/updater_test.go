@@ -322,7 +322,7 @@ PMM_DISTRIBUTION_METHOD=ami`
 		err := os.WriteFile(tmpFile, []byte(content), 0o644)
 		require.NoError(t, err)
 
-		err = u.updatePodmanEnvironmentVariables(tmpFile, "perconalab/pmm-server:3-dev-container")
+		err = u.updatePodmanEnvironmentVariables(tmpFile, "PMM_IMAGE", "perconalab/pmm-server:3-dev-container")
 		require.NoError(t, err)
 		newContent, err := os.ReadFile(tmpFile)
 		require.NoError(t, err)
