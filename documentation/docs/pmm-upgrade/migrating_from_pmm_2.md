@@ -125,7 +125,7 @@ You can also perform this via a CLI command:
 
 `curl -X POST http://localhost:3000/api/serviceaccounts/migrate -u admin:admin -H "Content-Type: application/json"`
 
-Please replace admin:admin with your valid credentials. As reponse you will get migration details. Example:
+Please replace admin:admin with your valid credentials. You will get the migration details in the response. Example:
 
 `{"total":3,"migrated":3,"failed":0,"failedApikeyIDs":[],"failedDetails":[]}`.
 
