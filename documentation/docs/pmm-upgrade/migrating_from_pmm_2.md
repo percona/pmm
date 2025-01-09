@@ -121,6 +121,14 @@ To migrate all API Keys, admin users need to log in to Grafana.
 Once logged in, you will see a popup window with details about the migrated API Keys. If no popup appears, it is likely that there were no API Keys to migrate.
 In the menu, go to **Administration -> Users and Access -> Service Accounts**. Verify that all API Keys have been migrated and that the API Keys menu is no longer visible.
 
+You can also perform this via a CLI command:
+
+`curl -X POST http://localhost:3000/api/serviceaccounts/migrate -u admin:admin -H "Content-Type: application/json"`
+
+Please replace admin:admin with your valid credentials. As reponse you will get migration details. Example:
+
+`{"total":3,"migrated":3,"failed":0,"failedApikeyIDs":[],"failedDetails":[]}`.
+
 ### Post-migration steps
 
 After you finish migrating:
