@@ -7,7 +7,7 @@
 ![!image](../../images/PMM_PostgreSQL_vacuum_monitor-experimental.png)
 
 
-This dashbaord provides timely insights into the autovacuum process in PostgreSQL.
+This dashboard provides timely insights into the autovacuum process in PostgreSQL.
 
 This dashboard contains the following:
 

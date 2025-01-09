@@ -2,6 +2,7 @@ export PACKER_CACHE_DIR := .cache
 export PACKER_VERSION := 1.9.4
 export BOX_VERSION := 202407.23.0
 export PMM_SERVER_IMAGE ?= docker.io/perconalab/pmm-server:3-dev-latest
+export WATCHTOWER_IMAGE ?= docker.io/perconalab/watchtower:dev-latest
 export CENTOS_ISO := 2004.01
 
 ## ----------------- PACKER ------------------
@@ -25,7 +26,10 @@ deps:
 	unzip -o ${PACKER_CACHE_DIR}/packer.zip -d ~/bin
 
 pmm-ovf: fetch
-	/usr/bin/packer build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}'  -only virtualbox-ovf -color=false packer/pmm.json | tee build.log
+	/usr/bin/packer build \
+		-var 'pmm_server_image_name=${PMM_SERVER_IMAGE}' \
+		-var 'watchtower_image_name=${WATCHTOWER_IMAGE}' \
+		-only virtualbox-ovf -color=false packer/pmm.json | tee build.log
 
 pmm-digitalocean:
 	packer build -only digitalocean -var 'single_disk=true' packer/pmm.json
@@ -35,7 +39,9 @@ pmm-azure:
 
 pmm-ami:
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build \hashicorp/packer:${PACKER_VERSION} \
-		build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}' -only amazon-ebs -color=false packer/pmm.json | tee build.log
+		build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}' \
+		-var 'watchtower_image_name=${WATCHTOWER_IMAGE}' \
+		-only amazon-ebs -color=false packer/pmm.json | tee build.log
 ## ----------------- PACKER ------------------
 
 check:

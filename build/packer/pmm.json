@@ -1,7 +1,8 @@
 {
   "variables": {
     "single_disk": "false",
-    "pmm_server_image_name": "docker.io/perconalab/pmm-server:3-dev-latest"
+    "pmm_server_image_name": "docker.io/perconalab/pmm-server:3-dev-latest",
+    "watchtower_image_name": "docker.io/perconalab/watchtower:dev-latest"
   },
   "builders": [
     {
@@ -124,7 +125,7 @@
         "-vvv",
         "-u root",
         "--extra-vars",
-        "\"pmm_server_image_name='{{ user `pmm_server_image_name`}}'\""
+        "\"pmm_server_image_name='{{ user `pmm_server_image_name` }}' watchtower_image_name='{{ user `watchtower_image_name` }}'\""
       ],
       "role_paths": [
         "packer/ansible/roles/lvm-init",

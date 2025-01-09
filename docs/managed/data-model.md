@@ -351,4 +351,4 @@ Add, Change and Remove APIs work with groups of objects and contain validation l
 
 **PostgreSQL**. Nodes, Services, and Agents are stored in three separate tables. We use [Single Table Inheritance](https://www.martinfowler.com/eaaCatalog/singleTableInheritance.html) to store various types of Nodes/Services/Agents in the same table. There are two more tables for relationships between Agents and Nodes, and Agents and Services.
 
-Whatever column should be defined as NOT NULL depends on wether unique index is required.
+Whatever column should be defined as NOT NULL depends on whether unique index is required.
