@@ -26,6 +26,7 @@ import (
 	"net/url"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -111,7 +112,7 @@ func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName str
 	q := u.Query()
 	q.Set("hostname", hostname)
 	q.Set("newImageName", newImageName)
-	q.Set("stopWatchtower", fmt.Sprint(stopWatchtower)) // We stop watchtower on AMI and OVF, because systemd will restart it with new image.
+	q.Set("stopWatchtower", strconv.FormatBool(stopWatchtower)) // We stop watchtower on AMI and OVF, because systemd will restart it with new image.
 	u.RawQuery = q.Encode()
 
 	// Create a new request
