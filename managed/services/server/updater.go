@@ -177,7 +177,9 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 
 	restartWatchtower := false
 	if _, e := os.Stat(pmmEnvfilePath); e == nil {
-		watchtowerImageName := strings.Replace(newImageName, "pmm-server", "watchtower", 1)
+		watchtowerImageName := strings.Replace(newImageName, "pmm-server-fb", "pmm-watchtower-fb", 1) // for FB images
+		watchtowerImageName = strings.Replace(watchtowerImageName, "3-dev-latest", "dev-latest", 1)   // for dev images
+		watchtowerImageName = strings.Replace(watchtowerImageName, "pmm-server", "watchtower", 1)
 		err := up.updatePodmanEnvironmentVariables(watchtowerEnvfilePath, "WATCHTOWER_IMAGE", watchtowerImageName)
 		if err != nil {
 			up.running = false
