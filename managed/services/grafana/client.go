@@ -238,10 +238,12 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 				userID: 0,
 			}, nil
 		}
-		if errors.Is(err, ErrIsNotServiceAccount) {
-			l.Warning("you should migrate your API Key into Service Account")
 
+		if errors.Is(err, ErrIsNotServiceAccount) {
 			role, err := c.getRoleForAPIKey(ctx, authHeaders)
+			if err == nil {
+				l.Warning("you should migrate your API Key into Service Account")
+			}
 			return authUser{
 				role:   role,
 				userID: 0,
