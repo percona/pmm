@@ -76,7 +76,7 @@ Enter the username and password. The defaults are username: **admin** and passwo
 
 **Commercial Support**  | **Community Support** |
 :-: | :-: |
-| <br/>Enterprise-grade assistance for your mission-critical monitoring deployments with Percona Monitoring and Management. Get expert guidance for complex tasks like multi-database monitoring in hybrid environments with cloud providers and bare metal.<br/><br/>  | <br/>Connect with our engineers and fellow users for general questions, troubleshooting, and sharing feedback and ideas.<br/><br/>  | 
+| <br/>Enterprise-grade support for mission-critical monitoring deployments with Percona Monitoring and Management.  Get expert guidance for complex monitoring scenarios across hybrid environments - from cloud providers to bare metal infrastructures. Our team helps you optimize monitoring strategies for any deployment model.<br/><br/>  | <br/>Connect with our engineers and community members to troubleshoot issues, share best practices, and discuss monitoring strategies. <br/><br/>  | 
 | **[Get Percona Support](https://hubs.ly/Q02_Fs100)** | **[Visit our Forum](https://forums.percona.com/c/percona-monitoring-and-management-pmm/30/none)** |
 
 
