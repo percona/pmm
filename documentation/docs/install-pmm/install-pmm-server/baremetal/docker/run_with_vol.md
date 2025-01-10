@@ -23,16 +23,16 @@ To run Docker with volume:
     --publish 443:8443 \
     --env PMM_WATCHTOWER_HOST=your_watchtower_host \
     --env PMM_WATCHTOWER_TOKEN=your_watchtower_token \
-    --volumes-from pmm-data \
+    --volume pmm-data:/srv \
     --network=pmm_default \
     --name pmm-server \
     percona/pmm-server:3
     ```
 
-4. Change the password for the default `admin` user, replacing `your_secure_password123` with a strong, unique password:
+4. Change the password for the default `admin` user, replacing `your_secure_password` with a strong, unique password:
 
     ```sh
-    docker exec -t pmm-server change-admin-password your_secure_password123
+    docker exec -t pmm-server change-admin-password your_secure_password
     ```
 
 5. Check the [WatchTower prerequisites](../docker/index.md|#prerequisites) and pass the following command to Docker Socket to start [Watchtower](https://containrrr.dev/watchtower/):

@@ -1,6 +1,7 @@
 # Migrate PMM 2 to PMM 3
 
 PMM 3 introduces significant architectural changes that require gradual transition from PMM 2.
+
 You can migrate to PMM 3 either automatically using the upgrade script (recommended), or manually by following step-by-step instructions.
 
 To graduallly migrate to PMM 3:
