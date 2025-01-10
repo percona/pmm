@@ -117,11 +117,15 @@ For detailed instructions, see the [Upgrade PMM Client topic](../pmm-upgrade/upg
 
 PMM 3 replaces API keys with service accounts to enhance security and simplify access management. You can trigger this API key conversion from the UI or from the CLI.
 	
-### From the UI:
-PMM automatically migrates existing API Keys to Service Accounts when you first log in as an Admin user. The migration results are displayed in a popup dialog box. If no popup appears, it likely means there are no API Keys to migrate—this is typical for PMM Servers without connected services.
+### From the UI
+PMM automatically migrates existing API keys to service accounts when you first log in as an Admin user. The migration results are displayed in a popup dialog box. 
+
+If no popup appears, it likely means there are no API keys to migrate—this is typical for PMM Servers without connected services.
 	
 ### From CLI
-You can also trigger the conversion with the following command, replacing `admin:admin` with your credentials:
+You can also initiate the conversion using the following command. 
+Be sure to replace `admin:admin` with your credentials and update the server address (`localhost` or `127.0.0.1`) and port number (`3000`) if they differ from the defaults:
+
 	
 ```sh
 curl -X POST http://localhost:3000/api/serviceaccounts/migrate \
@@ -131,7 +135,7 @@ curl -X POST http://localhost:3000/api/serviceaccounts/migrate \
 	
 The response will display the migration details:
 
-??? example "Expected output"
+!!! example "Expected output"
 
 	```
 	{"total":3,"migrated":3,"failed":0,"failedApikeyIDs":[],"failedDetails":[]}
@@ -148,7 +152,7 @@ If any API keys fail to migrate, you can either:
 
 ### Post-migration steps
 
-After you finish migrating:
+After you finish migrating PMM:
 {.power-number}
 
 1. Verify that all PMM Clients are up to date by checking **PMM Configuration > Updates**.
