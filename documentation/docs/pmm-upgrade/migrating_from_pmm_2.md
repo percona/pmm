@@ -123,16 +123,16 @@ PMM automatically migrates existing API Keys to Service Accounts when you first 
 ### From CLI
 You can also trigger the conversion with the following command, replacing `admin:admin` with your credentials:
 	
-	```sh
-	Copycurl -X POST http://localhost:3000/api/serviceaccounts/migrate \
-	-u admin:admin \
-	-H "Content-Type: application/json
-	```
+```sh
+curl -X POST http://localhost:3000/api/serviceaccounts/migrate \
+-u admin:admin \
+-H "Content-Type: application/json
+```
 	
-The response will display the migration details.
-	  
-	??? example "Expected output"
-	
+The response will display the migration details:
+
+??? example "Expected output"
+
 	```
 	{"total":3,"migrated":3,"failed":0,"failedApikeyIDs":[],"failedDetails":[]}
 	```    
