@@ -71,6 +71,15 @@ percona/pmm-server:2
 
 Enter the username and password. The defaults are username: **admin** and password: **admin**
 
+# Need help?
+
+
+**Commercial Support**  | **Community Support** |
+:-: | :-: |
+| <br/>Enterprise-grade assistance for your mission-critical monitoring deployments with Percona Monitoring and Management. Get expert guidance for complex tasks like multi-database monitoring in hybrid environments with cloud providers and bare metal.<br/><br/>  | <br/>Connect with our engineers and fellow users for general questions, troubleshooting, and sharing feedback and ideas.<br/><br/>  | 
+| **[Get Percona Support](https://hubs.ly/Q02_Fs100)** | **[Visit our Forum](https://forums.percona.com/c/percona-monitoring-and-management-pmm/30/none)** |
+
+
 ## How to get involved
 
 We encourage contributions and are always looking for new members that are as dedicated to serving the community as we are.
