@@ -10,7 +10,7 @@ Percona releases new chart versions to update containers when:
     The UI update feature is disabled by default and should remain so. Do not modify or add the following parameter in your custom `values.yaml` file:
     ```yaml
     pmmEnv:
-    DISABLE_UPDATES: "1"
+    PMM_ENABLE_UPDATES: "1"
     ```
 
 ## Before you begin

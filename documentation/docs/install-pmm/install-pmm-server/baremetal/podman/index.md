@@ -232,7 +232,7 @@ To run Podman as a non-privileged user:
 
     # keep updates disabled
     # do image replacement instead (update the tag and restart the service)
-    DISABLE_UPDATES=1
+    PMM_ENABLE_UPDATES=1
     EOF
     ```
 
