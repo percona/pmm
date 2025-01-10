@@ -33,13 +33,13 @@ To restore the container:
 5. Copy the data.
 
     ```sh
-    docker run --rm -v $(pwd)/srv:/backup -v pmm-data:/srv -t perconalab/pmm-server:3.0.0 cp -r /backup/* /srv
+    docker run --rm -v $(pwd)/srv:/backup -v pmm-data:/srv -t percona/pmm-server:3 cp -r /backup/* /srv
     ```
 
 6. Restore permissions.
 
     ```sh
-    docker run --rm -v pmm-data:/srv -t perconalab/pmm-server:3.0.0 chown -R pmm:pmm /srv
+    docker run --rm -v pmm-data:/srv -t percona/pmm-server:3 chown -R pmm:pmm /srv
     ```
 
 7. Start the image.
