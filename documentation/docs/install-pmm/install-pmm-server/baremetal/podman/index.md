@@ -115,8 +115,8 @@ On the other hand, the manual method offers a simpler setup with complete contro
     4. Start services:
    
         ```sh
-        systemctl --user enable --now pmm-server
-        systemctl --user enable --now watchtower
+        systemctl --user enable --now pmm-server.service
+        systemctl --user enable --now watchtower.service
         ```
 
     5. Go to `https://localhost:8443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
@@ -160,7 +160,7 @@ On the other hand, the manual method offers a simpler setup with complete contro
     3. Start services:
    
         ```sh
-        systemctl --user enable --now pmm-server
+        systemctl --user enable --now pmm-server.service
         ```
 
     4. Go to `https://localhost:8443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
@@ -202,7 +202,7 @@ To run Podman as a non-privileged user:
     # set environment for this unit
     Environment=PMM_PUBLIC_PORT=8443
     Environment=PMM_VOLUME_NAME=%N
-    Environment=PMM_TAG=2.33.0
+    Environment=PMM_TAG=2.44.0
     Environment=PMM_IMAGE=docker.io/percona/pmm-server
     Environment=PMM_ENV_FILE=%h/.config/pmm-server/pmm-server.env
 
@@ -249,7 +249,7 @@ To run Podman as a non-privileged user:
     ```text
     Environment=PMM_PUBLIC_PORT=8443
     Environment=PMM_VOLUME_NAME=%N
-    Environment=PMM_TAG=2.33.0
+    Environment=PMM_TAG=2.44.0
     Environment=PMM_IMAGE=docker.io/percona/pmm-server
     ```
 
@@ -258,7 +258,7 @@ To run Podman as a non-privileged user:
     ```sh
     mkdir -p ~/.config/pmm-server/
     cat << "EOF" > ~/.config/pmm-server/env
-    PMM_TAG=2.31.0
+    PMM_TAG=2.44.0
     PMM_IMAGE=docker.io/percona/pmm-server
     PMM_PUBLIC_PORT=8443
     EOF
@@ -270,7 +270,7 @@ To run Podman as a non-privileged user:
 3. Enable and start:
 
     ```sh
-    systemctl --user enable --now pmm-server
+    systemctl --user enable --now pmm-server.service
     ```
 
 4. Activate the podman socket using the [Podman socket activation instructions](https://github.com/containers/podman/blob/main/docs/tutorials/socket_activation.md).
