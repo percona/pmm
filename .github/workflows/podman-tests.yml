@@ -41,7 +41,7 @@ jobs:
           cat ./documentation/docs_test_podman.sh
           pandoc --version
           podman version
-          podman ps --all || true
-          systemctl status --user $(id -un) || true
+          podman ps --all
+          systemctl --user status pmm-server.service || true
           podman inspect pmm-server || true
-          # journalctl -r || true
+          journalctl --user -xe
