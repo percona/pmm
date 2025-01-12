@@ -1491,12 +1491,12 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		TLSSkipVerify: params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
 		Username:      params.Username,
 		Password:      params.Password,
-		QANOptions: &QANOptions{
+		QANOptions: QANOptions{
 			CommentsParsingDisabled: true,
 		},
 	}
 	if ap.TLS {
-		ap.PostgreSQLOptions = &PostgreSQLOptions{}
+		ap.PostgreSQLOptions = PostgreSQLOptions{}
 		for path, field := range map[string]*string{
 			params.SSLCAPath:   &ap.PostgreSQLOptions.SSLCa,
 			params.SSLCertPath: &ap.PostgreSQLOptions.SSLCert,
