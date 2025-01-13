@@ -43,12 +43,8 @@ import (
 	"github.com/percona/pmm/utils/grafana"
 )
 
-var (
-	// ErrFailedToGetToken means it failed to get the user token. Most likely due to the fact the user is not logged in using Percona Account.
-	ErrFailedToGetToken = errors.New("failed to get the user token")
-	// ErrIsNotServiceAccount means that provided auth header is not Service account. Most likely it is API Key.
-	ErrIsNotServiceAccount = errors.New("not a service account token")
-)
+// ErrFailedToGetToken means it failed to get the user token. Most likely due to the fact the user is not logged in using Percona Account.
+var ErrFailedToGetToken = errors.New("failed to get the user token")
 
 const (
 	pmmServiceTokenName   = "pmm-agent-st" //nolint:gosec
@@ -239,7 +235,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 			}, nil
 		}
 
-		if errors.Is(err, ErrIsNotServiceAccount) {
+		if strings.Contains(err.Error(), "Auth method is not service account token") {
 			role, err := c.getRoleForAPIKey(ctx, authHeaders)
 			if err == nil {
 				l.Warning("you should migrate your API Key to a Service Account")
@@ -342,10 +338,6 @@ func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role
 	var k map[string]interface{}
 	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k); err != nil {
 		return none, err
-	}
-
-	if k == nil {
-		return none, ErrIsNotServiceAccount
 	}
 
 	if id, _ := k["orgId"].(float64); id != 1 {
