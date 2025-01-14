@@ -2561,8 +2561,44 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Step 3: Migrate PMM 2 Clients to PMM 3">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-migrate-your-api-keys-to-service-accounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Migrate your API keys to service accounts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 4: Migrate your API keys to service accounts">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#from-the-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      From the UI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      From CLI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verify-the-conversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the conversion
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#post-migration-steps" class="md-nav__link">
@@ -7785,8 +7821,44 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Step 3: Migrate PMM 2 Clients to PMM 3">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-migrate-your-api-keys-to-service-accounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Migrate your API keys to service accounts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 4: Migrate your API keys to service accounts">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#from-the-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      From the UI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#from-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      From CLI
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verify-the-conversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify the conversion
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#post-migration-steps" class="md-nav__link">
@@ -7940,8 +8012,33 @@
 </div>
 <p>Depending on your initial installation method, update PMM Clients using your operating system&rsquo;s package manager or by updating from a tarball.
 For detailed instructions, see the <a href="upgrade_client.html">Upgrade PMM Client topic</a>.</p>
+<h2 id="step-4-migrate-your-api-keys-to-service-accounts">Step 4: Migrate your API keys to service accounts<a class="headerlink" href="#step-4-migrate-your-api-keys-to-service-accounts" title="Permanent link">&para;</a></h2>
+<p>PMM 3 replaces API keys with service accounts to enhance security and simplify access management. You can trigger this API key conversion from the UI or from the CLI.</p>
+<h3 id="from-the-ui">From the UI<a class="headerlink" href="#from-the-ui" title="Permanent link">&para;</a></h3>
+<p>PMM automatically migrates existing API keys to service accounts when you first log in as an Admin user. The migration results are displayed in a popup dialog box. </p>
+<p>If no popup appears, it likely means there are no API keys to migrate—this is typical for PMM Servers without connected services.</p>
+<h3 id="from-cli">From CLI<a class="headerlink" href="#from-cli" title="Permanent link">&para;</a></h3>
+<p>You can also initiate the conversion using the following command. 
+Be sure to replace <code>admin:admin</code> with your credentials and update the server address (<code>localhost</code> or <code>127.0.0.1</code>) and port number (<code>3000</code>) if they differ from the defaults:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/api/serviceaccounts/migrate<span class="w"> </span><span class="se">\</span>
+-u<span class="w"> </span>admin:admin<span class="w"> </span><span class="se">\</span>
+-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json</span>
+</code></pre></div>
+<p>The response will display the migration details:</p>
+<div class="admonition example">
+<p class="admonition-title">Expected output</p>
+<div class="highlight"><pre><span></span><code>{&quot;total&quot;:3,&quot;migrated&quot;:3,&quot;failed&quot;:0,&quot;failedApikeyIDs&quot;:[],&quot;failedDetails&quot;:[]}
+</code></pre></div>
+</div>
+<h3 id="verify-the-conversion">Verify the conversion<a class="headerlink" href="#verify-the-conversion" title="Permanent link">&para;</a></h3>
+<p>To verify the that API keys were successfully migrated, go to <strong>Administration &gt; Users and Access &gt; Service Accounts</strong> where you can check the list of service accounts available and confirm that the <strong>API Keys</strong> menu is no longer displayed.</p>
+<p>If any API keys fail to migrate, you can either: </p>
+<ul>
+<li>delete the problematic API keys and create new service accounts</li>
+<li>keep using the existing API keys until you&rsquo;re ready to replace them</li>
+</ul>
 <h3 id="post-migration-steps">Post-migration steps<a class="headerlink" href="#post-migration-steps" title="Permanent link">&para;</a></h3>
-<p class="power-number">After you finish migrating:</p>
+<p class="power-number">After you finish migrating PMM:</p>
 <ol>
 <li>Verify that all PMM Clients are up to date by checking <strong>PMM Configuration &gt; Updates</strong>.</li>
 <li>Confirm all previously monitored services are reporting correctly to the new PMM 3 Server by reviewing <strong>Configuration &gt; PMM Inventory &gt; Services</strong>.</li>
@@ -7977,7 +8074,7 @@ For detailed instructions, see the <a href="upgrade_client.html">Upgrade PMM Cli
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-18
+    2025-01-14
   </span>
 
     
