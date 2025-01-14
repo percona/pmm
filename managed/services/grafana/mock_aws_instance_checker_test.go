@@ -9,7 +9,7 @@ type mockAwsInstanceChecker struct {
 	mock.Mock
 }
 
-// MustCheck provides a mock function with given fields:
+// MustCheck provides a mock function with no fields
 func (_m *mockAwsInstanceChecker) MustCheck() bool {
 	ret := _m.Called()
 

@@ -532,7 +532,7 @@ func (_m *MockKubeClientConnector) GetSecretsForServiceAccount(ctx context.Conte
 	return r0, r1
 }
 
-// GetServerVersion provides a mock function with given fields:
+// GetServerVersion provides a mock function with no fields
 func (_m *MockKubeClientConnector) GetServerVersion() (*version.Info, error) {
 	ret := _m.Called()
 

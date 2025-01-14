@@ -400,7 +400,7 @@ func (_m *mockKubernetesClient) GetSecret(_a0 context.Context, _a1 string) (*cor
 	return r0, r1
 }
 
-// GetServerVersion provides a mock function with given fields:
+// GetServerVersion provides a mock function with no fields
 func (_m *mockKubernetesClient) GetServerVersion() (*version.Info, error) {
 	ret := _m.Called()
 

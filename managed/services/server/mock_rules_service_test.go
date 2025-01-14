@@ -9,7 +9,7 @@ type mockRulesService struct {
 	mock.Mock
 }
 
-// RemoveVMAlertRulesFiles provides a mock function with given fields:
+// RemoveVMAlertRulesFiles provides a mock function with no fields
 func (_m *mockRulesService) RemoveVMAlertRulesFiles() error {
 	ret := _m.Called()
 
@@ -27,7 +27,7 @@ func (_m *mockRulesService) RemoveVMAlertRulesFiles() error {
 	return r0
 }
 
-// WriteVMAlertRulesFiles provides a mock function with given fields:
+// WriteVMAlertRulesFiles provides a mock function with no fields
 func (_m *mockRulesService) WriteVMAlertRulesFiles() {
 	_m.Called()
 }
