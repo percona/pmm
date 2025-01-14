@@ -51,7 +51,7 @@ func TestScrapeConfig(t *testing.T) {
 				AgentType:    models.NodeExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{
+				ExporterOptions: models.ExporterOptions{
 					DisabledCollectors: []string{"cpu", "entropy"},
 				},
 			}
@@ -188,7 +188,7 @@ func TestScrapeConfig(t *testing.T) {
 				AgentType:    models.NodeExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{
+				ExporterOptions: models.ExporterOptions{
 					DisabledCollectors: []string{"cpu", "time"},
 				},
 			}
@@ -261,8 +261,8 @@ func TestScrapeConfig(t *testing.T) {
 				AgentType:       models.MySQLdExporterType,
 				CustomLabels:    []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:      pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{},
-				MySQLOptions:    &models.MySQLOptions{},
+				ExporterOptions: models.ExporterOptions{},
+				MySQLOptions:    models.MySQLOptions{},
 			}
 
 			expected := []*config.ScrapeConfig{{
@@ -417,10 +417,10 @@ func TestScrapeConfig(t *testing.T) {
 				AgentType:    models.MySQLdExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{
+				ExporterOptions: models.ExporterOptions{
 					DisabledCollectors: []string{"global_status", "info_schema.innodb_cmp", "info_schema.query_response_time", "perf_schema.eventsstatements", "heartbeat"},
 				},
-				MySQLOptions: &models.MySQLOptions{},
+				MySQLOptions: models.MySQLOptions{},
 			}
 
 			expected := []*config.ScrapeConfig{{
@@ -567,8 +567,8 @@ func TestScrapeConfig(t *testing.T) {
 				AgentID:         "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:       models.MySQLdExporterType,
 				ListenPort:      pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{},
-				MySQLOptions: &models.MySQLOptions{
+				ExporterOptions: models.ExporterOptions{},
+				MySQLOptions: models.MySQLOptions{
 					TableCount:                     pointer.ToInt32(100500),
 					TableCountTablestatsGroupLimit: 1000,
 				},
@@ -698,7 +698,7 @@ func TestScrapeConfig(t *testing.T) {
 			agent := &models.Agent{
 				CustomLabels:    []byte("{"),
 				ListenPort:      pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{},
+				ExporterOptions: models.ExporterOptions{},
 			}
 
 			_, err := scrapeConfigsForMySQLdExporter(&scrapeConfigParams{
@@ -731,8 +731,8 @@ func TestScrapeConfig(t *testing.T) {
 				AgentType:       models.MongoDBExporterType,
 				CustomLabels:    []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:      pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{},
-				MongoDBOptions:  &models.MongoDBOptions{EnableAllCollectors: true},
+				ExporterOptions: models.ExporterOptions{},
+				MongoDBOptions:  models.MongoDBOptions{EnableAllCollectors: true},
 			}
 
 			expected := []*config.ScrapeConfig{
@@ -831,8 +831,8 @@ func TestScrapeConfig(t *testing.T) {
 				AgentType:       models.MongoDBExporterType,
 				CustomLabels:    []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:      pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{},
-				MongoDBOptions:  &models.MongoDBOptions{},
+				ExporterOptions: models.ExporterOptions{},
+				MongoDBOptions:  models.MongoDBOptions{},
 			}
 
 			expected := []*config.ScrapeConfig{
@@ -921,7 +921,7 @@ func TestScrapeConfig(t *testing.T) {
 			agent := &models.Agent{
 				CustomLabels:    []byte("{"),
 				ListenPort:      pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{},
+				ExporterOptions: models.ExporterOptions{},
 			}
 
 			_, err := scrapeConfigsForMongoDBExporter(&scrapeConfigParams{
@@ -955,7 +955,7 @@ func TestScrapeConfig(t *testing.T) {
 				AgentType:    models.PostgresExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{
+				ExporterOptions: models.ExporterOptions{
 					DisabledCollectors: []string{"standard.process", "custom_query.lr"},
 				},
 			}
@@ -1073,7 +1073,7 @@ func TestScrapeConfig(t *testing.T) {
 			agent := &models.Agent{
 				CustomLabels:    []byte("{"),
 				ListenPort:      pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{},
+				ExporterOptions: models.ExporterOptions{},
 			}
 
 			_, err := scrapeConfigsForPostgresExporter(&scrapeConfigParams{
@@ -1294,7 +1294,7 @@ func TestScrapeConfig(t *testing.T) {
 				AgentType:       models.ExternalExporterType,
 				CustomLabels:    []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:      pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{},
+				ExporterOptions: models.ExporterOptions{},
 			}
 
 			expected := []*config.ScrapeConfig{{
@@ -1341,7 +1341,7 @@ func TestScrapeConfig(t *testing.T) {
 				Username:     pointer.ToString("username"),
 				Password:     pointer.ToString("password"),
 				ListenPort:   pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{
+				ExporterOptions: models.ExporterOptions{
 					MetricsPath:   "/some-metric-path",
 					MetricsScheme: "https",
 				},
@@ -1395,7 +1395,7 @@ func TestScrapeConfig(t *testing.T) {
 			agent := &models.Agent{
 				CustomLabels:    []byte("{"),
 				ListenPort:      pointer.ToUint16(12345),
-				ExporterOptions: &models.ExporterOptions{},
+				ExporterOptions: models.ExporterOptions{},
 			}
 
 			_, err := scrapeConfigsForMongoDBExporter(&scrapeConfigParams{
