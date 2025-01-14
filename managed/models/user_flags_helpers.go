@@ -31,10 +31,11 @@ type CreateUserParams struct {
 
 // UpdateUserParams has parameters to update existing user.
 type UpdateUserParams struct {
-	UserID            int
-	Tour              *bool
-	AlertingTour      *bool
-	SnoozedPMMVersion *string
+	UserID                  int
+	Tour                    *bool
+	AlertingTour            *bool
+	SnoozedPMMVersion       *string
+	SnoozedAPIKeysMigration *bool
 }
 
 // GetOrCreateUser returns user and optionally creates it, if not in database yet.
@@ -109,6 +110,9 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 	}
 	if params.SnoozedPMMVersion != nil {
 		row.SnoozedPMMVersion = *params.SnoozedPMMVersion
+	}
+	if params.SnoozedAPIKeysMigration != nil {
+		row.SnoozedAPIKeysMigration = *params.SnoozedAPIKeysMigration
 	}
 
 	if err = q.Update(row); err != nil {

@@ -1144,6 +1144,10 @@ var databaseSchema = [][]string{
 		)
 		WHERE settings ? 'encrypted_items';`,
 	},
+	108: {
+		`ALTER TABLE user_flags
+			ADD COLUMN snoozed_api_keys_migration BOOLEAN NOT NULL DEFAULT false`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
