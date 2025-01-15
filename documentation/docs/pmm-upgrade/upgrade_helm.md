@@ -35,31 +35,31 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
 1. Stop the current container:
 
     ```sh
-   helm stop pmm-server
+    helm stop pmm-server
     ```
 
 3. Pull the latest image:
 
     ```sh
-   helm pull percona/pmm-server:3
+    helm pull percona/pmm-server:3
     ```
 
 4. Rename the original container:
 
     ```sh
-   helm rename pmm-server pmm-server-old
+    helm rename pmm-server pmm-server-old
     ```
 
 5. Run the new container:
 
     ```sh
-   helm run \
-   --detach \
-   --restart always \
-   --publish 443:8443 \
-   --volumes-from pmm-data \
-   --name pmm-server \
-   percona/pmm-server:3
-   ```
+    helm run \
+    --detach \
+    --restart always \
+    --publish 443:8443 \
+    --volumes-from pmm-data \
+    --name pmm-server \
+    percona/pmm-server:3
+    ```
 
 6. After upgrading, verify that PMM Server is running correctly and all your data is accessible.

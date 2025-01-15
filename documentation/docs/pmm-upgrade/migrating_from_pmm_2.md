@@ -19,7 +19,8 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
 
 === "Automated upgrade (Recommended)"
     Use this upgrade script for a simplified migration process:
-
+    {.power-number}
+    
     1. Download and run the following script to start the upgrade. The `-b` flag ensures your data is backed up before the upgrade.
 
         ```sh
