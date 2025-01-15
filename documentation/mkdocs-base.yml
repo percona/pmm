@@ -269,9 +269,10 @@ nav:
     - Percona Alerting:
       - alert/index.md
       - alert/alert_rules.md
-      - alert/alert_notifications.md
+      - alert/contact_points.md
       - alert/templates_list.md
       - alert/silence_alerts.md
+      - alert/disable_alerts.md
     - Backup and restore: 
       - backup/index.md
       - backup/prepare_storage_location.md
