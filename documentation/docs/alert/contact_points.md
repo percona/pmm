@@ -98,7 +98,7 @@ To edit the root notification policy:
 {.power-number}
 
 1. Go to <i class="uil uil-bell"></i> **Alerting > Notification policies** tab.
-2. Click the ellipsis botton next to the root policy box and select the **Edit** option.
+2. Click the ellipsis button next to the root policy box and select the **Edit** option.
 3. Choose whether to keep the default Email contact point, select a new available contact point or create a new one.
 4. In the **Group by** field, specify how alert rules should be processed into notifications. If multiple alerts are matched for this policy, they will be grouped based on the labels you specify, and a notification will be sent per group.
 5. Expand the **Timing options** section and specify how notification wait times should be processed. These are short pauses the system can take to efficiently process multiple sets of alerts for notifications:

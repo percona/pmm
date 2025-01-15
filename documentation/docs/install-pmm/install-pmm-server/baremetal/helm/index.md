@@ -140,7 +140,7 @@ In case you want to add extra environment variables (useful for advanced operati
 
 ```yaml
 pmmEnv:
-  DISABLE_UPDATES: "1"
+  PMM_ENABLE_UPDATES: "1"
 ```
 
 ### PMM SSL certificates
