@@ -132,7 +132,8 @@ func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName str
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	if resp.StatusCode == http.StatusBadRequest {
+	if resp.StatusCode == http.StatusBadRequest ||
+		resp.StatusCode == http.StatusPreconditionFailed {
 		bytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return errors.Wrap(err, "failed to read response body")
