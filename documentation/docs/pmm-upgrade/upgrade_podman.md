@@ -5,7 +5,7 @@
 Before starting the upgrade, complete these preparation steps to ensure you can recover your system if needed and confirm compatibility with the new version:
 {.power-number}
 
-1. Create a backup before upgrading, as downgrades are not possible. Therefore, reverting to a previous version requires an backup made prior to the upgrade.
+1. [Create a backup](../install-pmm/install-pmm-server/baremetal/podman/backup_container_podman.md) before upgrading, as downgrades are not possible. Therefore, reverting to a previous version requires an backup made prior to the upgrade.
 
 2. Verify your current PMM version: Check your current PMM version by navigating to **PMM Configuration > Updates** or by running the following command: 
 
@@ -16,28 +16,32 @@ Before starting the upgrade, complete these preparation steps to ensure you can 
 
 ## Upgrade steps
 
-Follow these steps to upgrade your PMM Server while preserving your monitoring data and settings—you can restore from your backup if needed.
+Follow these steps to upgrade your PMM Server while preserving your monitoring data and settings. In case of any issues, you can restore your system using the backup created in the preparation steps.
 {.power-number}
 
-1. [Back up your data](../install-pmm/install-pmm-server/baremetal/podman/backup_container_podman.md).
 
-2. Update PMM tag by editing `~/.config/systemd/user/pmm-server.env` file and running the following command to set the latest release version:
+1. Stop the current container:
 
     ```sh
-    sed -i "s/PMM_IMAGE=.*/PMM_IMAGE=docker.io/percona/pmm-server:3.0.0/g" ~/.config/systemd/user/pmm-server.env
+    podman stop pmm-server
     ```
 
-3. Pre-pull the new image to ensure a faster restart:
+3. Rename the original container:
 
     ```sh
-    source ~/.config/systemd/user/pmm-server.env
-    podman pull ${PMM_IMAGE}:${PMM_TAG}
+    podman rename pmm-server pmm-server-old
     ```
 
-4. Restart PMM Server:
+4. Run the new container:
 
     ```sh
-    systemctl --user restart pmm-server
+    podman run \
+    --detach \
+    --restart always \
+    --publish 443:8443 \
+    --volumes-from pmm-data \
+    --name pmm-server \
+    percona/pmm-server:3
     ```
 
 5. After the upgrade, verify that PMM Server is running correctly:
