@@ -61,18 +61,18 @@ Run the commands below to install the latest PMM Agent version via package manag
 
 === "Debian-based"
 
-```sh
-percona-release enable pmm2-client
-apt update
-apt install pmm2-client
-```
+    ```sh
+    percona-release enable pmm2-client
+    apt update
+    apt install pmm2-client
+    ```
 
 === "Red Hat-based"
 
- ```sh
- percona-release enable pmm2-client
- yum update pmm2-client
- ```
+    ```sh
+    percona-release enable pmm2-client
+    yum update pmm2-client
+    ```
 
 #### Deploy a specific version
 
@@ -87,7 +87,7 @@ To deploy a specific version of the PMM Agent via package manager, check the ava
      pmm2-client-2.42.0-6.el9.x86_64 : Percona Monitoring and Management Client (pmm-agent)
 
      yum update pmm2-client-2.41.2-6.el9.x86_64
-     ```
+    ```
 
 === "Debian-based"
 
