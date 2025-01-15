@@ -2,10 +2,10 @@
 
 To get up and running with Percona Monitoring and Management (PMM) in no time, install PMM on Bare Metal/Virtual using the Easy-install script for Docker.
 
-This is the simplest and most efficient way to install PMM.
+This is the simplest and most efficient way to install PMM with Docker.
 
 ??? info "Alternative installation options"
-     For alternative setups, explore the additional installation options detailed in the **Setting up** chapter:
+     For alternative setups or if you're not using Docker, explore the additional installation options detailed in the **Setting up** chapter:
 
     - [Deploy on Podman](install-pmm/install-pmm-server/baremetal/podman/index.md)
     - [Deploy based on a Docker image](install-pmm/install-pmm-server/baremetal/docker/index.md)
