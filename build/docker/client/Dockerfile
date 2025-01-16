@@ -1,4 +1,4 @@
-FROM redhat/ubi9-minimal as users
+FROM redhat/ubi9-minimal AS users
 
 RUN microdnf install shadow-utils jq tar -y
 
@@ -12,13 +12,13 @@ FROM redhat/ubi9-micro
 ARG VERSION
 ARG BUILD_DATE
 
-LABEL org.opencontainers.image.created ${BUILD_DATE}
-LABEL org.opencontainers.image.licenses Apache-2.0
-LABEL org.opencontainers.image.title Percona Monitoring and Management Client
-LABEL org.opencontainers.image.vendor Percona, LLC
-LABEL org.opencontainers.image.version ${VERSION}
-LABEL vendor Percona, LLC
-LABEL maintainer Percona, LLC
+LABEL org.opencontainers.image.created=${BUILD_DATE} \
+      org.opencontainers.image.licenses=Apache-2.0 \
+      org.opencontainers.image.title="Percona Monitoring and Management Client" \
+      org.opencontainers.image.vendor="Percona, LLC" \
+      org.opencontainers.image.version=${VERSION} \
+      vendor="Percona, LLC" \
+      maintainer="Percona, LLC"
 
 COPY LICENSE /licenses/
 COPY --from=users --chown=0:0 /etc/passwd /etc/passwd
@@ -57,6 +57,6 @@ RUN cd /tmp/pmm-client-* \
 
 USER pmm-agent
 WORKDIR /usr/local/percona/pmm/
-ENV PATH /usr/local/percona/pmm/bin/:$PATH
+ENV PATH=/usr/local/percona/pmm/bin/:$PATH
 
 ENTRYPOINT ["/usr/local/percona/pmm/bin/pmm-agent-entrypoint"]
