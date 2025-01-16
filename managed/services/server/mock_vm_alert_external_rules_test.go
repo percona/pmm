@@ -13,7 +13,7 @@ type mockVmAlertExternalRules struct {
 	mock.Mock
 }
 
-// ReadRules provides a mock function with given fields:
+// ReadRules provides a mock function with no fields
 func (_m *mockVmAlertExternalRules) ReadRules() (string, error) {
 	ret := _m.Called()
 
@@ -41,7 +41,7 @@ func (_m *mockVmAlertExternalRules) ReadRules() (string, error) {
 	return r0, r1
 }
 
-// RemoveRulesFile provides a mock function with given fields:
+// RemoveRulesFile provides a mock function with no fields
 func (_m *mockVmAlertExternalRules) RemoveRulesFile() error {
 	ret := _m.Called()
 

@@ -13,7 +13,7 @@ type mockTelemetryService struct {
 	mock.Mock
 }
 
-// DistributionMethod provides a mock function with given fields:
+// DistributionMethod provides a mock function with no fields
 func (_m *mockTelemetryService) DistributionMethod() serverpb.DistributionMethod {
 	ret := _m.Called()
 
@@ -31,7 +31,7 @@ func (_m *mockTelemetryService) DistributionMethod() serverpb.DistributionMethod
 	return r0
 }
 
-// GetSummaries provides a mock function with given fields:
+// GetSummaries provides a mock function with no fields
 func (_m *mockTelemetryService) GetSummaries() []string {
 	ret := _m.Called()
 
