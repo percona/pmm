@@ -25,6 +25,8 @@ export const Main = () => {
     );
   }
 
+  console.log('isGrafana', isGrafana);
+
   return (
     <MessagesProvider>
       <Stack>
@@ -40,6 +42,7 @@ export const Main = () => {
             }}
           >
             <Grafana
+              shouldNavigate={isGrafana}
               url={
                 isGrafana
                   ? `/graph${location.pathname}?${location.search}`
@@ -54,5 +57,5 @@ export const Main = () => {
 };
 
 const isGrafanaPage = (pathname: string) => {
-  return pathname.startsWith('/d') || pathname.startsWith('/alerts');
+  return pathname.startsWith('/d') || pathname.startsWith('/graph');
 };

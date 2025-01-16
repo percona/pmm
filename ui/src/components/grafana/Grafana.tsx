@@ -1,7 +1,9 @@
 import { Card, Stack } from '@mui/material';
 import { Page } from 'components/page';
-import { FC, useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useMessenger } from 'contexts/messages/messages.provider';
+import { FC, useEffect, useState } from 'react';
+import { useLocation, Location } from 'react-router-dom';
+import { constructUrlFromLocation } from 'utils/url';
 
 const mapUrl = (url: string) => {
   if (url.includes('/graph/alerts')) {
@@ -11,29 +13,38 @@ const mapUrl = (url: string) => {
   return url;
 };
 
-export const Grafana: FC<{ url: string }> = ({ url: baseUrl }) => {
+export const Grafana: FC<{ url: string; shouldNavigate: boolean }> = ({
+  url: baseUrl,
+  shouldNavigate,
+}) => {
   const location = useLocation();
-  const url = getUrl(location.pathname);
+  const url = getUrl(location);
   const [src] = useState(mapUrl(baseUrl));
-  const ref = useRef<HTMLIFrameElement>(null);
+  const { frameRef, isReady, sendMessage } = useMessenger();
+  const [render, setRender] = useState(false);
 
   useEffect(() => {
-    if (url) {
-      ref.current?.contentWindow?.postMessage(
-        {
-          type: 'NAVIGATE_TO',
-          data: {
-            to: url,
-          },
+    if (isReady && shouldNavigate && url) {
+      console.log('NAVIGATE_TO_URL', url);
+      sendMessage({
+        type: 'NAVIGATE_TO',
+        data: {
+          to: url,
         },
-        '*'
-      );
+      });
     }
-  }, [url]);
+  }, [isReady, shouldNavigate, url]);
 
   useEffect(() => {
-    console.log('grafana-src', src);
-  }, [src]);
+    // load grafana on demand
+    if (shouldNavigate) {
+      setRender(true);
+    }
+  }, [shouldNavigate]);
+
+  if (!render) {
+    return;
+  }
 
   return (
     <Page>
@@ -46,20 +57,16 @@ export const Grafana: FC<{ url: string }> = ({ url: baseUrl }) => {
             },
           }}
         >
-          <iframe ref={ref} src={src}></iframe>
+          <iframe ref={frameRef} src={src}></iframe>
         </Stack>
       </Card>
     </Page>
   );
 };
 
-const getUrl = (pathname: string) => {
-  if (pathname.startsWith('/d')) {
-    return pathname;
-  }
-
-  if (pathname.startsWith('/alerts')) {
-    return '/alerting';
+const getUrl = (location: Location<unknown>) => {
+  if (location.pathname.startsWith('/graph')) {
+    return constructUrlFromLocation(location);
   }
 
   return '';

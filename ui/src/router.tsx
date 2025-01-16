@@ -6,6 +6,7 @@ import { DashboardsPage } from 'pages/dashboards';
 import { AlertsPage } from 'pages/alerts';
 import { MetricsPage } from 'pages/metrics';
 import QueryAnalytics from 'pages/query-analytics';
+import GrafanaPage from 'pages/grafana';
 
 const router = createBrowserRouter(
   [
@@ -40,6 +41,10 @@ const router = createBrowserRouter(
         {
           path: '/query-analytics',
           element: <QueryAnalytics />,
+        },
+        {
+          path: '/graph/*',
+          element: <GrafanaPage />,
         },
       ],
     },

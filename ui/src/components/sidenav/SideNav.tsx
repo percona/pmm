@@ -16,10 +16,11 @@ import {
   Stack,
   List,
 } from '@mui/material';
+import { useMessageWithResult } from 'contexts/messages/messages.hooks';
 import { MenuItem } from 'contexts/navigation/navigation.context.types';
 import { useNavigation } from 'contexts/navigation/navigation.hooks';
-import { FC, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { FC, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const MenuIcon: FC<{ name: string }> = ({ name }) => {
   if (name === 'dashboards') {
@@ -49,13 +50,35 @@ const MenuIcon: FC<{ name: string }> = ({ name }) => {
 const NavItem: FC<{ item: MenuItem }> = ({ item }) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const isActive = location.pathname.includes(item.to!);
+  const [to, setTo] = useState(item.to);
+  const { result, sendMessage } = useMessageWithResult();
+
+  useEffect(() => {
+    // check if dashboard
+    if (location.pathname.includes('/d/')) {
+      sendMessage({
+        type: 'LINK_VARIABLES',
+        data: {
+          url: item.to,
+        },
+      });
+    } else {
+      setTo(item.to);
+    }
+  }, [location, item.to]);
+
+  useEffect(() => {
+    console.log(result);
+    if (result && result.data?.url) {
+      setTo(result.data.url);
+    }
+  }, [result]);
 
   if (!item.children) {
     return (
-      <ListItem
-        disablePadding
-        onClick={item.to ? () => navigate(item.to!) : undefined}
-      >
+      <ListItem disablePadding onClick={to ? () => navigate(to) : undefined}>
         <ListItemButton>
           <ListItemIcon
             sx={{
@@ -65,7 +88,15 @@ const NavItem: FC<{ item: MenuItem }> = ({ item }) => {
           >
             {!!item.icon && <MenuIcon name={item.icon} />}
           </ListItemIcon>
-          <ListItemText primary={item.title} />
+          <ListItemText
+            primary={item.title}
+            sx={{
+              '.MuiListItemText-primary ': {
+                color: isActive ? 'primary.main' : undefined,
+                fontWeight: isActive ? 'bold' : undefined,
+              },
+            }}
+          />
         </ListItemButton>
       </ListItem>
     );
