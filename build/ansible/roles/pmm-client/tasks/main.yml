@@ -24,11 +24,6 @@
 - name: Install the client
   command: env PMM_USER=pmm PMM_GROUP=pmm /tmp/pmm-client/install_tarball
 
-- name: Remove the tarball
-  file:
-    path: /tmp/pmm-client.tar.gz
-    state: absent
-
 - name: Remove the temporary directory
   file:
     path: /tmp/pmm-client

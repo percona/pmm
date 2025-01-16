@@ -9,7 +9,7 @@ on:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
-  pull_request:
+  pull_request:      
 
 jobs:
   check:
@@ -23,7 +23,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Set up Go release
+      - name: Set up Go
         uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
         with:
           go-version-file: ${{ github.workspace }}/go.mod
@@ -126,7 +126,7 @@ jobs:
             exit $exit_code
           fi
 
-          echo "$out" | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-level=error
+          echo "$out" | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error
 
       - name: Test common API
         run: make test-common
@@ -138,8 +138,21 @@ jobs:
           go env | sort
           git status
 
+
+  typos_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Check spelling of md files
+        uses: crate-ci/typos@9d890159570d5018df91fedfa40b4730cd4a81b1 # v1.28.4
+        with:
+          files: "**/*.md ./documentation/**/*.md"
+
   merge-gatekeeper:
-    needs: [ check ]
+    needs: [ check, typos_check ]
     name: Merge Gatekeeper
     if: ${{ always() }}
     runs-on: ubuntu-22.04
@@ -161,8 +174,8 @@ jobs:
     env:
       SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
       SLACK_CHANNEL: "pmm-ci"
-      SLACK_USERNAME: "PR pipelines bot"
-      SLACK_ICON_EMOJI: ":chestnut:"
+      SLACK_USERNAME: "PR bot v3"
+      SLACK_ICON_EMOJI: ":octocat:"
       SLACK_COLOR: "#00FF00"
       SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
       SLACK_MESSAGE: "${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
@@ -179,8 +192,8 @@ jobs:
     env:
       SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
       SLACK_CHANNEL: "pmm-ci"
-      SLACK_USERNAME: "PR pipelines bot"
-      SLACK_ICON_EMOJI: ":chestnut:"
+      SLACK_USERNAME: "PR bot v3"
+      SLACK_ICON_EMOJI: ":octocat:"
       SLACK_COLOR: "#FF0000"
       SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
       SLACK_MESSAGE: "Workflow failed: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"

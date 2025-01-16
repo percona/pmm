@@ -174,7 +174,7 @@
   POST /v1/management/Role/SetDefault                          POST /v1/accesscontrol/roles:setDefault            ✅
   POST /v1/management/Role/Update                              PUT /v1/accesscontrol/roles/{role_id}              ✅
 
-  **Management:: Intergrated Alerting**
+  **Management:: Integrated Alerting**
   POST /v1/management/ia/Alerts/List                           N/A                                                ❌ Deprecated in v2 and removed in v3
   POST /v1/management/ia/Alerts/Toggle                         N/A                                                ❌ Deprecated in v2 and removed in v3
   POST /v1/management/ia/Channels/Add                          N/A                                                ❌ Deprecated in v2 and removed in v3

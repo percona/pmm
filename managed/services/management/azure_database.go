@@ -271,13 +271,15 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 		}
 
 		metricsExporter, err := models.CreateAgent(tx.Querier, exporterType, &models.CreateAgentParams{
-			PMMAgentID:                     models.PMMServerAgentID,
-			ServiceID:                      service.ServiceID,
-			Username:                       req.Username,
-			Password:                       req.Password,
-			TLS:                            req.Tls,
-			TLSSkipVerify:                  req.TlsSkipVerify,
-			TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+			PMMAgentID:    models.PMMServerAgentID,
+			ServiceID:     service.ServiceID,
+			Username:      req.Username,
+			Password:      req.Password,
+			TLS:           req.Tls,
+			TLSSkipVerify: req.TlsSkipVerify,
+			MySQLOptions: models.MySQLOptions{
+				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+			},
 		})
 		if err != nil {
 			return err
@@ -295,13 +297,15 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 
 		if req.Qan {
 			qanAgent, err := models.CreateAgent(tx.Querier, qanAgentType, &models.CreateAgentParams{
-				PMMAgentID:            models.PMMServerAgentID,
-				ServiceID:             service.ServiceID,
-				Username:              req.Username,
-				Password:              req.Password,
-				TLS:                   req.Tls,
-				TLSSkipVerify:         req.TlsSkipVerify,
-				QueryExamplesDisabled: req.DisableQueryExamples,
+				PMMAgentID:    models.PMMServerAgentID,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
+				QANOptions: models.QANOptions{
+					QueryExamplesDisabled: req.DisableQueryExamples,
+				},
 			})
 			if err != nil {
 				return err

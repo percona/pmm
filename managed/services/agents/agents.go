@@ -101,31 +101,23 @@ func redactWords(agent *models.Agent) []string {
 	if s := pointer.GetString(agent.AgentPassword); s != "" {
 		words = append(words, s)
 	}
-	if s := pointer.GetString(agent.AWSSecretKey); s != "" {
+	if s := agent.AWSOptions.AWSSecretKey; s != "" {
 		words = append(words, s)
 	}
-	if agent.AzureOptions != nil {
-		if s := agent.AzureOptions.ClientSecret; s != "" {
-			words = append(words, s)
-		}
+	if s := agent.AzureOptions.ClientSecret; s != "" {
+		words = append(words, s)
 	}
-	if agent.MySQLOptions != nil {
-		if s := agent.MySQLOptions.TLSKey; s != "" {
-			words = append(words, s)
-		}
+	if s := agent.MongoDBOptions.TLSCertificateKey; s != "" {
+		words = append(words, s)
 	}
-	if agent.PostgreSQLOptions != nil {
-		if s := agent.PostgreSQLOptions.SSLKey; s != "" {
-			words = append(words, s)
-		}
+	if s := agent.MongoDBOptions.TLSCertificateKeyFilePassword; s != "" {
+		words = append(words, s)
 	}
-	if agent.MongoDBOptions != nil {
-		if s := agent.MongoDBOptions.TLSCertificateKey; s != "" {
-			words = append(words, s)
-		}
-		if s := agent.MongoDBOptions.TLSCertificateKeyFilePassword; s != "" {
-			words = append(words, s)
-		}
+	if s := agent.MySQLOptions.TLSKey; s != "" {
+		words = append(words, s)
+	}
+	if s := agent.PostgreSQLOptions.SSLKey; s != "" {
+		words = append(words, s)
 	}
 
 	return words
@@ -170,11 +162,12 @@ func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_Ag
 // getExporterListenAddress returns the appropriate listen address to use for a given exporter.
 func getExporterListenAddress(_ *models.Node, exporter *models.Agent) string {
 	switch {
-	case exporter.ExposeExporter:
+	case exporter.ExporterOptions.ExposeExporter:
 		return "0.0.0.0"
-	case exporter.PushMetrics:
+	case exporter.ExporterOptions.PushMetrics:
 		return "127.0.0.1"
-	default:
-		return "0.0.0.0"
+
 	}
+
+	return "0.0.0.0"
 }

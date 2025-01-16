@@ -21,7 +21,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 
@@ -40,7 +39,7 @@ const (
 )
 
 func TestEncryptionRotation(t *testing.T) {
-	db := testdb.Open(t, models.SkipFixtures, pointer.ToInt(88))
+	db := testdb.Open(t, models.SkipFixtures, nil)
 	defer db.Close() //nolint:errcheck
 
 	err := createOriginEncryptionKey()
@@ -76,7 +75,7 @@ func createOriginEncryptionKey() error {
 //nolint:dupword
 func insertTestData(db *sql.DB) error {
 	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{
-		EncryptedItems: []string{"pmm-managed-dev.agents.username", "pmm-managed-dev.agents.password", "pmm-managed-dev.agents.aws_access_key", "pmm-managed-dev.agents.aws_secret_key", "pmm-managed-dev.agents.mongo_db_tls_options", "pmm-managed-dev.agents.azure_options", "pmm-managed-dev.agents.mysql_options", "pmm-managed-dev.agents.postgresql_options", "pmm-managed-dev.agents.agent_password"},
+		EncryptedItems: []string{"pmm-managed-dev.agents.username", "pmm-managed-dev.agents.password", "pmm-managed-dev.agents.agent_password", "pmm-managed-dev.agents.aws_options", "pmm-managed-dev.agents.azure_options", "pmm-managed-dev.agents.mongo_options", "pmm-managed-dev.agents.mysql_options", "pmm-managed-dev.agents.postgresql_options"},
 	})
 	if err != nil {
 		return err
@@ -98,8 +97,8 @@ func insertTestData(db *sql.DB) error {
 		return err
 	}
 	_, err = db.Exec(
-		"INSERT INTO agents (agent_id, agent_type, username, password, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, max_query_length, query_examples_disabled, comments_parsing_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics, expose_exporter) "+
-			"VALUES ('1', 'pmm-agent', $1, $2, '1', NULL, false, '', $3, $4, false, false, 0, false, true, 0, 0, true, true, false, false)",
+		`INSERT INTO agents (agent_id, agent_type, username, password, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
+			`VALUES ('1', 'pmm-agent', $1, $2, '1', NULL, false, '', $3, $4, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": true, "rds_enhanced_metrics_disabled": true}', '{"push_metrics": false, "expose_exporter": false}')`,
 		originUsernameHash, originPasswordHash, now, now)
 	if err != nil {
 		return err
