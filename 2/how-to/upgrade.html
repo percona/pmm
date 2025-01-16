@@ -2049,13 +2049,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-package-manager-method" class="md-nav__link">
+  <a href="#package-manager-method" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Package Manager method
+      Package Manager method
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="1. Package Manager method">
+    <nav class="md-nav" aria-label="Package Manager method">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -6981,13 +6981,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-package-manager-method" class="md-nav__link">
+  <a href="#package-manager-method" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Package Manager method
+      Package Manager method
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="1. Package Manager method">
+    <nav class="md-nav" aria-label="Package Manager method">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -7122,32 +7122,54 @@
 <li>Using your operating system&rsquo;s package manager.</li>
 <li>Updating from a tarball.</li>
 </ol>
-<h3 id="1-package-manager-method">1. Package Manager method<a class="headerlink" href="#1-package-manager-method" title="Permanent link">&para;</a></h3>
+<h3 id="package-manager-method">Package Manager method<a class="headerlink" href="#package-manager-method" title="Permanent link">&para;</a></h3>
 <p>The package manager method is generally more convenient and efficient. Percona provides the <a href="https://docs.percona.com/percona-software-repositories/installing.html">percona-release</a> package, which helps you install Percona software, including the PMM Agent. The PMM Agent is available from the <code>pmm-client</code> repository.</p>
 <p>To deploy a new version of the Agent via package manager, simply replace the currently installed package with the latest version of the PMM Agent or with a specific version.</p>
 <h4 id="install-the-latest-pmm-agent-version">Install the latest PMM Agent version<a class="headerlink" href="#install-the-latest-pmm-agent-version" title="Permanent link">&para;</a></h4>
 <p>Run the commands below to install the latest PMM Agent version via package manager and keep your existing Agent configuration during the update process.</p>
-<p>For example, to install the latest version of the PMM Agent on Red Hat or its derivatives:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Debian-based</label><label for="__tabbed_1_2">Red Hat-based</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>percona-release<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>pmm2-client
+apt<span class="w"> </span>update
+apt<span class="w"> </span>install<span class="w"> </span>pmm2-client
+</code></pre></div>
+</div>
+<div class="tabbed-block">
 <div class="highlight"><pre><span></span><code>percona-release<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>pmm2-client
 yum<span class="w"> </span>update<span class="w"> </span>pmm2-client
 </code></pre></div>
+</div>
+</div>
+</div>
 <h4 id="deploy-a-specific-version">Deploy a specific version<a class="headerlink" href="#deploy-a-specific-version" title="Permanent link">&para;</a></h4>
 <p>To deploy a specific version of the PMM Agent via package manager, check the available versions and then provide the full name of the package. For example:</p>
-<div class="highlight"><pre><span></span><code>yum<span class="w"> </span>--showduplicates<span class="w"> </span>search<span class="w"> </span>pmm2-client
-pmm2-client-2.39.0-6.el9.x86_64<span class="w"> </span>:<span class="w"> </span>Percona<span class="w"> </span>Monitoring<span class="w"> </span>and<span class="w"> </span>Management<span class="w"> </span>Client<span class="w"> </span><span class="o">(</span>pmm-agent<span class="o">)</span>
-pmm2-client-2.40.0-6.el9.x86_64<span class="w"> </span>:<span class="w"> </span>Percona<span class="w"> </span>Monitoring<span class="w"> </span>and<span class="w"> </span>Management<span class="w"> </span>Client<span class="w"> </span><span class="o">(</span>pmm-agent<span class="o">)</span>
-pmm2-client-2.40.1-6.el9.x86_64<span class="w"> </span>:<span class="w"> </span>Percona<span class="w"> </span>Monitoring<span class="w"> </span>and<span class="w"> </span>Management<span class="w"> </span>Client<span class="w"> </span><span class="o">(</span>pmm-agent<span class="o">)</span>
-pmm2-client-2.41.0-6.el9.x86_64<span class="w"> </span>:<span class="w"> </span>Percona<span class="w"> </span>Monitoring<span class="w"> </span>and<span class="w"> </span>Management<span class="w"> </span>Client<span class="w"> </span><span class="o">(</span>pmm-agent<span class="o">)</span>
-pmm2-client-2.41.1-6.el9.x86_64<span class="w"> </span>:<span class="w"> </span>Percona<span class="w"> </span>Monitoring<span class="w"> </span>and<span class="w"> </span>Management<span class="w"> </span>Client<span class="w"> </span><span class="o">(</span>pmm-agent<span class="o">)</span>
-pmm2-client-2.41.2-6.el9.x86_64<span class="w"> </span>:<span class="w"> </span>Percona<span class="w"> </span>Monitoring<span class="w"> </span>and<span class="w"> </span>Management<span class="w"> </span>Client<span class="w"> </span><span class="o">(</span>pmm-agent<span class="o">)</span>
-pmm2-client-2.42.0-6.el9.x86_64<span class="w"> </span>:<span class="w"> </span>Percona<span class="w"> </span>Monitoring<span class="w"> </span>and<span class="w"> </span>Management<span class="w"> </span>Client<span class="w"> </span><span class="o">(</span>pmm-agent<span class="o">)</span>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Red Hat-based</label><label for="__tabbed_2_2">Debian-based</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="w"> </span>yum<span class="w"> </span>--showduplicates<span class="w"> </span>search<span class="w"> </span>pmm2-client
+<span class="w"> </span>pmm2-client-2.41.1-6.el9.x86_64<span class="w"> </span>:<span class="w"> </span>Percona<span class="w"> </span>Monitoring<span class="w"> </span>and<span class="w"> </span>Management<span class="w"> </span>Client<span class="w"> </span><span class="o">(</span>pmm-agent<span class="o">)</span>
+<span class="w"> </span>pmm2-client-2.41.2-6.el9.x86_64<span class="w"> </span>:<span class="w"> </span>Percona<span class="w"> </span>Monitoring<span class="w"> </span>and<span class="w"> </span>Management<span class="w"> </span>Client<span class="w"> </span><span class="o">(</span>pmm-agent<span class="o">)</span>
+<span class="w"> </span>pmm2-client-2.42.0-6.el9.x86_64<span class="w"> </span>:<span class="w"> </span>Percona<span class="w"> </span>Monitoring<span class="w"> </span>and<span class="w"> </span>Management<span class="w"> </span>Client<span class="w"> </span><span class="o">(</span>pmm-agent<span class="o">)</span>
 
-yum<span class="w"> </span>update<span class="w"> </span>pmm2-client-2.41.2-6.el9.x86_64
+<span class="w"> </span>yum<span class="w"> </span>update<span class="w"> </span>pmm2-client-2.41.2-6.el9.x86_64
 </code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>apt-cache<span class="w"> </span>madison<span class="w"> </span>pmm2-client
+pmm2-client<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">2</span>.42.0-6.focal<span class="w"> </span><span class="p">|</span><span class="w"> </span>http://repo.percona.com/pmm2-client/apt<span class="w"> </span>focal/main<span class="w"> </span>amd64<span class="w"> </span>Packages
+pmm2-client<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">2</span>.41.2-6.focal<span class="w"> </span><span class="p">|</span><span class="w"> </span>http://repo.percona.com/pmm2-client/apt<span class="w"> </span>focal/main<span class="w"> </span>amd64<span class="w"> </span>Packages
+pmm2-client<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">2</span>.41.1-6.focal<span class="w"> </span><span class="p">|</span><span class="w"> </span>http://repo.percona.com/pmm2-client/apt<span class="w"> </span>focal/main<span class="w"> </span>amd64<span class="w"> </span>Packages
+
+apt<span class="w"> </span>install<span class="w"> </span>pmm2-client<span class="o">=</span><span class="m">2</span>.42.0-6.focal
+</code></pre></div>
+</div>
+</div>
+</div>
 <h3 id="tarball-method">Tarball method<a class="headerlink" href="#tarball-method" title="Permanent link">&para;</a></h3>
 <p>If you initially installed the PMM Agent from a tarball, you can update it by replacing the currently installed package with the latest version:</p>
 <ol>
-<li>Download <code>tar.gz</code> with <code>pmm2-client</code>.</li>
+<li><a href="https://www.percona.com/downloads">Download</a> <code>tar.gz</code> with <code>pmm2-client</code>.</li>
 <li>Extract the tarball.</li>
 <li>Run <code>./install_tarball</code> script with the <code>-u</code> flag.</li>
 </ol>
@@ -7189,7 +7211,7 @@ yum<span class="w"> </span>update<span class="w"> </span>pmm2-client-2.41.2-6.el
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-19
+    2025-01-16
   </span>
 
     
@@ -7284,7 +7306,7 @@ yum<span class="w"> </span>update<span class="w"> </span>pmm2-client-2.41.2-6.el
           </linearGradient>
         </defs>
       </svg>
-      <a href="https://percona.com/about" target='_blank'>Percona LLC</a> and its affiliates &copy; 2024 —
+      <a href="https://percona.com/about" target='_blank'>Percona LLC</a> and its affiliates &copy; 2025 —
       <a href="#" onclick="Osano.cm.showDrawer('osano-cm-dom-info-dialog-open')">Cookie Preferences</a>
 
     </div>

@@ -807,18 +807,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#create-roles-with-privileges-for-backups-and-qan" class="md-nav__link">
+  <a href="#create-a-role-with-monitoring-and-qan-privileges" class="md-nav__link">
     <span class="md-ellipsis">
-      Create roles with privileges for backups and QAN
+      Create a role with monitoring and QAN privileges
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#createupdate-user-and-assign-created-roles" class="md-nav__link">
+  <a href="#create-a-role-with-backup-management-privileges" class="md-nav__link">
     <span class="md-ellipsis">
-      Create/update user and assign created roles
+      Create a role with backup management privileges
     </span>
   </a>
   
@@ -828,6 +828,15 @@
   <a href="#permissions-for-advanced-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       Permissions for advanced metrics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#createupdate-user-and-assign-created-roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create/update user and assign created roles
     </span>
   </a>
   
@@ -7082,18 +7091,18 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#create-roles-with-privileges-for-backups-and-qan" class="md-nav__link">
+  <a href="#create-a-role-with-monitoring-and-qan-privileges" class="md-nav__link">
     <span class="md-ellipsis">
-      Create roles with privileges for backups and QAN
+      Create a role with monitoring and QAN privileges
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#createupdate-user-and-assign-created-roles" class="md-nav__link">
+  <a href="#create-a-role-with-backup-management-privileges" class="md-nav__link">
     <span class="md-ellipsis">
-      Create/update user and assign created roles
+      Create a role with backup management privileges
     </span>
   </a>
   
@@ -7103,6 +7112,15 @@
   <a href="#permissions-for-advanced-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       Permissions for advanced metrics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#createupdate-user-and-assign-created-roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create/update user and assign created roles
     </span>
   </a>
   
@@ -7368,68 +7386,74 @@
 <p class="admonition-title">Important</p>
 <p>Values for username (<code>user</code>) and password (<code>pwd</code>) are examples. Replace them before using these code snippets.</p>
 </div>
-<h3 id="create-roles-with-privileges-for-backups-and-qan">Create roles with privileges for backups and QAN<a class="headerlink" href="#create-roles-with-privileges-for-backups-and-qan" title="Permanent link">&para;</a></h3>
+<h3 id="create-a-role-with-monitoring-and-qan-privileges">Create a role with monitoring and QAN privileges<a class="headerlink" href="#create-a-role-with-monitoring-and-qan-privileges" title="Permanent link">&para;</a></h3>
+<p>This role grants the essential minimum privileges needed for monitoring and QAN. </p>
 <div class="highlight" data-prompt=">"><pre><span></span><code><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createRole</span><span class="p">({</span>
 <span class="w">   </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;explainRole&quot;</span><span class="p">,</span>
 <span class="w">   </span><span class="s2">&quot;privileges&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">         </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">         </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
 <span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="s2">&quot;collStats&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;dbHash&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;dbStats&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;find&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;listIndexes&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;listCollections&quot;</span>
-<span class="w">         </span><span class="p">]</span>
-<span class="w">     </span><span class="p">},</span>
-<span class="w">     </span><span class="p">{</span>
-<span class="w">         </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;system.profile&quot;</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="s2">&quot;dbStats&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;collStats&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;indexStats&quot;</span>
-<span class="w">         </span><span class="p">]</span>
+<span class="w">         </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;dbHash&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;find&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;listIndexes&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;listCollections&quot;</span><span class="w">  </span><span class="p">]</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">         </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;system.version&quot;</span>
-<span class="w">         </span><span class="p">},</span>
-<span class="w">         </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="s2">&quot;find&quot;</span>
-<span class="w">         </span><span class="p">]</span>
+<span class="w">         </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;system.version&quot;</span><span class="w">  </span><span class="p">},</span>
+<span class="w">         </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;find&quot;</span><span class="w"> </span><span class="p">]</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">   </span><span class="p">],</span>
 <span class="w">   </span><span class="s2">&quot;roles&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span>
 <span class="p">})</span>
 </code></pre></div>
+<h3 id="create-a-role-with-backup-management-privileges">Create a role with backup management privileges<a class="headerlink" href="#create-a-role-with-backup-management-privileges" title="Permanent link">&para;</a></h3>
+<p>This role provides the necessary privileges for using PMM&rsquo;s backup management features. It is required only if you plan to use this feature.</p>
 <div class="highlight" data-prompt=">"><pre><span></span><code><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createRole</span><span class="p">({</span>
 <span class="w">    </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pbmAnyAction&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;privileges&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">        </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="s2">&quot;anyResource&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="s2">&quot;anyAction&quot;</span>
-<span class="w">        </span><span class="p">]</span>
-<span class="w">    </span><span class="p">}],</span>
+<span class="w">    </span><span class="s2">&quot;privileges&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;anyResource&quot;</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w">  </span><span class="p">},</span>
+<span class="w">        </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;anyAction&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
 <span class="w">    </span><span class="s2">&quot;roles&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span>
 <span class="p">});</span>
 </code></pre></div>
+<h3 id="permissions-for-advanced-metrics">Permissions for advanced metrics<a class="headerlink" href="#permissions-for-advanced-metrics" title="Permanent link">&para;</a></h3>
+<p>To fetch advanced metrics like usage statistics for collection and indexes, assign the following additional privileges to an existing PMM user:</p>
+<div class="highlight" data-prompt=">"><pre><span></span><code><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">updateRole</span><span class="p">(</span>
+<span class="w">  </span><span class="s2">&quot;explainRole&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;privileges&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;collStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dbStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;indexStats&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;system.profile&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;dbStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;indexStats&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
 <h3 id="createupdate-user-and-assign-created-roles">Create/update user and assign created roles<a class="headerlink" href="#createupdate-user-and-assign-created-roles" title="Permanent link">&para;</a></h3>
+<p>Create or update a user with the minimum required privileges for monitoring by assigning the following roles:</p>
 <div class="highlight" data-prompt=">"><pre><span></span><code><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createUser</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmm&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">pwd</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmm&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">roles</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">role</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;explainRole&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">db</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">role</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;read&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">db</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;local&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="s2">&quot;user&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmm&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pwd&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmm&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;roles&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;explainRole&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;local&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;read&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">.</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;clusterMonitor&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">})</span>
+</code></pre></div>
+<p>If you intent to use PMM&rsquo;s backup management features, also grant these additional permissions: </p>
+<div class="highlight" data-prompt=">"><pre><span></span><code><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createUser</span><span class="p">({</span>
+<span class="w">    </span><span class="s2">&quot;user&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmm&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pwd&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmm&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;roles&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;explainRole&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;local&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;read&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;readWrite&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;backup&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;clusterMonitor&quot;</span><span class="w"> </span><span class="p">},</span>
@@ -7437,20 +7461,6 @@
 <span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pbmAnyAction&quot;</span><span class="w"> </span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="p">})</span>
-</code></pre></div>
-<h3 id="permissions-for-advanced-metrics">Permissions for advanced metrics<a class="headerlink" href="#permissions-for-advanced-metrics" title="Permanent link">&para;</a></h3>
-<p>To fetch advanced metrics like usage statistics for collection and indexes, use the following to provide additional privileges to an existing PMM user:</p>
-<div class="highlight" data-prompt=">"><pre><span></span><code><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">updateRole</span><span class="p">(</span>
-<span class="w">  </span><span class="s2">&quot;explainRole&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">privileges</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">resource</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">db</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">collection</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">        </span><span class="nx">actions</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;collStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dbStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;indexStats&quot;</span><span class="p">]</span>
-<span class="w">      </span><span class="p">}</span>
-<span class="w">    </span><span class="p">]</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">)</span>
 </code></pre></div>
 <h2 id="profiling">Profiling<a class="headerlink" href="#profiling" title="Permanent link">&para;</a></h2>
 <p>To use PMM Query Analytics, you must turn on MongoDB&rsquo;s <a href="https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/">profiling feature</a>.</p>
@@ -7527,18 +7537,21 @@ Keep in mind that adding all mongos routers may cause excessive overhead.</p>
 <ul>
 <li>When adding nodes to a sharded cluster, ensure to add each node separately using the <code>--cluster mycluster</code> option. This allows the <a href="../../details/dashboards/dashboard-mongodb-cluster-summary.md">MongoDB Cluster Summary</a> dashboard to populate correctly. </li>
 <li>You can also use the <code>--replication-set</code> option to specify a replication set, altough they are automatically detected. For instance, you can use <code>--replication-set config</code> for your config servers; <code>--replication-set rs1</code> for your servers in the first replica set, <code>--replication-set rs2</code> for your servers in the second replica set, and so on.</li>
+<li>When running mongos routers in containers, specify the <code>diagnosticDataCollectionDirectoryPath</code> to ensure that pmm-agent can properly capture mongos metrics. For example: <code>mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/</code></li>
 </ul>
 </div>
 <h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<p>Add basic data collection:
 <div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span><span class="se">\</span>
 --username<span class="o">=</span>pmm_mongodb<span class="w"> </span>--password<span class="o">=</span>password<span class="w"> </span><span class="se">\</span>
 --query-source<span class="o">=</span>profiler<span class="w"> </span>--cluster<span class="o">=</span>mycluster
-</code></pre></div>
+</code></pre></div></p>
+<p>Add complete data collection with a custom service name:
 <div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span><span class="se">\</span>
 --username<span class="o">=</span>pmm_mongodb<span class="w"> </span>--password<span class="o">=</span>password<span class="w"> </span><span class="se">\</span>
 --service-name<span class="o">=</span>mymongosvc<span class="w"> </span>--host<span class="o">=</span><span class="m">127</span>.0.0.1<span class="w"> </span>--port<span class="o">=</span><span class="m">27017</span><span class="w"> </span><span class="se">\</span>
 --enable-all-collectors
-</code></pre></div>
+</code></pre></div></p>
 <h4 id="connecting-via-ssltls">Connecting via SSL/TLS<a class="headerlink" href="#connecting-via-ssltls" title="Permanent link">&para;</a></h4>
 <div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span>--tls<span class="w"> </span><span class="se">\</span>
 --tls-certificate-key-file<span class="o">=</span>PATHTOCER<span class="w"> </span><span class="se">\</span>
@@ -7657,7 +7670,7 @@ If you use TLS, the authentication mechanism is automatically set to <code>MONGO
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-19
+    2025-01-16
   </span>
 
     
@@ -7752,7 +7765,7 @@ If you use TLS, the authentication mechanism is automatically set to <code>MONGO
           </linearGradient>
         </defs>
       </svg>
-      <a href="https://percona.com/about" target='_blank'>Percona LLC</a> and its affiliates &copy; 2024 —
+      <a href="https://percona.com/about" target='_blank'>Percona LLC</a> and its affiliates &copy; 2025 —
       <a href="#" onclick="Osano.cm.showDrawer('osano-cm-dom-info-dialog-open')">Cookie Preferences</a>
 
     </div>
