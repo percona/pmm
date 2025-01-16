@@ -17,6 +17,12 @@ LABEL org.opencontainers.image.created=${BUILD_DATE} \
       org.opencontainers.image.title="Percona Monitoring and Management Client" \
       org.opencontainers.image.vendor="Percona, LLC" \
       org.opencontainers.image.version=${VERSION} \
+      name="percona/pmm-client" \
+      summary="PMM Client image" \
+      description="The client container for Percona Monitoring and Management" \
+      io.k8s.description="The client container for Percona Monitoring and Management" \
+      io.k8s.display-name="Percona Monitoring and Management Client" \
+      url="https://docs.percona.com/percona-monitoring-and-management" \
       vendor="Percona, LLC" \
       maintainer="Percona, LLC"
 
