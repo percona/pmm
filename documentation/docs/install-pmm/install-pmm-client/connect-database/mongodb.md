@@ -26,7 +26,6 @@ Run the example codes below in a `mongo` session to:
 
 === "Create a role with monitoring and QAN privileges"
     This role grants the essential minimum privileges needed for monitoring and QAN. 
-
         ```{.javascript data-prompt=">"}
         db.getSiblingDB("admin").createRole({
         "role": "explainRole",
@@ -63,7 +62,6 @@ Run the example codes below in a `mongo` session to:
 ### Permissions for advanced metrics
 
 To fetch advanced metrics like usage statistics for collection and indexes, assign the following additional privileges to an existing PMM user:
-
     ```{.javascript data-prompt=">"}
     db.getSiblingDB("admin").updateRole(
     "explainRole",
@@ -84,7 +82,6 @@ To fetch advanced metrics like usage statistics for collection and indexes, assi
 ### Create/update user and assign created roles
 
 Create or update a user with the minimum required privileges for monitoring by assigning the following roles:
-
 ```{.javascript data-prompt=">"}
  db.getSiblingDB("admin").createUser({
     "user": "pmm",
@@ -98,7 +95,6 @@ Create or update a user with the minimum required privileges for monitoring by a
 ```
 
 If you intent to use PMM's backup management features, also grant these additional permissions: 
-
 ```{.javascript data-prompt=">"}
  db.getSiblingDB("admin").createUser({
     "user": "pmm",
