@@ -3,6 +3,7 @@ FROM percona/pmm-client:2 AS build
 LABEL build-date="2025-01-16 12:01:00+00:00" \
   org.opencontainers.image.created="2025-01-16 12:01:00+00:00" \
   org.opencontainers.image.vendor="Percona, LLC" \
+  org.opencontainers.image.version="2.44.0" \
   name="percona/pmm-client" \
   summary="PMM Client image" \
   description="The client image for Percona Monitoring and Management" \
