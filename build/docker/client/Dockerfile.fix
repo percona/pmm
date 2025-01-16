@@ -1,0 +1,16 @@
+FROM percona/pmm-client:2 AS build
+
+LABEL org.opencontainers.image.created="2025-01-16 12:01:00+00:00" \
+  org.opencontainers.image.licenses=Apache-2.0 \
+  org.opencontainers.image.title="Percona Monitoring and Management Client" \
+  org.opencontainers.image.vendor="Percona, LLC" \
+  name="percona/pmm-client" \
+  summary="PMM Client image" \
+  description="The client image for Percona Monitoring and Management" \
+  io.k8s.description="The client image for Percona Monitoring and Management" \
+  io.k8s.display-name="Percona Monitoring and Management Client" \
+  url="https://docs.percona.com/percona-monitoring-and-management" \
+  release="1737028860" \
+  version="2.44.0" \
+  vendor="Percona, LLC" \
+  maintainer="Percona, LLC"
