@@ -15,8 +15,10 @@ ARG BUILD_DATE
 LABEL org.opencontainers.image.created ${BUILD_DATE}
 LABEL org.opencontainers.image.licenses Apache-2.0
 LABEL org.opencontainers.image.title Percona Monitoring and Management Client
-LABEL org.opencontainers.image.vendor Percona
+LABEL org.opencontainers.image.vendor Percona, LLC
 LABEL org.opencontainers.image.version ${VERSION}
+LABEL vendor Percona, LLC
+LABEL maintainer Percona, LLC
 
 COPY LICENSE /licenses/
 COPY --from=users --chown=0:0 /etc/passwd /etc/passwd
