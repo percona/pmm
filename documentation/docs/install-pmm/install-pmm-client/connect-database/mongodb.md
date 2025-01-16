@@ -31,8 +31,7 @@ Run the example codes below in a `mongo` session to:
         "role": "explainRole",
         "privileges": [
             {
-                "resource": { "db": "", "collection": ""
-                },
+                "resource": { "db": "", "collection": "" },
                 "actions": [ "dbHash", "find", "listIndexes", "listCollections"  ]
             },
             {
