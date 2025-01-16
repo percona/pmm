@@ -56,7 +56,7 @@ func TestGetExporterListenAddress(t *testing.T) {
 			Address: "1.2.3.4",
 		}
 		exporter := &models.Agent{
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				PushMetrics: true,
 			},
 		}
@@ -68,7 +68,7 @@ func TestGetExporterListenAddress(t *testing.T) {
 			Address: "1.2.3.4",
 		}
 		exporter := &models.Agent{
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				ExposeExporter: true,
 				PushMetrics:    true,
 			},
@@ -81,7 +81,7 @@ func TestGetExporterListenAddress(t *testing.T) {
 			Address: "1.2.3.4",
 		}
 		exporter := &models.Agent{
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				ExposeExporter: true,
 				PushMetrics:    false,
 			},
@@ -91,7 +91,7 @@ func TestGetExporterListenAddress(t *testing.T) {
 	})
 	t.Run("exposes exporter address if node IP is unavailable in pull mode", func(t *testing.T) {
 		exporter := &models.Agent{
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				PushMetrics: false,
 			},
 		}

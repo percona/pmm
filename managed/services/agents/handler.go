@@ -18,6 +18,7 @@ package agents
 import (
 	"context"
 	"runtime/pprof"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -191,6 +192,7 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 	errTX := h.db.InTransaction(func(tx *reform.TX) error {
 		var agentIDs []string
 		var err error
+		req.AgentId = strings.TrimPrefix(req.AgentId, "/agent_id/")
 		PMMAgentID, agentIDs, err = h.r.roster.get(req.AgentId)
 		if err != nil {
 			return err
