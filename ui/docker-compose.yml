@@ -4,12 +4,13 @@ services:
     container_name: pmm-server
     # Temporary till we have arm builds
     platform: linux/amd64
-    image: perconalab/pmm-server-fb:PR-3753-3f4c7d4
+    image: perconalab/pmm-server:3-dev-latest
     ports:
       - 80:9080
       - 443:8443
     volumes:
       - ./pmm-dev.conf:/etc/nginx/conf.d/pmm-dev.conf:ro
+      - ../build/ansible/roles/nginx/files/nginx.conf:/etc/nginx/nginx.conf
       # Uncomment to persist pmm state
       - pmm-data:/srv
 
@@ -23,6 +24,7 @@ services:
       - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=RWTkF7Snv08FCboTne4djQfN5qbrLfAjb8SY3/wwEP+X5nUrkxCEvUDJ
       - PMM_WATCHTOWER_HOST=http://watchtower:8080
       - PMM_WATCHTOWER_TOKEN=123
+      - GRAFANA_USERS_DEFAULT_THEME=light
       # Uncomment to specify to which docker image to update
       # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_UPDATE_IMAGE:-perconalab/pmm-server:3-dev-container}
 
