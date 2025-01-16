@@ -49,7 +49,7 @@ There are two primary methods to update the PMM Agent, depending on your initial
 1. Using your operating system's package manager.
 2. Updating from a tarball.
 
-### 1. Package Manager method
+### Package Manager method
 
 The package manager method is generally more convenient and efficient. Percona provides the [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) package, which helps you install Percona software, including the PMM Agent. The PMM Agent is available from the `pmm-client` repository.
 
@@ -59,34 +59,52 @@ To deploy a new version of the Agent via package manager, simply replace the cur
 
 Run the commands below to install the latest PMM Agent version via package manager and keep your existing Agent configuration during the update process.
 
-For example, to install the latest version of the PMM Agent on Red Hat or its derivatives:
+=== "Debian-based"
 
- ```sh
- percona-release enable pmm2-client
- yum update pmm2-client
- ```
+    ```sh
+    percona-release enable pmm2-client
+    apt update
+    apt install pmm2-client
+    ```
+
+=== "Red Hat-based"
+
+    ```sh
+    percona-release enable pmm2-client
+    yum update pmm2-client
+    ```
+
 #### Deploy a specific version
 
 To deploy a specific version of the PMM Agent via package manager, check the available versions and then provide the full name of the package. For example:
 
- ```sh
- yum --showduplicates search pmm2-client
- pmm2-client-2.39.0-6.el9.x86_64 : Percona Monitoring and Management Client (pmm-agent)
- pmm2-client-2.40.0-6.el9.x86_64 : Percona Monitoring and Management Client (pmm-agent)
- pmm2-client-2.40.1-6.el9.x86_64 : Percona Monitoring and Management Client (pmm-agent)
- pmm2-client-2.41.0-6.el9.x86_64 : Percona Monitoring and Management Client (pmm-agent)
- pmm2-client-2.41.1-6.el9.x86_64 : Percona Monitoring and Management Client (pmm-agent)
- pmm2-client-2.41.2-6.el9.x86_64 : Percona Monitoring and Management Client (pmm-agent)
- pmm2-client-2.42.0-6.el9.x86_64 : Percona Monitoring and Management Client (pmm-agent)
+=== "Red Hat-based"
 
- yum update pmm2-client-2.41.2-6.el9.x86_64
- ```
+    ```sh
+     yum --showduplicates search pmm2-client
+     pmm2-client-2.41.1-6.el9.x86_64 : Percona Monitoring and Management Client (pmm-agent)
+     pmm2-client-2.41.2-6.el9.x86_64 : Percona Monitoring and Management Client (pmm-agent)
+     pmm2-client-2.42.0-6.el9.x86_64 : Percona Monitoring and Management Client (pmm-agent)
+
+     yum update pmm2-client-2.41.2-6.el9.x86_64
+    ```
+
+=== "Debian-based"
+
+    ```sh
+    apt-cache madison pmm2-client
+    pmm2-client | 2.42.0-6.focal | http://repo.percona.com/pmm2-client/apt focal/main amd64 Packages
+    pmm2-client | 2.41.2-6.focal | http://repo.percona.com/pmm2-client/apt focal/main amd64 Packages
+    pmm2-client | 2.41.1-6.focal | http://repo.percona.com/pmm2-client/apt focal/main amd64 Packages
+
+    apt install pmm2-client=2.42.0-6.focal
+    ```
 
 ### Tarball method
 
 If you initially installed the PMM Agent from a tarball, you can update it by replacing the currently installed package with the latest version:
 
- 1. Download `tar.gz` with `pmm2-client`.
+ 1. [Download](https://www.percona.com/downloads) `tar.gz` with `pmm2-client`.
  2. Extract the tarball.
  3. Run `./install_tarball` script with the `-u` flag.
 
