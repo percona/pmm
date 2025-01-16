@@ -1,6 +1,7 @@
 FROM percona/pmm-client:2 AS build
 
-LABEL org.opencontainers.image.created="2025-01-16 12:01:00+00:00" \
+LABEL build-date="2025-01-16 12:01:00+00:00" \
+  org.opencontainers.image.created="2025-01-16 12:01:00+00:00" \
   org.opencontainers.image.vendor="Percona, LLC" \
   name="percona/pmm-client" \
   summary="PMM Client image" \
