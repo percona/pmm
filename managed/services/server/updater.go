@@ -35,7 +35,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
+	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
 )
@@ -54,6 +57,7 @@ var fileName = "/etc/pmm-server-update-version.json"
 // Updater is a service to check for updates and trigger the update process.
 type Updater struct {
 	l                  *logrus.Entry
+	db                 *reform.DB
 	watchtowerHost     *url.URL
 	gRPCMessageMaxSize uint32
 
@@ -70,9 +74,10 @@ type Updater struct {
 }
 
 // NewUpdater creates a new Updater service.
-func NewUpdater(watchtowerHost *url.URL, gRPCMessageMaxSize uint32) *Updater {
+func NewUpdater(watchtowerHost *url.URL, gRPCMessageMaxSize uint32, db *reform.DB) *Updater {
 	u := &Updater{
 		l:                  logrus.WithField("service", "updater"),
+		db:                 db,
 		watchtowerHost:     watchtowerHost,
 		gRPCMessageMaxSize: gRPCMessageMaxSize,
 		releaseNotes:       make(map[string]string),
@@ -160,6 +165,15 @@ func (up *Updater) currentVersion() *version.Parsed {
 func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 	up.performM.Lock()
 	defer up.performM.Unlock()
+	settings, err := models.GetSettings(up.db)
+	if err != nil {
+		return grpcstatus.Error(codes.Internal, "failed to get PMM server settings")
+	}
+
+	if !settings.IsUpdatesEnabled() {
+		up.l.Debug("Updates are disabled")
+		return grpcstatus.Error(codes.FailedPrecondition, "updates are disabled")
+	}
 	if up.running {
 		return grpcstatus.Error(codes.FailedPrecondition, "update already in progress")
 	}
@@ -169,7 +183,7 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 		return errors.New("newImageName is empty")
 	}
 
-	err := up.checkWatchtowerHost()
+	err = up.checkWatchtowerHost()
 	if err != nil {
 		up.running = false
 		up.l.WithError(err).Error("Failed to check watchtower host")
@@ -239,6 +253,15 @@ func (up *Updater) ListUpdates(ctx context.Context) ([]*version.DockerVersionInf
 }
 
 func (up *Updater) latest(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
+	settings, err := models.GetSettings(up.db)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to get PMM server settings")
+	}
+
+	if !settings.IsUpdatesEnabled() {
+		return nil, nil, services.ErrPMMUpdatesDisabled
+	}
+
 	info, err := up.readFromFile()
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to read from file")
@@ -486,9 +509,12 @@ func (up *Updater) checkResult(ctx context.Context) (*version.DockerVersionInfo,
 func (up *Updater) check(ctx context.Context) error {
 	up.checkRW.Lock()
 	defer up.checkRW.Unlock()
-
 	_, latest, err := up.latest(ctx)
 	if err != nil {
+		if errors.Is(err, services.ErrPMMUpdatesDisabled) {
+			up.l.Info("PMM updates are disabled")
+			return grpcstatus.Error(codes.FailedPrecondition, "PMM updates are disabled")
+		}
 		return errors.Wrap(err, "failed to get latest version")
 	}
 	up.lastCheckResult = latest
