@@ -900,7 +900,7 @@ func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) 
 	headers.Set("Cookie", strings.Join(cookies, "; "))
 
 	var user currentUser
-	if err := c.do(ctx, http.MethodGet, "/percona-api/user/oauth-token", "", headers, nil, &user); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/graph/percona-api/user/oauth-token", "", headers, nil, &user); err != nil {
 		var e *clientError
 		if errors.As(err, &e) && e.ErrorMessage == "Failed to get token" && e.Code == http.StatusInternalServerError {
 			return "", ErrFailedToGetToken
