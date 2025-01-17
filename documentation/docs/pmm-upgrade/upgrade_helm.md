@@ -10,7 +10,7 @@ Percona releases new chart versions to update containers when:
     The UI update feature is disabled by default and should remain so. Do not modify or add the following parameter in your custom `values.yaml` file:
     ```yaml
     pmmEnv:
-    DISABLE_UPDATES: "1"
+    PMM_ENABLE_UPDATES: "1"
     ```
 
 ## Before you begin
@@ -24,7 +24,7 @@ Before starting the upgrade, complete these preparation steps to ensure you can 
 
     ```sh
     # Replace <version> with the latest PMM version
-    docker pull perconalab/pmm-server:3.0.0-beta
+    docker pull percona/pmm-server:3
     ```
 
 ## Upgrade steps

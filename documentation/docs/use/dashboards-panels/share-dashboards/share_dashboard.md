@@ -50,7 +50,7 @@ To enable image rendering:
     -p 8443:443 \
     -e GF_RENDERING_SERVER_URL=http://renderer:8081/render \
     -e GF_RENDERING_CALLBACK_URL=https://pmm-server:8443/graph/ \
-    perconalab/pmm-server:3.0.0-beta
+    percona/pmm-server:3
     ```
 
 ### Render panel image
