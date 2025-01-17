@@ -10,14 +10,17 @@ RUN groupadd -g 1002 pmm-agent && \
 FROM redhat/ubi9-micro
 
 ARG VERSION
+ARG RELEASE
 ARG BUILD_DATE
 
-LABEL org.opencontainers.image.created=${BUILD_DATE} \
+LABEL build-date=${BUILD_DATE} \
+      org.opencontainers.image.created=${BUILD_DATE} \
       org.opencontainers.image.licenses=Apache-2.0 \
       org.opencontainers.image.title="Percona Monitoring and Management Client" \
       org.opencontainers.image.vendor="Percona, LLC" \
       org.opencontainers.image.version=${VERSION} \
       version=${VERSION} \
+      release=${RELEASE} \
       name="percona/pmm-client" \
       summary="PMM Client image" \
       description="The client container for Percona Monitoring and Management" \
