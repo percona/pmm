@@ -851,7 +851,7 @@ func main() { //nolint:maintidx,cyclop
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
-	updater := server.NewUpdater(*watchtowerHostF, gRPCMessageMaxSize)
+	updater := server.NewUpdater(*watchtowerHostF, gRPCMessageMaxSize, db)
 
 	logs := server.NewLogs(version.FullInfo(), updater, vmParams)
 
