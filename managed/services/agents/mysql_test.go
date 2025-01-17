@@ -42,8 +42,8 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		Username:        pointer.ToString("username"),
 		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword:   pointer.ToString("agent-password"),
-		ExporterOptions: &models.ExporterOptions{},
-		MySQLOptions:    &models.MySQLOptions{},
+		ExporterOptions: models.ExporterOptions{},
+		MySQLOptions:    models.MySQLOptions{},
 	}
 	pmmAgentVersion := version.MustParse("2.21.0")
 
@@ -117,7 +117,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 
 	t.Run("SSLEnabled", func(t *testing.T) {
 		exporter.TLS = true
-		exporter.MySQLOptions = &models.MySQLOptions{
+		exporter.MySQLOptions = models.MySQLOptions{
 			TLSCa:   "content-of-tls-ca",
 			TLSCert: "content-of-tls-certificate-key",
 			TLSKey:  "content-of-tls-key",
@@ -148,8 +148,8 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 		Username:        pointer.ToString("username"),
 		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
 		TLS:             true,
-		ExporterOptions: &models.ExporterOptions{},
-		MySQLOptions: &models.MySQLOptions{
+		ExporterOptions: models.ExporterOptions{},
+		MySQLOptions: models.MySQLOptions{
 			TableCountTablestatsGroupLimit: -1,
 			TLSCa:                          "content-of-tls-ca",
 			TLSCert:                        "content-of-tls-cert",
@@ -252,10 +252,10 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 		AgentType: models.MySQLdExporterType,
 		Username:  pointer.ToString("username"),
 		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
-		ExporterOptions: &models.ExporterOptions{
+		ExporterOptions: models.ExporterOptions{
 			DisabledCollectors: []string{"heartbeat", "info_schema.clientstats", "perf_schema.eventsstatements", "custom_query.hr"},
 		},
-		MySQLOptions: &models.MySQLOptions{},
+		MySQLOptions: models.MySQLOptions{},
 	}
 	pmmAgentVersion := version.MustParse("2.24.0")
 

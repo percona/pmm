@@ -35,7 +35,6 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
-	"github.com/percona/pmm/utils/grafana"
 	stringsgen "github.com/percona/pmm/utils/strings"
 )
 
@@ -523,7 +522,7 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 
 	name := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
 	data, err := json.Marshal(map[string]string{
-		"name": grafana.SanitizeSAName(name),
+		"name": name,
 		"role": role,
 	})
 	require.NoError(t, err)
@@ -585,7 +584,7 @@ func createServiceToken(t *testing.T, serviceAccountID int, nodeName string) (in
 
 	name := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	data, err := json.Marshal(map[string]string{
-		"name": grafana.SanitizeSAName(name),
+		"name": name,
 	})
 	require.NoError(t, err)
 

@@ -5,7 +5,7 @@
 
 ### Automatic migration of API keys
 
-When you install PMM v3.x, any existing API keys will be seamlessly converted to service accounts with corresponding service tokens.
+When you install PMM v3.x, any existing API keys will be seamlessly converted to service accounts with corresponding service tokens. For more information about the migration, see [Migrate PMM 2 to PMM 3](../pmm-upgrade/migrating_from_pmm_2.md).
 
 Service accounts in PMM provide a secure and efficient way to manage access to the PMM Server and its resources. They serve as a replacement for the basic authentication and API keys used in previous versions of PMM (v.2 and earlier).
 
