@@ -908,13 +908,31 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		return nil, err
 	}
 
-	encryptedAgent := EncryptAgent(*row)
+	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
 	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
 	agent := DecryptAgent(encryptedAgent)
 
 	return &agent, nil
+}
+
+func trimUnicodeNilsInCertFiles(agent Agent) Agent {
+	const unicodeNil = "\u0000"
+
+	agent.MongoDBOptions.TLSCa = strings.ReplaceAll(agent.MongoDBOptions.TLSCa, unicodeNil, "")
+	agent.MongoDBOptions.TLSCertificateKey = strings.ReplaceAll(agent.MongoDBOptions.TLSCertificateKey, unicodeNil, "")
+	agent.MongoDBOptions.TLSCertificateKeyFilePassword = strings.ReplaceAll(agent.MongoDBOptions.TLSCertificateKeyFilePassword, unicodeNil, "")
+
+	agent.MySQLOptions.TLSCa = strings.ReplaceAll(agent.MySQLOptions.TLSCa, unicodeNil, "")
+	agent.MySQLOptions.TLSCert = strings.ReplaceAll(agent.MySQLOptions.TLSCert, unicodeNil, "")
+	agent.MySQLOptions.TLSKey = strings.ReplaceAll(agent.MySQLOptions.TLSKey, unicodeNil, "")
+
+	agent.PostgreSQLOptions.SSLCa = strings.ReplaceAll(agent.PostgreSQLOptions.SSLCa, unicodeNil, "")
+	agent.PostgreSQLOptions.SSLCert = strings.ReplaceAll(agent.PostgreSQLOptions.SSLCert, unicodeNil, "")
+	agent.PostgreSQLOptions.SSLKey = strings.ReplaceAll(agent.PostgreSQLOptions.SSLKey, unicodeNil, "")
+
+	return agent
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
