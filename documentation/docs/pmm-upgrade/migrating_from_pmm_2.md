@@ -41,7 +41,8 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
             ```sh
             docker stop pmm-server
             ```
-        2. Start a PMM 2 container using the backup volume, replacing `<backup-volume-name>` with your actual backup volume name:
+        2. Start a PMM 2 container using the backup volume, replacing `<backup-volume-name>` (e.g., `pmm-data-2025-01-16-165135`) with your actual backup volume name:
+
             ```sh
             docker run -d -p 443:443 --volume <backup-volume-name>:/srv --name pmm-server --restart always percona/pmm-server:2.44.0
             ```
