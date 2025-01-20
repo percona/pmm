@@ -1,9 +1,15 @@
-# Restore container
+# Restore PMM Server container from backup
+
+You can restore PMM Server either from a standard PMM backup or from a PMM v2 backup volume that was created during migration to PMM v3. 
+
 
 !!! caution alert alert-warning "Important"
-    You must have a [backup](backup_container.md) to restore from.
+    You must have a [backup](backup_container.md) or a [PMM2 backup volume](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3) to restore from.
 
-To restore the container:
+
+=== "Restore from PMM backup"
+To restore the container from a standard PMM backup:
+
 {.power-number}
 
 1. Stop the container.
@@ -46,4 +52,36 @@ To restore the container:
 
     ```sh
     docker start pmm-server
+    ```
+
+=== "Restore from PMM2 backup volume"
+
+If you need to restore from a PMM2 backup volume created during [migration to PMM3](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3):
+{.power-number}
+
+1. Stop the current PMM3 container:
+    ```sh
+    docker stop pmm-server
+    ```
+2. Remove the container (optional):
+    ```sh
+    docker rm pmm-server
+    ```
+3. Start a PMM2 container using your backup volume, replacing <backup-volume-name> with your PMM2 backup volume name (e.g., pmm-data-2025-01-16-165135).
+    ```sh
+    docker run -d \
+    -p 443:443 \
+    --volume <backup-volume-name>:/srv \
+    --name pmm-server \
+    --restart always \
+    percona/pmm-server:2.44.0
+   ```
+
+4. Verify that your PMM2 instance is running correctly and all your data is accessible.
+
+!!! note alert alert-primary "Finding your backup volume name"
+- If you used the automated upgrade script (get-pmm.sh -b), the backup volume name was displayed during the upgrade process.
+- To list all available Docker volumes, use:
+    ```sh
+    docker volume ls       
     ```

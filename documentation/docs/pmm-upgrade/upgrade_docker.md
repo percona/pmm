@@ -1,4 +1,4 @@
-# Upgrade PMM Server using Docker
+# Manual upgrade: Upgrade PMM Server using Docker
 
 ## Before you begin
 
@@ -50,4 +50,4 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
    percona/pmm-server:3
    ```
 
-6. After upgrading, verify that PMM Server is running correctly and all your data is accessible.
+6. After upgrading, verify that PMM Server is running correctly and all your data is accessible. You can always [revert to PMM 2](../install-pmm/install-pmm-server/baremetal/docker/restore_container.md) using the backup you created above.

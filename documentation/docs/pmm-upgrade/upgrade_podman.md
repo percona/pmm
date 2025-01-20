@@ -1,4 +1,4 @@
-# Upgrade PMM Server using Podman
+# Manual upgrade: Upgrade PMM Server using Podman
 
 ## Before you begin
 
