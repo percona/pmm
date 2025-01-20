@@ -32,20 +32,20 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
         ```sh
         ./get-pmm.sh -h
         ```
-!!! note alert alert-primary "Restore PMM 2 backup"
-    If you need to revert to the PMM 2 instance, restore the backup created above:
-    { .power-number}
+    !!! note alert alert-primary "Restore PMM 2 backup"
+        If you need to revert to the PMM 2 instance, restore the backup created above:
+        { .power-number}
 
 
-    1. Stop the PMM 3 container:
-        ```sh
-        docker stop pmm-server
-        ```
-    2. Start a PMM 2 container using the backup volume, replacing `<backup-volume-name>` with your actual backup volume name:
-        ```sh
-        docker run -d -p 443:443 --volume <backup-volume-name>:/srv --name pmm-server --restart always percona/pmm-server:2.44.0
-        ```
-    3. Verify that your PMM 2 instance is running correctly and all your data is accessible.
+        1. Stop the PMM 3 container:
+            ```sh
+            docker stop pmm-server
+            ```
+        2. Start a PMM 2 container using the backup volume, replacing `<backup-volume-name>` with your actual backup volume name:
+            ```sh
+            docker run -d -p 443:443 --volume <backup-volume-name>:/srv --name pmm-server --restart always percona/pmm-server:2.44.0
+            ```
+        3. Verify that your PMM 2 instance is running correctly and all your data is accessible.
 
 
 === "Manual upgrade from PMM 2 with Docker volume"

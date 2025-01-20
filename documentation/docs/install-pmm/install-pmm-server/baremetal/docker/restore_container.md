@@ -8,80 +8,80 @@ You can restore PMM Server either from a standard PMM backup or from a PMM v2 ba
 
 
 === "Restore from PMM backup"
-To restore the container from a standard PMM backup:
+    To restore the container from a standard PMM backup:
+    {.power-number}
 
-{.power-number}
+    1. Stop the container:
 
-1. Stop the container.
+        ```sh
+        docker stop pmm-server
+        ```
 
-    ```sh
-    docker stop pmm-server
-    ```
+    2. Remove the container:
 
-2. Remove the container.
+        ```sh
+        docker rm pmm-server
+        ```
 
-    ```sh
-    docker rm pmm-server
-    ```
+    3. Revert to the saved image:
 
-3. Revert to the saved image.
+        ```sh
+        docker rename pmm-server-backup pmm-server
+        ```
 
-    ```sh
-    docker rename pmm-server-backup pmm-server
-    ```
+    4. Change directory to the backup directory (e.g. `pmm-data-backup`):
 
-4. Change directory to the backup directory (e.g. `pmm-data-backup`).
+        ```sh
+        cd pmm-data-backup
+        ```
 
-    ```sh
-    cd pmm-data-backup
-    ```
+    5. Copy the data:
 
-5. Copy the data.
+        ```sh
+        docker run --rm -v $(pwd)/srv:/backup -v pmm-data:/srv -t percona/pmm-server:3 cp -r /backup/* /srv
+        ```
 
-    ```sh
-    docker run --rm -v $(pwd)/srv:/backup -v pmm-data:/srv -t percona/pmm-server:3 cp -r /backup/* /srv
-    ```
+    6. Restore permissions:
 
-6. Restore permissions.
+        ```sh
+        docker run --rm -v pmm-data:/srv -t percona/pmm-server:3 chown -R pmm:pmm /srv
+        ```
 
-    ```sh
-    docker run --rm -v pmm-data:/srv -t percona/pmm-server:3 chown -R pmm:pmm /srv
-    ```
+    7. Start the image:
 
-7. Start the image.
-
-    ```sh
-    docker start pmm-server
-    ```
+        ```sh
+        docker start pmm-server
+        ```
 
 === "Restore from PMM2 backup volume"
 
-If you need to restore from a PMM2 backup volume created during [migration to PMM3](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3):
-{.power-number}
+    If you need to restore from a PMM2 backup volume created during [migration to PMM3](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3):
+    {.power-number}
 
-1. Stop the current PMM3 container:
-    ```sh
-    docker stop pmm-server
-    ```
-2. Remove the container (optional):
-    ```sh
-    docker rm pmm-server
-    ```
-3. Start a PMM2 container using your backup volume, replacing <backup-volume-name> with your PMM2 backup volume name (e.g., pmm-data-2025-01-16-165135).
-    ```sh
-    docker run -d \
-    -p 443:443 \
-    --volume <backup-volume-name>:/srv \
-    --name pmm-server \
-    --restart always \
-    percona/pmm-server:2.44.0
-   ```
+    1. Stop the current PMM3 container:
+        ```sh
+        docker stop pmm-server
+        ```
+    2. Remove the container (optional):
+        ```sh
+        docker rm pmm-server
+        ```
+    3. Start a PMM2 container using your backup volume, replacing   `<backup-volume-name>` with your PMM2 backup volume name (e.g., `pmm-data-2025-01-16-165135`):
 
-4. Verify that your PMM2 instance is running correctly and all your data is accessible.
+        ```sh
+        docker run -d \
+        -p 443:443 \
+        --volume <backup-volume-name>:/srv \
+        --name pmm-server \
+        --restart always \
+        percona/pmm-server:2.44.0
+        ```
 
-!!! note alert alert-primary "Finding your backup volume name"
-- If you used the automated upgrade script (get-pmm.sh -b), the backup volume name was displayed during the upgrade process.
-- To list all available Docker volumes, use:
-    ```sh
-    docker volume ls       
-    ```
+    4. Verify that your PMM2 instance is running correctly and all your data is accessible.
+
+    !!! note alert alert-primary "Finding your backup volume name"
+    - If you used the [automated upgrade script](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3) (`get-pmm.sh -b`), the backup volume name was displayed during the upgrade process.
+    - To list all available Docker volumes, use:
+        ```sh
+        docker volume ls       
+        ```
