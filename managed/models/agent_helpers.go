@@ -31,6 +31,11 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+const (
+	pushMetricsTrue  = "((exporter_options ? 'push_metrics') AND (exporter_options->>'push_metrics')::boolean = true)"
+	pushMetricsFalse = "(NOT (exporter_options ? 'push_metrics') OR (exporter_options->>'push_metrics')::boolean = false)"
+)
+
 // MySQLOptionsParams contains methods to create MySQLOptions object.
 type MySQLOptionsParams interface {
 	GetTlsCa() string
@@ -39,15 +44,12 @@ type MySQLOptionsParams interface {
 }
 
 // MySQLOptionsFromRequest creates MySQLOptions object from request.
-func MySQLOptionsFromRequest(params MySQLOptionsParams) *MySQLOptions {
-	if params.GetTlsCa() != "" || params.GetTlsCert() != "" || params.GetTlsKey() != "" {
-		return &MySQLOptions{
-			TLSCa:   params.GetTlsCa(),
-			TLSCert: params.GetTlsCert(),
-			TLSKey:  params.GetTlsKey(),
-		}
+func MySQLOptionsFromRequest(params MySQLOptionsParams) MySQLOptions {
+	return MySQLOptions{
+		TLSCa:   params.GetTlsCa(),
+		TLSCert: params.GetTlsCert(),
+		TLSKey:  params.GetTlsKey(),
 	}
-	return nil
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
@@ -64,17 +66,15 @@ type PostgreSQLExtendedOptionsParams interface {
 }
 
 // PostgreSQLOptionsFromRequest creates PostgreSQLOptions object from request.
-func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) *PostgreSQLOptions {
-	res := &PostgreSQLOptions{}
-	if params.GetTlsCa() != "" || params.GetTlsCert() != "" || params.GetTlsKey() != "" {
-		res.SSLCa = params.GetTlsCa()
-		res.SSLCert = params.GetTlsCert()
-		res.SSLKey = params.GetTlsKey()
-	}
+func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) PostgreSQLOptions {
+	res := PostgreSQLOptions{}
+	res.SSLCa = params.GetTlsCa()
+	res.SSLCert = params.GetTlsCert()
+	res.SSLKey = params.GetTlsKey()
 
 	// PostgreSQL exporter has these parameters but they are not needed for QAN agent.
 	if extendedOptions, ok := params.(PostgreSQLExtendedOptionsParams); ok && extendedOptions != nil {
-		res.AutoDiscoveryLimit = extendedOptions.GetAutoDiscoveryLimit()
+		res.AutoDiscoveryLimit = pointer.ToInt32(extendedOptions.GetAutoDiscoveryLimit())
 		res.MaxExporterConnections = extendedOptions.GetMaxExporterConnections()
 	}
 
@@ -98,30 +98,19 @@ type MongoDBExtendedOptionsParams interface {
 }
 
 // MongoDBOptionsFromRequest creates MongoDBOptionsParams object from request.
-func MongoDBOptionsFromRequest(params MongoDBOptionsParams) *MongoDBOptions {
-	var mdbOptions *MongoDBOptions
+func MongoDBOptionsFromRequest(params MongoDBOptionsParams) MongoDBOptions {
+	mdbOptions := MongoDBOptions{}
 
-	if params.GetTlsCertificateKey() != "" || params.GetTlsCertificateKeyFilePassword() != "" || params.GetTlsCa() != "" {
-		mdbOptions = &MongoDBOptions{}
-		mdbOptions.TLSCertificateKey = params.GetTlsCertificateKey()
-		mdbOptions.TLSCertificateKeyFilePassword = params.GetTlsCertificateKeyFilePassword()
-		mdbOptions.TLSCa = params.GetTlsCa()
-	}
+	mdbOptions.TLSCertificateKey = params.GetTlsCertificateKey()
+	mdbOptions.TLSCertificateKeyFilePassword = params.GetTlsCertificateKeyFilePassword()
+	mdbOptions.TLSCa = params.GetTlsCa()
 
-	if params.GetAuthenticationMechanism() != "" || params.GetAuthenticationDatabase() != "" {
-		if mdbOptions == nil {
-			mdbOptions = &MongoDBOptions{}
-		}
-		mdbOptions.AuthenticationMechanism = params.GetAuthenticationMechanism()
-		mdbOptions.AuthenticationDatabase = params.GetAuthenticationDatabase()
-	}
+	mdbOptions.AuthenticationMechanism = params.GetAuthenticationMechanism()
+	mdbOptions.AuthenticationDatabase = params.GetAuthenticationDatabase()
 
 	// MongoDB exporter has these parameters but they are not needed for QAN agent.
 	if extendedOptions, ok := params.(MongoDBExtendedOptionsParams); ok {
 		if extendedOptions != nil {
-			if mdbOptions == nil {
-				mdbOptions = &MongoDBOptions{}
-			}
 			mdbOptions.StatsCollections = extendedOptions.GetStatsCollections()
 			mdbOptions.CollectionsLimit = extendedOptions.GetCollectionsLimit()
 			mdbOptions.EnableAllCollectors = extendedOptions.GetEnableAllCollectors()
@@ -141,10 +130,10 @@ type AzureOptionsParams interface {
 }
 
 // AzureOptionsFromRequest creates AzureOptions object from request.
-func AzureOptionsFromRequest(params AzureOptionsParams) *AzureOptions {
+func AzureOptionsFromRequest(params AzureOptionsParams) AzureOptions {
 	if params.GetAzureSubscriptionId() != "" || params.GetAzureClientId() != "" || params.GetAzureClientSecret() != "" ||
 		params.GetAzureTenantId() != "" || params.GetAzureResourceGroup() != "" {
-		return &AzureOptions{
+		return AzureOptions{
 			SubscriptionID: params.GetAzureSubscriptionId(),
 			ClientID:       params.GetAzureClientId(),
 			ClientSecret:   params.GetAzureClientSecret(),
@@ -152,7 +141,7 @@ func AzureOptionsFromRequest(params AzureOptionsParams) *AzureOptions {
 			ResourceGroup:  params.GetAzureResourceGroup(),
 		}
 	}
-	return nil
+	return AzureOptions{}
 }
 
 func checkUniqueAgentID(q *reform.Querier, id string) error {
@@ -221,7 +210,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		idx++
 	}
 	if filters.AWSAccessKey != "" {
-		conditions = append(conditions, fmt.Sprintf("aws_access_key = %s", q.Placeholder(idx)))
+		conditions = append(conditions, fmt.Sprintf("(aws_options ? 'aws_access_key' AND aws_options->>'aws_access_key' = %s)", q.Placeholder(idx)))
 		args = append(args, filters.AWSAccessKey)
 	}
 
@@ -474,9 +463,9 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 	}
 
 	if pushMetrics {
-		conditions = append(conditions, "push_metrics")
+		conditions = append(conditions, pushMetricsTrue)
 	} else {
-		conditions = append(conditions, "NOT push_metrics")
+		conditions = append(conditions, pushMetricsFalse)
 	}
 
 	conditions = append(conditions, "NOT disabled", "listen_port IS NOT NULL")
@@ -496,7 +485,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 
 // FindPMMAgentsIDsWithPushMetrics returns pmm-agents-ids with agent, that use push_metrics mode.
 func FindPMMAgentsIDsWithPushMetrics(q *reform.Querier) ([]string, error) {
-	structs, err := q.SelectAllFrom(AgentTable, "WHERE NOT disabled AND pmm_agent_id IS NOT NULL AND push_metrics  ORDER BY agent_id")
+	structs, err := q.SelectAllFrom(AgentTable, fmt.Sprintf("WHERE NOT disabled AND pmm_agent_id IS NOT NULL AND %s ORDER BY agent_id", pushMetricsTrue))
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "Couldn't get agents")
 	}
@@ -621,15 +610,17 @@ func CreateNodeExporter(q *reform.Querier,
 		return nil, err
 	}
 	row := &Agent{
-		AgentID:            id,
-		AgentType:          NodeExporterType,
-		PMMAgentID:         &pmmAgentID,
-		NodeID:             pmmAgent.RunsOnNodeID,
-		PushMetrics:        pushMetrics,
-		DisabledCollectors: disableCollectors,
-		AgentPassword:      agentPassword,
-		LogLevel:           pointer.ToStringOrNil(logLevel),
-		ExposeExporter:     exposeExporter,
+		AgentID:       id,
+		AgentType:     NodeExporterType,
+		PMMAgentID:    &pmmAgentID,
+		NodeID:        pmmAgent.RunsOnNodeID,
+		AgentPassword: agentPassword,
+		ExporterOptions: ExporterOptions{
+			ExposeExporter:     exposeExporter,
+			PushMetrics:        pushMetrics,
+			DisabledCollectors: disableCollectors,
+		},
+		LogLevel: pointer.ToStringOrNil(logLevel),
 	}
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
@@ -702,17 +693,19 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		metricsPath = "/metrics"
 	}
 	row := &Agent{
-		PMMAgentID:    pmmAgentID,
-		AgentID:       id,
-		AgentType:     ExternalExporterType,
-		RunsOnNodeID:  runsOnNodeID,
-		ServiceID:     pointer.ToStringOrNil(params.ServiceID),
-		Username:      pointer.ToStringOrNil(params.Username),
-		Password:      pointer.ToStringOrNil(params.Password),
-		MetricsScheme: &scheme,
-		MetricsPath:   &metricsPath,
-		ListenPort:    pointer.ToUint16(uint16(params.ListenPort)),
-		PushMetrics:   params.PushMetrics,
+		PMMAgentID:   pmmAgentID,
+		AgentID:      id,
+		AgentType:    ExternalExporterType,
+		RunsOnNodeID: runsOnNodeID,
+		ServiceID:    pointer.ToStringOrNil(params.ServiceID),
+		Username:     pointer.ToStringOrNil(params.Username),
+		Password:     pointer.ToStringOrNil(params.Password),
+		ListenPort:   pointer.ToUint16(uint16(params.ListenPort)),
+		ExporterOptions: ExporterOptions{
+			PushMetrics:   params.PushMetrics,
+			MetricsPath:   metricsPath,
+			MetricsScheme: scheme,
+		},
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
@@ -729,33 +722,23 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 
 // CreateAgentParams params for add common exporter.
 type CreateAgentParams struct {
-	PMMAgentID                     string
-	NodeID                         string
-	ServiceID                      string
-	Username                       string
-	Password                       string
-	AgentPassword                  string
-	CustomLabels                   map[string]string
-	TLS                            bool
-	TLSSkipVerify                  bool
-	MySQLOptions                   *MySQLOptions
-	MongoDBOptions                 *MongoDBOptions
-	PostgreSQLOptions              *PostgreSQLOptions
-	TableCountTablestatsGroupLimit int32
-	MaxQueryLength                 int32
-	QueryExamplesDisabled          bool
-	CommentsParsingDisabled        bool
-	MaxQueryLogSize                int64
-	AWSAccessKey                   string
-	AWSSecretKey                   string
-	RDSBasicMetricsDisabled        bool
-	RDSEnhancedMetricsDisabled     bool
-	AzureOptions                   *AzureOptions
-	PushMetrics                    bool
-	ExposeExporter                 bool
-	DisableCollectors              []string
-	LogLevel                       string
-	MetricsResolutions             *MetricsResolutions
+	PMMAgentID        string
+	NodeID            string
+	ServiceID         string
+	Username          string
+	Password          string
+	AgentPassword     string
+	CustomLabels      map[string]string
+	TLS               bool
+	TLSSkipVerify     bool
+	LogLevel          string
+	ExporterOptions   ExporterOptions
+	QANOptions        QANOptions
+	AWSOptions        AWSOptions
+	AzureOptions      AzureOptions
+	MongoDBOptions    MongoDBOptions
+	MySQLOptions      MySQLOptions
+	PostgreSQLOptions PostgreSQLOptions
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -871,45 +854,54 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 
 	row := &Agent{
-		AgentID:                        id,
-		AgentType:                      agentType,
-		PMMAgentID:                     &params.PMMAgentID,
-		ServiceID:                      pointer.ToStringOrNil(params.ServiceID),
-		NodeID:                         pointer.ToStringOrNil(params.NodeID),
-		Username:                       pointer.ToStringOrNil(params.Username),
-		Password:                       pointer.ToStringOrNil(params.Password),
-		AgentPassword:                  pointer.ToStringOrNil(params.AgentPassword),
-		TLS:                            params.TLS,
-		TLSSkipVerify:                  params.TLSSkipVerify,
-		MySQLOptions:                   params.MySQLOptions,
-		MongoDBOptions:                 params.MongoDBOptions,
-		PostgreSQLOptions:              params.PostgreSQLOptions,
-		TableCountTablestatsGroupLimit: params.TableCountTablestatsGroupLimit,
-		MaxQueryLength:                 params.MaxQueryLength,
-		QueryExamplesDisabled:          params.QueryExamplesDisabled,
-		CommentsParsingDisabled:        params.CommentsParsingDisabled,
-		MaxQueryLogSize:                params.MaxQueryLogSize,
-		AWSAccessKey:                   pointer.ToStringOrNil(params.AWSAccessKey),
-		AWSSecretKey:                   pointer.ToStringOrNil(params.AWSSecretKey),
-		RDSBasicMetricsDisabled:        params.RDSBasicMetricsDisabled,
-		RDSEnhancedMetricsDisabled:     params.RDSEnhancedMetricsDisabled,
-		AzureOptions:                   params.AzureOptions,
-		PushMetrics:                    params.PushMetrics,
-		ExposeExporter:                 params.ExposeExporter,
-		DisabledCollectors:             params.DisableCollectors,
-		LogLevel:                       pointer.ToStringOrNil(params.LogLevel),
+		AgentID:           id,
+		AgentType:         agentType,
+		PMMAgentID:        &params.PMMAgentID,
+		ServiceID:         pointer.ToStringOrNil(params.ServiceID),
+		NodeID:            pointer.ToStringOrNil(params.NodeID),
+		Username:          pointer.ToStringOrNil(params.Username),
+		Password:          pointer.ToStringOrNil(params.Password),
+		AgentPassword:     pointer.ToStringOrNil(params.AgentPassword),
+		TLS:               params.TLS,
+		TLSSkipVerify:     params.TLSSkipVerify,
+		ExporterOptions:   params.ExporterOptions,
+		QANOptions:        params.QANOptions,
+		AWSOptions:        params.AWSOptions,
+		AzureOptions:      params.AzureOptions,
+		MongoDBOptions:    params.MongoDBOptions,
+		MySQLOptions:      params.MySQLOptions,
+		PostgreSQLOptions: params.PostgreSQLOptions,
+		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
 
-	encryptedAgent := EncryptAgent(*row)
+	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
 	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
 	agent := DecryptAgent(encryptedAgent)
 
 	return &agent, nil
+}
+
+func trimUnicodeNilsInCertFiles(agent Agent) Agent {
+	const unicodeNil = "\u0000"
+
+	agent.MongoDBOptions.TLSCa = strings.ReplaceAll(agent.MongoDBOptions.TLSCa, unicodeNil, "")
+	agent.MongoDBOptions.TLSCertificateKey = strings.ReplaceAll(agent.MongoDBOptions.TLSCertificateKey, unicodeNil, "")
+	agent.MongoDBOptions.TLSCertificateKeyFilePassword = strings.ReplaceAll(agent.MongoDBOptions.TLSCertificateKeyFilePassword, unicodeNil, "")
+
+	agent.MySQLOptions.TLSCa = strings.ReplaceAll(agent.MySQLOptions.TLSCa, unicodeNil, "")
+	agent.MySQLOptions.TLSCert = strings.ReplaceAll(agent.MySQLOptions.TLSCert, unicodeNil, "")
+	agent.MySQLOptions.TLSKey = strings.ReplaceAll(agent.MySQLOptions.TLSKey, unicodeNil, "")
+
+	agent.PostgreSQLOptions.SSLCa = strings.ReplaceAll(agent.PostgreSQLOptions.SSLCa, unicodeNil, "")
+	agent.PostgreSQLOptions.SSLCert = strings.ReplaceAll(agent.PostgreSQLOptions.SSLCert, unicodeNil, "")
+	agent.PostgreSQLOptions.SSLKey = strings.ReplaceAll(agent.PostgreSQLOptions.SSLKey, unicodeNil, "")
+
+	return agent
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -939,7 +931,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 	}
 
 	if params.EnablePushMetrics != nil {
-		row.PushMetrics = *params.EnablePushMetrics
+		row.ExporterOptions.PushMetrics = *params.EnablePushMetrics
 		if row.AgentType == ExternalExporterType {
 			if err := updateExternalExporterParams(q, row); err != nil {
 				return nil, errors.Wrap(err, "failed to update External exporterParams for PushMetrics")
@@ -959,22 +951,22 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		}
 	}
 
-	if row.MetricsResolutions == nil {
-		row.MetricsResolutions = &MetricsResolutions{}
+	if row.ExporterOptions.MetricsResolutions == nil {
+		row.ExporterOptions.MetricsResolutions = &MetricsResolutions{}
 	}
 	if params.MetricsResolutions.LR != nil {
-		row.MetricsResolutions.LR = *params.MetricsResolutions.LR
+		row.ExporterOptions.MetricsResolutions.LR = *params.MetricsResolutions.LR
 	}
 	if params.MetricsResolutions.MR != nil {
-		row.MetricsResolutions.MR = *params.MetricsResolutions.MR
+		row.ExporterOptions.MetricsResolutions.MR = *params.MetricsResolutions.MR
 	}
 	if params.MetricsResolutions.HR != nil {
-		row.MetricsResolutions.HR = *params.MetricsResolutions.HR
+		row.ExporterOptions.MetricsResolutions.HR = *params.MetricsResolutions.HR
 	}
 
 	// If all resolutions are empty, then drop whole MetricsResolution field.
-	if row.MetricsResolutions.HR == 0 && row.MetricsResolutions.MR == 0 && row.MetricsResolutions.LR == 0 {
-		row.MetricsResolutions = nil
+	if row.ExporterOptions.MetricsResolutions.HR == 0 && row.ExporterOptions.MetricsResolutions.MR == 0 && row.ExporterOptions.MetricsResolutions.LR == 0 {
+		row.ExporterOptions.MetricsResolutions = nil
 	}
 
 	if err = q.Update(row); err != nil {
@@ -1026,7 +1018,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 // for external exporter, is needed for push_metrics mode.
 func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 	// with push metrics, external exporter must have PMMAgent id without RunsOnNodeID
-	if row.PushMetrics && row.PMMAgentID == nil {
+	if row.ExporterOptions.PushMetrics && row.PMMAgentID == nil {
 		pmmAgent, err := FindPMMAgentsRunningOnNode(q, pointer.GetString(row.RunsOnNodeID))
 		if err != nil {
 			return err
@@ -1043,7 +1035,7 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 		row.PMMAgentID = pointer.ToString(pmmAgent[0].AgentID)
 	}
 	// without push metrics, external exporter must have RunsOnNodeID without PMMAgentID
-	if !row.PushMetrics && row.RunsOnNodeID == nil {
+	if !row.ExporterOptions.PushMetrics && row.RunsOnNodeID == nil {
 		pmmAgent, err := FindAgentByID(q, pointer.GetString(row.PMMAgentID))
 		if err != nil {
 			return err

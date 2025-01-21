@@ -15,7 +15,7 @@ ExecStart=/usr/bin/podman run --rm --replace=true --name %N \
     --env-file=/home/admin/.config/systemd/user/watchtower.env \
     --net pmm_default \
     --cap-add=net_admin,net_raw \
-    docker.io/perconalab/watchtower
+    ${WATCHTOWER_IMAGE}
 
 ExecStop=/usr/bin/podman stop -t 10 %N
 

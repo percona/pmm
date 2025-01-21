@@ -313,10 +313,12 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 		return status.Errorf(codes.Internal, "Can't get 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
 	}
 	if len(vmAgent) == 0 {
-		if _, err := models.CreateAgent(q, vmAgentType, &models.CreateAgentParams{
-			PMMAgentID:  pmmAgentID,
-			PushMetrics: true,
-			NodeID:      runsOnNodeID,
+		if _, err := models.CreateAgent(q, models.VMAgentType, &models.CreateAgentParams{
+			PMMAgentID: pmmAgentID,
+			NodeID:     runsOnNodeID,
+			ExporterOptions: models.ExporterOptions{
+				PushMetrics: true,
+			},
 		}); err != nil {
 			return errors.Wrapf(err, "Can't create 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
 		}

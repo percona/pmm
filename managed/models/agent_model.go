@@ -79,18 +79,99 @@ var v2_42 = version.MustParse("2.42.0-0")
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
 const PMMServerAgentID = string("pmm-server") // a special ID, reserved for PMM Server
 
-// MySQLOptions represents structure for special MySQL options.
-type MySQLOptions struct {
-	TLSCa   string `json:"tls_ca"`
-	TLSCert string `json:"tls_cert"`
-	TLSKey  string `json:"tls_key"`
+// ExporterOptions represents structure for special Exporter options.
+type ExporterOptions struct {
+	ExposeExporter     bool                `json:"expose_exporter"`
+	PushMetrics        bool                `json:"push_metrics"`
+	DisabledCollectors pq.StringArray      `json:"disabled_collectors"`
+	MetricsResolutions *MetricsResolutions `json:"metrics_resolutions"`
+	MetricsPath        string              `json:"metrics_path"`
+	MetricsScheme      string              `json:"metrics_scheme"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c MySQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c ExporterOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *MySQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *ExporterOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if all ExporterOptions fields are unset or have zero values, otherwise returns false.
+func (c ExporterOptions) IsEmpty() bool {
+	return !c.ExposeExporter &&
+		!c.PushMetrics &&
+		len(c.DisabledCollectors) == 0 &&
+		c.MetricsResolutions == nil &&
+		c.MetricsPath == "" &&
+		c.MetricsScheme == ""
+}
+
+// QANOptions represents structure for special QAN options.
+type QANOptions struct {
+	MaxQueryLength          int32 `json:"max_query_length"`
+	MaxQueryLogSize         int64 `json:"max_query_log_size"`
+	QueryExamplesDisabled   bool  `json:"query_examples_disabled"`
+	CommentsParsingDisabled bool  `json:"comments_parsing_disabled"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c QANOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *QANOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if all QANOptions fields are unset or have zero values, otherwise returns false.
+func (c QANOptions) IsEmpty() bool {
+	return c.MaxQueryLength == 0 &&
+		c.MaxQueryLogSize == 0 &&
+		!c.QueryExamplesDisabled &&
+		!c.CommentsParsingDisabled
+}
+
+// AWSOptions represents structure for special AWS options.
+type AWSOptions struct {
+	AWSAccessKey               string `json:"aws_access_key"`
+	AWSSecretKey               string `json:"aws_secret_key"`
+	RDSBasicMetricsDisabled    bool   `json:"rds_basic_metrics_disabled"`
+	RDSEnhancedMetricsDisabled bool   `json:"rds_enhanced_metrics_disabled"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c AWSOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *AWSOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if all AWSOptions fields are unset or have zero values, otherwise returns false.
+func (c AWSOptions) IsEmpty() bool {
+	return c.AWSAccessKey == "" &&
+		c.AWSSecretKey == "" &&
+		!c.RDSBasicMetricsDisabled &&
+		!c.RDSEnhancedMetricsDisabled
+}
+
+// AzureOptions represents structure for special Azure options.
+type AzureOptions struct {
+	SubscriptionID string `json:"subscription_id"`
+	ClientID       string `json:"client_id"`
+	ClientSecret   string `json:"client_secret"`
+	TenantID       string `json:"tenant_id"`
+	ResourceGroup  string `json:"resource_group"`
+}
+
+// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
+func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
+
+// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
+func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if all AzureOptions fields are unset or have zero values, otherwise returns false.
+func (c AzureOptions) IsEmpty() bool {
+	return c.SubscriptionID == "" &&
+		c.ClientID == "" &&
+		c.ClientSecret == "" &&
+		c.TenantID == "" &&
+		c.ResourceGroup == ""
+}
 
 // MongoDBOptions represents structure for special MongoDB options.
 type MongoDBOptions struct {
@@ -110,27 +191,55 @@ func (c MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *MongoDBOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
-// AzureOptions represents structure for special Azure options.
-type AzureOptions struct {
-	SubscriptionID string `json:"subscription_id"`
-	ClientID       string `json:"client_id"`
-	ClientSecret   string `json:"client_secret"`
-	TenantID       string `json:"tenant_id"`
-	ResourceGroup  string `json:"resource_group"`
+// IsEmpty returns true if all MongoDBOptions fields are unset or have zero values, otherwise returns false.
+func (c MongoDBOptions) IsEmpty() bool {
+	return c.TLSCertificateKey == "" &&
+		c.TLSCertificateKeyFilePassword == "" &&
+		c.TLSCa == "" &&
+		c.AuthenticationMechanism == "" &&
+		c.AuthenticationDatabase == "" &&
+		len(c.StatsCollections) == 0 &&
+		c.CollectionsLimit == 0 &&
+		!c.EnableAllCollectors
+}
+
+// MySQLOptions represents structure for special MySQL options.
+type MySQLOptions struct {
+	TLSCa   string `json:"tls_ca"`
+	TLSCert string `json:"tls_cert"`
+	TLSKey  string `json:"tls_key"`
+
+	// TableCount stores last known table count. NULL if unknown.
+	TableCount *int32 `json:"table_count"`
+
+	// Tablestats group collectors are disabled if there are more than that number of tables.
+	// 0 means tablestats group collectors are always enabled (no limit).
+	// Negative value means tablestats group collectors are always disabled.
+	// See IsMySQLTablestatsGroupEnabled method.
+	TableCountTablestatsGroupLimit int32 `json:"table_count_tablestats_group_limit"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
+func (c MySQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *MySQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if all MySQLOptions fields are unset or have zero values, otherwise returns false.
+func (c MySQLOptions) IsEmpty() bool {
+	return c.TLSCa == "" &&
+		c.TLSCert == "" &&
+		c.TLSKey == "" &&
+		c.TableCount == nil &&
+		c.TableCountTablestatsGroupLimit == 0
+}
 
 // PostgreSQLOptions represents structure for special PostgreSQL options.
 type PostgreSQLOptions struct {
 	SSLCa                  string  `json:"ssl_ca"`
 	SSLCert                string  `json:"ssl_cert"`
 	SSLKey                 string  `json:"ssl_key"`
-	AutoDiscoveryLimit     int32   `json:"auto_discovery_limit"`
+	AutoDiscoveryLimit     *int32  `json:"auto_discovery_limit"`
 	DatabaseCount          int32   `json:"database_count"`
 	PGSMVersion            *string `json:"pgsm_version"`
 	MaxExporterConnections int32   `json:"max_exporter_connections"`
@@ -141,6 +250,17 @@ func (c PostgreSQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *PostgreSQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+
+// IsEmpty returns true if all PostgreSQLOptions fields are unset or have zero values, otherwise returns false.
+func (c PostgreSQLOptions) IsEmpty() bool {
+	return c.SSLCa == "" &&
+		c.SSLCert == "" &&
+		c.SSLKey == "" &&
+		c.AutoDiscoveryLimit == nil &&
+		c.DatabaseCount == 0 &&
+		c.PGSMVersion == nil &&
+		c.MaxExporterConnections == 0
+}
 
 // PMMAgentWithPushMetricsSupport - version of pmmAgent,
 // that support vmagent and push metrics mode
@@ -173,39 +293,16 @@ type Agent struct {
 	TLS           bool    `reform:"tls"`
 	TLSSkipVerify bool    `reform:"tls_skip_verify"`
 
-	AWSAccessKey *string `reform:"aws_access_key"`
-	AWSSecretKey *string `reform:"aws_secret_key"`
+	LogLevel *string `reform:"log_level"`
 
-	AzureOptions *AzureOptions `reform:"azure_options"`
+	ExporterOptions ExporterOptions `reform:"exporter_options"`
+	QANOptions      QANOptions      `reform:"qan_options"`
 
-	// TableCount stores last known table count. NULL if unknown.
-	TableCount *int32 `reform:"table_count"`
-
-	// Tablestats group collectors are disabled if there are more than that number of tables.
-	// 0 means tablestats group collectors are always enabled (no limit).
-	// Negative value means tablestats group collectors are always disabled.
-	// See IsMySQLTablestatsGroupEnabled method.
-	TableCountTablestatsGroupLimit int32 `reform:"table_count_tablestats_group_limit"`
-
-	MaxQueryLength          int32   `reform:"max_query_length"`
-	QueryExamplesDisabled   bool    `reform:"query_examples_disabled"`
-	CommentsParsingDisabled bool    `reform:"comments_parsing_disabled"`
-	MaxQueryLogSize         int64   `reform:"max_query_log_size"`
-	MetricsPath             *string `reform:"metrics_path"`
-	MetricsScheme           *string `reform:"metrics_scheme"`
-
-	RDSBasicMetricsDisabled    bool                `reform:"rds_basic_metrics_disabled"`
-	RDSEnhancedMetricsDisabled bool                `reform:"rds_enhanced_metrics_disabled"`
-	PushMetrics                bool                `reform:"push_metrics"`
-	DisabledCollectors         pq.StringArray      `reform:"disabled_collectors"`
-	MetricsResolutions         *MetricsResolutions `reform:"metrics_resolutions"`
-
-	MySQLOptions      *MySQLOptions      `reform:"mysql_options"`
-	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`
-	PostgreSQLOptions *PostgreSQLOptions `reform:"postgresql_options"`
-	LogLevel          *string            `reform:"log_level"`
-
-	ExposeExporter bool `reform:"expose_exporter"`
+	AWSOptions        AWSOptions        `reform:"aws_options"`
+	AzureOptions      AzureOptions      `reform:"azure_options"`
+	MongoDBOptions    MongoDBOptions    `reform:"mongo_options"`
+	MySQLOptions      MySQLOptions      `reform:"mysql_options"`
+	PostgreSQLOptions PostgreSQLOptions `reform:"postgresql_options"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -455,22 +552,20 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 			}
 		}
 
-		if s.MongoDBOptions != nil {
-			if s.MongoDBOptions.TLSCertificateKey != "" {
-				q.Add("tlsCertificateKeyFile", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
-			}
-			if s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
-				q.Add("tlsCertificateKeyFilePassword", s.MongoDBOptions.TLSCertificateKeyFilePassword)
-			}
-			if s.MongoDBOptions.TLSCa != "" {
-				q.Add("tlsCaFile", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
-			}
-			if s.MongoDBOptions.AuthenticationMechanism != "" {
-				q.Add("authMechanism", s.MongoDBOptions.AuthenticationMechanism)
-			}
-			if s.MongoDBOptions.AuthenticationDatabase != "" {
-				q.Add("authSource", s.MongoDBOptions.AuthenticationDatabase)
-			}
+		if s.MongoDBOptions.TLSCertificateKey != "" {
+			q.Add("tlsCertificateKeyFile", tdp.Left+".TextFiles."+certificateKeyFilePlaceholder+tdp.Right)
+		}
+		if s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
+			q.Add("tlsCertificateKeyFilePassword", s.MongoDBOptions.TLSCertificateKeyFilePassword)
+		}
+		if s.MongoDBOptions.TLSCa != "" {
+			q.Add("tlsCaFile", tdp.Left+".TextFiles."+caFilePlaceholder+tdp.Right)
+		}
+		if s.MongoDBOptions.AuthenticationMechanism != "" {
+			q.Add("authMechanism", s.MongoDBOptions.AuthenticationMechanism)
+		}
+		if s.MongoDBOptions.AuthenticationDatabase != "" {
+			q.Add("authSource", s.MongoDBOptions.AuthenticationDatabase)
 		}
 
 		address := socket
@@ -564,14 +659,14 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 // ExporterURL composes URL to an external exporter.
 func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
-	scheme := pointer.GetString(s.MetricsScheme)
-	path := pointer.GetString(s.MetricsPath)
+	scheme := s.ExporterOptions.MetricsScheme
+	path := s.ExporterOptions.MetricsPath
 	listenPort := int(pointer.GetUint16(s.ListenPort))
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
 
 	host := "127.0.0.1"
-	if !s.PushMetrics {
+	if !s.ExporterOptions.PushMetrics {
 		node, err := FindNodeByID(q, *s.RunsOnNodeID)
 		if err != nil {
 			return "", err
@@ -610,14 +705,14 @@ func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
 	}
 
 	switch {
-	case s.TableCountTablestatsGroupLimit == 0: // server defined
+	case s.MySQLOptions.TableCountTablestatsGroupLimit == 0: // server defined
 		return true
-	case s.TableCountTablestatsGroupLimit < 0: // always disabled
+	case s.MySQLOptions.TableCountTablestatsGroupLimit < 0: // always disabled
 		return false
-	case s.TableCount == nil: // for compatibility with 2.0
+	case s.MySQLOptions.TableCount == nil: // for compatibility with 2.0
 		return true
 	default:
-		return *s.TableCount <= s.TableCountTablestatsGroupLimit
+		return *s.MySQLOptions.TableCount <= s.MySQLOptions.TableCountTablestatsGroupLimit
 	}
 }
 
@@ -625,49 +720,55 @@ func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
 func (s Agent) Files() map[string]string {
 	switch s.AgentType {
 	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
-		if s.MySQLOptions != nil {
-			files := make(map[string]string)
-			if s.MySQLOptions.TLSCa != "" {
-				files["tlsCa"] = s.MySQLOptions.TLSCa
-			}
-			if s.MySQLOptions.TLSCert != "" {
-				files["tlsCert"] = s.MySQLOptions.TLSCert
-			}
-			if s.MySQLOptions.TLSKey != "" {
-				files["tlsKey"] = s.MySQLOptions.TLSKey
-			}
+		files := make(map[string]string)
+		if s.MySQLOptions.TLSCa != "" {
+			files["tlsCa"] = s.MySQLOptions.TLSCa
+		}
+		if s.MySQLOptions.TLSCert != "" {
+			files["tlsCert"] = s.MySQLOptions.TLSCert
+		}
+		if s.MySQLOptions.TLSKey != "" {
+			files["tlsKey"] = s.MySQLOptions.TLSKey
+		}
+
+		if len(files) != 0 {
 			return files
 		}
+
 		return nil
 	case ProxySQLExporterType:
 		return nil
 	case QANMongoDBProfilerAgentType, MongoDBExporterType:
-		if s.MongoDBOptions != nil {
-			files := make(map[string]string)
-			if s.MongoDBOptions.TLSCa != "" {
-				files[caFilePlaceholder] = s.MongoDBOptions.TLSCa
-			}
-			if s.MongoDBOptions.TLSCertificateKey != "" {
-				files[certificateKeyFilePlaceholder] = s.MongoDBOptions.TLSCertificateKey
-			}
+		files := make(map[string]string)
+		if s.MongoDBOptions.TLSCa != "" {
+			files[caFilePlaceholder] = s.MongoDBOptions.TLSCa
+		}
+		if s.MongoDBOptions.TLSCertificateKey != "" {
+			files[certificateKeyFilePlaceholder] = s.MongoDBOptions.TLSCertificateKey
+		}
+
+		if len(files) != 0 {
 			return files
 		}
+
 		return nil
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
-		if s.PostgreSQLOptions != nil {
-			files := make(map[string]string)
+		files := make(map[string]string)
 
-			if s.PostgreSQLOptions.SSLCa != "" {
-				files[caFilePlaceholder] = s.PostgreSQLOptions.SSLCa
-			}
-			if s.PostgreSQLOptions.SSLCert != "" {
-				files[certificateFilePlaceholder] = s.PostgreSQLOptions.SSLCert
-			}
-			if s.PostgreSQLOptions.SSLKey != "" {
-				files[certificateKeyFilePlaceholder] = s.PostgreSQLOptions.SSLKey
-			}
+		if s.PostgreSQLOptions.SSLCa != "" {
+			files[caFilePlaceholder] = s.PostgreSQLOptions.SSLCa
+		}
+		if s.PostgreSQLOptions.SSLCert != "" {
+			files[certificateFilePlaceholder] = s.PostgreSQLOptions.SSLCert
+		}
+		if s.PostgreSQLOptions.SSLKey != "" {
+			files[certificateKeyFilePlaceholder] = s.PostgreSQLOptions.SSLKey
+		}
+
+		if len(files) != 0 {
 			return files
 		}
+
 		return nil
 	default:
 		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
@@ -680,20 +781,20 @@ func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 		pointer.GetString(svc.Address),
 		pointer.GetString(s.Username),
 		pointer.GetString(s.Password),
-		pointer.GetString(s.MetricsPath),
+		s.ExporterOptions.MetricsPath,
 	}
 
 	switch svc.ServiceType {
 	case MySQLServiceType:
-		if s.MySQLOptions != nil {
+		if s.MySQLOptions.TLSKey != "" {
 			templateParams = append(templateParams, s.MySQLOptions.TLSKey)
 		}
 	case MongoDBServiceType:
-		if s.MongoDBOptions != nil {
+		if s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
 			templateParams = append(templateParams, s.MongoDBOptions.TLSCertificateKeyFilePassword)
 		}
 	case PostgreSQLServiceType:
-		if s.PostgreSQLOptions != nil {
+		if s.PostgreSQLOptions.SSLKey != "" {
 			templateParams = append(templateParams, s.PostgreSQLOptions.SSLKey)
 		}
 	case ProxySQLServiceType:

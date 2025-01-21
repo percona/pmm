@@ -279,14 +279,15 @@ func TestAgentService(t *testing.T) {
 
 			expected := []*agentv1.UniversalAgent{
 				{
-					AgentId:     azureExporter.AgentID,
-					AgentType:   "azure_database_exporter",
-					PmmAgentId:  "00000000-0000-4000-8000-000000000007",
-					IsConnected: false,
-					CreatedAt:   timestamppb.New(now),
-					UpdatedAt:   timestamppb.New(now),
-					ServiceId:   "00000000-0000-4000-8000-000000000006",
-					Status:      "AGENT_STATUS_UNKNOWN",
+					AgentId:      azureExporter.AgentID,
+					AgentType:    "azure_database_exporter",
+					PmmAgentId:   "00000000-0000-4000-8000-000000000007",
+					IsConnected:  false,
+					CreatedAt:    timestamppb.New(now),
+					UpdatedAt:    timestamppb.New(now),
+					ServiceId:    "00000000-0000-4000-8000-000000000006",
+					Status:       "AGENT_STATUS_UNKNOWN",
+					AzureOptions: &agentv1.UniversalAgent_AzureOptions{},
 				},
 			}
 			assert.Equal(t, expected, response.Agents)

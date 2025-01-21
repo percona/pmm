@@ -302,7 +302,6 @@ services:
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
       - ./managed/testdata/pg/certs/:/certs/
-      - ./update/ansible:/usr/share/pmm-update/ansible
 
   pmm-server-passive:
     profiles:
@@ -382,7 +381,6 @@ services:
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
       - ./managed/testdata/pg/certs/:/certs/
-      - ./update/ansible:/usr/share/pmm-update/ansible
 
   pmm-server-passive-2:
     profiles:
@@ -462,7 +460,6 @@ services:
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
       - ./managed/testdata/pg/certs/:/certs/
-      - ./update/ansible:/usr/share/pmm-update/ansible
 
 volumes:
   chdata:  # Volume for ClickHouse data

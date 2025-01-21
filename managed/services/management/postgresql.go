@@ -65,16 +65,18 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 		}
 
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
-			PMMAgentID:        req.PmmAgentId,
-			ServiceID:         service.ServiceID,
-			Username:          req.Username,
-			Password:          req.Password,
-			AgentPassword:     req.AgentPassword,
-			TLS:               req.Tls,
-			TLSSkipVerify:     req.TlsSkipVerify,
-			PushMetrics:       isPushMode(req.MetricsMode),
-			ExposeExporter:    req.ExposeExporter,
-			DisableCollectors: req.DisableCollectors,
+			PMMAgentID:    req.PmmAgentId,
+			ServiceID:     service.ServiceID,
+			Username:      req.Username,
+			Password:      req.Password,
+			AgentPassword: req.AgentPassword,
+			TLS:           req.Tls,
+			TLSSkipVerify: req.TlsSkipVerify,
+			ExporterOptions: models.ExporterOptions{
+				ExposeExporter:     req.ExposeExporter,
+				PushMetrics:        isPushMode(req.MetricsMode),
+				DisabledCollectors: req.DisableCollectors,
+			},
 			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
 			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		})
@@ -107,17 +109,19 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 
 		if req.QanPostgresqlPgstatementsAgent {
 			row, err = models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
-				PMMAgentID:              req.PmmAgentId,
-				ServiceID:               service.ServiceID,
-				Username:                req.Username,
-				Password:                req.Password,
-				MaxQueryLength:          req.MaxQueryLength,
-				QueryExamplesDisabled:   req.DisableQueryExamples,
-				CommentsParsingDisabled: req.DisableCommentsParsing,
-				TLS:                     req.Tls,
-				TLSSkipVerify:           req.TlsSkipVerify,
-				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
-				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+				PMMAgentID: req.PmmAgentId,
+				ServiceID:  service.ServiceID,
+				Username:   req.Username,
+				Password:   req.Password,
+				QANOptions: models.QANOptions{
+					MaxQueryLength:          req.MaxQueryLength,
+					QueryExamplesDisabled:   req.DisableQueryExamples,
+					CommentsParsingDisabled: req.DisableCommentsParsing,
+				},
+				TLS:               req.Tls,
+				TLSSkipVerify:     req.TlsSkipVerify,
+				PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
+				LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err
@@ -132,17 +136,19 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 
 		if req.QanPostgresqlPgstatmonitorAgent {
 			row, err = models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatMonitorAgentType, &models.CreateAgentParams{
-				PMMAgentID:              req.PmmAgentId,
-				ServiceID:               service.ServiceID,
-				Username:                req.Username,
-				Password:                req.Password,
-				MaxQueryLength:          req.MaxQueryLength,
-				QueryExamplesDisabled:   req.DisableQueryExamples,
-				CommentsParsingDisabled: req.DisableCommentsParsing,
-				TLS:                     req.Tls,
-				TLSSkipVerify:           req.TlsSkipVerify,
-				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
-				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+				PMMAgentID:    req.PmmAgentId,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
+				QANOptions: models.QANOptions{
+					MaxQueryLength:          req.MaxQueryLength,
+					QueryExamplesDisabled:   req.DisableQueryExamples,
+					CommentsParsingDisabled: req.DisableCommentsParsing,
+				},
+				PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
+				LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err

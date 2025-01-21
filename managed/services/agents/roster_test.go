@@ -18,7 +18,6 @@ package agents
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -56,9 +55,11 @@ func TestRoster(t *testing.T) {
 		}
 		awsAccessKey := "aws"
 		exporters[node] = &models.Agent{
-			AgentID:      "agent1",
-			AgentType:    models.RDSExporterType,
-			AWSAccessKey: pointer.ToString(awsAccessKey),
+			AgentID:   "agent1",
+			AgentType: models.RDSExporterType,
+			AWSOptions: models.AWSOptions{
+				AWSAccessKey: awsAccessKey,
+			},
 		}
 
 		const expected = "pmm-server:rds/aws"
@@ -94,9 +95,11 @@ func TestRoster(t *testing.T) {
 		}
 		awsAccessKey := "aws"
 		exporters[node] = &models.Agent{
-			AgentID:      "agent1",
-			AgentType:    models.RDSExporterType,
-			AWSAccessKey: pointer.ToString(awsAccessKey),
+			AgentID:   "agent1",
+			AgentType: models.RDSExporterType,
+			AWSOptions: models.AWSOptions{
+				AWSAccessKey: awsAccessKey,
+			},
 		}
 
 		const expectedGroupID = "pmm-server:rds/aws"

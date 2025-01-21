@@ -262,21 +262,25 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.AddMySQLdExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	var row *models.Agent
 	var agent *inventoryv1.MySQLdExporter
+
+	mysqlOptions := models.MySQLOptionsFromRequest(p)
+	mysqlOptions.TableCountTablestatsGroupLimit = p.TablestatsGroupTableLimit
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:                     p.PmmAgentId,
-			ServiceID:                      p.ServiceId,
-			Username:                       p.Username,
-			Password:                       p.Password,
-			AgentPassword:                  p.AgentPassword,
-			CustomLabels:                   p.CustomLabels,
-			TLS:                            p.Tls,
-			TLSSkipVerify:                  p.TlsSkipVerify,
-			MySQLOptions:                   models.MySQLOptionsFromRequest(p),
-			TableCountTablestatsGroupLimit: p.TablestatsGroupTableLimit,
-			PushMetrics:                    p.PushMetrics,
-			DisableCollectors:              p.DisableCollectors,
-			LogLevel:                       services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			AgentPassword: p.AgentPassword,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
+			ExporterOptions: models.ExporterOptions{
+				PushMetrics:        p.PushMetrics,
+				DisabledCollectors: p.DisableCollectors,
+			},
+			MySQLOptions: mysqlOptions,
+			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		}
 		var err error
 		row, err = models.CreateAgent(tx.Querier, models.MySQLdExporterType, params)
@@ -350,18 +354,20 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 	var agent *inventoryv1.MongoDBExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:        p.PmmAgentId,
-			ServiceID:         p.ServiceId,
-			Username:          p.Username,
-			Password:          p.Password,
-			AgentPassword:     p.AgentPassword,
-			CustomLabels:      p.CustomLabels,
-			TLS:               p.Tls,
-			TLSSkipVerify:     p.TlsSkipVerify,
-			MongoDBOptions:    models.MongoDBOptionsFromRequest(p),
-			PushMetrics:       p.PushMetrics,
-			DisableCollectors: p.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:     p.PmmAgentId,
+			ServiceID:      p.ServiceId,
+			Username:       p.Username,
+			Password:       p.Password,
+			AgentPassword:  p.AgentPassword,
+			CustomLabels:   p.CustomLabels,
+			TLS:            p.Tls,
+			TLSSkipVerify:  p.TlsSkipVerify,
+			MongoDBOptions: models.MongoDBOptionsFromRequest(p),
+			ExporterOptions: models.ExporterOptions{
+				PushMetrics:        p.PushMetrics,
+				DisabledCollectors: p.DisableCollectors,
+			},
+			LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, params)
 		if err != nil {
@@ -434,18 +440,20 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 	var agent *inventoryv1.QANMySQLPerfSchemaAgent
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:              p.PmmAgentId,
-			ServiceID:               p.ServiceId,
-			Username:                p.Username,
-			Password:                p.Password,
-			CustomLabels:            p.CustomLabels,
-			TLS:                     p.Tls,
-			TLSSkipVerify:           p.TlsSkipVerify,
-			MySQLOptions:            models.MySQLOptionsFromRequest(p),
-			MaxQueryLength:          p.MaxQueryLength,
-			QueryExamplesDisabled:   p.DisableQueryExamples,
-			CommentsParsingDisabled: p.DisableCommentsParsing,
-			LogLevel:                services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
+			QANOptions: models.QANOptions{
+				MaxQueryLength:          p.MaxQueryLength,
+				QueryExamplesDisabled:   p.DisableQueryExamples,
+				CommentsParsingDisabled: p.DisableCommentsParsing,
+			},
+			MySQLOptions: models.MySQLOptionsFromRequest(p),
+			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, params)
 		if err != nil {
@@ -518,19 +526,21 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 		}
 
 		params := &models.CreateAgentParams{
-			PMMAgentID:              p.PmmAgentId,
-			ServiceID:               p.ServiceId,
-			Username:                p.Username,
-			Password:                p.Password,
-			CustomLabels:            p.CustomLabels,
-			TLS:                     p.Tls,
-			TLSSkipVerify:           p.TlsSkipVerify,
-			MySQLOptions:            models.MySQLOptionsFromRequest(p),
-			MaxQueryLength:          p.MaxQueryLength,
-			QueryExamplesDisabled:   p.DisableQueryExamples,
-			CommentsParsingDisabled: p.DisableCommentsParsing,
-			MaxQueryLogSize:         maxSlowlogFileSize,
-			LogLevel:                services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
+			QANOptions: models.QANOptions{
+				MaxQueryLength:          p.MaxQueryLength,
+				QueryExamplesDisabled:   p.DisableQueryExamples,
+				CommentsParsingDisabled: p.DisableCommentsParsing,
+				MaxQueryLogSize:         maxSlowlogFileSize,
+			},
+			MySQLOptions: models.MySQLOptionsFromRequest(p),
+			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLSlowlogAgentType, params)
 		if err != nil {
@@ -597,16 +607,18 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 	var agent *inventoryv1.PostgresExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:        p.PmmAgentId,
-			ServiceID:         p.ServiceId,
-			Username:          p.Username,
-			Password:          p.Password,
-			AgentPassword:     p.AgentPassword,
-			CustomLabels:      p.CustomLabels,
-			TLS:               p.Tls,
-			TLSSkipVerify:     p.TlsSkipVerify,
-			PushMetrics:       p.PushMetrics,
-			DisableCollectors: p.DisableCollectors,
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			AgentPassword: p.AgentPassword,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
+			ExporterOptions: models.ExporterOptions{
+				PushMetrics:        p.PushMetrics,
+				DisabledCollectors: p.DisableCollectors,
+			},
 			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(p),
 			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		}
@@ -681,17 +693,19 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:     p.PmmAgentId,
-			ServiceID:      p.ServiceId,
-			Username:       p.Username,
-			Password:       p.Password,
-			CustomLabels:   p.CustomLabels,
-			TLS:            p.Tls,
-			TLSSkipVerify:  p.TlsSkipVerify,
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
+			QANOptions: models.QANOptions{
+				MaxQueryLength: p.MaxQueryLength,
+				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650 - done, but not included in params.
+			},
 			MongoDBOptions: models.MongoDBOptionsFromRequest(p),
-			MaxQueryLength: p.MaxQueryLength,
 			LogLevel:       services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, params)
 		if err != nil {
@@ -760,17 +774,19 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 	var agent *inventoryv1.ProxySQLExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:        p.PmmAgentId,
-			ServiceID:         p.ServiceId,
-			Username:          p.Username,
-			Password:          p.Password,
-			AgentPassword:     p.AgentPassword,
-			CustomLabels:      p.CustomLabels,
-			TLS:               p.Tls,
-			TLSSkipVerify:     p.TlsSkipVerify,
-			PushMetrics:       p.PushMetrics,
-			DisableCollectors: p.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			AgentPassword: p.AgentPassword,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
+			ExporterOptions: models.ExporterOptions{
+				PushMetrics:        p.PushMetrics,
+				DisabledCollectors: p.DisableCollectors,
+			},
+			LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.ProxySQLExporterType, params)
 		if err != nil {
@@ -842,17 +858,19 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 	var agent *inventoryv1.QANPostgreSQLPgStatementsAgent
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:              p.PmmAgentId,
-			ServiceID:               p.ServiceId,
-			Username:                p.Username,
-			Password:                p.Password,
-			CustomLabels:            p.CustomLabels,
-			MaxQueryLength:          p.MaxQueryLength,
-			CommentsParsingDisabled: p.DisableCommentsParsing,
-			TLS:                     p.Tls,
-			TLSSkipVerify:           p.TlsSkipVerify,
-			PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(p),
-			LogLevel:                services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
+			QANOptions: models.QANOptions{
+				MaxQueryLength:          p.MaxQueryLength,
+				CommentsParsingDisabled: p.DisableCommentsParsing,
+			},
+			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(p),
+			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, params)
 		if err != nil {
@@ -919,18 +937,20 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context,
 	var agent *inventoryv1.QANPostgreSQLPgStatMonitorAgent
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:              p.PmmAgentId,
-			ServiceID:               p.ServiceId,
-			Username:                p.Username,
-			Password:                p.Password,
-			MaxQueryLength:          p.MaxQueryLength,
-			QueryExamplesDisabled:   p.DisableQueryExamples,
-			CommentsParsingDisabled: p.DisableCommentsParsing,
-			CustomLabels:            p.CustomLabels,
-			TLS:                     p.Tls,
-			TLSSkipVerify:           p.TlsSkipVerify,
-			PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(p),
-			LogLevel:                services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
+			QANOptions: models.QANOptions{
+				MaxQueryLength:          p.MaxQueryLength,
+				QueryExamplesDisabled:   p.DisableQueryExamples,
+				CommentsParsingDisabled: p.DisableCommentsParsing,
+			},
+			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(p),
+			LogLevel:          services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatMonitorAgentType, params)
 		if err != nil {
@@ -997,15 +1017,19 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 	var agent *inventoryv1.RDSExporter
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:                 p.PmmAgentId,
-			NodeID:                     p.NodeId,
-			AWSAccessKey:               p.AwsAccessKey,
-			AWSSecretKey:               p.AwsSecretKey,
-			CustomLabels:               p.CustomLabels,
-			RDSBasicMetricsDisabled:    p.DisableBasicMetrics,
-			RDSEnhancedMetricsDisabled: p.DisableEnhancedMetrics,
-			PushMetrics:                p.PushMetrics,
-			LogLevel:                   services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:   p.PmmAgentId,
+			NodeID:       p.NodeId,
+			CustomLabels: p.CustomLabels,
+			ExporterOptions: models.ExporterOptions{
+				PushMetrics: p.PushMetrics,
+			},
+			AWSOptions: models.AWSOptions{
+				AWSAccessKey:               p.AwsAccessKey,
+				AWSSecretKey:               p.AwsSecretKey,
+				RDSBasicMetricsDisabled:    p.DisableBasicMetrics,
+				RDSEnhancedMetricsDisabled: p.DisableEnhancedMetrics,
+			},
+			LogLevel: services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.RDSExporterType, params)
 		if err != nil {
@@ -1148,9 +1172,11 @@ func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *invent
 		params := &models.CreateAgentParams{
 			PMMAgentID:   p.PmmAgentId,
 			NodeID:       p.NodeId,
-			AzureOptions: models.AzureOptionsFromRequest(p),
 			CustomLabels: p.CustomLabels,
-			PushMetrics:  p.PushMetrics,
+			ExporterOptions: models.ExporterOptions{
+				PushMetrics: p.PushMetrics,
+			},
+			AzureOptions: models.AzureOptionsFromRequest(p),
 			LogLevel:     services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.AzureDatabaseExporterType, params)

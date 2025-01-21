@@ -47,15 +47,17 @@ func TestScrapeConfig(t *testing.T) {
 				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			agent := &models.Agent{
-				AgentID:            "75bb30d3-ef4a-4147-97a8-621a996611dd",
-				AgentType:          models.NodeExporterType,
-				CustomLabels:       []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:         pointer.ToUint16(12345),
-				DisabledCollectors: []string{"cpu", "entropy"},
+				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:    models.NodeExporterType,
+				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:   pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{
+					DisabledCollectors: []string{"cpu", "entropy"},
+				},
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "node_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "node_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -98,7 +100,7 @@ func TestScrapeConfig(t *testing.T) {
 					"vmstat",
 				}},
 			}, {
-				JobName:        "node_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "node_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
@@ -127,7 +129,7 @@ func TestScrapeConfig(t *testing.T) {
 					"textfile.mr",
 				}},
 			}, {
-				JobName:        "node_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+				JobName:        "node_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
@@ -182,15 +184,17 @@ func TestScrapeConfig(t *testing.T) {
 				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			agent := &models.Agent{
-				AgentID:            "75bb30d3-ef4a-4147-97a8-621a996611dd",
-				AgentType:          models.NodeExporterType,
-				CustomLabels:       []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:         pointer.ToUint16(12345),
-				DisabledCollectors: []string{"cpu", "time"},
+				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:    models.NodeExporterType,
+				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:   pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{
+					DisabledCollectors: []string{"cpu", "time"},
+				},
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "node_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "node_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -253,14 +257,16 @@ func TestScrapeConfig(t *testing.T) {
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
-				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
-				AgentType:    models.MySQLdExporterType,
-				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
+				AgentID:         "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:       models.MySQLdExporterType,
+				CustomLabels:    []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:      pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{},
+				MySQLOptions:    models.MySQLOptions{},
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "mysqld_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -294,7 +300,7 @@ func TestScrapeConfig(t *testing.T) {
 					"standard.process",
 				}},
 			}, {
-				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "mysqld_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
@@ -333,7 +339,7 @@ func TestScrapeConfig(t *testing.T) {
 					"slave_status",
 				}},
 			}, {
-				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+				JobName:        "mysqld_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
@@ -407,15 +413,18 @@ func TestScrapeConfig(t *testing.T) {
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
-				AgentID:            "75bb30d3-ef4a-4147-97a8-621a996611dd",
-				AgentType:          models.MySQLdExporterType,
-				CustomLabels:       []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:         pointer.ToUint16(12345),
-				DisabledCollectors: []string{"global_status", "info_schema.innodb_cmp", "info_schema.query_response_time", "perf_schema.eventsstatements", "heartbeat"},
+				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:    models.MySQLdExporterType,
+				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:   pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{
+					DisabledCollectors: []string{"global_status", "info_schema.innodb_cmp", "info_schema.query_response_time", "perf_schema.eventsstatements", "heartbeat"},
+				},
+				MySQLOptions: models.MySQLOptions{},
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "mysqld_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -448,7 +457,7 @@ func TestScrapeConfig(t *testing.T) {
 					"standard.process",
 				}},
 			}, {
-				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "mysqld_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
@@ -485,7 +494,7 @@ func TestScrapeConfig(t *testing.T) {
 					"slave_status",
 				}},
 			}, {
-				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+				JobName:        "mysqld_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
@@ -555,15 +564,18 @@ func TestScrapeConfig(t *testing.T) {
 				Address:   pointer.ToString("5.6.7.8"),
 			}
 			agent := &models.Agent{
-				AgentID:                        "75bb30d3-ef4a-4147-97a8-621a996611dd",
-				AgentType:                      models.MySQLdExporterType,
-				ListenPort:                     pointer.ToUint16(12345),
-				TableCount:                     pointer.ToInt32(100500),
-				TableCountTablestatsGroupLimit: 1000,
+				AgentID:         "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:       models.MySQLdExporterType,
+				ListenPort:      pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{},
+				MySQLOptions: models.MySQLOptions{
+					TableCount:                     pointer.ToInt32(100500),
+					TableCountTablestatsGroupLimit: 1000,
+				},
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "mysqld_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -594,7 +606,7 @@ func TestScrapeConfig(t *testing.T) {
 					"standard.process",
 				}},
 			}, {
-				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "mysqld_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
@@ -629,7 +641,7 @@ func TestScrapeConfig(t *testing.T) {
 					"slave_status",
 				}},
 			}, {
-				JobName:        "mysqld_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+				JobName:        "mysqld_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
@@ -684,8 +696,9 @@ func TestScrapeConfig(t *testing.T) {
 			node := &models.Node{}
 			service := &models.Service{}
 			agent := &models.Agent{
-				CustomLabels: []byte("{"),
-				ListenPort:   pointer.ToUint16(12345),
+				CustomLabels:    []byte("{"),
+				ListenPort:      pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{},
 			}
 
 			_, err := scrapeConfigsForMySQLdExporter(&scrapeConfigParams{
@@ -714,16 +727,17 @@ func TestScrapeConfig(t *testing.T) {
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
-				AgentID:        "75bb30d3-ef4a-4147-97a8-621a996611dd",
-				AgentType:      models.MongoDBExporterType,
-				CustomLabels:   []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:     pointer.ToUint16(12345),
-				MongoDBOptions: &models.MongoDBOptions{EnableAllCollectors: true},
+				AgentID:         "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:       models.MongoDBExporterType,
+				CustomLabels:    []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:      pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{},
+				MongoDBOptions:  models.MongoDBOptions{EnableAllCollectors: true},
 			}
 
 			expected := []*config.ScrapeConfig{
 				{
-					JobName:        "mongodb_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+					JobName:        "mongodb_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 					ScrapeInterval: config.Duration(s.HR),
 					ScrapeTimeout:  scrapeTimeout(s.HR),
 					MetricsPath:    "/metrics",
@@ -753,7 +767,7 @@ func TestScrapeConfig(t *testing.T) {
 						}},
 					},
 				}, {
-					JobName:        "mongodb_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+					JobName:        "mongodb_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 					ScrapeInterval: config.Duration(s.LR),
 					ScrapeTimeout:  scrapeTimeout(s.LR),
 					MetricsPath:    "/metrics",
@@ -799,13 +813,115 @@ func TestScrapeConfig(t *testing.T) {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
+		t.Run("Without enable-all option on v2.43+", func(t *testing.T) {
+			node := &models.Node{
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				NodeName:     "node_name",
+				Address:      "1.2.3.4",
+				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
+			}
+			service := &models.Service{
+				ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
+				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				Address:      pointer.ToString("5.6.7.8"),
+				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
+			}
+			agent := &models.Agent{
+				AgentID:         "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:       models.MongoDBExporterType,
+				CustomLabels:    []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:      pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{},
+				MongoDBOptions:  models.MongoDBOptions{},
+			}
+
+			expected := []*config.ScrapeConfig{
+				{
+					JobName:        "mongodb_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+					ScrapeInterval: config.Duration(s.HR),
+					ScrapeTimeout:  scrapeTimeout(s.HR),
+					MetricsPath:    "/metrics",
+					Params: map[string][]string{
+						"collect[]": {"diagnosticdata", "replicasetstatus", "topmetrics"},
+					},
+					HTTPClientConfig: config.HTTPClientConfig{
+						BasicAuth: &config.BasicAuth{
+							Username: "pmm",
+							Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
+						},
+					},
+					ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+						StaticConfigs: []*config.Group{{
+							Targets: []string{"4.5.6.7:12345"},
+							Labels: map[string]string{
+								"_some_agent_label":   "baz",
+								"_some_node_label":    "foo",
+								"_some_service_label": "bar",
+								"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"agent_type":          "mongodb_exporter",
+								"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
+								"node_name":           "node_name",
+								"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
+							},
+						}},
+					},
+				},
+				{
+					JobName:        "mongodb_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+					ScrapeInterval: config.Duration(s.LR),
+					ScrapeTimeout:  scrapeTimeout(s.LR),
+					MetricsPath:    "/metrics",
+					Params: map[string][]string{
+						"collect[]": {"fcv", "pbm"},
+					},
+					HTTPClientConfig: config.HTTPClientConfig{
+						BasicAuth: &config.BasicAuth{
+							Username: "pmm",
+							Password: "75bb30d3-ef4a-4147-97a8-621a996611dd",
+						},
+					},
+					ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+						StaticConfigs: []*config.Group{{
+							Targets: []string{"4.5.6.7:12345"},
+							Labels: map[string]string{
+								"_some_agent_label":   "baz",
+								"_some_node_label":    "foo",
+								"_some_service_label": "bar",
+								"agent_id":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"agent_type":          "mongodb_exporter",
+								"instance":            "75bb30d3-ef4a-4147-97a8-621a996611dd",
+								"node_id":             "cc663f36-18ca-40a1-aea9-c6310bb4738d",
+								"node_name":           "node_name",
+								"service_id":          "014647c3-b2f5-44eb-94f4-d943260a968c",
+							},
+						}},
+					},
+				},
+			}
+
+			actual, err := scrapeConfigsForMongoDBExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              node,
+				service:           service,
+				agent:             agent,
+				pmmAgentVersion:   version.MustParse("2.43.2"),
+				metricsResolution: s,
+			})
+			require.NoError(t, err)
+			require.Len(t, actual, len(expected))
+			for i := 0; i < len(expected); i++ {
+				assertScrapeConfigsEqual(t, expected[i], actual[i])
+			}
+		})
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
 			node := &models.Node{}
 			service := &models.Service{}
 			agent := &models.Agent{
-				CustomLabels: []byte("{"),
-				ListenPort:   pointer.ToUint16(12345),
+				CustomLabels:    []byte("{"),
+				ListenPort:      pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{},
 			}
 
 			_, err := scrapeConfigsForMongoDBExporter(&scrapeConfigParams{
@@ -835,15 +951,17 @@ func TestScrapeConfig(t *testing.T) {
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
-				AgentID:            "75bb30d3-ef4a-4147-97a8-621a996611dd",
-				AgentType:          models.PostgresExporterType,
-				CustomLabels:       []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:         pointer.ToUint16(12345),
-				DisabledCollectors: []string{"standard.process", "custom_query.lr"},
+				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:    models.PostgresExporterType,
+				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:   pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{
+					DisabledCollectors: []string{"standard.process", "custom_query.lr"},
+				},
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "postgres_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "postgres_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -876,7 +994,7 @@ func TestScrapeConfig(t *testing.T) {
 					"standard.go",
 				}},
 			}, {
-				JobName:        "postgres_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "postgres_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
@@ -906,7 +1024,7 @@ func TestScrapeConfig(t *testing.T) {
 					"custom_query.mr",
 				}},
 			}, {
-				JobName:        "postgres_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+				JobName:        "postgres_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
@@ -953,8 +1071,9 @@ func TestScrapeConfig(t *testing.T) {
 			node := &models.Node{}
 			service := &models.Service{}
 			agent := &models.Agent{
-				CustomLabels: []byte("{"),
-				ListenPort:   pointer.ToUint16(12345),
+				CustomLabels:    []byte("{"),
+				ListenPort:      pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{},
 			}
 
 			_, err := scrapeConfigsForPostgresExporter(&scrapeConfigParams{
@@ -990,7 +1109,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "proxysql_exporter75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "proxysql_exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -1171,14 +1290,15 @@ func TestScrapeConfig(t *testing.T) {
 		}
 		t.Run("Normal", func(t *testing.T) {
 			agent := &models.Agent{
-				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
-				AgentType:    models.ExternalExporterType,
-				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
+				AgentID:         "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:       models.ExternalExporterType,
+				CustomLabels:    []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:      pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{},
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "external-exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "external-exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -1215,18 +1335,20 @@ func TestScrapeConfig(t *testing.T) {
 
 		t.Run("WithExtraParams", func(t *testing.T) {
 			agent := &models.Agent{
-				AgentID:       "75bb30d3-ef4a-4147-97a8-621a996611dd",
-				AgentType:     models.ExternalExporterType,
-				CustomLabels:  []byte(`{"_some_agent_label": "baz"}`),
-				Username:      pointer.ToString("username"),
-				Password:      pointer.ToString("password"),
-				ListenPort:    pointer.ToUint16(12345),
-				MetricsPath:   pointer.ToString("/some-metric-path"),
-				MetricsScheme: pointer.ToString("https"),
+				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:    models.ExternalExporterType,
+				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
+				Username:     pointer.ToString("username"),
+				Password:     pointer.ToString("password"),
+				ListenPort:   pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{
+					MetricsPath:   "/some-metric-path",
+					MetricsScheme: "https",
+				},
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "external-exporter75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "external-exporter_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/some-metric-path",
@@ -1271,8 +1393,9 @@ func TestScrapeConfig(t *testing.T) {
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
 			agent := &models.Agent{
-				CustomLabels: []byte("{"),
-				ListenPort:   pointer.ToUint16(12345),
+				CustomLabels:    []byte("{"),
+				ListenPort:      pointer.ToUint16(12345),
+				ExporterOptions: models.ExporterOptions{},
 			}
 
 			_, err := scrapeConfigsForMongoDBExporter(&scrapeConfigParams{

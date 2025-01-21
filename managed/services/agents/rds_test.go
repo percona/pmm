@@ -45,12 +45,14 @@ func TestRDSExporterConfig(t *testing.T) {
 	})
 	require.NoError(t, err)
 	agent1 := &models.Agent{
-		AgentID:                 "agent1",
-		AgentType:               models.RDSExporterType,
-		NodeID:                  &node1.NodeID,
-		AWSAccessKey:            pointer.ToString("access_key1"),
-		AWSSecretKey:            pointer.ToString("secret_key1"),
-		RDSBasicMetricsDisabled: true,
+		AgentID:   "agent1",
+		AgentType: models.RDSExporterType,
+		NodeID:    &node1.NodeID,
+		AWSOptions: models.AWSOptions{
+			AWSAccessKey:            "access_key1",
+			AWSSecretKey:            "secret_key1",
+			RDSBasicMetricsDisabled: true,
+		},
 	}
 
 	node2 := &models.Node{
@@ -67,11 +69,13 @@ func TestRDSExporterConfig(t *testing.T) {
 	})
 	require.NoError(t, err)
 	agent2 := &models.Agent{
-		AgentID:      "agent2",
-		AgentType:    models.RDSExporterType,
-		NodeID:       &node2.NodeID,
-		AWSAccessKey: pointer.ToString("access_key2"),
-		AWSSecretKey: pointer.ToString("secret_key2"),
+		AgentID:   "agent2",
+		AgentType: models.RDSExporterType,
+		NodeID:    &node2.NodeID,
+		AWSOptions: models.AWSOptions{
+			AWSAccessKey: "access_key2",
+			AWSSecretKey: "secret_key2",
+		},
 	}
 
 	pairs := map[*models.Node]*models.Agent{

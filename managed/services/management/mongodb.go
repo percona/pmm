@@ -63,18 +63,20 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 		}
 
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
-			PMMAgentID:        req.PmmAgentId,
-			ServiceID:         service.ServiceID,
-			Username:          req.Username,
-			Password:          req.Password,
-			AgentPassword:     req.AgentPassword,
-			TLS:               req.Tls,
-			TLSSkipVerify:     req.TlsSkipVerify,
-			MongoDBOptions:    models.MongoDBOptionsFromRequest(req),
-			PushMetrics:       isPushMode(req.MetricsMode),
-			ExposeExporter:    req.ExposeExporter,
-			DisableCollectors: req.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:     req.PmmAgentId,
+			ServiceID:      service.ServiceID,
+			Username:       req.Username,
+			Password:       req.Password,
+			AgentPassword:  req.AgentPassword,
+			TLS:            req.Tls,
+			TLSSkipVerify:  req.TlsSkipVerify,
+			MongoDBOptions: models.MongoDBOptionsFromRequest(req),
+			LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			ExporterOptions: models.ExporterOptions{
+				ExposeExporter:     req.ExposeExporter,
+				PushMetrics:        isPushMode(req.MetricsMode),
+				DisabledCollectors: req.DisableCollectors,
+			},
 		})
 		if err != nil {
 			return err
@@ -98,16 +100,18 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 
 		if req.QanMongodbProfiler {
 			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
-				PMMAgentID:     req.PmmAgentId,
-				ServiceID:      service.ServiceID,
-				Username:       req.Username,
-				Password:       req.Password,
-				TLS:            req.Tls,
-				TLSSkipVerify:  req.TlsSkipVerify,
+				PMMAgentID:    req.PmmAgentId,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
+				QANOptions: models.QANOptions{
+					MaxQueryLength: req.MaxQueryLength,
+					// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
+				},
 				MongoDBOptions: models.MongoDBOptionsFromRequest(req),
-				MaxQueryLength: req.MaxQueryLength,
 				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
 			})
 			if err != nil {
 				return err

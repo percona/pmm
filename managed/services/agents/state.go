@@ -288,7 +288,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 
 		// Iterate over the rdsExporters map
 		for node, exporter := range rdsExporters {
-			awsAccessKey := pointer.GetString(exporter.AWSAccessKey)
+			awsAccessKey := exporter.AWSOptions.AWSAccessKey
 
 			if _, ok := groupedRdsExporters[awsAccessKey]; !ok {
 				groupedRdsExporters[awsAccessKey] = make(map[*models.Node]*models.Agent)

@@ -165,6 +165,8 @@ func (m *GetUserResponse) validate(all bool) error {
 
 	// no validation rules for SnoozedPmmVersion
 
+	// no validation rules for SnoozedApiKeysMigration
+
 	if len(errors) > 0 {
 		return GetUserResponseMultiError(errors)
 	}
@@ -277,6 +279,10 @@ func (m *UpdateUserRequest) validate(all bool) error {
 		// no validation rules for SnoozedPmmVersion
 	}
 
+	if m.SnoozedApiKeysMigration != nil {
+		// no validation rules for SnoozedApiKeysMigration
+	}
+
 	if len(errors) > 0 {
 		return UpdateUserRequestMultiError(errors)
 	}
@@ -386,6 +392,8 @@ func (m *UpdateUserResponse) validate(all bool) error {
 	// no validation rules for AlertingTourCompleted
 
 	// no validation rules for SnoozedPmmVersion
+
+	// no validation rules for SnoozedApiKeysMigration
 
 	if len(errors) > 0 {
 		return UpdateUserResponseMultiError(errors)
