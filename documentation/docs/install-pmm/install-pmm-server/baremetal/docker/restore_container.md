@@ -1,14 +1,11 @@
-# Restore PMM Server container from backup
-
-You can restore PMM Server either from a standard PMM backup or from a PMM v2 backup volume that was created during migration to PMM v3. 
-
+# Restore container
+You can restore PMM Server either from a manual backup or from an automated backup volume that was created during migration to PMM v3.
 
 !!! caution alert alert-warning "Important"
-    You must have a [backup](backup_container.md) or a [PMM2 backup volume](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3) to restore from.
+    You must have either a [manual backup](backup_container.md) or an [automated backup volume](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3) to restore from.
 
-
-=== "Restore from PMM backup"
-    To restore the container from a standard PMM backup:
+=== "Restore from manual backup"
+    To restore the container from a manual backup:
     {.power-number}
 
     1. Stop the container:
@@ -31,7 +28,7 @@ You can restore PMM Server either from a standard PMM backup or from a PMM v2 ba
 
     4. Change directory to the backup directory (e.g. `pmm-data-backup`):
 
-        ```sh
+        ```shc
         cd pmm-data-backup
         ```
 
@@ -53,9 +50,9 @@ You can restore PMM Server either from a standard PMM backup or from a PMM v2 ba
         docker start pmm-server
         ```
 
-=== "Restore from PMM2 backup volume"
+=== "Restore from automated backup"
 
-    If you need to restore from a PMM2 backup volume created during [migration to PMM3](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3):
+    If you need to restore from an automated backup volume created during [migration to PMM3](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3):
     {.power-number}
 
     1. Stop the current PMM3 container:
