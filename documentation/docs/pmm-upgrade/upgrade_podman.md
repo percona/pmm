@@ -20,33 +20,33 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
 {.power-number}
 
 
-1. Stop the current container:
+1. Update PMM tag by editing `~/.config/systemd/user/pmm-server.env` file and running the following command to set the latest release version:
 
     ```sh
-    docker stop pmm-server
+    sed -i "s/PMM_IMAGE=.*/PMM_IMAGE=docker.io/percona/pmm-server:3.0.0/g" ~/.config/systemd/user/pmm-server.env
     ```
 
-2. Pull the latest image:
+2. Pre-pull the new image to ensure a faster restart:
 
     ```sh
-    docker pull percona/pmm-server:3
+    source ~/.config/systemd/user/pmm-server.env
+    podman pull ${PMM_IMAGE}:${PMM_TAG}
     ```
 
-3. Rename the original container:
+3. Restart PMM Server:
 
     ```sh
-    docker rename pmm-server pmm-server-old
+    systemctl --user restart pmm-server
     ```
 
-4. Run the new container:
+4. After the upgrade, verify that PMM Server is running correctly:
 
     ```sh
-    docker run \
-    --detach \
-    --restart always \
-    --publish 443:8443 \
-    --volumes-from pmm-data \
-    --name pmm-server \
-    percona/pmm-server:3
+    podman ps | grep pmm-server
     ```
-5. After upgrading, verify that PMM Server is running correctly and all your data is accessible.
+    
+5. Check the logs for any errors:
+
+    ```sh
+    podman logs pmm-server
+    ```
