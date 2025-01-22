@@ -23,19 +23,19 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
     ```sh
     docker stop pmm-server
     ```
-3. Pull the latest image:
+2. Pull the latest image:
 
     ```sh
     docker pull percona/pmm-server:3
     ```
 
-4. Rename the original container:
+3. Rename the original container:
 
     ```sh
     docker rename pmm-server pmm-server-old
     ```
 
-5. Run the new container:
+4. Run the new container:
 
     ```sh
     docker run \
@@ -47,4 +47,4 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
     percona/pmm-server:3
     ```
 
-6. After upgrading, verify that PMM Server is running correctly and all your data is accessible.
+5. After upgrading, verify that PMM Server is running correctly and all your data is accessible.
