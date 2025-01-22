@@ -19,18 +19,35 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
 
 === "Automated upgrade (Recommended)"
     Use this upgrade script for a simplified migration process:
-    {.power-number}
-    
-    1. Download and run the following script to start the upgrade. The `-b` flag ensures your data is backed up before the upgrade.
+    { .power-number}
+
+    1. Download and run the [automated upgrade script](https://raw.githubusercontent.com/percona/pmm/0ad7c05ae253948c779e48ff7976cb5c982af688/get-pmm.sh) to start the upgrade. The `-b` flag creates a backup of your PMM2 instance to ensure that your data is backed up before the upgrade.
 
         ```sh
         ./get-pmm.sh -n <container-name> -b
         ```
+    2. Note the backup volume name displayed during the upgrade (e.g., `pmm-data-2025-01-16-165135`) so that you can restore this backup if needed.
 
-    2. Check additional script options:
+    3. Check additional script options:
         ```sh
         ./get-pmm.sh -h
         ```
+    !!! note alert alert-primary "Restore PMM 2 backup"
+        If you need to revert to the PMM 2 instance, restore the backup created above:
+        { .power-number}
+
+
+        1. Stop the PMM 3 container:
+            ```sh
+            docker stop pmm-server
+            ```
+        2. Start a PMM 2 container using the backup volume, replacing `<backup-volume-name>` (e.g., `pmm-data-2025-01-16-165135`) with your actual backup volume name:
+
+            ```sh
+            docker run -d -p 443:443 --volume <backup-volume-name>:/srv --name pmm-server --restart always percona/pmm-server:2.44.0
+            ```
+        3. Verify that your PMM 2 instance is running correctly and all your data is accessible.
+
 
 === "Manual upgrade from PMM 2 with Docker volume"
 

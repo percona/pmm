@@ -24,7 +24,7 @@ Before starting the upgrade, complete these preparation steps to ensure you can 
 
     ```sh
     # Replace <version> with the latest PMM version
-    podman pull percona/pmm-server:3
+    docker pull percona/pmm-server:3
     ```
 
 ## Upgrade steps
@@ -32,34 +32,26 @@ Before starting the upgrade, complete these preparation steps to ensure you can 
 Follow these steps to upgrade your PMM Server while preserving your monitoring data and settings—you can restore from your backup if needed.
 {.power-number}
 
-1. Stop the current container:
+1. Update Helm repository:
 
     ```sh
-    helm stop pmm-server
+    helm repo update percona
     ```
 
-3. Pull the latest image:
+2. Upgrade PMM:
 
     ```sh
-    helm pull percona/pmm-server:3
+    helm upgrade pmm -f values.yaml percona/pmm
     ```
 
-4. Rename the original container:
+
+3. After the upgrade, verify that PMM Server is running correctly and all your data is accessible:
 
     ```sh
-    helm rename pmm-server pmm-server-old
+    kubectl get pods | grep pmm-server
     ```
-
-5. Run the new container:
+4. Check the logs for any errors:
 
     ```sh
-    helm run \
-    --detach \
-    --restart always \
-    --publish 443:8443 \
-    --volumes-from pmm-data \
-    --name pmm-server \
-    percona/pmm-server:3
+    kubectl logs deployment/pmm-server
     ```
-
-6. After upgrading, verify that PMM Server is running correctly and all your data is accessible.
