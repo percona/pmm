@@ -51,10 +51,10 @@ Before proceeding with restoration, ensure you have either a [manual backup](bac
 
 === "Restore from automated migration backup"
 
-    To restore from an automated backup volume created during [migration to PMM3](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3):
+    To restore from an automated backup volume created during [migration to PMM v3](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3):
     {.power-number}
 
-    1. Stop the current PMM3 container:
+    1. Stop the current PMM v3 container:
         ```sh
         docker stop pmm-server
         ```
@@ -62,8 +62,8 @@ Before proceeding with restoration, ensure you have either a [manual backup](bac
         ```sh
         docker rm pmm-server
         ```
-    3. Start a PMM2 container using your backup volume, replacing   `<backup-volume-name>` with your PMM2 backup volume name (e.g., `pmm-data-2025-01-16-165135`):
-
+    3. Start a PMM v2 container using your backup volume, replacing   `<backup-volume-name>` with your PMM v2 backup volume name (e.g., `pmm-data-2025-01-16-165135`):
+ 
         ```sh
         docker run -d \
         -p 443:443 \
@@ -73,7 +73,7 @@ Before proceeding with restoration, ensure you have either a [manual backup](bac
         percona/pmm-server:2.44.0
         ```
 
-    4. Verify that your PMM2 instance is running correctly and all your data is accessible.
+    4. Verify that your PMM v2 instance is running correctly and all your data is accessible.
 
     !!! note alert alert-primary "Finding your backup volume name"
         - Your backup volume name was displayed during the [automated upgrade process](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3).
