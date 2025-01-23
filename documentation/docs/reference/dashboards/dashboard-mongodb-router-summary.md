@@ -2,7 +2,7 @@
 
 This dashboard monitors MongoS router nodes in sharded MongoDB clusters.
 
-![!image](../../_images/PMM_MongoDB_Router_Summary.png)
+![!image](../../_images/MongoDB_Router_Summary.png)
 
 ## Overview
 For each MongoS in the cluster, this section includes main monitoring metrics like CPU, memory and disk usage. Uptime and MongoS version are reported as well.
