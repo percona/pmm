@@ -6956,8 +6956,9 @@
 <div class="admonition note">
 <p class="admonition-title">Release update - January 16<sup>th</sup>, 2025 </p>
 <h2 id="updated-docker-image-labels-for-openshift-compatibility">Updated Docker image labels for OpenShift compatibility<a class="headerlink" href="#updated-docker-image-labels-for-openshift-compatibility" title="Permanent link">&para;</a></h2>
-<p>We&rsquo;ve published an update to this release that modifies Docker image labels (<code>vendor</code>, <code>maintainer</code>, and others) to meet Red Hat certification requirements.</p>
-<p>This update was required to ensure compatibility with <a href="https://docs.percona.com/percona-operator-for-mongodb/RN/Kubernetes-Operator-for-PSMONGODB-RN1.19.0.html">Percona Operator for MongoDB (PSMDB) Operator 1.19.0</a> and enables seamless deployment in OpenShift environments.</p>
+<p>We&rsquo;ve published an update to this release that modifies the PMM Client Docker image labels (<code>vendor</code>, <code>maintainer</code>, and others) to meet Red Hat certification requirements.</p>
+<p>The PMM Client image update was required to ensure compatibility with <a href="https://docs.percona.com/percona-operator-for-mongodb/RN/Kubernetes-Operator-for-PSMONGODB-RN1.19.0.html">Percona Operator for MongoDB (PSMDB) Operator 1.19.0</a> and enables seamless deployment in OpenShift environments.</p>
+<p>This change only impacts the PMM Client image. OpenShift compatibility for PMM Server is planned for PMM v3.</p>
 </div>
 <h2 id="support-for-version-80-of-percona-server-for-mongodb-psmdb-mongodb-community-and-mongodb-enterprise">Support for version 8.0 of Percona Server for MongoDB (PSMDB), MongoDB Community, and MongoDB Enterprise<a class="headerlink" href="#support-for-version-80-of-percona-server-for-mongodb-psmdb-mongodb-community-and-mongodb-enterprise" title="Permanent link">&para;</a></h2>
 <p>The latest version of MongoDB Community edition, along with the upcoming <a href="https://www.percona.com/software/mongodb/percona-server-for-mongodb">PSMDB 8.0</a>, introduce <a href="https://www.mongodb.com/docs/manual/release-notes/8.0/">numerous improvements and significant performance enhancements</a>.</p>
@@ -7017,7 +7018,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-01-22
+    2025-01-23
   </span>
 
     
