@@ -49,7 +49,7 @@ Before proceeding with restoration, ensure you have either a [manual backup](bac
         docker start pmm-server
         ```
 
-=== "Restore from automated backup"
+=== "Restore from automated migration backup"
 
     If you need to restore from an automated backup volume created during [migration to PMM3](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3):
     {.power-number}
@@ -76,8 +76,9 @@ Before proceeding with restoration, ensure you have either a [manual backup](bac
     4. Verify that your PMM2 instance is running correctly and all your data is accessible.
 
     !!! note alert alert-primary "Finding your backup volume name"
-        - If you used the [automated upgrade script](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3) (`get-pmm.sh -b`), the backup volume name was displayed during the upgrade process.
-        - To list all available Docker volumes, use:
+        - Your backup volume name was displayed during the [automated upgrade process](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3).
+        - To list all available Docker volumes, use the following command, and look for volumes with names like `pmm-data-YYYY-MM-DD-HHMMSS`:
+
             ```sh
             docker volume ls       
             ```
