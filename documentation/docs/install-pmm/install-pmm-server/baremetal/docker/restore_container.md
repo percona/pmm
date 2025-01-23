@@ -51,7 +51,7 @@ Before proceeding with restoration, ensure you have either a [manual backup](bac
 
 === "Restore from automated migration backup"
 
-    If you need to restore from an automated backup volume created during [migration to PMM3](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3):
+    To restore from an automated backup volume created during [migration to PMM3](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3):
     {.power-number}
 
     1. Stop the current PMM3 container:
