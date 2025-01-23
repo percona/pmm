@@ -1,8 +1,7 @@
 # Restore container
 You can restore PMM Server either from a manual backup or from an automated backup volume that was created during migration to PMM v3.
 
-!!! caution alert alert-warning "Important"
-    You must have either a [manual backup](backup_container.md) or an [automated backup volume](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3) to restore from.
+Before proceeding with restoration, ensure you have either a [manual backup](backup_container.md) or an [automated backup volume](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3) to restore from.
 
 === "Restore from manual backup"
     To restore the container from a manual backup:
@@ -77,8 +76,8 @@ You can restore PMM Server either from a manual backup or from an automated back
     4. Verify that your PMM2 instance is running correctly and all your data is accessible.
 
     !!! note alert alert-primary "Finding your backup volume name"
-    - If you used the [automated upgrade script](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3) (`get-pmm.sh -b`), the backup volume name was displayed during the upgrade process.
-    - To list all available Docker volumes, use:
-        ```sh
-        docker volume ls       
-        ```
+        - If you used the [automated upgrade script](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3) (`get-pmm.sh -b`), the backup volume name was displayed during the upgrade process.
+        - To list all available Docker volumes, use:
+            ```sh
+            docker volume ls       
+            ```
