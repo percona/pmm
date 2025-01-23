@@ -157,15 +157,16 @@ To enhance security, you have two options:
 
 1. Configure custom certificates:
 
-  ```yaml
-  certs:
-    name: pmm-certs
-    files:
-      certificate.crt: <content>
-      certificate.key: <content>
-      ca-certs.pem: <content>
-      dhparam.pem: <content>
-  ```
+    ```yaml
+    certs:
+      name: pmm-certs
+      files:
+        certificate.crt: <content>
+        certificate.key: <content>
+        ca-certs.pem: <content>
+        dhparam.pem: <content>
+    ```
+
 2. Use [Ingress controller with TLS]((https://kubernetes.io/docs/concepts/services-networking/ingress/#tls)) See [PMM network configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-network-configuration) for details.
 
 
