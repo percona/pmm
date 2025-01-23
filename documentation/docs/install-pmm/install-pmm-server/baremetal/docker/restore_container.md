@@ -1,4 +1,4 @@
-# Restore container
+# Restore Docker container
 You can restore PMM Server either from a manual backup or from an automated backup volume that was created during migration to PMM v3.
 
 Before proceeding with restoration, ensure you have either a [manual backup](backup_container.md) or an [automated backup volume](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3) to restore from.
