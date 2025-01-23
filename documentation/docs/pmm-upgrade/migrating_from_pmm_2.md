@@ -17,7 +17,7 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
 
 ## Step 2: Migrate PMM 2 Server to PMM 3
 
-=== "Automated upgrade (Recommended)"
+=== "Automated Docker upgrade (Recommended)"
     Use this upgrade script for a simplified migration process:
     { .power-number}
 
@@ -47,7 +47,7 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
             ```
         3. Verify that your PMM 2 instance is running correctly and all your data is accessible.
 
-=== "Manual upgrade"
+=== "Manual upgrade (Docker/Kubernetes/Podman)"
     === "Docker with volume"
         Follow these manual steps to upgrade your PMM 2 Server to PMM 3:
         { .power-number}
@@ -138,7 +138,7 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
             docker run -d --volumes-from pmm-server-data -p 443:8443 --name pmm-server --restart always percona/pmm-server:3
             ```
 
-    === "Helm chart"
+    === "Kubernetes with Helm chart"
         Follow these steps to upgrade your PMM 2 Server deployed with Helm to PMM 3:
         {.power-number}
 
@@ -174,7 +174,7 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
             kubectl delete pod pmm-0
             ```
 
-    === "Podman"
+    === "Local instance with Podman"
         Follow these steps to upgrade your PMM 2 Server deployed with Podman to PMM 3:
         {.power-number}
 
@@ -198,7 +198,7 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
             rm ~/.config/systemd/user/pmm-server.service
             ```
 
-        5. Follow the installation steps from the [PMM 3 Podman installation guide](https://github.com/percona/pmm/blob/Release-3-0-0-GA/documentation/docs/install-pmm/install-pmm-server/baremetal/podman/index.md) to complete the upgrade
+        5. Follow the installation steps from the [PMM 3 Podman installation guide](../install-pmm/install-pmm-server/baremetal/podman/index.md) to complete the upgrade.
 
 ## Step 3: Migrate PMM 2 Clients to PMM 3
 
