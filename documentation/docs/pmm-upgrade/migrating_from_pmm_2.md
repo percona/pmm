@@ -36,7 +36,6 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
         If you need to revert to the PMM 2 instance, restore the backup created above:
         { .power-number}
 
-
         1. Stop the PMM 3 container:
             ```sh
             docker stop pmm-server
@@ -48,98 +47,158 @@ Before upgrading to PMM 3, ensure your PMM 2 Server is running the latest versio
             ```
         3. Verify that your PMM 2 instance is running correctly and all your data is accessible.
 
+=== "Manual upgrade"
+    === "Docker with volume"
+        Follow these manual steps to upgrade your PMM 2 Server to PMM 3:
+        { .power-number}
 
-=== "Manual upgrade from PMM 2 with Docker volume"
+        1. Stop all PMM Server services:
 
-    Follow these manual steps to upgrade your PMM 2 Server to PMM 3:
-    { .power-number}
+            ```sh
+            docker exec -t <pmm-server> supervisorctl stop all
+            ```
 
-    1. Stop all PMM Server services:
+        2. Transfer `/srv` directory ownership:
 
-        ```sh
-        docker exec -t <pmm-server> supervisorctl stop all
-        ```
+            ```sh
+            docker exec -t <pmm-server> chown -R pmm:pmm /srv
+            ```
 
-    2. Transfer `/srv` directory ownership:
-
-        ```sh
-        docker exec -t <pmm-server> chown -R pmm:pmm /srv
-        ```
-
-    3. List and note down your Docker volume:
-   
-        ```sh
-        {% raw %}
-        docker inspect -f '{{ range .Mounts }}{{ if eq .Type "volume" }}{{ .Name }}{{ "\n" }}{{ end }}{{ end }}' <pmm-server>
-        {% endraw %}
-        ```
-
-    4. Stop and remove existing container:
-
-        ```sh
-        docker stop pmm-server && docker rm pmm-server
-        ```
-
-    5. Pull PMM 3 Server image:
-
-        ```sh
-        docker pull percona/pmm-server:3
-        ```
-
-    6. Run new new version of PMM Server with the existing volume:
-   
-        ```sh
-        docker run -d -v pmm-server-data:/srv -p 443:8443 --name pmm-server --restart always percona/pmm-server:3
-        ```
-
-=== "Manual upgrade from PMM 2 with data container"
-
-    Follow these manual steps to upgrade your PMM 2 Server to PMM 3:
-    { .power-number}
-
-    1. Stop all PMM Server services:
-
-        ```sh
-        docker exec -t <pmm-server> supervisorctl stop all
-        ```
-
-    2. Transfer `/srv` directory ownership:
-
-        ```sh
-        docker exec -t <pmm-server> chown -R pmm:pmm /srv
-        ```
-
-    3. Identify the data container using either:
-   
-        ```sh
-        docker ps -a --filter "status=created"
-        ```
+        3. List and note down your Docker volume:
        
-        OR
+            ```sh
+            {% raw %}
+            docker inspect -f '{{ range .Mounts }}{{ if eq .Type "volume" }}{{ .Name }}{{ "\n" }}{{ end }}{{ end }}' <pmm-server>
+            {% endraw %}
+            ```
 
-        ```sh
-        {% raw %}
-        docker inspect -f '{{ range .Mounts }}{{ if eq .Type "volume" }}{{ .Name }}{{ "\n" }}{{ end }}{{ end }}' <pmm-server>
-        {% endraw %}
-        ```
-        
-    4. Stop and remove the existing container:
+        4. Stop and remove existing container:
 
-        ```sh
-        docker stop pmm-server && docker rm pmm-server
-        ```
+            ```sh
+            docker stop pmm-server && docker rm pmm-server
+            ```
 
-    5. Pull PMM 3 Server image:
-   
-        ```sh
-        docker pull percona/pmm-server:3
-        ``` 
+        5. Pull PMM 3 Server image:
 
-    6. Run the new version of PMM Server with the existing data container:
+            ```sh
+            docker pull percona/pmm-server:3
+            ```
 
-        ```sh
-        docker run -d --volumes-from pmm-server-data -p 443:8443 --name pmm-server --restart always percona/pmm-server:3
-        ``` 
+        6. Run new new version of PMM Server with the existing volume:
+       
+            ```sh
+            docker run -d -v pmm-server-data:/srv -p 443:8443 --name pmm-server --restart always percona/pmm-server:3
+            ```
+
+    === "Docker with data container"
+        Follow these manual steps to upgrade your PMM 2 Server to PMM 3:
+        { .power-number}
+
+        1. Stop all PMM Server services:
+
+            ```sh
+            docker exec -t <pmm-server> supervisorctl stop all
+            ```
+
+        2. Transfer `/srv` directory ownership:
+
+            ```sh
+            docker exec -t <pmm-server> chown -R pmm:pmm /srv
+            ```
+
+        3. Identify the data container using either:
+       
+            ```sh
+            docker ps -a --filter "status=created"
+            ```
+           
+            OR
+
+            ```sh
+            {% raw %}
+            docker inspect -f '{{ range .Mounts }}{{ if eq .Type "volume" }}{{ .Name }}{{ "\n" }}{{ end }}{{ end }}' <pmm-server>
+            {% endraw %}
+            ```
+            
+        4. Stop and remove the existing container:
+
+            ```sh
+            docker stop pmm-server && docker rm pmm-server
+            ```
+
+        5. Pull PMM 3 Server image:
+       
+            ```sh
+            docker pull percona/pmm-server:3
+            ``` 
+
+        6. Run the new version of PMM Server with the existing data container:
+
+            ```sh
+            docker run -d --volumes-from pmm-server-data -p 443:8443 --name pmm-server --restart always percona/pmm-server:3
+            ```
+
+    === "Helm chart"
+        Follow these steps to upgrade your PMM 2 Server deployed with Helm to PMM 3:
+        {.power-number}
+
+        1. Update the Percona Helm repository:
+            ```sh
+            helm repo update percona
+            ```
+
+        2. Export current values to a file:
+            ```sh
+            helm show values percona/pmm > values.yaml
+            ```
+
+        3. Update the `values.yaml` file to match your PMM 2 configuration
+
+        4. Stop all PMM Server services:
+            ```sh
+            kubectl exec pmm-0 -- supervisorctl stop all
+            ```
+
+        5. Transfer `/srv` directory ownership:
+            ```sh
+            kubectl exec pmm-0 -- chown -R pmm:pmm /srv
+            ```
+
+        6. Upgrade PMM using Helm:
+            ```sh
+            helm upgrade pmm -f values.yaml --set secret.create=false --set secret.name=pmm-secret percona/pmm
+            ```
+
+        7. If Kubernetes is not upgraded automatically, delete the pod to force recreation:
+            ```sh
+            kubectl delete pod pmm-0
+            ```
+
+    === "Podman"
+        Follow these steps to upgrade your PMM 2 Server deployed with Podman to PMM 3:
+        {.power-number}
+
+        1. Pull the PMM 3 Server image:
+            ```sh
+            podman pull percona/pmm-server:3
+            ```
+
+        2. Stop all PMM Server services:
+            ```sh
+            podman exec pmm-server supervisorctl stop all
+            ```
+
+        3. Transfer `/srv` directory ownership:
+            ```sh
+            podman exec pmm-server chown -R pmm:pmm /srv
+            ```
+
+        4. Remove the existing systemd service file:
+            ```sh
+            rm ~/.config/systemd/user/pmm-server.service
+            ```
+
+        5. Follow the installation steps from the [PMM 3 Podman installation guide](https://github.com/percona/pmm/blob/Release-3-0-0-GA/documentation/docs/install-pmm/install-pmm-server/baremetal/podman/index.md) to complete the upgrade
 
 ## Step 3: Migrate PMM 2 Clients to PMM 3
 
