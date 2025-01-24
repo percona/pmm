@@ -70,7 +70,7 @@ func (_m *mockChecksService) EnableChecks(checkNames []string) error {
 	return r0
 }
 
-// GetAdvisors provides a mock function with given fields:
+// GetAdvisors provides a mock function with no fields
 func (_m *mockChecksService) GetAdvisors() ([]check.Advisor, error) {
 	ret := _m.Called()
 
@@ -100,7 +100,7 @@ func (_m *mockChecksService) GetAdvisors() ([]check.Advisor, error) {
 	return r0, r1
 }
 
-// GetChecks provides a mock function with given fields:
+// GetChecks provides a mock function with no fields
 func (_m *mockChecksService) GetChecks() (map[string]check.Check, error) {
 	ret := _m.Called()
 
@@ -160,7 +160,7 @@ func (_m *mockChecksService) GetChecksResults(ctx context.Context, serviceID str
 	return r0, r1
 }
 
-// GetDisabledChecks provides a mock function with given fields:
+// GetDisabledChecks provides a mock function with no fields
 func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
 	ret := _m.Called()
 
@@ -190,7 +190,7 @@ func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
 	return r0, r1
 }
 
-// GetSecurityCheckResults provides a mock function with given fields:
+// GetSecurityCheckResults provides a mock function with no fields
 func (_m *mockChecksService) GetSecurityCheckResults() ([]services.CheckResult, error) {
 	ret := _m.Called()
 

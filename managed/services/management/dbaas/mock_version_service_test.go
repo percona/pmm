@@ -42,7 +42,7 @@ func (_m *mockVersionService) GetNextDatabaseImage(ctx context.Context, operator
 	return r0, r1
 }
 
-// GetVersionServiceURL provides a mock function with given fields:
+// GetVersionServiceURL provides a mock function with no fields
 func (_m *mockVersionService) GetVersionServiceURL() string {
 	ret := _m.Called()
 

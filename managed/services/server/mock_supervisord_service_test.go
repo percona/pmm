@@ -85,7 +85,7 @@ func (_m *mockSupervisordService) LastCheckUpdatesResult(ctx context.Context) (*
 	return r0, r1
 }
 
-// StartUpdate provides a mock function with given fields:
+// StartUpdate provides a mock function with no fields
 func (_m *mockSupervisordService) StartUpdate() (uint32, error) {
 	ret := _m.Called()
 
@@ -168,7 +168,7 @@ func (_m *mockSupervisordService) UpdateLog(offset uint32) ([]string, uint32, er
 	return r0, r1, r2
 }
 
-// UpdateRunning provides a mock function with given fields:
+// UpdateRunning provides a mock function with no fields
 func (_m *mockSupervisordService) UpdateRunning() bool {
 	ret := _m.Called()
 
