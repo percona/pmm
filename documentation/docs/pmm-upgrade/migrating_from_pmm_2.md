@@ -256,13 +256,13 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
         
         10. Update PMM Client configurations by editing the `/usr/local/percona/pmm2/config/pmm-agent.yml` with the new server address, then restart the PMM Client.
 
-    !!! note alert alert-primary "Revert AMI/OVF instance to PMM 2"
-        If you need to restore to the PMM 2 instance after the migration:
-        {.power-number}
+        !!! note alert alert-primary "Revert AMI/OVF instance to PMM 2"
+            If you need to restore to the PMM 2 instance after the migration:
+            {.power-number}
 
-        1. Access old instance via SSH.
-        2. Start services: `supervisorctl start all`.
-        3. Update client configurations to point to old instance.
+            1. Access old instance via SSH.
+            2. Start services: `supervisorctl start all`.
+            3. Update client configurations to point to old instance.
 
 ## Step 3: Migrate PMM 2 Clients to PMM 3
 
