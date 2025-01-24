@@ -164,7 +164,7 @@ nav:
           - install-pmm/install-pmm-server/baremetal/podman/backup_container_podman.md
           - install-pmm/install-pmm-server/baremetal/podman/restore_container_podman.md
           - install-pmm/install-pmm-server/baremetal/podman/remove_container_podman.md
-        - Virtual Applinace:
+        - Virtual Appliance:
           - install-pmm/install-pmm-server/baremetal/virtual/index.md
           - install-pmm/install-pmm-server/baremetal/virtual/download_ova.md
           - install-pmm/install-pmm-server/baremetal/virtual/vmware.md
@@ -214,6 +214,7 @@ nav:
       - Manual upgrade:     
         - pmm-upgrade/upgrade_docker.md
         - pmm-upgrade/upgrade_podman.md
+        - pmm-upgrade/upgrade_ami_ovf.md
       - Upgrade PMM Server in K8s: 
         - pmm-upgrade/upgrade_helm.md
       - pmm-upgrade/migrating_from_pmm_2.md
