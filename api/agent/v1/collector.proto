@@ -261,6 +261,11 @@ message MetricsBucket {
     float m_docs_scanned_min = 13;
     float m_docs_scanned_max = 14;
     float m_docs_scanned_p99 = 15;
+    // The query performed a full table scan (COLLSCAN).
+    float m_full_scan_cnt = 16;
+    float m_full_scan_sum = 17;
+    // Plan summary type (COLLSCAN, IXSCAN, etc).
+    string plan_summary = 18;
   }
   // PostgreSQL contains metrics for PostgreSQL.
   message PostgreSQL {

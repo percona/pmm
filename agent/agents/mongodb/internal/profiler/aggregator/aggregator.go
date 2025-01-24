@@ -293,12 +293,14 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 		bucket.Mongodb.MDocsScannedP99 = float32(v.Scanned.Pct99)
 		bucket.Mongodb.MDocsScannedSum = float32(v.Scanned.Total)
 
-		//TODO add here.
 		bucket.Mongodb.MResponseLengthCnt = float32(v.Count) // TODO: Check is it right value
 		bucket.Mongodb.MResponseLengthMax = float32(v.ResponseLength.Max)
 		bucket.Mongodb.MResponseLengthMin = float32(v.ResponseLength.Min)
 		bucket.Mongodb.MResponseLengthP99 = float32(v.ResponseLength.Pct99)
 		bucket.Mongodb.MResponseLengthSum = float32(v.ResponseLength.Total)
+
+		bucket.Mongodb.MFullScanCnt = float32(v.CollScanCount)
+		bucket.Mongodb.MFullScanSum = float32(v.CollScanSum)
 
 		buckets = append(buckets, bucket)
 	}

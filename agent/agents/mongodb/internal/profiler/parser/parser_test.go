@@ -20,12 +20,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/collector"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"

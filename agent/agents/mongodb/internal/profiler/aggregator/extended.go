@@ -26,15 +26,17 @@ type ExtendedStats struct {
 }
 
 type ExtendedQueryInfoAndCounters struct {
-	stats.QueryInfoAndCounters //TODO pointer??
-	PlanSummary                string
-	CollScanCount              int
+	stats.QueryInfoAndCounters
+	PlanSummary   string
+	CollScanCount int
+	CollScanSum   int64
 }
 
 type ExtendedQueryStats struct {
 	stats.QueryStats
 	PlanSummary   string
 	CollScanCount int
+	CollScanSum   int64
 }
 
 type totalCounters struct {
@@ -82,11 +84,11 @@ func (s *ExtendedStats) Queries() ExtendedQueries {
 	return queries
 }
 
-// Add adds proto.SystemProfile to the collection of statistics
+// Add adds collector.ExtendedSystemProfile to the collection of statistics
 func (s *ExtendedStats) Add(doc collector.ExtendedSystemProfile) error {
 	fp, err := s.fingerprinter.Fingerprint(doc.SystemProfile)
 	if err != nil {
-		return err //TODO &stats.StatsFingerprintError{err}
+		return err // TODO &stats.StatsFingerprintError{err}
 	}
 	var qiac *ExtendedQueryInfoAndCounters
 	var ok bool
@@ -119,8 +121,8 @@ func (s *ExtendedStats) Add(doc collector.ExtendedSystemProfile) error {
 	qiac.PlanSummary = doc.PlanSummary
 	if qiac.PlanSummary == planSummaryCollScan {
 		qiac.CollScanCount++
+		qiac.CollScanSum += int64(doc.Millis)
 	}
-
 	// docsExamined is renamed from nscannedObjects in 3.2.0.
 	// https://docs.mongodb.com/manual/reference/database-profiler/#system.profile.docsExamined
 	s.Lock()
@@ -190,6 +192,7 @@ func countersToStats(query ExtendedQueryInfoAndCounters, uptime int64, tc totalC
 		},
 		PlanSummary:   query.PlanSummary,
 		CollScanCount: query.CollScanCount,
+		CollScanSum:   query.CollScanSum,
 	}
 	if tc.Scanned > 0 {
 		queryStats.Scanned.Pct = queryStats.Scanned.Total * 100 / tc.Scanned

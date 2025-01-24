@@ -20,13 +20,13 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/collector"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"
