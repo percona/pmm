@@ -2,8 +2,8 @@
 # See also mkdocs.yml plugins.with-pdf.cover_subtitle and output_path
 
 release: '3.0.0'
-version: 'Beta'
-release_date: 2024-11-22
+version: '3.0.0'
+release_date: 2025-01-30
 # SVG icons. Use in markdown as {{icon.<name>}}
 # For the Percona image icon (encoded inline SVG), see https://css-tricks.com/using-svg/
 icon:
