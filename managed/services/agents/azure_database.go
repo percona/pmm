@@ -79,7 +79,7 @@ func azureDatabaseExporterConfig(exporter *models.Agent, service *models.Service
 	options := struct {
 		models.AzureOptions
 		ResourceTypes string
-	}{*exporter.AzureOptions, resourceTypes}
+	}{exporter.AzureOptions, resourceTypes}
 
 	if err = t.Execute(&config, options); err != nil {
 		return nil, err

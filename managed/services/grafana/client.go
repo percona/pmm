@@ -43,8 +43,8 @@ import (
 	"github.com/percona/pmm/utils/grafana"
 )
 
-// ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
-var ErrFailedToGetToken = errors.New("failed to get token")
+// ErrFailedToGetToken means it failed to get the user token. Most likely due to the fact the user is not logged in using Percona Account.
+var ErrFailedToGetToken = errors.New("failed to get the user token")
 
 const (
 	pmmServiceTokenName   = "pmm-agent-st" //nolint:gosec
@@ -111,7 +111,7 @@ func (e *clientError) Error() string {
 // do makes HTTP request with given parameters, and decodes JSON response with 200 OK status
 // to respBody. It returns wrapped clientError on any other status, or other fatal errors.
 // Ctx is used only for cancelation.
-func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte, respBody interface{}) error {
+func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte, target interface{}) error {
 	u := url.URL{
 		Scheme:   "http",
 		Host:     c.addr,
@@ -151,8 +151,8 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		return errors.WithStack(cErr)
 	}
 
-	if respBody != nil {
-		if err = json.Unmarshal(b, respBody); err != nil {
+	if len(b) > 0 && target != nil {
+		if err = json.Unmarshal(b, target); err != nil {
 			return errors.WithStack(err)
 		}
 	}
@@ -223,26 +223,30 @@ var emptyUser = authUser{
 // getAuthUser returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
 // Otherwise, it returns a role in the default organization (with ID 1).
 // Ctx is used only for cancelation.
-func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
+func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error) {
 	// Check if API Key or Service Token is authorized.
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
 		role, err := c.getRoleForServiceToken(ctx, token)
-		if err != nil {
-			if strings.Contains(err.Error(), "Auth method is not service account token") {
-				role, err := c.getRoleForAPIKey(ctx, authHeaders)
-				return authUser{
-					role:   role,
-					userID: 0,
-				}, err
-			}
-
-			return emptyUser, err
+		if err == nil {
+			return authUser{
+				role:   role,
+				userID: 0,
+			}, nil
 		}
-		return authUser{
-			role:   role,
-			userID: 0,
-		}, nil
+
+		if strings.Contains(err.Error(), "Auth method is not service account token") {
+			role, err := c.getRoleForAPIKey(ctx, authHeaders)
+			if err == nil {
+				l.Warning("you should migrate your API Key to a Service Account")
+			}
+			return authUser{
+				role:   role,
+				userID: 0,
+			}, err
+		}
+
+		return emptyUser, err
 	}
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
@@ -679,7 +683,7 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	}
 
 	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
-	b, err := json.Marshal(serviceAccount{Name: grafana.SanitizeSAName(serviceAccountName), Role: role.String(), Force: reregister})
+	b, err := json.Marshal(serviceAccount{Name: serviceAccountName, Role: role.String(), Force: reregister})
 	if err != nil {
 		return 0, errors.WithStack(err)
 	}
@@ -713,7 +717,7 @@ func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, n
 		}
 	}
 
-	b, err := json.Marshal(serviceToken{Name: grafana.SanitizeSAName(serviceTokenName), Role: admin.String()})
+	b, err := json.Marshal(serviceToken{Name: serviceTokenName, Role: admin.String()})
 	if err != nil {
 		return 0, "", errors.WithStack(err)
 	}
@@ -896,7 +900,7 @@ func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) 
 	headers.Set("Cookie", strings.Join(cookies, "; "))
 
 	var user currentUser
-	if err := c.do(ctx, http.MethodGet, "/percona-api/user/oauth-token", "", headers, nil, &user); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/graph/percona-api/user/oauth-token", "", headers, nil, &user); err != nil {
 		var e *clientError
 		if errors.As(err, &e) && e.ErrorMessage == "Failed to get token" && e.Code == http.StatusInternalServerError {
 			return "", ErrFailedToGetToken
