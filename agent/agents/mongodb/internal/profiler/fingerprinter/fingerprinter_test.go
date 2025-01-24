@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"testing"
+	"time"
+
 	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
-	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
@@ -14,9 +17,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
-	"log"
-	"testing"
-	"time"
+
+	"github.com/percona/pmm/agent/utils/mongo_fix"
 )
 
 const (
@@ -123,19 +125,20 @@ func TestProfilerFingerprinter(t *testing.T) {
 			bson.D{
 				{
 					Key: "$collStats", Value: bson.M{
-					// TODO: PMM-9568 : Add support to handle histogram metrics
-					"latencyStats": bson.M{"histograms": false},
-					"storageStats": bson.M{"scale": 1},
-				},
+						// TODO: PMM-9568 : Add support to handle histogram metrics
+						"latencyStats": bson.M{"histograms": false},
+						"storageStats": bson.M{"scale": 1},
+					},
 				},
 			}, bson.D{
 				{
 					Key: "$project", Value: bson.M{
-					"storageStats.wiredTiger":   0,
-					"storageStats.indexDetails": 0,
+						"storageStats.wiredTiger":   0,
+						"storageStats.indexDetails": 0,
+					},
 				},
-				},
-			}})
+			},
+		})
 		database.Collection("secondcollection").DeleteOne(ctx, bson.M{"id": 0})
 		database.Collection("test").DeleteMany(ctx, bson.M{"name": "test"})
 		profilerCollection := database.Collection("system.profile")
@@ -252,7 +255,6 @@ func TestProfilerFingerprinter(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-
 		t.Run(tt.name, func(t *testing.T) {
 			pf := &ProfilerFingerprinter{}
 			fingerprint, err := pf.Fingerprint(tt.doc)

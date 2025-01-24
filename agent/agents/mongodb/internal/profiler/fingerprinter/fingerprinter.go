@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"go.mongodb.org/mongo-driver/bson"
-	"strings"
 )
 
 // ProfilerFingerprinter holds any necessary configuration or dependencies.
@@ -126,7 +127,6 @@ func (pf *ProfilerFingerprinter) fingerprintUpdate(fp fingerprinter.Fingerprint,
 
 // Helper for delete operations
 func (pf *ProfilerFingerprinter) fingerprintDelete(fp fingerprinter.Fingerprint, doc proto.SystemProfile) (fingerprinter.Fingerprint, error) {
-
 	command := doc.Command.Map()
 	method := "deleteMany"
 	if limit, ok := command["limit"]; ok && limit == int32(1) {
