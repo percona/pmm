@@ -209,57 +209,55 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
         5. Follow the installation steps from the [PMM 3 Podman installation guide](../install-pmm/install-pmm-server/baremetal/podman/index.md) to complete the upgrade.
 
     === "AMI/OVF instance"
-        Follow these steps to migrate PMM 2 Server deployed as AMI/OVF to PMM 3:
+        Follow these steps to migrate a PMM 2 Server deployed as an AMI/OVF instance to PMM 3:
         {.power-number}
 
-        1. Create a backup of your current instance and make sure to keep your PMM 2 instance running until confirm that the migration was successful.
+        1. Back up your current instance and keep your PMM 2 instance running until confirm a successful migration.
 
         2. Deploy a new PMM 3 AMI/OVF instance.
 
         3. On the new instance, stop the Podman service:
 
-        ```sh
-        systemctl --user stop pmm-server
-        ```
+            ```sh
+            systemctl --user stop pmm-server
+            ```
 
         4. Clear the service volume directory:
 
-        ```sh
-        rm -rf /home/admin/volume/srv/*
-        ```
+            ```sh
+            rm -rf /home/admin/volume/srv/*
+            ```
 
         5. On the old instance, stop all services:
 
-        ```sh
-        sudo supervisorctl stop all
-        ```
+            ```sh
+            sudo supervisorctl stop all
+            ```
 
         6. Transfer data from old to new instance:
 
-        ```sh
-        sudo scp -r /srv/* admin@newhost:/home/admin/volume/srv
-        ```
+            ```sh
+            sudo scp -r /srv/* admin@newhost:/home/admin/volume/srv
+            ```
 
-        7. On the new instance, set proper ownership:
+        7. Set proper permissions on the new instance:
 
-        ```sh
-        chown -R admin:admin /home/admin/volume/srv/
-        ```
+            ```sh
+            chown -R admin:admin /home/admin/volume/srv/
+            ```
 
-        8. Start PMM service:
+        8. Start the PMM service on the new instance:
 
-        ```sh
-        systemctl --user start pmm-server
-        ```
+            ```sh
+            systemctl --user start pmm-server
+            ```
 
-        9. Verify PMM 3 is working with migrated data.
+        9. Verify that PMM 3 is working correctly with the migrated data.
         
-        10. Update PMM Client configurations:
-            - edit `/usr/local/percona/pmm2/config/pmm-agent.yml` with new Server address
-            - restart PMM Client
+        10. Update PMM Client configurations by editing the `/usr/local/percona/pmm2/config/pmm-agent.yml` with the new server address, then restart the PMM Client.
 
-    !!! note alert alert-primary "Restore PMM 2"
-        To revert to PMM 2 instance:
+    !!! note alert alert-primary "Revert AMI/OVF instance to PMM 2"
+        If you need to restore to the PMM 2 instance:
         {.power-number}
 
         1. Access old instance via SSH.
