@@ -79,7 +79,7 @@ On the other hand, the manual method offers a simpler setup with complete contro
         ```sh
         PMM_WATCHTOWER_HOST=http://watchtower:8080
         PMM_WATCHTOWER_TOKEN=123
-        PMM_IMAGE=docker.io/perconalab/pmm-server:3.0.0-beta
+        PMM_IMAGE=docker.io/percona/pmm-server:3
         ```
 
     3. Create or update the Watchtower service file at `~/.config/systemd/user/watchtower.service`:
@@ -154,7 +154,7 @@ On the other hand, the manual method offers a simpler setup with complete contro
     2. Create the environment file at `~/.config/systemd/user/pmm-server.env`:
    
         ```sh
-        PMM_IMAGE=docker.io/perconalab/pmm-server:3.0.0-beta
+        PMM_IMAGE=docker.io/percona/pmm-server:3
         ```
 
     3. Start services:
@@ -232,7 +232,7 @@ To run Podman as a non-privileged user:
 
     # keep updates disabled
     # do image replacement instead (update the tag and restart the service)
-    DISABLE_UPDATES=1
+    PMM_ENABLE_UPDATES=1
     EOF
     ```
 
