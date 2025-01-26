@@ -72,7 +72,7 @@ type Aggregator struct {
 	timeEnd    time.Time
 	d          time.Duration
 	t          *time.Timer
-	mongostats *ExtendedStats
+	mongostats *extendedStats
 
 	// state
 	m        sync.Mutex      // Lock() to protect internal consistency of the service

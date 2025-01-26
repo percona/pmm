@@ -1,3 +1,17 @@
+// Copyright (C) 2023 Percona LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package aggregator
 
 import (
@@ -14,30 +28,33 @@ import (
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/collector"
 )
 
+// Code below contains necessary code to extend stats from Percona Toolkit.
 const planSummaryCollScan = "COLLSCAN"
 
-type ExtendedStats struct {
+type extendedStats struct {
 	// dependencies
 	fingerprinter stats.Fingerprinter
 
 	// internal
-	queryInfoAndCounters map[stats.GroupKey]*ExtendedQueryInfoAndCounters
+	queryInfoAndCounters map[stats.GroupKey]*extendedQueryInfoAndCounters
 	sync.RWMutex
 }
 
-type ExtendedQueryInfoAndCounters struct {
+type extendedQueryInfoAndCounters struct {
 	stats.QueryInfoAndCounters
 	PlanSummary   string
 	CollScanCount int
 	CollScanSum   int64
 }
 
-type ExtendedQueryStats struct {
+type extendedQueryStats struct {
 	stats.QueryStats
 	PlanSummary   string
 	CollScanCount int
 	CollScanSum   int64
 }
+
+type extendedQueries []extendedQueryInfoAndCounters
 
 type totalCounters struct {
 	Count     int
@@ -47,10 +64,8 @@ type totalCounters struct {
 	Bytes     float64
 }
 
-type ExtendedQueries []ExtendedQueryInfoAndCounters
-
-func NewExtendedStats(fingerprinter stats.Fingerprinter) *ExtendedStats {
-	s := &ExtendedStats{
+func NewExtendedStats(fingerprinter stats.Fingerprinter) *extendedStats {
+	s := &extendedStats{
 		fingerprinter: fingerprinter,
 	}
 
@@ -59,15 +74,15 @@ func NewExtendedStats(fingerprinter stats.Fingerprinter) *ExtendedStats {
 }
 
 // Reset clears the collection of statistics
-func (s *ExtendedStats) Reset() {
+func (s *extendedStats) Reset() {
 	s.Lock()
 	defer s.Unlock()
 
-	s.queryInfoAndCounters = make(map[stats.GroupKey]*ExtendedQueryInfoAndCounters)
+	s.queryInfoAndCounters = make(map[stats.GroupKey]*extendedQueryInfoAndCounters)
 }
 
 // Queries returns all collected statistics
-func (s *ExtendedStats) Queries() ExtendedQueries {
+func (s *extendedStats) Queries() extendedQueries {
 	s.Lock()
 	defer s.Unlock()
 
@@ -77,7 +92,7 @@ func (s *ExtendedStats) Queries() ExtendedQueries {
 	}
 	sort.Sort(keys)
 
-	queries := []ExtendedQueryInfoAndCounters{}
+	queries := []extendedQueryInfoAndCounters{}
 	for _, key := range keys {
 		queries = append(queries, *s.queryInfoAndCounters[key])
 	}
@@ -85,12 +100,12 @@ func (s *ExtendedStats) Queries() ExtendedQueries {
 }
 
 // Add adds collector.ExtendedSystemProfile to the collection of statistics
-func (s *ExtendedStats) Add(doc collector.ExtendedSystemProfile) error {
+func (s *extendedStats) Add(doc collector.ExtendedSystemProfile) error {
 	fp, err := s.fingerprinter.Fingerprint(doc.SystemProfile)
 	if err != nil {
 		return err // TODO &stats.StatsFingerprintError{err}
 	}
-	var qiac *ExtendedQueryInfoAndCounters
+	var qiac *extendedQueryInfoAndCounters
 	var ok bool
 
 	key := stats.GroupKey{
@@ -104,7 +119,7 @@ func (s *ExtendedStats) Add(doc collector.ExtendedSystemProfile) error {
 		if err != nil {
 			return err
 		}
-		qiac = &ExtendedQueryInfoAndCounters{
+		qiac = &extendedQueryInfoAndCounters{
 			QueryInfoAndCounters: stats.QueryInfoAndCounters{
 				ID:          fmt.Sprintf("%x", md5.Sum([]byte(key.String()))),
 				Operation:   fp.Operation,
@@ -145,7 +160,7 @@ func (s *ExtendedStats) Add(doc collector.ExtendedSystemProfile) error {
 	return nil
 }
 
-func (s *ExtendedStats) getQueryInfoAndCounters(key stats.GroupKey) (*ExtendedQueryInfoAndCounters, bool) {
+func (s *extendedStats) getQueryInfoAndCounters(key stats.GroupKey) (*extendedQueryInfoAndCounters, bool) {
 	s.RLock()
 	defer s.RUnlock()
 
@@ -153,7 +168,7 @@ func (s *ExtendedStats) getQueryInfoAndCounters(key stats.GroupKey) (*ExtendedQu
 	return v, ok
 }
 
-func (s *ExtendedStats) setQueryInfoAndCounters(key stats.GroupKey, value *ExtendedQueryInfoAndCounters) {
+func (s *extendedStats) setQueryInfoAndCounters(key stats.GroupKey, value *extendedQueryInfoAndCounters) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -161,8 +176,8 @@ func (s *ExtendedStats) setQueryInfoAndCounters(key stats.GroupKey, value *Exten
 }
 
 // CalcQueriesStats calculates QueryStats for given uptime
-func (q ExtendedQueries) CalcQueriesStats(uptime int64) []ExtendedQueryStats {
-	qs := []ExtendedQueryStats{}
+func (q extendedQueries) CalcQueriesStats(uptime int64) []extendedQueryStats {
+	qs := []extendedQueryStats{}
 	tc := calcTotalCounters(q)
 
 	for _, query := range q {
@@ -173,8 +188,8 @@ func (q ExtendedQueries) CalcQueriesStats(uptime int64) []ExtendedQueryStats {
 	return qs
 }
 
-func countersToStats(query ExtendedQueryInfoAndCounters, uptime int64, tc totalCounters) ExtendedQueryStats {
-	queryStats := ExtendedQueryStats{
+func countersToStats(query extendedQueryInfoAndCounters, uptime int64, tc totalCounters) extendedQueryStats {
+	queryStats := extendedQueryStats{
 		QueryStats: stats.QueryStats{
 			Count:          query.Count,
 			ID:             query.ID,
@@ -213,7 +228,7 @@ func countersToStats(query ExtendedQueryInfoAndCounters, uptime int64, tc totalC
 	return queryStats
 }
 
-func calcTotalCounters(queries []ExtendedQueryInfoAndCounters) totalCounters {
+func calcTotalCounters(queries []extendedQueryInfoAndCounters) totalCounters {
 	tc := totalCounters{}
 
 	for _, query := range queries {
