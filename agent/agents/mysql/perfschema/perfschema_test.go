@@ -331,7 +331,7 @@ func TestPerfSchema(t *testing.T) {
 		t.Log("Unhandled version, assuming dummy digests.")
 		digests = map[string]string{
 			"SELECT `sleep` (?)":   "TODO-sleep",
-			"SELECT * FROM `city`": "TODO-star",
+			"SELECT * FROM `city`": "950bdc225cf73c9096ba499351ed4376f4526abad3d8ceabc168b6b28cfc9eab",
 		}
 	}
 
