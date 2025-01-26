@@ -18,18 +18,22 @@ import (
 	"crypto/md5"
 	"fmt"
 	"sort"
+	"strings"
 	"sync"
 
 	mathStats "github.com/montanaflynn/stats"
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
-	"github.com/percona/percona-toolkit/src/go/mongolib/stats"
 	"go.mongodb.org/mongo-driver/bson"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
+	"github.com/percona/percona-toolkit/src/go/mongolib/stats"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/collector"
 )
 
 // Code below contains necessary code to extend stats from Percona Toolkit.
-const planSummaryCollScan = "COLLSCAN"
+const (
+	planSummaryCollScan = "COLLSCAN"
+	planSummaryIXScan   = "IXSCAN"
+)
 
 type extendedStats struct {
 	// dependencies
@@ -137,6 +141,9 @@ func (s *extendedStats) Add(doc collector.ExtendedSystemProfile) error {
 	if qiac.PlanSummary == planSummaryCollScan {
 		qiac.CollScanCount++
 		qiac.CollScanSum += int64(doc.Millis)
+	}
+	if strings.HasPrefix(qiac.PlanSummary, planSummaryIXScan) {
+		qiac.PlanSummary = planSummaryIXScan
 	}
 	// docsExamined is renamed from nscannedObjects in 3.2.0.
 	// https://docs.mongodb.com/manual/reference/database-profiler/#system.profile.docsExamined
