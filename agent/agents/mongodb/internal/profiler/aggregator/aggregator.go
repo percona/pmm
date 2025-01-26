@@ -22,9 +22,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/collector"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"

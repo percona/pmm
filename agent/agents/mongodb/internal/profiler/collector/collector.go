@@ -165,8 +165,8 @@ func start(ctx context.Context, wg *sync.WaitGroup, client *mongo.Client, dbName
 }
 
 type ExtendedSystemProfile struct {
-	proto.SystemProfile
-	PlanSummary string
+	proto.SystemProfile `bson:",inline"`
+	PlanSummary         string `bson:"planSummary"`
 }
 
 func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName string, docsChan chan<- ExtendedSystemProfile, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry, startTime time.Time) { //nolint: lll
