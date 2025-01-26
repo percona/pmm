@@ -22,10 +22,10 @@ import (
 	"sync"
 
 	mathStats "github.com/montanaflynn/stats"
-	"go.mongodb.org/mongo-driver/bson"
-
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/percona/percona-toolkit/src/go/mongolib/stats"
+	"go.mongodb.org/mongo-driver/bson"
+
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/collector"
 )
 
