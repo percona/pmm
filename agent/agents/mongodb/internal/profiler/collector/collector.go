@@ -20,7 +20,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -162,11 +161,6 @@ func start(ctx context.Context, wg *sync.WaitGroup, client *mongo.Client, dbName
 			firstTry = false
 		}
 	}
-}
-
-type ExtendedSystemProfile struct {
-	proto.SystemProfile `bson:",inline"`
-	PlanSummary         string `bson:"planSummary"`
 }
 
 func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName string, docsChan chan<- ExtendedSystemProfile, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry, startTime time.Time) { //nolint: lll

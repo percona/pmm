@@ -22,9 +22,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/collector"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"
@@ -236,7 +236,7 @@ func (a *Aggregator) newInterval(ts time.Time) {
 	a.timeEnd = a.timeStart.Add(a.d)
 }
 
-func (a *Aggregator) createResult(ctx context.Context) *report.Result {
+func (a *Aggregator) createResult(_ context.Context) *report.Result {
 	queries := a.mongostats.Queries()
 	queryStats := queries.CalcQueriesStats(int64(DefaultInterval))
 	var buckets []*agentv1.MetricsBucket
@@ -300,7 +300,8 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 		bucket.Mongodb.MResponseLengthSum = float32(v.ResponseLength.Total)
 
 		bucket.Mongodb.MFullScanCnt = float32(v.CollScanCount)
-		bucket.Mongodb.MFullScanSum = float32(v.CollScanSum)
+		bucket.Mongodb.MFullScanSum = float32(v.CollScanSum) / 1000
+		bucket.Mongodb.PlanSummary = v.PlanSummary
 
 		buckets = append(buckets, bucket)
 	}

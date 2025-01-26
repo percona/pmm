@@ -504,6 +504,11 @@ func fillMongoDB(mb *qanv1.MetricsBucket, bm *agentv1.MetricsBucket_MongoDB) {
 	mb.MDocsScannedMin = bm.MDocsScannedMin
 	mb.MDocsScannedMax = bm.MDocsScannedMax
 	mb.MDocsScannedP99 = bm.MDocsScannedP99
+
+	mb.MFullScanCnt = bm.MFullScanCnt
+	mb.MFullScanSum = bm.MFullScanSum
+
+	mb.PlanSummary = bm.PlanSummary
 }
 
 func fillPostgreSQL(mb *qanv1.MetricsBucket, bp *agentv1.MetricsBucket_PostgreSQL) {
