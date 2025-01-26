@@ -154,7 +154,6 @@ func makeTextMetrics(mm models.M) map[string]string {
 
 	m["top_queryid"] = interfaceToString(mm["top_queryid"])
 	m["top_query"] = interfaceToString(mm["top_query"])
-	m["plan_summary"] = interfaceToString(mm["plan_summary"])
 
 	return m
 }

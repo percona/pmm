@@ -617,17 +617,17 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 const queryObjectDetailsLabelsTmpl = `
 SELECT service_name, database, schema, username, client_host, replication_set, cluster, service_type,
        service_id, environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name,
-       container_id, agent_id, agent_type, labels.key AS lkey, labels.value AS lvalue, cmd_type, top_queryid, application_name, planid, plan_summary
+       container_id, agent_id, agent_type, labels.key AS lkey, labels.value AS lvalue, cmd_type, top_queryid, application_name, planid
   FROM metrics
   LEFT ARRAY JOIN labels
  WHERE period_start >= :period_start_from AND period_start <= :period_start_to
        {{ if index . "filter" }} AND {{ index . "group" }} = :filter {{ end }}
  GROUP BY service_name, database, schema, username, client_host, replication_set, cluster, service_type,
        service_id, environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name,
-       container_id, agent_id, agent_type, labels.key, labels.value, cmd_type, top_queryid, application_name, planid, plan_summary
+       container_id, agent_id, agent_type, labels.key, labels.value, cmd_type, top_queryid, application_name, planid
  ORDER BY service_name, database, schema, username, client_host, replication_set, cluster, service_type,
        service_id, environment, az, region, node_model, node_id, node_name, node_type, machine_id, container_name,
-       container_id, agent_id, agent_type, labels.key, labels.value, cmd_type, top_queryid, application_name, planid, plan_summary
+       container_id, agent_id, agent_type, labels.key, labels.value, cmd_type, top_queryid, application_name, planid
 `
 
 var tmplObjectDetailsLabels = template.Must(template.New("queryObjectDetailsLabelsTmpl").Funcs(funcMap).Parse(queryObjectDetailsLabelsTmpl))
@@ -716,7 +716,6 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 	labels["top_queryid"] = make(map[string]struct{})
 	labels["application_name"] = make(map[string]struct{})
 	labels["planid"] = make(map[string]struct{})
-	labels["plan_summary"] = make(map[string]struct{})
 
 	for rows.Next() {
 		var row queryRowsLabels
@@ -776,7 +775,6 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 		labels["top_queryid"][row.TopQueryID] = struct{}{}
 		labels["application_name"][row.ApplicationName] = struct{}{}
 		labels["planid"][row.PlanID] = struct{}{}
-		labels["plan_summary"][row.PlanID] = struct{}{}
 		if row.LabelKey != "" {
 			if labels[row.LabelKey] == nil {
 				labels[row.LabelKey] = make(map[string]struct{})
