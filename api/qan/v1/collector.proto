@@ -304,6 +304,9 @@ message MetricsBucket {
   float m_docs_scanned_min = 202;
   float m_docs_scanned_max = 203;
   float m_docs_scanned_p99 = 204;
+  // Plan summary type (COLLSCAN, IXSCAN, etc).
+  string plan_summary = 205;
+
   //
   // PostgreSQL metrics.
   //

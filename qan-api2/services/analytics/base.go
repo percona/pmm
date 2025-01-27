@@ -44,6 +44,7 @@ var standartDimensions = map[string]struct{}{
 	"application_name": {},
 	"top_queryid":      {},
 	"planid":           {},
+	"plan_summary":     {},
 }
 
 var sumColumnNames = map[string]struct{}{
@@ -183,6 +184,7 @@ func isDimension(name string) bool {
 		"application_name": {},
 		"top_queryid":      {},
 		"planid":           {},
+		"plan_summary":     {},
 	}
 
 	_, ok := dimensionColumnNames[name]

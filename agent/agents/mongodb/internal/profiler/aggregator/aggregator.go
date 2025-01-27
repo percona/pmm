@@ -23,10 +23,9 @@ import (
 	"time"
 
 	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
-	mongostats "github.com/percona/percona-toolkit/src/go/mongolib/stats"
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/collector"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -50,7 +49,7 @@ func New(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLeng
 
 	// create mongolib stats
 	fp := fingerprinter.NewFingerprinter(fingerprinter.DefaultKeyFilters())
-	aggregator.mongostats = mongostats.New(fp)
+	aggregator.mongostats = NewExtendedStats(fp)
 
 	// create new interval
 	aggregator.newInterval(timeStart)
@@ -73,7 +72,7 @@ type Aggregator struct {
 	timeEnd    time.Time
 	d          time.Duration
 	t          *time.Timer
-	mongostats *mongostats.Stats
+	mongostats *extendedStats
 
 	// state
 	m        sync.Mutex      // Lock() to protect internal consistency of the service
@@ -83,7 +82,7 @@ type Aggregator struct {
 }
 
 // Add aggregates new system.profile document
-func (a *Aggregator) Add(ctx context.Context, doc proto.SystemProfile) error {
+func (a *Aggregator) Add(ctx context.Context, doc collector.ExtendedSystemProfile) error {
 	a.m.Lock()
 	defer a.m.Unlock()
 	if !a.running {
@@ -237,7 +236,7 @@ func (a *Aggregator) newInterval(ts time.Time) {
 	a.timeEnd = a.timeStart.Add(a.d)
 }
 
-func (a *Aggregator) createResult(ctx context.Context) *report.Result {
+func (a *Aggregator) createResult(_ context.Context) *report.Result {
 	queries := a.mongostats.Queries()
 	queryStats := queries.CalcQueriesStats(int64(DefaultInterval))
 	var buckets []*agentv1.MetricsBucket
@@ -299,6 +298,10 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 		bucket.Mongodb.MResponseLengthMin = float32(v.ResponseLength.Min)
 		bucket.Mongodb.MResponseLengthP99 = float32(v.ResponseLength.Pct99)
 		bucket.Mongodb.MResponseLengthSum = float32(v.ResponseLength.Total)
+
+		bucket.Mongodb.MFullScanCnt = float32(v.CollScanCount)
+		bucket.Mongodb.MFullScanSum = float32(v.CollScanSum) / 1000
+		bucket.Mongodb.PlanSummary = v.PlanSummary
 
 		buckets = append(buckets, bucket)
 	}

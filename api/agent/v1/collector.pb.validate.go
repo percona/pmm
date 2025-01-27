@@ -895,6 +895,12 @@ func (m *MetricsBucket_MongoDB) validate(all bool) error {
 
 	// no validation rules for MDocsScannedP99
 
+	// no validation rules for MFullScanCnt
+
+	// no validation rules for MFullScanSum
+
+	// no validation rules for PlanSummary
+
 	if len(errors) > 0 {
 		return MetricsBucket_MongoDBMultiError(errors)
 	}
