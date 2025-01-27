@@ -30,7 +30,7 @@ In this setup, even if the physical infrastructure encounters a problem, K8s aut
 
 While restarts within K8s can take up to several minutes (depending on your infrastructure configuration), PMM's data caching ensures that information is preserved during this transition. Alerts will still be triggered to keep you informed about any issues that started during PMM's restart and continue after PMM is back.
 
-### 3. Fully-clustered PMM in Kubernetes
+### 3. Fully-clustered PMM in Kubernetes (in development)
 
 If you have a large deployment with numerous instances and distributed locations, you might find that a fully clustered PMM setup in Kubernetes is better suited to your needs. We are actively developing this solution to cater specifically to users managing extensive and complex monitoring environments.
 
