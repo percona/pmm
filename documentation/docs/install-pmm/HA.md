@@ -686,7 +686,8 @@ HAProxy provides high availability for your PMM setup by directing traffic to th
         /path/to/haproxy.cfg.template > /path/to/haproxy.cfg    
     ```
     
-9. Run the HAProxy container:
+9. Run the HAProxy container, using absolute paths for all volume mounts. If running services on separate instances, remove the `--network` flag:
+
     
     ```bash
     docker run -d \
@@ -699,11 +700,7 @@ HAProxy provides high availability for your PMM setup by directing traffic to th
       haproxy:2.4.2-alpine
     ```
     
-    Replace `/path/to/haproxy-config` with the path to the `haproxy.cfg` file you created in step 6, and `/path/to/certs` with the path to the directory containing the SSL certificate and private key..
-
-!!! note alert alert-primary "Note"
-    - It is recommended to use absolute paths instead of relative paths for volume mounts.
-    - If you're running services on separate instances, you can remove the `--network` flag.
+    Replace `/path/to/haproxy-config` with the path to the `haproxy.cfg` file you created in step 6, and `/path/to/certs` with the path 
     
 HAProxy is now configured to redirect traffic to the leader PMM managed server. This ensures highly reliable service by redirecting requests to the remainder of the servers in the event that the leader server goes down.
 
