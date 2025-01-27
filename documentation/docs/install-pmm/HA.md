@@ -1,8 +1,8 @@
 # Install PMM in High Availability (HA) mode
 
-High Availability (HA) is a critical aspect of any monitoring system, as it ensures that your monitoring infrastructure remains resilient and continues to function seamlessly, even if one or more instances encounter issues. 
+High Availability (HA) is a critical feature for monitoring systems, ensuring resilience and seamless operation even when one or more instances encounter issues. HA minimizes downtime and maintains continuous visibility into the performance and health of your Percona Monitoring and Management (PMM) infrastructure.
 
-HA implements redundant systems that are ready to take over to minimize downtime and maintain continuous visibility into the performance and health of PMM.
+This guide explains available HA options for PMM and provides step-by-step instructions for setting up PMM in HA mode.
 
 ## HA options PMM
 
@@ -46,7 +46,7 @@ Leader election will be managed using the Raft consensus algorithm, ensuring a s
 - clustered VictoriaMetrics for storing operational metrics from monitored databases and hosts
 - HAProxy for managing and directing network traffic to the current leader PMM instance
 
-### 4. Manual setup for HA
+### 4. Manual HA setup
 
 !!! caution alert alert-warning "Important"
     Manual setup for HA is feature is currently in [Technical Preview](https://docs.percona.com/percona-monitoring-and-management/details/glossary.html#technical-preview). Early adopters are advised to use this feature for testing purposes only as it is subject to change.
@@ -69,14 +69,12 @@ To eliminate single points of failure and provide better service level agreement
 - PostgreSQL: A clustered setup of PostgreSQL is used to store PMM data, such as inventory and settings. This ensures that PMM's configuration and metadata remain highly available and can be accessed by all PMM Server instances.
 
 #### Prerequisites
+Before you begin:
 
-You will need the following before you can begin the deployment:
-
-- Docker installed and configured on your system. If you haven't installed Docker, you can follow **[the Get Docker guide](https://docs.docker.com/get-docker/)**.
-
-!!! note alert alert-primary "Note"
-    - The sections below provide instructions for setting up the services on both the same and separate instances. However, it is not recommended to run the services on a single machine for production purposes. This approach is only recommended for the development environment.
-    - It is recommended to use clustered versions of PosgreSQL, Victoriametrics, Clickhouse, etc., instead of standalone versions when setting up the services.
+- [Install and configure Docker](https://docs.docker.com/get-docker/).
+- Prepare your environment:
+    - for testing, you can run services on a single machine
+    - for production, deploy services on separate instances and use clustered versions of PostgreSQL, VictoriaMetrics, and ClickHouse. Keep in mind that running all services on a single machine is not recommended for production. Use separate instances and clustered components for better reliability.
 
 To set up PMM in HA mode manually:
 
@@ -585,7 +583,7 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         - If you run the service on the same instance, remove the **`-p`** flags.
         - If you run the service on a separate instance, remove the **`--network`** and **`--ip`** flags.
 
-#### **Step 7: Running HAProxy**
+#### **Step 7: Set up HAProxy**
 
 HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the `/v1/leaderHealthCheck` endpoint.
 {.power-number}    
