@@ -90,7 +90,6 @@ var metricsNames = map[string]string{
 	"top_query":               "Top query plain text",
 	"application_name":        "Name provided by pg_stat_monitor",
 	"planid":                  "Plan ID for query",
-	"plan_summary":            "Plan summary from MongoDB collection system.profile",
 }
 
 // GetMetricsNames implements rpc to get list of available metrics.
