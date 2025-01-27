@@ -171,7 +171,7 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
         6. Upgrade PMM using Helm:
 
             ```sh
-            helm upgrade pmm -f pmm/values.yaml --set podSecurityContext.runAsGroup=null --set podSecurityContext.fsGroup=null percona/pmm
+            helm upgrade pmm -f values.yaml --set podSecurityContext.runAsGroup=null --set podSecurityContext.fsGroup=null percona/pmm
             ```
 
         7. If Kubernetes did not trigger the upgrade automatically, delete the pod to force recreation:
