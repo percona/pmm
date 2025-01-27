@@ -2088,9 +2088,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-fully-clustered-pmm-in-kubernetes-coming-q32024" class="md-nav__link">
+  <a href="#3-fully-clustered-pmm-in-kubernetes-in-development" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Fully-clustered PMM in Kubernetes (coming Q3/2024)
+      3. Fully-clustered PMM in Kubernetes (in development)
     </span>
   </a>
   
@@ -6987,9 +6987,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-fully-clustered-pmm-in-kubernetes-coming-q32024" class="md-nav__link">
+  <a href="#3-fully-clustered-pmm-in-kubernetes-in-development" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Fully-clustered PMM in Kubernetes (coming Q3/2024)
+      3. Fully-clustered PMM in Kubernetes (in development)
     </span>
   </a>
   
@@ -7164,8 +7164,8 @@
 <p>If you are running PMM in a Kubernetes (K8s) environment, PMM offers a Helm chart that facilitates running PMM with enhanced isolation. See <a href="../setting-up/server/helm.html">Setting up PMM Server with Helm</a>.</p>
 <p>In this setup, even if the physical infrastructure encounters a problem, K8s automatically handles failover, migrating the PMM instance to a healthy node. </p>
 <p>While restarts within K8s can take up to several minutes (depending on your infrastructure configuration), PMM&rsquo;s data caching ensures that information is preserved during this transition. Alerts will still be triggered to keep you informed about any issues that started during PMM&rsquo;s restart and continue after PMM is back.</p>
-<h3 id="3-fully-clustered-pmm-in-kubernetes-coming-q32024">3. Fully-clustered PMM in Kubernetes (coming Q3/2024)<a class="headerlink" href="#3-fully-clustered-pmm-in-kubernetes-coming-q32024" title="Permanent link">&para;</a></h3>
-<p>If you have a large deployment with numerous instances and distributed locations, you might find that a fully clustered PMM setup in Kubernetes is better suited to your needs. We are actively developing this solution, which is slated for release in Q3/2024, to cater specifically to users managing extensive and complex monitoring environments.</p>
+<h3 id="3-fully-clustered-pmm-in-kubernetes-in-development">3. Fully-clustered PMM in Kubernetes (in development)<a class="headerlink" href="#3-fully-clustered-pmm-in-kubernetes-in-development" title="Permanent link">&para;</a></h3>
+<p>If you have a large deployment with numerous instances and distributed locations, you might find that a fully clustered PMM setup in Kubernetes is better suited to your needs. We are actively developing this solution to cater specifically to users managing extensive and complex monitoring environments.</p>
 <p>This option will provide a comprehensive HA solution, including clustered database setups (ClickHouse, VictoriaMetrics, and PostgreSQL). In this setup, multiple PMM instances will be configured, with one being the leader and the others as followers.</p>
 <p>Leader election will be managed using the Raft consensus algorithm, ensuring a smooth transition of the leader role if the current leader fails. The architecture will consist of:</p>
 <ul>
@@ -7899,7 +7899,7 @@ backend https_back
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-19
+    2025-01-27
   </span>
 
     
