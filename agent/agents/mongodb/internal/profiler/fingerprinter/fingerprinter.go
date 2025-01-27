@@ -124,7 +124,7 @@ func (pf *ProfilerFingerprinter) fingerprintUpdate(fp fingerprinter.Fingerprint,
 	fp.Keys = string(filterJSON)
 
 	if command["upsert"] == true || command["multi"] == true {
-		options := map[string]interface{}{}
+		options := make(map[string]interface{})
 		if command["upsert"] == true {
 			options["upsert"] = true
 		}

@@ -139,17 +139,17 @@ func TestProfilerFingerprinter(t *testing.T) {
 			bson.D{
 				{
 					Key: "$collStats", Value: bson.M{
-						// TODO: PMM-9568 : Add support to handle histogram metrics
-						"latencyStats": bson.M{"histograms": false},
-						"storageStats": bson.M{"scale": 1},
-					},
+					// TODO: PMM-9568 : Add support to handle histogram metrics
+					"latencyStats": bson.M{"histograms": false},
+					"storageStats": bson.M{"scale": 1},
+				},
 				},
 			}, bson.D{
 				{
 					Key: "$project", Value: bson.M{
-						"storageStats.wiredTiger":   0,
-						"storageStats.indexDetails": 0,
-					},
+					"storageStats.wiredTiger":   0,
+					"storageStats.indexDetails": 0,
+				},
 				},
 			},
 		})
@@ -165,7 +165,7 @@ func TestProfilerFingerprinter(t *testing.T) {
 
 		pf := &ProfilerFingerprinter{}
 
-		fingerprints := make([]string, 0)
+		var fingerprints []string
 		for cursor.TryNext(ctx) {
 			doc := proto.SystemProfile{}
 			e := cursor.Decode(&doc)
