@@ -1,26 +1,22 @@
-FROM redhat/ubi9-minimal AS builder
+FROM redhat/ubi9 AS builder
 
-ENV PS_VERSION=8.0.40-31.1
-ENV ARCH=x86_64
-
-RUN microdnf install shadow-utils wget jq tar -y
-
-RUN wget https://repo.percona.com/ps-80/yum/release/9/RPMS/x86_64/percona-server-shared-$PS_VERSION.el9.$ARCH.rpm https://repo.percona.com/ps-80/yum/release/9/RPMS/x86_64/percona-server-client-$PS_VERSION.el9.$ARCH.rpm
-
-RUN rpm -i percona-server-shared-$PS_VERSION.el9.$ARCH.rpm percona-server-client-$PS_VERSION.el9.$ARCH.rpm
+RUN dnf install -y shadow-utils wget jq tar https://repo.percona.com/yum/percona-release-latest.noarch.rpm \
+    && percona-release enable ps-80 \
+    && dnf install -y percona-server-client
 
 # Install required dependencies into the installation root
-RUN microdnf install -y \
-        perl-DBD-MySQL \
-        perl-DBI \
-        perl-Digest-MD5 \
-        perl-English \
-        perl-FindBin \
-        perl-IO-Socket-SSL \
-        perl-Sys-Hostname \
-        perl-TermReadKey \
-        perl-Time-HiRes \
-        perl-sigtrap \
+RUN dnf install -y \
+    perl-core \
+    perl-DBD-MySQL \
+    perl-DBI \
+    perl-Digest-MD5 \
+    perl-English \
+    perl-FindBin \
+    perl-IO-Socket-SSL \
+    perl-Sys-Hostname \
+    perl-TermReadKey \
+    perl-Time-HiRes \
+    perl-sigtrap \
     && rm -rf /var/cache/*
 
 RUN ls -R /usr/bin
@@ -30,7 +26,12 @@ RUN groupadd -g 1002 pmm-agent && \
             -d /usr/local/percona/pmm \
             -c "PMM Client User" pmm-agent
 
-# ADD pmm-client.tar.gz /tmp/
+RUN install -d -o pmm-agent -g pmm-agent -m 0775 /usr/local/percona/pmm
+ADD pmm-client.tar.gz /tmp/
+RUN cd /tmp/pmm-client* \
+    && env PMM_USER=pmm-agent PMM_GROUP=root ./install_tarball \
+    && cd /tmp \
+    && rm -rf /tmp/pmm-client*
 
 FROM redhat/ubi9-micro
 
@@ -63,21 +64,24 @@ COPY --from=builder --chown=0:0 /etc/group /etc/group
 COPY --from=builder --chown=0:0 /usr/bin/jq /usr/bin/
 COPY --from=builder --chown=0:0 /usr/bin/tar /usr/bin/
 COPY --from=builder --chown=0:0 /usr/bin/curl /usr/bin/
+COPY --from=builder --chown=0:0 /usr/bin/sed /usr/bin/
+COPY --from=builder --chown=0:0 /usr/bin/grep /usr/bin/
+COPY --from=builder --chown=0:0 /usr/bin/awk /usr/bin/
 
-COPY --from=builder --chown=0:0 /usr/lib64/libjq.so.1.0.4 /lib64/libjq.so.1
-COPY --from=builder --chown=0:0 /usr/lib64/libonig.so.5.1.0 /lib64/libonig.so.5
+COPY --from=builder --chown=0:0 /usr/lib64/libjq.so.1 /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libonig.so.5 /usr/lib64/
 
 # Install perl along with its dependencies
-COPY --from=builder --chown=0:0 /usr/bin/mysql /usr/bin/
-COPY --from=builder --chown=0:0 /usr/bin/perl /usr/bin/
-
+COPY --from=builder --chown=0:0 /usr/bin/mysql* /usr/bin/
+COPY --from=builder --chown=0:0 /usr/bin/perl* /usr/bin/
 COPY --from=builder --chown=0:0 /usr/lib64/*perl* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/share/perl5 /usr/share/perl5
 COPY --from=builder --chown=0:0 /usr/lib64/libcrypt.so* /usr/lib64/
 COPY --from=builder --chown=0:0 /usr/lib64/libstdc++.so* /usr/lib64/
 COPY --from=builder --chown=0:0 /usr/lib64/libreadline.so* /usr/lib64/
 COPY --from=builder --chown=0:0 /etc/ld.so.conf.d/mysql-x86_64.conf /etc/ld.so.conf.d
 
-# Dependencies of curl
+# Install dependencies of curl
 COPY --from=builder --chown=0:0 /usr/lib64/libkeyutils.so* /usr/lib64/
 COPY --from=builder --chown=0:0 /usr/lib64/libz.so* /usr/lib64/
 COPY --from=builder --chown=0:0 /usr/lib64/libkrb5support.so* /usr/lib64/
@@ -91,15 +95,14 @@ COPY --from=builder --chown=0:0 /usr/lib64/libcurl.so* /usr/lib64/
 COPY --from=builder --chown=0:0 /usr/lib64/libnghttp2.so* /usr/lib64/
 COPY --from=builder --chown=0:0 /usr/lib64/libresolv.so* /usr/lib64/
 
-# COPY --from=builder --chown=0:0 /tmp/pmm-client* /tmp/
+# Install dependencies of grep and awk
+COPY --from=builder --chown=0:0 /lib64/libpcre.so.1 /usr/lib64/
+COPY --from=builder --chown=0:0 /lib64/libsigsegv.so.2 /usr/lib64/
+COPY --from=builder --chown=0:0 /lib64/libgmp.so.10 /usr/lib64/
+COPY --from=builder --chown=0:0 /lib64/libmpfr.so.6 /usr/lib64/
 
-RUN install -d -o pmm-agent -g pmm-agent -m 0775 /usr/local/percona/pmm
-
-ADD pmm-client.tar.gz /tmp/
-RUN cd /tmp/pmm-client* \
-    && env PMM_USER=pmm-agent PMM_GROUP=root ./install_tarball \
-    && cd /tmp \
-    && rm -rf /tmp/pmm-client*
+# Install pmm-client
+COPY --from=builder /usr/local/percona/pmm /usr/local/percona/pmm/
 
 USER pmm-agent
 WORKDIR /usr/local/percona/pmm/
