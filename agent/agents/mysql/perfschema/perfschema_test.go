@@ -284,7 +284,7 @@ func TestPerfSchema(t *testing.T) {
 			"SELECT * FROM `city`": "9c799bdb2460f79b3423b77cd10403da",
 		}
 
-	case "8.0-oracle", "8.0-percona", "8.4-oracle", "9.0-oracle", "9.1-oracle":
+	case "8.0-oracle", "8.0-percona", "8.4-oracle", "9.0-oracle", "9.1-oracle", "9.2-oracle":
 		digests = map[string]string{
 			"SELECT `sleep` (?)":   "0b1b1c39d4ee2dda7df2a532d0a23406d86bd34e2cd7f22e3f7e9dedadff9b69",
 			"SELECT * FROM `city`": "950bdc225cf73c9096ba499351ed4376f4526abad3d8ceabc168b6b28cfc9eab",
@@ -328,7 +328,7 @@ func TestPerfSchema(t *testing.T) {
 		}
 
 	default:
-		t.Log("Unhandled version, assuming dummy digests.")
+		t.Logf("Unhandled version, assuming dummy digests. MySQL version: %s, vendor: %s", mySQLVersion, mySQLVendor)
 		digests = map[string]string{
 			"SELECT `sleep` (?)":   "TODO-sleep",
 			"SELECT * FROM `city`": "TODO-star",
