@@ -5,7 +5,6 @@
 ## Prerequisites
 
   - [Helm v3](https://docs.helm.sh/using_helm/#installing-helm)
-  - Helm chart 1.4.0+
   - Supported cluster according to [Supported Kubernetes](https://kubernetes.io/releases/version-skew-policy/#supported-versions) and [Supported Helm](https://helm.sh/docs/topics/version_skew/) versions
   - Storage driver with snapshot support (for backups)
 
