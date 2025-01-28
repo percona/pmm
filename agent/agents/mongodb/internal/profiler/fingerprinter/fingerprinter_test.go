@@ -138,18 +138,20 @@ func TestProfilerFingerprinter(t *testing.T) {
 		database.Collection("secondcollection").Aggregate(ctx, mongo.Pipeline{
 			bson.D{
 				{
-					Key: "$collStats", Value: bson.M{
-					// TODO: PMM-9568 : Add support to handle histogram metrics
-					"latencyStats": bson.M{"histograms": false},
-					"storageStats": bson.M{"scale": 1},
-				},
+					Key: "$collStats",
+					Value: bson.M{
+						// TODO: PMM-9568 : Add support to handle histogram metrics
+						"latencyStats": bson.M{"histograms": false},
+						"storageStats": bson.M{"scale": 1},
+					},
 				},
 			}, bson.D{
 				{
-					Key: "$project", Value: bson.M{
-					"storageStats.wiredTiger":   0,
-					"storageStats.indexDetails": 0,
-				},
+					Key: "$project",
+					Value: bson.M{
+						"storageStats.wiredTiger":   0,
+						"storageStats.indexDetails": 0,
+					},
 				},
 			},
 		})
