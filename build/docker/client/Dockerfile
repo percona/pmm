@@ -1,6 +1,6 @@
 FROM redhat/ubi9 AS builder
 
-RUN dnf install -y shadow-utils wget jq tar https://repo.percona.com/yum/percona-release-latest.noarch.rpm \
+RUN dnf install -y shadow-utils jq tar https://repo.percona.com/yum/percona-release-latest.noarch.rpm \
     && percona-release enable ps-80 \
     && dnf install -y percona-server-client
 
