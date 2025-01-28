@@ -95,7 +95,6 @@ Configure PMM Server using either command-line arguments or a YAML file:
     helm install pmm \
     --set secret.create=false --set secret.name=pmm-secret \
     --set service.type="NodePort" \
-    --set storage.storageClassName="linode-block-storage-retain" \
         percona/pmm
     ```
 - using a .yaml configuration file: 
