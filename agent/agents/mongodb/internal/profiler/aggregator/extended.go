@@ -171,7 +171,8 @@ func (s *extendedStats) getQueryInfoAndCounters(key stats.GroupKey) (*extendedQu
 	s.RLock()
 	defer s.RUnlock()
 
-	return s.queryInfoAndCounters[key]
+	v, ok := s.queryInfoAndCounters[key]
+	return v, ok
 }
 
 func (s *extendedStats) setQueryInfoAndCounters(key stats.GroupKey, value *extendedQueryInfoAndCounters) {
