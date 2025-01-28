@@ -8,13 +8,6 @@
   - Supported cluster according to [Supported Kubernetes](https://kubernetes.io/releases/version-skew-policy/#supported-versions) and [Supported Helm](https://helm.sh/docs/topics/version_skew/) versions
   - Storage driver with snapshot support (for backups)
 
-## Platform limitations
-
-PMM is platform-agnostic but requires `root` privileges inside containers. Due to this requirement, PMM is incompatible with:
-
-- platforms with [Security context constraints (SCCs)](https://docs.openshift.com/container-platform/latest/security/container_security/security-platform.html#security-deployment-sccs_security-platform), like OpenShift
-- platforms with [restrictive security context management](https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html)
-
 ## Storage requirements
 
 Different Kubernetes platforms offer varying capabilities. 
