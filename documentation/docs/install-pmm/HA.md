@@ -34,7 +34,7 @@ While restarts within K8s can take up to several minutes (depending on your infr
 
 ### 3. Fully-clustered PMM in Kubernetes (in development)
 
-If you have a large deployment with numerous instances and distributed locations, you might find that a fully clustered PMM setup in Kubernetes is better suited to your needs. We are actively developing this solution, which is slated for release in Q3/2024, to cater specifically to users managing extensive and complex monitoring environments.
+If you have a large deployment with numerous instances and distributed locations, you might find that a fully clustered PMM setup in Kubernetes is better suited to your needs. We are actively developing this solution, which is slated for release later with PMM 3.x, to cater specifically to users managing extensive and complex monitoring environments.
 
 This option will provide a comprehensive HA solution, including clustered database setups (ClickHouse, VictoriaMetrics, and PostgreSQL). In this setup, multiple PMM instances will be configured, with one being the leader and the others as followers.
 
