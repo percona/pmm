@@ -469,6 +469,7 @@ start_pmm() {
     pmm_archive="$container_name-$(date "+%F-%H%M%S")"
     msg "\tExisting PMM Server found, renaming to $pmm_archive\n"
     run_docker "stop $container_name" || :
+    volume_name=$(run_docker "inspect -f '{{ range .Mounts }}{{ if and (eq .Type \"volume\") (eq .Destination \"/srv\" )}}{{ .Name }}{{ \"\n\" }}{{ end }}{{ end }}' $container_name")
     if [[ "$backup_data" == 1 ]]; then
       backup_pmm_data
     fi
@@ -479,7 +480,6 @@ start_pmm() {
       docker_env_flags=$(migrate_env_vars "$docker_env_flags")
       migrate_pmm_data
     fi
-    volume_name=$(run_docker "inspect -f '{{ range .Mounts }}{{ if and (eq .Type \"volume\") (eq .Destination \"/srv\" )}}{{ .Name }}{{ \"\n\" }}{{ end }}{{ end }}' $container_name")
     run_docker "rename $container_name $pmm_archive\n"
   fi
 
