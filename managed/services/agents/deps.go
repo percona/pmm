@@ -63,3 +63,9 @@ type victoriaMetricsParams interface {
 	URLFor(path string) (*url.URL, error)
 	URL() string
 }
+
+type nomad interface {
+	GetCACert() (string, error)
+	GetClientCert() (string, error)
+	GetClientKey() (string, error)
+}
