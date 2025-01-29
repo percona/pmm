@@ -94,34 +94,38 @@ On the other hand, the manual method offers a simpler setup with complete contro
         After=nss-user-lookup.target nss-lookup.target
         After=time-sync.target
         [Service]
+        EnvironmentFile=/home/pmm/watchtower.env
         Restart=on-failure
         RestartSec=20
-        Environment=WATCHTOWER_HTTP_API_UPDATE=1
-        Environment=WATCHTOWER_HTTP_API_TOKEN=123
-        Environment=WATCHTOWER_NO_RESTART=1
-        Environment=WATCHTOWER_DEBUG=1
         ExecStart=/usr/bin/podman run --rm --replace=true --name %N \
             -v ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock \
-            -e WATCHTOWER_HTTP_API_UPDATE=${WATCHTOWER_HTTP_API_UPDATE} \
-            -e WATCHTOWER_HTTP_API_TOKEN=${WATCHTOWER_HTTP_API_TOKEN} \
-            -e WATCHTOWER_NO_RESTART=${WATCHTOWER_NO_RESTART} \
-            -e WATCHTOWER_DEBUG=${WATCHTOWER_DEBUG} \
+            --env-file=~/.config/systemd/user/watchtower.env \
             --net pmm_default \
             --cap-add=net_admin,net_raw \
-            docker.io/perconalab/watchtower:latest
+            ${WATCHTOWER_IMAGE}
         ExecStop=/usr/bin/podman stop -t 10 %N
         [Install]
         WantedBy=default.target
         ```
 
-    4. Start services:
+    4. Create the environment file for watchtower at `~/.config/systemd/user/watchtower.env`:
+   
+        ```sh
+        WATCHTOWER_HTTP_API_UPDATE=1
+        WATCHTOWER_HTTP_API_TOKEN=123
+        WATCHTOWER_NO_RESTART=1
+        WATCHTOWER_IMAGE=docker.io/percona/watchtower:latest
+        ```
+    
+    
+    5. Start services:
    
         ```sh
         systemctl --user enable --now pmm-server
         systemctl --user enable --now watchtower
         ```
 
-    5. Go to `https://localhost:443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
+    6. Go to `https://localhost:443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
 
 === "Installation with manual updates"
 
