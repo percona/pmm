@@ -200,16 +200,16 @@ To run Podman as a non-privileged user:
     Type=simple
 
     # set environment for this unit
-    Environment=PMM_PUBLIC_PORT=8443
+    Environment=PMM_PUBLIC_PORT=443
     Environment=PMM_VOLUME_NAME=%N
-    Environment=PMM_TAG=2.33.0
+    Environment=PMM_TAG=2.44.0
     Environment=PMM_IMAGE=docker.io/percona/pmm-server
     Environment=PMM_ENV_FILE=%h/.config/pmm-server/pmm-server.env
 
     # optional env file that could override previous env settings for this unit
     EnvironmentFile=-%h/.config/pmm-server/env
 
-    ExecStart=/usr/bin/podman run --rm --replace=true --name=%N -p ${PMM_PUBLIC_PORT}:443/tcp --ulimit=host --volume=${PMM_VOLUME_NAME}:/srv --env-file=${PMM_ENV_FILE} --health-cmd=none --health-interval=disable ${PMM_IMAGE}:${PMM_TAG}
+    ExecStart=/usr/bin/podman run --rm --replace=true --name=%N -p ${PMM_PUBLIC_PORT}:8443/tcp --ulimit=host --volume=${PMM_VOLUME_NAME}:/srv --env-file=${PMM_ENV_FILE} --health-cmd=none --health-interval=disable ${PMM_IMAGE}:${PMM_TAG}
     ExecStop=/usr/bin/podman stop -t 10 %N
     Restart=on-failure
     RestartSec=20
@@ -247,9 +247,9 @@ To run Podman as a non-privileged user:
     SystemD service uses some environment variables that could be customized if needed:
 
     ```text
-    Environment=PMM_PUBLIC_PORT=8443
+    Environment=PMM_PUBLIC_PORT=443
     Environment=PMM_VOLUME_NAME=%N
-    Environment=PMM_TAG=2.33.0
+    Environment=PMM_TAG=2.44.0
     Environment=PMM_IMAGE=docker.io/percona/pmm-server
     ```
 
@@ -258,9 +258,9 @@ To run Podman as a non-privileged user:
     ```sh
     mkdir -p ~/.config/pmm-server/
     cat << "EOF" > ~/.config/pmm-server/env
-    PMM_TAG=2.31.0
+    PMM_TAG=2.44.0
     PMM_IMAGE=docker.io/percona/pmm-server
-    PMM_PUBLIC_PORT=8443
+    PMM_PUBLIC_PORT=443
     EOF
     ```
 
