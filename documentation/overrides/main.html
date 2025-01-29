@@ -1,6 +1,11 @@
 {# Import the theme's layout. #}
 {% extends "base.html" %}
 
+{% block announce %}
+ PMM 2 is not actively developed, and PMM 3 is strongly recommended for new installations.
+ <strong>See [PMM 3 documentation](https://docs.percona.com/pmm/3/index.html) for the latest version</strong>.
+{% endblock %}
+
 {% block scripts %}
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 {{ super() }}
