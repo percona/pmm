@@ -75,12 +75,16 @@ On the other hand, the manual method offers a simpler setup with complete contro
         WantedBy=default.target
         ```
 
-    2. Create the environment file at `~/.config/systemd/user/pmm-server.env`:
+    2. Create the environment file at `~/.config/systemd/user/pmm-server.env`. If current user is `root`, modify permissions as well:
    
         ```sh
         PMM_WATCHTOWER_HOST=http://watchtower:8080
         PMM_WATCHTOWER_TOKEN=123
         PMM_IMAGE=docker.io/percona/pmm-server:3
+        ```
+
+        ```
+        chmod 777 ~/.config/systemd/user/pmm-server.env  # Only if current user is root
         ```
 
     3. Create or update the Watchtower service file at `~/.config/systemd/user/watchtower.service`:
@@ -107,14 +111,17 @@ On the other hand, the manual method offers a simpler setup with complete contro
         WantedBy=default.target
         ```
 
-    4. Create the environment file for Watchtower at `~/.config/systemd/user/watchtower.env`. If running as `root`, modify the permissions as well:
+    4. Create the environment file for Watchtower at `~/.config/systemd/user/watchtower.env`. If current user is `root`, modify permissions as well:
    
         ```sh
         WATCHTOWER_HTTP_API_UPDATE=1
         WATCHTOWER_HTTP_API_TOKEN=123
         WATCHTOWER_NO_RESTART=1
         WATCHTOWER_IMAGE=docker.io/percona/watchtower:latest
-        chmod 777 ~/.config/systemd/user/watchtower.env  # Only if running as root
+        ```
+
+        ```
+        chmod 777 ~/.config/systemd/user/watchtower.env  # Only if current user is root
         ```
     
     5. Start services:
