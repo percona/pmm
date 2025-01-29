@@ -494,8 +494,7 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 	return res
 }
 
-// convertSettings merges database settings and settings from environment variables into API response.
-// Checking if PMM is connected to Platform is separated from settings for security and concurrency reasons.
+// convertReadOnlySettings merges database settings and settings from environment variables into API response.
 func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.ReadOnlySettings {
 	res := &serverv1.ReadOnlySettings{
 		UpdatesEnabled:   settings.IsUpdatesEnabled(),
