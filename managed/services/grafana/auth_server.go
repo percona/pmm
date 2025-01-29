@@ -63,6 +63,7 @@ var rules = map[string]role{
 	"/v1/alerting":                    viewer,
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
+	"/v1/advisors/failedServices":     editor,
 	"/v1/actions/":                    viewer,
 	"/v1/actions:":                    viewer,
 	"/v1/backups":                     admin,
