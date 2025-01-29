@@ -91,31 +91,6 @@ Configure PMM Server using either command-line arguments or a YAML file:
         percona/pmm
     ```
 - using a .yaml configuration file: 
-
-
-### Configure PMM Server
-
-#### View available parameters
-
-Check the list of available parameters in the [PMM Helm chart documentation](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#parameters). You can also list the default parameters by either: 
--  check [values.yaml file](https://github.com/percona/percona-helm-charts/blob/main/charts/pmm/values.yaml) in our repository
-- run the chart definition: `helm show values percona/pmm`
-
-#### Set configuration values
-
-Configure PMM Server using either:
-
-- command-line arguments:
-
-    ```sh
-    helm install pmm \
-    --set secret.create=false --set secret.name=pmm-secret \
-    --set service.type="NodePort" \
-    --set storage.storageClassName="linode-block-storage-retain" \
-    percona/pmm
-    ```
-
-- .yaml configuration file:
   ```sh
   helm show values percona/pmm > values.yaml
   ``` 
@@ -130,14 +105,13 @@ Credential changes after deployment require either:
 - redeploying PMM Server with new persistent volumes
 - using PMM's built-in administrative tools
 
-
 ### PMM environment variables
 
 Add [environment variables](../docker/env_var.md) for advanced operations (like custom init scripts) using the `pmmEnv` property:
 
 ```yaml
 pmmEnv:
-  PMM_ENABLE_UPDATES: "1"
+PMM_ENABLE_UPDATES: "1"
 ```
 
 ### SSL certificates
@@ -160,8 +134,6 @@ To enhance security, you have two options:
     ```
 
 2. Use [Ingress controller with TLS]((https://kubernetes.io/docs/concepts/services-networking/ingress/#tls)) See [PMM network configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-network-configuration) for details.
-
-
 
 
 
