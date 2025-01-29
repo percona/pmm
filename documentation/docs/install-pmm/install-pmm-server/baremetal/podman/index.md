@@ -4,7 +4,6 @@ This section provides instructions for running PMM Server with Podman based on o
 
 ## About Podman
 
-
 !!! seealso alert alert-info "See also"
     - [Docker](../docker/index.md) 
     - Other [tags](https://hub.docker.com/r/percona/pmm-server/tags) are available.
@@ -108,15 +107,15 @@ On the other hand, the manual method offers a simpler setup with complete contro
         WantedBy=default.target
         ```
 
-    4. Create the environment file for Watchtower at `~/.config/systemd/user/watchtower.env`:
+    4. Create the environment file for Watchtower at `~/.config/systemd/user/watchtower.env`. If running as root, modify the permissions as well:
    
         ```sh
         WATCHTOWER_HTTP_API_UPDATE=1
         WATCHTOWER_HTTP_API_TOKEN=123
         WATCHTOWER_NO_RESTART=1
         WATCHTOWER_IMAGE=docker.io/percona/watchtower:latest
+        chmod 777 ~/.config/systemd/user/watchtower.env  # Only if running as root
         ```
-    
     
     5. Start services:
    
