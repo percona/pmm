@@ -76,7 +76,8 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 #### View available parameters
 
 Check the list of available parameters in the [PMM Helm chart documentation](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#parameters). You can also list the default parameters by either: 
--  check [values.yaml file](https://github.com/percona/percona-helm-charts/blob/main/charts/pmm/values.yaml) in our repository
+
+- check [values.yaml file](https://github.com/percona/percona-helm-charts/blob/main/charts/pmm/values.yaml) in our repository
 - run the chart definition: `helm show values percona/pmm`
 
 #### Set configuration values
