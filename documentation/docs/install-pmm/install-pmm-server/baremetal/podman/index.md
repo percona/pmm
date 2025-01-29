@@ -108,7 +108,7 @@ On the other hand, the manual method offers a simpler setup with complete contro
         WantedBy=default.target
         ```
 
-    4. Create the environment file for watchtower at `~/.config/systemd/user/watchtower.env`:
+    4. Create the environment file for Watchtower at `~/.config/systemd/user/watchtower.env`:
    
         ```sh
         WATCHTOWER_HTTP_API_UPDATE=1
