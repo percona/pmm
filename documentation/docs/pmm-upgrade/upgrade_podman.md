@@ -20,7 +20,7 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
 {.power-number}
 
 
-1. Update PMM tag by editing `~/.config/systemd/user/pmm-server.env` file and running the following command to set the latest release version:
+1. Update PMM version by editing the PMM Server environment file. Replace 3.0.0 with your target version number:
 
     ```sh
     sed -i "s/PMM_IMAGE=.*/PMM_IMAGE=docker.io/percona/pmm-server:3.0.0/g" ~/.config/systemd/user/pmm-server.env
@@ -30,7 +30,7 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
 
     ```sh
     source ~/.config/systemd/user/pmm-server.env
-    podman pull ${PMM_IMAGE}:${PMM_TAG}
+    podman pull ${PMM_IMAGE}
     ```
 
 3. Restart PMM Server:
