@@ -1,4 +1,6 @@
-# Hardware and system requirements
+# Hardware and system requirements for PMM Server
+
+PMM Server's resource requirements depend on your monitoring environment, including the number of nodes, types of databases, retention period, and metric resolution. Here are detailed recommendations based on deployment scale.
 
 ## Server requirements
 
