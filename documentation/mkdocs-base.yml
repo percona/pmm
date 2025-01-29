@@ -406,6 +406,7 @@ nav:
         - reference/dashboards/dashboard-mongodb-instances-overview.md
         - reference/dashboards/dashboard-mongodb-instances-compare.md
         - reference/dashboards/dashboard-mongodb-replset-summary.md
+        - reference/dashboards/dashboard-mongodb-router-summary.md
         - reference/dashboards/dashboard-mongodb-inmemory-details.md
         - reference/dashboards/dashboard-mongodb-mmapv1-details.md
         - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
