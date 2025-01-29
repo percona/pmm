@@ -2552,6 +2552,211 @@ var _ interface {
 	ErrorName() string
 } = SettingsValidationError{}
 
+// Validate checks the field values on ReadOnlySettings with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *ReadOnlySettings) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ReadOnlySettings with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ReadOnlySettingsMultiError, or nil if none found.
+func (m *ReadOnlySettings) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ReadOnlySettings) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for UpdatesEnabled
+
+	// no validation rules for TelemetryEnabled
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ReadOnlySettingsValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ReadOnlySettingsValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ReadOnlySettingsValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetDataRetention()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ReadOnlySettingsValidationError{
+					field:  "DataRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ReadOnlySettingsValidationError{
+					field:  "DataRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDataRetention()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ReadOnlySettingsValidationError{
+				field:  "DataRetention",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for AdvisorEnabled
+
+	// no validation rules for PlatformEmail
+
+	// no validation rules for AlertingEnabled
+
+	// no validation rules for PmmPublicAddress
+
+	if all {
+		switch v := interface{}(m.GetAdvisorRunIntervals()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ReadOnlySettingsValidationError{
+					field:  "AdvisorRunIntervals",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ReadOnlySettingsValidationError{
+					field:  "AdvisorRunIntervals",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAdvisorRunIntervals()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ReadOnlySettingsValidationError{
+				field:  "AdvisorRunIntervals",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for BackupManagementEnabled
+
+	// no validation rules for AzurediscoverEnabled
+
+	// no validation rules for EnableAccessControl
+
+	if len(errors) > 0 {
+		return ReadOnlySettingsMultiError(errors)
+	}
+
+	return nil
+}
+
+// ReadOnlySettingsMultiError is an error wrapping multiple validation errors
+// returned by ReadOnlySettings.ValidateAll() if the designated constraints
+// aren't met.
+type ReadOnlySettingsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ReadOnlySettingsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ReadOnlySettingsMultiError) AllErrors() []error { return m }
+
+// ReadOnlySettingsValidationError is the validation error returned by
+// ReadOnlySettings.Validate if the designated constraints aren't met.
+type ReadOnlySettingsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ReadOnlySettingsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ReadOnlySettingsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ReadOnlySettingsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ReadOnlySettingsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ReadOnlySettingsValidationError) ErrorName() string { return "ReadOnlySettingsValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ReadOnlySettingsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sReadOnlySettings.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ReadOnlySettingsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ReadOnlySettingsValidationError{}
+
 // Validate checks the field values on GetSettingsRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -2784,6 +2989,138 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetSettingsResponseValidationError{}
+
+// Validate checks the field values on GetReadOnlySettingsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetReadOnlySettingsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetReadOnlySettingsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetReadOnlySettingsResponseMultiError, or nil if none found.
+func (m *GetReadOnlySettingsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetReadOnlySettingsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetSettings()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetReadOnlySettingsResponseValidationError{
+					field:  "Settings",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetReadOnlySettingsResponseValidationError{
+					field:  "Settings",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSettings()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetReadOnlySettingsResponseValidationError{
+				field:  "Settings",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetReadOnlySettingsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetReadOnlySettingsResponseMultiError is an error wrapping multiple
+// validation errors returned by GetReadOnlySettingsResponse.ValidateAll() if
+// the designated constraints aren't met.
+type GetReadOnlySettingsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetReadOnlySettingsResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetReadOnlySettingsResponseMultiError) AllErrors() []error { return m }
+
+// GetReadOnlySettingsResponseValidationError is the validation error returned
+// by GetReadOnlySettingsResponse.Validate if the designated constraints
+// aren't met.
+type GetReadOnlySettingsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetReadOnlySettingsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetReadOnlySettingsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetReadOnlySettingsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetReadOnlySettingsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetReadOnlySettingsResponseValidationError) ErrorName() string {
+	return "GetReadOnlySettingsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetReadOnlySettingsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetReadOnlySettingsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetReadOnlySettingsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetReadOnlySettingsResponseValidationError{}
 
 // Validate checks the field values on ChangeSettingsRequest with the rules
 // defined in the proto definition for this message. If any rules are

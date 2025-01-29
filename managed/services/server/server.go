@@ -494,6 +494,36 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 	return res
 }
 
+// convertSettings merges database settings and settings from environment variables into API response.
+// Checking if PMM is connected to Platform is separated from settings for security and concurrency reasons.
+func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.ReadOnlySettings {
+	res := &serverv1.ReadOnlySettings{
+		UpdatesEnabled:   settings.IsUpdatesEnabled(),
+		TelemetryEnabled: settings.IsTelemetryEnabled(),
+		MetricsResolutions: &serverv1.MetricsResolutions{
+			Hr: durationpb.New(settings.MetricsResolutions.HR),
+			Mr: durationpb.New(settings.MetricsResolutions.MR),
+			Lr: durationpb.New(settings.MetricsResolutions.LR),
+		},
+		AdvisorRunIntervals: &serverv1.AdvisorRunIntervals{
+			RareInterval:     durationpb.New(settings.SaaS.AdvisorRunIntervals.RareInterval),
+			StandardInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.StandardInterval),
+			FrequentInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.FrequentInterval),
+		},
+		DataRetention:        durationpb.New(settings.DataRetention),
+		AdvisorEnabled:       settings.IsAdvisorsEnabled(),
+		AzurediscoverEnabled: settings.IsAzureDiscoverEnabled(),
+		PmmPublicAddress:     settings.PMMPublicAddress,
+
+		AlertingEnabled:         settings.IsAlertingEnabled(),
+		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
+
+		EnableAccessControl: settings.IsAccessControlEnabled(),
+	}
+
+	return res
+}
+
 // GetSettings returns current PMM Server settings.
 func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsRequest) (*serverv1.GetSettingsResponse, error) { //nolint:revive
 	s.envRW.RLock()
@@ -508,6 +538,21 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 
 	return &serverv1.GetSettingsResponse{
 		Settings: s.convertSettings(settings, err == nil),
+	}, nil
+}
+
+// GetReadOnlySettings returns current PMM Server settings .
+func (s *Server) GetReadOnlySettings(ctx context.Context, req *serverv1.GetSettingsRequest) (*serverv1.GetReadOnlySettingsResponse, error) { //nolint:revive
+	s.envRW.RLock()
+	defer s.envRW.RUnlock()
+
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serverv1.GetReadOnlySettingsResponse{
+		Settings: s.convertReadOnlySettings(settings),
 	}, nil
 }
 
