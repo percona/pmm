@@ -19,13 +19,13 @@ import (
 	"runtime/pprof"
 	"sync"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
-	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/collector"
 )
 
-func New(docsChan <-chan collector.ExtendedSystemProfile, aggregator *aggregator.Aggregator, logger *logrus.Entry) *Parser {
+func New(docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, logger *logrus.Entry) *Parser {
 	return &Parser{
 		docsChan:   docsChan,
 		aggregator: aggregator,
@@ -35,7 +35,7 @@ func New(docsChan <-chan collector.ExtendedSystemProfile, aggregator *aggregator
 
 type Parser struct {
 	// dependencies
-	docsChan   <-chan collector.ExtendedSystemProfile
+	docsChan   <-chan proto.SystemProfile
 	aggregator *aggregator.Aggregator
 
 	logger *logrus.Entry
@@ -94,13 +94,14 @@ func (p *Parser) Stop() {
 
 	// wait for goroutines to exit
 	p.wg.Wait()
+	return
 }
 
 func (p *Parser) Name() string {
 	return "parser"
 }
 
-func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan collector.ExtendedSystemProfile, aggregator *aggregator.Aggregator, doneChan <-chan struct{}, logger *logrus.Entry) {
+func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, doneChan <-chan struct{}, logger *logrus.Entry) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 

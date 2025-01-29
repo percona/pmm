@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -87,7 +88,7 @@ func BenchmarkCollector(b *testing.B) {
 		wg.Add(1)
 		go genData(ctx, client, maxLoops, maxDocs)
 
-		var profiles []ExtendedSystemProfile
+		var profiles []proto.SystemProfile
 		docsChan, err := ctr.Start(ctx)
 		if err != nil {
 			return
@@ -139,9 +140,8 @@ func TestCollector(t *testing.T) {
 	ctr := New(client, "test_collector", logrus.WithField("component", "collector-test"))
 
 	// Start the collector
-	var profiles []ExtendedSystemProfile
+	var profiles []proto.SystemProfile
 	docsChan, err := ctr.Start(ctx)
-	assert.NoError(t, err)
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	<-time.After(time.Second)
@@ -229,9 +229,6 @@ func cleanUpDBs(sess *mongo.Client) error {
 	for _, dbname := range dbs {
 		if strings.HasPrefix("test_", dbname) {
 			err = sess.Database(dbname).Drop(context.TODO())
-			if err != nil {
-				return err
-			}
 		}
 	}
 	return nil

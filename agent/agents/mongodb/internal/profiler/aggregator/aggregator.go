@@ -23,9 +23,10 @@ import (
 	"time"
 
 	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
+	mongostats "github.com/percona/percona-toolkit/src/go/mongolib/stats"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/collector"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -49,7 +50,7 @@ func New(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLeng
 
 	// create mongolib stats
 	fp := fingerprinter.NewFingerprinter(fingerprinter.DefaultKeyFilters())
-	aggregator.mongostats = NewExtendedStats(fp)
+	aggregator.mongostats = mongostats.New(fp)
 
 	// create new interval
 	aggregator.newInterval(timeStart)
@@ -72,7 +73,7 @@ type Aggregator struct {
 	timeEnd    time.Time
 	d          time.Duration
 	t          *time.Timer
-	mongostats *extendedStats
+	mongostats *mongostats.Stats
 
 	// state
 	m        sync.Mutex      // Lock() to protect internal consistency of the service
@@ -82,7 +83,7 @@ type Aggregator struct {
 }
 
 // Add aggregates new system.profile document
-func (a *Aggregator) Add(ctx context.Context, doc collector.ExtendedSystemProfile) error {
+func (a *Aggregator) Add(ctx context.Context, doc proto.SystemProfile) error {
 	a.m.Lock()
 	defer a.m.Unlock()
 	if !a.running {

@@ -20,14 +20,13 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/collector"
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -39,7 +38,7 @@ func TestAggregator(t *testing.T) {
 	t.Run("Add", func(t *testing.T) {
 		t.Run("error if aggregator is not running", func(t *testing.T) {
 			a := New(time.Now(), "test-agent", logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength())
-			err := a.Add(context.TODO(), collector.ExtendedSystemProfile{})
+			err := a.Add(context.TODO(), proto.SystemProfile{})
 			assert.EqualError(t, err, "aggregator is not running")
 		})
 	})
@@ -51,13 +50,11 @@ func TestAggregator(t *testing.T) {
 		aggregator.Start()
 		defer aggregator.Stop()
 		ctx := context.TODO()
-		err := aggregator.Add(ctx, collector.ExtendedSystemProfile{
-			SystemProfile: proto.SystemProfile{
-				NscannedObjects: 2,
-				Nreturned:       3,
-				Ns:              "collection.people",
-				Op:              "insert",
-			},
+		err := aggregator.Add(ctx, proto.SystemProfile{
+			NscannedObjects: 2,
+			Nreturned:       3,
+			Ns:              "collection.people",
+			Op:              "insert",
 		})
 		require.NoError(t, err)
 
@@ -106,19 +103,17 @@ func TestAggregator(t *testing.T) {
 		aggregator.Start()
 		defer aggregator.Stop()
 		ctx := context.TODO()
-		err := aggregator.Add(ctx, collector.ExtendedSystemProfile{
-			SystemProfile: proto.SystemProfile{
-				NscannedObjects: 2,
-				Nreturned:       3,
-				Ns:              "collection.people",
-				Op:              "query",
-				Command: bson.D{
-					primitive.E{Key: "find", Value: "people"},
-					primitive.E{
-						Key: "filter",
-						Value: bson.D{
-							primitive.E{Key: "name_\xff", Value: "value_\xff"},
-						},
+		err := aggregator.Add(ctx, proto.SystemProfile{
+			NscannedObjects: 2,
+			Nreturned:       3,
+			Ns:              "collection.people",
+			Op:              "query",
+			Command: bson.D{
+				primitive.E{Key: "find", Value: "people"},
+				primitive.E{
+					Key: "filter",
+					Value: bson.D{
+						primitive.E{Key: "name_\xff", Value: "value_\xff"},
 					},
 				},
 			},

@@ -20,6 +20,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -48,7 +49,7 @@ type Collector struct {
 	logger *logrus.Entry
 
 	// provides
-	docsChan chan ExtendedSystemProfile
+	docsChan chan proto.SystemProfile
 
 	// state
 	m        sync.Mutex      // Lock() to protect internal consistency of the service
@@ -58,7 +59,7 @@ type Collector struct {
 }
 
 // Start starts but doesn't wait until it exits
-func (c *Collector) Start(context.Context) (<-chan ExtendedSystemProfile, error) {
+func (c *Collector) Start(context.Context) (<-chan proto.SystemProfile, error) {
 	c.m.Lock()
 	defer c.m.Unlock()
 	if c.running {
@@ -67,7 +68,7 @@ func (c *Collector) Start(context.Context) (<-chan ExtendedSystemProfile, error)
 
 	// create new channels over which we will communicate to...
 	// ... outside world by sending collected docs
-	c.docsChan = make(chan ExtendedSystemProfile, 100)
+	c.docsChan = make(chan proto.SystemProfile, 100)
 	// ... inside goroutine to close it
 	c.doneChan = make(chan struct{})
 
@@ -123,7 +124,7 @@ func (c *Collector) Name() string {
 }
 
 func start(ctx context.Context, wg *sync.WaitGroup, client *mongo.Client, dbName string,
-	docsChan chan<- ExtendedSystemProfile, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry,
+	docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry,
 ) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
@@ -163,7 +164,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, client *mongo.Client, dbName
 	}
 }
 
-func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName string, docsChan chan<- ExtendedSystemProfile, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry, startTime time.Time) { //nolint: lll
+func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName string, docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry, startTime time.Time) { //nolint: lll
 	logger.Traceln("connect and collect is called")
 	query := createQuery(dbName, startTime)
 
@@ -197,7 +198,7 @@ func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName
 
 	for {
 		for cursor.TryNext(context.TODO()) {
-			doc := ExtendedSystemProfile{}
+			doc := proto.SystemProfile{}
 			e := cursor.Decode(&doc)
 			if e != nil {
 				logger.Error(e)
