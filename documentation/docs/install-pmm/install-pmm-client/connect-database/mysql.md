@@ -27,19 +27,28 @@ Check that:
 
 ## Create a database account for PMM
 
-It is good practice to use a non-superuser account to connect PMM Client to the monitored database instance. This example creates a database user with name `pmm`, password `pass`, and the necessary permissions.
+It is good practice to use a non-superuser account to connect PMM Client to the monitored database instance. This example creates a database user with name `pmm` and the necessary permissions.
+
+!!! warning "Password security"
+    - Use a strong, unique password for the PMM database user
+    - At least 12 characters long
+    - Mix of uppercase and lowercase letters
+    - Include numbers and special characters
+    - Avoid common words or patterns
+    - Never use default, test, or example passwords in production
+
 
 === "On MySQL 5.7"
 
     ```sql
-    CREATE USER 'pmm'@'127.0.0.1' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
+    CREATE USER 'pmm'@'127.0.0.1' IDENTIFIED BY '<your_strong_password>' WITH MAX_USER_CONNECTIONS 10;
     GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
     ```
 
 === "On MySQL 8.0"
 
     ```sql
-    CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
+    CREATE USER 'pmm'@'localhost' IDENTIFIED BY '<your_strong_password>' WITH MAX_USER_CONNECTIONS 10;
     GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD, BACKUP_ADMIN ON *.* TO 'pmm'@'localhost';
     ```
 
