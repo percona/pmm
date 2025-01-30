@@ -13,9 +13,7 @@ Key features:
 - Easy setup with just two components: Server and Client
 
 
-<div class="no-pdf" data-grid markdown>
-
-</div><div data-banner markdown>
+<div class= data-grid markdown><div data-banner markdown>
 
 ## :material-telescope: Discover { .title }
 
