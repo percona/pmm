@@ -53,7 +53,7 @@ You can now add services with [`pmm-admin`](../../use/commands/pmm-admin.md) by 
 
 !!! hint alert alert-success "Tips"
     - Adjust host firewall and routing rules to allow Docker communications. ([Read more](../../troubleshoot/checklist.md)
-    - For help: `docker run --rmpercona/pmm-client:3 --help`
+    - For help: `docker run --rm percona/pmm-client:3 --help`
 
     In the GUI:
 
