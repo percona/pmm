@@ -11,11 +11,11 @@ Visit the [PMM Community Forum](https://forums.percona.com/c/percona-monitoring-
 
 If you have thoughts, feedback, or ideas, the community team would like to hear from you at [Any ideas on how to make the forum better?](https://forums.percona.com/t/any-ideas-on-how-to-make-the-forum-better/11522){:target=”_blank”}. We’re always excited to connect and improve everyone’s experience.
 
-## Percona experts
+## Percona Experts
 
-[Percona experts](https://www.percona.com/services/consulting){:target="_blank"} bring years of experience in tackling tough database performance issues and design challenges. We understand your challenges when managing complex database environments. That's why we offer various services to help you simplify your operations and achieve your goals.
+[Percona Experts](https://www.percona.com/services/consulting){:target="_blank"} bring years of experience in tackling tough database performance issues and design challenges. We understand your challenges when managing complex database environments. That's why we offer various services to help you simplify your operations and achieve your goals.
 
-| Service                    | Description                                                                                                                                                           |
+| Service                    | description                                                                                                                                                           |
 |----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 24/7 Expert support        | Our dedicated team of database experts is available 24/7 to assist you with any database issues. We provide flexible support plans tailored to your specific needs.   |
 | Hands-on database management | Our managed services team can take over the day-to-day management of your database infrastructure, freeing up your time to focus on other priorities.               |
