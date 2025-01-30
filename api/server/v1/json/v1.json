@@ -673,7 +673,7 @@
               "type": "object",
               "properties": {
                 "settings": {
-                  "description": "Settings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.",
+                  "description": "ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.",
                   "type": "object",
                   "properties": {
                     "updates_enabled": {
@@ -717,20 +717,15 @@
                       "type": "boolean",
                       "x-order": 4
                     },
-                    "platform_email": {
-                      "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
-                      "type": "string",
-                      "x-order": 5
-                    },
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "advisor_run_intervals": {
                       "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
@@ -752,22 +747,22 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 10
                     }
                   },
                   "x-order": 0

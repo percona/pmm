@@ -494,22 +494,11 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 	return res
 }
 
-// convertReadOnlySettings merges database settings and settings from environment variables into API response.
+// convertReadOnlySettings creates a subset of database settings for non-admin roles.
 func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.ReadOnlySettings {
 	res := &serverv1.ReadOnlySettings{
-		UpdatesEnabled:   settings.IsUpdatesEnabled(),
-		TelemetryEnabled: settings.IsTelemetryEnabled(),
-		MetricsResolutions: &serverv1.MetricsResolutions{
-			Hr: durationpb.New(settings.MetricsResolutions.HR),
-			Mr: durationpb.New(settings.MetricsResolutions.MR),
-			Lr: durationpb.New(settings.MetricsResolutions.LR),
-		},
-		AdvisorRunIntervals: &serverv1.AdvisorRunIntervals{
-			RareInterval:     durationpb.New(settings.SaaS.AdvisorRunIntervals.RareInterval),
-			StandardInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.StandardInterval),
-			FrequentInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.FrequentInterval),
-		},
-		DataRetention:        durationpb.New(settings.DataRetention),
+		UpdatesEnabled:       settings.IsUpdatesEnabled(),
+		TelemetryEnabled:     settings.IsTelemetryEnabled(),
 		AdvisorEnabled:       settings.IsAdvisorsEnabled(),
 		AzurediscoverEnabled: settings.IsAzureDiscoverEnabled(),
 		PmmPublicAddress:     settings.PMMPublicAddress,

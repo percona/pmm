@@ -2638,8 +2638,6 @@ func (m *ReadOnlySettings) validate(all bool) error {
 
 	// no validation rules for AdvisorEnabled
 
-	// no validation rules for PlatformEmail
-
 	// no validation rules for AlertingEnabled
 
 	// no validation rules for PmmPublicAddress

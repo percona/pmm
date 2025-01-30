@@ -666,7 +666,7 @@ func (o *GetReadOnlySettingsOKBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-GetReadOnlySettingsOKBodySettings Settings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
+GetReadOnlySettingsOKBodySettings ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
 swagger:model GetReadOnlySettingsOKBodySettings
 */
 type GetReadOnlySettingsOKBodySettings struct {
@@ -681,9 +681,6 @@ type GetReadOnlySettingsOKBodySettings struct {
 
 	// True if Advisor is enabled.
 	AdvisorEnabled bool `json:"advisor_enabled,omitempty"`
-
-	// Percona Platform user's email, if this PMM instance is linked to the Platform.
-	PlatformEmail string `json:"platform_email,omitempty"`
 
 	// True if Alerting is enabled.
 	AlertingEnabled bool `json:"alerting_enabled,omitempty"`

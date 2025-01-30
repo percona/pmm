@@ -181,7 +181,7 @@ message Settings {
   uint32 default_role_id = 18;
 }
 
-// Settings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
+// ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
 message ReadOnlySettings {
   // True if updates are enabled.
   bool updates_enabled = 1;
@@ -190,21 +190,19 @@ message ReadOnlySettings {
   MetricsResolutions metrics_resolutions = 3;
   google.protobuf.Duration data_retention = 4;
   // True if Advisor is enabled.
-  bool advisor_enabled = 7;
-  // Percona Platform user's email, if this PMM instance is linked to the Platform.
-  string platform_email = 8;
+  bool advisor_enabled = 5;
   // True if Alerting is enabled.
-  bool alerting_enabled = 10;
+  bool alerting_enabled = 6;
   // PMM Server public address.
-  string pmm_public_address = 11;
+  string pmm_public_address = 7;
   // Intervals between Advisor runs.
-  AdvisorRunIntervals advisor_run_intervals = 12;
+  AdvisorRunIntervals advisor_run_intervals = 8;
   // True if Backup Management is enabled.
-  bool backup_management_enabled = 13;
+  bool backup_management_enabled = 9;
   // True if Azure Discover is enabled.
-  bool azurediscover_enabled = 14;
+  bool azurediscover_enabled = 10;
   // True if Access Control is enabled.
-  bool enable_access_control = 17;
+  bool enable_access_control = 11;
 }
 
 message GetSettingsRequest {}
