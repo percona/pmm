@@ -15,6 +15,8 @@ Key features:
 
 <div class="no-pdf" data-grid markdown>
 
+</div><div data-banner markdown>
+
 ## :material-telescope: Discover { .title }
 
 Discover how PMM can help you monitor your systems and make informed decisions.
