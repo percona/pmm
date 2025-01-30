@@ -126,7 +126,7 @@ jobs:
             exit $exit_code
           fi
 
-          echo "$out" | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-level=error
+          echo "$out" | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error
 
       - name: Test common API
         run: make test-common

@@ -98,7 +98,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
 			MySQLOptions:  mysqlOptions,
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				ExposeExporter:     req.ExposeExporter,
 				PushMetrics:        isPushMode(req.MetricsMode),
 				DisabledCollectors: req.DisableCollectors,
@@ -134,7 +134,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 				Password:      req.Password,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
-				QANOptions: &models.QANOptions{
+				QANOptions: models.QANOptions{
 					MaxQueryLength:          req.MaxQueryLength,
 					QueryExamplesDisabled:   req.DisableQueryExamples,
 					CommentsParsingDisabled: req.DisableCommentsParsing,
@@ -162,7 +162,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				MySQLOptions:  models.MySQLOptionsFromRequest(req),
-				QANOptions: &models.QANOptions{
+				QANOptions: models.QANOptions{
 					MaxQueryLength:          req.MaxQueryLength,
 					QueryExamplesDisabled:   req.DisableQueryExamples,
 					CommentsParsingDisabled: req.DisableCommentsParsing,

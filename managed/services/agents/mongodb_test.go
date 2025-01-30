@@ -43,8 +43,8 @@ func TestMongodbExporterConfig225(t *testing.T) {
 		Username:        pointer.ToString("username"),
 		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword:   pointer.ToString("agent-password"),
-		ExporterOptions: &models.ExporterOptions{},
-		MongoDBOptions:  &models.MongoDBOptions{},
+		ExporterOptions: models.ExporterOptions{},
+		MongoDBOptions:  models.MongoDBOptions{},
 	}
 
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
@@ -72,7 +72,7 @@ func TestMongodbExporterConfig225(t *testing.T) {
 	require.Equal(t, expected, actual)
 
 	t.Run("Having collstats limit", func(t *testing.T) {
-		exporter.MongoDBOptions = &models.MongoDBOptions{
+		exporter.MongoDBOptions = models.MongoDBOptions{
 			StatsCollections: []string{"col1", "col2", "col3"},
 			CollectionsLimit: 79014,
 		}
@@ -105,8 +105,8 @@ func TestMongodbExporterConfig226(t *testing.T) {
 		Username:        pointer.ToString("username"),
 		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword:   pointer.ToString("agent-password"),
-		ExporterOptions: &models.ExporterOptions{},
-		MongoDBOptions:  &models.MongoDBOptions{},
+		ExporterOptions: models.ExporterOptions{},
+		MongoDBOptions:  models.MongoDBOptions{},
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
@@ -135,7 +135,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 	require.Equal(t, expected, actual)
 
 	t.Run("Having collstats limit", func(t *testing.T) {
-		exporter.MongoDBOptions = &models.MongoDBOptions{
+		exporter.MongoDBOptions = models.MongoDBOptions{
 			StatsCollections: []string{"col1", "col2", "col3"},
 			CollectionsLimit: 79014,
 		}
@@ -156,7 +156,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 	})
 
 	t.Run("Enabling all collectors with non zero limit", func(t *testing.T) {
-		exporter.MongoDBOptions = &models.MongoDBOptions{
+		exporter.MongoDBOptions = models.MongoDBOptions{
 			StatsCollections:    []string{"col1", "col2", "col3"},
 			CollectionsLimit:    79014,
 			EnableAllCollectors: true,
@@ -183,7 +183,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 	})
 
 	t.Run("Enabling all collectors", func(t *testing.T) {
-		exporter.MongoDBOptions = &models.MongoDBOptions{
+		exporter.MongoDBOptions = models.MongoDBOptions{
 			EnableAllCollectors: true,
 			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
 		}
@@ -211,7 +211,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 	})
 
 	t.Run("collstats-limit=-1 -> automatically set the limit", func(t *testing.T) {
-		exporter.MongoDBOptions = &models.MongoDBOptions{
+		exporter.MongoDBOptions = models.MongoDBOptions{
 			EnableAllCollectors: true,
 			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
 			CollectionsLimit:    -1,
@@ -253,8 +253,8 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 		Username:        pointer.ToString("username"),
 		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword:   pointer.ToString("agent-password"),
-		ExporterOptions: &models.ExporterOptions{},
-		MongoDBOptions:  &models.MongoDBOptions{},
+		ExporterOptions: models.ExporterOptions{},
+		MongoDBOptions:  models.MongoDBOptions{},
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
@@ -286,7 +286,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	require.Equal(t, expected, actual)
 
 	t.Run("Having collstats limit", func(t *testing.T) {
-		exporter.MongoDBOptions = &models.MongoDBOptions{
+		exporter.MongoDBOptions = models.MongoDBOptions{
 			StatsCollections: []string{"col1", "col2", "col3"},
 			CollectionsLimit: 79014,
 		}
@@ -308,7 +308,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	})
 
 	t.Run("Enabling all collectors with non zero limit", func(t *testing.T) {
-		exporter.MongoDBOptions = &models.MongoDBOptions{
+		exporter.MongoDBOptions = models.MongoDBOptions{
 			StatsCollections:    []string{"col1", "col2", "col3"},
 			CollectionsLimit:    79014,
 			EnableAllCollectors: true,
@@ -337,7 +337,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	})
 
 	t.Run("Enabling all collectors", func(t *testing.T) {
-		exporter.MongoDBOptions = &models.MongoDBOptions{
+		exporter.MongoDBOptions = models.MongoDBOptions{
 			EnableAllCollectors: true,
 			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
 		}
@@ -367,7 +367,7 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	})
 
 	t.Run("collstats-limit=-1 -> automatically set the limit", func(t *testing.T) {
-		exporter.MongoDBOptions = &models.MongoDBOptions{
+		exporter.MongoDBOptions = models.MongoDBOptions{
 			EnableAllCollectors: true,
 			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
 			CollectionsLimit:    -1,
@@ -396,10 +396,10 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	})
 
 	t.Run("Enable all collectors and disable some", func(t *testing.T) {
-		exporter.ExporterOptions = &models.ExporterOptions{
+		exporter.ExporterOptions = models.ExporterOptions{
 			DisabledCollectors: []string{"dbstats", "topmetrics"},
 		}
-		exporter.MongoDBOptions = &models.MongoDBOptions{
+		exporter.MongoDBOptions = models.MongoDBOptions{
 			EnableAllCollectors: true,
 			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
 		}
@@ -442,8 +442,8 @@ func TestMongodbExporterConfig2432(t *testing.T) {
 		Username:        pointer.ToString("username"),
 		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword:   pointer.ToString("agent-password"),
-		ExporterOptions: &models.ExporterOptions{},
-		MongoDBOptions:  &models.MongoDBOptions{},
+		ExporterOptions: models.ExporterOptions{},
+		MongoDBOptions:  models.MongoDBOptions{},
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
@@ -477,7 +477,7 @@ func TestMongodbExporterConfig2432(t *testing.T) {
 	require.Equal(t, expected, actual)
 
 	t.Run("Enabling all collectors", func(t *testing.T) {
-		exporter.MongoDBOptions = &models.MongoDBOptions{
+		exporter.MongoDBOptions = models.MongoDBOptions{
 			EnableAllCollectors: true,
 			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
 		}
@@ -525,8 +525,8 @@ func TestMongodbExporterConfig(t *testing.T) {
 		Username:        pointer.ToString("username"),
 		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword:   pointer.ToString("agent-password"),
-		ExporterOptions: &models.ExporterOptions{},
-		MongoDBOptions:  &models.MongoDBOptions{},
+		ExporterOptions: models.ExporterOptions{},
+		MongoDBOptions:  models.MongoDBOptions{},
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
@@ -568,7 +568,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 	})
 	t.Run("SSLEnabled", func(t *testing.T) {
 		exporter.TLS = true
-		exporter.MongoDBOptions = &models.MongoDBOptions{
+		exporter.MongoDBOptions = models.MongoDBOptions{
 			TLSCertificateKey:             "content-of-tls-certificate-key",
 			TLSCertificateKeyFilePassword: "passwordoftls",
 			TLSCa:                         "content-of-tls-ca",
@@ -587,7 +587,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 
 	t.Run("AuthenticationDatabase", func(t *testing.T) {
 		exporter.TLS = true
-		exporter.MongoDBOptions = &models.MongoDBOptions{
+		exporter.MongoDBOptions = models.MongoDBOptions{
 			TLSCertificateKey:             "content-of-tls-certificate-key",
 			TLSCertificateKeyFilePassword: "passwordoftls",
 			TLSCa:                         "content-of-tls-ca",
@@ -613,7 +613,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 	})
 
 	t.Run("DisabledCollectors", func(t *testing.T) {
-		exporter.ExporterOptions = &models.ExporterOptions{
+		exporter.ExporterOptions = models.ExporterOptions{
 			DisabledCollectors: []string{"topmetrics"},
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
@@ -649,8 +649,8 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 		AgentType:       models.MongoDBExporterType,
 		Username:        pointer.ToString("username"),
 		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		ExporterOptions: &models.ExporterOptions{},
-		MongoDBOptions:  &models.MongoDBOptions{},
+		ExporterOptions: models.ExporterOptions{},
+		MongoDBOptions:  models.MongoDBOptions{},
 	}
 	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	require.NoError(t, err)
@@ -707,8 +707,8 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		AgentType:       models.MongoDBExporterType,
 		Username:        pointer.ToString("username"),
 		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
-		ExporterOptions: &models.ExporterOptions{},
-		MongoDBOptions:  &models.MongoDBOptions{},
+		ExporterOptions: models.ExporterOptions{},
+		MongoDBOptions:  models.MongoDBOptions{},
 	}
 
 	expectedArgs := []string{
@@ -735,8 +735,8 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 			Username:        exporter.Username,
 			Password:        exporter.Password,
 			AgentPassword:   pointer.ToString("agent-custom-password"),
-			ExporterOptions: &models.ExporterOptions{},
-			MongoDBOptions:  &models.MongoDBOptions{},
+			ExporterOptions: models.ExporterOptions{},
+			MongoDBOptions:  models.MongoDBOptions{},
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, localExporter, redactSecrets, pmmAgentVersion)
 
@@ -765,8 +765,8 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 			AgentType:       exporter.AgentType,
 			Username:        exporter.Username,
 			Password:        exporter.Password,
-			ExporterOptions: &models.ExporterOptions{},
-			MongoDBOptions:  &models.MongoDBOptions{},
+			ExporterOptions: models.ExporterOptions{},
+			MongoDBOptions:  models.MongoDBOptions{},
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, localExporter, redactSecrets, pmmAgentVersion)
 
