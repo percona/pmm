@@ -13,14 +13,13 @@ Key features:
 - Easy setup with just two components: Server and Client
 
 
-<div class= data-grid markdown><div data-banner markdown>
+<div data-grid markdown><div data-banner markdown>
 
 ## :material-telescope: Discover { .title }
 
 Discover how PMM can help you monitor your systems and make informed decisions.
 
 [Discover PMM :material-arrow-right:](discover-pmm/features.md){ .md-button .md-button--primary }
-
 
 </div><div data-banner markdown>
 
