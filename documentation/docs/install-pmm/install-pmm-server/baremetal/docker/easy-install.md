@@ -10,14 +10,12 @@ Download and install PMM Server using `cURL` or `wget`:
 === "cURL"
 
     ```sh
-    export PMM_REPO=perconalab/pmm-server PMM_TAG=3.0.0-beta
     curl -fsSL https://raw.githubusercontent.com/percona/pmm/refs/heads/v3/get-pmm.sh | /bin/bash
     ```
 
 === "wget"
 
     ```sh
-    export PMM_REPO=perconalab/pmm-server PMM_TAG=3.0.0-beta
     wget -O - https://raw.githubusercontent.com/percona/pmm/refs/heads/v3/get-pmm.sh | /bin/bash
     ```
 

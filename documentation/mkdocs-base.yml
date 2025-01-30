@@ -134,6 +134,7 @@ extra:
 # Common navigation for percona.com, render.com and PDF
 nav:
   - Home: index.md  
+  - get-help.md
   - Discover:
     - discover-pmm/why-pmm.md
     - discover-pmm/features.md
@@ -152,7 +153,6 @@ nav:
           - install-pmm/install-pmm-server/baremetal/docker/easy-install.md  
           - install-pmm/install-pmm-server/baremetal/docker/index.md
           - install-pmm/install-pmm-server/baremetal/docker/run_with_vol.md
-          - install-pmm/install-pmm-server/baremetal/docker/run_with_data_container.md
           - install-pmm/install-pmm-server/baremetal/docker/run_with_host_dir.md      
           - install-pmm/install-pmm-server/baremetal/docker/backup_container.md      
           - install-pmm/install-pmm-server/baremetal/docker/restore_container.md      
@@ -269,9 +269,10 @@ nav:
     - Percona Alerting:
       - alert/index.md
       - alert/alert_rules.md
-      - alert/alert_notifications.md
+      - alert/contact_points.md
       - alert/templates_list.md
       - alert/silence_alerts.md
+      - alert/disable_alerts.md
     - Backup and restore: 
       - backup/index.md
       - backup/prepare_storage_location.md
@@ -337,7 +338,7 @@ nav:
 
   - Release notes:
     - Release notes index: release-notes/index.md
-    - "PMM 3.0.0-BETA (2024-11-22)": release-notes/3.0.0_Beta.md
+    - "PMM 3.0.0 (2025-01-30)": release-notes/3.0.0.md
   
   - Reference: 
     - Architecture:
@@ -406,6 +407,7 @@ nav:
         - reference/dashboards/dashboard-mongodb-instances-overview.md
         - reference/dashboards/dashboard-mongodb-instances-compare.md
         - reference/dashboards/dashboard-mongodb-replset-summary.md
+        - reference/dashboards/dashboard-mongodb-router-summary.md
         - reference/dashboards/dashboard-mongodb-inmemory-details.md
         - reference/dashboards/dashboard-mongodb-mmapv1-details.md
         - reference/dashboards/dashboard-mongodb-wiredtiger-details.md

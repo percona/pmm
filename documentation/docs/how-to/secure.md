@@ -34,7 +34,7 @@ For example, if your own certificates are in `/etc/pmm-certs`:
 ```sh
 docker run -d -p 443:443 --volumes-from pmm-data \
   --name pmm-server -v /etc/pmm-certs:/srv/nginx \
-  --restart always perconalab/pmm-server:3.0.0-beta
+  --restart always percona/pmm-server:3
 ```
 
 !!! note alert alert-primary ""

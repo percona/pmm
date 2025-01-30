@@ -9,7 +9,7 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
 
     ```sh
     docker pull \
-    percona/pmm-client:2
+   percona/pmm-client:3
     ```
 
 2. Use the image as a template to create a persistent data store that preserves local data when the image is updated:
@@ -18,7 +18,7 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
     docker create \
     --volume /srv \
     --name pmm-client-data \
-    percona/pmm-client:2 /bin/true
+   percona/pmm-client:3 /bin/true
     ```
 
 3. Run the container to start [pmm-agent](../../use/commands/pmm-agent.md) in setup mode. Set `X.X.X.X` to the IP address of your PMM Server. (Do not use the `docker --detach` option as PMM agent only logs to the console.)
@@ -35,7 +35,7 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
     -e PMM_AGENT_SETUP=1 \
     -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
     --volumes-from pmm-client-data \
-    percona/pmm-client:2
+   percona/pmm-client:3
     ```
 !!! hint alert-success "Tips"
     You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
@@ -53,7 +53,7 @@ You can now add services with [`pmm-admin`](../../use/commands/pmm-admin.md) by 
 
 !!! hint alert alert-success "Tips"
     - Adjust host firewall and routing rules to allow Docker communications. ([Read more](../../troubleshoot/checklist.md)
-    - For help: `docker run --rm percona/pmm-client:2 --help`
+    - For help: `docker run --rm percona/pmm-client:3 --help`
 
     In the GUI:
 
