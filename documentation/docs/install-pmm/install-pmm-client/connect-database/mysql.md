@@ -27,7 +27,7 @@ Check that:
 
 ## Create a database account for PMM
 
-It is good practice to use a non-superuser account to connect PMM Client to the monitored database instance. This example creates a database user with name `pmm` and the necessary permissions.
+For security, connect PMM Client to your database using a dedicated monitoring user with limited permissions. Create a pmm user account that has just enough access to collect monitoring data without full administrative privileges.
 
 !!! warning "Password security"
     - Use a strong, unique password for the PMM database user
