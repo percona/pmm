@@ -15,7 +15,7 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 
 # Set defaults.
 network_name=${NETWORK_NAME:-pmm-net}
-tag=${PMM_TAG:-3.0.0-beta}
+tag=${PMM_TAG:-3.0.0}
 repo=${PMM_REPO:-perconalab/pmm-server}
 port=${PMM_PORT:-443}
 container_name=${CONTAINER_NAME:-pmm-server}
