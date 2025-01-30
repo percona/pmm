@@ -56,4 +56,4 @@ jobs:
         run: |
           mike deploy 2 -b publish -p
           mike set-default 2 -b publish -p
-          mike retitle 2 "2.x (LATEST)" -b publish -p
+          mike retitle 2 "2.x" -b publish -p
