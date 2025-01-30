@@ -55,6 +55,5 @@ jobs:
         working-directory: documentation
         run: |
           mike deploy 3 -b publish -p
-          # Note: enable the next line after v3 GA
-          # mike set-default 3 -b publish -p
-          mike retitle 3 "3.x (BETA)" -b publish -p
+          mike set-default 3 -b publish -p
+          mike retitle 3 "3.x (LATEST)" -b publish -p
