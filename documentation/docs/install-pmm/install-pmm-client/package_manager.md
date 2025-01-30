@@ -7,7 +7,7 @@ The package manager will automatically select the appropriate version for your s
     If you have used `percona-release` before, disable and re-enable the repository:
     ```sh
     percona-release disable all
-    percona-release enable pmm3-client testing
+    percona-release enable pmm3-client
     ```
 
 === "Debian-based"
@@ -18,9 +18,9 @@ The package manager will automatically select the appropriate version for your s
         wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
         dpkg -i percona-release_latest.generic_all.deb
         ```
-    2. Enable pmm3-client testing repository:
+    2. Enable pmm3-client repository:
         ```sh
-        percona-release enable pmm3-client testing
+        percona-release enable pmm3-client
         ```
     3. Install the PMM Client package:
         !!! hint "Root permissions"
@@ -39,9 +39,9 @@ The package manager will automatically select the appropriate version for your s
         ```sh
         yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
         ```
-    2. Enable pmm3-client testing repository:
+    2. Enable pmm3-client repository:
         ```sh
-        percona-release enable pmm3-client testing
+        percona-release enable pmm3-client
         ```
     3. Install the PMM Client package:
         ```sh
