@@ -4,14 +4,14 @@
 
 PMM Server's resource requirements depend on your monitoring environment. Here are our recommendations for different deployment scales:
 
-### Typical deployment (Up to 30 nodes)
+### Typical deployment (up to 30 nodes)
 This is the most common deployment scenario, suitable for small to medium-sized environments:
 
 - **CPU**: 4 cores
 - **Memory**: 8 GB  
 - **Storage**: 100 GB
 
-### Medium deployment (Up to 200 nodes) 
+### Medium deployment (up to 200 nodes) 
 Recommended for environments monitoring MySQL, PostgreSQL, or MongoDB at scale:
 
 - **CPU**: 8-16 cores
@@ -39,17 +39,17 @@ Adjust storage calculations based on your data retention period and the number o
 - **ARM limitations**: PMM Server is not currently available as a native ARM64 build. For ARM-based systems, use Docker or Podman to run x86_64 images via emulation.
 
 !!! hint alert alert-success "Tip"
-  To reduce storage usage, consider [disabling table statistics](../../optimize/disable_table_stats.md), which can significantly decrease the size of the VictoriaMetrics database.
+    To reduce storage usage, consider [disabling table statistics](../../optimize/disable_table_stats.md), which can significantly decrease the size of the VictoriaMetrics database.
 
 ## Client requirements
 
-* **Disk**
+### Storage
 
-  A minimum of 100 MB of storage is required for installing the PMM Client package. With a good connection to PMM Server, additional storage is not required. However, the client needs to store any collected data that it cannot dispatch immediately, so additional storage may be required if the connection is unstable or the throughput is low. VM Agent uses 1 GB of disk space for cache during a network outage. QAN, on the other hand, uses RAM to store cache.
+The PMM Client package requires 100 MB of storage for installation. Under normal operation with a stable connection to PMM Server, no additional storage is needed. During network instability or low throughput periods, the Client temporarily stores collected data that cannot be immediately dispatched. The VM Agent reserves 1 GB of disk space for caching during network outages, while Query Analytics (QAN) utilizes RAM instead of disk storage for its cache.
 
-* **Operating system**
+### Operating system
 
-  PMM Client runs on any modern 64-bit Linux distribution, including ARM-based systems. It is tested on supported versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux, on both x86_64 and ARM64 architectures. See [Percona software support life cycle](https://www.percona.com/services/policies/percona-software-support-lifecycle#pt).
+PMM Client is compatible with modern 64-bit Linux distributions on both x86_64 and ARM64 architectures. Supported platforms include current versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux. For specific version support details, see [Percona software support life cycle](https://www.percona.com/services/policies/percona-software-support-lifecycle#pt).
 
 ### ARM-specific considerations
 

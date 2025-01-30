@@ -7,7 +7,7 @@ Before setting up PMM Server, ensure you complete the following requirements:
 
 2. Configure your [network settings](../plan-pmm-installation/network_and_firewall.md).
 
-3. Use Grafana [Service Accounts](../../api/authentication.md)for secure and consistent authentication. 
+3. Use Grafana [Service Accounts](../../api/authentication.md) for secure and consistent authentication. 
 
 PMM 3 uses Grafana service accounts for authentication instead of API keys, which provide fine-grained access control and enhanced security.
 
