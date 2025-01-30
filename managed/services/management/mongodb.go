@@ -72,7 +72,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 			TLSSkipVerify:  req.TlsSkipVerify,
 			MongoDBOptions: models.MongoDBOptionsFromRequest(req),
 			LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				ExposeExporter:     req.ExposeExporter,
 				PushMetrics:        isPushMode(req.MetricsMode),
 				DisabledCollectors: req.DisableCollectors,
@@ -106,7 +106,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				Password:      req.Password,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
-				QANOptions: &models.QANOptions{
+				QANOptions: models.QANOptions{
 					MaxQueryLength: req.MaxQueryLength,
 					// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
 				},

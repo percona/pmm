@@ -36,7 +36,7 @@ func TestAuthWebConfig(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:         "agent-id",
 			AgentType:       models.NodeExporterType,
-			ExporterOptions: &models.ExporterOptions{},
+			ExporterOptions: models.ExporterOptions{},
 		}
 		agentVersion := version.MustParse("2.26.1")
 
@@ -61,7 +61,7 @@ func TestAuthWebConfig(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:         "agent-id",
 			AgentType:       models.NodeExporterType,
-			ExporterOptions: &models.ExporterOptions{},
+			ExporterOptions: models.ExporterOptions{},
 		}
 		agentVersion := version.MustParse("2.28.0")
 
@@ -87,7 +87,7 @@ func TestAuthWebConfig(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:         "agent-id",
 			AgentType:       models.NodeExporterType,
-			ExporterOptions: &models.ExporterOptions{},
+			ExporterOptions: models.ExporterOptions{},
 		}
 		agentVersion := version.MustParse("3.0.0")
 
@@ -119,7 +119,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:         "agent-id",
 			AgentType:       models.NodeExporterType,
-			ExporterOptions: &models.ExporterOptions{},
+			ExporterOptions: models.ExporterOptions{},
 		}
 		agentVersion := version.MustParse("2.15.1")
 
@@ -212,7 +212,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:   "agent-id",
 			AgentType: models.NodeExporterType,
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				DisabledCollectors: []string{"cpu", "netstat", "netstat.fields", "vmstat", "meminfo"},
 			},
 		}
@@ -299,7 +299,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:         "agent-id",
 			AgentType:       models.NodeExporterType,
-			ExporterOptions: &models.ExporterOptions{},
+			ExporterOptions: models.ExporterOptions{},
 		}
 		agentVersion := version.MustParse("2.15.1")
 

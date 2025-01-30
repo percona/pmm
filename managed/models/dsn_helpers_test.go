@@ -141,7 +141,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 				RunsOnNodeID: nil,
 				ServiceID:    pointer.ToString("S3"),
 				TLS:          true,
-				MySQLOptions: &models.MySQLOptions{
+				MySQLOptions: models.MySQLOptions{
 					TLSCa:   "content-of-tls-ca",
 					TLSCert: "content-of-tls-cert",
 					TLSKey:  "content-of-tls-key",
@@ -155,7 +155,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 				Username:     pointer.ToString("pmm-user{{"),
 				ServiceID:    pointer.ToString("S4"),
 				TLS:          true,
-				MongoDBOptions: &models.MongoDBOptions{
+				MongoDBOptions: models.MongoDBOptions{
 					TLSCertificateKey:             "content-of-tls-certificate-key",
 					TLSCertificateKeyFilePassword: "passwordoftls",
 					TLSCa:                         "content-of-tls-ca",
