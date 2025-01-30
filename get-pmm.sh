@@ -16,7 +16,7 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 # Set defaults.
 network_name=${NETWORK_NAME:-pmm-net}
 tag=${PMM_TAG:-3.0.0}
-repo=${PMM_REPO:-perconalab/pmm-server}
+repo=${PMM_REPO:-percona/pmm-server}
 port=${PMM_PORT:-443}
 container_name=${CONTAINER_NAME:-pmm-server}
 docker_socket_path=${DOCKER_SOCKET_PATH:-/var/run/docker.sock}
@@ -300,7 +300,7 @@ create_pmm_network() {
 #######################################
 start_watchtower() {
   if ! run_docker "inspect watchtower 1> /dev/null 2> /dev/null"; then
-    run_docker "run -d --name watchtower --restart always --network $network_name -e WATCHTOWER_HTTP_API_TOKEN=$watchtower_token -e WATCHTOWER_HTTP_LISTEN_PORT=8080 -e WATCHTOWER_HTTP_API_UPDATE=1 -v $docker_socket_path:/var/run/docker.sock perconalab/watchtower --cleanup"
+    run_docker "run -d --name watchtower --restart always --network $network_name -e WATCHTOWER_HTTP_API_TOKEN=$watchtower_token -e WATCHTOWER_HTTP_LISTEN_PORT=8080 -e WATCHTOWER_HTTP_API_UPDATE=1 -v $docker_socket_path:/var/run/docker.sock percona/watchtower --cleanup"
     msg "Created Watchtower container"
   fi
 }
