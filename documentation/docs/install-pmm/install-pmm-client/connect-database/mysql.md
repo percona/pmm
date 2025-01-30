@@ -27,7 +27,7 @@ Check that:
 
 ## Create a database account for PMM
 
-For security, connect PMM Client to your database using a dedicated monitoring user with limited permissions. Create a pmm user account that has just enough access to collect monitoring data without full administrative privileges.
+For security, connect PMM Client to your database using a dedicated monitoring user with limited permissions. This example creates a pmm user account that has just enough access to collect monitoring data without full administrative privileges.
 
 !!! warning "Password security"
     - Use a strong, unique password for the PMM database user
