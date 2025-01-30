@@ -1,168 +1,140 @@
-# Install PMM Server with Helm on the Kubernetes clusters
+# Install PMM Server with Helm on Kubernetes clusters
+
+[Helm](https://github.com/helm/helm) is the package manager for Kubernetes. You can find Percona Helm charts in [our GitHub repository](https://github.com/percona/percona-helm-charts). 
+
+## Prerequisites
+
+  - [Helm v3](https://docs.helm.sh/using_helm/#installing-helm)
+  - Supported cluster according to [Supported Kubernetes](https://kubernetes.io/releases/version-skew-policy/#supported-versions) and [Supported Helm](https://helm.sh/docs/topics/version_skew/) versions
+  - Storage driver with snapshot support (for backups)
+
+## Storage requirements
+
+Different Kubernetes platforms offer varying capabilities. 
+
+To use PMM in production: 
+
+- ensure your platform provides storage drivers supporting snapshots for backups
+- consult your provider about Kubernetes and Cloud storage capabilities
 
 
-[Helm](https://github.com/helm/helm) is the package manager for Kubernetes. Percona Helm charts can be found in [percona/percona-helm-charts](https://github.com/percona/percona-helm-charts) repository on Github.
+## Deployment best practices
 
-## Before you start
+For optimal monitoring:
+{.power-number}
 
-- Install Helm following its [official installation instructions](https://docs.helm.sh/using_helm/#installing-helm).
-- Kubernetes cluster that [Helm supports](https://helm.sh/docs/topics/kubernetes_distros/)
+1. Separate PMM Server from monitored systems by either:
 
-!!! note alert alert-primary ""
-    Helm v3 is needed to run the following steps.
+    - using separate Kubernetes clusters for monitoring and databases
+    - configuring workload separation through node configurations, affinity rules, and label selectors
 
-Refer to [Kubernetes Supported versions](https://kubernetes.io/releases/version-skew-policy/#supported-versions) and [Helm Version Support Policy](https://helm.sh/docs/topics/version_skew/) to find the supported versions.
+2. Enable [high availability](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/ha-topology/) to ensure continuous monitoring during node failures
 
-PMM should be platform-agnostic, but it requires escalated privileges inside a container. It is necessary to have a `root` user inside the PMM container. Thus, PMM would not work for Kubernetes Platforms such as OpenShift or others that have hardened Security Context Constraints, for example:
+## Installation PMM Server on your Kubernetes cluster
 
-- [Security context constraints (SCCs)
-](https://docs.openshift.com/container-platform/latest/security/container_security/security-platform.html#security-deployment-sccs_security-platform)
-- [Managing security context constraints](https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html)
+Create the required Kubernetes secret and deploy PMM Server using Helm:
+{.power-number}
 
-Kubernetes platforms offer a different set of capabilities. To use PMM in production, you would need backups and, thus storage driver that supports snapshots. Consult your provider for Kubernetes and Cloud storage capabilities.
+1. Create Kubernetes secret to set up `pmm-admin` password:
+    ```sh
+    cat <<EOF | kubectl create -f -
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: pmm-secret
+      labels:
+        app.kubernetes.io/name: pmm
+    type: Opaque
+    data:
+    # base64 encoded password
+    # encode some password: `echo -n "admin" | base64`
+      PMM_ADMIN_PASSWORD: YWRtaW4=
+    EOF
+    ```
 
-## Locality and Availability
+2. Get admin password:
 
-You should not run the PMM monitoring server along with the monitored database clusters and services on the same system.
+    ```sh
+    kubectl get secret pmm-secret -o jsonpath='{.data.PMM_ADMIN_PASSWORD}' | base64 --decode
+    ```
 
-Please ensure proper locality either by physically separating workloads in Kubernetes clusters or running separate Kubernetes clusters for the databases and monitoring workloads.
+3. Add the Percona repository and deploy PMM Server with default settings and your secret. See configuration parameters for customization. See [configuration parameters]((#view-available-parameters)) for customization.
 
-You can physically separate workloads by properly configuring Kubernetes nodes, affinity rules, label selections, etc.
-
-Also, ensure that the Kubernetes cluster has [high availability](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/ha-topology/) so that in case of a node failure, the monitoring service will be running and capturing the required data.
-
-## Install PMM Server
-
-??? info "Summary"
-
-    !!! summary alert alert-info ""
-        - Setup pmm-admin password
-        - Install
-        - Configuration parameters
-        - PMM environment variables
-        - PMM SSL certificates
-        - Backup
-        - Upgrade
-        - Restore
-        - Uninstall
-
-    ---
-
-### Set up pmm-admin password
-
-Create Kubernetes secret with pmm-admin password:
-```sh
-cat <<EOF | kubectl create -f -
-apiVersion: v1
-kind: Secret
-metadata:
-  name: pmm-secret
-  labels:
-    app.kubernetes.io/name: pmm
-type: Opaque
-data:
-# base64 encoded password
-# encode some password: `echo -n "admin" | base64`
-  PMM_ADMIN_PASSWORD: YWRtaW4=
-EOF
-```
-
-To get admin password execute:
-
-```sh
-kubectl get secret pmm-secret -o jsonpath='{.data.PMM_ADMIN_PASSWORD}' | base64 --decode
-```
-
-### Install
-
-To install the chart with the release name `pmm`:
-
-```sh
-helm repo add percona https://percona.github.io/percona-helm-charts/
-helm install pmm \
---set secret.create=false \
---set secret.name=pmm-secret \
-percona/pmm
-```
-The command deploys PMM on the Kubernetes cluster in the default configuration and specified secret. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
-
-<div hidden>
-```sh
-helm uninstall pmm
-```
-</div>
-
-!!! hint alert alert-success "Tip"
-    List all releases using `helm list`.
-
-### Parameters
-
-The list of Parameters is subject to change from release to release. Check the [Parameters](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#parameters) section of the PMM Helm Chart.
-
-!!! hint alert alert-success "Tip"
-    You can list the default parameters [values.yaml](https://github.com/percona/percona-helm-charts/blob/main/charts/pmm/values.yaml) or get them from chart definition: `helm show values percona/pmm`
-
-Specify each parameter using the `--set key=value[,key=value]` or `--set-string key=value[,key=value]` arguments to `helm install`. For example,
-
-```sh
-helm install pmm \
---set secret.create=false --set secret.name=pmm-secret \
---set service.type="NodePort" \
---set storage.storageClassName="linode-block-storage-retain" \
+    ```sh
+    helm repo add percona https://percona.github.io/percona-helm-charts/
+    helm install pmm \
+    --set secret.create=false \
+    --set secret.name=pmm-secret \
+    --version ^1.4.0 \
     percona/pmm
-```
+    ```
 
-The above command installs PMM and sets the Service network type to `NodePort` and storage class to `linode-block-storage-retain` for persistence storage on LKE.
+4. Verify the deployment, listing all releases: `helm list`.
 
-<div hidden>
-```sh
-helm uninstall pmm
-```
-</div>
+### Configure PMM Server
+
+#### View available parameters
+
+Check the list of available parameters in the [PMM Helm chart documentation](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#parameters). You can also list the default parameters by either: 
+
+- check [values.yaml file](https://github.com/percona/percona-helm-charts/blob/main/charts/pmm/values.yaml) in our repository
+- run the chart definition: `helm show values percona/pmm`
+
+#### Set configuration values
+
+Configure PMM Server using either command-line arguments or a YAML file:
+
+ - using command-line arguments: 
+    ```sh
+    helm install pmm \
+    --set secret.create=false --set secret.name=pmm-secret \
+    --set service.type="NodePort" \
+        percona/pmm
+    ```
+- using a .yaml configuration file: 
+  ```sh
+  helm show values percona/pmm > values.yaml
+  ``` 
+ 
+#### Change credentials
 
 !!! caution alert alert-warning "Important"
-    Once this chart is deployed, it is impossible to change the application's access credentials, such as password, using Helm. To change these application credentials after deployment, delete any persistent volumes (PVs) used by the chart and re-deploy it, or use the application's built-in administrative tools (if available)
+    Helm cannot modify application credentials after deployment.
 
-Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example:
+Credential changes after deployment require either:
 
-```sh
-helm show values percona/pmm > values.yaml
+- redeploying PMM Server with new persistent volumes
+- using PMM's built-in administrative tools
 
-#change needed parameters in values.yaml, you need `yq` tool pre-installed
-yq -i e '.secret.create |= false' values.yaml
+### PMM environment variables
 
-helm install pmm -f values.yaml percona/pmm
-```
-
-### [PMM environment variables](../docker/env_var.md)
-
-In case you want to add extra environment variables (useful for advanced operations like custom init scripts), you can use the `pmmEnv` property.
+Add [environment variables](../docker/env_var.md) for advanced operations (like custom init scripts) using the `pmmEnv` property:
 
 ```yaml
 pmmEnv:
-  PMM_ENABLE_UPDATES: "1"
+PMM_ENABLE_UPDATES: "1"
 ```
 
-### PMM SSL certificates
+### SSL certificates
 
-PMM ships with self signed SSL certificates to provide secure connection between client and server ([check here](../../../../pmm-admin/security/ssl_encryption.md)).
+PMM comes with [self-signed SSL certificates]((../../../../pmm-admin/security/ssl_encryption.md)), ensuring a secure connection between the client and server. However, since these certificates are not issued by a trusted authority, you may encounter a security warning when connecting to PMM.
 
-You will see the warning when connecting to PMM. To further increase security, you should provide your certificates and add values of credentials to the fields of the `cert` section:
+To enhance security, you have two options: 
+{.power-number}
 
-```yaml
-certs:
-  name: pmm-certs
-  files:
-    certificate.crt: <content>
-    certificate.key: <content>
-    ca-certs.pem: <content>
-    dhparam.pem: <content>
-```
+1. Configure custom certificates:
 
-Another approach to set up TLS certificates is to use the Ingress controller, see [TLS](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls). PMM helm chart supports Ingress. See [PMM network configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-network-configuration).
+    ```yaml
+    certs:
+      name: pmm-certs
+      files:
+        certificate.crt: <content>
+        certificate.key: <content>
+        ca-certs.pem: <content>
+        dhparam.pem: <content>
+    ```
 
-
-
+2. Use [Ingress controller with TLS]((https://kubernetes.io/docs/concepts/services-networking/ingress/#tls)) See [PMM network configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-network-configuration) for details.
 
 
 

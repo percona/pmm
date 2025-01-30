@@ -4,7 +4,6 @@ This section provides instructions for running PMM Server with Podman based on o
 
 ## About Podman
 
-
 !!! seealso alert alert-info "See also"
     - [Docker](../docker/index.md) 
     - Other [tags](https://hub.docker.com/r/percona/pmm-server/tags) are available.
@@ -76,12 +75,16 @@ On the other hand, the manual method offers a simpler setup with complete contro
         WantedBy=default.target
         ```
 
-    2. Create the environment file at `~/.config/systemd/user/pmm-server.env`:
+    2. Create the environment file at `~/.config/systemd/user/pmm-server.env`. If current user is `root`, modify permissions as well:
    
         ```sh
         PMM_WATCHTOWER_HOST=http://watchtower:8080
         PMM_WATCHTOWER_TOKEN=123
         PMM_IMAGE=docker.io/percona/pmm-server:3
+        ```
+
+        ```
+        chmod 777 ~/.config/systemd/user/pmm-server.env  # Only if current user is root
         ```
 
     3. Create or update the Watchtower service file at `~/.config/systemd/user/watchtower.service`:
@@ -94,34 +97,41 @@ On the other hand, the manual method offers a simpler setup with complete contro
         After=nss-user-lookup.target nss-lookup.target
         After=time-sync.target
         [Service]
+        EnvironmentFile=/home/pmm/watchtower.env
         Restart=on-failure
         RestartSec=20
-        Environment=WATCHTOWER_HTTP_API_UPDATE=1
-        Environment=WATCHTOWER_HTTP_API_TOKEN=123
-        Environment=WATCHTOWER_NO_RESTART=1
-        Environment=WATCHTOWER_DEBUG=1
         ExecStart=/usr/bin/podman run --rm --replace=true --name %N \
             -v ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock \
-            -e WATCHTOWER_HTTP_API_UPDATE=${WATCHTOWER_HTTP_API_UPDATE} \
-            -e WATCHTOWER_HTTP_API_TOKEN=${WATCHTOWER_HTTP_API_TOKEN} \
-            -e WATCHTOWER_NO_RESTART=${WATCHTOWER_NO_RESTART} \
-            -e WATCHTOWER_DEBUG=${WATCHTOWER_DEBUG} \
+            --env-file=~/.config/systemd/user/watchtower.env \
             --net pmm_default \
             --cap-add=net_admin,net_raw \
-            docker.io/perconalab/watchtower:latest
+            ${WATCHTOWER_IMAGE}
         ExecStop=/usr/bin/podman stop -t 10 %N
         [Install]
         WantedBy=default.target
         ```
 
-    4. Start services:
+    4. Create the environment file for Watchtower at `~/.config/systemd/user/watchtower.env`. If current user is `root`, modify permissions as well:
+   
+        ```sh
+        WATCHTOWER_HTTP_API_UPDATE=1
+        WATCHTOWER_HTTP_API_TOKEN=123
+        WATCHTOWER_NO_RESTART=1
+        WATCHTOWER_IMAGE=docker.io/percona/watchtower:latest
+        ```
+
+        ```
+        chmod 777 ~/.config/systemd/user/watchtower.env  # Only if current user is root
+        ```
+    
+    5. Start services:
    
         ```sh
         systemctl --user enable --now pmm-server
         systemctl --user enable --now watchtower
         ```
 
-    5. Go to `https://localhost:443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
+    6. Go to `https://localhost:443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
 
 === "Installation with manual updates"
 
