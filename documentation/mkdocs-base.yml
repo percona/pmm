@@ -134,6 +134,7 @@ extra:
 # Common navigation for percona.com, render.com and PDF
 nav:
   - Home: index.md  
+  - get-help.md
   - Discover:
     - discover-pmm/why-pmm.md
     - discover-pmm/features.md
