@@ -15,5 +15,5 @@ Before installing PMM Client, ensure you meet the following requirements:
 
     * `wget`
 
-5. If you use it, [install Docker](https://docs.docker.com/get-started/get-docker/).
+5. [Install Docker](https://docs.docker.com/get-started/get-docker/).
 6. Check [hardware and system requirements for PMM Client](../plan-pmm-installation/hardware_and_system.md).
