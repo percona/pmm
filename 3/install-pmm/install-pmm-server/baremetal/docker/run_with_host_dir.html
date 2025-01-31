@@ -8107,7 +8107,7 @@
 </li>
 <li>
 <p>Run the image:</p>
-<p><div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"> </span>--restart<span class="w"> </span>always<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"> </span>--restart<span class="w"> </span>always<span class="w"> </span><span class="se">\</span>
 --publish<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span><span class="se">\</span>
 --env<span class="w"> </span><span class="nv">PMM_WATCHTOWER_HOST</span><span class="o">=</span>your_watchtower_host<span class="w"> </span><span class="se">\</span>
 --env<span class="w"> </span><span class="nv">PMM_WATCHTOWER_TOKEN</span><span class="o">=</span>your_watchtower_token<span class="w"> </span><span class="se">\</span>
@@ -8116,7 +8116,9 @@
 --name<span class="w"> </span>pmm-server<span class="w"> </span><span class="se">\</span>
 percona/pmm-server:3
 </code></pre></div>
-4. Change the password for the default <code>admin</code> user, replacing <code>your_secure_password</code> with a strong, unique password:</p>
+</li>
+<li>
+<p>Change the password for the default <code>admin</code> user, replacing <code>your_secure_password</code> with a strong, unique password:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-server<span class="w"> </span>change-admin-password<span class="w"> </span>your_secure_password
 </code></pre></div>
 </li>
