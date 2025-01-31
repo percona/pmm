@@ -99,7 +99,7 @@ For all IP addresses, use the format `17.10.1.x`, and for all usernames and pass
 | `PMM_PASSIVE_NODE_ID`                                  | The unique ID for your first passive PMM server node.</br></br>Example: `pmm-server-passive`
 | `PMM_PASSIVE2_IP`                                         | The IP address of the instance where the second passive PMM server is running or the desired IP address for your second passive PMM server container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.7`
 | `PMM_PASSIVE2_NODE_ID`                                    | The unique ID for your second passive PMM server node.</br></br>Example: `pmm-server-passive2`
-| `PMM_DOCKER_IMAGE` &nbsp; &nbsp; &nbsp; &nbsp;                                      | The specific PMM Server Docker image for this guide.</br></br>Example: `percona/pmm-server:2`
+| `PMM_DOCKER_IMAGE` &nbsp; &nbsp; &nbsp; &nbsp;                                      | The specific PMM Server Docker image for this guide.</br></br>Example: `percona/pmm-server:3`
 
 ??? example "Expected output"
         
@@ -117,7 +117,7 @@ For all IP addresses, use the format `17.10.1.x`, and for all usernames and pass
     export PMM_PASSIVE_NODE_ID=pmm-server-passive
     export PMM_PASSIVE2_IP=17.10.1.7
     export PMM_PASSIVE2_NODE_ID=pmm-server-passive2
-    export PMM_DOCKER_IMAGE=percona/pmm-server:2
+    export PMM_DOCKER_IMAGE=percona/pmm-server:3
     ```
 
 !!! note alert alert-primary "Note"
