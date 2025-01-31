@@ -6,10 +6,12 @@ import "common/common.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
+import "patch/go.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 // DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
 enum DistributionMethod {
+  option (go.enum).stringer = "OrigString";
   DISTRIBUTION_METHOD_UNSPECIFIED = 0;
   DISTRIBUTION_METHOD_DOCKER = 1;
   DISTRIBUTION_METHOD_OVF = 2;
