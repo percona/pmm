@@ -1,48 +1,58 @@
 # Install PMM Server with Docker container
 
-This section provides instructions for running PMM Server with Docker based on the [PMM Docker image](https://hub.docker.com/r/percona/pmm-server).
+This section provides instructions for running PMM Server with Docker based on the PMM Docker image.
 
 ## Running PMM Server with Watchtower
 
 To enable PMM Server upgrades via the **Upgrade page** and the **Upgrade Now** button on the Home dashboard, you must configure Watchtower during the PMM Server installation. Watchtower is a container monitoring tool that helps update Docker containers to their latest version when triggered.
 
-The [Easy-install script](../easy-install.md) script includes Watchtower commands, allowing for a one-step setup of PMM alongside Watchtower.
+### Prerequisites
 
-You can also install PMM 3 manually, following the instructions below.
+Before starting the installation:
 
-## Installing PMM Server manually
+* Install Docker version 17.03 or higher
+* Ensure your CPU supports `x86-64-v2`
+* For manual installation, consider these Watchtower security requirements:
+  - Restrict Watchtower access to Docker network or localhost
+  - Configure network to expose only PMM Server externally
+  - Secure Docker socket access for Watchtower
+  - Place both Watchtower and PMM Server on the same network
 
-Before starting the installation, review the installation prerequisites below and choose a method to run PMM Server with Docker based on your preferred data storage option:
+### Installation options
 
-- [Running Docker with host directory](../docker/run_with_host_dir.md)
-- [Running Docker with volume](../docker/run_with_vol.md)
+You can install PMM Server with Watchtower in two ways:
 
-### Manual installation prerequisites
+#### Easy-install script 
 
-- Install [Docker](https://docs.docker.com/get-docker/) version 17.03 or higher.
-- Ensure your CPU (and any virtualization layer you may be using) supports `x86-64-v2`.
-- Install Watchtower to automatically update your containers with the following considerations:
+The [Easy-install script](../docker/easy-install.md) implifies setup by including Watchtower commands, enabling a one-step installation of PMM with Watchtower. Run the following command:
+     ```sh
+     curl -fsSL https://www.percona.com/get/pmm | /bin/bash
+     ```
 
-      - Ensure Watchtower is only accessible from within the Docker network or local host to prevent unauthorized access and enhance container security.
-      - Configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Docker network.
-      - Grant Watchtower access to the Docker socket to monitor and manage containers effectively, ensuring proper security measures are in place to protect the Docker socket.
-      - Verify that both Watchtower and PMM Server are on the same network, or ensure PMM Server can connect to Watchtower for communication. This network setup is essential for PMM Server to initiate updates through Watchtower.
+#### Manual installation
 
-## Run Docker container
+For a more customizable setup, follow these steps:
+{.power-number}
 
-??? info "Summary"
+1.  Create a Docker network for PMM and Watchtower:
+   ```sh
+   docker network create pmm-network
+   ```
 
-    !!! summary alert alert-info ""
-        - Pull the Docker image.
-        - Choose how you want to store data.
-        - Run the image.
-        - Open the PMM UI in a browser.
+2.  Install Watchtower:
+   ```sh
+   docker run -d \
+     --name watchtower \
+     --restart unless-stopped \
+     --network pmm-network \
+     -v /var/run/docker.sock:/var/run/docker.sock \
+     containrrr/watchtower \
+     --cleanup \
+     --no-startup-message \
+     --http-api-update \
+     --http-api-token your_api_token
+   ```
 
-    ---
-??? info "Key points"
-
-    - To disable the Home Dashboard **PMM Upgrade** panel you can either add `-e PMM_ENABLE_UPDATES=false` to the `docker run` command (for the life of the container) or navigate to _PMM --> PMM Settings --> Advanced Settings_ and disable "Check for Updates" (can be turned back on by any admin in the UI).
-
-    - Eliminate browser certificate warnings by configuring a [trusted certificate](https://docs.percona.com/percona-monitoring-and-management/how-to/secure.html#ssl-encryption).
-
-    - You can optionally enable an (insecure) HTTP connection by adding `--publish 80:80` to the `docker run` command. However, running PMM insecure is not recommended. You should also note that PMM Client *requires* TLS to communicate with the server, only working on a secure port.
+3Ö Install PMM Server (choose one storage option):
+   - [Running Docker with host directory](../docker/run_with_host_dir.md)
+   - [Running Docker with volume](../docker/run_with_vol.md)
