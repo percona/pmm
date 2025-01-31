@@ -22,7 +22,7 @@ You can install PMM Server with Watchtower in two ways:
 
 #### Easy-install script 
 
-The [Easy-install script](../docker/easy-install.md) implifies setup by including Watchtower commands, enabling a one-step installation of PMM with Watchtower. Run the following command:
+The [Easy-install script](../docker/easy-install.md) simplifies setup by including Watchtower commands, enabling a one-step installation of PMM with Watchtower. Run the following command:
      ```sh
      curl -fsSL https://www.percona.com/get/pmm | /bin/bash
      ```
@@ -54,3 +54,22 @@ For a more customizable setup, follow these steps:
 
    - [Running Docker with host directory](../docker/run_with_host_dir.md)
    - [Running Docker with volume](../docker/run_with_vol.md)
+
+## Run Docker container
+
+??? info "Summary"
+
+    !!! summary alert alert-info ""
+        - Pull the Docker image.
+        - Choose how you want to store data.
+        - Run the image.
+        - Open the PMM UI in a browser.
+
+    ---
+??? info "Key points"
+
+    - To disable the Home Dashboard **PMM Upgrade** panel you can either add `-e PMM_ENABLE_UPDATES=false` to the `docker run` command (for the life of the container) or navigate to _PMM --> PMM Settings --> Advanced Settings_ and disable "Check for Updates" (can be turned back on by any admin in the UI).
+
+    - Eliminate browser certificate warnings by configuring a [trusted certificate](https://docs.percona.com/percona-monitoring-and-management/how-to/secure.html#ssl-encryption).
+
+    - You can optionally enable an (insecure) HTTP connection by adding `--publish 80:80` to the `docker run` command. However, running PMM insecure is not recommended. You should also note that PMM Client *requires* TLS to communicate with the server, only working on a secure port.
