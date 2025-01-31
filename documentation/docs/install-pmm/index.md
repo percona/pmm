@@ -31,15 +31,15 @@ The installation choices are:
 
 === "With Docker"
 
-    - [Docker installation](client/index.md#docker) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).
+    - [Docker installation](install-pmm-client/docker.md) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).
 
 === "With package manager"
 
-    - [Linux package](client/index.md#package-manager). Use `apt`, `apt-get`, `dnf`, `yum`. The package manager automatically selects the correct version for your architecture.
+    - [Linux package](install-pmm-client/package_manager.md). Use `apt`, `apt-get`, `dnf`, `yum`. The package manager automatically selects the correct version for your architecture.
 
 === "With binary package"
 
-    - [Binary package](client/index.md#binary-package): Download the appropriate `.tar.gz` file for your architecture (x86_64 or ARM64).
+    - [Binary package](install-pmm-client/binary_package.md): Download the appropriate `.tar.gz` file for your architecture (x86_64 or ARM64).
 
 
 !!! hint alert "Tips"
