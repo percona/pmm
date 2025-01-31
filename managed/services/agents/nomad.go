@@ -23,7 +23,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -110,9 +109,7 @@ func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*age
 		"{{ .TextFiles.nomadConfigPlaceholder }}",
 	}
 
-	tdp := models.TemplateDelimsPair(
-		append(args, pointer.GetString(exporter.MetricsPath))...,
-	)
+	tdp := models.TemplateDelimsPair()
 
 	config, err := generateNomadClientConfig(node, exporter, tdp)
 	if err != nil {
@@ -132,7 +129,7 @@ func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*age
 		return nil, errors.Wrap(err, "Failed to read client key")
 	}
 	params := &agentv1.SetStateRequest_AgentProcess{
-		Type:               inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
+		Type:               inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
