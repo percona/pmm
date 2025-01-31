@@ -53,6 +53,7 @@ For a more customizable setup, follow these steps:
      --http-api-token your_api_token
    ```
 
-3Ö Install PMM Server (choose one storage option):
+3 Install PMM Server (choose one storage option):
+
    - [Running Docker with host directory](../docker/run_with_host_dir.md)
    - [Running Docker with volume](../docker/run_with_vol.md)
