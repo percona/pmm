@@ -8107,7 +8107,7 @@
 </li>
 <li>
 <p>Run the image:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"> </span>--restart<span class="w"> </span>always<span class="w"> </span><span class="se">\</span>
+<p><div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"> </span>--restart<span class="w"> </span>always<span class="w"> </span><span class="se">\</span>
 --publish<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span><span class="se">\</span>
 --env<span class="w"> </span><span class="nv">PMM_WATCHTOWER_HOST</span><span class="o">=</span>your_watchtower_host<span class="w"> </span><span class="se">\</span>
 --env<span class="w"> </span><span class="nv">PMM_WATCHTOWER_TOKEN</span><span class="o">=</span>your_watchtower_token<span class="w"> </span><span class="se">\</span>
@@ -8116,15 +8116,8 @@
 --name<span class="w"> </span>pmm-server<span class="w"> </span><span class="se">\</span>
 percona/pmm-server:3
 </code></pre></div>
-</li>
-<li>
-<p>Change the password for the default <code>admin</code> user:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-server<span class="w"> </span>change-admin-password<span class="w"> </span>&lt;new_password&gt;
-</code></pre></div>
-</li>
-<li>
-<p>Check the <a href="../docker/index.md|#prerequisites">Watchtower prerequisites</a> and pass the following command to Docker Socket to start <a href="https://containrrr.dev/watchtower/">Watchtower</a>:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-v<span class="w"> </span>/var/run/docker.sock:/var/run/docker.sock<span class="w"> </span>-e<span class="w"> </span><span class="nv">WATCHTOWER_HTTP_API_UPDATE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">WATCHTOWER_HTTP_API_TOKEN</span><span class="o">=</span>your_watchtower_token<span class="w"> </span>--hostname<span class="o">=</span>your_watchtower_host<span class="w"> </span>--network<span class="o">=</span>pmm_default<span class="w"> </span>docker.io/perconalab/watchtower
+4. Change the password for the default <code>admin</code> user, replacing <code>your_secure_password</code> with a strong, unique password:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-server<span class="w"> </span>change-admin-password<span class="w"> </span>your_secure_password
 </code></pre></div>
 </li>
 <li>
@@ -8155,7 +8148,7 @@ percona/pmm-server:3
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-01-30
+    2025-01-31
   </span>
 
     

@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="This section provides instructions for running PMM Server with Docker based on the PMM Docker image.">
+        <meta name="description" content="This section explains how to install PMM Server as a Docker container. To enable PMM Server upgrades via the Upgrade page and the Upgrade Now button on the Home dashboard, you must configure Watchtower during the PMM Server installation.">
       
       
         <meta name="author" content="Percona LLC">
@@ -904,35 +904,20 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#running-pmm-server-with-watchtower" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
-      Running PMM Server with Watchtower
+      Prerequisites
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#installing-pmm-server-manually" class="md-nav__link">
+  <a href="#installation-options" class="md-nav__link">
     <span class="md-ellipsis">
-      Installing PMM Server manually
+      Installation options
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Installing PMM Server manually">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#manual-installation-prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      Manual installation prerequisites
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -8072,35 +8057,20 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#running-pmm-server-with-watchtower" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
-      Running PMM Server with Watchtower
+      Prerequisites
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#installing-pmm-server-manually" class="md-nav__link">
+  <a href="#installation-options" class="md-nav__link">
     <span class="md-ellipsis">
-      Installing PMM Server manually
+      Installation options
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Installing PMM Server manually">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#manual-installation-prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      Manual installation prerequisites
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -8161,31 +8131,59 @@
 
 
 <h1 id="install-pmm-server-with-docker-container">Install PMM Server with Docker container<a class="headerlink" href="#install-pmm-server-with-docker-container" title="Permanent link">&para;</a></h1>
-<p>This section provides instructions for running PMM Server with Docker based on the <a href="https://hub.docker.com/r/percona/pmm-server">PMM Docker image</a>.</p>
-<h2 id="running-pmm-server-with-watchtower">Running PMM Server with Watchtower<a class="headerlink" href="#running-pmm-server-with-watchtower" title="Permanent link">&para;</a></h2>
-<p>To enable PMM Server upgrades via the <strong>Upgrade page</strong> and the <strong>Upgrade Now</strong> button on the Home dashboard, you must configure Watchtower during the PMM Server installation. Watchtower is a container monitoring tool that helps update Docker containers to their latest version when triggered.</p>
-<p>The <a href="../easy-install.md">Easy-install script</a> script includes Watchtower commands, allowing for a one-step setup of PMM alongside Watchtower.</p>
-<p>You can also install PMM 3 manually, following the instructions below.</p>
-<h2 id="installing-pmm-server-manually">Installing PMM Server manually<a class="headerlink" href="#installing-pmm-server-manually" title="Permanent link">&para;</a></h2>
-<p>Before starting the installation, review the installation prerequisites below and choose a method to run PMM Server with Docker based on your preferred data storage option:</p>
+<p>This section explains how to install PMM Server as a Docker container. To enable PMM Server upgrades via the <strong>Upgrade page</strong> and the <strong>Upgrade Now</strong> button on the <strong>Home</strong> dashboard, you must configure Watchtower during the PMM Server installation.</p>
+<p>Watchtower is a container-updating tool that enables <a href="../../../../pmm-upgrade/ui_upgrade.html">PMM Server upgrades</a> through the UI. Without it, the <strong>Upgrade</strong> page and <strong>Upgrade Now</strong> button will not be available.</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<p>Before starting the installation:</p>
 <ul>
-<li><a href="run_with_host_dir.html">Running Docker with host directory</a></li>
-<li><a href="run_with_vol.html">Running Docker with volume</a></li>
+<li>Install Docker version 17.03 or higher</li>
+<li>Ensure your CPU supports <code>x86-64-v2</code></li>
+<li>For manual installation, consider these Watchtower security requirements:</li>
+<li>Restrict Watchtower access to Docker network or localhost</li>
+<li>Configure network to expose only PMM Server externally</li>
+<li>Secure Docker socket access for Watchtower</li>
+<li>Place both Watchtower and PMM Server on the same network</li>
 </ul>
-<h3 id="manual-installation-prerequisites">Manual installation prerequisites<a class="headerlink" href="#manual-installation-prerequisites" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Install <a href="https://docs.docker.com/get-docker/">Docker</a> version 17.03 or higher.</li>
-<li>Ensure your CPU (and any virtualization layer you may be using) supports <code>x86-64-v2</code>.</li>
+<h2 id="installation-options">Installation options<a class="headerlink" href="#installation-options" title="Permanent link">&para;</a></h2>
+<p>You can install PMM Server with Watchtower in two ways:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Easy-install script</label><label for="__tabbed_1_2">Manual installation</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>The <a href="easy-install.html">Easy-install script</a> simplifies setup by including Watchtower commands, enabling a one-step installation of PMM with Watchtower. Run the following command:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://www.percona.com/get/pmm<span class="w"> </span><span class="p">|</span><span class="w"> </span>/bin/bash
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p class="power-number">For a more customizable setup, follow these steps:</p>
+<ol>
 <li>
-<p>Install Watchtower to automatically update your containers with the following considerations:</p>
+<p>Create a Docker network for PMM and Watchtower:
+     <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>network<span class="w"> </span>create<span class="w"> </span>pmm-network
+</code></pre></div></p>
+</li>
+<li>
+<p>Install Watchtower using the command below. The <code>your_token</code> value must match the <code>WATCHTOWER_HTTP_API_TOKEN</code> value used in your PMM Server container configuration:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"> </span><span class="se">\</span>
+--restart<span class="w"> </span>always<span class="w"> </span><span class="se">\</span>
+--network<span class="o">=</span>&lt;your_network&gt;<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">WATCHTOWER_HTTP_API_TOKEN</span><span class="o">=</span>your_token<span class="w"> </span><span class="se">\</span>
+-e<span class="w"> </span><span class="nv">WATCHTOWER_HTTP_API_UPDATE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+--volume<span class="w"> </span>/var/run/docker.sock:/var/run/docker.sock<span class="w"> </span><span class="se">\</span>
+--name<span class="w"> </span>watchtower<span class="w"> </span><span class="se">\</span>
+percona/watchtower:latest
+</code></pre></div>
+</li>
+<li>
+<p>Run PMM Server with Docker based on your preferred data storage method:</p>
 <ul>
-<li>Ensure Watchtower is only accessible from within the Docker network or local host to prevent unauthorized access and enhance container security.</li>
-<li>Configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Docker network.</li>
-<li>Grant Watchtower access to the Docker socket to monitor and manage containers effectively, ensuring proper security measures are in place to protect the Docker socket.</li>
-<li>Verify that both Watchtower and PMM Server are on the same network, or ensure PMM Server can connect to Watchtower for communication. This network setup is essential for PMM Server to initiate updates through Watchtower.</li>
+<li><a href="run_with_host_dir.html">Run Docker with host directory</a></li>
+<li><a href="run_with_vol.html">Run Docker with volume</a></li>
 </ul>
 </li>
-</ul>
+</ol>
+</div>
+</div>
+</div>
 <h2 id="run-docker-container">Run Docker container<a class="headerlink" href="#run-docker-container" title="Permanent link">&para;</a></h2>
 <details class="info">
 <summary>Summary</summary>
@@ -8233,7 +8231,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-01-30
+    2025-01-31
   </span>
 
     
