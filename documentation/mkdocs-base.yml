@@ -118,7 +118,7 @@ plugins:
   # https://pypi.org/project/mkdocs-exclude/
   exclude:
     glob:
-      - "setting-up/client/docker.md"
+      - "install-pmm/install-pmm-client/docker.md"
   mike:
     version_selector: true
     css_dir: css

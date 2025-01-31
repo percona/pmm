@@ -4,7 +4,7 @@ The address or hostname PMM Server will be accessible at. Click **Get from brows
 
 ## Alerting
 
-Enables [Percona Alerting](../get-started/alerting.md) and reveals the **Percona templated alerts** option on the Alerting page.
+Enables [Percona Alerting](../alert/index.md) and reveals the **Percona templated alerts** option on the Alerting page.
 
 ## Microsoft Azure Monitoring
 

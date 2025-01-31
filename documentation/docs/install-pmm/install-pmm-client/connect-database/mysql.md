@@ -176,7 +176,7 @@ Some MySQL-based database servers support extended slow query log variables.
 
 Slow query log files can grow quickly and must be managed.
 
-When adding a service with the command line use the  `pmm-admin` option `--size-slow-logs` to set at what size the slow query log file is rotated. (The size is specified as a number with a suffix. See [`pmm-admin add mysql`](../../details/commands/pmm-admin.md#mysql).)
+When adding a service with the command line use the  `pmm-admin` option `--size-slow-logs` to set at what size the slow query log file is rotated. (The size is specified as a number with a suffix. See [`pmm-admin add mysql`](../../../use/commands/pmm-admin.md#mysql).)
 
 When the limit is reached, PMM Client will:
 

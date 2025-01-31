@@ -7,11 +7,11 @@ This is the simplest and most efficient way to install PMM with Docker.
 ??? info "Alternative installation options"
      For alternative setups or if you're not using Docker, explore the additional installation options detailed in the **Setting up** chapter:
 
-    - [Deploy on Podman](../setting-up/server/podman.md)
-    - [Deploy based on a Docker image](../setting-up/server/docker.md)
-    - [Deploy on Virtual Appliance](../setting-up/server/virtual-appliance.md)
-    - [Deploy on Kubernetes via Helm](../setting-up/server/helm.md)
-    - [Run a PMM instance hosted at AWS Marketplace](../setting-up/server/aws.md)
+    - [Deploy on Podman](../install-pmm/install-pmm-server/baremetal/podman/index.md)
+    - [Deploy based on a Docker image](../install-pmm/install-pmm-server/baremetal/docker/index.md)
+    - [Deploy on Virtual Appliance](../install-pmm/install-pmm-server/baremetal/virtual/index.md)
+    - [Deploy on Kubernetes via Helm](../install-pmm/install-pmm-server/baremetal/helm/index.md)
+    - [Run a PMM instance hosted at AWS Marketplace](../install-pmm/install-pmm-server/aws/aws.md)
 
 #### Prerequisites
 
@@ -126,11 +126,11 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add mysql --query-source=perfschema --username=pmm --password=<your_password>
         ```
     ??? info "Alternative database connection workflows"
-        While the default instructions above focus on connecting a self-hosted MySQL database, PMM offers the flexibility to connect to various MySQL databases, including [AWS RDS](../setting-up/client/aws.md), [Azure MySQL](../setting-up/client/azure.md) or [Google Cloud MySQL](../setting-up/client/google.md). 
+        While the default instructions above focus on connecting a self-hosted MySQL database, PMM offers the flexibility to connect to various MySQL databases, including [AWS RDS](../install-pmm/install-pmm-client/connect-database/aws.md), [Azure MySQL](../install-pmm/install-pmm-client/connect-database/azure.md) or [Google Cloud MySQL](../install-pmm/install-pmm-client/connect-database/google.md). 
 
-        The PMM Client installation also comes with options: in addition to the installation via Package Manager described above, you can also install it as a Docker container or as a binary package. Explore [alternative PMM Client installation options](../setting-up/client/index.html#binary-package) for more information.
+        The PMM Client installation also comes with options: in addition to the installation via Package Manager described above, you can also install it as a Docker container or as a binary package. Explore [alternative PMM Client installation options](../install-pmm/install-pmm-client/connect-database/index.html#binary-package) for more information.
 
-        Additionally, if direct access to the database node isn't available, opt to [Add remote instance via User Interface](../setting-up/client/mysql.html#with-the-user-interface) instead. 
+        Additionally, if direct access to the database node isn't available, opt to [Add remote instance via User Interface](../install-pmm/install-pmm-client/connect-database/mysql.html#with-the-user-interface) instead. 
 
 === ":simple-postgresql: PostgreSQL"
 
@@ -152,7 +152,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
     3. Set up the `pg_stat_monitor` database extension and configure your database server accordingly. 
     
-        If you need to use the `pg_stat_statements` extension instead, see [Adding a PostgreSQL database](../setting-up/client/postgresql.md) and the [`pg_stat_monitor` online documentation](https://docs.percona.com/pg-stat-monitor/configuration.html) for details about available parameters.
+        If you need to use the `pg_stat_statements` extension instead, see [Adding a PostgreSQL database](../install-pmm/install-pmm-client/connect-database/postgresql.md) and the [`pg_stat_monitor` online documentation](https://docs.percona.com/pg-stat-monitor/configuration.html) for details about available parameters.
 
     4. Set or change the value for `shared_preload_library` in your `postgresql.conf` file:
 
@@ -231,7 +231,7 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add postgresql --username=pmm --password=<your_password>
         ```
             
-    For detailed instructions and advanced installation options, see [Adding a PostgreSQL database](../setting-up/client/postgresql.md).
+    For detailed instructions and advanced installation options, see [Adding a PostgreSQL database](../install-pmm/install-pmm-client/connect-database/postgresql.md).
 
 === ":simple-mongodb: MongoDB"
 
@@ -345,7 +345,7 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add mongodb --username=pmm --password=<your_password>
         ```
    
-    For detailed instructions, see [Adding a MongoDB database for monitoring](https://docs.percona.com/percona-monitoring-and-management/setting-up/client/mongodb.html).
+    For detailed instructions, see [Adding a MongoDB database for monitoring](../install-pmm/install-pmm-client/connect-database/mongodb.html).
 
 === ":simple-nginxproxymanager: ProxySQL"
     To connect a ProxySQL service:
@@ -412,7 +412,7 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add proxysql --username=pmm --password=<your_password>
         ```
 
-    For detailed instructions, see [Enable ProxySQL performance metrics monitoring](../setting-up/client/proxysql.md).
+    For detailed instructions, see [Enable ProxySQL performance metrics monitoring](../install-pmm/install-pmm-client/connect-database/proxysql.md).
 
 === ":material-database: HAProxy"
     To connect an HAProxy service:
@@ -478,17 +478,17 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add haproxy --listen-port=8404
         ```
 
-    For detailed instructions and more information on the command arguments, see the [HAProxy topic](../setting-up/client/haproxy.md).
+    For detailed instructions and more information on the command arguments, see the [HAProxy topic](../install-pmm/install-pmm-client/connect-database/haproxy.md).
 
 ## Check database monitoring results
 
 After installing PMM and connecting the database, go to the database's Instance Summary dashboard. This shows essential information about your database performance and an overview of your environment.
 
-For more information, see [PMM Dashboards](../details//dashboards/index.md).
+For more information, see [PMM Dashboards](../use/dashboards-panels/index.md).
 
 ## Next steps
 
-- [Configure PMM via the interface](../how-to/configure.md)
+- [Configure PMM via the interface](../configure-pmm/configure.md)
 - [Manage users in PMM](../how-to/manage-users.md)
-- [Set up roles and permissions](../get-started/roles-and-permissions/index.md)
-- [Back up and restore data in PMM](../get-started/backup/index.md)
+- [Set up roles and permissions](../pmm-admin/roles/index.md)
+- [Back up and restore data in PMM](../backup/index.md)

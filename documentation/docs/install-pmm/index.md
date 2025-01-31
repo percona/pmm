@@ -31,15 +31,15 @@ The installation choices are:
 
 === "With Docker"
 
-    - [Docker installation](client/index.md#docker) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).
+    - [Docker installation](install-pmm-client/docker.md) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).
 
 === "With package manager"
 
-    - [Linux package](client/index.md#package-manager). Use `apt`, `apt-get`, `dnf`, `yum`. The package manager automatically selects the correct version for your architecture.
+    - [Linux package](install-pmm-client/package_manager.md). Use `apt`, `apt-get`, `dnf`, `yum`. The package manager automatically selects the correct version for your architecture.
 
 === "With binary package"
 
-    - [Binary package](client/index.md#binary-package): Download the appropriate `.tar.gz` file for your architecture (x86_64 or ARM64).
+    - [Binary package](install-pmm-client/binary_package.md): Download the appropriate `.tar.gz` file for your architecture (x86_64 or ARM64).
 
 
 !!! hint alert "Tips"
@@ -63,18 +63,18 @@ On each PMM Client instance, configure the nodes and services you want to monito
     - [HAProxy];
     - [Remote instances].
 
-[MySQL]: client/mysql.md
-[MongoDB]: client/mongodb.md
-[PostgreSQL]: client/postgresql.md
-[ProxySQL]: client/proxysql.md
-[Amazon RDS]: client/aws.md
-[Microsoft Azure]: client/azure.md
-[Google Cloud Platform]: client/google.md
-[Linux]: client/linux.md
-[External services]: client/external.md
-[HAProxy]: client/haproxy.md
-[Remote instances]: client/remote.md
-[dashboards]: ../details/dashboards/
+[MySQL]: install-pmm-client/mysql.md
+[MongoDB]: install-pmm-client/mongodb.md
+[PostgreSQL]: install-pmm-client/postgresql.md
+[ProxySQL]: install-pmm-client/proxysql.md
+[Amazon RDS]: install-pmm-client/aws.md
+[Microsoft Azure]: install-pmm-client/azure.md
+[Google Cloud Platform]: install-pmm-client/google.md
+[Linux]: install-pmm-client/linux.md
+[External services]: install-pmm-client/external.md
+[HAProxy]: install-pmm-client/haproxy.md
+[Remote instances]: install-pmm-client/remote.md
+[dashboards]: ../use/dashboards-panels/index.md
 [Docker]: ../install-pmm/install-pmm-server/baremetal/docker/index.md
 [Podman]: ../install-pmm/install-pmm-server/baremetal/podman/index.md
 [Helm]: ../install-pmm/install-pmm-server/baremetal/helm/index.md

@@ -14,7 +14,7 @@
 ## Custom filter groups
 
 !!! caution alert alert-warning "Important/Caution"
-    This feature is still in [Technical Preview](https://docs.percona.com/percona-monitoring-and-management/details/glossary.html#technical-preview) and is subject to change. We recommend that early adopters use this feature for testing purposes only.
+    This feature is still in [Technical Preview](../../../reference/glossary.md#technical-preview) and is subject to change. We recommend that early adopters use this feature for testing purposes only.
 
 Filter queries using custom key=value pairs from query comments. This feature is disabled by default.
 

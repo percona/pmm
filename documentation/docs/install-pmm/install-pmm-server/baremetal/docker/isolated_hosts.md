@@ -34,6 +34,6 @@ If the host where you will run PMM Server has no internet connection, you can do
 [Docker]: https://docs.docker.com/get-docker/
 [Docker image]: https://hub.docker.com/r/percona/pmm-server
 [Docker compose]: https://docs.docker.com/compose/
-[PMMC_COMPOSE]: ../client/index.md#docker-compose
-[trusted certificate]: ../../how-to/secure.md#ssl-encryption
+[PMMC_COMPOSE]: ../../../install-pmm-client/docker.md
+[trusted certificate]: ../../../../how-to/secure.md#ssl-encryption
 [Easy-install script]: easy-install.md

@@ -142,7 +142,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
     3. Set up the `pg_stat_monitor` database extension and configure your database server accordingly. 
     
-        If you need to use the `pg_stat_statements` extension instead, see [Adding a PostgreSQL database](../setting-up/client/postgresql.md) and the [`pg_stat_monitor` online documentation](https://docs.percona.com/pg-stat-monitor/configuration.html) for details about available parameters.
+        If you need to use the `pg_stat_statements` extension instead, see [Adding a PostgreSQL database](../install-pmm/install-pmm-client/connect-database/postgresql.md) and the [`pg_stat_monitor` online documentation](https://docs.percona.com/pg-stat-monitor/configuration.html) for details about available parameters.
 
     4. Set or change the value for `shared_preload_library` in your `postgresql.conf` file:
 
@@ -211,7 +211,7 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add postgresql --username=pmm --password=<your_password>
         ```
             
-    For detailed instructions and advanced installation options, see [Adding a PostgreSQL database](../setting-up/client/postgresql.md).
+    For detailed instructions and advanced installation options, see [Adding a PostgreSQL database](../install-pmm/install-pmm-client/connect-database/postgresql.md).
 
 === ":simple-mongodb: MongoDB"
 
@@ -315,7 +315,7 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add mongodb --username=pmm --password=<your_password>
         ```
    
-    For detailed instructions, see [Adding a MongoDB database for monitoring](https://docs.percona.com/percona-monitoring-and-management/setting-up/client/mongodb.html).
+    For detailed instructions, see [Adding a MongoDB database for monitoring](install-pmm/install-pmm-client/connect-database/mongodb.html).
 
 === ":simple-nginxproxymanager: ProxySQL"
     To connect a ProxySQL service:
@@ -372,7 +372,7 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add proxysql --username=pmm --password=<your_password>
         ```
 
-    For detailed instructions, see [Enable ProxySQL performance metrics monitoring](../setting-up/client/proxysql.md).
+    For detailed instructions, see [Enable ProxySQL performance metrics monitoring](../install-pmm/install-pmm-client/connect-database/proxysql.md).
 
 === ":material-database: HAProxy"
     To connect an HAProxy service:
