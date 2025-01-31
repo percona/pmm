@@ -1,10 +1,8 @@
 # Install PMM Server with Docker container
 
-This section provides instructions for running PMM Server with Docker based on the PMM Docker image.
+This section explains how to install PMM Server as a Docker container. To enable PMM Server upgrades via the **Upgrade page** and the **Upgrade Now** button on the **Home** dashboard, you must configure Watchtower during the PMM Server installation.
 
-## Running PMM Server with Watchtower
-
-To enable PMM Server upgrades via the **Upgrade page** and the **Upgrade Now** button on the Home dashboard, you must configure Watchtower during the PMM Server installation. Watchtower is a container monitoring tool that helps update Docker containers to their latest version when triggered.
+Watchtower is a container-updating tool that enables [PMM Server upgrades](../../../../pmm-upgrade/ui_upgrade.md) through the UI. Without it, the **Upgrade** page and **Upgrade Now** button will not be available.
 
 ### Prerequisites
 
@@ -39,18 +37,17 @@ For a more customizable setup, follow these steps:
    docker network create pmm-network
    ```
 
-2.  Install Watchtower:
+2. Install Watchtower using the command below. The <your_token> value must match the `WATCHTOWER_HTTP_API_TOKEN` value used in your PMM Server container configuration:
+
    ```sh
-   docker run -d \
-     --name watchtower \
-     --restart unless-stopped \
-     --network pmm-network \
-     -v /var/run/docker.sock:/var/run/docker.sock \
-     containrrr/watchtower \
-     --cleanup \
-     --no-startup-message \
-     --http-api-update \
-     --http-api-token your_api_token
+   docker run --detach \
+   --restart always \
+   --network=<your_network> \
+   -e WATCHTOWER_HTTP_API_TOKEN=<your_token> \
+   -e WATCHTOWER_HTTP_API_UPDATE=1 \
+   --volume /var/run/docker.sock:/var/run/docker.sock \
+   --name watchtower \
+   percona/watchtower:latest
    ```
 
 3 Install PMM Server (choose one storage option):
