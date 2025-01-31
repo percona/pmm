@@ -328,7 +328,7 @@ func TestPerfSchema(t *testing.T) {
 		}
 
 	default:
-		t.Log("Unhandled version, assuming dummy digests.")
+		t.Logf("Unhandled version, assuming dummy digests. MySQL version: %s, vendor: %s", mySQLVersion, mySQLVendor)
 		digests = map[string]string{
 			"SELECT `sleep` (?)":   "TODO-sleep",
 			"SELECT * FROM `city`": "TODO-star",
