@@ -39,13 +39,13 @@ You can install PMM Server with Watchtower in two ways:
          docker network create pmm-network
          ```
 
-    2. Install Watchtower using the command below. The <your_token> value must match the `WATCHTOWER_HTTP_API_TOKEN` value used in your PMM Server container configuration:
+    2. Install Watchtower using the command below. The `your_token` value must match the `WATCHTOWER_HTTP_API_TOKEN` value used in your PMM Server container configuration:
 
          ```sh
          docker run --detach \
          --restart always \
          --network=<your_network> \
-         -e WATCHTOWER_HTTP_API_TOKEN=<your_token> \
+         -e WATCHTOWER_HTTP_API_TOKEN=your_token \
          -e WATCHTOWER_HTTP_API_UPDATE=1 \
          --volume /var/run/docker.sock:/var/run/docker.sock \
          --name watchtower \

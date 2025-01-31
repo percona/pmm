@@ -24,12 +24,12 @@ To run Docker with the host directory:
     --name pmm-server \
     percona/pmm-server:3
     ```
-
-4. Change the password for the default `admin` user:
+4. Change the password for the default `admin` user, replacing `your_secure_password` with a strong, unique password:
 
     ```sh
-    docker exec -t pmm-server change-admin-password <new_password>
+    docker exec -t pmm-server change-admin-password your_secure_password
     ```
+
 5. Visit `https://localhost:443` to see the PMM user interface in a web browser. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
 
 ## Migrate from data container to host directory
