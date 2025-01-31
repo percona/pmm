@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="PMM Server lets you visually interact with API resources representing all objects within PMM. You can browse the API using the Swagger UI, accessible at the /swagger/ endpoint URL:">
+        <meta name="description" content="PMM Server provides a comprehensive REST API that enables you to monitor databases, manage resources, collect metrics, and automate PMM operations programmatically. The API supports endpoints for managing nodes, services, agents, alerting, backups, and other PMM components.">
       
       
         <meta name="author" content="Percona LLC">
@@ -6050,9 +6050,69 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#service-accounts-and-authentication" class="md-nav__link">
+  <a href="#interactive-api-documentation" class="md-nav__link">
     <span class="md-ellipsis">
-      Service accounts and authentication
+      Interactive API documentation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-api-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core API resources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core API resources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nodes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Agents
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-types-and-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resource types and management
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authentication
     </span>
   </a>
   
@@ -8037,9 +8097,69 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#service-accounts-and-authentication" class="md-nav__link">
+  <a href="#interactive-api-documentation" class="md-nav__link">
     <span class="md-ellipsis">
-      Service accounts and authentication
+      Interactive API documentation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-api-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core API resources
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core API resources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nodes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Agents
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resource-types-and-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resource types and management
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      Authentication
     </span>
   </a>
   
@@ -8093,26 +8213,54 @@
 
 
 <h1 id="about-pmm-api">About PMM API<a class="headerlink" href="#about-pmm-api" title="Permanent link">&para;</a></h1>
-<p>PMM Server lets you visually interact with API resources representing all objects within PMM. You can browse the API using the <a href="https://swagger.io/tools/swagger-ui/">Swagger</a> UI, accessible at the <code>/swagger/</code> endpoint URL:</p>
-<p><img alt="!image" src="../images/PMM_Swagger_API_Get_Logs_View.jpg" /></p>
-<p>Clicking an object lets you examine objects and execute requests on them:</p>
-<p><img alt="!image" src="../images/PMM_Swagger_API_Get_Logs_Execute.jpg" /></p>
-<p>The objects visible are nodes, services, and agents:</p>
+<p>PMM Server provides a comprehensive REST API that enables you to monitor databases, manage resources, collect metrics, and automate PMM operations programmatically. The API supports endpoints for managing nodes, services, agents, alerting, backups, and other PMM components. </p>
+<p>The <a href="https://percona-pmm.readme.io/reference/introduction">complete API documentation on Readme.io</a> includes detailed endpoint specifications, authentication methods, example requests, and response schemas.</p>
+<h2 id="interactive-api-documentation">Interactive API documentation<a class="headerlink" href="#interactive-api-documentation" title="Permanent link">&para;</a></h2>
+<p>You can explore and test the API using the built-in <a href="https://swagger.io/tools/swagger-ui/">Swagger</a> UI, accessible at the <code>/swagger/</code> endpoint of your PMM Server. The Swagger interface allows you to:</p>
 <ul>
-<li>
-<p>A <strong>Node</strong> represents a bare metal server, a virtual machine, a Docker container, or a more specific type such as an Amazon RDS Node. A node runs zero or more Services and Agents, and has zero or more Agents providing insights for it.</p>
-</li>
-<li>
-<p>A <strong>Service</strong> represents something useful running on the Node: Amazon Aurora MySQL, MySQL, MongoDB, etc. It runs on zero (Amazon Aurora Serverless), single (MySQL), or several (Percona XtraDB Cluster) Nodes. It also has zero or more Agents providing insights for it.</p>
-</li>
-<li>
-<p>An <strong>Agent</strong> represents something that runs on the Node which is not useful in itself, but instead provides insights (metrics, query performance data, etc.) about Nodes and/or Services. An agent always runs on the single Node (except External Exporters), and provides insights for zero or more Services and Nodes.</p>
-</li>
+<li>browse available API endpoints</li>
+<li>view detailed request and response schemas</li>
+<li>execute API requests directly from the browser</li>
+<li>test different parameters and see live responses</li>
 </ul>
-<p>Nodes, Services, and Agents have <strong>Types</strong> which define specific their properties, and their specific logic.</p>
-<p>Nodes and Services are inherently external. We don&rsquo;t manage their creation or deletion, but rather maintain a list of them within PMM Server by adding them to or removing them from the inventory. The majority of Agents are initiated and halted by pmm-agent, with one exception being the External Exporter Type, which is initiated externally.</p>
-<h2 id="service-accounts-and-authentication">Service accounts and authentication<a class="headerlink" href="#service-accounts-and-authentication" title="Permanent link">&para;</a></h2>
-<p>For information about controlling access to the PMM Server components and resources, see the <strong><a href="authentication.html">Authentication with service accounts</a></strong> topic.</p>
+<p><img alt="!image" src="../images/PMM_Swagger_API_Get_Logs_Execute.jpg" /></p>
+<h2 id="core-api-resources">Core API resources<a class="headerlink" href="#core-api-resources" title="Permanent link">&para;</a></h2>
+<p>The PMM API organizes resources into Nodes, Services and Agents. </p>
+<h3 id="nodes">Nodes<a class="headerlink" href="#nodes" title="Permanent link">&para;</a></h3>
+<p>A Node represents a hosting environment where your services run and monitoring takes place. This can include bare metal servers, virtual machines, Docker containers, or cloud instances like Amazon RDS.</p>
+<p>Each Node can:</p>
+<ul>
+<li>host multiple Services and Agents</li>
+<li>receive insights from zero or more Agents</li>
+<li>be monitored independently of other components</li>
+</ul>
+<h3 id="services">Services<a class="headerlink" href="#services" title="Permanent link">&para;</a></h3>
+<p>A Service represents a monitored database or application instance in your infrastructure. These include database systems like MySQL, MongoDB, Amazon Aurora, PostgreSQL, and other supported database types.</p>
+<p>Services can:</p>
+<ul>
+<li>run on zero nodes (serverless configurations)</li>
+<li>run on a single node (standalone installations)</li>
+<li>span multiple nodes (distributed systems like Percona XtraDB Cluster)</li>
+<li>receive monitoring insights from multiple Agents</li>
+</ul>
+<h3 id="agents">Agents<a class="headerlink" href="#agents" title="Permanent link">&para;</a></h3>
+<p>Agents are the monitoring components that:</p>
+<ul>
+<li>collect metrics, query data, and system information</li>
+<li>run on specific Nodes</li>
+<li>monitor multiple Services and/or Nodes</li>
+<li>include both internal PMM agents and External Exporters</li>
+</ul>
+<h2 id="resource-types-and-management">Resource types and management<a class="headerlink" href="#resource-types-and-management" title="Permanent link">&para;</a></h2>
+<p>All resources (Nodes, Services, and Agents) have specific Types which define their properties and operational logic. These Types determine how each resource behaves and what properties it can have within PMM.</p>
+<p>The management of these resources follows specific patterns:</p>
+<ul>
+<li><strong>Nodes and Services</strong>: These are inherently external resources. PMM does not manage their actual creation or deletion. Instead, PMM maintains an inventory of these resources within PMM Server, allowing you to add them to or remove them from the inventory as needed.</li>
+<li><strong>Agents</strong>: Most Agents are initiated and halted by pmm-agent. The exception is the External Exporter Type, which is initiated externally. Agents are responsible for collecting and reporting monitoring data about Nodes and Services.</li>
+</ul>
+<h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
+<p>API access requires authentication using service account tokens. </p>
+<p>For details about controlling access to the PMM Server components and resources, see <strong><a href="authentication.html">Authentication with service accounts</a></strong> topic.</p>
 
 
 
@@ -8133,7 +8281,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-18
+    2025-01-31
   </span>
 
     
