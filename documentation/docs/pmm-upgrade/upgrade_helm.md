@@ -10,7 +10,7 @@ Percona releases new chart versions to update containers when:
     The UI update feature is disabled by default and should remain so. Do not modify or add the following parameter in your custom `values.yaml` file:
     ```yaml
     pmmEnv:
-    DISABLE_UPDATES: "1"
+    PMM_ENABLE_UPDATES: 'false'
     ```
 
 ## Before you begin
@@ -18,13 +18,13 @@ Percona releases new chart versions to update containers when:
 Before starting the upgrade, complete these preparation steps to ensure you can recover your system if needed and confirm compatibility with the new version:
 {.power-number}
 
-1. Create a backup before upgrading, as downgrades are not possible. Therefore, reverting to a previous version requires a backup made prior to the upgrade.
+1. [Create a backup](../install-pmm/install-pmm-server/baremetal/helm/backup_container_helm.md) before upgrading, as downgrades are not possible. Therefore, reverting to a previous version requires a backup made prior to the upgrade.
 
 2. To reduce downtime, pre-pull the new image on the node where PMM is running:
 
     ```sh
     # Replace <version> with the latest PMM version
-    docker pull perconalab/pmm-server:3.0.0-beta
+    docker pull percona/pmm-server:3
     ```
 
 ## Upgrade steps
@@ -44,12 +44,12 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
     helm upgrade pmm -f values.yaml percona/pmm
     ```
 
-3. After the upgrade, verify that PMM Server is running correctly:
+
+3. After the upgrade, verify that PMM Server is running correctly and all your data is accessible:
 
     ```sh
     kubectl get pods | grep pmm-server
     ```
-
 4. Check the logs for any errors:
 
     ```sh

@@ -14,7 +14,6 @@ You can also install PMM 3 manually, following the instructions below.
 
 Before starting the installation, review the installation prerequisites below and choose a method to run PMM Server with Docker based on your preferred data storage option:
 
-- [Running Docker with Data container](../docker/run_with_data_container.md)
 - [Running Docker with host directory](../docker/run_with_host_dir.md)
 - [Running Docker with volume](../docker/run_with_vol.md)
 
@@ -35,14 +34,14 @@ Before starting the installation, review the installation prerequisites below an
 
     !!! summary alert alert-info ""
         - Pull the Docker image.
-        - Copy it to create a persistent data container.
+        - Choose how you want to store data.
         - Run the image.
         - Open the PMM UI in a browser.
 
     ---
 ??? info "Key points"
 
-    - To disable the Home Dashboard **PMM Upgrade** panel you can either add `-e DISABLE_UPDATES=true` to the `docker run` command (for the life of the container) or navigate to _PMM --> PMM Settings --> Advanced Settings_ and disable "Check for Updates" (can be turned back on by any admin in the UI).
+    - To disable the Home Dashboard **PMM Upgrade** panel you can either add `-e PMM_ENABLE_UPDATES=false` to the `docker run` command (for the life of the container) or navigate to _PMM --> PMM Settings --> Advanced Settings_ and disable "Check for Updates" (can be turned back on by any admin in the UI).
 
     - Eliminate browser certificate warnings by configuring a [trusted certificate](https://docs.percona.com/percona-monitoring-and-management/how-to/secure.html#ssl-encryption).
 
