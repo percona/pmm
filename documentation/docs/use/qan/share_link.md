@@ -10,6 +10,6 @@ To share a link for Query Analytics, use **Copy Link**. It copies the link to th
 
 ![!image](../../images/PMM_Query_Analytics_Share_Link.jpg)
 
-[SLOW_QUERY_LOG]: ../setting-up/client/mysql.md#slow-query-log
-[PERFORMANCE_SCHEMA]: ../setting-up/client/mysql.md#performance-schema
+[SLOW_QUERY_LOG]: ../../install-pmm/install-pmm-client/connect-database/mysql.md#slow-query-log
+[PERFORMANCE_SCHEMA]: ../../install-pmm/install-pmm-client/connect-database/mysql.md#performance-schema
 
