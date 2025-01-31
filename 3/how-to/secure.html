@@ -8105,15 +8105,15 @@
 </ul>
 <h3 id="mounting-certificates">Mounting certificates<a class="headerlink" href="#mounting-certificates" title="Permanent link">&para;</a></h3>
 <p>For example, if your own certificates are in <code>/etc/pmm-certs</code>:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-p<span class="w"> </span><span class="m">443</span>:443<span class="w"> </span>--volumes-from<span class="w"> </span>pmm-data<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--name<span class="w"> </span>pmm-server<span class="w"> </span>-v<span class="w"> </span>/etc/pmm-certs:/srv/nginx<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-p<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span>--name<span class="w"> </span>pmm-server<span class="w">  </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span>pmm-data:/srv<span class="w"> </span>-v<span class="w"> </span>/etc/pmm-certs:/srv/nginx<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--restart<span class="w"> </span>always<span class="w"> </span>percona/pmm-server:3
 </code></pre></div>
 <div class="admonition note alert alert-primary">
 <ul>
 <li>The certificates must be owned by root. You can do this with: <code>chown 0:0 /etc/pmm-certs/*</code></li>
 <li>The mounted certificate directory (<code>/etc/pmm-certs</code> in this example) must contain the files <code>certificate.crt</code>, <code>certificate.key</code>, <code>ca-certs.pem</code> and <code>dhparam.pem</code>.</li>
-<li>For SSL encryption, the container must publish on port 443 instead of 80.</li>
+<li>For SSL encryption, the container must publish port 443 instead of 80.</li>
 </ul>
 </div>
 <h3 id="copying-certificates">Copying certificates<a class="headerlink" href="#copying-certificates" title="Permanent link">&para;</a></h3>
@@ -8166,7 +8166,7 @@ docker<span class="w"> </span>cp<span class="w"> </span>dhparam.pem<span class="
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-01-30
+    2025-01-31
   </span>
 
     
