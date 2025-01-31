@@ -52,20 +52,20 @@ You can install PMM Server with Watchtower in two ways:
          percona/watchtower:latest
          ```
 
-    3. Install PMM Server (choose one storage option):
+    3. Run PMM Server with Docker based on your preferred data storage method:
+         - [Run Docker with host directory](../docker/run_with_host_dir.md)
+         - [Run Docker with volume](../docker/run_with_vol.md)
 
-      - [Running Docker with host directory](../docker/run_with_host_dir.md)
-      - [Running Docker with volume](../docker/run_with_vol.md)
 
 ## Run Docker container
 
-   ??? info "Summary"
+??? info "Summary"
 
-      !!! summary alert alert-info ""
-         - Pull the Docker image.
-         - Choose how you want to store data.
-         - Run the image.
-         - Open the PMM UI in a browser.
+    !!! summary alert alert-info ""
+        - Pull the Docker image.
+        - Choose how you want to store data.
+        - Run the image.
+        - Open the PMM UI in a browser.
 
     ---
 ??? info "Key points"
