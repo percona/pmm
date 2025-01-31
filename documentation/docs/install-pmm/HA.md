@@ -378,15 +378,15 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         --hostname ${PMM_ACTIVE_NODE_ID} \
         --network pmm-network \
         --ip ${PMM_ACTIVE_IP} \
-        -e PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE=1 \
-        -e PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2 \
-        -e PERCONA_TEST_POSTGRES_ADDR=${PG_HOST_IP}:5432 \
-        -e PERCONA_TEST_POSTGRES_USERNAME=${PG_USERNAME} \
-        -e PERCONA_TEST_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
+        -e PMM_DISABLE_BUILTIN_CLICKHOUSE=1 \
+        -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
+        -e PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
+        -e PMM_CLICKHOUSE_DATABASE=pmm \
+        -e PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
+        -e PMM_CLICKHOUSE_POOL_SIZE=2 \
+        -e PMM_POSTGRESADDR=${PG_HOST_IP}:5432 \
+        -e PMM_POSTGRESUSERNAME=${PG_USERNAME} \
+        -e PMM_POSTGRESDBPASSWORD=${PG_PASSWORD} \
         -e GF_DATABASE_URL=postgres://${GF_USERNAME}:${GF_PASSWORD}@${PG_HOST_IP}:5432/grafana \
         -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
         -e PMM_TEST_HA_ENABLE=1 \
@@ -406,22 +406,22 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         ```sh
         docker run -d \
         --name ${PMM_ACTIVE_NODE_ID} \
-        -p 80:80 \
-        -p 443:443 \
+        -p 8080:8080 \
+        -p 8443:8443 \
         -p 9094:9094 \
         -p 9096:9096 \
         -p 9094:9094/udp \
         -p 9096:9096/udp \
         -p 9097:9097 \
-        -e PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE=1 \
-        -e PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2 \
-        -e PERCONA_TEST_POSTGRES_ADDR=${PG_HOST_IP}:5432 \
-        -e PERCONA_TEST_POSTGRES_USERNAME=${PG_USERNAME} \
-        -e PERCONA_TEST_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
+        -e PMM_DISABLE_BUILTIN_CLICKHOUSE=1 \
+        -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
+        -e PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
+        -e PMM_CLICKHOUSE_DATABASE=pmm \
+        -e PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
+        -e PMM_CLICKHOUSE_POOL_SIZE=2 \
+        -e PMM_POSTGRESADDR=${PG_HOST_IP}:5432 \
+        -e PMM_POSTGRESUSERNAME=${PG_USERNAME} \
+        -e PMM_POSTGRESDBPASSWORD=${PG_PASSWORD} \
         -e GF_DATABASE_URL=postgres://${GF_USERNAME}:${GF_PASSWORD}@${PG_HOST_IP}:5432/grafana \
         -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
         -e PMM_TEST_HA_ENABLE=1 \
@@ -448,15 +448,15 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         --hostname ${PMM_PASSIVE_NODE_ID} \
         --network pmm-network \
         --ip ${PMM_PASSIVE_IP} \
-        -e PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE=1 \
-        -e PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2 \
-        -e PERCONA_TEST_POSTGRES_ADDR=${PG_HOST_IP}:5432 \
-        -e PERCONA_TEST_POSTGRES_USERNAME=${PG_USERNAME} \
-        -e PERCONA_TEST_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
+        -e PMM_DISABLE_BUILTIN_CLICKHOUSE=1 \
+        -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
+        -e PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
+        -e PMM_CLICKHOUSE_DATABASE=pmm \
+        -e PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
+        -e PMM_CLICKHOUSE_POOL_SIZE=2 \
+        -e PMM_POSTGRESADDR=${PG_HOST_IP}:5432 \
+        -e PMM_POSTGRESUSERNAME=${PG_USERNAME} \
+        -e PMM_POSTGRESDBPASSWORD=${PG_PASSWORD} \
         -e GF_DATABASE_URL=postgres://${GF_USERNAME}:${GF_PASSWORD}@${PG_HOST_IP}:5432/grafana \
         -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
         -e PMM_TEST_HA_ENABLE=1 \
@@ -476,22 +476,22 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         ```sh
         docker run -d \
         --name ${PMM_PASSIVE_NODE_ID} \
-        -p 80:80 \
-        -p 443:443 \
+        -p 8080:8080 \
+        -p 8443:8443 \
         -p 9094:9094 \
         -p 9096:9096 \
         -p 9094:9094/udp \
         -p 9096:9096/udp \
         -p 9097:9097 \
-        -e PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE=1 \
-        -e PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2 \
-        -e PERCONA_TEST_POSTGRES_ADDR=${PG_HOST_IP}:5432 \
-        -e PERCONA_TEST_POSTGRES_USERNAME=${PG_USERNAME} \
-        -e PERCONA_TEST_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
+        -e PMM_DISABLE_BUILTIN_CLICKHOUSE=1 \
+        -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
+        -e PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
+        -e PMM_CLICKHOUSE_DATABASE=pmm \
+        -e PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
+        -e PMM_CLICKHOUSE_POOL_SIZE=2 \
+        -e PMM_POSTGRESADDR=${PG_HOST_IP}:5432 \
+        -e PMM_POSTGRESUSERNAME=${PG_USERNAME} \
+        -e PMM_POSTGRESDBPASSWORD=${PG_PASSWORD} \
         -e GF_DATABASE_URL=postgres://${GF_USERNAME}:${GF_PASSWORD}@${PG_HOST_IP}:5432/grafana \
         -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
         -e PMM_TEST_HA_ENABLE=1 \
@@ -518,15 +518,15 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         --hostname ${PMM_PASSIVE2_NODE_ID} \
         --network pmm-network \
         --ip ${PMM_PASSIVE2_IP} \
-        -e PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE=1 \
-        -e PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2 \
-        -e PERCONA_TEST_POSTGRES_ADDR=${PG_HOST_IP}:5432 \
-        -e PERCONA_TEST_POSTGRES_USERNAME=${PG_USERNAME} \
-        -e PERCONA_TEST_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
+        -e PMM_DISABLE_BUILTIN_CLICKHOUSE=1 \
+        -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
+        -e PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
+        -e PMM_CLICKHOUSE_DATABASE=pmm \
+        -e PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
+        -e PMM_CLICKHOUSE_POOL_SIZE=2 \
+        -e PMM_POSTGRESADDR=${PG_HOST_IP}:5432 \
+        -e PMM_POSTGRESUSERNAME=${PG_USERNAME} \
+        -e PMM_POSTGRESDBPASSWORD=${PG_PASSWORD} \
         -e GF_DATABASE_URL=postgres://${GF_USERNAME}:${GF_PASSWORD}@${PG_HOST_IP}:5432/grafana \
         -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
         -e PMM_TEST_HA_ENABLE=1 \
@@ -546,22 +546,22 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         ```sh
         docker run -d \
         --name ${PMM_PASSIVE2_NODE_ID} \
-        -p 80:80 \
-        -p 443:443 \
+        -p 80:8080 \
+        -p 443:8443 \
         -p 9094:9094 \
         -p 9096:9096 \
         -p 9094:9094/udp \
         -p 9096:9096/udp \
         -p 9097:9097 \
-        -e PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE=1 \
-        -e PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
-        -e PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2 \
-        -e PERCONA_TEST_POSTGRES_ADDR=${PG_HOST_IP}:5432 \
-        -e PERCONA_TEST_POSTGRES_USERNAME=${PG_USERNAME} \
-        -e PERCONA_TEST_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
+        -e PMM_DISABLE_BUILTIN_CLICKHOUSE=1 \
+        -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
+        -e PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
+        -e PMM_CLICKHOUSE_DATABASE=pmm \
+        -e PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
+        -e PMM_CLICKHOUSE_POOL_SIZE=2 \
+        -e PMM_POSTGRESADDR=${PG_HOST_IP}:5432 \
+        -e PMM_POSTGRESUSERNAME=${PG_USERNAME} \
+        -e PMM_POSTGRESDBPASSWORD=${PG_PASSWORD} \
         -e GF_DATABASE_URL=postgres://${GF_USERNAME}:${GF_PASSWORD}@${PG_HOST_IP}:5432/grafana \
         -e PMM_VM_URL=http://${VM_HOST_IP}:8428 \
         -e PMM_TEST_HA_ENABLE=1 \
@@ -664,17 +664,17 @@ HAProxy provides high availability for your PMM setup by directing traffic to th
         option httpchk
         http-check send meth POST uri /v1/leaderHealthCheck ver HTTP/1.1 hdr Host www
         http-check expect status 200
-        server pmm-server-active-http PMM_ACTIVE_IP:80 check
-        server pmm-server-passive-http PMM_PASSIVE_IP:80 check backup
-        server pmm-server-passive-2-http PMM_PASSIVE2_IP:80 check backup
+        server pmm-server-active-http PMM_ACTIVE_IP:8080 check
+        server pmm-server-passive-http PMM_PASSIVE_IP:8080 check backup
+        server pmm-server-passive-2-http PMM_PASSIVE2_IP:8080 check backup
     
     backend https_back
         option httpchk
         http-check send meth POST uri /v1/leaderHealthCheck ver HTTP/1.1 hdr Host www
         http-check expect status 200
-        server pmm-server-active-https PMM_ACTIVE_IP:443 check ssl verify none
-        server pmm-server-passive-https PMM_PASSIVE_IP:443 check ssl verify none
-        server pmm-server-passive-2-https PMM_PASSIVE2_IP:443 check ssl verify none
+        server pmm-server-active-https PMM_ACTIVE_IP:8443 check ssl verify none
+        server pmm-server-passive-https PMM_PASSIVE_IP:8443 check ssl verify none
+        server pmm-server-passive-2-https PMM_PASSIVE2_IP:8443 check ssl verify none
     ```
     
 8. Before starting the HAProxy container, use `sed` to replace the placeholders in `haproxy.cfg.template` with the environment variables, and write the output to `haproxy.cfg`:
