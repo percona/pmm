@@ -49,7 +49,7 @@
       
     
     
-      <link rel="stylesheet" href="https://unicons.iconscout.com/release/v3.0.3/css/line.css">
+      <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
     
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
     
@@ -299,8 +299,6 @@
   <!-- Navigation tabs (sticky) -->
   
 </header>
-  
-  
     
     <div class="md-container" data-md-component="container">
       
@@ -7948,7 +7946,7 @@
 </nav>
                       <br>
                       <label class="md-nav__title" for="__drawer">
-                        <a href="https://learn.percona.com/download-percona-monitoring-and-management-pmm-manual-2-2" onclick="_gaq.push(['b._trackEvent', 'Percona Monitoring and Management', 'Download', 'Download Manual Percona Monitoring and Management']);" class="md-nav__link md-nav__link--active" style="font-size: .7rem;">
+                        <a href="https://learn.percona.com/download-percona-monitoring-and-management-manual-2" onclick="_gaq.push(['b._trackEvent', 'Percona Monitoring and Management', 'Download', 'Download Manual Percona Monitoring and Management']);" class="md-nav__link md-nav__link--active" style="font-size: .7rem;">
                           Download PDF
                         </a>
                       </label> 
@@ -8031,10 +8029,9 @@
     <p>For help, click the link below to get free database assistance or contact our experts for personalized support.</p>
 
     <div class="actions">
-
-    <a href="https://docs.percona.com/percona-monitoring-and-management/3/get-help.html" style="color: var(--md-typeset-a-color);">Get help from Percona</a>
+      <a href="https://docs.percona.com/percona-monitoring-and-management/3/get-help.html" style="color: var(--md-typeset-a-color);">Get help from Percona</a>
     </div>
-    </div>
+</div>
                     </div>
                   </div>
                 </div>
@@ -8075,11 +8072,11 @@
 <summary>Alternative installation options</summary>
 <p>For alternative setups or if you&rsquo;re not using Docker, explore the additional installation options detailed in the <strong>Setting up</strong> chapter:</p>
 <ul>
-<li><a href="../setting-up/server/podman.md">Deploy on Podman</a></li>
-<li><a href="../setting-up/server/docker.md">Deploy based on a Docker image</a></li>
-<li><a href="../setting-up/server/virtual-appliance.md">Deploy on Virtual Appliance</a></li>
-<li><a href="../setting-up/server/helm.md">Deploy on Kubernetes via Helm</a></li>
-<li><a href="../setting-up/server/aws.md">Run a PMM instance hosted at AWS Marketplace</a></li>
+<li><a href="../setting-up/server/podman.html">Deploy on Podman</a></li>
+<li><a href="../setting-up/server/docker.html">Deploy based on a Docker image</a></li>
+<li><a href="../setting-up/server/virtual-appliance.html">Deploy on Virtual Appliance</a></li>
+<li><a href="../setting-up/server/helm.html">Deploy on Kubernetes via Helm</a></li>
+<li><a href="../setting-up/server/aws.html">Run a PMM instance hosted at AWS Marketplace</a></li>
 </ul>
 </details>
 <h4 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h4>
@@ -8198,7 +8195,7 @@ apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </s
 </ol>
 <details class="info">
 <summary>Alternative database connection workflows</summary>
-<p>While the default instructions above focus on connecting a self-hosted MySQL database, PMM offers the flexibility to connect to various MySQL databases, including <a href="../setting-up/client/aws.md">AWS RDS</a>, <a href="../setting-up/client/azure.md">Azure MySQL</a> or <a href="../setting-up/client/google.md">Google Cloud MySQL</a>. </p>
+<p>While the default instructions above focus on connecting a self-hosted MySQL database, PMM offers the flexibility to connect to various MySQL databases, including <a href="../setting-up/client/aws.html">AWS RDS</a>, <a href="../setting-up/client/azure.html">Azure MySQL</a> or <a href="../setting-up/client/google.html">Google Cloud MySQL</a>. </p>
 <p>The PMM Client installation also comes with options: in addition to the installation via Package Manager described above, you can also install it as a Docker container or as a binary package. Explore <a href="../setting-up/client/index.html#binary-package">alternative PMM Client installation options</a> for more information.</p>
 <p>Additionally, if direct access to the database node isn&rsquo;t available, opt to <a href="../setting-up/client/mysql.html#with-the-user-interface">Add remote instance via User Interface</a> instead. </p>
 </details>
@@ -8219,7 +8216,7 @@ apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </s
 </li>
 <li>
 <p>Set up the <code>pg_stat_monitor</code> database extension and configure your database server accordingly. </p>
-<p>If you need to use the <code>pg_stat_statements</code> extension instead, see <a href="../setting-up/client/postgresql.md">Adding a PostgreSQL database</a> and the <a href="https://docs.percona.com/pg-stat-monitor/configuration.html"><code>pg_stat_monitor</code> online documentation</a> for details about available parameters.</p>
+<p>If you need to use the <code>pg_stat_statements</code> extension instead, see <a href="../setting-up/client/postgresql.html">Adding a PostgreSQL database</a> and the <a href="https://docs.percona.com/pg-stat-monitor/configuration.html"><code>pg_stat_monitor</code> online documentation</a> for details about available parameters.</p>
 </li>
 <li>
 <p>Set or change the value for <code>shared_preload_library</code> in your <code>postgresql.conf</code> file:</p>
@@ -8296,7 +8293,7 @@ apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </s
 </code></pre></div>
 </li>
 </ol>
-<p>For detailed instructions and advanced installation options, see <a href="../setting-up/client/postgresql.md">Adding a PostgreSQL database</a>.</p>
+<p>For detailed instructions and advanced installation options, see <a href="../setting-up/client/postgresql.html">Adding a PostgreSQL database</a>.</p>
 </div>
 <div class="tabbed-block">
 <p class="power-number">To connect a MongoDB database:</p>
@@ -8475,7 +8472,7 @@ apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </s
 </code></pre></div>
 </li>
 </ol>
-<p>For detailed instructions, see <a href="../setting-up/client/proxysql.md">Enable ProxySQL performance metrics monitoring</a>.</p>
+<p>For detailed instructions, see <a href="../setting-up/client/proxysql.html">Enable ProxySQL performance metrics monitoring</a>.</p>
 </div>
 <div class="tabbed-block">
 <p class="power-number">To connect an HAProxy service:</p>
@@ -8542,19 +8539,19 @@ apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </s
 </code></pre></div>
 </li>
 </ol>
-<p>For detailed instructions and more information on the command arguments, see the <a href="../setting-up/client/haproxy.md">HAProxy topic</a>.</p>
+<p>For detailed instructions and more information on the command arguments, see the <a href="../setting-up/client/haproxy.html">HAProxy topic</a>.</p>
 </div>
 </div>
 </div>
 <h2 id="check-database-monitoring-results">Check database monitoring results<a class="headerlink" href="#check-database-monitoring-results" title="Permanent link">&para;</a></h2>
 <p>After installing PMM and connecting the database, go to the database&rsquo;s Instance Summary dashboard. This shows essential information about your database performance and an overview of your environment.</p>
-<p>For more information, see <a href="../details//dashboards/index.md">PMM Dashboards</a>.</p>
+<p>For more information, see <a href="../details/dashboards/index.html">PMM Dashboards</a>.</p>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="../how-to/configure.md">Configure PMM via the interface</a></li>
+<li><a href="../how-to/configure.html">Configure PMM via the interface</a></li>
 <li><a href="../how-to/manage-users.html">Manage users in PMM</a></li>
-<li><a href="../get-started/roles-and-permissions/index.md">Set up roles and permissions</a></li>
-<li><a href="../get-started/backup/index.md">Back up and restore data in PMM</a></li>
+<li><a href="../get-started/roles-and-permissions/index.html">Set up roles and permissions</a></li>
+<li><a href="../get-started/backup/index.html">Back up and restore data in PMM</a></li>
 </ul>
 
 
@@ -8576,7 +8573,7 @@ apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </s
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-01-30
+    2025-02-03
   </span>
 
     
