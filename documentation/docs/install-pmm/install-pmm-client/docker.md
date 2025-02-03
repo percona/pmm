@@ -8,34 +8,34 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
 1. Pull the PMM Client Docker image:
 
     ```sh
-    docker pull \
-   percona/pmm-client:3
+      docker pull \
+      percona/pmm-client:3
     ```
 
 2. Use the image as a template to create a persistent data store that preserves local data when the image is updated:
 
     ```sh
-    docker create \
-    --volume /srv \
-    --name pmm-client-data \
-   percona/pmm-client:3 /bin/true
+      docker create \
+      --volume /srv \
+      --name pmm-client-data \
+      percona/pmm-client:3 /bin/true
     ```
 
 3. Run the container to start [pmm-agent](../../use/commands/pmm-agent.md) in setup mode. Set `X.X.X.X` to the IP address of your PMM Server. (Do not use the `docker --detach` option as PMM agent only logs to the console.)
 
     ```sh
-    PMM_SERVER=X.X.X.X:443
-    docker run \
-    --rm \
-    --name pmm-client \
-    -e PMM_AGENT_SERVER_ADDRESS=${PMM_SERVER} \
-    -e PMM_AGENT_SERVER_USERNAME=admin \
-    -e PMM_AGENT_SERVER_PASSWORD=admin \
-    -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
-    -e PMM_AGENT_SETUP=1 \
-    -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
-    --volumes-from pmm-client-data \
-   percona/pmm-client:3
+      PMM_SERVER=X.X.X.X:443
+      docker run \
+      --rm \
+      --name pmm-client \
+      -e PMM_AGENT_SERVER_ADDRESS=${PMM_SERVER} \
+      -e PMM_AGENT_SERVER_USERNAME=admin \
+      -e PMM_AGENT_SERVER_PASSWORD=admin \
+      -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
+      -e PMM_AGENT_SETUP=1 \
+      -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
+      --volumes-from pmm-client-data \
+      percona/pmm-client:3
     ```
 !!! hint alert-success "Tips"
     You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
@@ -43,8 +43,8 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
 3. Check status.
 
     ```sh
-    docker exec pmm-client \
-    pmm-admin status
+      docker exec pmm-client \
+      pmm-admin status
     ```
 
     In the PMM user interface you will also see an increase in the number of monitored nodes.
