@@ -189,7 +189,7 @@ nav:
         - install-pmm/install-pmm-client/index.md
         - install-pmm/install-pmm-client/prerequisites.md
         - Percona repositories: install-pmm/install-pmm-client/package_manager.md          
-        - Images: install-pmm/install-pmm-client/docker.md
+        - Docker: install-pmm/install-pmm-client/docker.md
         - Manual binaries: install-pmm/install-pmm-client/binary_package.md          
         - Register Client node: install-pmm/register-client-node/index.md 
         - Add services to PMM: 
