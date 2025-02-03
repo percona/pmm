@@ -47,5 +47,4 @@ To remove your contiainer:
 [Docker]: docker.md
 [Docker image]: https://hub.docker.com/r/percona/pmm-server
 [Docker Environment]: docker.md#environment-variables
-[trusted certificate]: ../../how-to/secure.md#ssl-encryption
-[Set up repos]: ../client/index.md#package-manager
+[trusted certificate]: ../../../../how-to/secure.md#ssl-encryption

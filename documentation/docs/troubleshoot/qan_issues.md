@@ -16,4 +16,4 @@ There might be multiple places where the problem might come from:
 
 **Why don't I see the whole query?**
 
-Long query examples and fingerprints can be truncated to 1024 symbols to reduce space usage. In this case, the query explains section will not work.
+Long query examples and fingerprints is truncated to 2048 symbols by default to reduce space usage. In this case, the query explains section will not work. Max query size can be configured using flag `--max-query-length` while adding a service.
