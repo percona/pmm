@@ -12,6 +12,6 @@ You can check the list of available Paid Advisor checks on the [Advisors details
 
 When you connect with a customer account, PMM  reveals two new tabs on the main menu, where you can check all the information available for your customer accounts:  **Entitlements** and **Support tickets**:
 
-![!image](../images/CustomerTickets.png)
+![!image](../../images/CustomerTickets.png)
 
-![!image](../images/CustomerEntitlements.png)
+![!image](../../images/CustomerEntitlements.png)
