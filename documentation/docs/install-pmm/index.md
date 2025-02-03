@@ -17,11 +17,11 @@ Install and run at least one PMM Server. Choose from the following options:
 
 | Use | :material-thumb-up: **Benefits** | :material-thumb-down: **Drawbacks**|
 |---|---|---
-| [Docker] | 1. Quick<br>2. Simple<br> 3. Rootless |  Additional network configuration required.
-| [Podman] | 1. Quick<br>2. Simple<br>3. Rootless | Podman installation required.
-| [Helm] (Technical Preview) | 1. Quick<br>2. Simple<br>3. Cloud-compatible <br> 4. Rootless| Requires running a Kubernetes cluster.
-| [Virtual appliance]  | 1. Easily import into Hypervisor of your choice <br> 2. Rootless| More system resources compared to Docker footprint.
-| [Amazon AWS] | 1. Wizard-driven install. <br>  2. Rootless| Paid, incurs infrastructure costs.
+| [Docker](../install-pmm/install-pmm-server/baremetal/docker/index.md) | 1. Quick<br>2. Simple<br> 3. Rootless |  Additional network configuration required.
+| [Podman](../install-pmm/install-pmm-server/baremetal/podman/index.md) | 1. Quick<br>2. Simple<br>3. Rootless | Podman installation required.
+| [Helm](../install-pmm/install-pmm-server/baremetal/helm/index.md) (Technical Preview) | 1. Quick<br>2. Simple<br>3. Cloud-compatible <br> 4. Rootless| Requires running a Kubernetes cluster.
+| [Virtual appliance](../install-pmm/install-pmm-server/baremetal/virtual/index.md)  | 1. Easily import into Hypervisor of your choice <br> 2. Rootless| More system resources compared to Docker footprint.
+| [Amazon AWS](../install-pmm/install-pmm-server/aws/aws.md) | 1. Wizard-driven install. <br>  2. Rootless| Paid, incurs infrastructure costs.
 
 ## Install PMM Client
 
@@ -31,15 +31,15 @@ The installation choices are:
 
 === "With Docker"
 
-    - [Docker installation](../install-pmm/install-pmm-client/docker.md) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).
+    [Docker installation](../install-pmm/install-pmm-client/docker.md) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).
 
 === "With package manager"
 
-    - [Linux package](../install-pmm/install-pmm-client/package_manager.md). Use `apt`, `apt-get`, `dnf`, `yum`. The package manager automatically selects the correct version for your architecture.
+    [Linux package](../install-pmm/install-pmm-client/package_manager.md). Use `apt`, `apt-get`, `dnf`, `yum`. The package manager automatically selects the correct version for your architecture.
 
 === "With binary package"
 
-    - [Binary package](../install-pmm/install-pmm-client/binary_package.md): Download the appropriate `.tar.gz` file for your architecture (x86_64 or ARM64).
+    [Binary package](../install-pmm/install-pmm-client/binary_package.md): Download the appropriate `.tar.gz` file for your architecture (x86_64 or ARM64).
 
 
 !!! hint alert "Tips"
@@ -75,8 +75,6 @@ On each PMM Client instance, configure the nodes and services you want to monito
 [HAProxy]: install-pmm/install-pmm-client/connect-database/haproxy.md
 [Remote instances]: install-pmm/install-pmm-client/connect-database/remote.md
 [dashboards]: use/dashboards-panels/index.md
-[Docker]: install-pmm/install-pmm-server/baremetal/docker/index.md
-[Podman]: install-pmm/install-pmm-server/baremetal/podman/index.md
 [Helm]: install-pmm/install-pmm-server/baremetal/helm/index.md
 [virtual appliance]: install-pmm/install-pmm-server/baremetal/virtual/index.md
 [Amazon AWS]: install-pmm/install-pmm-server/aws/aws.md
