@@ -27,7 +27,7 @@
     
     
       
-        <title>Images - Percona Monitoring and Management</title>
+        <title>Docker - Percona Monitoring and Management</title>
       
     
     
@@ -90,7 +90,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Images" />
+                 <meta property="og:title" content="Percona Monitoring and Management - Docker" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -188,7 +188,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Images
+              Docker
             
           </span>
         </div>
@@ -1768,7 +1768,7 @@
         
   
   <span class="md-ellipsis">
-    About PMM client installation
+    About PMM Client installation
     
   </span>
   
@@ -1843,7 +1843,7 @@
         
   
   <span class="md-ellipsis">
-    Images
+    Docker
     
   </span>
   
@@ -8035,39 +8035,38 @@
   
 
 
-<h1 id="run-pmm-client-as-a-docker-container">Run PMM client as a Docker container<a class="headerlink" href="#run-pmm-client-as-a-docker-container" title="Permanent link">&para;</a></h1>
+<h1 id="run-pmm-client-as-a-docker-container">Run PMM Client as a Docker container<a class="headerlink" href="#run-pmm-client-as-a-docker-container" title="Permanent link">&para;</a></h1>
 <p>The <a href="https://hub.docker.com/r/percona/pmm-client/tags/">PMM Client Docker image</a> is a convenient way to run PMM Client as a preconfigured <a href="https://docs.docker.com/get-docker/">Docker</a> container. </p>
 <p class="power-number">The PMM Client Docker image is available for both x86_64 and ARM64 architectures. Docker will automatically pull the correct image for your system architecture.</p>
 <ol>
 <li>
 <p>Pull the PMM Client Docker image:</p>
-<p><code>sh
-docker pull \
-   percona/pmm-client:3</code></p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span>docker<span class="w"> </span>pull<span class="w"> </span>percona/pmm-client:3
+</code></pre></div>
 </li>
 <li>
 <p>Use the image as a template to create a persistent data store that preserves local data when the image is updated:</p>
-<p><code>sh
-docker create \
---volume /srv \
---name pmm-client-data \
-   percona/pmm-client:3 /bin/true</code></p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span>docker<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--volume<span class="w"> </span>/srv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>pmm-client-data<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>percona/pmm-client:3<span class="w"> </span>/bin/true
+</code></pre></div>
 </li>
 <li>
 <p>Run the container to start <a href="../../use/commands/pmm-agent.html">pmm-agent</a> in setup mode. Set <code>X.X.X.X</code> to the IP address of your PMM Server. (Do not use the <code>docker --detach</code> option as PMM agent only logs to the console.)</p>
-<p><code>sh
-PMM_SERVER=X.X.X.X:443
-docker run \
---rm \
---name pmm-client \
--e PMM_AGENT_SERVER_ADDRESS=${PMM_SERVER} \
--e PMM_AGENT_SERVER_USERNAME=admin \
--e PMM_AGENT_SERVER_PASSWORD=admin \
--e PMM_AGENT_SERVER_INSECURE_TLS=1 \
--e PMM_AGENT_SETUP=1 \
--e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
---volumes-from pmm-client-data \
-   percona/pmm-client:3</code></p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nv">PMM_SERVER</span><span class="o">=</span>X.X.X.X:443
+<span class="w">  </span>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--rm<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>pmm-client<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_SERVER</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_USERNAME</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_PASSWORD</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_INSECURE_TLS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_CONFIG_FILE</span><span class="o">=</span>config/pmm-agent.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--volumes-from<span class="w"> </span>pmm-client-data<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>percona/pmm-client:3
+</code></pre></div>
 </li>
 </ol>
 <div class="admonition hint alert-success">
@@ -8077,8 +8076,7 @@ docker run \
 <ol>
 <li>
 <p>Check status.</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>pmm-client<span class="w"> </span><span class="se">\</span>
-pmm-admin<span class="w"> </span>status
+<div class="highlight"><pre><span></span><code><span class="w">  </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-client<span class="w"> </span>pmm-admin<span class="w"> </span>status
 </code></pre></div>
 <p>In the PMM user interface you will also see an increase in the number of monitored nodes.</p>
 </li>
@@ -8121,7 +8119,7 @@ pmm-admin<span class="w"> </span>status
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-01-30
+    2025-02-03
   </span>
 
     

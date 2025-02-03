@@ -1762,7 +1762,7 @@
         
   
   <span class="md-ellipsis">
-    About PMM client installation
+    About PMM Client installation
     
   </span>
   
@@ -1828,7 +1828,7 @@
         
   
   <span class="md-ellipsis">
-    Images
+    Docker
     
   </span>
   
@@ -8096,10 +8096,6 @@
 <p>You can use an external PostgreSQL database instance outside the PMM Server container running on the same or other hosts.</p>
 <h2 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
 <p>PMM predefines certain flags that allow you to use PostgreSQL parameters as environment variables:</p>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Warning</p>
-<p>The <code>PERCONA_TEST_*</code> environment variables are experimental and subject to change. It is recommended that you use these variables for testing purposes only and not on production. The minimum supported PostgreSQL server version is 14.</p>
-</div>
 <p>To use PostgreSQL as an external database instance, use the following environment variables:</p>
 <table>
 <thead>
@@ -8111,47 +8107,47 @@
 </thead>
 <tbody>
 <tr>
-<td>PERCONA_TEST_POSTGRES_ADDR</td>
+<td>PMM_POSTGRES_ADDR</td>
 <td><a href="https://www.postgresql.org/docs/14/libpq-connect.html#LIBPQ-CONNECT-HOST">postgres-addr</a></td>
 <td>Hostname and port for external PostgreSQL database.</td>
 </tr>
 <tr>
-<td>PERCONA_TEST_POSTGRES_DBNAME</td>
+<td>PMM_POSTGRES_DBNAME</td>
 <td><a href="https://www.postgresql.org/docs/14/libpq-connect.html#LIBPQ-CONNECT-DBNAME">postgres-name</a></td>
 <td>Database name for external or internal PostgreSQL database.</td>
 </tr>
 <tr>
-<td>PERCONA_TEST_POSTGRES_USERNAME</td>
+<td>PMM_POSTGRES_USERNAME</td>
 <td><a href="https://www.postgresql.org/docs/14/libpq-connect.html#LIBPQ-CONNECT-USER">postgres-username</a></td>
 <td>PostgreSQL user name to connect as.</td>
 </tr>
 <tr>
-<td>PERCONA_TEST_POSTGRES_DBPASSWORD</td>
+<td>PMM_POSTGRES_DBPASSWORD</td>
 <td><a href="https://www.postgresql.org/docs/14/libpq-connect.html#LIBPQ-CONNECT-PASSWORD">postgres-password</a></td>
 <td>Password to be used for database authentication.</td>
 </tr>
 <tr>
-<td>PERCONA_TEST_POSTGRES_SSL_MODE</td>
+<td>PMM_POSTGRES_SSL_MODE</td>
 <td><a href="https://www.postgresql.org/docs/14/libpq-connect.html#LIBPQ-CONNECT-SSLMODE">postgres-ssl-mode</a></td>
 <td>This option determines whether or with what priority a secure SSL TCP/IP connection will be negotiated with the database. Currently supported: <code>disable</code>, <code>require</code>, <code>verify-ca</code>, <code>verify-full</code>.</td>
 </tr>
 <tr>
-<td>PERCONA_TEST_POSTGRES_SSL_CA_PATH</td>
+<td>PMM_POSTGRES_SSL_CA_PATH</td>
 <td><a href="https://www.postgresql.org/docs/14/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT">postgres-ssl-ca-path</a></td>
 <td>This parameter specifies the name of a file containing SSL certificate authority (CA) certificate(s).</td>
 </tr>
 <tr>
-<td>PERCONA_TEST_POSTGRES_SSL_KEY_PATH</td>
+<td>PMM_POSTGRES_SSL_KEY_PATH</td>
 <td><a href="https://www.postgresql.org/docs/14/libpq-connect.html#LIBPQ-CONNECT-SSLKEY">postgres-ssl-key-path</a></td>
 <td>This parameter specifies the location for the secret key used for the client certificate.</td>
 </tr>
 <tr>
-<td>PERCONA_TEST_POSTGRES_SSL_CERT_PATH</td>
+<td>PMM_POSTGRES_SSL_CERT_PATH</td>
 <td><a href="https://www.postgresql.org/docs/14/libpq-connect.html#LIBPQ-CONNECT-SSLCERT">postgres-ssl-cert-path</a></td>
 <td>This parameter specifies the file name of the client SSL certificate.</td>
 </tr>
 <tr>
-<td>PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES</td>
+<td>PMM_DISABLE_BUILTIN_POSTGRES</td>
 <td></td>
 <td>Environment variable to disable built-in PMM Server database. Note that Grafana depends on built-in PostgreSQL. And if the value of this variable is &ldquo;true&rdquo;, then it is necessary to pass all the parameters associated with Grafana to use external PostgreSQL.</td>
 </tr>
@@ -8197,7 +8193,7 @@ drwxr-xr-x 1 root     root     4096 Apr  5 12:43 ..
 <p>Create <code>user</code> and <code>database</code> for pmm-server to use. Set appropriate rights and access.</p>
 </li>
 <li>
-<p>Install <code>pg_stat_statements</code> in PostgreSQL in order to have all metrics according to <a href="../setting-up/client/postgresql.md">this</a> handy document.</p>
+<p>Install <code>pg_stat_statements</code> in PostgreSQL in order to have all metrics according to <a href="../../install-pmm/install-pmm-client/connect-database/postgresql.html">this</a> handy document.</p>
 </li>
 <li>
 <p>Run PostgreSQL server.</p>
@@ -8221,15 +8217,15 @@ postgres
 <p>Run PMM Server.</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>
 --name<span class="w"> </span>pmm-server<span class="w"> </span>
--e<span class="w"> </span><span class="nv">PERCONA_TEST_POSTGRES_ADDR</span><span class="o">=</span><span class="nv">$ADDRESS</span>:<span class="nv">$PORT</span>
--e<span class="w"> </span><span class="nv">PERCONA_TEST_POSTGRES_DBNAME</span><span class="o">=</span><span class="nv">$DBNAME</span>
--e<span class="w"> </span><span class="nv">PERCONA_TEST_POSTGRES_USERNAME</span><span class="o">=</span><span class="nv">$USER</span>
--e<span class="w"> </span><span class="nv">PERCONA_TEST_POSTGRES_DBPASSWORD</span><span class="o">=</span><span class="nv">$PASSWORD</span>
--e<span class="w"> </span><span class="nv">PERCONA_TEST_POSTGRES_SSL_MODE</span><span class="o">=</span><span class="nv">$SSL_MODE</span>
--e<span class="w"> </span><span class="nv">PERCONA_TEST_POSTGRES_SSL_CA_PATH</span><span class="o">=</span><span class="nv">$CA_PATH</span>
--e<span class="w"> </span><span class="nv">PERCONA_TEST_POSTGRES_SSL_KEY_PATH</span><span class="o">=</span><span class="nv">$KEY_PATH</span>
--e<span class="w"> </span><span class="nv">PERCONA_TEST_POSTGRES_SSL_CERT_PATH</span><span class="o">=</span><span class="nv">$CERT_PATH</span><span class="w"> </span>
--e<span class="w"> </span><span class="nv">PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES</span><span class="o">=</span><span class="nb">true</span>
+-e<span class="w"> </span><span class="nv">PMM_POSTGRES_ADDR</span><span class="o">=</span><span class="nv">$ADDRESS</span>:<span class="nv">$PORT</span>
+-e<span class="w"> </span><span class="nv">PMM_POSTGRES_DBNAME</span><span class="o">=</span><span class="nv">$DBNAME</span>
+-e<span class="w"> </span><span class="nv">PMM_POSTGRES_USERNAME</span><span class="o">=</span><span class="nv">$USER</span>
+-e<span class="w"> </span><span class="nv">PMM_POSTGRES_DBPASSWORD</span><span class="o">=</span><span class="nv">$PASSWORD</span>
+-e<span class="w"> </span><span class="nv">PMM_POSTGRES_SSL_MODE</span><span class="o">=</span><span class="nv">$SSL_MODE</span>
+-e<span class="w"> </span><span class="nv">PMM_POSTGRES_SSL_CA_PATH</span><span class="o">=</span><span class="nv">$CA_PATH</span>
+-e<span class="w"> </span><span class="nv">PMM_POSTGRES_SSL_KEY_PATH</span><span class="o">=</span><span class="nv">$KEY_PATH</span>
+-e<span class="w"> </span><span class="nv">PMM_POSTGRES_SSL_CERT_PATH</span><span class="o">=</span><span class="nv">$CERT_PATH</span><span class="w"> </span>
+-e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_POSTGRES</span><span class="o">=</span><span class="nb">true</span>
 -e<span class="w"> </span><span class="nv">GF_DATABASE_URL</span><span class="o">=</span><span class="nv">$GF_DATABASE_URL</span>
 -e<span class="w"> </span><span class="nv">GF_DATABASE_SSL_MODE</span><span class="o">=</span><span class="nv">$GF_SSL_MODE</span>
 -e<span class="w"> </span><span class="nv">GF_DATABASE_CA_CERT_PATH</span><span class="o">=</span><span class="nv">$GF_CA_PATH</span>
@@ -8259,7 +8255,7 @@ percona/pmm-server:3
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-01-30
+    2025-02-03
   </span>
 
     

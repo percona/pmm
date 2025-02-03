@@ -145,6 +145,10 @@
          <lastmod>2025-02-03</lastmod>
     </url>
     <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/configure-pmm/percona_platform/account-info.html</loc>
+         <lastmod>2025-02-03</lastmod>
+    </url>
+    <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/configure-pmm/percona_platform/check_percona_platform.html</loc>
          <lastmod>2025-02-03</lastmod>
     </url>
@@ -166,10 +170,6 @@
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/how-to/index.html</loc>
-         <lastmod>2025-02-03</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.percona.com/percona-monitoring-and-management/3/how-to/account-info.html</loc>
          <lastmod>2025-02-03</lastmod>
     </url>
     <url>

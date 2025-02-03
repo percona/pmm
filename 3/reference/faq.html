@@ -1762,7 +1762,7 @@
         
   
   <span class="md-ellipsis">
-    About PMM client installation
+    About PMM Client installation
     
   </span>
   
@@ -1828,7 +1828,7 @@
         
   
   <span class="md-ellipsis">
-    Images
+    Docker
     
   </span>
   
@@ -8040,9 +8040,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-troubleshoot-an-update" class="md-nav__link">
+  <a href="#how-to-troubleshoot-an-upgrade" class="md-nav__link">
     <span class="md-ellipsis">
-      How to troubleshoot an update?
+      How to troubleshoot an upgrade?
     </span>
   </a>
   
@@ -8303,9 +8303,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-troubleshoot-an-update" class="md-nav__link">
+  <a href="#how-to-troubleshoot-an-upgrade" class="md-nav__link">
     <span class="md-ellipsis">
-      How to troubleshoot an update?
+      How to troubleshoot an upgrade?
     </span>
   </a>
   
@@ -8419,24 +8419,23 @@
 <li><a href="https://jira.percona.com/projects/PMM">PMM project in JIRA</a>.</li>
 </ul>
 <h2 id="what-are-the-minimum-system-requirements">What are the minimum system requirements?<a class="headerlink" href="#what-are-the-minimum-system-requirements" title="Permanent link">&para;</a></h2>
+<p>See our detailed guides:</p>
 <ul>
-<li>Server:<ul>
-<li>Disk: 1 GB per monitored database (1 week data retention)</li>
-<li>Memory: 2 GB per monitored database</li>
-<li>CPU: Supports <a href="https://wikipedia.org/wiki/SSE4#SSE4.2"><code>SSE4.2</code></a></li>
+<li><a href="../install-pmm/plan-pmm-installation/hardware_and_system.html">PMM hardware and system requirements</a> for complete specifications</li>
+<li><a href="../install-pmm/install-pmm-server/index.html">Setting up PMM Server</a> for server installation  </li>
+<li><a href="../install-pmm/install-pmm-client/index.html">Setting up PMM Client</a> for client setup</li>
 </ul>
-</li>
-<li>Client:<ul>
-<li>Disk: 100 MB</li>
-</ul>
-</li>
-</ul>
-<div class="admonition seealso alert alert-info">
-<p class="admonition-title">See also</p>
-<ul>
-<li><a href="setting-up/server/index.md">Setting up PMM Server</a></li>
-<li><a href="setting-up/client/index.md">Setting up PMM Client</a></li>
-</ul>
+<p>Quick reference for typical deployment (up to 30 nodes):
+- <strong>Server</strong>:
+    - CPU: 4 cores (must support SSE4.2)
+    - Memory: 8 GB
+    - Storage: 100 GB (approximately 1 GB per node per week)
+- <strong>Client</strong>:
+    - Storage: 100 MB
+    - Supports x86_64 and ARM64 architectures</p>
+<div class="admonition note alert alert-info">
+<p class="admonition-title">Note</p>
+<p>For larger deployments (200+ nodes) or longer retention periods, see our <a href="../install-pmm/plan-pmm-installation/hardware_and_system.html">Hardware and system requirements</a> for detailed sizing recommendations.</p>
 </div>
 <h2 id="how-can-i-upgrade-from-version-2">How can I upgrade from version 2?<a class="headerlink" href="#how-can-i-upgrade-from-version-2" title="Permanent link">&para;</a></h2>
 <p>PMM 3 introduces significant architectural changes that require gradual transition from PMM 2. For detailed instructions, see <a href="../pmm-upgrade/migrating_from_pmm_2.html">Upgrade from PMM2</a>.</p>
@@ -8444,7 +8443,7 @@
 <p>Go to <strong>PMM Configuration &gt; Settings &gt; Advanced Settings &gt; Data retention</strong> to adjust the value in days.</p>
 <div class="admonition seealso alert alert-info">
 <p class="admonition-title">See also</p>
-<p><a href="how-to/configure.md#data-retention">Configure data retention</a></p>
+<p><a href="../configure-pmm/advanced_settings.html#data-retention">Configure data retention</a></p>
 </div>
 <h2 id="how-are-pmm-server-logs-rotated">How are PMM Server logs rotated?<a class="headerlink" href="#how-are-pmm-server-logs-rotated" title="Permanent link">&para;</a></h2>
 <p>PMM Server embeds multiple components, like Victoria Metrics, Query Analytics, Grafana, <code>managed</code>, PostgreSQL, ClickHouse, etc. (components). All PMM Server component logs are rotated by <code>supervisord</code>. The components&rsquo; log rotation settings are stored in <code>*.ini</code> files within the <code>/etc/supervisord.d</code> directory. Those settings define both the maximum size of a log file and the number of log files to keep. The log rotation takes place once the log file reaches its maximum size.</p>
@@ -8453,7 +8452,7 @@
 </code></pre></div>
 <div class="admonition seealso alert alert-info">
 <p class="admonition-title">See also</p>
-<p><a href="setting-up/client/mysql.md#create-a-database-account-for-pmm">Setting Up/Client/MySQL</a>.</p>
+<p><a href="../install-pmm/install-pmm-client/connect-database/mysql.html#create-a-database-account-for-pmm">Setting Up/Client/MySQL</a>.</p>
 </div>
 <h2 id="can-i-monitor-multiple-service-instances">Can I monitor multiple service instances?<a class="headerlink" href="#can-i-monitor-multiple-service-instances" title="Permanent link">&para;</a></h2>
 <p>Yes.</p>
@@ -8465,13 +8464,13 @@ pmm-admin<span class="w"> </span>add<span class="w"> </span>mysql<span class="w"
 </code></pre></div>
 <div class="admonition seealso alert alert-info">
 <p class="admonition-title">See also</p>
-<p><a href="details/commands/pmm-admin.md#mysql"><code>pmm-admin add mysql</code></a></p>
+<p><a href="../use/commands/pmm-admin.html#mysql"><code>pmm-admin add mysql</code></a></p>
 </div>
 <h2 id="can-i-rename-instances">Can I rename instances?<a class="headerlink" href="#can-i-rename-instances" title="Permanent link">&para;</a></h2>
 <p>Yes, by removing and re-adding with a different name.</p>
 <p>When you remove a monitoring service, previously collected data remains available in Grafana.  However, the metrics are tied to the instance name.  So if you add the same instance back with a different name, it will be considered a new instance with a new set of metrics.  So if you are re-adding an instance and want to keep its previous data, add it with the same name.</p>
 <h2 id="can-i-add-an-aws-rds-mysql-or-aurora-mysql-instance-from-a-non-default-aws-partition">Can I add an AWS RDS MySQL or Aurora MySQL instance from a non-default AWS partition?<a class="headerlink" href="#can-i-add-an-aws-rds-mysql-or-aurora-mysql-instance-from-a-non-default-aws-partition" title="Permanent link">&para;</a></h2>
-<p>By default, the RDS discovery works with the default <code>aws</code> partition. But you can switch to special regions, like the <a href="https://aws.amazon.com/govcloud-us/">GovCloud</a> one, with the alternative <a href="https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/#pkg-constants">AWS partitions</a> (e.g. <code>aws-us-gov</code>) adding them to the <em>Settings</em> via the PMM Server <a href="details/api.md">API</a>.</p>
+<p>By default, the RDS discovery works with the default <code>aws</code> partition. But you can switch to special regions, like the <a href="https://aws.amazon.com/govcloud-us/">GovCloud</a> one, with the alternative <a href="https://docs.aws.amazon.com/sdk-for-go/api/aws/endpoints/#pkg-constants">AWS partitions</a> (e.g. <code>aws-us-gov</code>) adding them to the <em>Settings</em> via the PMM Server <a href="../api/index.html">API</a>.</p>
 <p><img alt="!image" src="../images/aws-partitions-in-api.png" /></p>
 <p>To specify other than the default value, or to use several, use the JSON Array syntax: <code>["aws", "aws-cn"]</code>.</p>
 <h2 id="what-resolution-is-used-for-metrics">What resolution is used for metrics?<a class="headerlink" href="#what-resolution-is-used-for-metrics" title="Permanent link">&para;</a></h2>
@@ -8514,7 +8513,7 @@ pmm-admin<span class="w"> </span>add<span class="w"> </span>mysql<span class="w"
 </table>
 <div class="admonition seealso alert alert-info">
 <p class="admonition-title">See also</p>
-<p><a href="how-to/configure.md#metrics-resolution">Metrics resolution</a></p>
+<p><a href="../configure-pmm/metrics_res.html">Metrics resolution</a></p>
 </div>
 <h2 id="how-do-i-set-up-alerting">How do I set up Alerting?<a class="headerlink" href="#how-do-i-set-up-alerting" title="Permanent link">&para;</a></h2>
 <p>When a monitored service metric reaches a defined threshold, PMM Server can trigger alerts for it using embedded Grafana Alerting functionality.</p>
@@ -8532,12 +8531,12 @@ pmm-admin<span class="w"> </span>add<span class="w"> </span>mysql<span class="w"
 <div class="admonition seealso alert alert-info">
 <p class="admonition-title">See also</p>
 <ul>
-<li><a href="details/api.md">API</a></li>
+<li><a href="../api/index.html">API</a></li>
 <li><a href="https://www.percona.com/blog/2020/03/23/extending-pmm-prometheus-configuration/">Percona blog: Extending PMM’s Prometheus Configuration</a></li>
 </ul>
 </div>
-<h2 id="how-to-troubleshoot-an-update">How to troubleshoot an update?<a class="headerlink" href="#how-to-troubleshoot-an-update" title="Permanent link">&para;</a></h2>
-<p>See <a href="how-to/troubleshoot.md#update">Troubleshoot update</a>.</p>
+<h2 id="how-to-troubleshoot-an-upgrade">How to troubleshoot an upgrade?<a class="headerlink" href="#how-to-troubleshoot-an-upgrade" title="Permanent link">&para;</a></h2>
+<p>See <a href="../troubleshoot/upgrade_issues.html">Troubleshoot update</a>.</p>
 <h2 id="what-are-my-login-credentials-when-i-try-to-connect-to-a-prometheus-exporter">What are my login credentials when I try to connect to a Prometheus Exporter?<a class="headerlink" href="#what-are-my-login-credentials-when-i-try-to-connect-to-a-prometheus-exporter" title="Permanent link">&para;</a></h2>
 <ul>
 <li>User name: <code>pmm</code></li>
@@ -8546,7 +8545,7 @@ pmm-admin<span class="w"> </span>add<span class="w"> </span>mysql<span class="w"
 <p>PMM protects an exporter&rsquo;s output from unauthorized access by adding an authorization layer. To access an exporter, you can use <code>pmm</code> as a user name and the Agent ID as a password. You can find the Agent ID corresponding to a given exporter by running <code>pmm-admin list</code>.</p>
 <div class="admonition seealso alert alert-info">
 <p class="admonition-title">See also</p>
-<p><a href="details/commands/pmm-admin.md#information-commands"><code>pmm-admin list</code></a></p>
+<p><a href="../use/commands/pmm-admin.html#information-commands"><code>pmm-admin list</code></a></p>
 </div>
 <h2 id="how-to-provision-pmm-server-with-non-default-admin-password">How to provision PMM Server with non-default admin password?<a class="headerlink" href="#how-to-provision-pmm-server-with-non-default-admin-password" title="Permanent link">&para;</a></h2>
 <p>Currently, there is no API available to change the <code>admin</code> password. If you&rsquo;re deploying through Docker, you can use the following code snippet to change the password after starting the Docker container:</p>
@@ -8573,7 +8572,7 @@ If you are using OVF/AMI, you can change the default password through SSH by usi
 <div class="highlight"><pre><span></span><code>change-admin-password<span class="w"> </span>&lt;new_password&gt;
 </code></pre></div>
 <h2 id="how-does-pmm-handle-personal-and-confidential-data">How does PMM handle personal and confidential data?<a class="headerlink" href="#how-does-pmm-handle-personal-and-confidential-data" title="Permanent link">&para;</a></h2>
-<p>Read our <a href="https://www.percona.com/privacy-policy">Privacy Policy</a> to learn how PMM manages personal and confidential data. More technical details can be found in <a href="details/personal_data_handling.md">Data handling in PMM</a>.</p>
+<p>Read our <a href="https://www.percona.com/privacy-policy">Privacy Policy</a> to learn how PMM manages personal and confidential data. More technical details can be found in <a href="personal_data_handling.html">Data handling in PMM</a>.</p>
 <h2 id="why-am-i-getting-a-user-already-exists-error-when-logging-back-into-pmm">Why am I getting a &ldquo;User already exists&rdquo; error when logging back into PMM?<a class="headerlink" href="#why-am-i-getting-a-user-already-exists-error-when-logging-back-into-pmm" title="Permanent link">&para;</a></h2>
 <p>Following <a href="https://grafana.com/blog/2023/06/22/grafana-security-release-for-cve-2023-3128/">CVE fix 2023-3128</a> in the 2.38 release, PMM increases security by only allowing authentications based on the unique user ID provided by the identity provider.</p>
 <p>If you are trying to log into PMM via a third-party authentication provider which doesn&rsquo;t support a unique ID field, PMM will show this error on second and subsequent authentications.</p>
@@ -8607,7 +8606,7 @@ If you are using OVF/AMI, you can change the default password through SSH by usi
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-18
+    2025-02-03
   </span>
 
     
