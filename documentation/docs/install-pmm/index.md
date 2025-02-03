@@ -61,4 +61,4 @@ On each PMM Client instance, configure the nodes and services you want to monito
     - [Linux](../install-pmm/install-pmm-client/connect-database/linux.md)
     - [External services](../install-pmm/install-pmm-client/connect-database/external.md)
     - [HAProxy](../install-pmm/install-pmm-client/connect-database/haproxy.md)
-    - [Remote instances](../install-pmm/install-pmm-client/connect-database/remote)md
+    - [Remote instances](../install-pmm/install-pmm-client/connect-database/remote)

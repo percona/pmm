@@ -200,7 +200,7 @@ This section covers how to configure a MySQL-based database server to use *Perfo
 | Percona XtraDB Cluster   | 5.6, 5.7, 8.0
 | MariaDB                  | [10.3+][mariadb_perfschema_instr_table]
 
-PMM's [*MySQL Performance Schema Details* dashboard](../../../use/dashboards/dashboard-mysql-performance-schema-details.md) charts the various [`performance_schema`][performance-schema-startup-configuration] metrics.
+PMM's [*MySQL Performance Schema Details* dashboard](../../../reference/dashboards/dashboard-mysql-performance-schema-details.md) charts the various [`performance_schema`][performance-schema-startup-configuration] metrics.
 
 To use **Performance Schema**, set these variables:
 
@@ -351,8 +351,8 @@ User activity, individual table and index access details are shown on the [MySQL
 There are two ways to install  PMM Client  for monitoring your MySQL database:
 {.power-number}
 
-1. [Local installation](#Install-PMM-Client locally): Installs PMM Client directly on the database node, collecting both database and OS/host metrics. This option enables more effective comparison and problem identification.
-2. [Remote instance](#Install-PMM-Client-as-a-remote-instance): Use when local installation isn't possible. This method doesn't provide OS/Node metrics in PMM.
+1. [Local installation](#install-pmm-client-locally): Installs PMM Client directly on the database node, collecting both database and OS/host metrics. This option enables more effective comparison and problem identification.
+2. [Remote instance](#install-pmm-client-as-a-remote-instance): Use when local installation isn't possible. This method doesn't provide OS/Node metrics in PMM.
 
 
 ### Install PMM Client locally
@@ -377,7 +377,6 @@ If your MySQL instance is configured to use TLS, click on the **Use TLS for data
 
 Add the database server as a service using one of these example commands. If successful, PMM Client will print `MySQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.
 
-??? info "Examples"
 
 #### TLS connection
 
