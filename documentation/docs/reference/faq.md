@@ -7,16 +7,23 @@
 
 ## What are the minimum system requirements?
 
-- Server:
-    - Disk: 1 GB per monitored database (1 week data retention)
-    - Memory: 2 GB per monitored database
-    - CPU: Supports [`SSE4.2`](https://wikipedia.org/wiki/SSE4#SSE4.2)
-- Client:
-    - Disk: 100 MB
+See our detailed guides:
 
-!!! seealso alert alert-info "See also"
-    - [Setting up PMM Server](../install-pmm/install-pmm-server/index.md)
-    - [Setting up PMM Client](../install-pmm/install-pmm-client/index.md)
+- [PMM hardware and system requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) for complete specifications
+- [Setting up PMM Server](../install-pmm/install-pmm-server/index.md) for server installation  
+- [Setting up PMM Client](../install-pmm/install-pmm-client/index.md) for client setup
+
+Quick reference for typical deployment (up to 30 nodes):
+- **Server**:
+    - CPU: 4 cores (must support SSE4.2)
+    - Memory: 8 GB
+    - Storage: 100 GB (approximately 1 GB per node per week)
+- **Client**:
+    - Storage: 100 MB
+    - Supports x86_64 and ARM64 architectures
+
+!!! note alert alert-info "Note"
+    For larger deployments (200+ nodes) or longer retention periods, see our [Hardware and system requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) for detailed sizing recommendations.
 
 ## How can I upgrade from version 2?
 

@@ -102,7 +102,7 @@ The *slow query log* records the details of queries that take more than a certai
 
 ??? info "Examples"
 
-    - Configuration file.
+    - Configuration file:
 
         ```ini
         slow_query_log=ON
@@ -112,7 +112,7 @@ The *slow query log* records the details of queries that take more than a certai
         log_slow_slave_statements=ON
         ```
 
-    - Session.
+    - Session:
 
         ```sql
         SET GLOBAL slow_query_log = 1;
@@ -146,7 +146,7 @@ Some MySQL-based database servers support extended slow query log variables.
 
 ??? info "Examples"
 
-    - Configuration file (Percona Server for MySQL, Percona XtraDB Cluster).
+    - Configuration file (Percona Server for MySQL, Percona XtraDB Cluster):
 
         ```sh
         log_slow_rate_limit=100
@@ -156,13 +156,13 @@ Some MySQL-based database servers support extended slow query log variables.
         slow_query_log_use_global_control='all'
         ```
 
-    - Configuration file (MariaDB).
+    - Configuration file (MariaDB):
 
         ```sh
         log_slow_rate_limit=100
         ```
 
-    - Session (Percona Server for MySQL, Percona XtraDB Cluster).
+    - Session (Percona Server for MySQL, Percona XtraDB Cluster):
 
         ```sh
         SET GLOBAL log_slow_rate_limit = 100;
@@ -202,7 +202,7 @@ This section covers how to configure a MySQL-based database server to use *Perfo
 
 PMM's [*MySQL Performance Schema Details* dashboard](../../../use/dashboards/dashboard-mysql-performance-schema-details.md) charts the various [`performance_schema`][performance-schema-startup-configuration] metrics.
 
-To use *Performance Schema*, set these variables.
+To use **Performance Schema**, set these variables:
 
 | Variable                                                                                   | Value              | Description
 |--------------------------------------------------------------------------------------------|--------------------|---------------------------------------------------------------------------------
@@ -213,7 +213,7 @@ To use *Performance Schema*, set these variables.
 
 ??? info "Examples"
 
-    - Configuration file.
+    - Configuration file:
 
         ```ini
         performance_schema=ON
@@ -222,7 +222,7 @@ To use *Performance Schema*, set these variables.
         innodb_monitor_enable=all
         ```
 
-    - Session.
+    - Session:
 
         (`performance_schema` cannot be set in a session and must be set at server start-up.)
 
@@ -276,7 +276,7 @@ Set this variable to see query time distribution charts.
 |-------------------------------------------------------------|-------|-----------------------------------------------------------------------------------
 | [`query_response_time_stats`][ps_query_response_time_stats] | ON    | Report *query response time distributions*. (Requires plugin installation. See below.)
 
-- Configuration file.
+- Configuration file:
 
     ```ini
     query_response_time_stats=ON
@@ -285,6 +285,8 @@ Set this variable to see query time distribution charts.
 You must also install the plugins.
 
 - **Session**
+    Before installing the plugins, ensure you have the necessary plugin files and run these commands in your MySQL session:
+    {.power-number}
 
     1. Check that `/usr/lib/mysql/plugin/query_response_time.so` exists.
     2. Install the plugins and activate.
@@ -347,6 +349,7 @@ User activity, individual table and index access details are shown on the [MySQL
 ## Add service
 
 There are two ways to install  PMM Client  for monitoring your MySQL database:
+{.power-number}
 
 1. [Local installation](#Install-PMM-Client locally): Installs PMM Client directly on the database node, collecting both database and OS/host metrics. This option enables more effective comparison and problem identification.
 2. [Remote instance](#Install-PMM-Client-as-a-remote-instance): Use when local installation isn't possible. This method doesn't provide OS/Node metrics in PMM.
@@ -356,6 +359,7 @@ There are two ways to install  PMM Client  for monitoring your MySQL database:
 
 Add the MySQL server as a service using one of the following example commands. 
 Upon successful addition, PMM Client will display "MySQL Service added" along with the service's ID and name. 
+{.power-number}
 
 1. Select **PMM Configuration > PMM Inventory > Add Service > MySQL**.
 
@@ -363,9 +367,9 @@ Upon successful addition, PMM Client will display "MySQL Service added" along wi
 
 3. Click **Add service**.
 
-![!](../../../images/PMM_Add_Instance_MySQL.jpg)
+    ![!](../../../images/PMM_Add_Instance_MySQL.jpg)
 
-If your MySQL instance is configured to use TLS, click on the *Use TLS for database connections* check box and fill in your TLS certificates and key.
+If your MySQL instance is configured to use TLS, click on the **Use TLS for database connections*** check box and fill in your TLS certificates and key:
 
 ![!](../../../images/PMM_Add_Instance_MySQL_TLS.jpg)
 
@@ -382,6 +386,8 @@ pmm-admin add mysql --environment=test --custom-labels='source=slowlog'  --usern
 ```
 
 ### Install PMM Client as a remote instance
+If you need to monitor a MySQL instance from a different server where PMM Client is installed, follow these steps in the PMM web interface:
+{.power-number}
 
 1. Select <i class="uil uil-cog"></i> ** PMM Configuration > PMM Inventory > {{icon.addinstance}} Add Service**.
 
@@ -391,16 +397,17 @@ pmm-admin add mysql --environment=test --custom-labels='source=slowlog'  --usern
 
 4. Click **Add service**.
 
-![!](../../images/PMM_Add_Instance_MySQL.png)
+    ![!](../../../images/PMM_Add_Instance_MySQL.png)
 
 #### For MySQL instances using TLS
 
 If your MySQL instance is configured to use TLS: 
+{.power-number}
 
 1. Click on the **Use TLS for database connections** check box.
 2. Fill in your TLS certificates and key.
 
-![!](../../images/PMM_Add_Instance_MySQL_TLS.png)
+    ![!](../../../images/PMM_Add_Instance_MySQL_TLS.png)
 
 ## Check the service
 
@@ -451,8 +458,8 @@ Open the [*PXC/Galera Cluster Summary* dashboard][DASH_PXCGALERACLUSTER].
         - [Percona Blog -- Impact of logging on MySQL's performance][BLOG_LOGGING]
         - [Percona Blog -- Running Custom MySQL Queries in Percona Monitoring and Management][BLOG_CUSTOM_QUERIES_MYSQL]
 
-[DASH_MYSQLUSERDETAILS]: ../../../use/dashboards/dashboard-mysql-user-details.md
-[DASH_PXCGALERACLUSTER]: ../../../use/dashboards/dashboard-pxc-galera-cluster-summary.md
+[DASH_MYSQLUSERDETAILS]: ../../../reference/dashboards/dashboard-mysql-user-details.md
+[DASH_PXCGALERACLUSTER]: ../../../reference/dashboards/dashboard-pxc-galera-cluster-summary.md
 [LOGROTATE]: https://linux.die.net/man/8/logrotate
 [PERCONA_SERVER_MYSQL]: https://www.percona.com/software/mysql-database/percona-server
 [PERCONA_XTRADB_CLUSTER]: https://www.percona.com/software/mysql-database/percona-xtradb-cluster
@@ -464,19 +471,19 @@ Open the [*PXC/Galera Cluster Summary* dashboard][DASH_PXCGALERACLUSTER].
 [BLOG_LOG_ROTATION]: https://www.percona.com/blog/2013/04/18/rotating-mysql-slow-logs-safely/
 [BLOG_PS_VS_SLOW]: https://www.percona.com/blog/2014/02/11/performance_schema-vs-slow-query-log/
 [PS_FEATURES_REMOVED]: https://www.percona.com/doc/percona-server/LATEST/changed_in_version.html
-[ps_slow_query_ext]: https://www.percona.com/doc/percona-server/LATEST/diagnostics/slow_extended.html
+[ps_slow_query_ext]: https://docs.percona.com/percona-server/latest/slow-extended.html
 [ps_query_response_time_stats]: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#usage
-[ps_userstats]: https://www.percona.com/doc/percona-server/LATEST/diagnostics/user_stats.html
+[ps_userstats]: https://docs.percona.com/percona-server/latest/user-stats.html
 [mariadb_slow_query_log]: https://mariadb.com/kb/en/slow-query-log-overview/
 [mariadb_slow_query_ext]: https://mariadb.com/kb/en/slow-query-log-extended-statistics/
 [mariadb_query_response_time]: https://mariadb.com/kb/en/query-response-time-plugin/
 [mariadb_perfschema_instr_table]: https://mariadb.com/kb/en/performance-schema-setup_instruments-table/
 [mariadb_userstats]: https://mariadb.com/kb/en/user-statistics/
-[log_slow_rate_limit]: https://www.percona.com/doc/percona-server/LATEST/diagnostics/slow_extended.html#log_slow_rate_limit
-[log_slow_rate_type]: https://www.percona.com/doc/percona-server/LATEST/diagnostics/slow_extended.html#log_slow_rate_type
-[log_slow_verbosity]: https://www.percona.com/doc/percona-server/LATEST/diagnostics/slow_extended.html#log_slow_verbosity
-[slow_query_log_always_write_time]: https://www.percona.com/doc/percona-server/LATEST/diagnostics/slow_extended.html#slow_query_log_always_write_time
-[slow_query_log_use_global_control]: https://www.percona.com/doc/percona-server/LATEST/diagnostics/slow_extended.html#slow_query_log_use_global_control
+[log_slow_rate_limit]: https://www.percona.com/doc/percona-server/LATEST/slow-extended.html?h=log_slow_rate_limit#log_slow_rate_limit
+[log_slow_rate_type]: https://docs.percona.com/percona-server/latest/slow-extended.html?h=log_slow_rate_limit#log_slow_rate_limit
+[log_slow_verbosity]: https://docs.percona.com/percona-server/latest/slow-extended.html?h=log_slow_rate_limit#log_slow_verbosity
+[slow_query_log_always_write_time]: https://docs.percona.com/percona-server/latest/slow-extended.html?h=log_slow_rate_limit#slow_query_log_always_write_time
+[slow_query_log_use_global_control]: https://docs.percona.com/percona-server/latest/slow-extended.html?h=log_slow_rate_limit#slow_query_log_use_global_control
 [sysvar_innodb_monitor_enable]: https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable
 [sysvar_log_output]: https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_log_output
 [sysvar_log_slow_admin_statements]: https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_log_slow_admin_statements
