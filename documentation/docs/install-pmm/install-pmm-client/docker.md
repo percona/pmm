@@ -8,8 +8,7 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
 1. Pull the PMM Client Docker image:
 
     ```sh
-      docker pull \
-      percona/pmm-client:3
+      docker pull percona/pmm-client:3
     ```
 
 2. Use the image as a template to create a persistent data store that preserves local data when the image is updated:
@@ -43,8 +42,7 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
 3. Check status.
 
     ```sh
-      docker exec pmm-client \
-      pmm-admin status
+      docker exec -t pmm-client pmm-admin status
     ```
 
     In the PMM user interface you will also see an increase in the number of monitored nodes.
