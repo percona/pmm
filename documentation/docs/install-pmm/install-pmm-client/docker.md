@@ -1,4 +1,4 @@
-# Run PMM client as a Docker container
+# Run PMM Client as a Docker container
 
 The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/) is a convenient way to run PMM Client as a preconfigured [Docker](https://docs.docker.com/get-docker/) container. 
 

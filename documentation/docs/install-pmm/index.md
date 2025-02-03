@@ -27,11 +27,13 @@ Install and run at least one PMM Server. Choose from the following options:
 
 Install and run PMM Client on every node where there is a service you want to monitor. PMM Client now supports both x86_64 and ARM64 architectures.
 
+[Docker installation](../install-pmm/install-pmm-client/docker.md): 
+
 The installation choices are:
 
 === "With Docker"
 
-    [Docker installation](../install-pmm/install-pmm-client/docker.md) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).
+    [Running PMM Client as a Docker container](../install-pmm/install-pmm-client/docker.md) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).
 
 === "With package manager"
 
