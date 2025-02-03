@@ -35,7 +35,7 @@ The installation choices are:
 
 === "With package manager"
 
-    [Linux package](../install-pmm/install-pmm-client/package_manager.md). Use `apt`, `apt-get`, `dnf`, `yum`. The package manager automatically selects the correct version for your architecture.
+    [Linux package](../install-pmm/install-pmm-client/package_manager.md): Use `apt`, `apt-get`, `dnf`, `yum`. The package manager automatically selects the correct version for your architecture.
 
 === "With binary package"
 
@@ -78,4 +78,4 @@ On each PMM Client instance, configure the nodes and services you want to monito
 [Helm]: install-pmm/install-pmm-server/baremetal/helm/index.md
 [virtual appliance]: install-pmm/install-pmm-server/baremetal/virtual/index.md
 [Amazon AWS]: install-pmm/install-pmm-server/aws/aws.md
-[easy install]: install-pmm/install-pmm-server/baremetal/docker/easy-install.md
+[Easy install]: install-pmm/install-pmm-server/baremetal/docker/easy-install.md
