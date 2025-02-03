@@ -31,7 +31,7 @@ The installation choices are:
 
 === "With Docker"
 
-    [Running PMM Client as a Docker container](../install-pmm/install-pmm-client/docker.md) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).
+    [Running PMM Client as a Docker container](../install-pmm/install-pmm-client/docker.html) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).
 
 === "With package manager"
 
