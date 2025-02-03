@@ -303,6 +303,8 @@
   <!-- Navigation tabs (sticky) -->
   
 </header>
+  
+  
     
     <div class="md-container" data-md-component="container">
       
@@ -8283,7 +8285,7 @@
 </nav>
                       <br>
                       <label class="md-nav__title" for="__drawer">
-                        <a href="https://learn.percona.com/download-percona-monitoring-and-management-manual-2" onclick="_gaq.push(['b._trackEvent', 'Percona Monitoring and Management', 'Download', 'Download Manual Percona Monitoring and Management']);" class="md-nav__link md-nav__link--active" style="font-size: .7rem;">
+                        <a href="https://learn.percona.com/download-percona-monitoring-and-management-pmm-manual-2-2" onclick="_gaq.push(['b._trackEvent', 'Percona Monitoring and Management', 'Download', 'Download Manual Percona Monitoring and Management']);" class="md-nav__link md-nav__link--active" style="font-size: .7rem;">
                           Download PDF
                         </a>
                       </label> 
@@ -8609,9 +8611,10 @@
     <p>For help, click the link below to get free database assistance or contact our experts for personalized support.</p>
 
     <div class="actions">
-      <a href="https://docs.percona.com/percona-monitoring-and-management/3/get-help.html" style="color: var(--md-typeset-a-color);">Get help from Percona</a>
+
+    <a href="https://docs.percona.com/percona-monitoring-and-management/3/get-help.html" style="color: var(--md-typeset-a-color);">Get help from Percona</a>
     </div>
-</div>
+    </div>
                     </div>
                   </div>
                 </div>
@@ -9006,7 +9009,7 @@ This will enable <code>collstats</code>, <code>dbstats</code>, <code>indexstats<
 <p>Enable all collectors and limit monitoring for <code>dbstats</code>, <code>indexstats</code>, <code>collstats</code> and <code>topmetrics</code> for all collections in <code>db1</code> and <code>col1</code> collection in <code>db2</code>, without limiting <code>max-collections-limit</code> for a number of collections in <code>db1</code>:</p>
 <p><code>pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 --stats-collections=db1,db2.col1 mongodb_srv_1 127.0.0.1:27017</code></p>
 <h5 id="resolutions">Resolutions<a class="headerlink" href="#resolutions" title="Permanent link">&para;</a></h5>
-<p>PMM collects metrics in two <a href="../../how-to/configure.html#metrics-resolution">resolutions</a> to decrease CPU and Memory usage: high and low resolutions.</p>
+<p>PMM collects metrics in two <a href="../../how-to/configure.md#metrics-resolution">resolutions</a> to decrease CPU and Memory usage: high and low resolutions.</p>
 <p>In high resolution we collect metrics from collectors which work fast:
 - <code>diagnosticdata</code>
 - <code>replicasetstatus</code>

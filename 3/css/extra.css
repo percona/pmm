@@ -1,10 +1,15 @@
 @media print {
-
   /* Adjusts positioning of admonition icon */
-  .md-typeset :is(.admonition-title, summary):before {
+  .md-typeset :is(.admonition-title,summary):before {
     top: 0.6rem;
     left: 0.6rem;
   }
+} 
+
+.md-sidebar__inner {
+    font-size: 0.65rem;   /* Font size */
+    line-height: 1.6;
+}
 
   /* Do not render html tags with this class in PDF */
   .no-pdf {
@@ -26,9 +31,4 @@
     display: contents;
   }
 }
-
-.md-sidebar__inner {
-  font-size: 0.65rem;
-  /* Font size */
-  line-height: 1.6;
-}
+  
