@@ -27,8 +27,6 @@ Install and run at least one PMM Server. Choose from the following options:
 
 Install and run PMM Client on every node where there is a service you want to monitor. PMM Client now supports both x86_64 and ARM64 architectures.
 
-[Docker installation](../install-pmm/install-pmm-client/docker.md): 
-
 The installation choices are:
 
 === "With Docker"
@@ -53,31 +51,14 @@ On each PMM Client instance, configure the nodes and services you want to monito
 
 ??? info "Which services you can monitor?"
 
-    - [MySQL] (and variants: Percona Server for MySQL, Percona XtraDB Cluster, MariaDB);
-    - [MongoDB];
-    - [PostgreSQL];
-    - [ProxySQL];
-    - [Amazon RDS];
-    - [Microsoft Azure];
-    - [Google Cloud Platform] (MySQL and PostgreSQL);
-    - [Linux];
-    - [External services];
-    - [HAProxy];
-    - [Remote instances].
-
-[MySQL]: install-pmm/install-pmm-client/connect-database/mysql.md
-[MongoDB]: install-pmm/install-pmm-client/connect-database/mongodb.md
-[PostgreSQL]: install-pmm/install-pmm-client/connect-database/postgresql.md
-[ProxySQL]: install-pmm/install-pmm-client/connect-database/proxysql.md
-[Amazon RDS]: install-pmm/install-pmm-client/connect-database/aws.md
-[Microsoft Azure]: install-pmm/install-pmm-client/connect-database/azure.md
-[Google Cloud Platform]: install-pmm/install-pmm-client/connect-database/google.md
-[Linux]: install-pmm/install-pmm-client/connect-database/linux.md
-[External services]: install-pmm-client/connect-database/external.md
-[HAProxy]: install-pmm/install-pmm-client/connect-database/haproxy.md
-[Remote instances]: install-pmm/install-pmm-client/connect-database/remote.md
-[dashboards]: use/dashboards-panels/index.md
-[Helm]: install-pmm/install-pmm-server/baremetal/helm/index.md
-[virtual appliance]: install-pmm/install-pmm-server/baremetal/virtual/index.md
-[Amazon AWS]: install-pmm/install-pmm-server/aws/aws.md
-[Easy install]: install-pmm/install-pmm-server/baremetal/docker/easy-install.md
+    - [MySQL](../install-pmm/install-pmm-client/connect-database/mysql.md) and variants: Percona Server for MySQL, Percona XtraDB Cluster, MariaDB
+    - [MongoDB](../install-pmm/install-pmm-client/connect-database/mongodb.md)
+    - [PostgreSQL](../install-pmm/install-pmm-client/connect-database/postgresql.md)
+    - [ProxySQL](../install-pmm/install-pmm-client/connect-database/proxysql.md)
+    - [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md)
+    - [Microsoft Azure](../install-pmm/install-pmm-client/connect-database/azure.md)
+    - [Google Cloud Platform](../install-pmm/install-pmm-client/connect-database/google.md)
+    - [Linux](../install-pmm/install-pmm-client/connect-database/linux.md)
+    - [External services](../install-pmm/install-pmm-client/connect-database/external.md)
+    - [HAProxy](../install-pmm/install-pmm-client/connect-database/haproxy.md)
+    - [Remote instances](../install-pmm/install-pmm-client/connect-database/remote)md
