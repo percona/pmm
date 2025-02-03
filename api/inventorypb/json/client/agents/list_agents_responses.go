@@ -1289,12 +1289,13 @@ type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -1309,6 +1310,9 @@ type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body azure database exporter items0
@@ -1323,6 +1327,10 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) Validate(formats strfmt.Re
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -1333,7 +1341,7 @@ var listAgentsOkBodyAzureDatabaseExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1348,6 +1356,9 @@ const (
 
 	// ListAgentsOKBodyAzureDatabaseExporterItems0StatusSTARTING captures enum value "STARTING"
 	ListAgentsOKBodyAzureDatabaseExporterItems0StatusSTARTING string = "STARTING"
+
+	// ListAgentsOKBodyAzureDatabaseExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ListAgentsOKBodyAzureDatabaseExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyAzureDatabaseExporterItems0StatusRUNNING captures enum value "RUNNING"
 	ListAgentsOKBodyAzureDatabaseExporterItems0StatusRUNNING string = "RUNNING"
@@ -1440,8 +1451,51 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) validateLogLevel(formats s
 	return nil
 }
 
-// ContextValidate validates this list agents OK body azure database exporter items0 based on context it is used
+func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body azure database exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1456,6 +1510,49 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) MarshalBinary() ([]byte, e
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyAzureDatabaseExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body azure database exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body azure database exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyAzureDatabaseExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1500,15 +1597,70 @@ type ListAgentsOKBodyExternalExporterItems0 struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyExternalExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body external exporter items0
 func (o *ListAgentsOKBodyExternalExporterItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this list agents OK body external exporter items0 based on context it is used
+func (o *ListAgentsOKBodyExternalExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body external exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyExternalExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyExternalExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1523,6 +1675,49 @@ func (o *ListAgentsOKBodyExternalExporterItems0) MarshalBinary() ([]byte, error)
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyExternalExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyExternalExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyExternalExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyExternalExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyExternalExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body external exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyExternalExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body external exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyExternalExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyExternalExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyExternalExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyExternalExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1570,12 +1765,13 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1600,6 +1796,9 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body mongodb exporter items0
@@ -1614,6 +1813,10 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) Validate(formats strfmt.Registry
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -1624,7 +1827,7 @@ var listAgentsOkBodyMongodbExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1639,6 +1842,9 @@ const (
 
 	// ListAgentsOKBodyMongodbExporterItems0StatusSTARTING captures enum value "STARTING"
 	ListAgentsOKBodyMongodbExporterItems0StatusSTARTING string = "STARTING"
+
+	// ListAgentsOKBodyMongodbExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ListAgentsOKBodyMongodbExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyMongodbExporterItems0StatusRUNNING captures enum value "RUNNING"
 	ListAgentsOKBodyMongodbExporterItems0StatusRUNNING string = "RUNNING"
@@ -1731,8 +1937,51 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) validateLogLevel(formats strfmt.
 	return nil
 }
 
-// ContextValidate validates this list agents OK body mongodb exporter items0 based on context it is used
+func (o *ListAgentsOKBodyMongodbExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body mongodb exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyMongodbExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyMongodbExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1747,6 +1996,49 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyMongodbExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyMongodbExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyMongodbExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyMongodbExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyMongodbExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body mongodb exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body mongodb exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyMongodbExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1808,12 +2100,13 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1831,6 +2124,9 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body mysqld exporter items0
@@ -1845,6 +2141,10 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) Validate(formats strfmt.Registry)
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -1855,7 +2155,7 @@ var listAgentsOkBodyMysqldExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1870,6 +2170,9 @@ const (
 
 	// ListAgentsOKBodyMysqldExporterItems0StatusSTARTING captures enum value "STARTING"
 	ListAgentsOKBodyMysqldExporterItems0StatusSTARTING string = "STARTING"
+
+	// ListAgentsOKBodyMysqldExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ListAgentsOKBodyMysqldExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyMysqldExporterItems0StatusRUNNING captures enum value "RUNNING"
 	ListAgentsOKBodyMysqldExporterItems0StatusRUNNING string = "RUNNING"
@@ -1962,8 +2265,51 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) validateLogLevel(formats strfmt.R
 	return nil
 }
 
-// ContextValidate validates this list agents OK body mysqld exporter items0 based on context it is used
+func (o *ListAgentsOKBodyMysqldExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body mysqld exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyMysqldExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyMysqldExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1978,6 +2324,49 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyMysqldExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyMysqldExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyMysqldExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyMysqldExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyMysqldExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body mysqld exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body mysqld exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyMysqldExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2013,12 +2402,13 @@ type ListAgentsOKBodyNodeExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2033,6 +2423,9 @@ type ListAgentsOKBodyNodeExporterItems0 struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyNodeExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body node exporter items0
@@ -2047,6 +2440,10 @@ func (o *ListAgentsOKBodyNodeExporterItems0) Validate(formats strfmt.Registry) e
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -2057,7 +2454,7 @@ var listAgentsOkBodyNodeExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2072,6 +2469,9 @@ const (
 
 	// ListAgentsOKBodyNodeExporterItems0StatusSTARTING captures enum value "STARTING"
 	ListAgentsOKBodyNodeExporterItems0StatusSTARTING string = "STARTING"
+
+	// ListAgentsOKBodyNodeExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ListAgentsOKBodyNodeExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyNodeExporterItems0StatusRUNNING captures enum value "RUNNING"
 	ListAgentsOKBodyNodeExporterItems0StatusRUNNING string = "RUNNING"
@@ -2164,8 +2564,51 @@ func (o *ListAgentsOKBodyNodeExporterItems0) validateLogLevel(formats strfmt.Reg
 	return nil
 }
 
-// ContextValidate validates this list agents OK body node exporter items0 based on context it is used
+func (o *ListAgentsOKBodyNodeExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body node exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyNodeExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyNodeExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2180,6 +2623,49 @@ func (o *ListAgentsOKBodyNodeExporterItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyNodeExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyNodeExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyNodeExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyNodeExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyNodeExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body node exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyNodeExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body node exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyNodeExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyNodeExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyNodeExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyNodeExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2276,12 +2762,13 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2302,6 +2789,9 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyPostgresExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body postgres exporter items0
@@ -2316,6 +2806,10 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) Validate(formats strfmt.Registr
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -2326,7 +2820,7 @@ var listAgentsOkBodyPostgresExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2341,6 +2835,9 @@ const (
 
 	// ListAgentsOKBodyPostgresExporterItems0StatusSTARTING captures enum value "STARTING"
 	ListAgentsOKBodyPostgresExporterItems0StatusSTARTING string = "STARTING"
+
+	// ListAgentsOKBodyPostgresExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ListAgentsOKBodyPostgresExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyPostgresExporterItems0StatusRUNNING captures enum value "RUNNING"
 	ListAgentsOKBodyPostgresExporterItems0StatusRUNNING string = "RUNNING"
@@ -2433,8 +2930,51 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) validateLogLevel(formats strfmt
 	return nil
 }
 
-// ContextValidate validates this list agents OK body postgres exporter items0 based on context it is used
+func (o *ListAgentsOKBodyPostgresExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body postgres exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyPostgresExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyPostgresExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2449,6 +2989,49 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) MarshalBinary() ([]byte, error)
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyPostgresExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyPostgresExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyPostgresExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyPostgresExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyPostgresExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body postgres exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyPostgresExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body postgres exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyPostgresExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyPostgresExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyPostgresExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyPostgresExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2496,12 +3079,13 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2516,6 +3100,9 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body proxysql exporter items0
@@ -2530,6 +3117,10 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) Validate(formats strfmt.Registr
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -2540,7 +3131,7 @@ var listAgentsOkBodyProxysqlExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2555,6 +3146,9 @@ const (
 
 	// ListAgentsOKBodyProxysqlExporterItems0StatusSTARTING captures enum value "STARTING"
 	ListAgentsOKBodyProxysqlExporterItems0StatusSTARTING string = "STARTING"
+
+	// ListAgentsOKBodyProxysqlExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ListAgentsOKBodyProxysqlExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyProxysqlExporterItems0StatusRUNNING captures enum value "RUNNING"
 	ListAgentsOKBodyProxysqlExporterItems0StatusRUNNING string = "RUNNING"
@@ -2647,8 +3241,51 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) validateLogLevel(formats strfmt
 	return nil
 }
 
-// ContextValidate validates this list agents OK body proxysql exporter items0 based on context it is used
+func (o *ListAgentsOKBodyProxysqlExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body proxysql exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyProxysqlExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyProxysqlExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2663,6 +3300,49 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) MarshalBinary() ([]byte, error)
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyProxysqlExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyProxysqlExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body proxysql exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body proxysql exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2710,12 +3390,13 @@ type ListAgentsOKBodyQANMongodbProfilerAgentItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -2748,7 +3429,7 @@ var listAgentsOkBodyQanMongodbProfilerAgentItems0TypeStatusPropEnum []interface{
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2763,6 +3444,9 @@ const (
 
 	// ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusSTARTING captures enum value "STARTING"
 	ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusSTARTING string = "STARTING"
+
+	// ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusRUNNING captures enum value "RUNNING"
 	ListAgentsOKBodyQANMongodbProfilerAgentItems0StatusRUNNING string = "RUNNING"
@@ -2930,12 +3614,13 @@ type ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -2968,7 +3653,7 @@ var listAgentsOkBodyQanMysqlPerfschemaAgentItems0TypeStatusPropEnum []interface{
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2983,6 +3668,9 @@ const (
 
 	// ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusSTARTING captures enum value "STARTING"
 	ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusSTARTING string = "STARTING"
+
+	// ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusRUNNING captures enum value "RUNNING"
 	ListAgentsOKBodyQANMysqlPerfschemaAgentItems0StatusRUNNING string = "RUNNING"
@@ -3153,12 +3841,13 @@ type ListAgentsOKBodyQANMysqlSlowlogAgentItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// mod tidy
@@ -3191,7 +3880,7 @@ var listAgentsOkBodyQanMysqlSlowlogAgentItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3206,6 +3895,9 @@ const (
 
 	// ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusSTARTING captures enum value "STARTING"
 	ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusSTARTING string = "STARTING"
+
+	// ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusRUNNING captures enum value "RUNNING"
 	ListAgentsOKBodyQANMysqlSlowlogAgentItems0StatusRUNNING string = "RUNNING"
@@ -3361,12 +4053,13 @@ type ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -3399,7 +4092,7 @@ var listAgentsOkBodyQanPostgresqlPgstatementsAgentItems0TypeStatusPropEnum []int
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3414,6 +4107,9 @@ const (
 
 	// ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusSTARTING captures enum value "STARTING"
 	ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusSTARTING string = "STARTING"
+
+	// ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusRUNNING captures enum value "RUNNING"
 	ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0StatusRUNNING string = "RUNNING"
@@ -3572,12 +4268,13 @@ type ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -3610,7 +4307,7 @@ var listAgentsOkBodyQanPostgresqlPgstatmonitorAgentItems0TypeStatusPropEnum []in
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3625,6 +4322,9 @@ const (
 
 	// ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusSTARTING captures enum value "STARTING"
 	ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusSTARTING string = "STARTING"
+
+	// ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusRUNNING captures enum value "RUNNING"
 	ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0StatusRUNNING string = "RUNNING"
@@ -3768,12 +4468,13 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -3799,6 +4500,9 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ListAgentsOKBodyRDSExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this list agents OK body RDS exporter items0
@@ -3813,6 +4517,10 @@ func (o *ListAgentsOKBodyRDSExporterItems0) Validate(formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -3823,7 +4531,7 @@ var listAgentsOkBodyRdsExporterItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3838,6 +4546,9 @@ const (
 
 	// ListAgentsOKBodyRDSExporterItems0StatusSTARTING captures enum value "STARTING"
 	ListAgentsOKBodyRDSExporterItems0StatusSTARTING string = "STARTING"
+
+	// ListAgentsOKBodyRDSExporterItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ListAgentsOKBodyRDSExporterItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyRDSExporterItems0StatusRUNNING captures enum value "RUNNING"
 	ListAgentsOKBodyRDSExporterItems0StatusRUNNING string = "RUNNING"
@@ -3930,8 +4641,51 @@ func (o *ListAgentsOKBodyRDSExporterItems0) validateLogLevel(formats strfmt.Regi
 	return nil
 }
 
-// ContextValidate validates this list agents OK body RDS exporter items0 based on context it is used
+func (o *ListAgentsOKBodyRDSExporterItems0) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body RDS exporter items0 based on the context it is used
 func (o *ListAgentsOKBodyRDSExporterItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyRDSExporterItems0) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -3946,6 +4700,49 @@ func (o *ListAgentsOKBodyRDSExporterItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyRDSExporterItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyRDSExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyRDSExporterItems0MetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ListAgentsOKBodyRDSExporterItems0MetricsResolutions
+*/
+type ListAgentsOKBodyRDSExporterItems0MetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this list agents OK body RDS exporter items0 metrics resolutions
+func (o *ListAgentsOKBodyRDSExporterItems0MetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body RDS exporter items0 metrics resolutions based on context it is used
+func (o *ListAgentsOKBodyRDSExporterItems0MetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyRDSExporterItems0MetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyRDSExporterItems0MetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyRDSExporterItems0MetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -3971,12 +4768,13 @@ type ListAgentsOKBodyVMAgentItems0 struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -4004,7 +4802,7 @@ var listAgentsOkBodyVmAgentItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -4019,6 +4817,9 @@ const (
 
 	// ListAgentsOKBodyVMAgentItems0StatusSTARTING captures enum value "STARTING"
 	ListAgentsOKBodyVMAgentItems0StatusSTARTING string = "STARTING"
+
+	// ListAgentsOKBodyVMAgentItems0StatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ListAgentsOKBodyVMAgentItems0StatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ListAgentsOKBodyVMAgentItems0StatusRUNNING captures enum value "RUNNING"
 	ListAgentsOKBodyVMAgentItems0StatusRUNNING string = "RUNNING"

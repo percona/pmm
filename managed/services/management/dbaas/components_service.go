@@ -22,7 +22,7 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	goversion "github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
@@ -537,14 +537,14 @@ func getPMMClientImage() string {
 	return pmmClientImage
 }
 
-func imageExists(ctx context.Context, image string) (bool, error) {
+func imageExists(ctx context.Context, name string) (bool, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		panic(err)
 	}
 	defer cli.Close() //nolint:errcheck
 
-	reader, err := cli.ImagePull(ctx, image, types.ImagePullOptions{})
+	reader, err := cli.ImagePull(ctx, name, image.PullOptions{})
 	if err != nil {
 		if client.IsErrNotFound(err) {
 			return false, nil

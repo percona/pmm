@@ -506,12 +506,13 @@ type AddRDSExporterOKBodyRDSExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -537,6 +538,9 @@ type AddRDSExporterOKBodyRDSExporter struct {
 
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddRDSExporterOKBodyRDSExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add RDS exporter OK body RDS exporter
@@ -551,6 +555,10 @@ func (o *AddRDSExporterOKBodyRDSExporter) Validate(formats strfmt.Registry) erro
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -561,7 +569,7 @@ var addRdsExporterOkBodyRdsExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -576,6 +584,9 @@ const (
 
 	// AddRDSExporterOKBodyRDSExporterStatusSTARTING captures enum value "STARTING"
 	AddRDSExporterOKBodyRDSExporterStatusSTARTING string = "STARTING"
+
+	// AddRDSExporterOKBodyRDSExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddRDSExporterOKBodyRDSExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddRDSExporterOKBodyRDSExporterStatusRUNNING captures enum value "RUNNING"
 	AddRDSExporterOKBodyRDSExporterStatusRUNNING string = "RUNNING"
@@ -668,8 +679,51 @@ func (o *AddRDSExporterOKBodyRDSExporter) validateLogLevel(formats strfmt.Regist
 	return nil
 }
 
-// ContextValidate validates this add RDS exporter OK body RDS exporter based on context it is used
+func (o *AddRDSExporterOKBodyRDSExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsExporterOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsExporterOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add RDS exporter OK body RDS exporter based on the context it is used
 func (o *AddRDSExporterOKBodyRDSExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddRDSExporterOKBodyRDSExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsExporterOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsExporterOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -684,6 +738,49 @@ func (o *AddRDSExporterOKBodyRDSExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRDSExporterOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 	var res AddRDSExporterOKBodyRDSExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddRDSExporterOKBodyRDSExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model AddRDSExporterOKBodyRDSExporterMetricsResolutions
+*/
+type AddRDSExporterOKBodyRDSExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this add RDS exporter OK body RDS exporter metrics resolutions
+func (o *AddRDSExporterOKBodyRDSExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add RDS exporter OK body RDS exporter metrics resolutions based on context it is used
+func (o *AddRDSExporterOKBodyRDSExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRDSExporterOKBodyRDSExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRDSExporterOKBodyRDSExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res AddRDSExporterOKBodyRDSExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

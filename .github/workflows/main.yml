@@ -19,16 +19,16 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Go release
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
 
       - name: Enable Go build cache
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -37,7 +37,7 @@ jobs:
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
@@ -69,7 +69,7 @@ jobs:
       - name: Update API compatibility descriptors
         run: |
           # log if descriptors changed, useful for "update descriptors" PRs
-          make descriptors
+          make -C api descriptors
           git diff --text
 
       - name: Run check-license
@@ -81,7 +81,7 @@ jobs:
         run: bin/go-sumtype ./...
 
       - name: Run linters
-        uses: reviewdog/action-golangci-lint@v2
+        uses: reviewdog/action-golangci-lint@dd3fda91790ca90e75049e5c767509dc0ec7d99b # v2.7.0
         with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version_file: ${{ github.workspace }}/go.mod
@@ -89,7 +89,7 @@ jobs:
           fail_on_error: true
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v1.55.2 # Version should match specified in Makefile
+          golangci_lint_version: v1.62.0 # Version should match specified in Makefile
 
       - name: Run go-consistent
         env:
@@ -127,7 +127,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Run Merge Gatekeeper
-        uses: upsidr/merge-gatekeeper@v1.2.1
+        uses: upsidr/merge-gatekeeper@09af7a82c1666d0e64d2bd8c01797a0bcfd3bb5d # v1.2.1
         with:
           self: Merge Gatekeeper
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -151,7 +151,7 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2.2.1
+        uses: rtCamp/action-slack-notify@c33737706dea87cd7784c687dadc9adf1be59990 # v2.3.2
 
   workflow_failure:
     if: ${{ failure() }}
@@ -169,4 +169,4 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2.2.1
+        uses: rtCamp/action-slack-notify@c33737706dea87cd7784c687dadc9adf1be59990 # v2.3.2

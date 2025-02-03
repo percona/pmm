@@ -7,6 +7,9 @@ on:
       - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
+    paths-ignore:
+      - "documentation/**"
+
   pull_request:
     paths-ignore:
       - "admin/**"
@@ -14,9 +17,13 @@ on:
       - "api-tests/**"
       - "cli-tests/**"
       - "docs/**"
+      - "documentation/**"
       - "managed/**"
       - "qan-api2/**"
       - "vmproxy/**"
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -42,7 +49,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Docker Up
         run: docker compose up -d
@@ -63,8 +70,10 @@ jobs:
         run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm/update run-race-cover RUN_FLAGS='-debug -check'
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
         with:
           file: cover.out
           flags: update
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+

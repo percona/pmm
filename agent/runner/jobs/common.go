@@ -31,22 +31,22 @@ type DBConnConfig struct {
 	Socket   string
 }
 
-func createDBURL(dbConfig DBConnConfig) *url.URL {
+func (c *DBConnConfig) createDBURL() *url.URL {
 	var host string
 	switch {
-	case dbConfig.Address != "":
-		if dbConfig.Port > 0 {
-			host = net.JoinHostPort(dbConfig.Address, strconv.Itoa(dbConfig.Port))
+	case c.Address != "":
+		if c.Port > 0 {
+			host = net.JoinHostPort(c.Address, strconv.Itoa(c.Port))
 		} else {
-			host = dbConfig.Address
+			host = c.Address
 		}
-	case dbConfig.Socket != "":
-		host = dbConfig.Socket
+	case c.Socket != "":
+		host = c.Socket
 	}
 
 	var user *url.Userinfo
-	if dbConfig.User != "" {
-		user = url.UserPassword(dbConfig.User, dbConfig.Password)
+	if c.User != "" {
+		user = url.UserPassword(c.User, c.Password)
 	}
 
 	return &url.URL{

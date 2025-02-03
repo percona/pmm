@@ -45,7 +45,7 @@ message ListDumpsResponse {
 
 message DeleteDumpRequest {
   repeated string dump_ids = 1 [(validate.rules).repeated = {
-    min_items: 1,
+    min_items: 1
     unique: true
   }];
 }
@@ -78,7 +78,7 @@ message SFTPParameters {
 
 message UploadDumpRequest {
   repeated string dump_ids = 1 [(validate.rules).repeated = {
-    min_items: 1,
+    min_items: 1
     unique: true
   }];
 

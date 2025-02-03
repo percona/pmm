@@ -24,7 +24,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -80,27 +79,13 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 	structs, err := db.SelectAllFrom(pgStatDatabaseView, "")
 	require.NoError(t, err)
-	rows, err := rowsByVersion(db.Querier, "")
+	tests.LogTable(t, structs)
+
+	pgStatVersion, err := getPgStatVersion(db.Querier)
 	require.NoError(t, err)
 
-	defer func() {
-		e := rows.Close()
-		if err == nil {
-			err = e
-		}
-	}()
-
-	for {
-		str := pgStatStatementsView.NewStruct()
-		if err = db.Querier.NextRow(str, rows); err != nil {
-			break
-		}
-
-		structs = append(structs, str)
-	}
-	if errors.Is(err, reform.ErrNoRows) {
-		err = nil
-	}
+	_, view := newPgStatMonitorStructs(pgStatVersion)
+	structs, err = db.SelectAllFrom(view, "")
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
 
@@ -125,43 +110,67 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		"$321, $322, $323, $324, $325, $326, $327, $328, $329, $330, $331, $332, $333, $334, $335, $336, $337, $338, $339, $340, " +
 		"$341, $342, $343, $3 ..."
 
+	// Need to detect vendor because result for mSharedBlksReadSum are different for different images for postgres.
+	mSharedBlksHitSum := float32(33)
+	if strings.Contains(os.Getenv("POSTGRES_IMAGE"), "perconalab") {
+		mSharedBlksHitSum = 32
+	}
+	truncatedMSharedBlksHitSum := mSharedBlksHitSum
+
 	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	switch engineVersion {
 	case "9.4":
+		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
 			selectAllCities:     "3239586867",
 			selectAllCitiesLong: "2745128652",
 		}
 	case "9.5", "9.6":
+		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
 			selectAllCities:     "3994135135",
 			selectAllCitiesLong: "2677760328",
 		}
 	case "10":
+		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
 			selectAllCities:     "2229807896",
 			selectAllCitiesLong: "3454929487",
 		}
 	case "11":
+		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
 			selectAllCities:     "-4056421706168012289",
 			selectAllCitiesLong: "2233640464962569536",
 		}
 	case "12":
+		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
 			selectAllCities:     "5627444073676588515",
 			selectAllCitiesLong: "-1605123213815583414",
 		}
 	case "13":
+		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
 			selectAllCities:     "-32455482996301954",
 			selectAllCitiesLong: "-4813789842463369261",
 		}
-	case "14":
+	case "14", "15":
 		digests = map[string]string{
 			selectAllCities:     "5991662752016701281",
 			selectAllCitiesLong: "-3564720362103294944",
+		}
+	case "16":
+		digests = map[string]string{
+			selectAllCities:     "9094455616937907056",
+			selectAllCitiesLong: "-8264367755446145090",
+		}
+	case "17":
+		truncatedMSharedBlksHitSum = float32(8)
+		digests = map[string]string{
+			selectAllCities:     "1563925687573067138",
+			selectAllCitiesLong: "-3196437048361615995",
 		}
 	default:
 		t.Log("Unhandled version, assuming dummy digests.")
@@ -169,12 +178,6 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			selectAllCities:     "TODO-selectAllCities",
 			selectAllCitiesLong: "TODO-selectAllCitiesLong",
 		}
-	}
-
-	// Need to detect vendor because result for mSharedBlksReadSum are different for different images for postgres.
-	mSharedBlksHitSum := float32(33)
-	if strings.Contains(os.Getenv("POSTGRES_IMAGE"), "perconalab") {
-		mSharedBlksHitSum = 32
 	}
 
 	t.Run("AllCities", func(t *testing.T) {
@@ -209,19 +212,21 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
-				MBlkReadTimeCnt:    actual.Postgresql.MBlkReadTimeCnt,
-				MBlkReadTimeSum:    actual.Postgresql.MBlkReadTimeSum,
-				MSharedBlksReadCnt: actual.Postgresql.MSharedBlksReadCnt,
-				MSharedBlksReadSum: actual.Postgresql.MSharedBlksReadSum,
-				MSharedBlksHitCnt:  actual.Postgresql.MSharedBlksHitCnt,
-				MSharedBlksHitSum:  actual.Postgresql.MSharedBlksHitSum,
-				MRowsCnt:           1,
-				MRowsSum:           4079,
+				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
+				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
+				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
+				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
+				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
+				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
+				MRowsCnt:              1,
+				MRowsSum:              4079,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
-		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
+		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 
 		_, err = db.Exec(selectAllCities)
 		require.NoError(t, err)
@@ -250,17 +255,19 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
-				MSharedBlksHitCnt: 1,
-				MSharedBlksHitSum: mSharedBlksHitSum,
-				MRowsCnt:          1,
-				MRowsSum:          4079,
-				MBlkReadTimeCnt:   actual.Postgresql.MBlkReadTimeCnt,
-				MBlkReadTimeSum:   actual.Postgresql.MBlkReadTimeSum,
+				MSharedBlksHitCnt:     1,
+				MSharedBlksHitSum:     mSharedBlksHitSum,
+				MRowsCnt:              1,
+				MRowsSum:              4079,
+				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
+				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
-		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
+		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 	})
 
 	t.Run("AllCitiesTruncated", func(t *testing.T) {
@@ -284,7 +291,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.InDelta(t, 1010, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 3)
+		assert.InDelta(t, truncatedMSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 3)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -303,19 +310,21 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
-				MBlkReadTimeCnt:    actual.Postgresql.MBlkReadTimeCnt,
-				MBlkReadTimeSum:    actual.Postgresql.MBlkReadTimeSum,
-				MSharedBlksReadCnt: actual.Postgresql.MSharedBlksReadCnt,
-				MSharedBlksReadSum: actual.Postgresql.MSharedBlksReadSum,
-				MSharedBlksHitCnt:  actual.Postgresql.MSharedBlksHitCnt,
-				MSharedBlksHitSum:  actual.Postgresql.MSharedBlksHitSum,
-				MRowsCnt:           1,
-				MRowsSum:           499,
+				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
+				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
+				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
+				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
+				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
+				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
+				MRowsCnt:              1,
+				MRowsSum:              499,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
-		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
+		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 
 		_, err = db.Exec(q, args...)
 		require.NoError(t, err)
@@ -328,8 +337,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual = buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.InDelta(t, 0, actual.Postgresql.MBlkReadTimeCnt, 1)
-		assert.InDelta(t, 1007, actual.Postgresql.MSharedBlksHitSum, 2)
+		assert.InDelta(t, 0, actual.Postgresql.MSharedBlkReadTimeCnt, 1)
+		assert.InDelta(t, truncatedMSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum, 2)
 		expected = &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         selectAllCitiesLong,
@@ -347,17 +356,19 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
-				MBlkReadTimeCnt:   actual.Postgresql.MBlkReadTimeCnt,
-				MBlkReadTimeSum:   actual.Postgresql.MBlkReadTimeSum,
-				MSharedBlksHitCnt: 1,
-				MSharedBlksHitSum: actual.Postgresql.MSharedBlksHitSum,
-				MRowsCnt:          1,
-				MRowsSum:          499,
+				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
+				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
+				MSharedBlksHitCnt:     1,
+				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
+				MRowsCnt:              1,
+				MRowsSum:              499,
 			},
 		}
 		expected.Common.Queryid = digests[expected.Common.Fingerprint]
 		tests.AssertBucketsEqual(t, expected, actual)
-		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
+		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
@@ -398,21 +409,24 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		require.Len(t, buckets, 1)
 
 		var fingerprint string
+		tables := []string{tableName}
+
 		switch engineVersion {
 		case "9.4", "9.5", "9.6":
 			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (?, ?, ?, ?)`, tableName)
-
+			tables = []string{}
 		default:
 			fingerprint = fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)`, tableName)
 		}
 		actual := buckets[0]
-		assert.NotZero(t, actual.Postgresql.MBlkReadTimeSum)
+		assert.NotZero(t, actual.Postgresql.MSharedBlkReadTimeSum+actual.Postgresql.MSharedBlkWriteTimeSum)
+		assert.Equal(t, float32(n), actual.Postgresql.MSharedBlkReadTimeCnt+actual.Postgresql.MSharedBlkWriteTimeCnt)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
 				Fingerprint:         fingerprint,
 				Database:            "pmm-agent",
-				Tables:              []string{tableName},
+				Tables:              tables,
 				Comments:            map[string]string{"controller": "test"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
@@ -424,21 +438,25 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
-				MBlkReadTimeCnt:       float32(n),
-				MBlkReadTimeSum:       actual.Postgresql.MBlkReadTimeSum,
-				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
-				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
-				MSharedBlksWrittenCnt: actual.Postgresql.MSharedBlksWrittenCnt,
-				MSharedBlksWrittenSum: actual.Postgresql.MSharedBlksWrittenSum,
-				MSharedBlksDirtiedCnt: actual.Postgresql.MSharedBlksDirtiedCnt,
-				MSharedBlksDirtiedSum: actual.Postgresql.MSharedBlksDirtiedSum,
-				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
-				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
-				MRowsCnt:              float32(n),
-				MRowsSum:              float32(n),
+				MSharedBlkReadTimeCnt:  actual.Postgresql.MSharedBlkReadTimeCnt,
+				MSharedBlkReadTimeSum:  actual.Postgresql.MSharedBlkReadTimeSum,
+				MSharedBlkWriteTimeCnt: actual.Postgresql.MSharedBlkWriteTimeCnt,
+				MSharedBlkWriteTimeSum: actual.Postgresql.MSharedBlkWriteTimeSum,
+				MLocalBlkReadTimeCnt:   actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:   actual.Postgresql.MLocalBlkReadTimeSum,
+				MSharedBlksReadCnt:     actual.Postgresql.MSharedBlksReadCnt,
+				MSharedBlksReadSum:     actual.Postgresql.MSharedBlksReadSum,
+				MSharedBlksWrittenCnt:  float32(n),
+				MSharedBlksWrittenSum:  actual.Postgresql.MSharedBlksWrittenSum,
+				MSharedBlksDirtiedCnt:  actual.Postgresql.MSharedBlksDirtiedCnt,
+				MSharedBlksDirtiedSum:  actual.Postgresql.MSharedBlksDirtiedSum,
+				MSharedBlksHitCnt:      actual.Postgresql.MSharedBlksHitCnt,
+				MSharedBlksHitSum:      actual.Postgresql.MSharedBlksHitSum,
+				MRowsCnt:               float32(n),
+				MRowsSum:               float32(n),
 			},
 		}
 		tests.AssertBucketsEqual(t, expected, actual)
-		assert.LessOrEqual(t, actual.Postgresql.MBlkReadTimeSum, actual.Common.MQueryTimeSum)
+		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 	})
 }

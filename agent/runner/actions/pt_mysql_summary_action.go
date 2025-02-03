@@ -17,6 +17,7 @@ package actions
 import (
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"strconv"
@@ -61,6 +62,15 @@ func (a *ptMySQLSummaryAction) Timeout() time.Duration {
 // Type returns an Action type.
 func (a *ptMySQLSummaryAction) Type() string {
 	return a.command
+}
+
+// DSN returns a DSN for the Action.
+func (a *ptMySQLSummaryAction) DSN() string {
+	if a.params.Socket != "" {
+		return a.params.Socket
+	}
+
+	return net.JoinHostPort(a.params.Host, strconv.FormatUint(uint64(a.params.Port), 10))
 }
 
 // Run runs an Action and returns output and error.

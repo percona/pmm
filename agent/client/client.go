@@ -454,9 +454,10 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 
 	cfg := c.cfg.Get()
 	var action actions.Action
+	var err error
 	switch params := p.Params.(type) {
 	case *agentpb.StartActionRequest_MysqlExplainParams:
-		action = actions.NewMySQLExplainAction(p.ActionId, timeout, params.MysqlExplainParams)
+		action, err = actions.NewMySQLExplainAction(p.ActionId, timeout, params.MysqlExplainParams)
 
 	case *agentpb.StartActionRequest_MysqlShowCreateTableParams:
 		action = actions.NewMySQLShowCreateTableAction(p.ActionId, timeout, params.MysqlShowCreateTableParams)
@@ -468,13 +469,13 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 		action = actions.NewMySQLShowIndexAction(p.ActionId, timeout, params.MysqlShowIndexParams)
 
 	case *agentpb.StartActionRequest_PostgresqlShowCreateTableParams:
-		action = actions.NewPostgreSQLShowCreateTableAction(p.ActionId, timeout, params.PostgresqlShowCreateTableParams, cfg.Paths.TempDir)
+		action, err = actions.NewPostgreSQLShowCreateTableAction(p.ActionId, timeout, params.PostgresqlShowCreateTableParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_PostgresqlShowIndexParams:
-		action = actions.NewPostgreSQLShowIndexAction(p.ActionId, timeout, params.PostgresqlShowIndexParams, cfg.Paths.TempDir)
+		action, err = actions.NewPostgreSQLShowIndexAction(p.ActionId, timeout, params.PostgresqlShowIndexParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbExplainParams:
-		action = actions.NewMongoDBExplainAction(p.ActionId, timeout, params.MongodbExplainParams, cfg.Paths.TempDir)
+		action, err = actions.NewMongoDBExplainAction(p.ActionId, timeout, params.MongodbExplainParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MysqlQueryShowParams:
 		action = actions.NewMySQLQueryShowAction(p.ActionId, timeout, params.MysqlQueryShowParams)
@@ -483,13 +484,13 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 		action = actions.NewMySQLQuerySelectAction(p.ActionId, timeout, params.MysqlQuerySelectParams)
 
 	case *agentpb.StartActionRequest_PostgresqlQueryShowParams:
-		action = actions.NewPostgreSQLQueryShowAction(p.ActionId, timeout, params.PostgresqlQueryShowParams, cfg.Paths.TempDir)
+		action, err = actions.NewPostgreSQLQueryShowAction(p.ActionId, timeout, params.PostgresqlQueryShowParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_PostgresqlQuerySelectParams:
-		action = actions.NewPostgreSQLQuerySelectAction(p.ActionId, timeout, params.PostgresqlQuerySelectParams, cfg.Paths.TempDir)
+		action, err = actions.NewPostgreSQLQuerySelectAction(p.ActionId, timeout, params.PostgresqlQuerySelectParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryGetparameterParams:
-		action = actions.NewMongoDBQueryAdmincommandAction(
+		action, err = actions.NewMongoDBQueryAdmincommandAction(
 			p.ActionId,
 			timeout,
 			params.MongodbQueryGetparameterParams.Dsn,
@@ -499,7 +500,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryBuildinfoParams:
-		action = actions.NewMongoDBQueryAdmincommandAction(
+		action, err = actions.NewMongoDBQueryAdmincommandAction(
 			p.ActionId,
 			timeout,
 			params.MongodbQueryBuildinfoParams.Dsn,
@@ -509,7 +510,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryGetcmdlineoptsParams:
-		action = actions.NewMongoDBQueryAdmincommandAction(
+		action, err = actions.NewMongoDBQueryAdmincommandAction(
 			p.ActionId,
 			timeout,
 			params.MongodbQueryGetcmdlineoptsParams.Dsn,
@@ -519,7 +520,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryReplsetgetstatusParams:
-		action = actions.NewMongoDBQueryAdmincommandAction(
+		action, err = actions.NewMongoDBQueryAdmincommandAction(
 			p.ActionId,
 			timeout,
 			params.MongodbQueryReplsetgetstatusParams.Dsn,
@@ -529,7 +530,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryGetdiagnosticdataParams:
-		action = actions.NewMongoDBQueryAdmincommandAction(
+		action, err = actions.NewMongoDBQueryAdmincommandAction(
 			p.ActionId,
 			timeout,
 			params.MongodbQueryGetdiagnosticdataParams.Dsn,
@@ -563,6 +564,10 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 
 	default:
 		return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid action type request: %T", params)
+	}
+
+	if err != nil {
+		return errors.Wrap(err, "failed to create action")
 	}
 
 	return c.runner.StartAction(action)
@@ -645,7 +650,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			return errors.WithStack(err)
 		}
 
-		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, &dsn, locationConfig,
+		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dsn, locationConfig,
 			j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel, j.MongodbBackup.Folder)
 		if err != nil {
 			return err
@@ -678,7 +683,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 		}
 
 		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name,
-			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), &dsn, locationConfig,
+			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dsn, locationConfig,
 			c.supervisor, j.MongodbRestoreBackup.Folder, j.MongodbRestoreBackup.PbmMetadata.Name)
 	default:
 		return errors.Errorf("unknown job type: %T", j)

@@ -384,6 +384,115 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, expected.Args, actual.Args)
 	})
+
+	t.Run("Enable all collectors and disable some", func(t *testing.T) {
+		exporter.MongoDBOptions = &models.MongoDBOptions{
+			EnableAllCollectors: true,
+			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
+		}
+		exporter.DisabledCollectors = []string{"dbstats", "topmetrics"}
+
+		expected.Args = []string{
+			"--collector.collstats",
+			"--collector.collstats-limit=0",
+			"--collector.diagnosticdata",
+			"--collector.indexstats",
+			"--collector.replicasetstatus",
+			"--collector.shards",
+			"--compatible-mode",
+			"--discovering-mode",
+			// this should be here even if limit=0 because it could be used to filter dbstats
+			// since dbstats is not depending the number of collections present in the db.
+			"--mongodb.collstats-colls=db1.col1.one,db2.col2,db3",
+			"--mongodb.global-conn-pool",
+			"--mongodb.indexstats-colls=db1.col1.one,db2.col2,db3",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+		}
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
+		require.Equal(t, expected.Args, actual.Args)
+	})
+}
+
+func TestMongodbExporterConfig2432(t *testing.T) {
+	pmmAgentVersion := version.MustParse("2.43.2")
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
+	mongodb := &models.Service{
+		Address: pointer.ToString("1.2.3.4"),
+		Port:    pointer.ToUint16(27017),
+	}
+	exporter := &models.Agent{
+		AgentID:       "agent-id",
+		AgentType:     models.MongoDBExporterType,
+		Username:      pointer.ToString("username"),
+		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword: pointer.ToString("agent-password"),
+	}
+	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
+	expected := &agentpb.SetStateRequest_AgentProcess{
+		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+		TemplateLeftDelim:  "{{",
+		TemplateRightDelim: "}}",
+		Args: []string{
+			"--collector.diagnosticdata",
+			"--collector.fcv",
+			"--collector.pbm",
+			"--collector.replicasetstatus",
+			"--compatible-mode",
+			"--discovering-mode",
+			"--mongodb.global-conn-pool",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+		},
+		Env: []string{
+			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
+		},
+		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
+		TextFiles: map[string]string{
+			"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-password\n",
+		},
+	}
+	require.NoError(t, err)
+	requireNoDuplicateFlags(t, actual.Args)
+	require.Equal(t, expected.Args, actual.Args)
+	require.Equal(t, expected.Env, actual.Env)
+	require.Equal(t, expected, actual)
+
+	t.Run("Enabling all collectors", func(t *testing.T) {
+		exporter.MongoDBOptions = &models.MongoDBOptions{
+			EnableAllCollectors: true,
+			StatsCollections:    []string{"db1.col1.one", "db2.col2", "db3"},
+		}
+
+		expected.Args = []string{
+			"--collector.collstats",
+			"--collector.collstats-limit=0",
+			"--collector.currentopmetrics",
+			"--collector.dbstats",
+			"--collector.diagnosticdata",
+			"--collector.fcv",
+			"--collector.indexstats",
+			"--collector.pbm",
+			"--collector.replicasetstatus",
+			"--collector.shards",
+			"--collector.topmetrics",
+			"--compatible-mode",
+			"--discovering-mode",
+			// this should be here even if limit=0 because it could be used to filter dbstats
+			// since dbstats is not depending on the number of collections present in the db.
+			"--mongodb.collstats-colls=db1.col1.one,db2.col2,db3",
+			"--mongodb.global-conn-pool",
+			"--mongodb.indexstats-colls=db1.col1.one,db2.col2,db3",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+		}
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
+		require.Equal(t, expected.Args, actual.Args)
+	})
 }
 
 func TestMongodbExporterConfig(t *testing.T) {

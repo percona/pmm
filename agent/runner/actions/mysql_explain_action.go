@@ -54,12 +54,27 @@ var errCannotEncodeExplainResponse = errors.New("cannot JSON encode the explain 
 
 // NewMySQLExplainAction creates MySQL Explain Action.
 // This is an Action that can run `EXPLAIN` command on MySQL service with given DSN.
-func NewMySQLExplainAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MySQLExplainParams) Action {
+func NewMySQLExplainAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MySQLExplainParams) (Action, error) {
+	if params.Query == "" {
+		return nil, errors.New("Query to EXPLAIN is empty")
+	}
+
+	// You cant run Explain on trimmed queries.
+	if strings.HasSuffix(params.Query, "...") {
+		return nil, errors.New("EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value.") //nolint:revive
+	}
+
+	// Explain is supported only for DML queries.
+	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
+	if !isDMLQuery(params.Query) {
+		return nil, errors.New("EXPLAIN functionality is supported only for DML queries - SELECT, INSERT, UPDATE, DELETE and REPLACE.") //nolint:revive
+	}
+
 	return &mysqlExplainAction{
 		id:      id,
 		timeout: timeout,
 		params:  params,
-	}
+	}, nil
 }
 
 // ID returns an Action ID.
@@ -77,29 +92,19 @@ func (a *mysqlExplainAction) Type() string {
 	return "mysql-explain"
 }
 
+// DSN returns a DSN for the Action.
+func (a *mysqlExplainAction) DSN() string {
+	return a.params.Dsn
+}
+
 // Run runs an Action and returns output and error.
 func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
-	if a.params.Query == "" {
-		return nil, errors.New("Query to EXPLAIN is empty")
-	}
-
-	// You cant run Explain on trimmed queries.
-	if strings.HasSuffix(a.params.Query, "...") {
-		return nil, errors.New("EXPLAIN failed because the query was too long and trimmed. Set max-query-length to a larger value.") //nolint:revive
-	}
-
-	// Explain is supported only for DML queries.
-	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
-	if !isDMLQuery(a.params.Query) {
-		return nil, errors.New("Functionality EXPLAIN is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE)")
-	}
-
 	a.params.Query = queryparser.GetMySQLFingerprintFromExplainFingerprint(a.params.Query)
 
 	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
 	// SELECT after converting DML queries.
 	query, changedToSelect := dmlToSelect(a.params.Query)
-	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles)
+	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles, a.params.TlsSkipVerify)
 	if err != nil {
 		return nil, err
 	}

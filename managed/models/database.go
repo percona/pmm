@@ -953,6 +953,9 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (dump_id, chunk_id)
 		)`,
 	},
+	88: {
+		`ALTER TABLE agents ADD COLUMN metrics_resolutions JSONB`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1160,9 +1163,6 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		if err = setupFixture1(tx.Querier, params); err != nil {
 			return err
 		}
-		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil {
-			return err
-		}
 		return nil
 	})
 }
@@ -1247,12 +1247,6 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-func setupFixture2(q *reform.Querier, username, password string) error { //nolint:revive
-	// TODO add clickhouse_exporter
-
 	return nil
 }
 

@@ -118,18 +118,6 @@
         path: /var/run/supervisor/supervisor.sock
       register: is_upgrade
 
-    - name: Stop pmm-managed and postgres before backup database | EL7
-      supervisorctl:
-        name: "{{ item }}"
-        state: stopped
-      loop:
-        - pmm-managed
-        - postgresql
-      become: true
-      when:
-        - is_upgrade.stat.exists
-        - ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-
     - name: Stop pmm-managed and postgres before backup database | EL9
       supervisorctl:
         name: "{{ item }}"
@@ -217,24 +205,10 @@
         state: absent
       when: is_upgrade.stat.exists
 
-    - name: Reread supervisord configuration EL7
-      when: is_upgrade.stat.exists and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      command: supervisorctl reread
-
     - name: Reread supervisord configuration EL9
       when: is_upgrade.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       command: /usr/local/bin/supervisorctl reread
       become: true
-
-    - name: Restart Postgres | EL7
-      command: supervisorctl {{ item }} postgresql
-      changed_when: True
-      become: true
-      loop:
-        - stop
-        - remove
-        - add
-      when: is_upgrade.stat.exists and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
 
     - name: Restart Postgres | EL9
       command: /usr/local/bin/supervisorctl {{ item }} postgresql
@@ -245,15 +219,6 @@
         - remove
         - add
       when: is_upgrade.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
-
-    - name: Run pmm-managed again | EL7
-      supervisorctl:
-        name: pmm-managed
-        state: started
-      become: true
-      when:
-        - is_upgrade.stat.exists
-        - ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
 
     - name: Run pmm-managed again | EL9
       supervisorctl:

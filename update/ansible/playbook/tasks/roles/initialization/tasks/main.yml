@@ -101,12 +101,6 @@
             owner: root
             group: pmm
 
-        - name: Restart clickhouse EL7
-          when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-          command: supervisorctl restart clickhouse
-          become: true
-          changed_when: true
-
         - name: Restart clickhouse EL9
           when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
           command: /usr/local/bin/supervisorctl restart clickhouse

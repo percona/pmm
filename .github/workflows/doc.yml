@@ -3,31 +3,41 @@ on:
   push:
     branches:
       - main
+      - v3
     paths:
       - "api/**"
       - "docs/api/**"
 
   workflow_dispatch:
-    inputs:
-      version:
-        description: "API Version on readme.io"
-        required: true
-        default: "v1.0" # v0.0 stands for the dev version
 
 jobs:
   sync:
     name: Sync
     runs-on: ubuntu-22.04
+    env:
+      VERSION: v2
+      ID: 626badcabbc59c02acc1a53f
+
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Detect PMM version and API ID
+        run: |
+          # For reference:
+          # PMM 2: VERSION=v2, ID=626badcabbc59c02acc1a53f
+          # PMM 3: VERSION=v3, ID=622892a957a7410330bc6184
+          export VERSION=$(cat api/swagger/swagger.json | jq -r '.info.version')
+          export ID=$(cat api/swagger/swagger.json | jq -r '."x-readme-id"')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "ID=$ID" >> $GITHUB_ENV
 
       - name: API
-        uses: readmeio/rdme@v8
+        uses: readmeio/rdme@eaa40e87de6d5fe6c43b77c5339e026d21cf2a8b # v10.0.0
         with:
-          rdme: openapi ./api/swagger/swagger.json --id=626badcabbc59c02acc1a53f --key=${{ secrets.README_TOKEN }}
+          rdme: openapi ./api/swagger/swagger.json --id=${{ env.ID }} --key=${{ secrets.README_TOKEN }}
 
       - name: Markdown docs
-        uses: readmeio/rdme@v8
+        uses: readmeio/rdme@eaa40e87de6d5fe6c43b77c5339e026d21cf2a8b # v10.0.0
         with:
-          rdme: docs docs/api --version=${{ github.event.inputs.version || 'v1.0' }}  --key=${{ secrets.README_TOKEN }}
+          rdme: docs docs/api --version=${{ env.VERSION }}  --key=${{ secrets.README_TOKEN }}

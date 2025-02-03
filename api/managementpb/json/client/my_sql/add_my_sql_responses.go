@@ -843,12 +843,13 @@ type AddMySQLOKBodyMysqldExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -866,6 +867,9 @@ type AddMySQLOKBodyMysqldExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddMySQLOKBodyMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add my SQL OK body mysqld exporter
@@ -880,6 +884,10 @@ func (o *AddMySQLOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -890,7 +898,7 @@ var addMySqlOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -905,6 +913,9 @@ const (
 
 	// AddMySQLOKBodyMysqldExporterStatusSTARTING captures enum value "STARTING"
 	AddMySQLOKBodyMysqldExporterStatusSTARTING string = "STARTING"
+
+	// AddMySQLOKBodyMysqldExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddMySQLOKBodyMysqldExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddMySQLOKBodyMysqldExporterStatusRUNNING captures enum value "RUNNING"
 	AddMySQLOKBodyMysqldExporterStatusRUNNING string = "RUNNING"
@@ -997,8 +1008,51 @@ func (o *AddMySQLOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry)
 	return nil
 }
 
-// ContextValidate validates this add my SQL OK body mysqld exporter based on context it is used
+func (o *AddMySQLOKBodyMysqldExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMySqlOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySqlOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add my SQL OK body mysqld exporter based on the context it is used
 func (o *AddMySQLOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMySQLOKBodyMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMySqlOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySqlOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1013,6 +1067,49 @@ func (o *AddMySQLOKBodyMysqldExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMySQLOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	var res AddMySQLOKBodyMysqldExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddMySQLOKBodyMysqldExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model AddMySQLOKBodyMysqldExporterMetricsResolutions
+*/
+type AddMySQLOKBodyMysqldExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this add my SQL OK body mysqld exporter metrics resolutions
+func (o *AddMySQLOKBodyMysqldExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add my SQL OK body mysqld exporter metrics resolutions based on context it is used
+func (o *AddMySQLOKBodyMysqldExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddMySQLOKBodyMysqldExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddMySQLOKBodyMysqldExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res AddMySQLOKBodyMysqldExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1072,12 +1169,13 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -1110,7 +1208,7 @@ var addMySqlOkBodyQanMysqlPerfschemaTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1125,6 +1223,9 @@ const (
 
 	// AddMySQLOKBodyQANMysqlPerfschemaStatusSTARTING captures enum value "STARTING"
 	AddMySQLOKBodyQANMysqlPerfschemaStatusSTARTING string = "STARTING"
+
+	// AddMySQLOKBodyQANMysqlPerfschemaStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddMySQLOKBodyQANMysqlPerfschemaStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddMySQLOKBodyQANMysqlPerfschemaStatusRUNNING captures enum value "RUNNING"
 	AddMySQLOKBodyQANMysqlPerfschemaStatusRUNNING string = "RUNNING"
@@ -1295,12 +1396,13 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// mod tidy
@@ -1333,7 +1435,7 @@ var addMySqlOkBodyQanMysqlSlowlogTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1348,6 +1450,9 @@ const (
 
 	// AddMySQLOKBodyQANMysqlSlowlogStatusSTARTING captures enum value "STARTING"
 	AddMySQLOKBodyQANMysqlSlowlogStatusSTARTING string = "STARTING"
+
+	// AddMySQLOKBodyQANMysqlSlowlogStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddMySQLOKBodyQANMysqlSlowlogStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddMySQLOKBodyQANMysqlSlowlogStatusRUNNING captures enum value "RUNNING"
 	AddMySQLOKBodyQANMysqlSlowlogStatusRUNNING string = "RUNNING"

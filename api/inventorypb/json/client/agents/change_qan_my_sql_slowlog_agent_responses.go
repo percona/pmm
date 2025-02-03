@@ -497,12 +497,13 @@ type ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// mod tidy
@@ -535,7 +536,7 @@ var changeQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []int
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -550,6 +551,9 @@ const (
 
 	// ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusSTARTING captures enum value "STARTING"
 	ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusSTARTING string = "STARTING"
+
+	// ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusRUNNING captures enum value "RUNNING"
 	ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusRUNNING string = "RUNNING"
@@ -688,15 +692,70 @@ type ChangeQANMySQLSlowlogAgentParamsBodyCommon struct {
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
 	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeQANMySQLSlowlogAgentParamsBodyCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change QAN my SQL slowlog agent params body common
 func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change QAN my SQL slowlog agent params body common based on context it is used
+func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change QAN my SQL slowlog agent params body common based on the context it is used
 func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -711,6 +770,49 @@ func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommon) MarshalBinary() ([]byte, er
 // UnmarshalBinary interface implementation
 func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeQANMySQLSlowlogAgentParamsBodyCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeQANMySQLSlowlogAgentParamsBodyCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeQANMySQLSlowlogAgentParamsBodyCommonMetricsResolutions
+*/
+type ChangeQANMySQLSlowlogAgentParamsBodyCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change QAN my SQL slowlog agent params body common metrics resolutions
+func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change QAN my SQL slowlog agent params body common metrics resolutions based on context it is used
+func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeQANMySQLSlowlogAgentParamsBodyCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

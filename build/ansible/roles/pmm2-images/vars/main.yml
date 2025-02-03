@@ -1,6 +1,8 @@
 ---
 pmm2_server_repo: release
-pmm_client_repos: "original testing"
+pmm_client_repos: "pmm2-client testing"
 
 # line below is sed'ed by build-server-docker script
-pmm_client_repo_name: "percona-testing-x86_64"
+pmm_client_repo_name: "pmm2-client-testing-x86_64"
+
+pmm_running_in_docker: false  # Set a default value

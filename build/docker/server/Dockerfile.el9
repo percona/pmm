@@ -33,9 +33,9 @@ COPY gitCommit /tmp/gitCommit
 COPY ansible /opt/ansible
 # NOTE: this needs to be refactored, since some of the playbooks are duplicates
 RUN cp -r /opt/ansible/roles /opt/ansible/pmm2-docker/roles
-RUN ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm2-docker/main.yml \
-  && ansible-playbook -vvv -i 'localhost,' -c local /usr/share/pmm-update/ansible/playbook/tasks/update.yml \
-  && ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm2/post-build-actions.yml
+RUN ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm2-docker/main.yml -e "pmm_running_in_docker=true" \
+  && ansible-playbook -vvv -i 'localhost,' -c local /usr/share/pmm-update/ansible/playbook/tasks/update.yml -e "pmm_running_in_docker=true" \
+  && ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm2/post-build-actions.yml -e "pmm_running_in_docker=true"
 
 COPY entrypoint.sh /opt/entrypoint.sh
 HEALTHCHECK --interval=3s --timeout=2s --start-period=10s --retries=3 CMD curl -f http://127.0.0.1/v1/readyz || exit 1

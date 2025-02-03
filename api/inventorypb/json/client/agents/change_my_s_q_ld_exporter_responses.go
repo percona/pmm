@@ -496,12 +496,13 @@ type ChangeMySQLdExporterOKBodyMysqldExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -519,6 +520,9 @@ type ChangeMySQLdExporterOKBodyMysqldExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeMySQLdExporterOKBodyMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change my s q ld exporter OK body mysqld exporter
@@ -533,6 +537,10 @@ func (o *ChangeMySQLdExporterOKBodyMysqldExporter) Validate(formats strfmt.Regis
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -543,7 +551,7 @@ var changeMySQLdExporterOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -558,6 +566,9 @@ const (
 
 	// ChangeMySQLdExporterOKBodyMysqldExporterStatusSTARTING captures enum value "STARTING"
 	ChangeMySQLdExporterOKBodyMysqldExporterStatusSTARTING string = "STARTING"
+
+	// ChangeMySQLdExporterOKBodyMysqldExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ChangeMySQLdExporterOKBodyMysqldExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ChangeMySQLdExporterOKBodyMysqldExporterStatusRUNNING captures enum value "RUNNING"
 	ChangeMySQLdExporterOKBodyMysqldExporterStatusRUNNING string = "RUNNING"
@@ -650,8 +661,51 @@ func (o *ChangeMySQLdExporterOKBodyMysqldExporter) validateLogLevel(formats strf
 	return nil
 }
 
-// ContextValidate validates this change my s q ld exporter OK body mysqld exporter based on context it is used
+func (o *ChangeMySQLdExporterOKBodyMysqldExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeMySQLdExporterOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeMySQLdExporterOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change my s q ld exporter OK body mysqld exporter based on the context it is used
 func (o *ChangeMySQLdExporterOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeMySQLdExporterOKBodyMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeMySQLdExporterOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeMySQLdExporterOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -666,6 +720,49 @@ func (o *ChangeMySQLdExporterOKBodyMysqldExporter) MarshalBinary() ([]byte, erro
 // UnmarshalBinary interface implementation
 func (o *ChangeMySQLdExporterOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeMySQLdExporterOKBodyMysqldExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeMySQLdExporterOKBodyMysqldExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeMySQLdExporterOKBodyMysqldExporterMetricsResolutions
+*/
+type ChangeMySQLdExporterOKBodyMysqldExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change my s q ld exporter OK body mysqld exporter metrics resolutions
+func (o *ChangeMySQLdExporterOKBodyMysqldExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change my s q ld exporter OK body mysqld exporter metrics resolutions based on context it is used
+func (o *ChangeMySQLdExporterOKBodyMysqldExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeMySQLdExporterOKBodyMysqldExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeMySQLdExporterOKBodyMysqldExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeMySQLdExporterOKBodyMysqldExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -696,15 +793,70 @@ type ChangeMySQLdExporterParamsBodyCommon struct {
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
 	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeMySQLdExporterParamsBodyCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change my s q ld exporter params body common
 func (o *ChangeMySQLdExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change my s q ld exporter params body common based on context it is used
+func (o *ChangeMySQLdExporterParamsBodyCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change my s q ld exporter params body common based on the context it is used
 func (o *ChangeMySQLdExporterParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeMySQLdExporterParamsBodyCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -719,6 +871,49 @@ func (o *ChangeMySQLdExporterParamsBodyCommon) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeMySQLdExporterParamsBodyCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeMySQLdExporterParamsBodyCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeMySQLdExporterParamsBodyCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeMySQLdExporterParamsBodyCommonMetricsResolutions
+*/
+type ChangeMySQLdExporterParamsBodyCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change my s q ld exporter params body common metrics resolutions
+func (o *ChangeMySQLdExporterParamsBodyCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change my s q ld exporter params body common metrics resolutions based on context it is used
+func (o *ChangeMySQLdExporterParamsBodyCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeMySQLdExporterParamsBodyCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeMySQLdExporterParamsBodyCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeMySQLdExporterParamsBodyCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
