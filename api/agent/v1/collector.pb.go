@@ -1496,7 +1496,7 @@ type MetricsBucket_MongoDB struct {
 	MDocsScannedMin float32 `protobuf:"fixed32,13,opt,name=m_docs_scanned_min,json=mDocsScannedMin,proto3" json:"m_docs_scanned_min,omitempty"`
 	MDocsScannedMax float32 `protobuf:"fixed32,14,opt,name=m_docs_scanned_max,json=mDocsScannedMax,proto3" json:"m_docs_scanned_max,omitempty"`
 	MDocsScannedP99 float32 `protobuf:"fixed32,15,opt,name=m_docs_scanned_p99,json=mDocsScannedP99,proto3" json:"m_docs_scanned_p99,omitempty"`
-	// The query performed a full table scan (COLLSCAN).
+	// The query performed a full collection scan (COLLSCAN).
 	MFullScanCnt float32 `protobuf:"fixed32,16,opt,name=m_full_scan_cnt,json=mFullScanCnt,proto3" json:"m_full_scan_cnt,omitempty"`
 	MFullScanSum float32 `protobuf:"fixed32,17,opt,name=m_full_scan_sum,json=mFullScanSum,proto3" json:"m_full_scan_sum,omitempty"`
 	// Plan summary type (COLLSCAN, IXSCAN, etc).
