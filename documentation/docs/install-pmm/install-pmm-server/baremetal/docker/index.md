@@ -1,6 +1,6 @@
 # Install PMM Server with Docker container
 
-This section explains how to install PMM Server as a Docker container. While PMM Server runs independently, we higli recommend installing [Watchtower](https://containrrr.dev/watchtower/) alongside it to enables convenient [PMM Server upgrades](../../../../pmm-upgrade/ui_upgrade.md) through the PMM user interface. With Watchtower, you can upgrade PMM Server directly from the **Upgrade** page or by clicking the **Upgrade Now** button on the **Home** dashboard.
+This section explains how to install PMM Server as a Docker container. While PMM Server runs independently, we highly recommend installing [Watchtower](https://containrrr.dev/watchtower/) alongside it to enable convenient [PMM Server upgrades](../../../../pmm-upgrade/ui_upgrade.md) through the PMM user interface. With Watchtower, you can upgrade PMM Server directly from the **Upgrade** page or by clicking the **Upgrade Now** button on the **Home** dashboard.
 
 ## Prerequisites
 
@@ -10,10 +10,10 @@ Before starting the installation:
 - Ensure your CPU supports `x86-64-v2`
 - Security requirements for Watchtower:
 
-    - Restrict Watchtower access to Docker network or localhost
-    - Configure network to expose only PMM Server externally
-    - Secure Docker socket access for Watchtower
-    - Place both Watchtower and PMM Server on the same network
+    - restrict Watchtower access to Docker network or localhost
+    - configure network to expose only PMM Server externally
+    - secure Docker socket access for Watchtower
+    - place both Watchtower and PMM Server on the same network
 
 ## Installation options
 
