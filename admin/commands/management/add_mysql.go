@@ -17,16 +17,15 @@ package management
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/units"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql"
+	"github.com/percona/pmm/admin/pkg/flags"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 const (
@@ -47,9 +46,9 @@ Service name: {{ .Service.ServiceName }}
 `)
 
 type addMySQLResult struct {
-	Service        *mysql.AddMySQLOKBodyService        `json:"service"`
-	MysqldExporter *mysql.AddMySQLOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
-	TableCount     int32                               `json:"table_count,omitempty"`
+	Service        *mservice.AddServiceOKBodyMysqlService        `json:"service"`
+	MysqldExporter *mservice.AddServiceOKBodyMysqlMysqldExporter `json:"mysqld_exporter,omitempty"`
+	TableCount     int32                                         `json:"table_count,omitempty"`
 }
 
 func (res *addMySQLResult) Result() {}
@@ -111,19 +110,19 @@ type AddMySQLCommand struct {
 	ReplicationSet         string            `help:"Replication set name"`
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
-	CommentsParsing        string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	TLS                    bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
 	TLSCaFile              string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile            string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile             string            `name:"tls-key" help:"Path to client key file"`
 	CreateUser             bool              `hidden:"" help:"Create pmm user"`
-	MetricsMode            string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 
 	AddCommonFlags
-	AddLogLevelNoFatalFlags
+	flags.MetricsModeFlags
+	flags.CommentsParsingFlags
+	flags.LogLevelNoFatalFlags
 }
 
 // GetServiceName returns the service name for AddMySQLCommand.
@@ -176,11 +175,6 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	disableCommentsParsing := true
-	if cmd.CommentsParsing == "on" {
-		disableCommentsParsing = false
-	}
-
 	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
@@ -208,52 +202,54 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		tablestatsGroupTableLimit = -1
 	}
 
-	params := &mysql.AddMySQLParams{
-		Body: mysql.AddMySQLBody{
-			NodeID:         cmd.NodeID,
-			ServiceName:    serviceName,
-			Address:        host,
-			Socket:         socket,
-			Port:           int64(port),
-			ExposeExporter: cmd.ExposeExporter,
-			PMMAgentID:     cmd.PMMAgentID,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			Username:       cmd.Username,
-			Password:       cmd.Password,
-			AgentPassword:  cmd.AgentPassword,
-			CustomLabels:   customLabels,
+	params := &mservice.AddServiceParams{
+		Body: mservice.AddServiceBody{
+			Mysql: &mservice.AddServiceParamsBodyMysql{
+				NodeID:         cmd.NodeID,
+				ServiceName:    serviceName,
+				Address:        host,
+				Socket:         socket,
+				Port:           int64(port),
+				ExposeExporter: cmd.ExposeExporter,
+				PMMAgentID:     cmd.PMMAgentID,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				Username:       cmd.Username,
+				Password:       cmd.Password,
+				AgentPassword:  cmd.AgentPassword,
+				CustomLabels:   customLabels,
 
-			QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
-			QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
+				QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
+				QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
 
-			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: disableCommentsParsing,
-			MaxQueryLength:         cmd.MaxQueryLength,
-			DisableQueryExamples:   cmd.DisableQueryExamples,
+				SkipConnectionCheck:    cmd.SkipConnectionCheck,
+				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
+				MaxQueryLength:         cmd.MaxQueryLength,
+				DisableQueryExamples:   cmd.DisableQueryExamples,
 
-			MaxSlowlogFileSize:        strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
-			TLS:                       cmd.TLS,
-			TLSSkipVerify:             cmd.TLSSkipVerify,
-			TLSCa:                     tlsCa,
-			TLSCert:                   tlsCert,
-			TLSKey:                    tlsKey,
-			TablestatsGroupTableLimit: tablestatsGroupTableLimit,
-			MetricsMode:               pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
-			DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:                  &cmd.AddLogLevel,
+				MaxSlowlogFileSize:        strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
+				TLS:                       cmd.TLS,
+				TLSSkipVerify:             cmd.TLSSkipVerify,
+				TLSCa:                     tlsCa,
+				TLSCert:                   tlsCert,
+				TLSKey:                    tlsKey,
+				TablestatsGroupTableLimit: tablestatsGroupTableLimit,
+				MetricsMode:               cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
+				LogLevel:                  cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+			},
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.MySQL.AddMySQL(params)
+	resp, err := client.Default.ManagementService.AddService(params)
 	if err != nil {
 		return nil, err
 	}
 
 	return &addMySQLResult{
-		Service:        resp.Payload.Service,
-		MysqldExporter: resp.Payload.MysqldExporter,
-		TableCount:     resp.Payload.TableCount,
+		Service:        resp.Payload.Mysql.Service,
+		MysqldExporter: resp.Payload.Mysql.MysqldExporter,
+		TableCount:     resp.Payload.Mysql.TableCount,
 	}, nil
 }

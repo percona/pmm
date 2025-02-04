@@ -18,6 +18,7 @@ package services
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
@@ -25,12 +26,12 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/common"
-	"github.com/percona/pmm/api/inventorypb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
 // ToAPINode converts Node database model to API model.
-func ToAPINode(node *models.Node) (inventorypb.Node, error) { //nolint:ireturn
+func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 	labels, err := node.GetCustomLabels()
 	if err != nil {
 		return nil, err
@@ -38,7 +39,7 @@ func ToAPINode(node *models.Node) (inventorypb.Node, error) { //nolint:ireturn
 
 	switch node.NodeType {
 	case models.GenericNodeType:
-		return &inventorypb.GenericNode{
+		return &inventoryv1.GenericNode{
 			NodeId:       node.NodeID,
 			NodeName:     node.NodeName,
 			MachineId:    pointer.GetString(node.MachineID),
@@ -51,7 +52,7 @@ func ToAPINode(node *models.Node) (inventorypb.Node, error) { //nolint:ireturn
 		}, nil
 
 	case models.ContainerNodeType:
-		return &inventorypb.ContainerNode{
+		return &inventoryv1.ContainerNode{
 			NodeId:        node.NodeID,
 			NodeName:      node.NodeName,
 			MachineId:     pointer.GetString(node.MachineID),
@@ -65,7 +66,7 @@ func ToAPINode(node *models.Node) (inventorypb.Node, error) { //nolint:ireturn
 		}, nil
 
 	case models.RemoteNodeType:
-		return &inventorypb.RemoteNode{
+		return &inventoryv1.RemoteNode{
 			NodeId:       node.NodeID,
 			NodeName:     node.NodeName,
 			NodeModel:    node.NodeModel,
@@ -76,7 +77,7 @@ func ToAPINode(node *models.Node) (inventorypb.Node, error) { //nolint:ireturn
 		}, nil
 
 	case models.RemoteRDSNodeType:
-		return &inventorypb.RemoteRDSNode{
+		return &inventoryv1.RemoteRDSNode{
 			NodeId:       node.NodeID,
 			NodeName:     node.NodeName,
 			NodeModel:    node.NodeModel,
@@ -87,7 +88,7 @@ func ToAPINode(node *models.Node) (inventorypb.Node, error) { //nolint:ireturn
 		}, nil
 
 	case models.RemoteAzureDatabaseNodeType:
-		return &inventorypb.RemoteAzureDatabaseNode{
+		return &inventoryv1.RemoteAzureDatabaseNode{
 			NodeId:       node.NodeID,
 			NodeName:     node.NodeName,
 			NodeModel:    node.NodeModel,
@@ -103,7 +104,7 @@ func ToAPINode(node *models.Node) (inventorypb.Node, error) { //nolint:ireturn
 }
 
 // ToAPIService converts Service database model to API model.
-func ToAPIService(service *models.Service) (inventorypb.Service, error) { //nolint:ireturn
+func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //nolint:ireturn
 	labels, err := service.GetCustomLabels()
 	if err != nil {
 		return nil, err
@@ -111,7 +112,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) { //noli
 
 	switch service.ServiceType {
 	case models.MySQLServiceType:
-		return &inventorypb.MySQLService{
+		return &inventoryv1.MySQLService{
 			ServiceId:      service.ServiceID,
 			ServiceName:    service.ServiceName,
 			NodeId:         service.NodeID,
@@ -125,7 +126,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) { //noli
 		}, nil
 
 	case models.MongoDBServiceType:
-		return &inventorypb.MongoDBService{
+		return &inventoryv1.MongoDBService{
 			ServiceId:      service.ServiceID,
 			ServiceName:    service.ServiceName,
 			NodeId:         service.NodeID,
@@ -139,7 +140,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) { //noli
 		}, nil
 
 	case models.PostgreSQLServiceType:
-		return &inventorypb.PostgreSQLService{
+		return &inventoryv1.PostgreSQLService{
 			ServiceId:      service.ServiceID,
 			ServiceName:    service.ServiceName,
 			DatabaseName:   service.DatabaseName,
@@ -154,7 +155,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) { //noli
 		}, nil
 
 	case models.ProxySQLServiceType:
-		return &inventorypb.ProxySQLService{
+		return &inventoryv1.ProxySQLService{
 			ServiceId:      service.ServiceID,
 			ServiceName:    service.ServiceName,
 			NodeId:         service.NodeID,
@@ -168,7 +169,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) { //noli
 		}, nil
 
 	case models.HAProxyServiceType:
-		return &inventorypb.HAProxyService{
+		return &inventoryv1.HAProxyService{
 			ServiceId:      service.ServiceID,
 			ServiceName:    service.ServiceName,
 			NodeId:         service.NodeID,
@@ -179,7 +180,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) { //noli
 		}, nil
 
 	case models.ExternalServiceType:
-		return &inventorypb.ExternalService{
+		return &inventoryv1.ExternalService{
 			ServiceId:      service.ServiceID,
 			ServiceName:    service.ServiceName,
 			NodeId:         service.NodeID,
@@ -196,7 +197,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) { //noli
 }
 
 // ToAPIAgent converts Agent database model to API model.
-func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, error) { //nolint:ireturn,maintidx
+func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, error) { //nolint:ireturn,maintidx
 	labels, err := agent.GetCustomLabels()
 	if err != nil {
 		return nil, err
@@ -217,10 +218,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 		}
 		serviceID = service.ServiceID
 	}
+
 	processExecPath := pointer.GetString(agent.ProcessExecPath)
 	switch agent.AgentType {
 	case models.PMMAgentType:
-		return &inventorypb.PMMAgent{
+		return &inventoryv1.PMMAgent{
 			AgentId:         agent.AgentID,
 			RunsOnNodeId:    pointer.GetString(agent.RunsOnNodeID),
 			CustomLabels:    labels,
@@ -228,217 +230,218 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 		}, nil
 
 	case models.NodeExporterType:
-		return &inventorypb.NodeExporter{
+		return &inventoryv1.NodeExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
 			Disabled:           agent.Disabled,
-			Status:             inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:       labels,
-			PushMetricsEnabled: agent.PushMetrics,
-			DisabledCollectors: agent.DisabledCollectors,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
+			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporter:     agent.ExposeExporter,
-			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}, nil
 
 	case models.MySQLdExporterType:
-		return &inventorypb.MySQLdExporter{
+		return &inventoryv1.MySQLdExporter{
 			AgentId:                   agent.AgentID,
 			PmmAgentId:                pointer.GetString(agent.PMMAgentID),
 			ServiceId:                 serviceID,
 			Username:                  pointer.GetString(agent.Username),
 			Disabled:                  agent.Disabled,
-			Status:                    inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			Status:                    inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ListenPort:                uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:              labels,
 			Tls:                       agent.TLS,
 			TlsSkipVerify:             agent.TLSSkipVerify,
-			TablestatsGroupTableLimit: agent.TableCountTablestatsGroupLimit,
+			TablestatsGroupTableLimit: agent.MySQLOptions.TableCountTablestatsGroupLimit,
 			TablestatsGroupDisabled:   !agent.IsMySQLTablestatsGroupEnabled(),
-			PushMetricsEnabled:        agent.PushMetrics,
-			DisabledCollectors:        agent.DisabledCollectors,
+			TableCount:                pointer.GetInt32(agent.MySQLOptions.TableCount),
+			PushMetricsEnabled:        agent.ExporterOptions.PushMetrics,
+			DisabledCollectors:        agent.ExporterOptions.DisabledCollectors,
 			ProcessExecPath:           processExecPath,
-			LogLevel:                  inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporter:            agent.ExposeExporter,
-			MetricsResolutions:        ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:                  inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			ExposeExporter:            agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions:        ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}, nil
 
 	case models.MongoDBExporterType:
-		exporter := &inventorypb.MongoDBExporter{
+		exporter := &inventoryv1.MongoDBExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
 			ServiceId:          serviceID,
 			Username:           pointer.GetString(agent.Username),
 			Disabled:           agent.Disabled,
-			Status:             inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:       labels,
 			Tls:                agent.TLS,
 			TlsSkipVerify:      agent.TLSSkipVerify,
-			PushMetricsEnabled: agent.PushMetrics,
-			DisabledCollectors: agent.DisabledCollectors,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
+			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporter:     agent.ExposeExporter,
-			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if agent.MongoDBOptions != nil {
-			exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
-			exporter.CollectionsLimit = agent.MongoDBOptions.CollectionsLimit
-			exporter.EnableAllCollectors = agent.MongoDBOptions.EnableAllCollectors
-		}
+
+		exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
+		exporter.CollectionsLimit = agent.MongoDBOptions.CollectionsLimit
+		exporter.EnableAllCollectors = agent.MongoDBOptions.EnableAllCollectors
+
 		return exporter, nil
 
 	case models.PostgresExporterType:
-		exporter := &inventorypb.PostgresExporter{
+		exporter := &inventoryv1.PostgresExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
 			ServiceId:          serviceID,
 			Username:           pointer.GetString(agent.Username),
 			Disabled:           agent.Disabled,
-			Status:             inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:       labels,
 			Tls:                agent.TLS,
 			TlsSkipVerify:      agent.TLSSkipVerify,
-			PushMetricsEnabled: agent.PushMetrics,
-			DisabledCollectors: agent.DisabledCollectors,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
+			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporter:     agent.ExposeExporter,
-			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-		if agent.PostgreSQLOptions != nil {
-			exporter.AutoDiscoveryLimit = agent.PostgreSQLOptions.AutoDiscoveryLimit
-			exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
-		}
+
+		exporter.AutoDiscoveryLimit = pointer.GetInt32(agent.PostgreSQLOptions.AutoDiscoveryLimit)
+		exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
+
 		return exporter, nil
 	case models.QANMySQLPerfSchemaAgentType:
-		return &inventorypb.QANMySQLPerfSchemaAgent{
+		return &inventoryv1.QANMySQLPerfSchemaAgent{
 			AgentId:                agent.AgentID,
 			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
 			ServiceId:              serviceID,
 			Username:               pointer.GetString(agent.Username),
 			Disabled:               agent.Disabled,
-			Status:                 inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			Status:                 inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			CustomLabels:           labels,
 			Tls:                    agent.TLS,
 			TlsSkipVerify:          agent.TLSSkipVerify,
-			MaxQueryLength:         agent.MaxQueryLength,
-			QueryExamplesDisabled:  agent.QueryExamplesDisabled,
-			DisableCommentsParsing: agent.CommentsParsingDisabled,
+			MaxQueryLength:         agent.QANOptions.MaxQueryLength,
+			QueryExamplesDisabled:  agent.QANOptions.QueryExamplesDisabled,
+			DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 			ProcessExecPath:        processExecPath,
-			LogLevel:               inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
 	case models.QANMySQLSlowlogAgentType:
-		return &inventorypb.QANMySQLSlowlogAgent{
+		return &inventoryv1.QANMySQLSlowlogAgent{
 			AgentId:                agent.AgentID,
 			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
 			ServiceId:              serviceID,
 			Username:               pointer.GetString(agent.Username),
 			Disabled:               agent.Disabled,
-			Status:                 inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			Status:                 inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			CustomLabels:           labels,
 			Tls:                    agent.TLS,
 			TlsSkipVerify:          agent.TLSSkipVerify,
-			QueryExamplesDisabled:  agent.QueryExamplesDisabled,
-			DisableCommentsParsing: agent.CommentsParsingDisabled,
-			MaxSlowlogFileSize:     agent.MaxQueryLogSize,
+			QueryExamplesDisabled:  agent.QANOptions.QueryExamplesDisabled,
+			DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
+			MaxSlowlogFileSize:     agent.QANOptions.MaxQueryLogSize,
 			ProcessExecPath:        processExecPath,
-			LogLevel:               inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
 	case models.QANMongoDBProfilerAgentType:
-		return &inventorypb.QANMongoDBProfilerAgent{
+		return &inventoryv1.QANMongoDBProfilerAgent{
 			AgentId:         agent.AgentID,
 			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
 			ServiceId:       serviceID,
 			Username:        pointer.GetString(agent.Username),
 			Disabled:        agent.Disabled,
-			Status:          inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			Status:          inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			CustomLabels:    labels,
 			Tls:             agent.TLS,
 			TlsSkipVerify:   agent.TLSSkipVerify,
-			MaxQueryLength:  agent.MaxQueryLength,
+			MaxQueryLength:  agent.QANOptions.MaxQueryLength,
 			ProcessExecPath: processExecPath,
-			LogLevel:        inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			LogLevel:        inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}, nil
 
 	case models.ProxySQLExporterType:
-		return &inventorypb.ProxySQLExporter{
+		return &inventoryv1.ProxySQLExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
 			ServiceId:          serviceID,
 			Username:           pointer.GetString(agent.Username),
 			Disabled:           agent.Disabled,
-			Status:             inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:       labels,
 			Tls:                agent.TLS,
 			TlsSkipVerify:      agent.TLSSkipVerify,
-			PushMetricsEnabled: agent.PushMetrics,
-			DisabledCollectors: agent.DisabledCollectors,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
+			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporter:     agent.ExposeExporter,
-			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}, nil
 
 	case models.QANPostgreSQLPgStatementsAgentType:
-		return &inventorypb.QANPostgreSQLPgStatementsAgent{
+		return &inventoryv1.QANPostgreSQLPgStatementsAgent{
 			AgentId:                agent.AgentID,
 			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
 			ServiceId:              serviceID,
 			Username:               pointer.GetString(agent.Username),
 			Disabled:               agent.Disabled,
-			Status:                 inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			Status:                 inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			CustomLabels:           labels,
-			MaxQueryLength:         agent.MaxQueryLength,
-			DisableCommentsParsing: agent.CommentsParsingDisabled,
+			MaxQueryLength:         agent.QANOptions.MaxQueryLength,
+			DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 			Tls:                    agent.TLS,
 			TlsSkipVerify:          agent.TLSSkipVerify,
 			ProcessExecPath:        processExecPath,
-			LogLevel:               inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
 	case models.QANPostgreSQLPgStatMonitorAgentType:
-		return &inventorypb.QANPostgreSQLPgStatMonitorAgent{
+		return &inventoryv1.QANPostgreSQLPgStatMonitorAgent{
 			AgentId:                agent.AgentID,
 			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
 			ServiceId:              serviceID,
 			Username:               pointer.GetString(agent.Username),
 			Disabled:               agent.Disabled,
-			Status:                 inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			Status:                 inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			CustomLabels:           labels,
-			MaxQueryLength:         agent.MaxQueryLength,
+			MaxQueryLength:         agent.QANOptions.MaxQueryLength,
 			Tls:                    agent.TLS,
 			TlsSkipVerify:          agent.TLSSkipVerify,
-			QueryExamplesDisabled:  agent.QueryExamplesDisabled,
-			DisableCommentsParsing: agent.CommentsParsingDisabled,
+			QueryExamplesDisabled:  agent.QANOptions.QueryExamplesDisabled,
+			DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 			ProcessExecPath:        processExecPath,
-			LogLevel:               inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			LogLevel:               inventoryv1.LogLevelAPIValue(agent.LogLevel),
 		}, nil
 
 	case models.RDSExporterType:
-		return &inventorypb.RDSExporter{
+		return &inventoryv1.RDSExporter{
 			AgentId:                 agent.AgentID,
 			PmmAgentId:              pointer.GetString(agent.PMMAgentID),
 			NodeId:                  nodeID,
 			Disabled:                agent.Disabled,
-			AwsAccessKey:            pointer.GetString(agent.AWSAccessKey),
-			Status:                  inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			AwsAccessKey:            agent.AWSOptions.AWSAccessKey,
+			Status:                  inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ListenPort:              uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:            labels,
-			BasicMetricsDisabled:    agent.RDSBasicMetricsDisabled,
-			EnhancedMetricsDisabled: agent.RDSEnhancedMetricsDisabled,
-			PushMetricsEnabled:      agent.PushMetrics,
+			BasicMetricsDisabled:    agent.AWSOptions.RDSBasicMetricsDisabled,
+			EnhancedMetricsDisabled: agent.AWSOptions.RDSEnhancedMetricsDisabled,
+			PushMetricsEnabled:      agent.ExporterOptions.PushMetrics,
 			ProcessExecPath:         processExecPath,
-			LogLevel:                inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			MetricsResolutions:      ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:                inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			MetricsResolutions:      ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}, nil
 
 	case models.ExternalExporterType:
@@ -449,41 +452,41 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			}
 			agent.RunsOnNodeID = pmmAgent.RunsOnNodeID
 		}
-		return &inventorypb.ExternalExporter{
+		return &inventoryv1.ExternalExporter{
 			AgentId:            agent.AgentID,
 			RunsOnNodeId:       pointer.GetString(agent.RunsOnNodeID),
 			ServiceId:          pointer.GetString(agent.ServiceID),
 			Username:           pointer.GetString(agent.Username),
 			Disabled:           agent.Disabled,
-			Scheme:             pointer.GetString(agent.MetricsScheme),
-			MetricsPath:        pointer.GetString(agent.MetricsPath),
+			Scheme:             agent.ExporterOptions.MetricsScheme,
+			MetricsPath:        agent.ExporterOptions.MetricsPath,
 			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:       labels,
-			PushMetricsEnabled: agent.PushMetrics,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
 			ProcessExecPath:    processExecPath,
-			MetricsResolutions: ConvertMetricsResolutions(agent.MetricsResolutions),
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}, nil
 
 	case models.AzureDatabaseExporterType:
-		return &inventorypb.AzureDatabaseExporter{
+		return &inventoryv1.AzureDatabaseExporter{
 			AgentId:                     agent.AgentID,
 			PmmAgentId:                  pointer.GetString(agent.PMMAgentID),
 			NodeId:                      nodeID,
 			Disabled:                    agent.Disabled,
 			AzureDatabaseSubscriptionId: agent.AzureOptions.SubscriptionID,
-			Status:                      inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			Status:                      inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ListenPort:                  uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:                labels,
 			ProcessExecPath:             processExecPath,
-			LogLevel:                    inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			MetricsResolutions:          ConvertMetricsResolutions(agent.MetricsResolutions),
+			LogLevel:                    inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			MetricsResolutions:          ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}, nil
 
 	case models.VMAgentType:
-		return &inventorypb.VMAgent{
+		return &inventoryv1.VMAgent{
 			AgentId:         agent.AgentID,
 			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
-			Status:          inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			Status:          inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ProcessExecPath: processExecPath,
 			ListenPort:      uint32(pointer.GetUint16(agent.ListenPort)),
 		}, nil
@@ -513,31 +516,31 @@ func ConvertMetricsResolutions(resolutions *models.MetricsResolutions) *common.M
 
 // SpecifyLogLevel - convert proto enum to string
 // mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal.
-func SpecifyLogLevel(variant, minLogLevel inventorypb.LogLevel) string {
-	if variant == inventorypb.LogLevel_auto {
+func SpecifyLogLevel(variant, minLogLevel inventoryv1.LogLevel) string {
+	if variant == inventoryv1.LogLevel_LOG_LEVEL_UNSPECIFIED {
 		return ""
 	}
 
 	// downgrade instead of return API error
 	if variant < minLogLevel {
-		return minLogLevel.String()
+		variant = minLogLevel
 	}
 
-	return variant.String()
+	return strings.ToLower(strings.TrimPrefix(variant.String(), "LOG_LEVEL_"))
 }
 
 // nodeTypes maps protobuf types to their string types.
-var nodeTypes = map[inventorypb.NodeType]models.NodeType{
-	inventorypb.NodeType_GENERIC_NODE:               models.GenericNodeType,
-	inventorypb.NodeType_CONTAINER_NODE:             models.ContainerNodeType,
-	inventorypb.NodeType_REMOTE_NODE:                models.RemoteNodeType,
-	inventorypb.NodeType_REMOTE_RDS_NODE:            models.RemoteRDSNodeType,
-	inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
+var nodeTypes = map[inventoryv1.NodeType]models.NodeType{
+	inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE:               models.GenericNodeType,
+	inventoryv1.NodeType_NODE_TYPE_CONTAINER_NODE:             models.ContainerNodeType,
+	inventoryv1.NodeType_NODE_TYPE_REMOTE_NODE:                models.RemoteNodeType,
+	inventoryv1.NodeType_NODE_TYPE_REMOTE_RDS_NODE:            models.RemoteRDSNodeType,
+	inventoryv1.NodeType_NODE_TYPE_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
 }
 
 // ProtoToModelNodeType converts a NodeType from protobuf to model.
-func ProtoToModelNodeType(nodeType inventorypb.NodeType) *models.NodeType {
-	if nodeType == inventorypb.NodeType_NODE_TYPE_INVALID {
+func ProtoToModelNodeType(nodeType inventoryv1.NodeType) *models.NodeType {
+	if nodeType == inventoryv1.NodeType_NODE_TYPE_UNSPECIFIED {
 		return nil
 	}
 	result := nodeTypes[nodeType]
@@ -545,18 +548,18 @@ func ProtoToModelNodeType(nodeType inventorypb.NodeType) *models.NodeType {
 }
 
 // ServiceTypes maps protobuf types to their string types.
-var ServiceTypes = map[inventorypb.ServiceType]models.ServiceType{
-	inventorypb.ServiceType_MYSQL_SERVICE:      models.MySQLServiceType,
-	inventorypb.ServiceType_MONGODB_SERVICE:    models.MongoDBServiceType,
-	inventorypb.ServiceType_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
-	inventorypb.ServiceType_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
-	inventorypb.ServiceType_HAPROXY_SERVICE:    models.HAProxyServiceType,
-	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
+var ServiceTypes = map[inventoryv1.ServiceType]models.ServiceType{
+	inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE:      models.MySQLServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE:    models.MongoDBServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:    models.HAProxyServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE:   models.ExternalServiceType,
 }
 
 // ProtoToModelServiceType converts a ServiceType from protobuf to model.
-func ProtoToModelServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
-	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
+func ProtoToModelServiceType(serviceType inventoryv1.ServiceType) *models.ServiceType {
+	if serviceType == inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 		return nil
 	}
 	result := ServiceTypes[serviceType]

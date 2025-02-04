@@ -1,7 +1,7 @@
 ---
 title: Monitoring
 slug: monitoring
-category: 651bd218baa868000c212203
+parentSlug: welcome
 order: 2
 ---
 

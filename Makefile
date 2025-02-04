@@ -9,7 +9,7 @@ endif
 
 env-up: 							## Start devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose up -d
+	docker compose up -d --wait --wait-timeout 100
 
 env-up-rebuild: env-update-image	## Rebuild and start devcontainer. Useful for custom $PMM_SERVER_IMAGE
 	COMPOSE_PROFILES=$(PROFILES) \
@@ -21,7 +21,7 @@ env-update-image:					## Pull latest dev image
 
 env-compose-up: env-update-image
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose up --detach --renew-anon-volumes --remove-orphans
+	docker compose up --detach --renew-anon-volumes --remove-orphans --wait --wait-timeout 100
 
 env-devcontainer:
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-server .devcontainer/setup.py
@@ -40,5 +40,5 @@ env:								## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGE
 	COMPOSE_PROFILES=$(PROFILES) \
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-server make $(TARGET)
 
-update-dbaas-catalog: 				## Update the DBaaS catalog from the latest production branch (percona-platform).
-	wget https://raw.githubusercontent.com/percona/dbaas-catalog/percona-platform/percona-dbaas-catalog.yaml -O managed/data/crds/olm/percona-dbaas-catalog.yaml
+rotate-encryption: 							## Rotate encryption key
+	go run ./encryption-rotation/main.go

@@ -16,8 +16,9 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/admin/pkg/flags"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentQANMySQLPerfSchemaAgentResultT = commands.ParseTemplate(`
@@ -36,7 +37,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentQANMySQLPerfSchemaAgentResult struct {
-	Agent *agents.AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent"`
+	Agent *agents.AddAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent"`
 }
 
 func (res *addAgentQANMySQLPerfSchemaAgentResult) Result() {}
@@ -60,7 +61,6 @@ type AddAgentQANMySQLPerfSchemaAgentCommand struct {
 	Password             string            `help:"MySQL password for scraping metrics"`
 	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
-	CommentsParsing      string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	MaxQueryLength       int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                  bool              `help:"Use TLS to connect to the database"`
@@ -68,7 +68,9 @@ type AddAgentQANMySQLPerfSchemaAgentCommand struct {
 	TLSCAFile            string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile          string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile           string            `name:"tls-key" help:"Path to client key file"`
-	LogLevel             string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
+
+	flags.CommentsParsingFlags
+	flags.LogLevelFatalFlags
 }
 
 // RunCmd runs the command for AddAgentQANMySQLPerfSchemaAgentCommand.
@@ -96,33 +98,30 @@ func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, er
 		}
 	}
 
-	disableCommentsParsing := true
-	if cmd.CommentsParsing == "on" {
-		disableCommentsParsing = false
-	}
-
-	params := &agents.AddQANMySQLPerfSchemaAgentParams{
-		Body: agents.AddQANMySQLPerfSchemaAgentBody{
-			PMMAgentID:             cmd.PMMAgentID,
-			ServiceID:              cmd.ServiceID,
-			Username:               cmd.Username,
-			Password:               cmd.Password,
-			CustomLabels:           customLabels,
-			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: disableCommentsParsing,
-			MaxQueryLength:         cmd.MaxQueryLength,
-			DisableQueryExamples:   cmd.DisableQueryExamples,
-			TLS:                    cmd.TLS,
-			TLSSkipVerify:          cmd.TLSSkipVerify,
-			TLSCa:                  tlsCa,
-			TLSCert:                tlsCert,
-			TLSKey:                 tlsKey,
-			LogLevel:               &cmd.LogLevel,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			QANMysqlPerfschemaAgent: &agents.AddAgentParamsBodyQANMysqlPerfschemaAgent{
+				PMMAgentID:             cmd.PMMAgentID,
+				ServiceID:              cmd.ServiceID,
+				Username:               cmd.Username,
+				Password:               cmd.Password,
+				CustomLabels:           customLabels,
+				SkipConnectionCheck:    cmd.SkipConnectionCheck,
+				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
+				MaxQueryLength:         cmd.MaxQueryLength,
+				DisableQueryExamples:   cmd.DisableQueryExamples,
+				TLS:                    cmd.TLS,
+				TLSSkipVerify:          cmd.TLSSkipVerify,
+				TLSCa:                  tlsCa,
+				TLSCert:                tlsCert,
+				TLSKey:                 tlsKey,
+				LogLevel:               cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddQANMySQLPerfSchemaAgent(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

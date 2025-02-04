@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/admin/logger"
+	"github.com/percona/pmm/admin/pkg/logger"
 )
 
 func init() {
@@ -86,7 +86,7 @@ func TestCredentials(t *testing.T) {
 		// Test reading is OK
 		t.Parallel()
 		creds, _ := ReadFromSource(credSource)
-		assert.Equal(t, creds.Username, "testuser")
+		assert.Equal(t, "testuser", creds.Username)
 	})
 
 	t.Run("Executing", func(t *testing.T) {

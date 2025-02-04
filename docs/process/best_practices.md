@@ -22,10 +22,18 @@
 
   After startup, during normal program execution, most errors should be handled, logged and communicated to the user. For example, REST API call should return an appropriate HTTP status code with error details; full details should be logged. The caller can then handle the problem and retry the call. If an external resource becomes unavailable, the program should try to reconnect to it with proper backoff policy. The supervisor should still be used to handle crashes, panics, and bugs.
 
-  - Issues detected at program initializtion phase - such as a missing external dependency or a port, which is already in use - is either a configuration or an environment problem, or a programming bug. Neither can be fixed by simply continuing. Attempts to make startup "smart" (re-read configuration file, re-parse command-line flags, etc.) significantly complicate it. On the other hand, when an error happens during normal program execution, there is usually a proper way to communicate it back to the user so they can retry.
+  - Issues detected at program initialization phase - such as a missing external dependency or a port, which is already in use - is either a configuration or an environment problem, or a programming bug. Neither can be fixed by simply continuing. Attempts to make startup "smart" (re-read configuration file, re-parse command-line flags, etc.) significantly complicate it. On the other hand, when an error happens during normal program execution, there is usually a proper way to communicate it back to the user so they can retry.
   - Supervisor-level dependencies between services are not strictly required (due to restarts everything will work eventually), but are nice to have: they help avoid scarry errors in logs.
   - The big exception is exporters: we should follow practices established by the Prometheus community and not fail if the system under monitoring is not available. Other startup errors, like a missing certificate file, should still terminate the exporter.
 
+### Environment Variables
+For consistency, environment variables should keep to the following suggestions:
+- Use the `PMM_DEV_` prefix for any environment variable that is to be used for *only* development/test purposes i.e., 
+variables that are not meant for end-users in any circumstance e.g., `PMM_DEV_PERCONA_PLATFORM_ADDRESS`
+- Use the `PMM_TEST_` prefix for any variable that is not part of PMM GA functionality.
+- Use the `PMM_` prefix for variables that is part of PMM GA functionality.
+- Use a sub-prefix if a number of env vars relate to one component, e.g., `PMM_TEST_HA_`
+- The use of PERCONA_ prefix is prohibited (exception: PMM_PERCONA_PLATFORM_URL, since it's part of a proper name, not a prefix)
 ## Code style
 
 - `gofumpt -s ` (note the `-s`)

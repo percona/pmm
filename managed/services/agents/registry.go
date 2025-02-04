@@ -29,7 +29,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
 	"github.com/percona/pmm/utils/logger"
@@ -153,12 +153,12 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	return err == nil
 }
 
-func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {
+func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
 	r.mConnects.Inc()
 
-	agentMD, err := agentpb.ReceiveAgentConnectMetadata(stream)
+	agentMD, err := agentv1.ReceiveAgentConnectMetadata(stream)
 	if err != nil {
 		return nil, err
 	}
@@ -176,13 +176,13 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	}
 	l.Infof("Connected pmm-agent: %+v.", agentMD)
 
-	serverMD := agentpb.ServerConnectMetadata{
+	serverMD := agentv1.ServerConnectMetadata{
 		AgentRunsOnNodeID: node.NodeID,
 		NodeName:          node.NodeName,
 		ServerVersion:     version.Version,
 	}
 	l.Debugf("Sending metadata: %+v.", serverMD)
-	if err = agentpb.SendServerConnectMetadata(stream, &serverMD); err != nil {
+	if err = agentv1.SendServerConnectMetadata(stream, &serverMD); err != nil {
 		return nil, err
 	}
 
@@ -208,7 +208,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	return agent, nil
 }
 
-func (r *Registry) authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
+func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
 	if md.ID == "" {
 		return nil, status.Error(codes.PermissionDenied, "Empty Agent ID.")
 	}
@@ -278,7 +278,7 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	l := logger.Get(ctx)
 	start := time.Now()
-	resp, err := agent.channel.SendAndWaitResponse(&agentpb.Ping{})
+	resp, err := agent.channel.SendAndWaitResponse(&agentv1.Ping{})
 	if err != nil {
 		return err
 	}
@@ -286,7 +286,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 		return nil
 	}
 	roundtrip := time.Since(start)
-	agentTime := resp.(*agentpb.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
+	agentTime := resp.(*agentv1.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
 	clockDrift := agentTime.Sub(start) - roundtrip/2
 	if clockDrift < 0 {
 		clockDrift = -clockDrift
@@ -321,9 +321,11 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 	}
 	if len(vmAgent) == 0 {
 		if _, err := models.CreateAgent(q, models.VMAgentType, &models.CreateAgentParams{
-			PMMAgentID:  pmmAgentID,
-			PushMetrics: true,
-			NodeID:      runsOnNodeID,
+			PMMAgentID: pmmAgentID,
+			NodeID:     runsOnNodeID,
+			ExporterOptions: models.ExporterOptions{
+				PushMetrics: true,
+			},
 		}); err != nil {
 			return errors.Wrapf(err, "Can't create 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
 		}
@@ -349,9 +351,9 @@ func removeVMAgentFromPMMAgent(q *reform.Querier, pmmAgentID string) error {
 		return errors.Wrapf(err, "Can't find agents for pmm-agent with ID %q", pmmAgentID)
 	}
 	for _, agent := range agents {
-		if agent.PushMetrics {
+		if agent.ExporterOptions.PushMetrics {
 			logrus.Warnf("disabling push_metrics for agent with unsupported version ID %q with pmm-agent ID %q", agent.AgentID, pmmAgentID)
-			agent.PushMetrics = false
+			agent.ExporterOptions.PushMetrics = false
 			if err := q.Update(agent); err != nil {
 				return errors.Wrapf(err, "Can't set push_metrics=false for agent %q at pmm-agent with ID %q", agent.AgentID, pmmAgentID)
 			}
@@ -368,7 +370,7 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	}
 
 	l := logger.Get(ctx)
-	l.Debugf("pmm-agent with ID %q will be kicked in a moment.", pmmAgentID)
+	l.Debugf("pmm-agent with ID %s will be kicked in a moment.", pmmAgentID)
 
 	// see Run method
 	close(agent.kickChan)
@@ -382,7 +384,7 @@ func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
 	pmmAgent := r.agents[pmmAgentID]
 	r.rw.RUnlock()
 	if pmmAgent == nil {
-		return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %q is not currently connected", pmmAgentID)
+		return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s is not currently connected", pmmAgentID)
 	}
 	return pmmAgent, nil
 }

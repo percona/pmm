@@ -1,0 +1,192 @@
+syntax = "proto3";
+
+package platform.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {title: "Platform API"}
+};
+
+message ConnectRequest {
+  // User defined human readable PMM Server Name.
+  string server_name = 1 [(validate.rules).string.min_len = 1];
+  // Personal Access Token that the user obtains from Percona Portal.
+  string personal_access_token = 2;
+}
+
+message ConnectResponse {}
+
+message DisconnectRequest {
+  // Forces the cleanup process for connected PMM instances regardless of the Portal API response
+  bool force = 1;
+}
+
+message DisconnectResponse {}
+
+message SearchOrganizationTicketsRequest {}
+
+message SearchOrganizationTicketsResponse {
+  // Support tickets belonging to the Percona Portal Organization.
+  repeated OrganizationTicket tickets = 1;
+}
+
+// OrganizationTicket contains information about the support ticket.
+message OrganizationTicket {
+  // Ticket number.
+  string number = 1;
+  // Ticket short description.
+  string short_description = 2;
+  // Ticket priority.
+  string priority = 3;
+  // Ticket state.
+  string state = 4;
+  // Ticket creation time.
+  google.protobuf.Timestamp create_time = 5;
+  // Department.
+  string department = 6;
+  // Ticket requester.
+  string requester = 7;
+  // Task type.
+  string task_type = 8;
+  // Ticket url.
+  string url = 9;
+}
+
+message SearchOrganizationEntitlementsRequest {}
+
+message SearchOrganizationEntitlementsResponse {
+  repeated OrganizationEntitlement entitlements = 1;
+}
+
+// OrganizationEntitlement contains information about Organization entitlement.
+message OrganizationEntitlement {
+  // Platform indicates platform specific entitlements.
+  message Platform {
+    // Flag indicates that security advisors are covered by this entitlement.
+    optional string security_advisor = 1;
+    // Flag indicates that config advisors are covered by this entitlement.
+    optional string config_advisor = 2;
+  }
+  // Entitlement number.
+  string number = 1;
+  // Entitlement name.
+  string name = 2;
+  // Entitlement short summary.
+  string summary = 3;
+  // Entitlement tier.
+  optional string tier = 4;
+  // Total units covered by this entitlement.
+  optional string total_units = 5;
+  // Flag indicates that unlimited units are covered.
+  optional bool unlimited_units = 6;
+  // Support level covered by this entitlement.
+  optional string support_level = 7;
+  // Percona product families covered by this entitlement.
+  repeated string software_families = 8;
+  // Entitlement start data.
+  // Note: only date is used here but not time.
+  google.protobuf.Timestamp start_date = 9;
+  // Entitlement end date.
+  // Note: only date is used here but not time.
+  google.protobuf.Timestamp end_date = 10;
+  // Platform specific options covered by this entitlement.
+  Platform platform = 11;
+}
+
+message GetContactInformationRequest {}
+
+message GetContactInformationResponse {
+  // CustomerSuccess contains the contanct details of the customer success employee assigned to a customer's account.
+  message CustomerSuccess {
+    string name = 1;
+    string email = 2;
+  }
+  CustomerSuccess customer_success = 1;
+  // URL to open a new support ticket.
+  string new_ticket_url = 2;
+}
+
+message ServerInfoRequest {}
+
+message ServerInfoResponse {
+  string pmm_server_name = 1;
+  string pmm_server_id = 2;
+  string pmm_server_telemetry_id = 3;
+  bool connected_to_portal = 4;
+}
+
+message UserStatusRequest {}
+
+message UserStatusResponse {
+  bool is_platform_user = 1;
+}
+
+// Platform contains rpcs related to Percona Platform.
+service PlatformService {
+  // Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
+  rpc Connect(ConnectRequest) returns (ConnectResponse) {
+    option (google.api.http) = {
+      post: "/v1/platform:connect"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Connect PMM Server"
+      description: "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account."
+    };
+  }
+  // Disconnect a PMM server from the organization created on Percona Portal.
+  rpc Disconnect(DisconnectRequest) returns (DisconnectResponse) {
+    option (google.api.http) = {
+      post: "/v1/platform:disconnect"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Disconnect PMM Server"
+      description: "Disconnect a PMM server from the organization created on Percona Portal."
+    };
+  }
+  // SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
+  rpc SearchOrganizationTickets(SearchOrganizationTicketsRequest) returns (SearchOrganizationTicketsResponse) {
+    option (google.api.http) = {get: "/v1/platform/organization/tickets"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Search Organization Tickets"
+      description: "Fetch support tickets belonging to the Percona Portal Organization that the PMM server is connected to."
+    };
+  }
+  // SearchOrganizationEntitlements fetches entitlements available to the Portal organization that the PMM server is connected to.
+  rpc SearchOrganizationEntitlements(SearchOrganizationEntitlementsRequest) returns (SearchOrganizationEntitlementsResponse) {
+    option (google.api.http) = {get: "/v1/platform/organization/entitlements"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Search Organization Entitlements"
+      description: "Fetch entitlements available to the Portal organization that the PMM server is connected to."
+    };
+  }
+  // GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account.
+  rpc GetContactInformation(GetContactInformationRequest) returns (GetContactInformationResponse) {
+    option (google.api.http) = {get: "/v1/platform/contact"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Contact Information"
+      description: "Fetch the contact details of the customer success employee handling the Percona customer account."
+    };
+  }
+  // ServerInfo returns PMM server ID and name.
+  rpc ServerInfo(ServerInfoRequest) returns (ServerInfoResponse) {
+    option (google.api.http) = {get: "/v1/platform/server"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Server Info"
+      description: "Return PMM server ID and name."
+    };
+  }
+  // UserStatus check if the current user is logged in with their Percona Account.
+  rpc UserStatus(UserStatusRequest) returns (UserStatusResponse) {
+    option (google.api.http) = {get: "/v1/platform/user"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get User Status"
+      description: "Check if the current user is logged in with their Percona Account."
+    };
+  }
+}

@@ -15,7 +15,7 @@ If you have thoughts, feedback, or ideas, the community team would like to hear 
 
 [Percona Experts](https://www.percona.com/services/consulting){:target="_blank"} bring years of experience in tackling tough database performance issues and design challenges. We understand your challenges when managing complex database environments. That's why we offer various services to help you simplify your operations and achieve your goals.
 
-| Service                    | description                                                                                                                                                           |
+| Service                    | Description                                                                                                                                                           |
 |----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 24/7 Expert support        | Our dedicated team of database experts is available 24/7 to assist you with any database issues. We provide flexible support plans tailored to your specific needs.   |
 | Hands-on database management | Our managed services team can take over the day-to-day management of your database infrastructure, freeing up your time to focus on other priorities.               |

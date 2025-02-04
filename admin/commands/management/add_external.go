@@ -19,12 +19,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/external"
+	"github.com/percona/pmm/admin/pkg/flags"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
 const (
@@ -42,7 +41,7 @@ Group       : {{ .Service.Group }}
 `)
 
 type addExternalResult struct {
-	Service *external.AddExternalOKBodyService `json:"service"`
+	Service *mservice.AddServiceOKBodyExternalService `json:"service"`
 }
 
 func (res *addExternalResult) Result() {}
@@ -68,9 +67,10 @@ type AddExternalCommand struct {
 	Cluster             string            `placeholder:"east-cluster" help:"Cluster name"`
 	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
+
+	flags.MetricsModeFlags
 }
 
 // GetCredentials returns the credentials for AddExternalCommand.
@@ -120,32 +120,34 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &external.AddExternalParams{
-		Body: external.AddExternalBody{
-			RunsOnNodeID:        cmd.RunsOnNodeID,
-			ServiceName:         cmd.ServiceName,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			Scheme:              cmd.Scheme,
-			MetricsPath:         cmd.MetricsPath,
-			ListenPort:          int64(cmd.ListenPort),
-			NodeID:              cmd.NodeID,
-			Environment:         cmd.Environment,
-			Cluster:             cmd.Cluster,
-			ReplicationSet:      cmd.ReplicationSet,
-			CustomLabels:        customLabels,
-			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
-			Group:               cmd.Group,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
+	params := &mservice.AddServiceParams{
+		Body: mservice.AddServiceBody{
+			External: &mservice.AddServiceParamsBodyExternal{
+				RunsOnNodeID:        cmd.RunsOnNodeID,
+				ServiceName:         cmd.ServiceName,
+				Username:            cmd.Username,
+				Password:            cmd.Password,
+				Scheme:              cmd.Scheme,
+				MetricsPath:         cmd.MetricsPath,
+				ListenPort:          int64(cmd.ListenPort),
+				NodeID:              cmd.NodeID,
+				Environment:         cmd.Environment,
+				Cluster:             cmd.Cluster,
+				ReplicationSet:      cmd.ReplicationSet,
+				CustomLabels:        customLabels,
+				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				Group:               cmd.Group,
+				SkipConnectionCheck: cmd.SkipConnectionCheck,
+			},
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.External.AddExternal(params)
+	resp, err := client.Default.ManagementService.AddService(params)
 	if err != nil {
 		return nil, err
 	}
 
 	return &addExternalResult{
-		Service: resp.Payload.Service,
+		Service: resp.Payload.External.Service,
 	}, nil
 }

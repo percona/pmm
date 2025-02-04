@@ -23,8 +23,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -35,8 +35,8 @@ type PostgresExporterConfigTestSuite struct {
 	pmmAgentVersion *version.Parsed
 	postgresql      *models.Service
 	exporter        *models.Agent
+	expected        *agentv1.SetStateRequest_AgentProcess
 	node            *models.Node
-	expected        *agentpb.SetStateRequest_AgentProcess
 }
 
 func (s *PostgresExporterConfigTestSuite) SetupTest() {
@@ -56,8 +56,8 @@ func (s *PostgresExporterConfigTestSuite) SetupTest() {
 		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword: pointer.ToString("agent-password"),
 	}
-	s.expected = &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+	s.expected = &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -78,6 +78,10 @@ func (s *PostgresExporterConfigTestSuite) SetupTest() {
 }
 
 func (s *PostgresExporterConfigTestSuite) TestConfig() {
+	s.exporter.ExporterOptions = models.ExporterOptions{}
+	s.exporter.AzureOptions = models.AzureOptions{}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
+
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
@@ -92,6 +96,10 @@ func (s *PostgresExporterConfigTestSuite) TestDatabaseName() {
 		s.postgresql.DatabaseName = "db1"
 		s.expected.Env[0] = "DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/db1?connect_timeout=1&sslmode=disable"
 
+		s.exporter.ExporterOptions = models.ExporterOptions{}
+		s.exporter.AzureOptions = models.AzureOptions{}
+		s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
+
 		actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 		s.NoError(err, "Failed to create exporter config")
 
@@ -102,6 +110,10 @@ func (s *PostgresExporterConfigTestSuite) TestDatabaseName() {
 		s.postgresql.DatabaseName = ""
 
 		s.Require().PanicsWithValue("database name not set", func() {
+			s.exporter.ExporterOptions = models.ExporterOptions{}
+			s.exporter.AzureOptions = models.AzureOptions{}
+			s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
+
 			_, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 			s.NoError(err, "Failed to create exporter config")
 		})
@@ -110,30 +122,39 @@ func (s *PostgresExporterConfigTestSuite) TestDatabaseName() {
 
 func (s *PostgresExporterConfigTestSuite) TestEmptyPassword() {
 	s.exporter.Password = nil
+	s.exporter.ExporterOptions = models.ExporterOptions{}
+	s.exporter.AzureOptions = models.AzureOptions{}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.Assert().Equal("DATA_SOURCE_NAME=postgres://username@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
+	s.Equal("DATA_SOURCE_NAME=postgres://username@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
 }
 
 func (s *PostgresExporterConfigTestSuite) TestEmptyUsername() {
 	s.exporter.Username = nil
+	s.exporter.ExporterOptions = models.ExporterOptions{}
+	s.exporter.AzureOptions = models.AzureOptions{}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.Assert().Equal("DATA_SOURCE_NAME=postgres://:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
+	s.Equal("DATA_SOURCE_NAME=postgres://:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
 }
 
 func (s *PostgresExporterConfigTestSuite) TestEmptyUsernameAndPassword() {
 	s.exporter.Username = nil
 	s.exporter.Password = nil
+	s.exporter.ExporterOptions = models.ExporterOptions{}
+	s.exporter.AzureOptions = models.AzureOptions{}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.Assert().Equal("DATA_SOURCE_NAME=postgres://1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
+	s.Equal("DATA_SOURCE_NAME=postgres://1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
 }
 
 func (s *PostgresExporterConfigTestSuite) TestSocket() {
@@ -142,11 +163,14 @@ func (s *PostgresExporterConfigTestSuite) TestSocket() {
 	s.postgresql.Address = nil
 	s.postgresql.Port = nil
 	s.postgresql.Socket = pointer.ToString("/var/run/postgres")
+	s.exporter.ExporterOptions = models.ExporterOptions{}
+	s.exporter.AzureOptions = models.AzureOptions{}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.Assert().Equal("DATA_SOURCE_NAME=postgres:///postgres?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable", actual.Env[0])
+	s.Equal("DATA_SOURCE_NAME=postgres:///postgres?connect_timeout=1&host=%2Fvar%2Frun%2Fpostgres&sslmode=disable", actual.Env[0])
 }
 
 func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
@@ -154,13 +178,17 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 	s.postgresql.Address = nil
 	s.postgresql.Port = nil
 	s.postgresql.Socket = pointer.ToString("/var/run/postgres")
-	s.exporter.DisabledCollectors = []string{"custom_query.hr", "custom_query.hr.directory", "locks"}
+	s.exporter.ExporterOptions = models.ExporterOptions{
+		DisabledCollectors: []string{"custom_query.hr", "custom_query.hr.directory", "locks"},
+	}
+	s.exporter.AzureOptions = models.AzureOptions{}
+	s.exporter.PostgreSQLOptions = models.PostgreSQLOptions{}
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -169,7 +197,7 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 			"--collect.custom_query.lr.directory={{ .paths_base }}/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory={{ .paths_base }}/collectors/custom-queries/postgresql/medium-resolution",
-			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
+			"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 			"--no-collector.locks",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
@@ -181,7 +209,7 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 
 func TestAutoDiscovery(t *testing.T) {
 	const discoveryFlag = "--auto-discover-databases"
-	const excludedFlag = "--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin"
+	const excludedFlag = "--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin"
 
 	pmmAgentVersion := version.MustParse("2.12.0")
 	node := &models.Node{
@@ -194,13 +222,17 @@ func TestAutoDiscovery(t *testing.T) {
 		DatabaseName: "postgres",
 	}
 	exporter := &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.PostgresExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentID:           "agent-id",
+		AgentType:         models.PostgresExporterType,
+		Username:          pointer.ToString("username"),
+		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		ExporterOptions:   models.ExporterOptions{},
+		AzureOptions:      models.AzureOptions{},
+		PostgreSQLOptions: models.PostgreSQLOptions{},
 	}
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -236,8 +268,8 @@ func TestAutoDiscovery(t *testing.T) {
 	})
 
 	t.Run("Database count more than limit - disabled", func(t *testing.T) {
-		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
-			AutoDiscoveryLimit: 5,
+		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
+			AutoDiscoveryLimit: pointer.ToInt32(5),
 			DatabaseCount:      10,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -247,8 +279,8 @@ func TestAutoDiscovery(t *testing.T) {
 	})
 
 	t.Run("Database count equal to limit - enabled", func(t *testing.T) {
-		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
-			AutoDiscoveryLimit: 5,
+		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
+			AutoDiscoveryLimit: pointer.ToInt32(5),
 			DatabaseCount:      5,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -258,8 +290,8 @@ func TestAutoDiscovery(t *testing.T) {
 	})
 
 	t.Run("Database count less than limit - enabled", func(t *testing.T) {
-		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
-			AutoDiscoveryLimit: 5,
+		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
+			AutoDiscoveryLimit: pointer.ToInt32(5),
 			DatabaseCount:      3,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -269,8 +301,8 @@ func TestAutoDiscovery(t *testing.T) {
 	})
 
 	t.Run("Negative limit - disabled", func(t *testing.T) {
-		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
-			AutoDiscoveryLimit: -1,
+		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
+			AutoDiscoveryLimit: pointer.ToInt32(-1),
 			DatabaseCount:      3,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -280,8 +312,8 @@ func TestAutoDiscovery(t *testing.T) {
 	})
 
 	t.Run("Default - enabled", func(t *testing.T) {
-		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
-			AutoDiscoveryLimit: 0,
+		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
+			AutoDiscoveryLimit: pointer.ToInt32(0),
 			DatabaseCount:      3,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -305,16 +337,18 @@ func TestMaxConnections(t *testing.T) {
 		DatabaseName: "postgres",
 	}
 	exporter := &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.PostgresExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
-		PostgreSQLOptions: &models.PostgreSQLOptions{
+		AgentID:         "agent-id",
+		AgentType:       models.PostgresExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		ExporterOptions: models.ExporterOptions{},
+		AzureOptions:    models.AzureOptions{},
+		PostgreSQLOptions: models.PostgreSQLOptions{
 			MaxExporterConnections: 10,
 		},
 	}
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -325,7 +359,7 @@ func TestMaxConnections(t *testing.T) {
 			"--collect.custom_query.lr.directory=" + pathsBase(pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=" + pathsBase(pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
-			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
+			"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
 		},
@@ -351,7 +385,7 @@ func TestMaxConnections(t *testing.T) {
 	})
 
 	t.Run("Max exporter connections set to 0 - ignore", func(t *testing.T) {
-		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
+		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
 			MaxExporterConnections: 0,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -360,7 +394,7 @@ func TestMaxConnections(t *testing.T) {
 	})
 
 	t.Run("Max exporter connections set to 5 - apply", func(t *testing.T) {
-		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
+		exporter.PostgreSQLOptions = models.PostgreSQLOptions{
 			MaxExporterConnections: 5,
 		}
 		res, err := postgresExporterConfig(node, postgresql, exporter, redactSecrets, pmmAgentVersion)
@@ -378,24 +412,26 @@ func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.PostgresExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
-		AzureOptions: &models.AzureOptions{
+		AgentID:         "agent-id",
+		AgentType:       models.PostgresExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		ExporterOptions: models.ExporterOptions{},
+		AzureOptions: models.AzureOptions{
 			SubscriptionID: "subscription_id",
 			ClientID:       "client_id",
 			ClientSecret:   "client_secret",
 			TenantID:       "tenant_id",
 			ResourceGroup:  "resource_group",
 		},
+		PostgreSQLOptions: models.PostgreSQLOptions{},
 	}
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.expected = &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+	s.expected = &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -406,7 +442,7 @@ func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {
 			"--collect.custom_query.lr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
-			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
+			"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
@@ -430,18 +466,21 @@ func (s *PostgresExporterConfigTestSuite) TestPrometheusWebConfig() {
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.PostgresExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
-		TLS:       true,
+		AgentID:           "agent-id",
+		AgentType:         models.PostgresExporterType,
+		Username:          pointer.ToString("username"),
+		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		TLS:               true,
+		ExporterOptions:   models.ExporterOptions{},
+		AzureOptions:      models.AzureOptions{},
+		PostgreSQLOptions: models.PostgreSQLOptions{},
 	}
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.expected = &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+	s.expected = &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -452,7 +491,7 @@ func (s *PostgresExporterConfigTestSuite) TestPrometheusWebConfig() {
 			"--collect.custom_query.lr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
-			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
+			"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
 		},
@@ -479,18 +518,21 @@ func (s *PostgresExporterConfigTestSuite) TestSSLSni() {
 		DatabaseName: "postgres",
 	}
 	s.exporter = &models.Agent{
-		AgentID:   "agent-id",
-		AgentType: models.PostgresExporterType,
-		Username:  pointer.ToString("username"),
-		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
-		TLS:       true,
+		AgentID:           "agent-id",
+		AgentType:         models.PostgresExporterType,
+		Username:          pointer.ToString("username"),
+		Password:          pointer.ToString("s3cur3 p@$$w0r4."),
+		TLS:               true,
+		ExporterOptions:   models.ExporterOptions{},
+		AzureOptions:      models.AzureOptions{},
+		PostgreSQLOptions: models.PostgreSQLOptions{},
 	}
 
 	actual, err := postgresExporterConfig(s.node, s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.expected = &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+	s.expected = &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -501,7 +543,7 @@ func (s *PostgresExporterConfigTestSuite) TestSSLSni() {
 			"--collect.custom_query.lr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
-			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
+			"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
 		},

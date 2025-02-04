@@ -43,7 +43,7 @@ func requireNoDuplicateFlags(t *testing.T, flags []string) {
 func TestPathsBaseForDifferentVersions(t *testing.T) {
 	left := "{{"
 	right := "}}"
-	assert.Equal(t, "/usr/local/percona/pmm2", pathsBase(version.MustParse("2.22.01"), left, right))
+	assert.Equal(t, "/usr/local/percona/pmm", pathsBase(version.MustParse("2.22.01"), left, right))
 	assert.Equal(t, "{{ .paths_base }}", pathsBase(version.MustParse("2.23.0"), left, right))
 	assert.Equal(t, "{{ .paths_base }}", pathsBase(version.MustParse("2.23.0-3-g7aa417c"), left, right))
 	assert.Equal(t, "{{ .paths_base }}", pathsBase(version.MustParse("2.23.0-beta4"), left, right))
@@ -56,7 +56,9 @@ func TestGetExporterListenAddress(t *testing.T) {
 			Address: "1.2.3.4",
 		}
 		exporter := &models.Agent{
-			PushMetrics: true,
+			ExporterOptions: models.ExporterOptions{
+				PushMetrics: true,
+			},
 		}
 
 		assert.Equal(t, "127.0.0.1", getExporterListenAddress(node, exporter))
@@ -66,8 +68,10 @@ func TestGetExporterListenAddress(t *testing.T) {
 			Address: "1.2.3.4",
 		}
 		exporter := &models.Agent{
-			PushMetrics:    true,
-			ExposeExporter: true,
+			ExporterOptions: models.ExporterOptions{
+				ExposeExporter: true,
+				PushMetrics:    true,
+			},
 		}
 
 		assert.Equal(t, "0.0.0.0", getExporterListenAddress(node, exporter))
@@ -77,15 +81,19 @@ func TestGetExporterListenAddress(t *testing.T) {
 			Address: "1.2.3.4",
 		}
 		exporter := &models.Agent{
-			PushMetrics:    false,
-			ExposeExporter: true,
+			ExporterOptions: models.ExporterOptions{
+				ExposeExporter: true,
+				PushMetrics:    false,
+			},
 		}
 
 		assert.Equal(t, "0.0.0.0", getExporterListenAddress(node, exporter))
 	})
 	t.Run("exposes exporter address if node IP is unavailable in pull mode", func(t *testing.T) {
 		exporter := &models.Agent{
-			PushMetrics: false,
+			ExporterOptions: models.ExporterOptions{
+				PushMetrics: false,
+			},
 		}
 
 		assert.Equal(t, "0.0.0.0", getExporterListenAddress(nil, exporter))

@@ -21,8 +21,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/api/agentpb"
-	qanpb "github.com/percona/pmm/api/qanpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	qanv1 "github.com/percona/pmm/api/qan/v1"
 )
 
 // prometheusService is a subset of methods of victoriametrics.Service used by this package.
@@ -37,10 +37,10 @@ type prometheusService interface {
 // qanClient is a subset of methods of qan.Client used by this package.
 // We use it instead of real type to avoid dependency cycle.
 type qanClient interface {
-	Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error
+	Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsBucket) error
 	QueryExists(ctx context.Context, serviceID, query string) error
-	ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error)
-	SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDReply, error)
+	ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanv1.ExplainFingerprintByQueryIDResponse, error)
+	SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanv1.SchemaByQueryIDResponse, error)
 }
 
 // retentionService is a subset of methods of backup.Client used by this package.
@@ -52,8 +52,8 @@ type retentionService interface {
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type to avoid dependency cycle.
 type jobsService interface {
-	handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult)
-	handleJobProgress(ctx context.Context, progress *agentpb.JobProgress)
+	handleJobResult(ctx context.Context, l *logrus.Entry, result *agentv1.JobResult)
+	handleJobProgress(ctx context.Context, progress *agentv1.JobProgress)
 }
 
 // victoriaMetricsParams is a subset of methods of models.VMParams used by this package.

@@ -16,9 +16,7 @@ package profiler
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 	"testing"
@@ -32,12 +30,11 @@ import (
 
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
-	"github.com/percona/pmm/agent/runner/actions"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 type MongoVersion struct {
@@ -69,11 +66,11 @@ func TestProfiler(t *testing.T) {
 	tempDir := t.TempDir()
 	sslDSN, err := templates.RenderDSN(sslDSNTemplate, files, tempDir)
 	require.NoError(t, err)
-	for _, url := range []string{
-		"mongodb://root:root-password@127.0.0.1:27017/admin",
-		sslDSN,
+	for name, url := range map[string]string{
+		"normal": tests.GetTestMongoDBDSN(t),
+		"ssl":    sslDSN,
 	} {
-		t.Run(url, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			testProfiler(t, url)
 		})
 	}
@@ -106,7 +103,7 @@ func testProfiler(t *testing.T, url string) {
 		t:       t,
 		reports: []*report.Report{},
 	}
-	prof := New(url, logrus.WithField("component", "profiler-test"), ms, "test-id", truncate.GetDefaultMaxQueryLength())
+	prof := New(url, logrus.WithField("component", "profiler-test"), ms, "test-id", truncate.GetMongoDBDefaultMaxQueryLength())
 	err = prof.Start()
 	defer prof.Stop()
 	require.NoError(t, err)
@@ -140,8 +137,8 @@ func testProfiler(t *testing.T, url string) {
 
 	require.GreaterOrEqual(t, len(ms.reports), 1)
 
-	var findBucket *agentpb.MetricsBucket
-	bucketsMap := make(map[string]*agentpb.MetricsBucket)
+	var findBucket *agentv1.MetricsBucket
+	bucketsMap := make(map[string]*agentv1.MetricsBucket)
 
 	for _, r := range ms.reports {
 		for _, bucket := range r.Buckets {
@@ -176,7 +173,7 @@ func testProfiler(t *testing.T, url string) {
 	}
 
 	assert.Equal(t, dbsCount, len(bucketsMap)) // 300 sample docs / 10 = different database names
-	var buckets []*agentpb.MetricsBucket
+	var buckets []*agentv1.MetricsBucket
 	for _, bucket := range bucketsMap {
 		buckets = append(buckets, bucket)
 	}
@@ -188,8 +185,8 @@ func testProfiler(t *testing.T, url string) {
 		assert.Equal(t, "INSERT people", bucket.Common.Fingerprint)
 		assert.Equal(t, []string{"people"}, bucket.Common.Tables)
 		assert.Equal(t, "test-id", bucket.Common.AgentId)
-		assert.Equal(t, inventorypb.AgentType(9), bucket.Common.AgentType)
-		expected := &agentpb.MetricsBucket_MongoDB{
+		assert.Equal(t, inventoryv1.AgentType(9), bucket.Common.AgentType)
+		expected := &agentv1.MetricsBucket_MongoDB{
 			MDocsReturnedCnt:   docsCount,
 			MResponseLengthCnt: docsCount,
 			MResponseLengthSum: responseLength * docsCount,
@@ -210,47 +207,6 @@ func testProfiler(t *testing.T, url string) {
 	require.NotNil(t, findBucket)
 	assert.Equal(t, "FIND people name_00\ufffd", findBucket.Common.Fingerprint)
 	assert.Equal(t, docsCount, findBucket.Mongodb.MDocsReturnedSum)
-
-	// PMM-4192 This seems to be out of place because it is an Explain test but there was a problem with
-	// the new MongoDB driver and bson.D and we were capturing invalid queries in the profiler.
-	// This test is here to ensure the query example the profiler captures is valid to be used in Explain.
-	t.Run("TestMongoDBExplain", func(t *testing.T) {
-		id := "abcd1234"
-
-		params := &agentpb.StartActionRequest_MongoDBExplainParams{
-			Dsn:   tests.GetTestMongoDBDSN(t),
-			Query: findBucket.Common.Example,
-		}
-
-		ex, err := actions.NewMongoDBExplainAction(id, 5*time.Second, params, os.TempDir())
-		require.NoError(t, err)
-
-		ctx, cancel := context.WithTimeout(context.Background(), ex.Timeout())
-		defer cancel()
-		res, err := ex.Run(ctx)
-		assert.Nil(t, err)
-
-		want := map[string]interface{}{
-			"indexFilterSet": false,
-			"namespace":      "test_00.people",
-			"parsedQuery": map[string]interface{}{
-				"name_00\ufffd": map[string]interface{}{
-					"$eq": "value_00\ufffd",
-				},
-			},
-			"plannerVersion": map[string]interface{}{"$numberInt": "1"},
-			"rejectedPlans":  []interface{}{},
-		}
-
-		explainM := make(map[string]interface{})
-		err = json.Unmarshal(res, &explainM)
-		assert.Nil(t, err)
-		queryPlanner, ok := explainM["queryPlanner"].(map[string]interface{})
-		want["winningPlan"] = queryPlanner["winningPlan"]
-		assert.Equal(t, ok, true)
-		assert.NotEmpty(t, queryPlanner)
-		assert.Equal(t, want, queryPlanner)
-	})
 }
 
 func cleanUpDBs(t *testing.T, sess *mongo.Client) {

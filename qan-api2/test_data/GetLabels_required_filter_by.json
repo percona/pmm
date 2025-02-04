@@ -2,7 +2,7 @@
 	"labels": {
 		"agent_id": {
 			"values": [
-				"/agent_id/dc889ca7be92a66f0a00f616f69ffa7b"
+				"dc889ca7be92a66f0a00f616f69ffa7b"
 			]
 		},
 		"agent_type": {
@@ -1340,7 +1340,7 @@
 		},
 		"service_id": {
 			"values": [
-				"/service_id/06f591c3-517a-4321-b2c1-289657847cf3",
+				"06f591c3-517a-4321-b2c1-289657847cf3",
 				"service_id1"
 			]
 		},

@@ -16,8 +16,9 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/admin/pkg/flags"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentProxysqlExporterResultT = commands.ParseTemplate(`
@@ -36,7 +37,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentProxysqlExporterResult struct {
-	Agent *agents.AddProxySQLExporterOKBodyProxysqlExporter `json:"proxysql_exporter"`
+	Agent *agents.AddAgentOKBodyProxysqlExporter `json:"proxysql_exporter"`
 }
 
 func (res *addAgentProxysqlExporterResult) Result() {}
@@ -59,32 +60,35 @@ type AddAgentProxysqlExporterCommand struct {
 	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	ExposeExporter      bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	LogLevel            string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
+
+	flags.LogLevelFatalFlags
 }
 
 // RunCmd executes the AddAgentProxysqlExporterCommand and returns the result.
 func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &agents.AddProxySQLExporterParams{
-		Body: agents.AddProxySQLExporterBody{
-			PMMAgentID:          cmd.PMMAgentID,
-			ServiceID:           cmd.ServiceID,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			AgentPassword:       cmd.AgentPassword,
-			CustomLabels:        customLabels,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			TLS:                 cmd.TLS,
-			TLSSkipVerify:       cmd.TLSSkipVerify,
-			PushMetrics:         cmd.PushMetrics,
-			ExposeExporter:      cmd.ExposeExporter,
-			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:            &cmd.LogLevel,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
+				PMMAgentID:          cmd.PMMAgentID,
+				ServiceID:           cmd.ServiceID,
+				Username:            cmd.Username,
+				Password:            cmd.Password,
+				AgentPassword:       cmd.AgentPassword,
+				CustomLabels:        customLabels,
+				SkipConnectionCheck: cmd.SkipConnectionCheck,
+				TLS:                 cmd.TLS,
+				TLSSkipVerify:       cmd.TLSSkipVerify,
+				PushMetrics:         cmd.PushMetrics,
+				ExposeExporter:      cmd.ExposeExporter,
+				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddProxySQLExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

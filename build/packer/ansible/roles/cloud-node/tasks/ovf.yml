@@ -1,0 +1,33 @@
+---
+# Common things for all OVF images
+- name: ovf                 | Disable EC2, CloudStack
+  when: ansible_virtualization_type == "virtualbox"
+  copy:
+    content: |
+      datasource_list: [ NoCloud, ConfigDrive, OpenNebula, DigitalOcean, Azure, AltCloud, OVF, MAAS, GCE, OpenStack, CloudSigma, SmartOS, None ]
+      disable_ec2_metadata: true
+      datasource:
+        OpenStack:
+          max_wait: 6
+          timeout: 3
+          retries: 2
+    dest: /etc/cloud/cloud.cfg.d/90_disable-cloud.cfg
+    mode: 0644
+
+- name: Create user-specific .ssh directory
+  when: ansible_virtualization_type == "virtualbox"
+  file:
+    path: /home/admin/.ssh
+    state: directory
+    owner: admin
+    group: admin
+    mode: '0700'
+
+- name: create authorized_keys file
+  when: ansible_virtualization_type == "virtualbox"
+  file:
+    path: /home/admin/.ssh/authorized_keys
+    state: touch
+    owner: admin
+    group: admin
+    mode: '0600'

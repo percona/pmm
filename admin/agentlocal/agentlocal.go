@@ -21,14 +21,15 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/api/agentlocalpb/json/client"
-	agentlocal "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
+	"github.com/percona/pmm/api/agentlocal/v1/json/client"
+	agentlocal "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
 )
 
 // SetTransport configures transport for accessing local pmm-agent API.
@@ -100,7 +101,7 @@ func GetRawStatus(ctx context.Context, requestNetworkInfo NetworkInfo) (*agentlo
 		Context: ctx,
 	}
 
-	res, err := client.Default.AgentLocal.Status(params)
+	res, err := client.Default.AgentLocalService.Status(params)
 	if err != nil {
 		if res == nil {
 			return nil, err
@@ -137,10 +138,11 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 
 	agents := make([]AgentStatus, len(p.AgentsInfo))
 	for i, a := range p.AgentsInfo {
+		status, _ := strings.CutPrefix(pointer.GetString(a.Status), "AGENT_STATUS_")
 		agents[i] = AgentStatus{
 			AgentID:   a.AgentID,
 			AgentType: pointer.GetString(a.AgentType),
-			Status:    pointer.GetString(a.Status),
+			Status:    status,
 			Port:      a.ListenPort,
 		}
 	}

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - v3
       - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
@@ -20,6 +21,7 @@ on:
       - "qan-api2/**"
       - "update/**"
       - "vmproxy/**"
+      - "ui/**"
 
 permissions:
   contents: read
@@ -28,8 +30,6 @@ jobs:
   test:
     name: Tests
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
 
     defaults:
       run:
@@ -71,7 +71,7 @@ jobs:
         run: make test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
           file: cover.out
           flags: admin

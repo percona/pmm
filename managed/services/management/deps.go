@@ -17,10 +17,9 @@ package management
 
 import (
 	"context"
-	"net/http"
 	"time"
 
-	"github.com/percona-platform/saas/pkg/check"
+	"github.com/percona/saas/pkg/check"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
 	"gopkg.in/reform.v1"
@@ -54,7 +53,6 @@ type prometheusService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
 	StartChecks(checkNames []string) error
-	GetSecurityCheckResults() ([]services.CheckResult, error)
 	GetChecks() (map[string]check.Check, error)
 	GetAdvisors() ([]check.Advisor, error)
 	GetChecksResults(ctx context.Context, serviceID string) ([]services.CheckResult, error)
@@ -68,6 +66,8 @@ type checksService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type grafanaClient interface {
 	CreateAnnotation(context.Context, []string, time.Time, string, string) (string, error)
+	CreateServiceAccount(ctx context.Context, noneName string, reregister bool) (int, string, error)
+	DeleteServiceAccount(ctx context.Context, noneName string, force bool) (string, error)
 }
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
@@ -97,9 +97,4 @@ type versionCache interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type victoriaMetricsClient interface {
 	Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, error)
-}
-
-type apiKeyProvider interface {
-	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
-	IsAPIKeyAuth(headers http.Header) bool
 }

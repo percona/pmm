@@ -1,7 +1,7 @@
 /* Overrides */
 
 :root {
-    --md-primary-fg-color--dark: rgb(204,58,0);
+  --md-primary-fg-color--dark: rgb(204,58,0);
 }
 .md-header,
 .md-tabs {

@@ -22,8 +22,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -37,28 +37,30 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		Address: "1.2.3.4",
 	}
 	exporter := &models.Agent{
-		AgentID:       "agent-id",
-		AgentType:     models.MySQLdExporterType,
-		Username:      pointer.ToString("username"),
-		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
-		AgentPassword: pointer.ToString("agent-password"),
+		AgentID:         "agent-id",
+		AgentType:       models.MySQLdExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword:   pointer.ToString("agent-password"),
+		ExporterOptions: models.ExporterOptions{},
+		MySQLOptions:    models.MySQLOptions{},
 	}
 	pmmAgentVersion := version.MustParse("2.21.0")
 
 	actual := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
 			"--collect.auto_increment.columns",
 			"--collect.binlog_size",
 			"--collect.custom_query.hr",
-			"--collect.custom_query.hr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/high-resolution",
+			"--collect.custom_query.hr.directory=/usr/local/percona/pmm/collectors/custom-queries/mysql/high-resolution",
 			"--collect.custom_query.lr",
-			"--collect.custom_query.lr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/low-resolution",
+			"--collect.custom_query.lr.directory=/usr/local/percona/pmm/collectors/custom-queries/mysql/low-resolution",
 			"--collect.custom_query.mr",
-			"--collect.custom_query.mr.directory=/usr/local/percona/pmm2/collectors/custom-queries/mysql/medium-resolution",
+			"--collect.custom_query.mr.directory=/usr/local/percona/pmm/collectors/custom-queries/mysql/medium-resolution",
 			"--collect.engine_innodb_status",
 			"--collect.engine_tokudb_status",
 			"--collect.global_status",
@@ -115,7 +117,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 
 	t.Run("SSLEnabled", func(t *testing.T) {
 		exporter.TLS = true
-		exporter.MySQLOptions = &models.MySQLOptions{
+		exporter.MySQLOptions = models.MySQLOptions{
 			TLSCa:   "content-of-tls-ca",
 			TLSCert: "content-of-tls-certificate-key",
 			TLSKey:  "content-of-tls-key",
@@ -141,23 +143,24 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 		Port:    pointer.ToUint16(3306),
 	}
 	exporter := &models.Agent{
-		AgentID:                        "agent-id",
-		AgentType:                      models.MySQLdExporterType,
-		Username:                       pointer.ToString("username"),
-		Password:                       pointer.ToString("s3cur3 p@$$w0r4."),
-		TableCountTablestatsGroupLimit: -1,
-		TLS:                            true,
-		MySQLOptions: &models.MySQLOptions{
-			TLSCa:   "content-of-tls-ca",
-			TLSCert: "content-of-tls-cert",
-			TLSKey:  "content-of-tls-key",
+		AgentID:         "agent-id",
+		AgentType:       models.MySQLdExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		TLS:             true,
+		ExporterOptions: models.ExporterOptions{},
+		MySQLOptions: models.MySQLOptions{
+			TableCountTablestatsGroupLimit: -1,
+			TLSCa:                          "content-of-tls-ca",
+			TLSCert:                        "content-of-tls-cert",
+			TLSKey:                         "content-of-tls-key",
 		},
 	}
 	pmmAgentVersion := version.MustParse("2.24.0")
 
 	actual := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -199,7 +202,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s&tls=custom",
 			"HTTP_AUTH=pmm:agent-id",
 		},
-		RedactWords: []string{"s3cur3 p@$$w0r4."},
+		RedactWords: []string{"s3cur3 p@$$w0r4.", "content-of-tls-key"},
 		TextFiles: map[string]string{
 			"tlsCa":   "content-of-tls-ca",
 			"tlsCert": "content-of-tls-cert",
@@ -245,17 +248,20 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 		Port:    pointer.ToUint16(3306),
 	}
 	exporter := &models.Agent{
-		AgentID:            "agent-id",
-		AgentType:          models.MySQLdExporterType,
-		Username:           pointer.ToString("username"),
-		Password:           pointer.ToString("s3cur3 p@$$w0r4."),
-		DisabledCollectors: []string{"heartbeat", "info_schema.clientstats", "perf_schema.eventsstatements", "custom_query.hr"},
+		AgentID:   "agent-id",
+		AgentType: models.MySQLdExporterType,
+		Username:  pointer.ToString("username"),
+		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		ExporterOptions: models.ExporterOptions{
+			DisabledCollectors: []string{"heartbeat", "info_schema.clientstats", "perf_schema.eventsstatements", "custom_query.hr"},
+		},
+		MySQLOptions: models.MySQLOptions{},
 	}
 	pmmAgentVersion := version.MustParse("2.24.0")
 
 	actual := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
+	expected := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{

@@ -18,10 +18,8 @@ package agents
 import (
 	"sort"
 
-	"github.com/AlekSi/pointer"
-
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/collectors"
 	"github.com/percona/pmm/version"
@@ -30,15 +28,13 @@ import (
 // The node exporter prior 2.28 use exporter_shared and gets basic auth config from env.
 // Starting with pmm 2.28, the exporter uses Prometheus Web Toolkit and needs a config file
 // with the basic auth users.
-var v2_27_99 = version.MustParse("2.27.99")
+var (
+	v2_28_00 = version.MustParse("2.28.0-0")
+)
 
-func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentpb.SetStateRequest_AgentProcess, error) {
+func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) {
 	listenAddress := getExporterListenAddress(node, exporter)
-
-	tdp := models.TemplateDelimsPair(
-		pointer.GetString(exporter.MetricsPath),
-	)
-
+	tdp := models.TemplateDelimsPair(exporter.ExporterOptions.MetricsPath)
 	args := []string{
 		"--collector.textfile.directory.lr=" + pathsBase(agentVersion, tdp.Left, tdp.Right) + "/collectors/textfile-collector/low-resolution",
 		"--collector.textfile.directory.mr=" + pathsBase(agentVersion, tdp.Left, tdp.Right) + "/collectors/textfile-collector/medium-resolution",
@@ -125,24 +121,24 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 		)
 	}
 
-	args = collectors.FilterOutCollectors("--collector.", args, exporter.DisabledCollectors)
+	args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)
 
-	if pointer.GetString(exporter.MetricsPath) != "" {
-		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
+	if exporter.ExporterOptions.MetricsPath != "" {
+		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
 	args = withLogLevel(args, exporter.LogLevel, agentVersion, false)
 
 	sort.Strings(args)
 
-	params := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_NODE_EXPORTER,
+	params := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 	}
 
-	if err := ensureAuthParams(exporter, params, agentVersion, v2_27_99); err != nil {
+	if err := ensureAuthParams(exporter, params, agentVersion, v2_28_00, agentVersion.IsFeatureSupported(version.NodeExporterNewTLSConfigVersion)); err != nil {
 		return nil, err
 	}
 

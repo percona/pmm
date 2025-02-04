@@ -4,14 +4,14 @@ on:
     inputs:
       branch:
         description: "The branch to build the devcontainer from"
-        default: "main"
+        default: "v3"
         required: true
         type: string
   workflow_call:
     inputs:
       branch:
         description: "The branch to build the devcontainer from"
-        default: "main"
+        default: "v3"
         required: true
         type: string
 
@@ -20,17 +20,15 @@ permissions:
 
 jobs:
   devcontainer:
-    name: Build
+    name: Devcontainer
     runs-on: ubuntu-22.04
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
     permissions:
       packages: write
 
     env:
-      LAB_DEVCONTAINER_IMAGE: perconalab/pmm-server:dev-container
-      GH_DEVCONTAINER_IMAGE: ghcr.io/percona/pmm:dev-container
+      LAB_DEVCONTAINER_IMAGE: perconalab/pmm-server:3-dev-container
+      GH_DEVCONTAINER_IMAGE: ghcr.io/percona/pmm:3-dev-container
 
     steps:
       - name: Check out code
@@ -58,7 +56,8 @@ jobs:
       - name: Build and push to registries
         uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991 # v6.13.0
         with:
-          file: ./devcontainer.Dockerfile
+          file: ./.devcontainer/Dockerfile
+          context: .
           push: true
           tags: |
             ${{ env.GH_DEVCONTAINER_IMAGE }}

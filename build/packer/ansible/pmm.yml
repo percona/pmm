@@ -1,0 +1,10 @@
+---
+- name: Create PMM image
+  hosts: all
+  become: yes
+  become_user: root
+  roles:
+    - cloud-node
+    - lvm-init
+    - podman-setup
+    - ami-ovf

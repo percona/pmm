@@ -16,8 +16,9 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/admin/pkg/flags"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentQANPostgreSQLPgStatementsAgentResultT = commands.ParseTemplate(`
@@ -35,7 +36,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentQANPostgreSQLPgStatementsAgentResult struct {
-	Agent *agents.AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent `json:"qan_postgresql_pgstatements_agent"`
+	Agent *agents.AddAgentOKBodyQANPostgresqlPgstatementsAgent `json:"qan_postgresql_pgstatements_agent"`
 }
 
 func (res *addAgentQANPostgreSQLPgStatementsAgentResult) Result() {}
@@ -52,14 +53,15 @@ type AddAgentQANPostgreSQLPgStatementsAgentCommand struct {
 	Password            string            `help:"PostgreSQL password for QAN agent"`
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
-	CommentsParsing     string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	MaxQueryLength      int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	TLS                 bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
 	TLSCAFile           string            `name:"tls-ca-file" help:"TLS CA certificate file"`
 	TLSCertFile         string            `help:"TLS certificate file"`
 	TLSKeyFile          string            `help:"TLS certificate key file"`
-	LogLevel            string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
+
+	flags.CommentsParsingFlags
+	flags.LogLevelFatalFlags
 }
 
 // RunCmd executes the AddAgentQANPostgreSQLPgStatementsAgentCommand and returns the result.
@@ -87,33 +89,30 @@ func (cmd *AddAgentQANPostgreSQLPgStatementsAgentCommand) RunCmd() (commands.Res
 		}
 	}
 
-	disableCommentsParsing := true
-	if cmd.CommentsParsing == "on" {
-		disableCommentsParsing = false
-	}
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			QANPostgresqlPgstatementsAgent: &agents.AddAgentParamsBodyQANPostgresqlPgstatementsAgent{
+				PMMAgentID:             cmd.PMMAgentID,
+				ServiceID:              cmd.ServiceID,
+				Username:               cmd.Username,
+				Password:               cmd.Password,
+				CustomLabels:           customLabels,
+				SkipConnectionCheck:    cmd.SkipConnectionCheck,
+				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
+				MaxQueryLength:         cmd.MaxQueryLength,
 
-	params := &agents.AddQANPostgreSQLPgStatementsAgentParams{
-		Body: agents.AddQANPostgreSQLPgStatementsAgentBody{
-			PMMAgentID:             cmd.PMMAgentID,
-			ServiceID:              cmd.ServiceID,
-			Username:               cmd.Username,
-			Password:               cmd.Password,
-			CustomLabels:           customLabels,
-			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: disableCommentsParsing,
-			MaxQueryLength:         cmd.MaxQueryLength,
-
-			TLS:           cmd.TLS,
-			TLSSkipVerify: cmd.TLSSkipVerify,
-			TLSCa:         tlsCa,
-			TLSCert:       tlsCert,
-			TLSKey:        tlsKey,
-			LogLevel:      &cmd.LogLevel,
+				TLS:           cmd.TLS,
+				TLSSkipVerify: cmd.TLSSkipVerify,
+				TLSCa:         tlsCa,
+				TLSCert:       tlsCert,
+				TLSKey:        tlsKey,
+				LogLevel:      cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddQANPostgreSQLPgStatementsAgent(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

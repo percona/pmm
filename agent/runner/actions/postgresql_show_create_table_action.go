@@ -31,7 +31,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const postgreSQLShowCreateTableActionType = "postgresql-show-create-table"
@@ -67,7 +67,7 @@ type indexInfo struct {
 type postgresqlShowCreateTableAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_PostgreSQLShowCreateTableParams
+	params  *agentv1.StartActionRequest_PostgreSQLShowCreateTableParams
 	dsn     string
 }
 
@@ -76,7 +76,7 @@ type postgresqlShowCreateTableAction struct {
 func NewPostgreSQLShowCreateTableAction(
 	id string,
 	timeout time.Duration,
-	params *agentpb.StartActionRequest_PostgreSQLShowCreateTableParams,
+	params *agentv1.StartActionRequest_PostgreSQLShowCreateTableParams,
 	tempDir string,
 ) (Action, error) {
 	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLShowCreateTableActionType, id))

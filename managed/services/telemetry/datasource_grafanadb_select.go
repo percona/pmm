@@ -22,8 +22,7 @@ import (
 	"net/url"
 	"time"
 
-	// Events, errors and driver for grafana database.
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
@@ -95,7 +94,7 @@ func openGrafanaDBConnection(config DSConfigGrafanaDB, l *logrus.Entry) (*sql.DB
 	return db, nil
 }
 
-func (d *dsGrafanaDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
+func (d *dsGrafanaDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*telemetryv1.GenericReport_Metric, error) {
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
 

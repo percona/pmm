@@ -4,7 +4,7 @@
 
 /api/nginx/*.pem
 bin/
-!/documentation/resources/bin
+!/documentation/resources/bin/
 
 # System Files
 .DS_Store
@@ -18,9 +18,6 @@ agent/agents/mysql/slowlog/parser/corpus/
 agent/agents/mysql/slowlog/parser/crashers/
 agent/agents/mysql/slowlog/parser/suppressions/
 agent/agents/mysql/slowlog/parser/parser-fuzz.zip
-
-update/*.runcover.out
-update/*.test
 
 fuzzing/
 *-fuzz.zip
@@ -36,6 +33,7 @@ compose.yml
 *.sw[o,p]
 
 .env
+.netrc
 
 cli-tests/node_modules/
 cli-tests/playwright-report/
@@ -44,3 +42,4 @@ api-tests/pmm-api-tests-output.txt
 api-tests/pmm-api-tests-junit-report.xml
 
 packer.log
+encryption.key

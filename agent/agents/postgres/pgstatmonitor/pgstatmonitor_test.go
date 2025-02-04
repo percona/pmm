@@ -34,8 +34,8 @@ import (
 
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 func setup(t *testing.T, db *reform.DB, disableCommentsParsing, disableQueryExamples bool) *PGStatMonitorQAN { //nolint:unparam
@@ -68,8 +68,8 @@ func extensionExists(db *reform.DB) bool {
 }
 
 // filter removes buckets for queries that are not expected by tests.
-func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
-	res := make([]*agentpb.MetricsBucket, 0, len(mb))
+func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
+	res := make([]*agentv1.MetricsBucket, 0, len(mb))
 	for _, b := range mb {
 		switch {
 		case strings.Contains(b.Common.Fingerprint, "/* agent='pgstatmonitor' */"):
@@ -230,11 +230,11 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			example = actual.Common.Example
 		}
 
-		expected := &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		expected := &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Fingerprint:         selectAllCountries,
 				Example:             example,
-				ExampleType:         agentpb.ExampleType_RANDOM,
+				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Comments:            map[string]string{"controller": "test"},
@@ -243,12 +243,12 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: actual.Common.PeriodStartUnixSecs,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
-			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
+			Postgresql: &agentv1.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
 				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
@@ -290,11 +290,11 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		actual = buckets[0]
 		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		expected = &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		expected = &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Fingerprint:         selectAllCountries,
 				Example:             example,
-				ExampleType:         agentpb.ExampleType_RANDOM,
+				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Comments:            map[string]string{"controller": "test"},
@@ -303,12 +303,12 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: actual.Common.PeriodStartUnixSecs,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
-			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
+			Postgresql: &agentv1.MetricsBucket_PostgreSQL{
 				MSharedBlksHitCnt:     1,
 				MSharedBlksHitSum:     5,
 				MRowsCnt:              1,
@@ -365,11 +365,11 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
 		assert.InDelta(t, 5, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 3)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
-		expected := &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		expected := &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Fingerprint:         selectAllCountriesLong,
 				Example:             actual.Common.Example,
-				ExampleType:         agentpb.ExampleType_RANDOM,
+				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Comments:            map[string]string{"controller": "test"},
@@ -379,12 +379,12 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				PeriodStartUnixSecs: actual.Common.PeriodStartUnixSecs,
 				PeriodLengthSecs:    60,
 				IsTruncated:         true,
-				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
-			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
+			Postgresql: &agentv1.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
 				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
@@ -428,11 +428,11 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
 		assert.InDelta(t, 0, actual.Postgresql.MSharedBlkReadTimeCnt, 1)
 		assert.InDelta(t, 5, actual.Postgresql.MSharedBlksHitSum, 2)
-		expected = &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		expected = &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Fingerprint:         selectAllCountriesLong,
 				Example:             actual.Common.Example,
-				ExampleType:         agentpb.ExampleType_RANDOM,
+				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 				Database:            "pmm-agent",
 				Tables:              []string{"public.country"},
 				Comments:            map[string]string{"controller": "test"},
@@ -442,12 +442,12 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				PeriodStartUnixSecs: actual.Common.PeriodStartUnixSecs,
 				PeriodLengthSecs:    60,
 				IsTruncated:         true,
-				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 			},
-			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
+			Postgresql: &agentv1.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt: actual.Postgresql.MSharedBlkReadTimeCnt,
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
 				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
@@ -511,7 +511,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		normalizedQuery, err := settings.getNormalizedQueryValue()
 		require.NoError(t, err)
 
-		var buckets []*agentpb.MetricsBucket
+		var buckets []*agentv1.MetricsBucket
 		for i := 0; i < 100; i++ {
 			buckets, err = m.getNewBuckets(context.Background(), 60, normalizedQuery)
 			require.NoError(t, err)
@@ -528,12 +528,12 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
 		assert.NotZero(t, actual.Postgresql.MSharedBlkReadTimeSum)
 		expectedFingerprint := fmt.Sprintf("INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES ($1, $2, $3, $4)", tableName)
-		expected := &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		expected := &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
 				Fingerprint:         expectedFingerprint,
 				Example:             actual.Common.Example,
-				ExampleType:         agentpb.ExampleType_RANDOM,
+				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 				Comments:            map[string]string{"controller": "test"},
 				Database:            "pmm-agent",
 				Username:            "pmm-agent",
@@ -541,14 +541,14 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: actual.Common.PeriodStartUnixSecs,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 				NumQueries:          float32(n),
 				MQueryTimeCnt:       float32(n),
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 				// FIXME: Why tables is empty here? this will error.
 				Tables: []string{fmt.Sprintf("public.%s", tableName)},
 			},
-			Postgresql: &agentpb.MetricsBucket_PostgreSQL{
+			Postgresql: &agentv1.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt: float32(n),
 				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
 				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,

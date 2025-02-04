@@ -18,17 +18,14 @@ This project is built from several repositories:
 ### APIs
 
 * [percona/pmm](https://github.com/percona/pmm/tree/main/api)
-* [percona-platform/saas](https://github.com/percona-platform/saas)
-* [percona-platform/dbaas-api](https://github.com/percona-platform/dbaas-api)
+* [percona/saas](https://github.com/percona/saas)
 
 ### PMM Server
 
 #### Backends
 
 * [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/main/admin)
-* [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller) exposes a simplified API for managing Percona Kubernetes Operators.
 * [percona/qan-api](https://github.com/percona/pmm/tree/main/qan-api2) query analytics API
-* [percona/pmm-update](https://github.com/percona/pmm/tree/main/update) is a tool for updating packages and OS configuration for PMM
 
 #### Frontends
 
@@ -129,7 +126,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
   * This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
 * Once it's connected just use `make run` to run pmm-agent.
 * To work correctly, pmm-agent needs vmagent and exporters installed on the system.
-  * The first option is to install pmm-client using this instrucion https://docs.percona.com/percona-monitoring-and-management/setting-up/client/index.html#install. It will install all exporters as well.
+  * The first option is to install pmm-client using this instruction https://docs.percona.com/percona-monitoring-and-management/setting-up/client/index.html#install. It will install all exporters as well.
   * Another option is to do it manually
     * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in `pmm-agent-dev.yaml` file.
     * All paths to exporter binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually if necessary.
@@ -182,7 +179,7 @@ Once your PR is created, please do the following:
 
 PMM is quite a complex project, it consists of many different repos described above. A Feature Build (FB) is a way to put everything together, build all components, run tests and, finally, build client and server containers.
 
-Please see: [How to create a feature build](https://github.com/Percona-Lab/pmm-submodules/blob/PMM-2.0/README.md#how-to-create-a-feature-build)
+Please see: [How to create a feature build](https://github.com/Percona-Lab/pmm-submodules/blob/v3/README.md#how-to-create-a-feature-build)
 
 ### The Goals of Feature Builds
 

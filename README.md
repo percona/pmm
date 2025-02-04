@@ -29,20 +29,19 @@ See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-m
 * Spot critical performance issues faster, understand the root cause of incidents better and troubleshoot them more efficiently.
 * Zoom-in, drill-down database performance from node to single query levels. Perform in-depth troubleshooting and performance optimization.
 * Built-in Advisors run regular checks of the databases connected to PMM. The checks identify and alert you of potential security threats, performance degradation, data loss and data corruption.
-* DBaaS: Create and configure database clusters no matter where the infrastructure is deployed.
 * Backup and restore databases up to a specific moment with Point-in-Time-Recovery.
 
 ## Architecture
 
 Please check our [Documentation](https://docs.percona.com/percona-monitoring-and-management/details/architecture.html) for the actual architecture.
 
-![Overal Architecture](https://docs.percona.com/percona-monitoring-and-management/_images/C_S_Architecture.jpg "Client Server Architecture")
+![Overall Architecture](https://docs.percona.com/percona-monitoring-and-management/images/C_S_Architecture.jpg "Client Server Architecture")
 
 
-![PMM Server](https://docs.percona.com/percona-monitoring-and-management/_images/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
+![PMM Server](https://docs.percona.com/percona-monitoring-and-management/images/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
 
 
-![PMM Client](https://docs.percona.com/percona-monitoring-and-management/_images/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
+![PMM Client](https://docs.percona.com/percona-monitoring-and-management/images/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
 
 ## Installation
 
@@ -51,7 +50,7 @@ There are numbers of installation methods, please check our [Setting Up](https:/
 But in a nutshell:
 1. Download PMM server Docker image
 ```bash
-$ docker pull percona/pmm-server:2
+$ docker pull percona/pmm-server:3
 ```
 2. Create the data volume container
 ```bash
@@ -60,14 +59,14 @@ $ docker volume create pmm-data
 3. Run PMM server container
 ```bash
 $ docker run --detach --restart always \
---publish 443:443 \
+--publish 443:8443 \
 --volume pmm-data:/srv \
 --name pmm-server \
-percona/pmm-server:2
+percona/pmm-server:3
 ```
 4. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
 
-<img src="https://docs.percona.com/percona-monitoring-and-management/_images/PMM_Login.jpg" width="280">
+<img src="https://docs.percona.com/percona-monitoring-and-management/images/PMM_Login.jpg" width="280">
 
 Enter the username and password. The defaults are username: **admin** and password: **admin**
 
@@ -110,4 +109,4 @@ As a general rule of thumb, please try to create bug reports that are:
 
 ## Licensing
 
-Percona is dedicated to **keeping open source open**. Wherever possible, we strive to include permissive licensing for both our software and documentation. For this project, we are using the [GNU AGPLv3](https://github.com/percona/pmm/blob/main/LICENSE) license.
+Percona is dedicated to **keeping open source open**. Wherever possible, we strive to include permissive licensing for both our software and documentation. For this project, we are using the [GNU AGPLv3](./LICENSE) license.

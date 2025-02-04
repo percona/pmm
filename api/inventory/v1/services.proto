@@ -1,0 +1,478 @@
+syntax = "proto3";
+
+package inventory.v1;
+
+import "common/common.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+// ServiceType describes supported Service types.
+enum ServiceType {
+  SERVICE_TYPE_UNSPECIFIED = 0;
+  SERVICE_TYPE_MYSQL_SERVICE = 1;
+  SERVICE_TYPE_MONGODB_SERVICE = 2;
+  SERVICE_TYPE_POSTGRESQL_SERVICE = 3;
+  SERVICE_TYPE_PROXYSQL_SERVICE = 4;
+  SERVICE_TYPE_HAPROXY_SERVICE = 6;
+  SERVICE_TYPE_EXTERNAL_SERVICE = 5;
+}
+
+// MySQLService represents a generic MySQL instance.
+message MySQLService {
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2;
+  // Node identifier where this instance runs.
+  string node_id = 3;
+  // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 4;
+  // Access port.
+  // Port is required when the address present.
+  uint32 port = 5;
+  // Access unix socket.
+  // Address (and port) or socket is required.
+  string socket = 6;
+  // Environment name.
+  string environment = 7;
+  // Cluster name.
+  string cluster = 8;
+  // Replication set name.
+  string replication_set = 9;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+  // MySQL version.
+  string version = 11;
+}
+
+// MongoDBService represents a generic MongoDB instance.
+message MongoDBService {
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2;
+  // Node identifier where this instance runs.
+  string node_id = 3;
+  // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 4;
+  // Access port.
+  // Port is required when the address present.
+  uint32 port = 5;
+  // Access unix socket.
+  // Address (and port) or socket is required.
+  string socket = 6;
+  // Environment name.
+  string environment = 7;
+  // Cluster name.
+  string cluster = 8;
+  // Replication set name.
+  string replication_set = 9;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+  // MongoDB version.
+  string version = 11;
+}
+
+// PostgreSQLService represents a generic PostgreSQL instance.
+message PostgreSQLService {
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2;
+  // Database name.
+  string database_name = 3;
+  // Node identifier where this instance runs.
+  string node_id = 4;
+  // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 5;
+  // Access port.
+  // Port is required when the address present.
+  uint32 port = 6;
+  // Access unix socket.
+  // Address (and port) or socket is required.
+  string socket = 7;
+  // Environment name.
+  string environment = 8;
+  // Cluster name.
+  string cluster = 9;
+  // Replication set name.
+  string replication_set = 10;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 11;
+  // PostgreSQL version.
+  string version = 12;
+  // Limit of databases for auto-discovery.
+  int32 auto_discovery_limit = 13;
+}
+
+// ProxySQLService represents a generic ProxySQL instance.
+message ProxySQLService {
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2;
+  // Node identifier where this instance runs.
+  string node_id = 3;
+  // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 4;
+  // Access port.
+  // Port is required when the address present.
+  uint32 port = 5;
+  // Access unix socket.
+  // Address (and port) or socket is required.
+  string socket = 6;
+  // Environment name.
+  string environment = 7;
+  // Cluster name.
+  string cluster = 8;
+  // Replication set name.
+  string replication_set = 9;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+  // ProxySQL version.
+  string version = 11;
+}
+
+// HAProxyService represents a generic HAProxy service instance.
+message HAProxyService {
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2;
+  // Node identifier where this service instance runs.
+  string node_id = 3;
+  // Environment name.
+  string environment = 4;
+  // Cluster name.
+  string cluster = 5;
+  // Replication set name.
+  string replication_set = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+}
+
+// ExternalService represents a generic External service instance.
+message ExternalService {
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2;
+  // Node identifier where this service instance runs.
+  string node_id = 3;
+  // Environment name.
+  string environment = 4;
+  // Cluster name.
+  string cluster = 5;
+  // Replication set name.
+  string replication_set = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Group name of external service.
+  string group = 8;
+}
+
+// List
+
+message ListServicesRequest {
+  // Return only Services running on that Node.
+  string node_id = 1;
+  // Return only services filtered by service type.
+  ServiceType service_type = 2;
+  // Return only services in this external group.
+  string external_group = 3;
+}
+
+message ListServicesResponse {
+  repeated MySQLService mysql = 1;
+  repeated MongoDBService mongodb = 2;
+  repeated PostgreSQLService postgresql = 3;
+  repeated ProxySQLService proxysql = 4;
+  repeated HAProxyService haproxy = 5;
+  repeated ExternalService external = 6;
+}
+
+message ListActiveServiceTypesRequest {}
+
+message ListActiveServiceTypesResponse {
+  repeated ServiceType service_types = 1;
+}
+
+// Get
+
+message GetServiceRequest {
+  // Unique randomly generated instance identifier.
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message GetServiceResponse {
+  oneof service {
+    MySQLService mysql = 1;
+    MongoDBService mongodb = 2;
+    PostgreSQLService postgresql = 3;
+    ProxySQLService proxysql = 4;
+    HAProxyService haproxy = 5;
+    ExternalService external = 6;
+  }
+}
+
+message AddServiceRequest {
+  oneof service {
+    AddMySQLServiceParams mysql = 1;
+    AddMongoDBServiceParams mongodb = 2;
+    AddPostgreSQLServiceParams postgresql = 3;
+    AddProxySQLServiceParams proxysql = 4;
+    AddHAProxyServiceParams haproxy = 5;
+    AddExternalServiceParams external = 6;
+  }
+}
+
+message AddServiceResponse {
+  oneof service {
+    MySQLService mysql = 1;
+    MongoDBService mongodb = 2;
+    PostgreSQLService postgresql = 3;
+    ProxySQLService proxysql = 4;
+    HAProxyService haproxy = 5;
+    ExternalService external = 6;
+  }
+}
+
+// Add MySQL
+
+message AddMySQLServiceParams {
+  // Unique across all Services user-defined name. Required.
+  string service_name = 1 [(validate.rules).string.min_len = 1];
+  // Node identifier where this instance runs. Required.
+  string node_id = 2 [(validate.rules).string.min_len = 1];
+  // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 3;
+  // Access port.
+  // Port is required when the address present.
+  uint32 port = 4;
+  // Access unix socket.
+  // Address (and port) or socket is required.
+  string socket = 5;
+  // Environment name.
+  string environment = 6;
+  // Cluster name.
+  string cluster = 7;
+  // Replication set name.
+  string replication_set = 8;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 9;
+}
+
+// Add MongoDB
+
+message AddMongoDBServiceParams {
+  // Unique across all Services user-defined name. Required.
+  string service_name = 1 [(validate.rules).string.min_len = 1];
+  // Node identifier where this instance runs. Required.
+  string node_id = 2 [(validate.rules).string.min_len = 1];
+  // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 3;
+  // Access port.
+  // Port is required when the address present.
+  uint32 port = 4;
+  // Access unix socket.
+  // Address (and port) or socket is required.
+  string socket = 5;
+  // Environment name.
+  string environment = 6;
+  // Cluster name.
+  string cluster = 7;
+  // Replication set name.
+  string replication_set = 8;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 9;
+}
+
+// Add PostgreSQL
+
+message AddPostgreSQLServiceParams {
+  // Unique across all Services user-defined name. Required.
+  string service_name = 1 [(validate.rules).string.min_len = 1];
+  // Node identifier where this instance runs. Required.
+  string node_id = 2 [(validate.rules).string.min_len = 1];
+  // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 3;
+  // Access port.
+  // Port is required when the address present.
+  uint32 port = 4;
+  // Access unix socket.
+  // Address (and port) or socket is required.
+  string socket = 5;
+  // Environment name.
+  string environment = 6;
+  // Cluster name.
+  string cluster = 7;
+  // Replication set name.
+  string replication_set = 8;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 9;
+  // Limit of databases for auto-discovery.
+  int32 auto_discovery_limit = 10;
+}
+
+// Add ProxySQL
+
+message AddProxySQLServiceParams {
+  // Unique across all Services user-defined name. Required.
+  string service_name = 1 [(validate.rules).string.min_len = 1];
+  // Node identifier where this instance runs. Required.
+  string node_id = 2 [(validate.rules).string.min_len = 1];
+  // Access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 3;
+  // Access port.
+  // Port is required when the address present.
+  uint32 port = 4;
+  // Access unix socket.
+  // Address (and port) or socket is required.
+  string socket = 5;
+  // Environment name.
+  string environment = 6;
+  // Cluster name.
+  string cluster = 7;
+  // Replication set name.
+  string replication_set = 8;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 9;
+}
+
+// Add HAProxy Service
+
+message AddHAProxyServiceParams {
+  // Unique across all Services user-defined name. Required.
+  string service_name = 1 [(validate.rules).string.min_len = 1];
+  // Node identifier where this instance runs. Required.
+  string node_id = 2 [(validate.rules).string.min_len = 1];
+  // Environment name.
+  string environment = 3;
+  // Cluster name.
+  string cluster = 4;
+  // Replication set name.
+  string replication_set = 5;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 6;
+}
+
+// Add External Service
+
+message AddExternalServiceParams {
+  // Unique across all Services user-defined name. Required.
+  string service_name = 1 [(validate.rules).string.min_len = 1];
+  // Node identifier where this instance runs. Required.
+  string node_id = 2 [(validate.rules).string.min_len = 1];
+  // Environment name.
+  string environment = 3;
+  // Cluster name.
+  string cluster = 4;
+  // Replication set name.
+  string replication_set = 5;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 6;
+  // Group name of external service.
+  string group = 7;
+}
+
+// Remove
+
+message RemoveServiceRequest {
+  // Unique randomly generated instance identifier. Required.
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+  // Remove service with all dependencies.
+  bool force = 2;
+}
+
+message RemoveServiceResponse {}
+
+message ChangeServiceRequest {
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+  optional string environment = 2;
+  optional string cluster = 3;
+  optional string replication_set = 4;
+  optional string external_group = 5;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 6;
+}
+
+message ChangeServiceResponse {
+  oneof service {
+    MySQLService mysql = 1;
+    MongoDBService mongodb = 2;
+    PostgreSQLService postgresql = 3;
+    ProxySQLService proxysql = 4;
+    HAProxyService haproxy = 5;
+    ExternalService external = 6;
+  }
+}
+
+// Services service provides public methods for managing Services.
+service ServicesService {
+  // ListServices returns a list of Services filtered by type.
+  rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
+    option (google.api.http) = {get: "/v1/inventory/services"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Services"
+      description: "Returns a list of Services filtered by type."
+    };
+  }
+  // ListActiveServiceTypes returns a list of active Services.
+  rpc ListActiveServiceTypes(ListActiveServiceTypesRequest) returns (ListActiveServiceTypesResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/services:getTypes"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Active Service Types"
+      description: "Returns a list of active Service types."
+    };
+  }
+  // GetService returns a single Service by ID.
+  rpc GetService(GetServiceRequest) returns (GetServiceResponse) {
+    option (google.api.http) = {get: "/v1/inventory/services/{service_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get a Service"
+      description: "Returns a single Service by ID."
+    };
+  }
+  // AddService adds any type of Service.
+  rpc AddService(AddServiceRequest) returns (AddServiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/services"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add a Service"
+      description: "Adds a Service."
+    };
+  }
+  // RemoveService removes a Service.
+  rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
+    option (google.api.http) = {delete: "/v1/inventory/services/{service_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Remove Service"
+      description: "Removes Service."
+    };
+  }
+  // ChangeService allows changing configuration of a Service.
+  rpc ChangeService(ChangeServiceRequest) returns (ChangeServiceResponse) {
+    option (google.api.http) = {
+      put: "/v1/inventory/services/{service_id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change service"
+      description: "Changes service configuration. If a new cluster label is specified, it removes all backup/restore tasks scheduled for the related services. Fails if there are running backup/restore tasks."
+    };
+  }
+}

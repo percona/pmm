@@ -19,40 +19,19 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
 
-// PostgreSQLService PostgreSQL Management Service.
-type PostgreSQLService struct {
-	db    *reform.DB
-	state agentsStateUpdater
-	cc    connectionChecker
-	sib   serviceInfoBroker
-	l     *logrus.Entry
-}
+// AddPostgreSQL adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
+func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1.AddPostgreSQLServiceParams) (*managementv1.AddServiceResponse, error) {
+	postgres := &managementv1.PostgreSQLServiceResult{}
 
-// NewPostgreSQLService creates new PostgreSQL Management Service.
-func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker) *PostgreSQLService {
-	return &PostgreSQLService{
-		db:    db,
-		state: state,
-		cc:    cc,
-		sib:   sib,
-		l:     logrus.WithField("component", "postgresql"),
-	}
-}
-
-// Add adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
-func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgreSQLRequest) (*managementpb.AddPostgreSQLResponse, error) {
-	res := &managementpb.AddPostgreSQLResponse{}
-
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
@@ -78,27 +57,28 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.PostgreSQLService) //nolint:forcetypeassert
+		postgres.Service = invService.(*inventoryv1.PostgreSQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
 			return err
 		}
 
-		options := models.PostgreSQLOptionsFromRequest(req)
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
-			PMMAgentID:        req.PmmAgentId,
-			ServiceID:         service.ServiceID,
-			Username:          req.Username,
-			Password:          req.Password,
-			AgentPassword:     req.AgentPassword,
-			TLS:               req.Tls,
-			TLSSkipVerify:     req.TlsSkipVerify,
-			PushMetrics:       isPushMode(req.MetricsMode),
-			ExposeExporter:    req.ExposeExporter,
-			DisableCollectors: req.DisableCollectors,
-			PostgreSQLOptions: options,
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error),
+			PMMAgentID:    req.PmmAgentId,
+			ServiceID:     service.ServiceID,
+			Username:      req.Username,
+			Password:      req.Password,
+			AgentPassword: req.AgentPassword,
+			TLS:           req.Tls,
+			TLSSkipVerify: req.TlsSkipVerify,
+			ExporterOptions: models.ExporterOptions{
+				ExposeExporter:     req.ExposeExporter,
+				PushMetrics:        isPushMode(req.MetricsMode),
+				DisabledCollectors: req.DisableCollectors,
+			},
+			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		})
 		if err != nil {
 			return err
@@ -115,7 +95,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 
 			// In case of not available PGSM extension it is switch to PGSS.
 			if req.QanPostgresqlPgstatmonitorAgent && row.PostgreSQLOptions.PGSMVersion != nil && *row.PostgreSQLOptions.PGSMVersion == "" {
-				res.Warning = "Could not to detect the pg_stat_monitor extension on your system. Falling back to the pg_stat_statements."
+				postgres.Warning = "Could not to detect the pg_stat_monitor extension on your system. Falling back to the pg_stat_statements."
 				req.QanPostgresqlPgstatementsAgent = true
 				req.QanPostgresqlPgstatmonitorAgent = false
 			}
@@ -125,21 +105,23 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		if err != nil {
 			return err
 		}
-		res.PostgresExporter = agent.(*inventorypb.PostgresExporter) //nolint:forcetypeassert
+		postgres.PostgresExporter = agent.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
 
 		if req.QanPostgresqlPgstatementsAgent {
 			row, err = models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
-				PMMAgentID:              req.PmmAgentId,
-				ServiceID:               service.ServiceID,
-				Username:                req.Username,
-				Password:                req.Password,
-				MaxQueryLength:          req.MaxQueryLength,
-				QueryExamplesDisabled:   req.DisableQueryExamples,
-				CommentsParsingDisabled: req.DisableCommentsParsing,
-				TLS:                     req.Tls,
-				TLSSkipVerify:           req.TlsSkipVerify,
-				PostgreSQLOptions:       options,
-				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+				PMMAgentID: req.PmmAgentId,
+				ServiceID:  service.ServiceID,
+				Username:   req.Username,
+				Password:   req.Password,
+				QANOptions: models.QANOptions{
+					MaxQueryLength:          req.MaxQueryLength,
+					QueryExamplesDisabled:   req.DisableQueryExamples,
+					CommentsParsingDisabled: req.DisableCommentsParsing,
+				},
+				TLS:               req.Tls,
+				TLSSkipVerify:     req.TlsSkipVerify,
+				PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
+				LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err
@@ -149,22 +131,24 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			if err != nil {
 				return err
 			}
-			res.QanPostgresqlPgstatementsAgent = agent.(*inventorypb.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
+			postgres.QanPostgresqlPgstatementsAgent = agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
 		}
 
 		if req.QanPostgresqlPgstatmonitorAgent {
 			row, err = models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatMonitorAgentType, &models.CreateAgentParams{
-				PMMAgentID:              req.PmmAgentId,
-				ServiceID:               service.ServiceID,
-				Username:                req.Username,
-				Password:                req.Password,
-				MaxQueryLength:          req.MaxQueryLength,
-				QueryExamplesDisabled:   req.DisableQueryExamples,
-				CommentsParsingDisabled: req.DisableCommentsParsing,
-				TLS:                     req.Tls,
-				TLSSkipVerify:           req.TlsSkipVerify,
-				PostgreSQLOptions:       options,
-				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+				PMMAgentID:    req.PmmAgentId,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
+				QANOptions: models.QANOptions{
+					MaxQueryLength:          req.MaxQueryLength,
+					QueryExamplesDisabled:   req.DisableQueryExamples,
+					CommentsParsingDisabled: req.DisableCommentsParsing,
+				},
+				PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
+				LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err
@@ -174,14 +158,23 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			if err != nil {
 				return err
 			}
-			res.QanPostgresqlPgstatmonitorAgent = agent.(*inventorypb.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
+			postgres.QanPostgresqlPgstatmonitorAgent = agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
 		}
 
 		return nil
-	}); e != nil {
-		return nil, e
+	})
+
+	if errTx != nil {
+		return nil, errTx
 	}
 
 	s.state.RequestStateUpdate(ctx, req.PmmAgentId)
+
+	res := &managementv1.AddServiceResponse{
+		Service: &managementv1.AddServiceResponse_Postgresql{
+			Postgresql: postgres,
+		},
+	}
+
 	return res, nil
 }

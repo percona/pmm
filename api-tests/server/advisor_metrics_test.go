@@ -30,9 +30,9 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 )
 
-func TestSTTMetrics(t *testing.T) {
-	if !pmmapitests.RunSTTTests {
-		t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
+func TestAdvisorMetrics(t *testing.T) {
+	if !pmmapitests.RunAdvisorTests {
+		t.Skip("Skipping Advisor tests until we have environment: https://jira.percona.com/browse/PMM-5106")
 	}
 
 	t.Run("StartAdvisorChecksAndRecordMetrics", func(t *testing.T) {

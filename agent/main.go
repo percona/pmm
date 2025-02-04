@@ -15,7 +15,7 @@
 package main
 
 import (
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/alecthomas/kingpin/v2"
 
 	"github.com/percona/pmm/agent/commands"
 	"github.com/percona/pmm/agent/config"
