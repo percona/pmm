@@ -365,8 +365,8 @@ The PMM Server orchestrates the collection, storage, and visualization of metric
         ```sh
         docker run -d \
         --name ${PMM_ACTIVE_NODE_ID} \
-        -p 80:80 \
-        -p 443:443 \
+        -p 80:8080 \
+        -p 443:8443 \
         -p 9094:9094 \
         -p 9096:9096 \
         -p 9094:9094/udp \
@@ -435,8 +435,8 @@ The PMM Server orchestrates the collection, storage, and visualization of metric
         ```sh
         docker run -d \
         --name ${PMM_PASSIVE_NODE_ID} \
-        -p 80:80 \
-        -p 443:443 \
+        -p 80:8080 \
+        -p 443:8443 \
         -p 9094:9094 \
         -p 9096:9096 \
         -p 9094:9094/udp \
@@ -505,8 +505,8 @@ The PMM Server orchestrates the collection, storage, and visualization of metric
         ```sh
         docker run -d \
         --name ${PMM_PASSIVE2_NODE_ID} \
-        -p 80:80 \
-        -p 443:443 \
+        -p 80:8080 \
+        -p 443:8443 \
         -p 9094:9094 \
         -p 9096:9096 \
         -p 9094:9094/udp \

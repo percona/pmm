@@ -13,7 +13,6 @@ The **PMM Configuration** page gives you access to PMM setup's settings and inve
 * [Public address](public-address.md)
     * [Alerting](public-address.md#alerting)
     * [Microsoft Azure Monitoring](public-address.md#microsoft-azure-monitoring)
-    * [Public Address {: #public-address-1 }](public-address.md#public-address--public-address-1-)
 * [SSH Key](ssh.md)
 * [Alertmanager integration](alertmanager.md)
 * [Percona Platform](percona_platform.md)

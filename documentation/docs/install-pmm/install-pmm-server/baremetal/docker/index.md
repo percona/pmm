@@ -74,4 +74,4 @@ You can install PMM Server with Watchtower in two ways:
 
     - Eliminate browser certificate warnings by configuring a [trusted certificate](../../../../how-to/secure.html#ssl-encryption).
 
-    - You can optionally enable an (insecure) HTTP connection by adding `--publish 80:80` to the `docker run` command. However, running PMM insecure is not recommended. You should also note that PMM Client *requires* TLS to communicate with the server, only working on a secure port.
+    - You can optionally enable an (insecure) HTTP connection by adding `--publish 80:8080` to the `docker run` command. However, running PMM insecure is not recommended. You should also note that PMM Client *requires* TLS to communicate with the server, only working on a secure port.
