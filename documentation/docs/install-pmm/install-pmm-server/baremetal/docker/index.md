@@ -40,29 +40,29 @@ You can install PMM Server with Watchtower in two ways:
          docker network create pmm-network
          ```
 
-    2. (Optional) Install Watchtower to enable PMM Server upgrades via the UI:
+    2. (Optional) Install Watchtower to enable PMM Server upgrades via the UI.
         {.power-number}
 
         1. Create a user-defined token to secure Watchtower's HTTP API. You can use any value or generate a secure token using `openssl` or another method. Ensure the same token is used in both the Watchtower and PMM Server configurations:
 
-        ```sh   
-        openssl rand -hex 16
-        # Example output:
-        e09541c81e672bf0e48dbc72d4f92790
-        ```
+            ```sh   
+            openssl rand -hex 16
+            # Example output:
+            e09541c81e672bf0e48dbc72d4f92790
+            ```
         
         2. Install Watchtower using your token: 
 
-        ```sh  
-        docker run --detach \
-        --restart always \
-        --network=pmm-network \
-        -e WATCHTOWER_HTTP_API_TOKEN=your_token \
-        -e WATCHTOWER_HTTP_API_UPDATE=1 \
-        --volume /var/run/docker.sock:/var/run/docker.sock \
-        --name watchtower \
-        percona/watchtower:latest
-        ```
+            ```sh  
+            docker run --detach \
+            --restart always \
+            --network=pmm-network \
+            -e WATCHTOWER_HTTP_API_TOKEN=your_token \
+            -e WATCHTOWER_HTTP_API_UPDATE=1 \
+            --volume /var/run/docker.sock:/var/run/docker.sock \
+            --name watchtower \
+            percona/watchtower:latest
+            ```
 
     3. Run PMM Server with Docker based on your preferred data storage method:
          - [Run Docker with host directory](../docker/run_with_host_dir.md)
