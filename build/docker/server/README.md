@@ -43,4 +43,4 @@ You can use these environment variables (-e VAR) when running the Docker image.
 
 [Percona Monitoring and Management](https://docs.percona.com/percona-monitoring-and-management)
 
-[Setting up PMM Server with Docker](https://docs.percona.com/percona-monitoring-and-management/setting-up/server/docker.html)
+[Setting up PMM Server with Docker](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/index.html)
