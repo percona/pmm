@@ -5,4 +5,8 @@
       left: 0.6rem;
     }
   }
-  
+
+.md-sidebar__inner {
+    font-size: 0.65rem;   /* Font size */
+    line-height: 1.6;
+}
