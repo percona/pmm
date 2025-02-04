@@ -230,7 +230,7 @@ install_docker() {
     printf " - not installed. Installing...\n\n"
     curl -fsSL get.docker.com -o /tmp/get-docker.sh ||
       wget -qO /tmp/get-docker.sh get.docker.com
-    sh /tmp/get-docker.sh
+    sh /tmp/get-docker.sh || die "${RED}ERROR: cannot install Docker, please install Docker manually and try to run this script again${NOFORMAT}"
     run_root 'service docker start' || :
   else
     printf " - installed.\n\n"
