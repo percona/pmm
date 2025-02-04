@@ -38,7 +38,18 @@ You can install PMM Server with Watchtower in two ways:
          docker network create pmm-network
          ```
 
-    2. (Optional) Install Watchtower to enable PMM Server upgrades via the UI. The `WATCHTOWER_HTTP_API_TOKEN` in the installation command is a user-defined token that secures Watchtower's HTTP API. You can set this to any value, but make sure to use the same token in both the Watchtower and PMM Server configurations:
+    2. (Optional) Install Watchtower to enable PMM Server upgrades via the UI:
+       {.power-number}
+
+       2.1. Create a user-defined token to secure Watchtower's HTTP API. You can use any value or generate a secure token using `openssl` or another method. Ensure the same token is used in both the Watchtower and PMM Server configurations:
+        
+        ```sh   
+        openssl rand -hex 16
+        # Example output:
+        e09541c81e672bf0e48dbc72d4f92790
+        ```
+       
+       2.2. Install Watchtower using your token: 
 
          ```sh  
          docker run --detach \
