@@ -10,7 +10,7 @@ require (
 	github.com/apache/skywalking-eyes v0.6.0
 	github.com/bufbuild/buf v1.49.0
 	github.com/daixiang0/gci v0.13.0
-	github.com/envoyproxy/protoc-gen-validate v1.1.0
+	github.com/envoyproxy/protoc-gen-validate v1.2.1
 	github.com/go-delve/delve v1.24.0
 	github.com/go-openapi/runtime v0.28.0
 	github.com/go-openapi/spec v0.21.0
@@ -24,7 +24,7 @@ require (
 	golang.org/x/perf v0.0.0-20230717203022-1ba3a21238c9
 	golang.org/x/tools v0.29.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
-	google.golang.org/protobuf v1.36.1
+	google.golang.org/protobuf v1.36.3
 	gopkg.in/reform.v1 v1.5.1
 	mvdan.cc/gofumpt v0.7.0
 )
