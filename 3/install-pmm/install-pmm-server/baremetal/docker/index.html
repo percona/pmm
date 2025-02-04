@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="This section explains how to install PMM Server as a Docker container. To enable PMM Server upgrades via the Upgrade page and the Upgrade Now button on the Home dashboard, you must configure Watchtower during the PMM Server installation.">
+        <meta name="description" content="This section explains how to install PMM Server as a Docker container. While PMM Server runs independently, we highly recommend installing Watchtower alongside it to enable convenient PMM Server upgrades through the PMM user interface.">
       
       
         <meta name="author" content="Percona LLC">
@@ -8131,18 +8131,22 @@
 
 
 <h1 id="install-pmm-server-with-docker-container">Install PMM Server with Docker container<a class="headerlink" href="#install-pmm-server-with-docker-container" title="Permanent link">&para;</a></h1>
-<p>This section explains how to install PMM Server as a Docker container. To enable PMM Server upgrades via the <strong>Upgrade page</strong> and the <strong>Upgrade Now</strong> button on the <strong>Home</strong> dashboard, you must configure Watchtower during the PMM Server installation.</p>
-<p>Watchtower is a container-updating tool that enables <a href="../../../../pmm-upgrade/ui_upgrade.html">PMM Server upgrades</a> through the UI. Without it, the <strong>Upgrade</strong> page and <strong>Upgrade Now</strong> button will not be available.</p>
+<p>This section explains how to install PMM Server as a Docker container. While PMM Server runs independently, we highly recommend installing <a href="https://containrrr.dev/watchtower/">Watchtower</a> alongside it to enable convenient <a href="../../../../pmm-upgrade/ui_upgrade.html">PMM Server upgrades</a> through the PMM user interface. </p>
+<p>With Watchtower, you can upgrade PMM Server directly from the <strong>Upgrade</strong> page or by clicking the <strong>Upgrade Now</strong> button on the <strong>Home</strong> dashboard.</p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <p>Before starting the installation:</p>
 <ul>
 <li>Install Docker version 17.03 or higher</li>
 <li>Ensure your CPU supports <code>x86-64-v2</code></li>
-<li>For manual installation, consider these Watchtower security requirements:</li>
-<li>Restrict Watchtower access to Docker network or localhost</li>
-<li>Configure network to expose only PMM Server externally</li>
-<li>Secure Docker socket access for Watchtower</li>
-<li>Place both Watchtower and PMM Server on the same network</li>
+<li>
+<p>Security requirements for Watchtower:</p>
+<ul>
+<li>restrict Watchtower access to Docker network or localhost</li>
+<li>configure network to expose only PMM Server externally</li>
+<li>secure Docker socket access for Watchtower</li>
+<li>place both Watchtower and PMM Server on the same network</li>
+</ul>
+</li>
 </ul>
 <h2 id="installation-options">Installation options<a class="headerlink" href="#installation-options" title="Permanent link">&para;</a></h2>
 <p>You can install PMM Server with Watchtower in two ways:</p>
@@ -8162,16 +8166,28 @@
 </code></pre></div></p>
 </li>
 <li>
-<p>Install Watchtower using the command below. The <code>your_token</code> value must match the <code>WATCHTOWER_HTTP_API_TOKEN</code> value used in your PMM Server container configuration:</p>
+<p class="power-number">(Optional) Install Watchtower to enable PMM Server upgrades via the UI.</p>
+<ol>
+<li>
+<p>Create a user-defined token to secure Watchtower&rsquo;s HTTP API. You can use any value or generate a secure token using <code>openssl</code> or another method. Ensure the same token is used in both the Watchtower and PMM Server configurations:</p>
+<div class="highlight"><pre><span></span><code>openssl<span class="w"> </span>rand<span class="w"> </span>-hex<span class="w"> </span><span class="m">16</span>
+<span class="c1"># Example output:</span>
+e09541c81e672bf0e48dbc72d4f92790
+</code></pre></div>
+</li>
+<li>
+<p>Install Watchtower using your token: </p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--detach<span class="w"> </span><span class="se">\</span>
 --restart<span class="w"> </span>always<span class="w"> </span><span class="se">\</span>
---network<span class="o">=</span>&lt;your_network&gt;<span class="w"> </span><span class="se">\</span>
+--network<span class="o">=</span>pmm-network<span class="w"> </span><span class="se">\</span>
 -e<span class="w"> </span><span class="nv">WATCHTOWER_HTTP_API_TOKEN</span><span class="o">=</span>your_token<span class="w"> </span><span class="se">\</span>
 -e<span class="w"> </span><span class="nv">WATCHTOWER_HTTP_API_UPDATE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
 --volume<span class="w"> </span>/var/run/docker.sock:/var/run/docker.sock<span class="w"> </span><span class="se">\</span>
 --name<span class="w"> </span>watchtower<span class="w"> </span><span class="se">\</span>
 percona/watchtower:latest
 </code></pre></div>
+</li>
+</ol>
 </li>
 <li>
 <p>Run PMM Server with Docker based on your preferred data storage method:</p>
@@ -8201,7 +8217,7 @@ percona/watchtower:latest
 <summary>Key points</summary>
 <ul>
 <li>
-<p>To disable the Home Dashboard <strong>PMM Upgrade</strong> panel you can either add <code>-e PMM_ENABLE_UPDATES=false</code> to the <code>docker run</code> command (for the life of the container) or navigate to <em>PMM &rarr; PMM Settings &rarr; Advanced Settings</em> and disable &ldquo;Check for Updates&rdquo; (can be turned back on by any admin in the UI).</p>
+<p>To disable the Home Dashboard <strong>PMM Upgrade</strong> panel you can either add <code>-e PMM_ENABLE_UPDATES=false</code> to the <code>docker run</code> command (for the life of the container) or navigate to <strong>PMM Configuration &gt; Settings &gt; Advanced Settings</strong> and disable <strong>Check for Updates</strong> (can be turned back on by any admin in the UI).</p>
 </li>
 <li>
 <p>Eliminate browser certificate warnings by configuring a <a href="../../../../how-to/secure.html#ssl-encryption">trusted certificate</a>.</p>
