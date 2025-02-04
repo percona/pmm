@@ -1,6 +1,8 @@
 # Install PMM Server with Docker container
 
-This section explains how to install PMM Server as a Docker container. While PMM Server runs independently, we highly recommend installing [Watchtower](https://containrrr.dev/watchtower/) alongside it to enable convenient [PMM Server upgrades](../../../../pmm-upgrade/ui_upgrade.md) through the PMM user interface. With Watchtower, you can upgrade PMM Server directly from the **Upgrade** page or by clicking the **Upgrade Now** button on the **Home** dashboard.
+This section explains how to install PMM Server as a Docker container. While PMM Server runs independently, we highly recommend installing [Watchtower](https://containrrr.dev/watchtower/) alongside it to enable convenient [PMM Server upgrades](../../../../pmm-upgrade/ui_upgrade.md) through the PMM user interface. 
+
+With Watchtower, you can upgrade PMM Server directly from the **Upgrade** page or by clicking the **Upgrade Now** button on the **Home** dashboard.
 
 ## Prerequisites
 
@@ -41,7 +43,7 @@ You can install PMM Server with Watchtower in two ways:
     2. (Optional) Install Watchtower to enable PMM Server upgrades via the UI:
         {.power-number}
 
-        2.1. Create a user-defined token to secure Watchtower's HTTP API. You can use any value or generate a secure token using `openssl` or another method. Ensure the same token is used in both the Watchtower and PMM Server configurations:
+        1. Create a user-defined token to secure Watchtower's HTTP API. You can use any value or generate a secure token using `openssl` or another method. Ensure the same token is used in both the Watchtower and PMM Server configurations:
 
         ```sh   
         openssl rand -hex 16
@@ -49,8 +51,8 @@ You can install PMM Server with Watchtower in two ways:
         e09541c81e672bf0e48dbc72d4f92790
         ```
         
-        2.2. Install Watchtower using your token: 
-        
+        2. Install Watchtower using your token: 
+
         ```sh  
         docker run --detach \
         --restart always \
