@@ -90,6 +90,7 @@
 
   /* Defaults */
   --md-default-bg-color: var(--white);
+  --md-default-fg-color: var(--stone900);
   --md-default-fg-color--light: rgba(44, 50, 62, 0.72);
   --md-default-fg-color--lighter: rgba(44, 50, 62, 0.40);
   --md-default-fg-color--lightest: rgba(44, 50, 62, 0.25);
@@ -124,6 +125,7 @@
 
   /* Defaults */
   --md-default-bg-color: var(--stone900);
+  --md-default-fg-color: var(--white);
   --md-default-fg-color--light: rgba(251, 251, 251, 0.72);
   --md-default-fg-color--lighter: rgba(251, 251, 251, 0.4);
   --md-default-fg-color--lightest: rgba(209, 213, 222, 0.25);
@@ -171,7 +173,7 @@
   margin: 0 0 0.75em;
 }
 
-.md-header {
+.md-header :not(.md-search__suggest) {
   font-family: var(--fHeading);
   font-weight: bold;
 }
