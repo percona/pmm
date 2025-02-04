@@ -109,7 +109,7 @@ type CollectRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CollectRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -663,7 +663,7 @@ type MetricsBucketMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricsBucketMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -763,7 +763,7 @@ type CollectResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CollectResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

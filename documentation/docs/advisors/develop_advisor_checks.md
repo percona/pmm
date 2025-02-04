@@ -227,7 +227,7 @@ To develop custom checks for PMM:
     - `PERCONA_TEST_CHECKS_RESEND_INTERVAL=2s` to define the frequency for sending the SA-based alerts to Alertmanager.
 
     ```sh
-    docker run -p 80:80 -p 443:443 --name pmm-server \
+    docker run -p 443:8443 --name pmm-server \
     -e PERCONA_TEST_CHECKS_FILE=/srv/custom-checks.yml \
     -e PERCONA_TEST_CHECKS_DISABLE_START_DELAY=true \
     -e PERCONA_TEST_CHECKS_RESEND_INTERVAL=2s \

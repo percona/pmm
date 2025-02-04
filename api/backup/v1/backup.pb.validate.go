@@ -132,7 +132,7 @@ type StartBackupRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartBackupRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -236,7 +236,7 @@ type StartBackupResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartBackupResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -351,7 +351,7 @@ type ListArtifactCompatibleServicesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListArtifactCompatibleServicesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -525,7 +525,7 @@ type ListArtifactCompatibleServicesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListArtifactCompatibleServicesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -774,7 +774,7 @@ type ScheduledBackupMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ScheduledBackupMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -981,7 +981,7 @@ type ScheduleBackupRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ScheduleBackupRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1085,7 +1085,7 @@ type ScheduleBackupResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ScheduleBackupResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1187,7 +1187,7 @@ type ListScheduledBackupsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListScheduledBackupsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1324,7 +1324,7 @@ type ListScheduledBackupsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListScheduledBackupsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1520,7 +1520,7 @@ type ChangeScheduledBackupRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeScheduledBackupRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1623,7 +1623,7 @@ type ChangeScheduledBackupResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeScheduledBackupResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1737,7 +1737,7 @@ type RemoveScheduledBackupRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveScheduledBackupRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1840,7 +1840,7 @@ type RemoveScheduledBackupResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveScheduledBackupResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1958,7 +1958,7 @@ type GetLogsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetLogsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2094,7 +2094,7 @@ type GetLogsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetLogsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

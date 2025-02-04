@@ -44,7 +44,7 @@ To use SMTP with a PMM Docker installation:
 
 2. Pass in the `.env` file to Docker run using the `--env-file` flag:
     ```
-    docker run --env-file=.env -p 443:443 -p 80:80 percona/pmm-server:3
+    docker run --env-file=.env -p 443:8443 percona/pmm-server:3
     ```
     This command starts a docker container and will keep running as long as the container is also running. Stopping the command (e.g with Ctrl+C) will stop the container hence, subsequent commands should be run in a new terminal.
 
