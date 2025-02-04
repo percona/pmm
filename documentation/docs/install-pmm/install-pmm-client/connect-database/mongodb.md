@@ -88,7 +88,7 @@ Create or update a user with the minimum required privileges for monitoring by a
     "roles": [
         { "db": "admin", "role": "explainRole" },
         { "db": "local", "role": "read" },
-        { "db": "admin". "role": "clusterMonitor" }
+        { "db": "admin", "role": "clusterMonitor" }
     ]
 })
 ```
