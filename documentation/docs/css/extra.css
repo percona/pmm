@@ -4,6 +4,16 @@
     top: 0.6rem;
     left: 0.6rem;
   }
+  /* Modify rendering of numbered lists in PDF */
+  .power-number+ol>li::before,
+  .power-number+ol ol>li::before {
+    background-color: var(--md-default-bg-color);
+    color: var(--md-typeset-color);
+    border-radius: 0;
+    width: 1.5em;
+    margin-left: -1.7em;
+    opacity: 1;
+  }
 } 
 
 .md-sidebar__inner {
@@ -16,16 +26,7 @@
     display: none !important;
   }
 
-  /* Modify rendering of numbered lists in PDF */
-  .power-number+ol>li::before,
-  .power-number+ol ol>li::before {
-    background-color: var(--md-default-bg-color);
-    color: var(--md-typeset-color);
-    border-radius: 0;
-    width: 1.5em;
-    margin-left: -1.7em;
-    opacity: 1;
-  }
+
 
   .tabbed-content {
     display: contents;
