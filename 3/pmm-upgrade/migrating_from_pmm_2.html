@@ -2681,6 +2681,93 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#variables-for-migrating-from-pmm-v2-to-pmm-v3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Variables for migrating from PMM v2 to PMM v3
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#migration-reference-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration reference table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration variables
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metrics-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metrics configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      ClickHouse configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgresql-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      PostgreSQL configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#telemetry-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      Telemetry &amp; development
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removed-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Removed variables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -8176,6 +8263,93 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#variables-for-migrating-from-pmm-v2-to-pmm-v3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Variables for migrating from PMM v2 to PMM v3
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#migration-reference-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Migration reference table
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration variables
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metrics-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metrics configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clickhouse-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      ClickHouse configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgresql-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      PostgreSQL configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#telemetry-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      Telemetry &amp; development
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removed-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Removed variables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -8519,6 +8693,288 @@ Be sure to replace <code>admin:admin</code> with your credentials and update the
 <li>Confirm all previously monitored services are reporting correctly to the new PMM 3 Server by reviewing <strong>Configuration &gt; PMM Inventory &gt; Services</strong>.</li>
 <li>Check the dashboards to make sure you&rsquo;re receiving the metrics and QAN data.</li>
 </ol>
+<h3 id="variables-for-migrating-from-pmm-v2-to-pmm-v3">Variables for migrating from PMM v2 to PMM v3<a class="headerlink" href="#variables-for-migrating-from-pmm-v2-to-pmm-v3" title="Permanent link">&para;</a></h3>
+<p>When migrating from PMM v2 to PMM v3, you&rsquo;ll need to update your environment variables to match the new naming convention. This is because PMM v3 introduces several important changes to improve consistency and clarity:</p>
+<ul>
+<li>environment variables now use <code>PMM_</code> prefix</li>
+<li>some boolean flags reversed (e.g., <code>DISABLE_</code> → <code>ENABLE_</code>)</li>
+<li>removed deprecated variables</li>
+</ul>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># PMM v2</span>
+-e<span class="w"> </span><span class="nv">DISABLE_UPDATES</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">DATA_RETENTION</span><span class="o">=</span>720h
+
+<span class="c1"># PMM v3 equivalent</span>
+-e<span class="w"> </span><span class="nv">PMM_ENABLE_UPDATES</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_DATA_RETENTION</span><span class="o">=</span>720h
+</code></pre></div>
+<h4 id="migration-reference-table">Migration reference table<a class="headerlink" href="#migration-reference-table" title="Permanent link">&para;</a></h4>
+<p>The following table lists all the environment variable changes between PMM v2 and PMM v3. Make sure to review this table when updating your deployment configurations.</p>
+<details class="note">
+<summary>Click to expand migration reference table</summary>
+<h4 id="configuration-variables">Configuration variables<a class="headerlink" href="#configuration-variables" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>PMM 2</th>
+<th>PMM 3</th>
+<th>Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DATA_RETENTION</code></td>
+<td><code>PMM_DATA_RETENTION</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DISABLE_ALERTING</code></td>
+<td><code>PMM_ENABLE_ALERTING</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DISABLE_UPDATES</code></td>
+<td><code>PMM_ENABLE_UPDATES</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DISABLE_TELEMETRY</code></td>
+<td><code>PMM_ENABLE_TELEMETRY</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DISABLE_BACKUP_MANAGEMENT</code></td>
+<td><code>PMM_ENABLE_BACKUP_MANAGEMENT</code></td>
+<td>Note the reverted boolean</td>
+</tr>
+<tr>
+<td><code>ENABLE_AZUREDISCOVER</code></td>
+<td><code>PMM_ENABLE_AZURE_DISCOVER</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>ENABLE_RBAC</code></td>
+<td><code>PMM_ENABLE_ACCESS_CONTROL</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>LESS_LOG_NOISE</code></td>
+<td></td>
+<td>Removed in PMM v3</td>
+</tr>
+</tbody>
+</table>
+<h4 id="metrics-configuration">Metrics configuration<a class="headerlink" href="#metrics-configuration" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>PMM 2</th>
+<th>PMM 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>METRICS_RESOLUTION</code></td>
+<td><code>PMM_METRICS_RESOLUTION</code></td>
+</tr>
+<tr>
+<td><code>METRICS_RESOLUTION_HR</code></td>
+<td><code>PMM_METRICS_RESOLUTION_HR</code></td>
+</tr>
+<tr>
+<td><code>METRICS_RESOLUTION_LR</code></td>
+<td><code>PMM_METRICS_RESOLUTION_LR</code></td>
+</tr>
+<tr>
+<td><code>METRICS_RESOLUTION_MR</code></td>
+<td><code>PMM_METRICS_RESOLUTION_MR</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="clickhouse-configuration">ClickHouse configuration<a class="headerlink" href="#clickhouse-configuration" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>PMM 2</th>
+<th>PMM 3</th>
+<th>Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PERCONA_TEST_PMM_CLICKHOUSE_ADDR</code></td>
+<td><code>PMM_CLICKHOUSE_ADDR</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_PMM_CLICKHOUSE_DATABASE</code></td>
+<td><code>PMM_CLICKHOUSE_DATABASE</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE</code></td>
+<td><code>PMM_CLICKHOUSE_DATASOURCE</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_PMM_CLICKHOUSE_HOST</code></td>
+<td><code>PMM_CLICKHOUSE_HOST</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_PMM_CLICKHOUSE_PORT</code></td>
+<td><code>PMM_CLICKHOUSE_PORT</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE</code></td>
+<td><code>PMM_DISABLE_BUILTIN_CLICKHOUSE</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE</code></td>
+<td></td>
+<td>Removed in PMM v3, new version</td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE</code></td>
+<td></td>
+<td>Removed in PMM v3, new version</td>
+</tr>
+</tbody>
+</table>
+<h4 id="postgresql-configuration">PostgreSQL configuration<a class="headerlink" href="#postgresql-configuration" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>PMM 2</th>
+<th>PMM 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PERCONA_TEST_POSTGRES_ADDR</code></td>
+<td><code>PMM_POSTGRES_ADDR</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_POSTGRES_DBNAME</code></td>
+<td><code>PMM_POSTGRES_DBNAME</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_POSTGRES_USERNAME</code></td>
+<td><code>PMM_POSTGRES_USERNAME</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_POSTGRES_DBPASSWORD</code></td>
+<td><code>PMM_POSTGRES_DBPASSWORD</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_POSTGRES_SSL_CA_PATH</code></td>
+<td><code>PMM_POSTGRES_SSL_CA_PATH</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_POSTGRES_SSL_CERT_PATH</code></td>
+<td><code>PMM_POSTGRES_SSL_CERT_PATH</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_POSTGRES_SSL_KEY_PATH</code></td>
+<td><code>PMM_POSTGRES_SSL_KEY_PATH</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_POSTGRES_SSL_MODE</code></td>
+<td><code>PMM_POSTGRES_SSL_MODE</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES</code></td>
+<td><code>PMM_DISABLE_BUILTIN_POSTGRES</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="telemetry-development">Telemetry &amp; development<a class="headerlink" href="#telemetry-development" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>PMM 2</th>
+<th>PMM 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PMM_TEST_TELEMETRY_DISABLE_SEND</code></td>
+<td><code>PMM_DEV_TELEMETRY_DISABLE_SEND</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY</code></td>
+<td><code>PMM_DEV_TELEMETRY_DISABLE_START_DELAY</code></td>
+</tr>
+<tr>
+<td><code>PMM_TEST_TELEMETRY_FILE</code></td>
+<td><code>PMM_DEV_TELEMETRY_FILE</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_TELEMETRY_HOST</code></td>
+<td><code>PMM_DEV_TELEMETRY_HOST</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_TELEMETRY_INTERVAL</code></td>
+<td><code>PMM_DEV_TELEMETRY_INTERVAL</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_TELEMETRY_RETRY_BACKOFF</code></td>
+<td><code>PMM_DEV_TELEMETRY_RETRY_BACKOFF</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_VERSION_SERVICE_URL</code></td>
+<td><code>PMM_DEV_VERSION_SERVICE_URL</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_STARLARK_ALLOW_RECURSION</code></td>
+<td><code>PMM_DEV_ADVISOR_STARLARK_ALLOW_RECURSION</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="removed-variables">Removed variables<a class="headerlink" href="#removed-variables" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>PMM 2</th>
+<th>PMM 3</th>
+<th>Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PERCONA_TEST_AUTH_HOST</code></td>
+<td></td>
+<td>Removed, use <code>PMM_DEV_PERCONA_PLATFORM_ADDRESS</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_CHECKS_HOST</code></td>
+<td></td>
+<td>Removed, use <code>PMM_DEV_PERCONA_PLATFORM_ADDRESS</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_CHECKS_INTERVAL</code></td>
+<td></td>
+<td>Removed, not used</td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_CHECKS_PUBLIC_KEY</code></td>
+<td></td>
+<td>Removed, use <code>PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY</code></td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_NICER_API</code></td>
+<td></td>
+<td>Removed in PMM v3</td>
+</tr>
+<tr>
+<td><code>PERCONA_TEST_SAAS_HOST</code></td>
+<td></td>
+<td>Removed, use <code>PMM_DEV_PERCONA_PLATFORM_ADDRESS</code></td>
+</tr>
+</tbody>
+</table>
+</details>
 
 
 
@@ -8539,7 +8995,7 @@ Be sure to replace <code>admin:admin</code> with your credentials and update the
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-01-30
+    2025-02-05
   </span>
 
     
