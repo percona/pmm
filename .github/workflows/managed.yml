@@ -83,9 +83,9 @@ jobs:
         run: docker exec -i pmm-server make -C managed test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@5c47607acb93fed5485fdbf7232e8a31425f672a # v5.0.2
+        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
-          file: managed/cover.out
+          files: managed/cover.out
           flags: managed
           env_vars: PMM_SERVER_IMAGE
           fail_ci_if_error: false

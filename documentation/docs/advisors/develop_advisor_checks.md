@@ -199,7 +199,7 @@ Expand the table below for the list of checks types that you can use to define y
     | MONGODB_GETDIAGNOSTICDATA |Executes db.adminCommand( { getDiagnosticData: 1 } ) against MongoDB's "admin" database. For more information, see [MongoDB Performance](https://docs.mongodb.com/manual/administration/analyzing-mongodb-performance/#full-time-diagnostic-data-capture)| No|
     | METRICS_INSTANT |Executes instant [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about instant queries, check out the [Prometheus docs](https://prometheus.io/docs/prometheus/latest/querying/api/#instant-queries).|Yes|
     | METRICS_RANGE |Executes range [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about range queries, check out the [Prometheus docs](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries).|Yes|
-    | CLICKHOUSE_SELECT |Executes 'SELECT ...' statements against PMM's [Query Analytics](https://docs.percona.com/percona-monitoring-and-management/get-started/query-analytics.html) Clickhouse database. Queries can use the {% raw %} **{{.ServiceName**}} and **{{.ServiceID}}**  {% endraw %} placeholders in query string. They match the target service name and service ID respectively.|Yes|
+    | CLICKHOUSE_SELECT |Executes 'SELECT ...' statements against PMM's [Query Analytics](../use/qan/index.html) Clickhouse database. Queries can use the {% raw %} **{{.ServiceName**}} and **{{.ServiceID}}**  {% endraw %} placeholders in query string. They match the target service name and service ID respectively.|Yes|
 
 ## Query parameters
 - `METRICS_INSTANT`
@@ -227,7 +227,7 @@ To develop custom checks for PMM:
     - `PERCONA_TEST_CHECKS_RESEND_INTERVAL=2s` to define the frequency for sending the SA-based alerts to Alertmanager.
 
     ```sh
-    docker run -p 80:80 -p 443:443 --name pmm-server \
+    docker run -p 443:8443 --name pmm-server \
     -e PERCONA_TEST_CHECKS_FILE=/srv/custom-checks.yml \
     -e PERCONA_TEST_CHECKS_DISABLE_START_DELAY=true \
     -e PERCONA_TEST_CHECKS_RESEND_INTERVAL=2s \

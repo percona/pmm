@@ -21,14 +21,14 @@ For example, to install the latest version of the PMM Client on Red Hat or its d
 === "Debian-based"
 
     ```sh
-    percona-release enable pmm-client
+    percona-release enable pmm3-client
     apt update
     apt install pmm-client
     ```
 === "Red Hat-based"
 
     ```sh
-    percona-release enable pmm-client
+    percona-release enable pmm3-client
     yum update pmm-client
     ```
 

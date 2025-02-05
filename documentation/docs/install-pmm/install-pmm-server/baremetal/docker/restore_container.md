@@ -1,71 +1,84 @@
-# Restore container
+# Restore Docker container
+You can restore PMM Server either from a manual backup or from an automated backup volume that was created during migration to PMM v3.
 
-??? info "Summary"
+Before proceeding with restoration, ensure you have either a [manual backup](backup_container.md) or an [automated backup volume](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3) to restore from.
 
-    !!! summary alert alert-info ""
-        - Stop and remove the container.
-        - Restore (rename) the backup container.
-        - Restore saved data to the data container.
-        - Restore permissions to the data.
+=== "Restore from manual backup"
+    To restore the container from a manual backup:
+    {.power-number}
 
-    ---
+    1. Stop the container:
 
-!!! caution alert alert-warning "Important"
-    You must have a [backup](backup_container.md) to restore from.
+        ```sh
+        docker stop pmm-server
+        ```
 
-To restore the container:
-{.power-number}
+    2. Remove the container:
 
-1. Stop the container.
+        ```sh
+        docker rm pmm-server
+        ```
 
-    ```sh
-    docker stop pmm-server
-    ```
+    3. Revert to the saved image:
 
-2. Remove it.
+        ```sh
+        docker rename pmm-server-backup pmm-server
+        ```
 
-    ```sh
-    docker rm pmm-server
-    ```
+    4. Change directory to the backup directory (e.g. `pmm-data-backup`):
 
-3. Revert to the saved image.
+        ```shc
+        cd pmm-data-backup
+        ```
 
-    ```sh
-    docker rename pmm-server-backup pmm-server
-    ```
+    5. Copy the data:
 
-4. Change directory to the backup directory (e.g. `pmm-data-backup`).
+        ```sh
+        docker run --rm -v $(pwd)/srv:/backup -v pmm-data:/srv -t percona/pmm-server:3 cp -r /backup/* /srv
+        ```
 
-5. Remove Victoria Metrics data folder.
+    6. Restore permissions:
 
-    ```sh
-    docker run --rm --volumes-from pmm-data -it perconalab/pmm-server:3.0.0-beta rm -r /srv/victoriametrics/data
-    ```
+        ```sh
+        docker run --rm -v pmm-data:/srv -t percona/pmm-server:3 chown -R pmm:pmm /srv
+        ```
 
-6. Copy the data.
+    7. Start the image:
 
-    ```sh
-    docker cp srv pmm-data:/
-    ```
+        ```sh
+        docker start pmm-server
+        ```
 
-7. Restore permissions.
+=== "Restore from automated migration backup"
 
-    ```sh
-    docker run --rm --volumes-from pmm-data -it perconalab/pmm-server:3.0.0-beta chown -R root:root /srv && \
-    docker run --rm --volumes-from pmm-data -it perconalab/pmm-server:3.0.0-beta chown -R pmm:pmm /srv/alertmanager && \
-    docker run --rm --volumes-from pmm-data -it perconalab/pmm-server:3.0.0-beta chown -R root:pmm /srv/clickhouse && \
-    docker run --rm --volumes-from pmm-data -it perconalab/pmm-server:3.0.0-beta chown -R grafana:grafana /srv/grafana && \
-    docker run --rm --volumes-from pmm-data -it perconalab/pmm-server:3.0.0-beta chown -R pmm:pmm /srv/logs && \
-    docker run --rm --volumes-from pmm-data -it perconalab/pmm-server:3.0.0-beta chown -R postgres:postgres /srv/postgres14 && \
-    docker run --rm --volumes-from pmm-data -it perconalab/pmm-server:3.0.0-beta chown -R pmm:pmm /srv/prometheus && \
-    docker run --rm --volumes-from pmm-data -it perconalab/pmm-server:3.0.0-beta chown -R pmm:pmm /srv/victoriametrics && \
-    docker run --rm --volumes-from pmm-data -it perconalab/pmm-server:3.0.0-beta chown -R postgres:postgres /srv/logs/postgresql14.log
-    ```
+    To restore from an automated backup volume created during [migration to PMM v3](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3):
+    {.power-number}
 
-8. Start the image.
+    1. Stop the current PMM v3 container:
+        ```sh
+        docker stop pmm-server
+        ```
+    2. Remove the container (optional):
+        ```sh
+        docker rm pmm-server
+        ```
+    3. Start a PMM v2 container using your backup volume, replacing   `<backup-volume-name>` with your PMM v2 backup volume name (e.g., `pmm-data-2025-01-16-165135`):
+ 
+        ```sh
+        docker run -d \
+        -p 443:443 \
+        --volume <backup-volume-name>:/srv \
+        --name pmm-server \
+        --restart always \
+        percona/pmm-server:2.44.0
+        ```
 
-    ```sh
-    docker start pmm-server
-    ```
+    4. Verify that your PMM v2 instance is running correctly and all your data is accessible.
 
+    !!! note alert alert-primary "Finding your backup volume name"
+        - Your backup volume name was displayed during the [automated upgrade process](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3).
+        - To list all available Docker volumes, use the following command, and look for volumes with names like `pmm-data-YYYY-MM-DD-HHMMSS`:
 
+            ```sh
+            docker volume ls       
+            ```

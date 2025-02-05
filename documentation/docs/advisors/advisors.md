@@ -76,5 +76,5 @@ To see more details about the available checks and any checks that failed, click
 ## Create your own Advisors
 PMM Advisors offer a set of checks that can detect common security threats, performance degradation, data loss and data corruption.
 
-Developers can create custom checks to cover additional use cases, relevant to specific database infrastructure. For more information, see [Develop Advisor checks](../details/develop-checks/index.html).
+Developers can create custom checks to cover additional use cases, relevant to specific database infrastructure. For more information, see [Develop Advisor checks](develop_advisor_checks.md).
 

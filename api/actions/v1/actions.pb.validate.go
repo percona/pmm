@@ -82,7 +82,7 @@ type GetActionRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetActionRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -192,7 +192,7 @@ type GetActionResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetActionResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -311,7 +311,7 @@ type StartMySQLExplainActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMySQLExplainActionParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -418,7 +418,7 @@ type StartMySQLExplainActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMySQLExplainActionResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -540,7 +540,7 @@ type StartMySQLExplainJSONActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMySQLExplainJSONActionParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -649,7 +649,7 @@ type StartMySQLExplainJSONActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMySQLExplainJSONActionResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -772,7 +772,7 @@ type StartMySQLExplainTraditionalJSONActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMySQLExplainTraditionalJSONActionParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -883,7 +883,7 @@ type StartMySQLExplainTraditionalJSONActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMySQLExplainTraditionalJSONActionResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1015,7 +1015,7 @@ type StartMySQLShowCreateTableActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMySQLShowCreateTableActionParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1124,7 +1124,7 @@ type StartMySQLShowCreateTableActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMySQLShowCreateTableActionResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1255,7 +1255,7 @@ type StartMySQLShowTableStatusActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMySQLShowTableStatusActionParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1364,7 +1364,7 @@ type StartMySQLShowTableStatusActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMySQLShowTableStatusActionResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1493,7 +1493,7 @@ type StartMySQLShowIndexActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMySQLShowIndexActionParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1600,7 +1600,7 @@ type StartMySQLShowIndexActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMySQLShowIndexActionResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1732,7 +1732,7 @@ type StartPostgreSQLShowCreateTableActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartPostgreSQLShowCreateTableActionParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1842,7 +1842,7 @@ type StartPostgreSQLShowCreateTableActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartPostgreSQLShowCreateTableActionResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1973,7 +1973,7 @@ type StartPostgreSQLShowIndexActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartPostgreSQLShowIndexActionParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2082,7 +2082,7 @@ type StartPostgreSQLShowIndexActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartPostgreSQLShowIndexActionResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2209,7 +2209,7 @@ type StartMongoDBExplainActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMongoDBExplainActionParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2316,7 +2316,7 @@ type StartMongoDBExplainActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartMongoDBExplainActionResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2423,7 +2423,7 @@ type StartPTPgSummaryActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartPTPgSummaryActionParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2530,7 +2530,7 @@ type StartPTPgSummaryActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartPTPgSummaryActionResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2639,7 +2639,7 @@ type StartPTMongoDBSummaryActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartPTMongoDBSummaryActionParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2748,7 +2748,7 @@ type StartPTMongoDBSummaryActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartPTMongoDBSummaryActionResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2855,7 +2855,7 @@ type StartPTMySQLSummaryActionParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartPTMySQLSummaryActionParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2962,7 +2962,7 @@ type StartPTMySQLSummaryActionResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartPTMySQLSummaryActionResultMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3069,7 +3069,7 @@ type StartPTSummaryActionRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartPTSummaryActionRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3176,7 +3176,7 @@ type StartPTSummaryActionResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartPTSummaryActionResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3290,7 +3290,7 @@ type CancelActionRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CancelActionRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3392,7 +3392,7 @@ type CancelActionResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CancelActionResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3991,7 +3991,7 @@ type StartServiceActionRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartServiceActionRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4590,7 +4590,7 @@ type StartServiceActionResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartServiceActionResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
