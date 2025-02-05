@@ -31,7 +31,7 @@ func (_m *mockPrometheusService) IsReady(ctx context.Context) error {
 	return r0
 }
 
-// RequestConfigurationUpdate provides a mock function with no fields
+// RequestConfigurationUpdate provides a mock function with given fields:
 func (_m *mockPrometheusService) RequestConfigurationUpdate() {
 	_m.Called()
 }

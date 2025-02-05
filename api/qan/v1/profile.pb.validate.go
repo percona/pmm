@@ -175,7 +175,7 @@ type GetReportRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetReportRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -277,7 +277,7 @@ type ReportMapFieldEntryMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ReportMapFieldEntryMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -419,7 +419,7 @@ type GetReportResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetReportResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -613,7 +613,7 @@ type RowMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RowMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -740,7 +740,7 @@ type MetricMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -854,7 +854,7 @@ type StatMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StatMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

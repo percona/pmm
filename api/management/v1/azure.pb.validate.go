@@ -115,7 +115,7 @@ type DiscoverAzureDatabaseRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DiscoverAzureDatabaseRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -238,7 +238,7 @@ type DiscoverAzureDatabaseInstanceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DiscoverAzureDatabaseInstanceMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -375,7 +375,7 @@ type DiscoverAzureDatabaseResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DiscoverAzureDatabaseResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -618,7 +618,7 @@ type AddAzureDatabaseRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddAzureDatabaseRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -720,7 +720,7 @@ type AddAzureDatabaseResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddAzureDatabaseResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

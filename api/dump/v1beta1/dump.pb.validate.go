@@ -160,7 +160,7 @@ type DumpMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DumpMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -322,7 +322,7 @@ type StartDumpRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartDumpRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -424,7 +424,7 @@ type StartDumpResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartDumpResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -526,7 +526,7 @@ type ListDumpsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListDumpsRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -660,7 +660,7 @@ type ListDumpsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListDumpsResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -794,7 +794,7 @@ type DeleteDumpRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteDumpRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -896,7 +896,7 @@ type DeleteDumpResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DeleteDumpResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1013,7 +1013,7 @@ type GetDumpLogsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetDumpLogsRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1151,7 +1151,7 @@ type GetDumpLogsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetDumpLogsResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1256,7 +1256,7 @@ type LogChunkMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m LogChunkMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1391,7 +1391,7 @@ type SFTPParametersMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SFTPParametersMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1563,7 +1563,7 @@ type UploadDumpRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UploadDumpRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1665,7 +1665,7 @@ type UploadDumpResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UploadDumpResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

@@ -171,7 +171,7 @@ type AddProxySQLServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddProxySQLServiceParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -331,7 +331,7 @@ type ProxySQLServiceResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ProxySQLServiceResultMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

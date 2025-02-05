@@ -206,7 +206,7 @@ func (_m *MockFunctions) FindServerContainers(ctx context.Context) ([]types.Cont
 	return r0, r1
 }
 
-// GetDockerClient provides a mock function with no fields
+// GetDockerClient provides a mock function with given fields:
 func (_m *MockFunctions) GetDockerClient() *client.Client {
 	ret := _m.Called()
 
@@ -262,7 +262,7 @@ func (_m *MockFunctions) InstallDocker(ctx context.Context) error {
 	return r0
 }
 
-// IsDockerInstalled provides a mock function with no fields
+// IsDockerInstalled provides a mock function with given fields:
 func (_m *MockFunctions) IsDockerInstalled() (bool, error) {
 	ret := _m.Called()
 

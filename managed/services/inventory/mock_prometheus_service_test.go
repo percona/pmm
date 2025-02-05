@@ -9,7 +9,7 @@ type mockPrometheusService struct {
 	mock.Mock
 }
 
-// RequestConfigurationUpdate provides a mock function with no fields
+// RequestConfigurationUpdate provides a mock function with given fields:
 func (_m *mockPrometheusService) RequestConfigurationUpdate() {
 	_m.Called()
 }

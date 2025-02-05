@@ -80,7 +80,7 @@ type PMMAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PMMAgentMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -188,7 +188,7 @@ type VMAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m VMAgentMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -336,7 +336,7 @@ type NodeExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m NodeExporterMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -505,7 +505,7 @@ type MySQLdExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MySQLdExporterMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -666,7 +666,7 @@ type MongoDBExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MongoDBExporterMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -827,7 +827,7 @@ type PostgresExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PostgresExporterMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -984,7 +984,7 @@ type ProxySQLExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ProxySQLExporterMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1118,7 +1118,7 @@ type QANMySQLPerfSchemaAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QANMySQLPerfSchemaAgentMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1256,7 +1256,7 @@ type QANMySQLSlowlogAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QANMySQLSlowlogAgentMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1382,7 +1382,7 @@ type QANMongoDBProfilerAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QANMongoDBProfilerAgentMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1510,7 +1510,7 @@ type QANPostgreSQLPgStatementsAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QANPostgreSQLPgStatementsAgentMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1641,7 +1641,7 @@ type QANPostgreSQLPgStatMonitorAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QANPostgreSQLPgStatMonitorAgentMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1800,7 +1800,7 @@ type RDSExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RDSExporterMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1951,7 +1951,7 @@ type ExternalExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ExternalExporterMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2104,7 +2104,7 @@ type AzureDatabaseExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AzureDatabaseExporterMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2274,7 +2274,7 @@ type ChangeCommonAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeCommonAgentParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2384,7 +2384,7 @@ type ListAgentsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentsRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2996,7 +2996,7 @@ type ListAgentsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentsResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3109,7 +3109,7 @@ type GetAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetAgentRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3829,7 +3829,7 @@ type GetAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetAgentResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3942,7 +3942,7 @@ type GetAgentLogsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetAgentLogsRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4046,7 +4046,7 @@ type GetAgentLogsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetAgentLogsResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4727,7 +4727,7 @@ type AddAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddAgentRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5406,7 +5406,7 @@ type AddAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddAgentResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6055,7 +6055,7 @@ type ChangeAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeAgentRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6695,7 +6695,7 @@ type ChangeAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeAgentResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6810,7 +6810,7 @@ type AddPMMAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddPMMAgentParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6931,7 +6931,7 @@ type AddNodeExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddNodeExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7101,7 +7101,7 @@ type ChangeNodeExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeNodeExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7262,7 +7262,7 @@ type AddMySQLdExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMySQLdExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7432,7 +7432,7 @@ type ChangeMySQLdExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeMySQLdExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7588,7 +7588,7 @@ type AddMongoDBExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMongoDBExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7758,7 +7758,7 @@ type ChangeMongoDBExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeMongoDBExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7922,7 +7922,7 @@ type AddPostgresExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddPostgresExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8092,7 +8092,7 @@ type ChangePostgresExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangePostgresExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8246,7 +8246,7 @@ type AddProxySQLExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddProxySQLExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8416,7 +8416,7 @@ type ChangeProxySQLExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeProxySQLExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8578,7 +8578,7 @@ type AddQANMySQLPerfSchemaAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANMySQLPerfSchemaAgentParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8751,7 +8751,7 @@ type ChangeQANMySQLPerfSchemaAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANMySQLPerfSchemaAgentParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8913,7 +8913,7 @@ type AddQANMySQLSlowlogAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANMySQLSlowlogAgentParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9086,7 +9086,7 @@ type ChangeQANMySQLSlowlogAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANMySQLSlowlogAgentParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9239,7 +9239,7 @@ type AddQANMongoDBProfilerAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANMongoDBProfilerAgentParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9412,7 +9412,7 @@ type ChangeQANMongoDBProfilerAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANMongoDBProfilerAgentParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9573,7 +9573,7 @@ type AddQANPostgreSQLPgStatementsAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANPostgreSQLPgStatementsAgentParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9747,7 +9747,7 @@ type ChangeQANPostgreSQLPgStatementsAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANPostgreSQLPgStatementsAgentParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9910,7 +9910,7 @@ type AddQANPostgreSQLPgStatMonitorAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANPostgreSQLPgStatMonitorAgentParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10084,7 +10084,7 @@ type ChangeQANPostgreSQLPgStatMonitorAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANPostgreSQLPgStatMonitorAgentParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10225,7 +10225,7 @@ type AddRDSExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRDSExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10395,7 +10395,7 @@ type ChangeRDSExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeRDSExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10533,7 +10533,7 @@ type AddExternalExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddExternalExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10703,7 +10703,7 @@ type ChangeExternalExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeExternalExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10857,7 +10857,7 @@ type AddAzureDatabaseExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddAzureDatabaseExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -11030,7 +11030,7 @@ type ChangeAzureDatabaseExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeAzureDatabaseExporterParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -11146,7 +11146,7 @@ type RemoveAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveAgentRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -11248,7 +11248,7 @@ type RemoveAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveAgentResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

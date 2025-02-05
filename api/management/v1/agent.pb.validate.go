@@ -315,7 +315,7 @@ type UniversalAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgentMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -419,7 +419,7 @@ type ListAgentsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentsRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -555,7 +555,7 @@ type ListAgentsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentsResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -665,7 +665,7 @@ type AgentVersionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AgentVersionsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -765,7 +765,7 @@ type ListAgentVersionsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentVersionsRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -901,7 +901,7 @@ type ListAgentVersionsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentVersionsResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1005,7 +1005,7 @@ type UniversalAgent_MySQLOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_MySQLOptionsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1118,7 +1118,7 @@ type UniversalAgent_AzureOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_AzureOptionsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1233,7 +1233,7 @@ type UniversalAgent_MongoDBOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_MongoDBOptionsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1344,7 +1344,7 @@ type UniversalAgent_PostgreSQLOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_PostgreSQLOptionsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

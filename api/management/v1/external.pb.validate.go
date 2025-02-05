@@ -152,7 +152,7 @@ type AddExternalServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddExternalServiceParamsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -312,7 +312,7 @@ type ExternalServiceResultMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ExternalServiceResultMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
+	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
