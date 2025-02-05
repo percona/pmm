@@ -1,20 +1,21 @@
 # Install PMM Server with Docker container
 
-This section explains how to install PMM Server as a Docker container. To enable PMM Server upgrades via the **Upgrade page** and the **Upgrade Now** button on the **Home** dashboard, you must configure Watchtower during the PMM Server installation.
+This section explains how to install PMM Server as a Docker container. While PMM Server runs independently, we highly recommend installing [Watchtower](https://containrrr.dev/watchtower/) alongside it to enable convenient [PMM Server upgrades](../../../../pmm-upgrade/ui_upgrade.md) through the PMM user interface. 
 
-Watchtower is a container-updating tool that enables [PMM Server upgrades](../../../../pmm-upgrade/ui_upgrade.md) through the UI. Without it, the **Upgrade** page and **Upgrade Now** button will not be available.
+With Watchtower, you can upgrade PMM Server directly from the **Upgrade** page or by clicking the **Upgrade Now** button on the **Home** dashboard.
 
 ## Prerequisites
 
 Before starting the installation:
 
-* Install Docker version 17.03 or higher
-* Ensure your CPU supports `x86-64-v2`
-* For manual installation, consider these Watchtower security requirements:
-  - Restrict Watchtower access to Docker network or localhost
-  - Configure network to expose only PMM Server externally
-  - Secure Docker socket access for Watchtower
-  - Place both Watchtower and PMM Server on the same network
+- Install Docker version 17.03 or higher
+- Ensure your CPU supports `x86-64-v2`
+- Security requirements for Watchtower:
+
+    - restrict Watchtower access to Docker network or localhost
+    - configure network to expose only PMM Server externally
+    - secure Docker socket access for Watchtower
+    - place both Watchtower and PMM Server on the same network
 
 ## Installation options
 
@@ -39,18 +40,29 @@ You can install PMM Server with Watchtower in two ways:
          docker network create pmm-network
          ```
 
-    2. Install Watchtower using the command below. The `your_token` value must match the `WATCHTOWER_HTTP_API_TOKEN` value used in your PMM Server container configuration:
+    2. (Optional) Install Watchtower to enable PMM Server upgrades via the UI.
+        {.power-number}
 
-         ```sh
-         docker run --detach \
-         --restart always \
-         --network=<your_network> \
-         -e WATCHTOWER_HTTP_API_TOKEN=your_token \
-         -e WATCHTOWER_HTTP_API_UPDATE=1 \
-         --volume /var/run/docker.sock:/var/run/docker.sock \
-         --name watchtower \
-         percona/watchtower:latest
-         ```
+        1. Create a user-defined token to secure Watchtower's HTTP API. You can use any value or generate a secure token using `openssl` or another method. Ensure the same token is used in both the Watchtower and PMM Server configurations:
+
+            ```sh   
+            openssl rand -hex 16
+            # Example output:
+            e09541c81e672bf0e48dbc72d4f92790
+            ```
+        
+        2. Install Watchtower using your token: 
+
+            ```sh  
+            docker run --detach \
+            --restart always \
+            --network=pmm-network \
+            -e WATCHTOWER_HTTP_API_TOKEN=your_token \
+            -e WATCHTOWER_HTTP_API_UPDATE=1 \
+            --volume /var/run/docker.sock:/var/run/docker.sock \
+            --name watchtower \
+            percona/watchtower:latest
+            ```
 
     3. Run PMM Server with Docker based on your preferred data storage method:
          - [Run Docker with host directory](../docker/run_with_host_dir.md)
@@ -70,7 +82,7 @@ You can install PMM Server with Watchtower in two ways:
     ---
 ??? info "Key points"
 
-    - To disable the Home Dashboard **PMM Upgrade** panel you can either add `-e PMM_ENABLE_UPDATES=false` to the `docker run` command (for the life of the container) or navigate to _PMM --> PMM Settings --> Advanced Settings_ and disable "Check for Updates" (can be turned back on by any admin in the UI).
+    - To disable the Home Dashboard **PMM Upgrade** panel you can either add `-e PMM_ENABLE_UPDATES=false` to the `docker run` command (for the life of the container) or navigate to **PMM Configuration > Settings > Advanced Settings** and disable **Check for Updates** (can be turned back on by any admin in the UI).
 
     - Eliminate browser certificate warnings by configuring a [trusted certificate](../../../../how-to/secure.html#ssl-encryption).
 
