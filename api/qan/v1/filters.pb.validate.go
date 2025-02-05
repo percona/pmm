@@ -165,7 +165,7 @@ type GetFilteredMetricsNamesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetFilteredMetricsNamesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -314,7 +314,7 @@ type GetFilteredMetricsNamesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetFilteredMetricsNamesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -450,7 +450,7 @@ type ListLabelsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListLabelsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -554,7 +554,7 @@ type ValuesMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ValuesMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
