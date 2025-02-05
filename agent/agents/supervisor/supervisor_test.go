@@ -581,7 +581,6 @@ plugin "raw_exec" {
 		b, err := os.ReadFile(configFilePath)
 		require.NoError(t, err)
 		assert.Equal(t, expectedConfig, string(b))
-
 	})
 
 	t.Run("BadTemplate", func(t *testing.T) {

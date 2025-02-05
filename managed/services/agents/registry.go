@@ -328,7 +328,6 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 
 func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string, pmmAgentVersion *version.Parsed) error {
 	if pmmAgentVersion.Less(models.PMMAgentWithPushMetricsSupport) {
-
 	}
 	nomadClientType := models.NomadClientType
 	nomadClient, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: &nomadClientType})

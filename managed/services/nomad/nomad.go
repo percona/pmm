@@ -105,7 +105,6 @@ func (c *Nomad) UpdateConfiguration() error {
 }
 
 func (c *Nomad) generateServerConfig(publicAddress string) error {
-
 	tmpl, err := template.New("nomad-server.hcl").Parse(serverConfig)
 	if err != nil {
 		return fmt.Errorf("failed to parse template: %w", err)
@@ -118,7 +117,7 @@ func (c *Nomad) generateServerConfig(publicAddress string) error {
 	}
 	defer configFile.Close()
 
-	var m = config{Node: struct{ Address string }{Address: publicAddress}}
+	m := config{Node: struct{ Address string }{Address: publicAddress}}
 	err = tmpl.Execute(configFile, m)
 	if err != nil {
 		return fmt.Errorf("failed to execute template: %w", err)
@@ -189,14 +188,15 @@ func (c *Nomad) GetCACert() (string, error) {
 	}
 	return string(file), nil
 }
+
 func (c *Nomad) GetClientCert() (string, error) {
 	file, err := os.ReadFile(path.Join(pathToCerts, "global-client-nomad.pem"))
 	if err != nil {
 		return "", err
 	}
 	return string(file), nil
-
 }
+
 func (c *Nomad) GetClientKey() (string, error) {
 	file, err := os.ReadFile(path.Join(pathToCerts, "global-client-nomad-key.pem"))
 	if err != nil {
