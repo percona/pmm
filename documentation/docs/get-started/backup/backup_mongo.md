@@ -2,7 +2,11 @@
 
 PMM supports the following actions for MongoDB backups. 
 
+!!! note alert alert-primary "Docker limitations"
+    MongoDB instances running in Docker containers are not supported for backup operations.
+    
 ## Replica set setups
+The following backup operations are supported for replica sets:
 
   - Storing backups on Amazon S3-compatible object storage, and on mounted filesystem
   - Creating and restoring Logical snapshot backups
