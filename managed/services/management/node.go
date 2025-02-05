@@ -118,9 +118,11 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			return err
 		}
 		_, err = models.CreateAgent(tx.Querier, models.VMAgentType, &models.CreateAgentParams{
-			PMMAgentID:  pmmAgent.AgentID,
-			PushMetrics: true,
-			NodeID:      node.NodeID,
+			PMMAgentID: pmmAgent.AgentID,
+			NodeID:     node.NodeID,
+			ExporterOptions: models.ExporterOptions{
+				PushMetrics: true,
+			},
 		})
 		if err != nil {
 			return err
