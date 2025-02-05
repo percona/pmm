@@ -21,6 +21,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
 
@@ -47,7 +48,7 @@ type Functions interface { //nolint:interfacebloat
 // Imager holds methods to interact with Docker images.
 type Imager interface {
 	ParsePullImageProgress(r io.Reader, p *tea.Program) (<-chan struct{}, <-chan error)
-	PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error)
+	PullImage(ctx context.Context, dockerImage string, opts image.PullOptions) (io.Reader, error)
 }
 
 // Installer holds methods related to Docker installation.

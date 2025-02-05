@@ -4,6 +4,8 @@
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
 [![Code coverage](https://codecov.io/gh/percona/pmm/branch/main/graph/badge.svg)](https://codecov.io/gh/percona/pmm)
 [![Go Report Card](https://goreportcard.com/badge/github.com/percona/pmm)](https://goreportcard.com/report/github.com/percona/pmm)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/percona/pmm/badge)](https://scorecard.dev/viewer/?uri=github.com/percona/pmm)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9702/badge)](https://www.bestpractices.dev/projects/9702)
 [![Forum](https://img.shields.io/badge/Forum-join-brightgreen)](https://forums.percona.com/)
 
 ![PMM](img/pmm-logo.png)
@@ -68,6 +70,14 @@ percona/pmm-server:2
 <img src="https://docs.percona.com/percona-monitoring-and-management/_images/PMM_Login.jpg" width="280">
 
 Enter the username and password. The defaults are username: **admin** and password: **admin**
+
+# Need help?
+
+| **Commercial Support** | **Community Support** |
+|:--|:--|
+| **Enterprise-grade support** for mission-critical monitoring deployments with Percona Monitoring and Management. <br/><br/>Get expert guidance for complex monitoring scenarios across hybrid environments—from cloud providers to bare metal infrastructures. | Connect with our engineers and community members to troubleshoot issues, share best practices, and discuss monitoring strategies. |
+| **[Get Percona Support](https://hubs.ly/Q02_Fs100)** | **[Visit our Forum](https://forums.percona.com/c/percona-monitoring-and-management-pmm)** |
+
 
 ## How to get involved
 

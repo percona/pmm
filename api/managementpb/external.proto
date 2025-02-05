@@ -41,7 +41,7 @@ message AddExternalRequest {
   string metrics_path = 6;
   // Listen port for scraping metrics.
   uint32 listen_port = 7 [(validate.rules).uint32 = {
-    gt: 0,
+    gt: 0
     lt: 65536
   }];
   // Node identifier on which an external service is been running.

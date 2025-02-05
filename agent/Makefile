@@ -110,10 +110,10 @@ env-up:                         ## Start development environment
 	mkdir -p testdata/mysql/slowlogs
 	chmod -R 0777 testdata
 
-	docker-compose up $(ENV_UP_FLAGS)
+	docker compose up $(ENV_UP_FLAGS)
 
 env-down:                       ## Stop development environment
-	docker-compose down --volumes --remove-orphans
+	docker compose down --volumes --remove-orphans
 
 setup-dev: install              ## Run pmm-agent setup in development environment
 	pmm-agent setup $(RUN_FLAGS) --server-insecure-tls --server-address=127.0.0.1:${PMM_DEV_SERVER_PORT} --server-username=admin --server-password=admin --paths-exporters_base=$(GOPATH)/bin --force
@@ -128,13 +128,13 @@ env-psql:                       ## Run psql client
 	docker exec -ti pmm-agent_postgres env PGPASSWORD=pmm-agent-password psql --username=pmm-agent
 
 env-sysbench-prepare:
-	docker-compose exec --workdir=/sysbench/sysbench-tpcc sysbench ./tpcc.lua \
+	docker compose exec --workdir=/sysbench/sysbench-tpcc sysbench ./tpcc.lua \
 		--db-driver=pgsql --pgsql-host=postgres --pgsql-user=pmm-agent --pgsql-password=pmm-agent-password --pgsql-db=pmm-agent \
 		--threads=1 --time=0 --report-interval=10 \
 		--tables=1 --scale=10  --use_fk=0 --enable_purge=yes prepare
 
 env-sysbench-run:
-	docker-compose exec --workdir=/sysbench/sysbench-tpcc sysbench ./tpcc.lua \
+	docker compose exec --workdir=/sysbench/sysbench-tpcc sysbench ./tpcc.lua \
 		--db-driver=pgsql --pgsql-host=postgres --pgsql-user=pmm-agent --pgsql-password=pmm-agent-password --pgsql-db=pmm-agent \
 		--threads=4 --time=0 --rate=10 --report-interval=10 --percentile=99 \
 		--tables=1 --scale=10  --use_fk=0 --enable_purge=yes run

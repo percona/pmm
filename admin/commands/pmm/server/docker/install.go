@@ -22,7 +22,7 @@ import (
 	"strconv"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/go-connections/nat"
 	"github.com/pkg/errors"
@@ -145,7 +145,7 @@ func (c *InstallCommand) runContainer(ctx context.Context, volume *volume.Volume
 
 // pullImage pulls a docker image and displays progress.
 func (c *InstallCommand) pullImage(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) {
-	reader, err := c.dockerFn.PullImage(ctx, c.DockerImage, types.ImagePullOptions{})
+	reader, err := c.dockerFn.PullImage(ctx, c.DockerImage, image.PullOptions{})
 	if err != nil {
 		return nil, err
 	}

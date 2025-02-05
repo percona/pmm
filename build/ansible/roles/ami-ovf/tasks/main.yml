@@ -7,18 +7,6 @@
 - name: Packages                   | Clean up yum metadata
   command: yum clean metadata
 
-- name: Packages                   | Add PMM2 Server release repository for EL7
-  when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
-  yum_repository:
-    name: pmm2-server
-    description: PMM Server YUM repository - x86_64
-    baseurl: https://repo.percona.com/pmm2-components/yum/release/7/RPMS/x86_64/
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
-
 - name: Packages                   | Add PMM2 Server release repository for EL9
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
@@ -31,14 +19,6 @@
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-- name: Disable SELinux            | EL7
-  when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
-  selinux:
-    policy: targeted
-    state: permissive
-
 - name: Disable SELinux            | EL9
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
@@ -48,15 +28,6 @@
   selinux:
     policy: targeted
     state: permissive
-
-- name: Add firewalld rule        | EL7
-  when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
-  firewalld: port={{ item }} permanent=true state=enabled immediate=yes
-  with_items:
-    - 80/tcp
-    - 443/tcp
 
 - name: Add firewalld rule        | EL9
   when:
@@ -85,12 +56,6 @@
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
-
-- name: PMM                        | Delete centos EL7
-  shell: cd /tmp; nohup sh -c "trap 'userdel -r centos' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
-  when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
 
 - name: PMM                        | Delete ec2-user EL9
   shell: cd /tmp; nohup sh -c "trap 'userdel -r ec2-user' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &

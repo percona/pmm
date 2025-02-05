@@ -86,7 +86,8 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 		}
 		if len(fexp) == 1 {
 			agent := fexp[0]
-			return agent.DSN(svc, dsnParams, nil), agent, nil
+			pmmAgentVersion := ExtractPmmAgentVersionFromAgent(q, agent)
+			return agent.DSN(svc, dsnParams, nil, pmmAgentVersion), agent, nil
 		}
 		if len(fexp) > 1 {
 			return "", nil, status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be only one agent")

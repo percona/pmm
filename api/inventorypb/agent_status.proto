@@ -9,9 +9,11 @@ enum AgentStatus {
   AGENT_STATUS_INVALID = 0;
   // Agent is starting.
   STARTING = 1;
+  // Agent encountered error when starting.
+  INITIALIZATION_ERROR = 7;
   // Agent is running.
   RUNNING = 2;
-  // Agent encountered error and will be restarted automatically soon.
+  // Agent encountered error when running and will be restarted automatically soon.
   WAITING = 3;
   // Agent is stopping.
   STOPPING = 4;

@@ -64,10 +64,10 @@ _run:
 	pmm-update $(RUN_FLAGS)
 
 env-up:                         ## Start development environment
-	docker-compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
+	docker compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
 
 env-down:                       ## Stop development environment
-	docker-compose down --volumes --remove-orphans
+	docker compose down --volumes --remove-orphans
 
 install-dev-tools:
 	docker exec pmm-update-server /root/go/src/github.com/percona/pmm/update/.devcontainer/install-dev-tools.sh

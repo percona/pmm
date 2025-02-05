@@ -34,9 +34,24 @@ import (
 var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
 	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
-	postgresSSLSniVersion                = version.MustParse("2.40.99")
+	postgresSSLSniVersion                = version.MustParse("2.41.0-0")
+	postgresExporterCollectorsVersion    = version.MustParse("2.41.0-0")
 	postgresMaxExporterConnsVersion      = version.MustParse("2.41.2-0")
 )
+
+var defaultPostgresExporterCollectors = []string{
+	"database",
+	"database_wraparound",
+	"extensions",
+	"locks",
+	"replication",
+	"replication_slot",
+	"stat_bgwriter",
+	"stat_database",
+	"stat_user_tables",
+	"statio_user_tables",
+	"wal",
+}
 
 const defaultAutoDiscoveryDatabaseLimit = 50
 
@@ -101,6 +116,11 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.DisabledCollectors)
 
+	if !pmmAgentVersion.Less(postgresExporterCollectorsVersion) {
+		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultPostgresExporterCollectors, exporter.DisabledCollectors)
+		args = append(args, disableCollectorArgs...)
+	}
+
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, false)
 
 	sort.Strings(args)
@@ -121,7 +141,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dnsParams, nil)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dnsParams, nil, pmmAgentVersion)),
 		},
 		TextFiles: exporter.Files(),
 	}
@@ -147,7 +167,7 @@ func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models
 	}
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
-		Dsn:                    agent.DSN(service, dnsParams, nil),
+		Dsn:                    agent.DSN(service, dnsParams, nil, pmmAgentVersion),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,
 		TextFiles: &agentpb.TextFiles{
@@ -168,7 +188,7 @@ func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *model
 	}
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
-		Dsn:                    agent.DSN(service, dnsParams, nil),
+		Dsn:                    agent.DSN(service, dnsParams, nil, pmmAgentVersion),
 		DisableQueryExamples:   agent.QueryExamplesDisabled,
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,

@@ -1,5 +1,5 @@
 ---
- # docker-compose -f docker-compose-pg-load.yml up
+ # docker compose -f docker-compose-pg-load.yml up
 version: '3.7'
 
 services:

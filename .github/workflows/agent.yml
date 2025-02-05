@@ -7,6 +7,8 @@ on:
       - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
+    paths-ignore:
+      - "documentation/**"
 
   pull_request:
     paths-ignore:
@@ -14,10 +16,14 @@ on:
       - "api-tests/**"
       - "cli-tests/**"
       - "docs/**"
+      - "documentation/**"
       - "managed/**"
       - "qan-api2/**"
       - "update/**"
       - "vmproxy/**"
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -26,15 +32,15 @@ jobs:
     strategy:
       matrix:
         images:
-          - { mysql: 'mysql:5.6', mongo: 'mongo:4.2', postgres: 'postgres:10', pmm_server: 'percona/pmm-server:2.0.0' }
-          - { mysql: 'mysql:5.7', mongo: 'mongo:4.4', postgres: 'postgres:11', pmm_server: 'percona/pmm-server:2.0.1' }
-          - { mysql: 'mysql:8.0', mongo: 'mongo:4.4', postgres: 'postgres:12', pmm_server: 'percona/pmm-server:2.1.0' }
-          - { mysql: 'mysql:8.0', mongo: 'mongo:4.4', postgres: 'postgres:13', pmm_server: 'percona/pmm-server:2.2.0' }
+          - { mysql: 'mysql:5.6', mongo: 'mongo:4.2', postgres: 'postgres:14', pmm_server: 'percona/pmm-server:2.0.0' }
+          - { mysql: 'mysql:5.7', mongo: 'mongo:4.4', postgres: 'postgres:15', pmm_server: 'percona/pmm-server:2.0.1' }
+          - { mysql: 'mysql:8.0', mongo: 'mongo:4.4', postgres: 'postgres:16', pmm_server: 'percona/pmm-server:2.1.0' }
+          - { mysql: 'mysql:8.0', mongo: 'mongo:4.4', postgres: 'postgres:17rc1', pmm_server: 'percona/pmm-server:2.2.0' }
 
           # Percona + latest PMM Server release
-          - { mysql: 'percona:5.6', mongo: 'percona/percona-server-mongodb:4.2', postgres: 'perconalab/percona-distribution-postgresql:11', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
-          - { mysql: 'percona:5.7', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'perconalab/percona-distribution-postgresql:12.8-pg_stat', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
-          - { mysql: 'percona:8.0', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'perconalab/percona-distribution-postgresql:13.5-pg_stat', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
+          - { mysql: 'percona:5.6', mongo: 'percona/percona-server-mongodb:4.2', postgres: 'perconalab/percona-distribution-postgresql:15', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
+          - { mysql: 'percona:5.7', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'perconalab/percona-distribution-postgresql:16', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
+          - { mysql: 'percona:8.0', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'perconalab/percona-distribution-postgresql:17-dev', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
 
           # MariaDB (only 3 latest GA versions)
           #   + older supported MongoDB versions
@@ -44,9 +50,9 @@ jobs:
           # - MYSQL_IMAGE=mariadb:10.0
           # - MYSQL_IMAGE=mariadb:10.1
 
-          - { mysql: 'mariadb:10.2', mongo: 'mongo:4.4',                          postgres: 'postgres:9.4', pmm_server: 'perconalab/pmm-server:dev-latest' }
-          - { mysql: 'mariadb:10.3', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'postgres:9.5', pmm_server: 'perconalab/pmm-server:dev-latest' }
-          - { mysql: 'mariadb:10.4',                                              postgres: 'postgres:9.6', pmm_server: 'perconalab/pmm-server:dev-latest' }
+          - { mysql: 'mariadb:10.2', mongo: 'mongo:4.4',                          postgres: 'postgres:12', pmm_server: 'perconalab/pmm-server:dev-latest' }
+          - { mysql: 'mariadb:10.3', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'postgres:13', pmm_server: 'perconalab/pmm-server:dev-latest' }
+          - { mysql: 'mariadb:10.4',                                              postgres: 'postgres:14', pmm_server: 'perconalab/pmm-server:dev-latest' }
 
     continue-on-error: true
 
@@ -63,16 +69,16 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Go release
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
         with:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
 
       - name: Enable Go build cache
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -81,7 +87,7 @@ jobs:
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
@@ -93,7 +99,7 @@ jobs:
       - name: Build and install
         run: make install
 
-      - name: Docker-compose
+      - name: Launch containers
         env:
           ENV_UP_FLAGS: "--detach"
         run: make env-up
@@ -102,12 +108,13 @@ jobs:
         run: make test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
         with:
           file: cover.out
           flags: agent
           env_vars: MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run debug commands on failure
         if: ${{ failure() }}

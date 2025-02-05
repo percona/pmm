@@ -103,7 +103,6 @@ main() {
     gobuild_component "proxysql_exporter"
     gobuild_component "rds_exporter"
     gobuild_component "azure_metrics_exporter"
-    gobuild_component "clickhouse_exporter" "" "github.com/Percona-Lab/clickhouse_exporter"
 
     gobuild_component "pmm-admin" "pmm" "" "admin"
     gobuild_component "pmm-agent" "pmm" "" "agent"

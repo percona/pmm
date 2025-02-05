@@ -28,7 +28,9 @@ import (
 
 // AddScrapeConfigs - adds agents scrape configuration to given scrape config,
 // pmm_agent_id and push_metrics used for filtering.
-func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s *models.MetricsResolutions, pmmAgentID *string, pushMetrics bool) error { //nolint:cyclop
+func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //nolint:cyclop,maintidx
+	globalResolutions *models.MetricsResolutions, pmmAgentID *string, pushMetrics bool,
+) error {
 	agents, err := models.FindAgentsForScrapeConfig(q, pmmAgentID, pushMetrics)
 	if err != nil {
 		return errors.WithStack(err)
@@ -70,26 +72,29 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 		// find Node address where the agent runs
 		var paramsHost string
 		var paramPMMAgentVersion *version.Parsed
+		var pmmAgent *models.Agent
+		if agent.PMMAgentID != nil {
+			// extract node address through pmm-agent
+			pmmAgent, err = models.FindAgentByID(q, *agent.PMMAgentID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			paramPMMAgentVersion, err = version.Parse(pointer.GetString(pmmAgent.Version))
+			if err != nil {
+				l.Warnf("couldn't parse pmm-agent version for pmm-agent %s: %q", pmmAgent.AgentID, err)
+			}
+		}
 		switch {
 		// special case for push metrics mode,
 		// vmagent scrapes it from localhost.
 		case pushMetrics:
 			paramsHost = "127.0.0.1"
 		case agent.PMMAgentID != nil:
-			// extract node address through pmm-agent
-			pmmAgent, err := models.FindAgentByID(q, *agent.PMMAgentID)
-			if err != nil {
-				return errors.WithStack(err)
-			}
 			pmmAgentNode := &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
 			if err = q.Reload(pmmAgentNode); err != nil {
 				return errors.WithStack(err)
 			}
 			paramsHost = pmmAgentNode.Address
-			paramPMMAgentVersion, err = version.Parse(pointer.GetString(pmmAgent.Version))
-			if err != nil {
-				l.Warnf("couldn't parse pmm-agent version for pmm-agent %s: %q", pmmAgent.AgentID, err)
-			}
 		case agent.RunsOnNodeID != nil:
 			externalExporterNode := &models.Node{NodeID: pointer.GetString(agent.RunsOnNodeID)}
 			if err = q.Reload(externalExporterNode); err != nil {
@@ -102,48 +107,66 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 			continue
 		}
 
+		mr := *globalResolutions // copy global resolutions
+		if agent.MetricsResolutions != nil {
+			if agent.MetricsResolutions.MR != 0 {
+				mr.MR = agent.MetricsResolutions.MR
+			}
+			if agent.MetricsResolutions.HR != 0 {
+				mr.HR = agent.MetricsResolutions.HR
+			}
+			if agent.MetricsResolutions.LR != 0 {
+				mr.LR = agent.MetricsResolutions.LR
+			}
+		}
+
 		var scfgs []*config.ScrapeConfig
 		switch agent.AgentType {
 		case models.NodeExporterType:
-			scfgs, err = scrapeConfigsForNodeExporter(s, &scrapeConfigParams{
-				host:    paramsHost,
-				node:    paramsNode,
-				service: nil,
-				agent:   agent,
+			scfgs, err = scrapeConfigsForNodeExporter(&scrapeConfigParams{
+				host:              paramsHost,
+				node:              paramsNode,
+				service:           nil,
+				agent:             agent,
+				metricsResolution: &mr,
 			})
 
 		case models.MySQLdExporterType:
-			scfgs, err = scrapeConfigsForMySQLdExporter(s, &scrapeConfigParams{
-				host:    paramsHost,
-				node:    paramsNode,
-				service: paramsService,
-				agent:   agent,
+			scfgs, err = scrapeConfigsForMySQLdExporter(&scrapeConfigParams{
+				host:              paramsHost,
+				node:              paramsNode,
+				service:           paramsService,
+				agent:             agent,
+				metricsResolution: &mr,
 			})
 
 		case models.MongoDBExporterType:
-			scfgs, err = scrapeConfigsForMongoDBExporter(s, &scrapeConfigParams{
-				host:            paramsHost,
-				node:            paramsNode,
-				service:         paramsService,
-				agent:           agent,
-				pmmAgentVersion: paramPMMAgentVersion,
+			scfgs, err = scrapeConfigsForMongoDBExporter(&scrapeConfigParams{
+				host:              paramsHost,
+				node:              paramsNode,
+				service:           paramsService,
+				agent:             agent,
+				pmmAgentVersion:   paramPMMAgentVersion,
+				metricsResolution: &mr,
 			})
 
 		case models.PostgresExporterType:
-			scfgs, err = scrapeConfigsForPostgresExporter(s, &scrapeConfigParams{
-				host:        paramsHost,
-				node:        paramsNode,
-				service:     paramsService,
-				agent:       agent,
-				streamParse: true,
+			scfgs, err = scrapeConfigsForPostgresExporter(&scrapeConfigParams{
+				host:              paramsHost,
+				node:              paramsNode,
+				service:           paramsService,
+				agent:             agent,
+				streamParse:       true,
+				metricsResolution: &mr,
 			})
 
 		case models.ProxySQLExporterType:
-			scfgs, err = scrapeConfigsForProxySQLExporter(s, &scrapeConfigParams{
-				host:    paramsHost,
-				node:    paramsNode,
-				service: paramsService,
-				agent:   agent,
+			scfgs, err = scrapeConfigsForProxySQLExporter(&scrapeConfigParams{
+				host:              paramsHost,
+				node:              paramsNode,
+				service:           paramsService,
+				agent:             agent,
+				metricsResolution: &mr,
 			})
 
 		case models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType:
@@ -155,35 +178,39 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 
 		case models.RDSExporterType:
 			rdsParams = append(rdsParams, &scrapeConfigParams{
-				host:    paramsHost,
-				node:    paramsNode,
-				service: paramsService,
-				agent:   agent,
+				host:              paramsHost,
+				node:              paramsNode,
+				service:           paramsService,
+				agent:             agent,
+				metricsResolution: &mr,
 			})
 			continue
 
 		case models.ExternalExporterType:
-			scfgs, err = scrapeConfigsForExternalExporter(s, &scrapeConfigParams{
-				host:    paramsHost,
-				node:    paramsNode,
-				service: paramsService,
-				agent:   agent,
+			scfgs, err = scrapeConfigsForExternalExporter(&mr, &scrapeConfigParams{
+				host:              paramsHost,
+				node:              paramsNode,
+				service:           paramsService,
+				agent:             agent,
+				metricsResolution: &mr,
 			})
 
 		case models.VMAgentType:
-			scfgs, err = scrapeConfigsForVMAgent(s, &scrapeConfigParams{
-				host:    paramsHost,
-				node:    paramsNode,
-				service: nil,
-				agent:   agent,
+			scfgs, err = scrapeConfigsForVMAgent(&mr, &scrapeConfigParams{
+				host:              paramsHost,
+				node:              paramsNode,
+				service:           nil,
+				agent:             agent,
+				metricsResolution: &mr,
 			})
 
 		case models.AzureDatabaseExporterType:
-			scfgs, err = scrapeConfigsForAzureDatabase(s, &scrapeConfigParams{
-				host:    paramsHost,
-				node:    paramsNode,
-				service: paramsService,
-				agent:   agent,
+			scfgs, err = scrapeConfigsForAzureDatabase(&mr, &scrapeConfigParams{
+				host:              paramsHost,
+				node:              paramsNode,
+				service:           paramsService,
+				agent:             agent,
+				metricsResolution: &mr,
 			})
 
 		default:
@@ -197,7 +224,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
 	}
 
-	scfgs := scrapeConfigsForRDSExporter(s, rdsParams)
+	scfgs := scrapeConfigsForRDSExporter(rdsParams)
 	cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
 
 	return nil
@@ -209,7 +236,8 @@ func AddInternalServicesToScrape(cfg *config.Config, s models.MetricsResolutions
 		scrapeConfigForAlertmanager(s.MR),
 		scrapeConfigForGrafana(s.MR),
 		scrapeConfigForPMMManaged(s.MR),
-		scrapeConfigForQANAPI2(s.MR))
+		scrapeConfigForQANAPI2(s.MR),
+		scrapeConfigForClickhouse(s.MR))
 	// TODO Refactor to remove boolean positional parameter when Prometheus is removed
 	if dbaas {
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForDBaaSController(s.MR))
