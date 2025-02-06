@@ -14,22 +14,15 @@
     margin-left: -1.7em;
     opacity: 1;
   }
-} 
-
-.md-sidebar__inner {
-    font-size: 0.65rem;   /* Font size */
-    line-height: 1.6;
-}
-
   /* Do not render html tags with this class in PDF */
   .no-pdf {
     display: none !important;
   }
-
-
-
   .tabbed-content {
     display: contents;
   }
+} 
+.md-sidebar__inner {
+    font-size: 0.65rem;   /* Font size */
+    line-height: 1.6;
 }
-  
