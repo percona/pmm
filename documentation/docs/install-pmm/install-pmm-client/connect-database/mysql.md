@@ -388,7 +388,7 @@ pmm-admin add mysql --environment=test --custom-labels='source=slowlog'  --usern
 If you need to monitor a MySQL instance from a different server where PMM Client is installed, follow these steps in the PMM web interface:
 {.power-number}
 
-1. Select <i class="uil uil-cog"></i> ** PMM Configuration > PMM Inventory > {{icon.addinstance}} Add Service**.
+1. Select :material-cog: **PMM Configuration > PMM Inventory > :material-plus-circle-outline: Add Service**.
 
 2. Choose **MySQL > Add a remote instance**.
 

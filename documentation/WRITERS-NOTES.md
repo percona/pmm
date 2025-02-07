@@ -187,7 +187,6 @@ Custom (in-house design) icons are defined as SVG code in `variables.yml`.
 
 | Usage                  | Description                          | Used where                       |
 | ---------------------- | ------------------------------------ | -------------------------------- |
-| `{{icon.addinstance}}` | Thin + in circle                     | PMM Add Instance                 |
 | `{{icon.checks}}`      | Checkbox list items                  | Inventory list                   |
 | `{{icon.inventory}}`   | Checkbox list items                  | PMM Inventory & Inventory List   |
 | `{{icon.dashboards}}`  | Abstract blocks assembly             | PMM Dashboards                   |
