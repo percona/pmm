@@ -373,7 +373,7 @@ The `pmm-admin` flag limits Auto-discovery:
 To check the service from the PMM UI:
 {.power-number}
 
-1. Select :material-cog: **Configuration** → {{icon.inventory}} **Inventory**.
+1. Select :material-cog: **Configuration** → :material-clipboard-list-outline: **Inventory**.
 2. In the **Services** tab, verify the **Service name**, **Address** and any other relevant details.
 3. In the **Options** column, expand the **Details** section and check that the Agents are using the desired data source.
 

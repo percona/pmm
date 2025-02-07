@@ -141,6 +141,8 @@ Use HTML for icons:
 - For PMM UI (Grafana) icons (`uil-` prefix), go to <https://iconscout.com/unicons/explore/line>, find an icon, select 'Font' and copy the code here.
 - For Font Awesome (`fa-` prefix), go to <https://fontawesome.com/icons>, find an icon, copy the code.
 
+Note: the following list is WIP and will be updated as we go along.
+
 | Unicons icon code                            | Description                        | Used where                           |
 | -------------------------------------------- | ---------------------------------- | ------------------------------------ |
 | <i class="uil uil-angle-down"></i>           | Down chevron                       | PMM UI                               |
@@ -152,6 +154,7 @@ Use HTML for icons:
 | <i class="uil uil-caret-right"></i>          | Right caret                        | General                              |
 | <i class="uil uil-clock-nine"></i>           | Clock (at nine)                    | PMM UI - Time range selector         |
 | :material-cog:                               | Cog wheel                          | PMM UI Configuration                 |
+| :material-clipboard-list-outline:            | Clipboard list                     | PMM UI - Inventory                   |
 | <i class="uil uil-comment-alt-share"></i>    | Share comment symbol               | PMM UI - Share dashboard image       |
 | <i class="uil uil-compass"></i>              | Compass                            | PMM UI - Explore                     |
 | <i class="uil uil-copy"></i>                 | Copy                               | PMM UI - Copy (e.g. backup schedule) |
@@ -188,7 +191,6 @@ Custom (in-house design) icons are defined as SVG code in `variables.yml`.
 | Usage                  | Description                          | Used where                       |
 | ---------------------- | ------------------------------------ | -------------------------------- |
 | `{{icon.checks}}`      | Checkbox list items                  | Inventory list                   |
-| `{{icon.inventory}}`   | Checkbox list items                  | PMM Inventory & Inventory List   |
 | `{{icon.dashboards}}`  | Abstract blocks assembly             | PMM Dashboards                   |
 | `{{icon.node}}`        | Circle surrounded by smaller circles | Node dashboards                  |
 | `{{icon.percona}}`     | Percona logo                         | Wherever PMM home icon is needed |
