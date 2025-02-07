@@ -156,6 +156,7 @@ Note: the following list is WIP and will be updated as we go along.
 | :material-cog:                               | Cog wheel                          | PMM UI Configuration                 |
 | :material-clipboard-list-outline:            | Clipboard list                     | PMM UI - Inventory                   |
 | :material-dots-horizontal:                   | Triple dots, aligned horizontally  | PMM UI - Backup in progress          |
+| :material-magnify-expand:                    | Advisors                           | PMM UI - Advisors                    |
 | <i class="uil uil-comment-alt-share"></i>    | Share comment symbol               | PMM UI - Share dashboard image       |
 | <i class="uil uil-compass"></i>              | Compass                            | PMM UI - Explore                     |
 | <i class="uil uil-copy"></i>                 | Copy                               | PMM UI - Copy (e.g. backup schedule) |
@@ -191,7 +192,6 @@ Custom (in-house design) icons are defined as SVG code in `variables.yml`.
 
 | Usage                  | Description                          | Used where                       |
 | ---------------------- | ------------------------------------ | -------------------------------- |
-| `{{icon.checks}}`      | Checkbox list items                  | Inventory list                   |
 | `{{icon.dashboards}}`  | Abstract blocks assembly             | PMM Dashboards                   |
 | `{{icon.node}}`        | Circle surrounded by smaller circles | Node dashboards                  |
 | `{{icon.percona}}`     | Percona logo                         | Wherever PMM home icon is needed |

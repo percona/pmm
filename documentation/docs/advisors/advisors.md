@@ -39,13 +39,13 @@ You can change the standard 24-hour interval to a custom frequency for each Advi
 To change the frequency of an automatic check:
 {.power-number}
 
-1. Click **{{icon.checks}} Advisors**.
+1. Click :material-magnify-expand: **Advisors**.
 2. Select the Advisor tab that contains the check for which you want to change the frequency.
 3. Expand the relevant Advisor and scroll through the list to find your check. Alternatively, use the **Filter** section at the top of the table to search checks by Name, Description, Status, or Interval.
 
     !!! hint alert alert-success "Tip"
         If you need to share filtered Advisor results with your team members, send them the PMM URL. This saves your search criteria and results.
-4. Click the ![Edit](../images/edit.png) **Interval** icon in the **Actions** column, next to the check you want to update.
+4. Click the :material-pencil-box-outline: **Interval** icon in the **Actions** column, next to the check you want to update.
 5. Chose an interval and click **Save**.
 
 ## Manual checks
@@ -54,7 +54,7 @@ In addition to the automatic checks that run every 24 hours, you can also run ch
 To run checks manually:
 {.power-number}
 
-1. Click **{{icon.checks}} Advisors** on the main menu.
+1. Click :material-magnify-expand: **Advisors** on the main menu.
 2. Select the Advisor tab that contains the checks which you want to run manually.
 3. Click **Run checks** to run all the available checks for this Advisor group, or expand an Advisor and click **Run** next to each check that you want to run individually.
 ![!Actions options](../images/PMM_Checks_Actions.png)
@@ -69,9 +69,9 @@ The results are sent to PMM Server where you can review any failed checks on the
 
 ![!Failed Advisor Checks panel](../images/HomeDashboard.png)
 
-To see more details about the available checks and any checks that failed, click the *{{icon.checks}} Advisors* icon on the main menu.
+To see more details about the available checks and any checks that failed, click the :material-magnify-expand: *Advisors* icon on the main menu.
 
-**Check results data *always* remains on the PMM Server.** This is not related to anonymous data sent for Telemetry purposes.
+Note: Check results *always* remain on the PMM Server. They are never sent as part of Telemetry.
 
 ## Create your own Advisors
 PMM Advisors offer a set of checks that can detect common security threats, performance degradation, data loss and data corruption.
