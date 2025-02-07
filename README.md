@@ -67,7 +67,7 @@ percona/pmm-server:2
 ```
 4. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
 
-<img src="https://docs.percona.com/percona-monitoring-and-management/_images/PMM_Login.jpg" width="280">
+<img src="https://docs.percona.com/percona-monitoring-and-management/images/PMM_Login.jpg" width="280">
 
 Enter the username and password. The defaults are username: **admin** and password: **admin**
 
