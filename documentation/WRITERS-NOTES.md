@@ -155,6 +155,7 @@ Note: the following list is WIP and will be updated as we go along.
 | <i class="uil uil-clock-nine"></i>           | Clock (at nine)                    | PMM UI - Time range selector         |
 | :material-cog:                               | Cog wheel                          | PMM UI Configuration                 |
 | :material-clipboard-list-outline:            | Clipboard list                     | PMM UI - Inventory                   |
+| :material-dots-horizontal:                   | Triple dots, aligned horizontally  | PMM UI - Backup in progress          |
 | <i class="uil uil-comment-alt-share"></i>    | Share comment symbol               | PMM UI - Share dashboard image       |
 | <i class="uil uil-compass"></i>              | Compass                            | PMM UI - Explore                     |
 | <i class="uil uil-copy"></i>                 | Copy                               | PMM UI - Copy (e.g. backup schedule) |
