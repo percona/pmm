@@ -190,12 +190,6 @@ Note: the following list is WIP and will be updated as we go along.
 | <i class="uil uil-toggle-on"></i>            | Toggle (on)                        | PMM UI - Toggle switch               |
 | <i class="uil uil-trash-alt"></i>            | Trash can                          | PMM UI - Various 'Delete' operation  |
 
-Custom (in-house design) icons are defined as SVG code in `variables.yml`.
-
-| Usage                  | Description                          | Used where                       |
-| ---------------------- | ------------------------------------ | -------------------------------- |
-| `{{icon.percona}}`     | Percona logo                         | Wherever PMM home icon is needed |
-
 ## Symbols
 
 While MkDocs will automatically replace certain strings with symbols, it's preferable where possible to use unicode symbols for other icons, so that they appear when the raw Markdown is exported as HTML and imported into Google Docs.
