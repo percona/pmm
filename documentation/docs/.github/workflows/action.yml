@@ -1,5 +1,8 @@
 name: Linkspector
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+      - "documentation/**"
 jobs:
   check-links:
     name: runner / linkspector
