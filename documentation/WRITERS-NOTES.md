@@ -133,7 +133,7 @@ Currently, we use three different sets of icons:
 
 The preference should be given to Mkdocs Material icons, since they were initially designed for `mkdocs` project and work very well with it. In rare cases, when an icon cannot be found in Mkdocs Material, you can find a suitable one on Iconscout. FontAwesome icons do not play well with Mkdocs, so use them with caution and don't forget to apply additional CSS styles in case they don't render well in PDF.
 
-Ideally, we should migrate to using just the two first sets.
+Ideally, we should migrate to using just the first set, which offers 10,000+ icons, and is more than sufficient for all our documentation needs.
 
 Use HTML for icons:
 
@@ -158,6 +158,7 @@ Note: the following list is WIP and will be updated as we go along.
 | :material-dots-horizontal:                   | Triple dots, aligned horizontally  | PMM UI - Backup in progress          |
 | :material-magnify-expand:                    | Advisors                           | PMM UI - Advisors                    |
 | :material-view-dashboard:                    | Abstract blocks assembly           | PMM UI - Dashboards                  |
+| :material-dots-circle:                       | A circle surrounded by smaller ones| PMM UI - Node dashboards             |
 | <i class="uil uil-comment-alt-share"></i>    | Share comment symbol               | PMM UI - Share dashboard image       |
 | <i class="uil uil-compass"></i>              | Compass                            | PMM UI - Explore                     |
 | <i class="uil uil-copy"></i>                 | Copy                               | PMM UI - Copy (e.g. backup schedule) |
@@ -193,7 +194,6 @@ Custom (in-house design) icons are defined as SVG code in `variables.yml`.
 
 | Usage                  | Description                          | Used where                       |
 | ---------------------- | ------------------------------------ | -------------------------------- |
-| `{{icon.node}}`        | Circle surrounded by smaller circles | Node dashboards                  |
 | `{{icon.percona}}`     | Percona logo                         | Wherever PMM home icon is needed |
 
 ## Symbols
