@@ -48,7 +48,6 @@ Check [PMM documentation](../pmm/documentation/docs/index.md) for the actual arc
 There are numbers of installation methods, please check our [Setting Up](../pmm/documentation/docs/install-pmm/index.md) documentation page.
 
 But in a nutshell:
-{.power-number}
 
 1. Download PMM server Docker image:
 ```bash
@@ -95,7 +94,6 @@ If you find a bug in Percona Monitoring and Management  or one of the related pr
 Your first step should be [to search](https://jira.percona.com/issues/?jql=project=PMM) the existing set of open tickets for a similar report. If you find that someone else has already reported your problem, then you can upvote that report to increase its visibility.
 
 If there is no existing report, submit a report following these steps:
-{.power-number}
 
 1. [Sign in to Percona JIRA](https://jira.percona.com). You will need to create an account if you do not have one.
 2. From the top navigation bar, anywhere in Jira, click **Create**. 
