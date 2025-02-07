@@ -76,10 +76,10 @@ To manually download package manager:
 
 ??? info "Download page links"
     Here are the download page links for each supported platform:
-    - [Debian 9 (Stretch)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/stretch/)
-    - [Debian 10 (Buster)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/buster/)
-    - [Debian 11 (Bullseye)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/bullseye/)
     - [Red Hat/CentOS/Oracle 8](https://www.percona.com/downloads/pmm3/{{release}}/binary/redhat/8/)
-    - [Ubuntu 18.04 (Bionic Beaver)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/bionic/)
+    - [Red Hat/CentOS/Oracle 9](https://www.percona.com/downloads/pmm3/{{release}}/binary/redhat/9/)
+    - [Debian 11 (Bullseye)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/bullseye/)
+    - [Debian 12 (Bookworm)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/bookworm/)
     - [Ubuntu 20.04 (Focal Fossa)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/focal/)
     - [Ubuntu 22.04 (Jammy Jellyfish)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/jammy/)
+    - [Ubuntu 24.04 (Noble Numbat)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/noble/)
