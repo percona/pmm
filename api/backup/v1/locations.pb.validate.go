@@ -82,7 +82,7 @@ type FilesystemLocationConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m FilesystemLocationConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -228,7 +228,7 @@ type S3LocationConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m S3LocationConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -420,7 +420,7 @@ type LocationMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m LocationMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -520,7 +520,7 @@ type ListLocationsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListLocationsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -656,7 +656,7 @@ type ListLocationsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListLocationsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -829,7 +829,7 @@ type AddLocationRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddLocationRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -933,7 +933,7 @@ type AddLocationResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddLocationResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1108,7 +1108,7 @@ type ChangeLocationRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeLocationRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1210,7 +1210,7 @@ type ChangeLocationResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeLocationResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1316,7 +1316,7 @@ type RemoveLocationRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveLocationRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1418,7 +1418,7 @@ type RemoveLocationResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveLocationResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1578,7 +1578,7 @@ type TestLocationConfigRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m TestLocationConfigRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1680,7 +1680,7 @@ type TestLocationConfigResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m TestLocationConfigResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
