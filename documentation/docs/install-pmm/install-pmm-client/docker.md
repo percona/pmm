@@ -55,7 +55,7 @@ You can now add services with [`pmm-admin`](../../use/commands/pmm-admin.md) by 
 
     In the GUI:
 
-    - Select {{icon.dashboards}} *PMM Dashboards* → {{icon.node}} *System (Node)* → {{icon.node}} *Node Overview*.
+    - Select :material-view-dashboard: *PMM Dashboards* → {{icon.node}} *System (Node)* → {{icon.node}} *Node Overview*.
     - In the *Node Names* menu, select the new node.
     - Change the time range to see data.
 
