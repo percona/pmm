@@ -26,7 +26,7 @@ The other way of moving dashboards from one folder to another is:
 
 
 1. Open the dashboard that you want to move to another folder.
-2. Click on <i class="uil uil-cog"></i> icon to open *Dashboard Settings*.
+2. Click on :material-cog: icon to open *Dashboard Settings*.
 3. On the *General* page, under *Folder* select the folder name that you want to move from the dropdown.
 
     ![!image](../../../images/PMM_Move_dashboards-way2.png)
@@ -54,7 +54,7 @@ Organization Admins can set the home dashboard for their organization. For infor
 
 1. Navigate to the dashboard that you want to set as the home dashboard.
 2. Click the <i class="uil uil-star"></i> star next to the dashboard title to mark the dashboard as a favorite.
-3. Hover your cursor over <i class="uil uil-cog"></i> *Configuration*
+3. Hover your cursor over :material-cog: *Configuration*
 4. Click *Preferences*.
 5. In the Home Dashboard field, select the dashboard that you want to set as your home dashboard.
 6. Click *Save*.
@@ -66,7 +66,7 @@ Organization and team Admins can set the home dashboard for their team as follow
 
 1. Navigate to the dashboard that you want to set as your home dashboard.
 2. Click <i class="uil uil-star"></i> star next to the dashboard to mark the dashboard as a favorite.
-3. On the main menu, hover your cursor over <i class="uil uil-cog"></i> *Configuration*. 
+3. On the main menu, hover your cursor over :material-cog: *Configuration*. 
 4. Click *Teams*. Grafana displays the team list.
 5. Click on the team for whom you want to set the home dashboard and then navigate to the *Settings* tab.
 6. In the Home Dashboard field, select the dashboard that you want to use for your home dashboard.
@@ -81,7 +81,7 @@ Organization and team Admins can set the home dashboard for their team as follow
     ![!image](../../../images/PMM_click_to_add_favorite_dashboard.png)
 
 
-3. From the side menu go to <i class="uil uil-cog"></i> *Configuration > Preferences*. In the *Home Dashboard* field, select the dashboard that you want to set as your home dashboard. 
+3. From the side menu go to :material-cog: *Configuration > Preferences*. In the *Home Dashboard* field, select the dashboard that you want to set as your home dashboard. 
 
     ![!image](../../../images/PMM_set_home_dashboard.png)
 

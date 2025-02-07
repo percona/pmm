@@ -2,7 +2,7 @@
 
 The **Inventory** dashboard is a high-level overview of all objects registered in PMM.
 
-To check your inventory list, go to <i class="uil uil-cog"></i> **Configuration** > **Inventory**.
+To check your inventory list, go to :material-cog: **Configuration** > **Inventory**.
 
 ![!image](../images/Inventory.png)
 

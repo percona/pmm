@@ -45,7 +45,7 @@ After connecting to the Percona Platform, PMM has access to additional alert tem
 ### Disconnect a PMM instance
 Disconnect a PMM instance when you want to unlink it from your Percona Platform organization or stop monitoring it there.
 
-To disconnect a PMM Server, go to > <i class="uil uil-cog"></i> **Configuration > Settings > Percona Platform** and click **Disconnect**.
+To disconnect a PMM Server, go to :material-cog: **Configuration > Settings > Percona Platform** and click **Disconnect**.
 
 #### Disconnecting instances as an Admin
 

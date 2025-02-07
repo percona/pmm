@@ -20,9 +20,9 @@ The main menu is part of the Grafana framework and is visible on every page.
 | <i class="uim uim-chart"></i> | Query Analytics (QAN) | Navigate to the Query Analytics dashboard where you can analyze database queries over time, optimize database performance, and identify the source of problems.
 | <i class="uil uil-bell"></i>       | Alerting             | [Alerting](../../alert/index.md), Create new alerts and manage your alert rules and alert templates.
 | <i class="uil uil-search-alt"></i>                 |  Advisors  | Run health assessment checks against your connected databases and check any failed checks.
-| <i class="uil uil-history"></i>    | Backup     | [Backup management and storage location configuration][BACKUP]. The Backup icon appears when **Backup Management** is activated in <i class="uil uil-cog"></i> **PMM Configuration > <i class="uil uil-setting"></i> Settings > Advanced Settings**.
-| <i class="uil uil-cog"></i>        | Connections        | Access Grafana's built-in data sources within PMM to seamlessly integrate and visualize data from various systems like Prometheus, MySQL, PostgreSQL, InfluxDB, and Elasticsearch.
-| <i class="uil uil-cog"></i>        | PMM Configuration||  Hosts all PMM-related configuration and inventory options.      | 
+| <i class="uil uil-history"></i>    | Backup     | [Backup management and storage location configuration][BACKUP]. The Backup icon appears when **Backup Management** is activated in :material-cog: **PMM Configuration > <i class="uil uil-setting"></i> Settings > Advanced Settings**.
+| :material-cog:        | Connections        | Access Grafana's built-in data sources within PMM to seamlessly integrate and visualize data from various systems like Prometheus, MySQL, PostgreSQL, InfluxDB, and Elasticsearch.
+| :material-cog:        | PMM Configuration||  Hosts all PMM-related configuration and inventory options.      | 
 | <i class="uil uil-shield"></i>     | Administration        |Hosts all Grafana-related configuration and inventory options.
 | <i class="uil uil-cloud"></i>      | Entitlements        |This tab is displayed after connecting PMM to Percona Portal, and shows all your Percona Platform account information. 
 | <i class="uil uil-ticket"></i>     | List of tickets opened by Customer Support      | Shows the list of tickets opened across your organization. This tab is only available after you connect PMM to Percona Platform.

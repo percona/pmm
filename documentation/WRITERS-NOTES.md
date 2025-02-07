@@ -151,7 +151,7 @@ Use HTML for icons:
 | <i class="uil uil-bolt"></i>                 | Lightening flash/bolt              | PMM UI - Nodes compare               |
 | <i class="uil uil-caret-right"></i>          | Right caret                        | General                              |
 | <i class="uil uil-clock-nine"></i>           | Clock (at nine)                    | PMM UI - Time range selector         |
-| <i class="uil uil-cog"></i>                  | Cog wheel                          | PMM UI Configuration                 |
+| :material-cog:                               | Cog wheel                          | PMM UI Configuration                 |
 | <i class="uil uil-comment-alt-share"></i>    | Share comment symbol               | PMM UI - Share dashboard image       |
 | <i class="uil uil-compass"></i>              | Compass                            | PMM UI - Explore                     |
 | <i class="uil uil-copy"></i>                 | Copy                               | PMM UI - Copy (e.g. backup schedule) |

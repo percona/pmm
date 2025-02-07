@@ -381,7 +381,7 @@ Add the database server as a service using one of these example commands. If suc
 #### TLS connection
 
 ```sh 
-pmm-admin add mysql --environment=test --custom-labels='source=slowlog'  --username=root --password=password --query-source=slowlog MySQLSlowLog localhost:3306
+pmm-admin add mysql --environment=test --custom-labels='source=slowlog' --username=root --password=password --tls --tls-skip-verify --tls-ca=pathtoca.pem --tls-cert=pathtocert.pem --tls-key=pathtocertkey.pem --query-source=slowlog MySQLSlowLog localhost:3306
 ```
 
 ### Install PMM Client as a remote instance

@@ -9,7 +9,7 @@ The home dashboard you set is the dashboard all the users will see after logging
     ![!image](../../images/PMM_click_to_add_favorite_dashboard.png)
 
 
-3. From the side menu go to <i class="uil uil-cog"></i> *Configuration > Preferences*. In the *Home Dashboard* field, select the dashboard that you want to set as your home dashboard. 
+3. From the side menu go to :material-cog: *Configuration > Preferences*. In the *Home Dashboard* field, select the dashboard that you want to set as your home dashboard. 
 
     ![!image](../../images/PMM_set_home_dashboard.png)
 

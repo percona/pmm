@@ -21,7 +21,7 @@ If you are a Percona customer with a Percona Customer Portal account, you also g
 To see the complete list of available checks, see the [Advisor Checks for PMM](https://docs.percona.com/percona-platform/advisors.html) topic in the Percona Platform documentation.
 
 ## Enable/Disable
-To download the checks available for your Percona Account, the Advisors and Telemetry options have to be enabled under <i class="uil uil-cog"></i> **Configuration <i class="uil uil-setting"></i> > Settings > Advanced Settings**.
+To download the checks available for your Percona Account, the Advisors and Telemetry options have to be enabled under :material-cog: **Configuration <i class="uil uil-setting"></i> > Settings > Advanced Settings**.
 
 These options are enabled by default so that PMM can run automatic Advisor checks in the background. However, you can disable them at any time if you do not need to check the health and performance of your connected databases.
 
