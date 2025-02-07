@@ -8,6 +8,6 @@
 - name: PMM                        | Delete Azure user
   shell: cd /tmp; nohup sh -c "trap '/usr/sbin/waagent -force -deprovision+user && sync' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
 
-- name: PMM                        | Delete vagrant
-  shell: cd /tmp; nohup sh -c "trap 'userdel -r vagrant' EXIT; sleep 600"
-  ignore_errors: yes
+#- name: PMM                        | Delete vagrant
+#  shell: cd /tmp; nohup sh -c "trap 'userdel -r vagrant' EXIT; sleep 600"
+#  ignore_errors: yes
