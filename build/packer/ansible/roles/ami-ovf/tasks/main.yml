@@ -10,5 +10,4 @@
 
 - name: PMM                        | Delete vagrant
   shell: cd /tmp; nohup sh -c "trap 'userdel -f -r vagrant' EXIT; sleep 600"
-  poll: 0
   ignore_errors: yes
