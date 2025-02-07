@@ -45,7 +45,6 @@ make release
 cd ../ui
 make release
 
-%grafana-plugin
 cd ../ui-packages/percona-pmm-app
 make release
 
