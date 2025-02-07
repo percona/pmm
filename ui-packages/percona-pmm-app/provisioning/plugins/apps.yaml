@@ -1,0 +1,11 @@
+apiVersion: 1
+
+apps:
+  - type: 'percona-pmm-app'
+    org_id: 1
+    org_name: 'percona'
+    disabled: false
+    jsonData:
+      apiUrl: http://default-url.com
+    secureJsonData:
+      apiKey: secret-key

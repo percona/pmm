@@ -20,3 +20,8 @@ export const useMessageWithResult = () => {
 
   return { result, sendMessage: sendMessageWithResult };
 };
+
+export const useMessages = (filter: string) => {
+  const { messages } = useMessenger();
+  return messages.filter((m) => !filter || m.type === filter);
+};

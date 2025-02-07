@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "app",
+  "name": "PMM",
+  "id": "percona-pmm-app",
+  "preload": true,
+  "info": {
+    "keywords": ["app"],
+    "description": "",
+    "author": {
+      "name": "Percona"
+    },
+    "logos": {},
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "includes": [
+    {
+      "type": "page",
+      "name": "PMM Page",
+      "path": "/a/%PLUGIN_ID%/pmm",
+      "addToNav": false,
+      "defaultNav": false
+    }
+  ],
+  "dependencies": {
+    "grafanaDependency": ">=10.4.0",
+    "plugins": []
+  }
+}

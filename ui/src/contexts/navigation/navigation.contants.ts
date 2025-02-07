@@ -151,46 +151,51 @@ const PG_DASHBOARDS = {
 
 export const initialNavtree: MenuItem[] = [
   {
+    id: 'home',
     title: 'Home',
     to: '/graph/d/pmm-home',
   },
   {
+    id: 'dashboards',
     icon: 'dashboards',
     title: 'Dashboards',
-    children: [
-      {
-        title: 'PostgreSQL Instances Overview',
-        to: '/graph/d/postgresql-instance-overview/postgresql-instances-overview',
-      },
-      {
-        title: 'Nodes Overview',
-        to: '/graph/d/node-instance-overview/nodes-overview',
-      },
-    ],
+    children: [],
   },
   PG_DASHBOARDS,
   MYSQL_DASHBOARDS,
   {
+    id: 'alerts',
     icon: 'alerts',
     title: 'Alerts',
     to: '/graph/alerting',
   },
   {
+    id: 'query-analytics',
     title: 'Query Analytics',
     to: '/query-analytics',
   },
   {
+    id: 'settings',
     icon: 'settings',
     title: 'Settings',
     children: [
       {
+        id: 'metrics',
         title: 'Metrics',
         to: '/settings/metrics-resolution',
       },
       {
+        id: 'updates',
         title: 'Updates',
         to: '/updates',
       },
     ],
   },
 ];
+
+export const NAV_FOLDER_MAP: Record<string, string> = {
+  system: 'OS',
+  mysql: 'MySQL',
+  mongo: 'MongoDB',
+  postgre: 'PostgreSQL',
+};

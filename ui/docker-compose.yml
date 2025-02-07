@@ -14,9 +14,12 @@ services:
       # Uncomment to persist pmm state
       - pmm-data:/srv
 
+      # PMM COMPAT
+      - ../ui-packages/percona-pmm-app/dist:/srv/grafana/plugins/percona-pmm-app
+
       # Uncomment to use custom (FE) grafana code
-      - '../../grafana/public:/usr/share/grafana/public'
-      - '../../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini'
+      #- '../../grafana/public:/usr/share/grafana/public'
+      #- '../../grafana/conf/grafana.local-dev.ini:/usr/share/grafana/conf/defaults.ini'
     environment:
       - PMM_DEBUG=1
       - PMM_DEV_PORTAL_URL=https://portal-dev.percona.com
@@ -27,7 +30,8 @@ services:
       - GRAFANA_USERS_DEFAULT_THEME=light
       # Uncomment to specify to which docker image to update
       # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_UPDATE_IMAGE:-perconalab/pmm-server:3-dev-container}
-
+      - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=grafana-polystat-panel,pmm-app,pmm-check-panel-home,pmm-update,pmm-qan-app-panel,pmm-pt-summary-panel,pmm-pt-summary-datasource,percona-pmm-app
+    
   mysql:
     image: percona:5.7.30
     platform: linux/amd64

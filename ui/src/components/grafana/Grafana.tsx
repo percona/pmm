@@ -29,7 +29,7 @@ export const Grafana: FC<{ url: string; shouldNavigate: boolean }> = ({
       sendMessage({
         type: 'NAVIGATE_TO',
         data: {
-          to: url,
+          to: url.replace('/graph', ''),
         },
       });
     }

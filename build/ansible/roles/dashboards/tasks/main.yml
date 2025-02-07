@@ -35,7 +35,7 @@
     mode: 0644
     remote_src: yes
 
-- name: Restart Grafana service with new plugins 
+- name: Restart Grafana service with new plugins
   shell: "supervisorctl {{ item }} grafana"
   become: true
   become_user: pmm

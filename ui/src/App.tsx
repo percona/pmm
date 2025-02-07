@@ -10,6 +10,7 @@ import pmmThemeOptions from 'themes/PmmTheme';
 import { AuthProvider } from 'contexts/auth';
 import { UserProvider } from 'contexts/user';
 import { UpdatesProvider } from 'contexts/updates';
+import { NavigationProvider } from 'contexts/navigation/navigation.provider';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,7 +42,9 @@ const App = () => (
           <AuthProvider>
             <UserProvider>
               <UpdatesProvider>
-                <RouterProvider router={router} />
+                <NavigationProvider>
+                  <RouterProvider router={router} />
+                </NavigationProvider>
               </UpdatesProvider>
             </UserProvider>
           </AuthProvider>
