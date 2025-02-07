@@ -178,7 +178,7 @@ Note: the following list is WIP and will be updated as we go along.
 | <i class="uil uil-question-circle"></i>      | Question mark in circle            | PMM UI - Help                        |
 | <i class="uil uil-search-minus"></i>         | Minus in magnifying glass          | PMM UI - Time range zoom out         |
 | <i class="uil uil-search"></i>               | Magnifying glass                   | PMM UI - Search                      |
-| <i class="uil uil-setting"></i>              | Cog wheel                          | PMM UI Configuration->Settings       |
+| :material-cog-outline:                       | Cog wheel                          | PMM UI Configuration->Settings       |
 | <i class="uil uil-share-alt"></i>            | Share symbol                       | PMM UI - Share dashboard             |
 | <i class="uil uil-shield"></i>               | Shield                             | PMM UI - Server admin                |
 | <i class="uil uil-star"></i>                 | Star                               | PMM UI - Dashboard favourites        |
