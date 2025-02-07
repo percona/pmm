@@ -5,8 +5,8 @@
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
 
-- name: PMM                        | Delete vagrant
-  shell: cd /tmp; nohup sh -c "trap 'userdel -f -r vagrant' EXIT; sleep 600"
-
 - name: PMM                        | Delete Azure user
   shell: cd /tmp; nohup sh -c "trap '/usr/sbin/waagent -force -deprovision+user && sync' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+
+- name: PMM                        | Delete vagrant
+  shell: cd /tmp; nohup sh -c "trap 'userdel -f -r vagrant' EXIT; sleep 600"
