@@ -36,13 +36,13 @@ See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-m
 
 Please check our [Documentation](https://docs.percona.com/percona-monitoring-and-management/details/architecture.html) for the actual architecture.
 
-![Overal Architecture](https://docs.percona.com/percona-monitoring-and-management/_images/C_S_Architecture.jpg "Client Server Architecture")
+![Overall Architecture](https://docs.percona.com/percona-monitoring-and-management/3/images/C_S_Architecture.jpg "Client Server Architecture")
 
 
-![PMM Server](https://docs.percona.com/percona-monitoring-and-management/_images/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
+![PMM Server](https://docs.percona.com/percona-monitoring-and-management/3/images/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
 
 
-![PMM Client](https://docs.percona.com/percona-monitoring-and-management/_images/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
+![PMM Client](https://docs.percona.com/percona-monitoring-and-management/3/images/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
 
 ## Installation
 
