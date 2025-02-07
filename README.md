@@ -21,7 +21,7 @@ PMM helps users to:
 * Improve Data Security
 
 
-See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-management/3.x/index.html) for more information.
+See the [PMM Documentation](https://docs.percona.com/percona-monitoring-and-management/3/index.html) for more information.
 
 ## Use cases
 
