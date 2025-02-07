@@ -3,3 +3,5 @@ setup:
 
 build: setup
 	npm run build
+
+release: build
