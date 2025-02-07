@@ -7,7 +7,7 @@ To assign a public IP address for an Amazon EC2 instance, follow these steps:
 
 1. Allocate Elastic IP address
 
-    ![!image](../../images/aws-marketplace.pmm.ec2.ip.allocate.png)
+    ![!image](../..images/aws-marketplace.pmm.ec2.ip.allocate.png)
 
 2. Associate Elastic IP address with a Network interface ID of your EC2 instance
 

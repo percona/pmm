@@ -6,7 +6,7 @@ The **PMM Configuration** page gives you access to PMM setup's settings and inve
 
 * [Metrics resolution](metrics_res.md)
 * [Advanced Settings](advanced_settings.md)
-    * [Data Retention](advanced_settings.md#data-retention)
+    * [Data retention](advanced_settings.md#data-retention)
     * [Telemetry](advanced_settings.md#telemetry)
     * [Check for updates](advanced_settings.md#check-for-updates)
     * [Advisors](advanced_settings.md#advisors)
@@ -15,10 +15,8 @@ The **PMM Configuration** page gives you access to PMM setup's settings and inve
     * [Microsoft Azure Monitoring](public-address.md#microsoft-azure-monitoring)
 * [SSH Key](ssh.md)
 * [Alertmanager integration](alertmanager.md)
-* [Percona Platform](percona_platform.md)
-    * [Connect PMM to Percona Platform](percona_platform.md#connect-pmm-to-percona-platform)
-    * [Password Reset](percona_platform.md#password-reset)
-      * [Password Forgotten](percona_platform.md#password-forgotten)
-      * [Change Password after Login](percona_platform.md#change-password-after-login)
+* [Percona Platform](../configure-pmm/percona_platform/integrate_with_percona_platform.md)
+    * [Check Percona Portal account information](../configure-pmm/percona_platform/account-info.md)
+    * [Connect PMM to Percona Platform](../configure-pmm/percona_platform/check_percona_platform.md)
   
 You can also use the [**Administration** page](../pmm-admin/index.md) to manage Grafana-related configurations and account settings.
