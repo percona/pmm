@@ -40,20 +40,24 @@
     },
     {
       "type": "azure-arm",
+
       "subscription_id": "41000701-4126-4674-9219-da03b1f9bb58",
       "resource_group_name": "percona",
       "storage_account": "percona",
       "capture_container_name": "percona",
       "capture_name_prefix": "pmm-server-{{ user `pmm_version` }}",
+
       "os_type": "Linux",
       "image_publisher": "OpenLogic",
       "image_offer": "CentOS",
       "image_sku": "7_9",
       "image_version": "7.9.2021071900",
+
       "azure_tags": {
         "dept": "Engineering",
         "task": "PMM Image deployment"
       },
+
       "location": "East US",
       "vm_size": "Standard_B2s",
       "disk_additional_size": [30],
@@ -77,7 +81,7 @@
       "guest_additions_mode": "disable",
       "headless": true,
       "output_directory": "pmm-virtualbox-ovf",
-      "shutdown_command": "sudo cat /dev/zero > /tmp/zero.fill; sudo sync; sleep 1; sudo rm -f /tmp/zero.fill; sudo shutdown -P now",
+      "shutdown_command": "rm -rf ~/.ssh/authorized_keys; cat /dev/zero > zero.fill; sync; sleep 1; sync; rm -f zero.fill; sudo shutdown -P now",
       "source_path": ".cache/box/box.ovf",
       "ssh_private_key_file": ".cache/id_rsa_vagrant",
       "ssh_wait_timeout": "8m",
@@ -142,27 +146,6 @@
       "inline": [
         "curl -s https://raw.githubusercontent.com/digitalocean/marketplace-partners/master/scripts/99-img-check.sh -o img_check.sh",
         "sudo bash ./img_check.sh"
-      ]
-    },
-    {
-      "type": "shell",
-      "only": ["virtualbox-ovf"],
-      "inline": [
-        "cat << 'EOF' | sudo tee /etc/systemd/system/remove-vagrant.service",
-        "[Unit]",
-        "Description=Remove vagrant user after boot",
-        "After=network.target",
-        "",
-        "[Service]",
-        "Type=oneshot",
-        "ExecStart=/usr/sbin/userdel -r vagrant",
-        "ExecStart=/bin/rm -f /etc/sudoers.d/vagrant",
-        "RemainAfterExit=yes",
-        "",
-        "[Install]",
-        "WantedBy=multi-user.target",
-        "EOF",
-        "sudo systemctl enable remove-vagrant.service"
       ]
     }
   ],
