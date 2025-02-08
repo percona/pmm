@@ -148,8 +148,21 @@
       "type": "shell",
       "only": ["virtualbox-ovf"],
       "inline": [
-        "sudo userdel -r vagrant",
-        "sudo rm -f /etc/sudoers.d/vagrant"
+        "cat << 'EOF' | sudo tee /etc/systemd/system/remove-vagrant.service",
+        "[Unit]",
+        "Description=Remove vagrant user after boot",
+        "After=network.target",
+        "",
+        "[Service]",
+        "Type=oneshot",
+        "ExecStart=/usr/sbin/userdel -r vagrant",
+        "ExecStart=/bin/rm -f /etc/sudoers.d/vagrant",
+        "RemainAfterExit=yes",
+        "",
+        "[Install]",
+        "WantedBy=multi-user.target",
+        "EOF",
+        "sudo systemctl enable remove-vagrant.service"
       ]
     }
   ],
