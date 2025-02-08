@@ -8,6 +8,34 @@
 - name: PMM                        | Delete Azure user
   shell: cd /tmp; nohup sh -c "trap '/usr/sbin/waagent -force -deprovision+user && sync' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
 
+- name: Create systemd unit to remove vagrant user after boot
+  copy:
+    dest: /etc/systemd/system/remove-vagrant.service
+    content: |
+      [Unit]
+      Description=Remove vagrant user after boot
+      After=network.target
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/sbin/userdel -r vagrant
+      ExecStart=/bin/rm -f /etc/sudoers.d/vagrant
+      RemainAfterExit=yes
+
+      [Install]
+      WantedBy=multi-user.target
+    owner: root
+    group: root
+    mode: '0644'
+  when: inventory_hostname in groups['virtualbox']
+
+- name: Enable and start the remove-vagrant service
+  systemd:
+    name: remove-vagrant.service
+    enabled: yes
+    state: started
+  when: inventory_hostname in groups['virtualbox']
+
 #- name: PMM                        | Delete vagrant
 #  shell: cd /tmp; nohup sh -c "trap 'userdel -r vagrant' EXIT; sleep 600"
 #  ignore_errors: yes
