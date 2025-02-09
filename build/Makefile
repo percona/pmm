@@ -21,12 +21,13 @@ fetch-el9:
 	    || curl -L https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant \
 		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
-	test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
-		|| wget --progress=dot:giga  https://vagrantcloud.com/bento/boxes/oracle-9.0/versions/202207.20.0/providers/virtualbox.box -O ${PACKER_CACHE_DIR}/box/oracle9.ova
 
-	# NOTE: image from vagrant registry is twice as large
+	# Add the box using Vagrant
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
-		|| tar -C ${PACKER_CACHE_DIR}/box -xvf ${PACKER_CACHE_DIR}/box/oracle9.ova
+		|| VAGRANT_HOME=${PACKER_CACHE_DIR}/box vagrant box add bento/oraclelinux-9 --box-version ${BOX_VERSION} --provider virtualbox
+
+	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
+		|| cp -rp ${PACKER_CACHE_DIR}/box/boxes/bento-VAGRANTSLASH-oraclelinux-9/${BOX_VERSION}/amd64/virtualbox/* ${PACKER_CACHE_DIR}/box
 
 deps:
 	mkdir -p ${PACKER_CACHE_DIR} ~/bin || :
