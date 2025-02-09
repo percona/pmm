@@ -115,7 +115,7 @@ jobs:
       - name: Upload coverage results
         uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
         with:
-          file: cover.out
+          files: cover.out
           flags: agent
           env_vars: MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
