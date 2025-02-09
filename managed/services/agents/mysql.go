@@ -28,6 +28,7 @@ import (
 )
 
 var mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
+var mysqlExporterVersion30 = version.MustParse("3.0.0-0")
 
 // The mysqldExporterConfig returns desired configuration of mysqld_exporter process.
 
@@ -77,13 +78,15 @@ func mysqldExporterConfig(
 		"--exporter.max-idle-conns=3",
 		"--exporter.max-open-conns=3",
 		"--exporter.conn-max-lifetime=55s",
-		"--exporter.global-conn-pool",
 		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
 	if !pmmAgentVersion.Less(mysqlExporterVersionWithPluginCollector) {
-		args = append(args,
-			"--collect.plugins")
+		args = append(args, "--collect.plugins")
+	}
+
+	if pmmAgentVersion.Less(mysqlExporterVersion30) {
+		args = append(args, "--exporter.global-conn-pool")
 	}
 
 	if exporter.IsMySQLTablestatsGroupEnabled() {
@@ -113,20 +116,37 @@ func mysqldExporterConfig(
 	files := exporter.Files()
 	if files != nil {
 		for k := range files {
-			switch k {
-			case "tlsCa":
-				args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
-			case "tlsCert":
-				args = append(args, "--mysql.ssl-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
-			case "tlsKey":
-				args = append(args, "--mysql.ssl-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
-			default:
-				continue
+			if pmmAgentVersion.Less(mysqlExporterVersion30) {
+				switch k {
+				case "tlsCa":
+					args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
+				case "tlsCert":
+					args = append(args, "--mysql.ssl-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
+				case "tlsKey":
+					args = append(args, "--mysql.ssl-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
+				default:
+					continue
+				}
+			} else {
+				switch k {
+				case "tlsCa":
+					args = append(args, "--tls.ca="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
+				case "tlsCert":
+					args = append(args, "--tls.cert="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
+				case "tlsKey":
+					args = append(args, "--tls.key="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
+				default:
+					continue
+				}
 			}
 		}
 
 		if exporter.TLSSkipVerify {
-			args = append(args, "--mysql.ssl-skip-verify")
+			if pmmAgentVersion.Less(mysqlExporterVersion30) {
+				args = append(args, "--mysql.ssl-insecure-skip-verify")
+			} else {
+				args = append(args, "--tls.insecure-skip-verify")
+			}
 		}
 	}
 
@@ -134,16 +154,19 @@ func mysqldExporterConfig(
 
 	sort.Strings(args)
 
+	var env []string
+	if pmmAgentVersion.Less(mysqlExporterVersion30) {
+		env = []string{
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion)),
+			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
+		}
+	}
 	res := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
-		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion)),
-			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
-		},
-		TextFiles: exporter.Files(),
+		Env:                env,
 	}
 	if redactMode != exposeSecrets {
 		res.RedactWords = redactWords(exporter)
