@@ -539,6 +539,8 @@ func (m *MetricsBucket) validate(all bool) error {
 
 	// no validation rules for MDocsScannedP99
 
+	// no validation rules for PlanSummary
+
 	// no validation rules for MSharedBlksHitCnt
 
 	// no validation rules for MSharedBlksHitSum
