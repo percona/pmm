@@ -132,7 +132,7 @@ func isPushMode(variant managementv1.MetricsMode) bool {
 }
 
 // Automatically pick metrics mode.
-func supportedMetricsMode(q *reform.Querier, metricsMode managementv1.MetricsMode, pmmAgentID string) (managementv1.MetricsMode, error) {
+func supportedMetricsMode(metricsMode managementv1.MetricsMode, pmmAgentID string) (managementv1.MetricsMode, error) {
 	if pmmAgentID == models.PMMServerAgentID && metricsMode == managementv1.MetricsMode_METRICS_MODE_PUSH {
 		return metricsMode, status.Errorf(codes.FailedPrecondition, "push metrics mode is not allowed for exporters running on pmm-server")
 	}
@@ -142,15 +142,6 @@ func supportedMetricsMode(q *reform.Querier, metricsMode managementv1.MetricsMod
 	}
 
 	if pmmAgentID == models.PMMServerAgentID {
-		return managementv1.MetricsMode_METRICS_MODE_PULL, nil
-	}
-
-	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
-	if err != nil {
-		return metricsMode, err
-	}
-
-	if !models.IsPushMetricsSupported(pmmAgent.Version) {
 		return managementv1.MetricsMode_METRICS_MODE_PULL, nil
 	}
 

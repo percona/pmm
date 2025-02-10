@@ -59,7 +59,7 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 		}
 		postgres.Service = invService.(*inventoryv1.PostgreSQLService) //nolint:forcetypeassert
 
-		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
+		req.MetricsMode, err = supportedMetricsMode(req.MetricsMode, req.PmmAgentId)
 		if err != nil {
 			return err
 		}
