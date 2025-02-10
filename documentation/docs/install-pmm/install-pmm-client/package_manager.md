@@ -53,9 +53,11 @@ The package manager will automatically select the appropriate version for your s
         ```
     5. [Register the node](../register-client-node/index.md).
 
-## Package manager -- manual download
-To manually download package manager:
+## Packages -- manual download
+To manually download packages:
+
 {.power-number}
+
 1. Visit the [Percona Monitoring and Management 3 download](https://www.percona.com/downloads/) page.
 2. Under **Select Product Version** select the one you want (usually the latest).
 3. Under **Select Platform**, select the item matching your software platform and architecture (x86_64 or ARM64).
