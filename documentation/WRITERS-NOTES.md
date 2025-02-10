@@ -154,6 +154,7 @@ Note: the following list is WIP and will be updated as we go along.
 | <i class="uil uil-caret-right"></i>          | Right caret                        | General                              |
 | <i class="uil uil-clock-nine"></i>           | Clock (at nine)                    | PMM UI - Time range selector         |
 | :material-cog:                               | Cog wheel                          | PMM UI Configuration                 |
+| :material-cog-outline:                       | Cog wheel                          | PMM UI Configuration->Settings       |
 | :material-clipboard-list-outline:            | Clipboard list                     | PMM UI - Inventory                   |
 | :material-dots-horizontal:                   | Triple dots, aligned horizontally  | PMM UI - Backup in progress          |
 | :material-magnify-expand:                    | Advisors                           | PMM UI - Advisors                    |
@@ -178,7 +179,6 @@ Note: the following list is WIP and will be updated as we go along.
 | <i class="uil uil-question-circle"></i>      | Question mark in circle            | PMM UI - Help                        |
 | <i class="uil uil-search-minus"></i>         | Minus in magnifying glass          | PMM UI - Time range zoom out         |
 | <i class="uil uil-search"></i>               | Magnifying glass                   | PMM UI - Search                      |
-| :material-cog-outline:                       | Cog wheel                          | PMM UI Configuration->Settings       |
 | <i class="uil uil-share-alt"></i>            | Share symbol                       | PMM UI - Share dashboard             |
 | <i class="uil uil-shield"></i>               | Shield                             | PMM UI - Server admin                |
 | <i class="uil uil-star"></i>                 | Star                               | PMM UI - Dashboard favourites        |
