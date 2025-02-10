@@ -11,7 +11,7 @@ Choose your preferred upgrade method based on your setup:
 
 * [Upgrade PMM Server from the UI](ui_upgrade.md)
 
-* [Upgrade PMM Client](upgrade_agent.md)
+* [Upgrade PMM Client](upgrade_client.md)
 
 * [Upgrade PMM Server using Docker](upgrade_docker.md)
 

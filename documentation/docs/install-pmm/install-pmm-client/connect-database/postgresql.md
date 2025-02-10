@@ -88,7 +88,7 @@ Here are the benefits and drawbacks of each.
 | `pg_stat_statements` | 1. Part of official `postgresql-contrib` package. | 1. No aggregated statistics or histograms.<br>2. No Query Examples.
 | `pg_stat_monitor`    | 1. Builds on `pg_stat_monitor` features.<br>2. Bucket-based aggregation. | 
 
-For a more detailed comparison of extensions, follow [pg_stat monitor User Guide](https://github.com/percona/pg_stat_monitor/blob/master/docs/USER_GUIDE.md#usage)
+For a more detailed comparison of extensions, follow [pg_stat monitor User Guide](https://docs.percona.com/pg-stat-monitor/user_guide.html)
 
 !!! note alert alert-primary "Bucket-based data aggregation"
     `pg_stat_monitor` collects statistics and aggregates data in a data collection unit called a *bucket*. These are linked together to form a *bucket chain*.

@@ -250,7 +250,7 @@ nav:
         - Manage dashboards:
           - use/dashboards-panels/manage-dashboards/create-folders.md
           - use/dashboards-panels/manage-dashboards/manage-folders.md
-          - use/dashboard-panels/set-custom-dashboard
+          - use/dashboards-panels/manage-dashboards/set-custom-dashboard.md
         - Share dashboards and panels: use/dashboards-panels/share-dashboards/share_dashboard.md
         - Annotate: use/dashboards-panels/annotate/annotate.md              
 

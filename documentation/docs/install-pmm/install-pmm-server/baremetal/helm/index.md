@@ -58,7 +58,7 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
     kubectl get secret pmm-secret -o jsonpath='{.data.PMM_ADMIN_PASSWORD}' | base64 --decode
     ```
 
-3. Add the Percona repository and deploy PMM Server with default settings and your secret. See configuration parameters for customization. See [configuration parameters]((#view-available-parameters)) for customization.
+3. Add the Percona repository and deploy PMM Server with default settings and your secret. See configuration parameters for customization. See [configuration parameters](#view-available-parameters) for customization.
 
     ```sh
     helm repo add percona https://percona.github.io/percona-helm-charts/
@@ -117,7 +117,7 @@ PMM_ENABLE_UPDATES: "1"
 
 ### SSL certificates
 
-PMM comes with [self-signed SSL certificates]((../../../../pmm-admin/security/ssl_encryption.md)), ensuring a secure connection between the client and server. However, since these certificates are not issued by a trusted authority, you may encounter a security warning when connecting to PMM.
+PMM comes with [self-signed SSL certificates](../../../../pmm-admin/security/ssl_encryption.md), ensuring a secure connection between the client and server. However, since these certificates are not issued by a trusted authority, you may encounter a security warning when connecting to PMM.
 
 To enhance security, you have two options: 
 {.power-number}
@@ -134,7 +134,7 @@ To enhance security, you have two options:
         dhparam.pem: <content>
     ```
 
-2. Use [Ingress controller with TLS]((https://kubernetes.io/docs/concepts/services-networking/ingress/#tls)) See [PMM network configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-network-configuration) for details.
+2. Use [Ingress controller with TLS](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls). See [PMM network configuration](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-network-configuration) for details.
 
 
 
