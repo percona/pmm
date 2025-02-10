@@ -8,16 +8,22 @@ managed:
       module: buf.build/grpc-ecosystem/grpc-gateway
     - file_option: go_package
       module: buf.build/envoyproxy/protoc-gen-validate
+    - file_option: go_package
+      module: buf.build/alta/protopatch
   override:
     - file_option: go_package_prefix
       value: github.com/percona/pmm/api
 plugins:
-  - local: ../bin/protoc-gen-go
+  - local: ../bin/protoc-gen-go-patch
     out: .
-    opt: paths=source_relative
-  - local: ../bin/protoc-gen-go-grpc
+    opt:
+      - paths=source_relative
+      - plugin=go
+  - local: ../bin/protoc-gen-go-patch
     out: .
-    opt: paths=source_relative
+    opt:
+      - paths=source_relative
+      - plugin=go-grpc
   - local: ../bin/protoc-gen-grpc-gateway
     out: .
     opt: paths=source_relative
