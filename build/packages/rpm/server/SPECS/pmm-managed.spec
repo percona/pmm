@@ -48,7 +48,6 @@ make release
 cd ../ui-packages/percona-pmm-app
 make release
 
-% /srv/grafana/plugins
 %install
 install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
