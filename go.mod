@@ -1,6 +1,6 @@
 module github.com/percona/pmm
 
-go 1.23.2
+go 1.23.4
 
 // Update saas with
 // go get -v github.com/percona/saas@latest
@@ -53,7 +53,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.55
 	github.com/percona/exporter_shared v0.7.5
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
-	github.com/percona/percona-toolkit v3.2.1+incompatible
+	github.com/percona/percona-toolkit v0.0.0-20250129114007-6c2dec8502c1
 	github.com/percona/promconfig v0.2.5
 	github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e
 	github.com/pganalyze/pg_query_go/v5 v5.1.0
@@ -68,7 +68,7 @@ require (
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.10.0
 	github.com/tink-crypto/tink-go v0.0.0-20230613075026-d6de17e3f164
-	go.mongodb.org/mongo-driver v1.17.1
+	go.mongodb.org/mongo-driver v1.17.2
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	golang.org/x/crypto v0.32.0
 	golang.org/x/sync v0.11.0
@@ -98,13 +98,12 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/gogo/googleapis v0.0.0-20180223154316-0cd9801be74a // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
-	github.com/golang/mock v1.4.4 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/hashicorp/go-hclog v1.6.2 // indirect
 	github.com/hashicorp/go-msgpack/v2 v2.1.1 // indirect
 	github.com/kr/fs v0.1.0 // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/miekg/dns v1.1.26 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
@@ -120,6 +119,7 @@ require (
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/time v0.7.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
+	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22 // indirect
 )
 
 require (
