@@ -4203,11 +4203,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../advisors/advisor-details.md" class="md-nav__link">
+      <a href="../../../advisors/advisor-details.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    None
+    Advisor details
     
   </span>
   
@@ -4225,11 +4225,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../advisors/develop-advisor-checks.md" class="md-nav__link">
+      <a href="../../../advisors/develop-advisor-checks.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    None
+    Developing Advisor checks
     
   </span>
   
@@ -6676,11 +6676,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/dashboards/dashboard-environent-summary.md" class="md-nav__link">
+      <a href="../../../reference/dashboards/dashboard-environment-summary.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    None
+    Environment Summary
     
   </span>
   
@@ -9351,13 +9351,13 @@ Upon successful addition, PMM Client will display &ldquo;MySQL Service added&rdq
 <h3 id="on-the-command-line">On the command line<a class="headerlink" href="#on-the-command-line" title="Permanent link">&para;</a></h3>
 <p>Add the database server as a service using one of these example commands. If successful, PMM Client will print <code>MySQL Service added</code> with the service&rsquo;s ID and name. Use the <code>--environment</code> and <code>-custom-labels</code> options to set tags for the service to help identify them.</p>
 <h4 id="tls-connection">TLS connection<a class="headerlink" href="#tls-connection" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mysql<span class="w"> </span>--environment<span class="o">=</span><span class="nb">test</span><span class="w"> </span>--custom-labels<span class="o">=</span><span class="s1">&#39;source=slowlog&#39;</span><span class="w">  </span>--username<span class="o">=</span>root<span class="w"> </span>--password<span class="o">=</span>password<span class="w"> </span>--query-source<span class="o">=</span>slowlog<span class="w"> </span>MySQLSlowLog<span class="w"> </span>localhost:3306
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mysql<span class="w"> </span>--environment<span class="o">=</span><span class="nb">test</span><span class="w"> </span>--custom-labels<span class="o">=</span><span class="s1">&#39;source=slowlog&#39;</span><span class="w"> </span>--username<span class="o">=</span>root<span class="w"> </span>--password<span class="o">=</span>password<span class="w"> </span>--tls<span class="w"> </span>--tls-skip-verify<span class="w"> </span>--tls-ca<span class="o">=</span>pathtoca.pem<span class="w"> </span>--tls-cert<span class="o">=</span>pathtocert.pem<span class="w"> </span>--tls-key<span class="o">=</span>pathtocertkey.pem<span class="w"> </span>--query-source<span class="o">=</span>slowlog<span class="w"> </span>MySQLSlowLog<span class="w"> </span>localhost:3306
 </code></pre></div>
 <h3 id="install-pmm-client-as-a-remote-instance">Install PMM Client as a remote instance<a class="headerlink" href="#install-pmm-client-as-a-remote-instance" title="Permanent link">&para;</a></h3>
 <p class="power-number">If you need to monitor a MySQL instance from a different server where PMM Client is installed, follow these steps in the PMM web interface:</p>
 <ol>
 <li>
-<p>Select <i class="uil uil-cog"></i> ** PMM Configuration &gt; PMM Inventory &gt; <svg width="16" height="16" class="css-6tlabr" viewBox="0 0 24 24" fill="none" xmlns="https://www.w3.org/2000/svg"><path d="M11.9655 1.58789C6.16682 1.58789 1.46613 6.28859 1.46613 12.0873C1.46613 17.8859 6.16682 22.5866 11.9655 22.5866C17.7641 22.5866 22.4648 17.8859 22.4648 12.0873C22.4648 6.28859 17.7641 1.58789 11.9655 1.58789ZM16.0671 12.8059H12.6747V16.1736C12.6747 16.5702 12.3532 16.8917 11.9565 16.8917C11.7582 16.8917 11.5787 16.8114 11.4487 16.6814C11.3187 16.5514 11.2384 16.3719 11.2384 16.1736V12.8059H7.87073C7.47402 12.8059 7.1526 12.4844 7.1526 12.0877C7.1526 11.8894 7.23285 11.7098 7.36286 11.5798C7.49284 11.4499 7.6724 11.3696 7.87073 11.3696H11.2384V7.97714C11.2384 7.58046 11.5599 7.25904 11.9566 7.25904C12.1549 7.25904 12.3344 7.33926 12.4645 7.46927C12.5944 7.59928 12.6747 7.77881 12.6747 7.97714V11.3696H16.0672C16.4639 11.3696 16.7853 11.691 16.7853 12.0877C16.7852 12.4844 16.4638 12.8059 16.0671 12.8059Z" fill="#000"></path></svg> Add Service**.</p>
+<p>Select <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97s-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1s.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64z"/></svg></span> <strong>PMM Configuration &gt; PMM Inventory &gt; <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m0-18A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2m1 5h-2v4H7v2h4v4h2v-4h4v-2h-4z"/></svg></span> Add Service</strong>.</p>
 </li>
 <li>
 <p>Choose <strong>MySQL &gt; Add a remote instance</strong>.</p>
@@ -9438,7 +9438,7 @@ Upon successful addition, PMM Client will display &ldquo;MySQL Service added&rdq
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-02-03
+    2025-02-10
   </span>
 
     
