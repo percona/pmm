@@ -362,7 +362,7 @@ nav:
         - reference/dashboards/dashboard-victoriametrics-agents-overview.md
       - Environments:
         - reference/dashboards/dashboard-env-overview.md
-        - reference/dashboards/dashboard-environent-summary.md
+        - reference/dashboards/dashboard-environment-summary.md
       - Kubernetes:
         - reference/dashboards/kubernetes_cluster_summary.md
         - reference/dashboards/kubernetes_monitor_operators.md
