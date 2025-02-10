@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.2">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.3">
     
     
       
@@ -3437,11 +3437,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboard-panels/set-custom-dashboard" class="md-nav__link">
+      <a href="../../../../use/dashboards-panels/manage-dashboards/set-custom-dashboard.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    None
+    Setting custom Home dashboard
     
   </span>
   
@@ -8016,52 +8016,39 @@
 
 
 <h1 id="upgrade-container">Upgrade container<a class="headerlink" href="#upgrade-container" title="Permanent link">&para;</a></h1>
-<details class="info">
-<summary>Summary</summary>
-<div class="admonition summary alert alert-info">
-<ul>
-<li>Stop the running container.</li>
-<li>Backup (rename) the container and copy data.</li>
-<li>Pull the latest Docker image.</li>
-<li>Run it.</li>
-</ul>
-</div>
-<hr />
-</details>
 <div class="admonition caution alert alert-warning">
 <p class="admonition-title">Important</p>
 <p>Downgrades are not possible. To go back to using a previous version you must have created a backup of it before upgrading.</p>
 </div>
 <div class="admonition hint alert alert-success">
 <p class="admonition-title">Tip</p>
-<p>To see what release you are running, use the <em>PMM Upgrade</em> panel on the <em>Home Dashboard</em>, or run:</p>
+<p>To see what release you are running, use the <strong>PMM Upgrade</strong> panel on the <strong>Home Dashboard</strong>, or run the following command (replace localhost with your PMM server&rsquo;s address for remote access):</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>pmm-server<span class="w"> </span><span class="se">\</span>
 curl<span class="w"> </span>-ku<span class="w"> </span>admin:admin<span class="w"> </span>https://localhost/v1/version
 </code></pre></div>
-<p>(If you are accessing the docker host remotely, replace <code>localhost</code> with the IP or server name of the host.)</p>
 </div>
 <p class="power-number">To upgrade the container:</p>
 <ol>
 <li>
-<p>Stop the container.</p>
+<p>Stop the container:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>stop<span class="w"> </span>pmm-server
 </code></pre></div>
 </li>
 <li>
-<p>Perform a <a href="#backup">backup</a>.</p>
+<p>Perform a <a href="backup_container.html">backup</a>.</p>
 </li>
 <li>
-<p>Pull the latest image.</p>
+<p>Pull the latest image:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>pull<span class="w"> </span>percona/pmm-server:3
 </code></pre></div>
 </li>
 <li>
-<p>Rename the original container</p>
+<p>Rename the original container:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>rename<span class="w"> </span>pmm-server<span class="w"> </span>pmm-server-old
 </code></pre></div>
 </li>
 <li>
-<p>Run it.</p>
+<p>Run it:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
 --detach<span class="w"> </span><span class="se">\</span>
 --restart<span class="w"> </span>always<span class="w"> </span><span class="se">\</span>
@@ -8092,7 +8079,7 @@ percona/pmm-server:3
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-01-30
+    2025-02-10
   </span>
 
     
@@ -8198,7 +8185,7 @@ percona/pmm-server:3
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 
-      <script src="../../../../assets/javascripts/bundle.f13b1293.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.f1b6f286.min.js"></script>
       
         <script src="../../../../js/promptremover.js"></script>
       

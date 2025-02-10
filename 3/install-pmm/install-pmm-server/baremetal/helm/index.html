@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.2">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.3">
     
     
       
@@ -3590,11 +3590,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboard-panels/set-custom-dashboard" class="md-nav__link">
+      <a href="../../../../use/dashboards-panels/manage-dashboards/set-custom-dashboard.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    None
+    Setting custom Home dashboard
     
   </span>
   
@@ -8333,7 +8333,7 @@
 </code></pre></div>
 </li>
 <li>
-<p>Add the Percona repository and deploy PMM Server with default settings and your secret. See configuration parameters for customization. See <a href="(#view-available-parameters)">configuration parameters</a> for customization.</p>
+<p>Add the Percona repository and deploy PMM Server with default settings and your secret. See configuration parameters for customization. See <a href="#view-available-parameters">configuration parameters</a> for customization.</p>
 <div class="highlight"><pre><span></span><code>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>percona<span class="w"> </span>https://percona.github.io/percona-helm-charts/
 helm<span class="w"> </span>install<span class="w"> </span>pmm<span class="w"> </span><span class="se">\</span>
 --set<span class="w"> </span>secret.create<span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
@@ -8382,7 +8382,7 @@ percona/pmm
 <span class="nt">PMM_ENABLE_UPDATES</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
 </code></pre></div>
 <h3 id="ssl-certificates">SSL certificates<a class="headerlink" href="#ssl-certificates" title="Permanent link">&para;</a></h3>
-<p>PMM comes with <a href="(../../../../pmm-admin/security/ssl_encryption.md)">self-signed SSL certificates</a>, ensuring a secure connection between the client and server. However, since these certificates are not issued by a trusted authority, you may encounter a security warning when connecting to PMM.</p>
+<p>PMM comes with <a href="../../../../pmm-admin/security/ssl_encryption.html">self-signed SSL certificates</a>, ensuring a secure connection between the client and server. However, since these certificates are not issued by a trusted authority, you may encounter a security warning when connecting to PMM.</p>
 <p class="power-number">To enhance security, you have two options: </p>
 <ol>
 <li>
@@ -8397,7 +8397,7 @@ percona/pmm
 </code></pre></div>
 </li>
 <li>
-<p>Use <a href="(https://kubernetes.io/docs/concepts/services-networking/ingress/#tls)">Ingress controller with TLS</a> See <a href="https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-network-configuration">PMM network configuration</a> for details.</p>
+<p>Use <a href="https://kubernetes.io/docs/concepts/services-networking/ingress/#tls">Ingress controller with TLS</a>. See <a href="https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-network-configuration">PMM network configuration</a> for details.</p>
 </li>
 </ol>
 
@@ -8420,7 +8420,7 @@ percona/pmm
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-01-30
+    2025-02-10
   </span>
 
     
@@ -8526,7 +8526,7 @@ percona/pmm
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 
-      <script src="../../../../assets/javascripts/bundle.f13b1293.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.f1b6f286.min.js"></script>
       
         <script src="../../../../js/promptremover.js"></script>
       
