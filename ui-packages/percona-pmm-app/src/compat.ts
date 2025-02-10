@@ -11,6 +11,8 @@ export const initialize = () => {
     return;
   }
 
+  localStorage.setItem('grafana.navigation.docked', 'false');
+
   logMessage('applying custom styles');
   appendCustomStyles();
 
@@ -23,7 +25,10 @@ export const initialize = () => {
         return;
       }
 
-      locationService.push(msg.data.to);
+      const to = msg.data.to.replace('/graph', '/');
+      locationService.push(to);
+
+      logMessage('navigating to ', to, 'raw', msg.data.to);
     },
   });
 

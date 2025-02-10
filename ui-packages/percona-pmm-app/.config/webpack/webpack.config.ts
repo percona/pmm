@@ -109,24 +109,31 @@ const config = async (env): Promise<Configuration> => {
             },
           ],
         },
+        // {
+        //   exclude: /(node_modules)/,
+        //   test: /\.[tj]sx?$/,
+        //   use: {
+        //     loader: 'swc-loader',
+        //     options: {
+        //       jsc: {
+        //         baseUrl: path.resolve(process.cwd(), SOURCE_DIR),
+        //         target: 'es2015',
+        //         loose: false,
+        //         parser: {
+        //           syntax: 'typescript',
+        //           tsx: true,
+        //           decorators: false,
+        //           dynamicImport: true,
+        //         },
+        //       },
+        //     },
+        //   },
+        // },
         {
-          exclude: /(node_modules)/,
-          test: /\.[tj]sx?$/,
-          use: {
-            loader: 'swc-loader',
-            options: {
-              jsc: {
-                baseUrl: path.resolve(process.cwd(), SOURCE_DIR),
-                target: 'es2015',
-                loose: false,
-                parser: {
-                  syntax: 'typescript',
-                  tsx: true,
-                  decorators: false,
-                  dynamicImport: true,
-                },
-              },
-            },
+          test: /\.[jt]sx?$/,
+          loader: 'esbuild-loader',
+          options: {
+            target: 'es2015',
           },
         },
         {
@@ -163,7 +170,7 @@ const config = async (env): Promise<Configuration> => {
               comments: (_, { type, value }) => type === 'comment2' && value.trim().startsWith('[create-plugin]'),
             },
             compress: {
-              drop_console: ['log', 'info'],
+              // drop_console: ['log', 'info'],
             },
           },
         }),
