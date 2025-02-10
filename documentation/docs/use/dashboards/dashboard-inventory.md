@@ -2,7 +2,7 @@
 
 The **Inventory** dashboard is a high-level overview of all objects registered in PMM.
 
-To check your inventory list, go to <i class="uil uil-cog"></i> **PMM Configuration** > **PMM Inventory**.
+To check your inventory list, go to :material-cog: **PMM Configuration** > **PMM Inventory**.
 
 Inventory objects form a hierarchy with Node at the top, then Service and Agents assigned to a Node. This information is detailed in the two tabs available on this page.
 
