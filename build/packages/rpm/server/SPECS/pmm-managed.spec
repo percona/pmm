@@ -62,6 +62,7 @@ install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-
 cd src/github.com/percona/pmm
 cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
 cp -pa ./ui/dist/. %{buildroot}%{_datadir}/pmm-ui
+mkdir -p /srv/grafana/plugins/percona-pmm-app
 cp -pa ./ui-packages/percona-pmm-app /srv/grafana/plugins/percona-pmm-app
 
 %files
