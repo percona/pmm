@@ -95,5 +95,5 @@ To start the guest and get the IP address from the CLI:
 [OVA]: https://www.percona.com/downloads/pmm/{{release}}/ova
 [OVF]: https://wikipedia.org/wiki/Open_Virtualization_Format
 [VirtualBox]: https://www.virtualbox.org/
-[VMware]: https://www.vmware.com/products/workstation-player/
+[VMware]: https://www.vmware.com/products/
 [OVFTool]: https://code.vmware.com/tool/ovf
