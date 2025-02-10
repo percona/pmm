@@ -133,7 +133,7 @@ Currently, we use three different sets of icons:
 
 The preference should be given to Mkdocs Material icons, since they were initially designed for `mkdocs` project and work very well with it. In rare cases, when an icon cannot be found in Mkdocs Material, you can find a suitable one on Iconscout. FontAwesome icons do not play well with Mkdocs, so use them with caution and don't forget to apply additional CSS styles in case they don't render well in PDF.
 
-Ideally, we should migrate to using just the first set, which offers 10,000+ icons, and is more than sufficient for all our documentation needs.
+Ideally, we should migrate to using just the first set, which offers 10,000+ icons, that are more than sufficient for all our documentation needs.
 
 Use HTML for icons:
 
