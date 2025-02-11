@@ -75,11 +75,11 @@ require (
 	github.com/stretchr/testify v1.10.0
 	go.mongodb.org/mongo-driver v1.17.1
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
-	golang.org/x/crypto v0.32.0
+	golang.org/x/crypto v0.33.0
 	golang.org/x/sync v0.11.0
 	golang.org/x/sys v0.30.0
-	golang.org/x/text v0.21.0
-	golang.org/x/tools v0.29.0
+	golang.org/x/text v0.22.0
+	golang.org/x/tools v0.30.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241219192143-6b3ec007d9bb
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241219192143-6b3ec007d9bb
 	google.golang.org/grpc v1.70.0
@@ -252,10 +252,10 @@ require (
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.opentelemetry.io/otel v1.32.0 // indirect
 	go.opentelemetry.io/otel/trace v1.32.0 // indirect
-	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/net v0.34.0 // indirect
+	golang.org/x/mod v0.23.0 // indirect
+	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/oauth2 v0.24.0 // indirect
-	golang.org/x/term v0.28.0 // indirect
+	golang.org/x/term v0.29.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gotest.tools/v3 v3.3.0 // indirect
 )
