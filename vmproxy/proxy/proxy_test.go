@@ -33,7 +33,7 @@ const (
 func TestProxy(t *testing.T) {
 	t.Parallel()
 
-	setup := func(t *testing.T, filters []string) http.HandlerFunc {
+	setup := func(t *testing.T, filters []string, hostHeader string) http.HandlerFunc {
 		t.Helper()
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if filters != nil {
@@ -50,18 +50,23 @@ func TestProxy(t *testing.T) {
 		handler := getHandler(Config{
 			HeaderName: headerName,
 			TargetURL:  testURL,
+			HostHeader: hostHeader,
 		})
 
 		return handler
 	}
 
-	handler := setup(t, nil)
+	handler := setup(t, nil, "")
 
 	t.Run("shall proxy request", func(t *testing.T) {
 		t.Parallel()
 
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+		hostHeader := ""
+		url, err := url.Parse(targetURL)
+		require.NoError(t, err)
+		prepareRequest(req, url, headerName, hostHeader)
 
 		handler.ServeHTTP(rec, req)
 		resp := rec.Result()
@@ -125,15 +130,20 @@ func TestProxy(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 
-				url := targetURL
+				url, err := url.Parse(targetURL)
+				require.NoError(t, err)
+
 				if tc.targetURL != "" {
-					url = tc.targetURL
+					url, err = url.Parse(tc.targetURL)
+					require.NoError(t, err)
 				}
 
-				handler := setup(t, tc.expectedFilters)
+				handler := setup(t, tc.expectedFilters, "")
 
 				rec := httptest.NewRecorder()
-				req := httptest.NewRequest(http.MethodGet, url, nil)
+				req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+				hostHeader := ""
+				prepareRequest(req, url, headerName, hostHeader)
 				req.Header.Set(headerName, tc.headerContent)
 
 				handler.ServeHTTP(rec, req)
@@ -143,5 +153,18 @@ func TestProxy(t *testing.T) {
 				require.Equal(t, tc.expectedStatus, resp.StatusCode)
 			})
 		}
+	})
+
+	t.Run("prepareRequest: set manual Host header", func(t *testing.T) {
+		t.Parallel()
+
+		hostHeader := "test.example.org"
+		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+		url, err := url.Parse(targetURL)
+		require.NoError(t, err)
+
+		prepareRequest(req, url, headerName, hostHeader)
+
+		require.Equal(t, hostHeader, req.Header["Host"][0])
 	})
 }

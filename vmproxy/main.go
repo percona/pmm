@@ -38,6 +38,7 @@ type flags struct {
 	ListenPort    int      `default:"1280" help:"Listen port for proxy"`
 	ListenAddress string   `default:"127.0.0.1" help:"Listen address for proxy"`
 	HeaderName    string   `default:"X-Proxy-Filter" help:"Header name to read filter configuration from. The content of the header shall be a base64 encoded JSON array with strings. Each string is a filter. Multiple filters are joined with a logical OR."` //nolint:lll
+	HostHeader    string   `default:"" help:"Optional Host header value to set in the request, overrides existing"`
 }
 
 func main() {
@@ -67,6 +68,7 @@ func runProxy(opts flags, proxyFn func(cfg proxy.Config) error) error {
 		HeaderName:    opts.HeaderName,
 		ListenAddress: net.JoinHostPort(opts.ListenAddress, strconv.Itoa(opts.ListenPort)),
 		TargetURL:     opts.TargetURL,
+		HostHeader:    opts.HostHeader,
 	})
 
 	if !errors.Is(err, http.ErrServerClosed) {
