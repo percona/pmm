@@ -10,6 +10,7 @@ package qanv1beta1
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -28,199 +29,200 @@ var (
 	_ codes.Code
 	_ io.Reader
 	_ status.Status
+	_ = errors.New
 	_ = runtime.String
 	_ = utilities.NewDoubleArray
 	_ = metadata.Join
 )
 
 func request_ObjectDetails_GetMetrics_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MetricsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq MetricsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.GetMetrics(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_ObjectDetails_GetMetrics_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MetricsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq MetricsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.GetMetrics(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_ObjectDetails_GetQueryExample_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryExampleRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq QueryExampleRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.GetQueryExample(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_ObjectDetails_GetQueryExample_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryExampleRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq QueryExampleRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.GetQueryExample(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_ObjectDetails_GetLabels_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ObjectDetailsLabelsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq ObjectDetailsLabelsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.GetLabels(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_ObjectDetails_GetLabels_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ObjectDetailsLabelsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq ObjectDetailsLabelsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.GetLabels(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_ObjectDetails_GetQueryPlan_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryPlanRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq QueryPlanRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.GetQueryPlan(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_ObjectDetails_GetQueryPlan_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryPlanRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq QueryPlanRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.GetQueryPlan(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_ObjectDetails_GetHistogram_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq HistogramRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq HistogramRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.GetHistogram(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_ObjectDetails_GetHistogram_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq HistogramRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq HistogramRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.GetHistogram(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_ObjectDetails_QueryExists_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryExistsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq QueryExistsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.QueryExists(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_ObjectDetails_QueryExists_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryExistsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq QueryExistsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.QueryExists(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_ObjectDetails_ExplainFingerprintByQueryID_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ExplainFingerprintByQueryIDRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq ExplainFingerprintByQueryIDRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.ExplainFingerprintByQueryID(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_ObjectDetails_ExplainFingerprintByQueryID_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ExplainFingerprintByQueryIDRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq ExplainFingerprintByQueryIDRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ExplainFingerprintByQueryID(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_ObjectDetails_SchemaByQueryID_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq SchemaByQueryIDRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq SchemaByQueryIDRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.SchemaByQueryID(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_ObjectDetails_SchemaByQueryID_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq SchemaByQueryIDRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq SchemaByQueryIDRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.SchemaByQueryID(ctx, &protoReq)
 	return msg, metadata, err
 }
@@ -231,15 +233,13 @@ func local_request_ObjectDetails_SchemaByQueryID_0(ctx context.Context, marshale
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterObjectDetailsHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ObjectDetailsServer) error {
-	mux.Handle("POST", pattern_ObjectDetails_GetMetrics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_GetMetrics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetMetrics", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetMetrics"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetMetrics", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetMetrics"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -251,19 +251,15 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_GetMetrics_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryExample", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryExample"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryExample", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryExample"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -275,19 +271,15 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_GetQueryExample_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_GetLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_GetLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetLabels", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetLabels"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetLabels", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetLabels"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -299,19 +291,15 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_GetLabels_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryPlan", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryPlan"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryPlan", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryPlan"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -323,19 +311,15 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_GetQueryPlan_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_GetHistogram_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_GetHistogram_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetHistogram", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetHistogram"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetHistogram", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetHistogram"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -347,19 +331,15 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_GetHistogram_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/QueryExists", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/QueryExists"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/QueryExists", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/QueryExists"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -371,19 +351,15 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_QueryExists_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_ExplainFingerprintByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_ExplainFingerprintByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/ExplainFingerprintByQueryID", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/ExplainFingerprintByQueryID"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/ExplainFingerprintByQueryID", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/ExplainFingerprintByQueryID"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -395,19 +371,15 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_ExplainFingerprintByQueryID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_SchemaByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_SchemaByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/SchemaByQueryID", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/SchemaByQueryID"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/SchemaByQueryID", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/SchemaByQueryID"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -419,7 +391,6 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_SchemaByQueryID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
@@ -447,7 +418,6 @@ func RegisterObjectDetailsHandlerFromEndpoint(ctx context.Context, mux *runtime.
 			}
 		}()
 	}()
-
 	return RegisterObjectDetailsHandler(ctx, mux, conn)
 }
 
@@ -463,13 +433,11 @@ func RegisterObjectDetailsHandler(ctx context.Context, mux *runtime.ServeMux, co
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ObjectDetailsClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ObjectDetailsClient) error {
-	mux.Handle("POST", pattern_ObjectDetails_GetMetrics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_GetMetrics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetMetrics", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetMetrics"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetMetrics", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetMetrics"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -480,17 +448,13 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_GetMetrics_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryExample", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryExample"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryExample", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryExample"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -501,17 +465,13 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_GetQueryExample_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_GetLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_GetLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetLabels", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetLabels"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetLabels", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetLabels"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -522,17 +482,13 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_GetLabels_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryPlan", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryPlan"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryPlan", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryPlan"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -543,17 +499,13 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_GetQueryPlan_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_GetHistogram_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_GetHistogram_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetHistogram", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetHistogram"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetHistogram", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetHistogram"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -564,17 +516,13 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_GetHistogram_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/QueryExists", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/QueryExists"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/QueryExists", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/QueryExists"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -585,17 +533,13 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_QueryExists_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_ExplainFingerprintByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_ExplainFingerprintByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/ExplainFingerprintByQueryID", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/ExplainFingerprintByQueryID"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/ExplainFingerprintByQueryID", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/ExplainFingerprintByQueryID"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -606,17 +550,13 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_ExplainFingerprintByQueryID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_ObjectDetails_SchemaByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ObjectDetails_SchemaByQueryID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/SchemaByQueryID", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/SchemaByQueryID"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/SchemaByQueryID", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/SchemaByQueryID"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -627,45 +567,29 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ObjectDetails_SchemaByQueryID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
 	return nil
 }
 
 var (
-	pattern_ObjectDetails_GetMetrics_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "GetMetrics"}, ""))
-
-	pattern_ObjectDetails_GetQueryExample_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "GetQueryExample"}, ""))
-
-	pattern_ObjectDetails_GetLabels_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "GetLabels"}, ""))
-
-	pattern_ObjectDetails_GetQueryPlan_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "GetQueryPlan"}, ""))
-
-	pattern_ObjectDetails_GetHistogram_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "GetHistogram"}, ""))
-
-	pattern_ObjectDetails_QueryExists_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "QueryExists"}, ""))
-
+	pattern_ObjectDetails_GetMetrics_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "GetMetrics"}, ""))
+	pattern_ObjectDetails_GetQueryExample_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "GetQueryExample"}, ""))
+	pattern_ObjectDetails_GetLabels_0                   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "GetLabels"}, ""))
+	pattern_ObjectDetails_GetQueryPlan_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "GetQueryPlan"}, ""))
+	pattern_ObjectDetails_GetHistogram_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "GetHistogram"}, ""))
+	pattern_ObjectDetails_QueryExists_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "QueryExists"}, ""))
 	pattern_ObjectDetails_ExplainFingerprintByQueryID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "ExplainFingerprintByQueryID"}, ""))
-
-	pattern_ObjectDetails_SchemaByQueryID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "SchemaByQueryID"}, ""))
+	pattern_ObjectDetails_SchemaByQueryID_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "ObjectDetails", "SchemaByQueryID"}, ""))
 )
 
 var (
-	forward_ObjectDetails_GetMetrics_0 = runtime.ForwardResponseMessage
-
-	forward_ObjectDetails_GetQueryExample_0 = runtime.ForwardResponseMessage
-
-	forward_ObjectDetails_GetLabels_0 = runtime.ForwardResponseMessage
-
-	forward_ObjectDetails_GetQueryPlan_0 = runtime.ForwardResponseMessage
-
-	forward_ObjectDetails_GetHistogram_0 = runtime.ForwardResponseMessage
-
-	forward_ObjectDetails_QueryExists_0 = runtime.ForwardResponseMessage
-
+	forward_ObjectDetails_GetMetrics_0                  = runtime.ForwardResponseMessage
+	forward_ObjectDetails_GetQueryExample_0             = runtime.ForwardResponseMessage
+	forward_ObjectDetails_GetLabels_0                   = runtime.ForwardResponseMessage
+	forward_ObjectDetails_GetQueryPlan_0                = runtime.ForwardResponseMessage
+	forward_ObjectDetails_GetHistogram_0                = runtime.ForwardResponseMessage
+	forward_ObjectDetails_QueryExists_0                 = runtime.ForwardResponseMessage
 	forward_ObjectDetails_ExplainFingerprintByQueryID_0 = runtime.ForwardResponseMessage
-
-	forward_ObjectDetails_SchemaByQueryID_0 = runtime.ForwardResponseMessage
+	forward_ObjectDetails_SchemaByQueryID_0             = runtime.ForwardResponseMessage
 )
