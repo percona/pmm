@@ -63,6 +63,10 @@ func TestProxy(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+		hostHeader := ""
+		url, err := url.Parse(targetURL)
+		require.NoError(t, err)
+		prepareRequest(req, url, headerName, hostHeader)
 
 		handler.ServeHTTP(rec, req)
 		resp := rec.Result()
@@ -126,15 +130,20 @@ func TestProxy(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 
-				url := targetURL
+				url, err := url.Parse(targetURL)
+				require.NoError(t, err)
+
 				if tc.targetURL != "" {
-					url = tc.targetURL
+					url, err = url.Parse(tc.targetURL)
+					require.NoError(t, err)
 				}
 
-				handler := setup(t, tc.expectedFilters)
+				handler := setup(t, tc.expectedFilters, "")
 
 				rec := httptest.NewRecorder()
-				req := httptest.NewRequest(http.MethodGet, url, nil)
+				req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+				hostHeader := ""
+				prepareRequest(req, url, headerName, hostHeader)
 				req.Header.Set(headerName, tc.headerContent)
 
 				handler.ServeHTTP(rec, req)
@@ -146,19 +155,16 @@ func TestProxy(t *testing.T) {
 		}
 	})
 
-	t.Run("shall proxy request and set manual Host header", func(t *testing.T) {
+	t.Run("prepareRequest: set manual Host header", func(t *testing.T) {
 		t.Parallel()
 
 		hostHeader := "test.example.org"
-		handler2 := setup(t, nil, hostHeader)
-		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+		url, err := url.Parse(targetURL)
+		require.NoError(t, err)
 
-		handler2.ServeHTTP(rec, req)
-		resp := rec.Result()
-		defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+		prepareRequest(req, url, headerName, hostHeader)
 
-		require.Equal(t, req.Header["Host"], hostHeader)
-		require.Equal(t, resp.StatusCode, http.StatusOK)
+		require.Equal(t, hostHeader, req.Header["Host"][0])
 	})
 }
