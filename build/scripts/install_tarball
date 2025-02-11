@@ -29,7 +29,7 @@ done
 
 CURRENT_DIR="$(pwd)"
 WORKING_DIR="$(dirname "${0}")"
-cd "${WORKING_DIR}" || echo -e "Could not cd to ${WORKING_DIR}, exiting..." && exit 2
+cd "${WORKING_DIR}" || exit 2
 
 PMM_DIR=${PMM_DIR:-/usr/local/percona/pmm}
 
