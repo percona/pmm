@@ -39,6 +39,8 @@ type Config struct {
 	ListenAddress string
 	// Target URL to forward requests to
 	TargetURL *url.URL
+	// Optional Host header value to set in the request
+	HostHeader string
 }
 
 // RunProxy starts proxy which adds extra filters based on configuration.
@@ -51,7 +53,7 @@ func RunProxy(cfg Config) error {
 
 func getHandler(cfg Config) http.HandlerFunc {
 	rProxy := &httputil.ReverseProxy{
-		Director: director(cfg.TargetURL, cfg.HeaderName),
+		Director: director(cfg.TargetURL, cfg.HeaderName, strings.TrimSpace(cfg.HostHeader)),
 	}
 
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
@@ -78,12 +80,18 @@ func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName s
 	return false
 }
 
-func director(target *url.URL, headerName string) func(*http.Request) {
+func director(target *url.URL, headerName string, hostHeader string)) func(*http.Request) {
 	return func(req *http.Request) {
 		now := time.Now()
 
 		req.URL.Scheme = target.Scheme
 		req.URL.Host = target.Host
+
+		// Update or add Host header if hostHeader is provided
+		if hostHeader != "" {
+			req.Host = hostHeader
+			req.Header.Set("Host", hostHeader)
+		}
 
 		rp, err := target.Parse(strings.TrimPrefix(req.URL.Path, "/"))
 		if err != nil {

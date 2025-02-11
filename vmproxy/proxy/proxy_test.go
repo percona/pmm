@@ -33,7 +33,7 @@ const (
 func TestProxy(t *testing.T) {
 	t.Parallel()
 
-	setup := func(t *testing.T, filters []string) http.HandlerFunc {
+	setup := func(t *testing.T, filters []string, hostHeader string) http.HandlerFunc {
 		t.Helper()
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if filters != nil {
@@ -50,12 +50,13 @@ func TestProxy(t *testing.T) {
 		handler := getHandler(Config{
 			HeaderName: headerName,
 			TargetURL:  testURL,
+			HostHeader: hostHeader,
 		})
 
 		return handler
 	}
 
-	handler := setup(t, nil)
+	handler := setup(t, nil, "")
 
 	t.Run("shall proxy request", func(t *testing.T) {
 		t.Parallel()
@@ -143,5 +144,21 @@ func TestProxy(t *testing.T) {
 				require.Equal(t, tc.expectedStatus, resp.StatusCode)
 			})
 		}
+	})
+
+	t.Run("shall proxy request and set manual Host header", func(t *testing.T) {
+		t.Parallel()
+
+		hostHeader := "test.example.org"
+		handler2 := setup(t, nil, hostHeader)
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+
+		handler2.ServeHTTP(rec, req)
+		resp := rec.Result()
+		defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+
+		require.Equal(t, req.Header["Host"], hostHeader)
+		require.Equal(t, resp.StatusCode, http.StatusOK)
 	})
 }
