@@ -27,7 +27,7 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/charmbracelet/bubbles v0.20.0
-	github.com/charmbracelet/bubbletea v1.2.0
+	github.com/charmbracelet/bubbletea v1.3.2
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/docker/docker v27.3.0+incompatible
@@ -103,8 +103,8 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/benbjohnson/clock v1.3.5 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
-	github.com/charmbracelet/x/ansi v0.4.5 // indirect
-	github.com/charmbracelet/x/term v0.2.0 // indirect
+	github.com/charmbracelet/x/ansi v0.8.0 // indirect
+	github.com/charmbracelet/x/term v0.2.1 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
