@@ -334,6 +334,7 @@ nav:
   - faq.md
   - Release notes:
       - release-notes/index.md
+      - "PMM 2.44.0-1": release-notes/2.44.0.1.md
       - "PMM 2.44.0": release-notes/2.44.0.md
       - "PMM 2.43.2": release-notes/2.43.2.md
       - "PMM 2.43.1": release-notes/2.43.1.md

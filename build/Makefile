@@ -23,9 +23,15 @@ fetch-el9:
 		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 
-	# Add the box using Vagrant
+	test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
+			|| curl -fL https://pmm-build-cache.s3.us-east-2.amazonaws.com/VBOXES/oracle9-202407.23.0.box -o ${PACKER_CACHE_DIR}/box/oracle9.ova
+
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
-		|| VAGRANT_HOME=${PACKER_CACHE_DIR}/box vagrant box add bento/oraclelinux-9 --box-version ${BOX_VERSION} --provider virtualbox
+			|| tar -C ${PACKER_CACHE_DIR}/box -xvf ${PACKER_CACHE_DIR}/box/oracle9.ova
+
+	# # Add the box using Vagrant
+	# test -f ${PACKER_CACHE_DIR}/box/box.ovf \
+	# 	|| VAGRANT_HOME=${PACKER_CACHE_DIR}/box vagrant box add bento/oraclelinux-9 --box-version ${BOX_VERSION} --provider virtualbox
 
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
 		|| cp -rp ${PACKER_CACHE_DIR}/box/boxes/bento-VAGRANTSLASH-oraclelinux-9/${BOX_VERSION}/amd64/virtualbox/* ${PACKER_CACHE_DIR}/box
