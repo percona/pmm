@@ -27,6 +27,11 @@ Multiple filters are joined with logical OR - such as `env=QA OR region=EU`
 
 If the header is not present, no extra filters are applied.
 
+## Override Host header
+
+Use `--host-header=HOSTNAME` to override the Host header in a http request being proxied. May help with ACL issues on the network balancer.
+For example if ACL has a strict check for Host value.  
+
 ## Contributing notes
 
 ### Building
