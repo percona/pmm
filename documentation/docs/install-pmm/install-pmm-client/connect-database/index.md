@@ -8,7 +8,7 @@ You must configure and add database/service according to the service type.
 - [ProxySQL](proxysql.md)
 - [Amazon RDS](aws.md)
 - [Microsoft Azure](azure.md)
-- [Google Cloud Platform](google) (MySQL and PostgreSQL)
+- [Google Cloud Platform](google.md) (MySQL and PostgreSQL)
 - [Linux](linux.md)
 - [External services](external.md)
 - [HAProxy](haproxy.md)

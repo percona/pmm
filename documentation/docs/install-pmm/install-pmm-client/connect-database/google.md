@@ -49,8 +49,6 @@ To add a PostgreSQL instance on Google Cloud:
 
 6. Fill in the details for the remote PostgreSQL instance and make sure to **PG Stat Statements** option under **Stat tracking options**.
 
-    ![!image](../../../images/PG_stat.png)
-
 7. Click **Add service**.
 
 8. Go to **Dashboards** and check for values in the **PostgreSQL Instances Overview**  and **Query Analytics**.
