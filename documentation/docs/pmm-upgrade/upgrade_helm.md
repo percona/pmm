@@ -41,7 +41,7 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
 2. Upgrade PMM:
 
     ```sh
-    helm upgrade pmm -f values.yaml percona/pmm
+    helm upgrade pmm -f values.yaml --set podSecurityContext.runAsGroup=null --set podSecurityContext.fsGroup=null percona/pmm
     ```
 
 
