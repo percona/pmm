@@ -579,6 +579,8 @@ command =
 environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
 	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
+	PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
+	PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
 
 
 user = pmm
