@@ -7,7 +7,7 @@ plugins:
     version_selector: false
   # https://github.com/orzih/mkdocs-with-pdf
   with-pdf:
-    output_path: "pdf/PerconaMonitoringAndManagement-3.0.0.pdf"
+    output_path: "pdf/PerconaMonitoringAndManagement-3.0.0-1.pdf"
     cover_title: "Percona Monitoring and Management Documentation"
     cover_subtitle: 3.0.0-1 (February 10, 2025)
     author: "Percona Technical Documentation Team"
