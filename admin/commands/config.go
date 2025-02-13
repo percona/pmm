@@ -43,9 +43,9 @@ func (res *configResult) String() string {
 //
 //nolint:lll
 type ConfigCommand struct {
-	NodeAddress       string   `arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
+	NodeAddress       string   `arg:"" default:"${nodeIp}" help:"Node address (autodetected, default: ${nodeIp})"`
 	NodeType          string   `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type. One of: [${enum}]. Default: ${default}"`
-	NodeName          string   `arg:"" default:"${hostname}" help:"Node name (autodetected default: ${hostname})"`
+	NodeName          string   `arg:"" default:"${hostname}" help:"Node name (autodetected, default: ${hostname})"`
 	NodeModel         string   `help:"Node model"`
 	Region            string   `help:"Node region"`
 	Az                string   `help:"Node availability zone"`
