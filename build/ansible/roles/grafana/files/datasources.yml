@@ -32,6 +32,7 @@ datasources:
     sslmode: ${PMM_POSTGRES_SSL_MODE}
   secureJsonData:
     password: ${PMM_POSTGRES_DBPASSWORD}
+
 - name: PTSummary
   version: 2
   orgId: 1
@@ -44,6 +45,9 @@ datasources:
   version: 2
   type: grafana-clickhouse-datasource
   jsonData:
+    username: ${PMM_CLICKHOUSE_USERNAME}
     port: ${PMM_CLICKHOUSE_PORT}
-    server: ${PMM_CLICKHOUSE_HOST}
+    host: ${PMM_CLICKHOUSE_HOST}
     tlsSkipVerify: false
+  secureJsonData:
+    password: ${PMM_CLICKHOUSE_PASSWORD}

@@ -47,6 +47,8 @@ const (
 	defaultClickhouseDatabase           = "pmm"
 	defaultClickhouseAddr               = "127.0.0.1:9000"
 	defaultClickhouseDataSourceAddr     = "127.0.0.1:8123"
+	defaultClickhouseUser               = "default"
+	defaultClickhousePassword           = ""
 	defaultVMSearchMaxQueryLen          = "1MB"
 	defaultVMSearchLatencyOffset        = "5s"
 	defaultVMSearchMaxUniqueTimeseries  = "100000000"
@@ -277,6 +279,8 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhouseAddr := getValueFromENV("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseDataSourceAddr := getValueFromENV("PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
+	clickhouseUser := getValueFromENV("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
+	clickhousePassword := getValueFromENV("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
 	vmSearchDisableCache := getValueFromENV("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
 	vmSearchMaxQueryLen := getValueFromENV("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
 	vmSearchLatencyOffset := getValueFromENV("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
@@ -308,6 +312,8 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseDatabase":           clickhouseDatabase,
 		"ClickhouseHost":               clickhouseAddrPair[0],
 		"ClickhousePort":               clickhouseAddrPair[1],
+		"ClickhouseUser":               clickhouseUser,
+		"ClickhousePassword":           clickhousePassword,
 	}
 
 	s.addPostgresParams(templateParams)
@@ -623,6 +629,8 @@ environment =
     PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
     PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
+		PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
+		PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
     {{- if .PerconaSSODetails}}
     GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
     {{- end}}
