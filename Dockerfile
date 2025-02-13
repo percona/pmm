@@ -1,6 +1,6 @@
 # This Dockerfile is used only for API tests.
 
-FROM golang:1.23
+FROM golang:1.24
 
 RUN export GOPATH=$(go env GOPATH) && \
     mkdir -p $GOPATH/src/github.com/percona/pmm
