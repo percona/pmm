@@ -148,34 +148,34 @@ nav:
     - Install PMM Server:
       - install-pmm/install-pmm-server/index.md
       - install-pmm/install-pmm-server/prerequisites.md
-      - Bare metal:
+      - Deployment options:
         - Docker:
-          - install-pmm/install-pmm-server/baremetal/docker/easy-install.md  
-          - install-pmm/install-pmm-server/baremetal/docker/index.md
-          - install-pmm/install-pmm-server/baremetal/docker/run_with_vol.md
-          - install-pmm/install-pmm-server/baremetal/docker/run_with_host_dir.md      
-          - install-pmm/install-pmm-server/baremetal/docker/backup_container.md      
-          - install-pmm/install-pmm-server/baremetal/docker/restore_container.md      
-          - install-pmm/install-pmm-server/baremetal/docker/remove_container.md      
-          - install-pmm/install-pmm-server/baremetal/docker/env_var.md      
-          - install-pmm/install-pmm-server/baremetal/docker/preview_env_var.md      
-          - install-pmm/install-pmm-server/baremetal/docker/isolated_hosts.md        
+          - install-pmm/install-pmm-server/deployment-options/docker/easy-install.md  
+          - install-pmm/install-pmm-server/deployment-options/docker/index.md
+          - install-pmm/install-pmm-server/deployment-options/docker/run_with_vol.md
+          - install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.md      
+          - install-pmm/install-pmm-server/deployment-options/docker/backup_container.md      
+          - install-pmm/install-pmm-server/deployment-options/docker/restore_container.md      
+          - install-pmm/install-pmm-server/deployment-options/docker/remove_container.md      
+          - install-pmm/install-pmm-server/deployment-options/docker/env_var.md      
+          - install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.md      
+          - install-pmm/install-pmm-server/deployment-options/docker/isolated_hosts.md        
         - Podman:
-          - install-pmm/install-pmm-server/baremetal/podman/index.md
-          - install-pmm/install-pmm-server/baremetal/podman/backup_container_podman.md
-          - install-pmm/install-pmm-server/baremetal/podman/restore_container_podman.md
-          - install-pmm/install-pmm-server/baremetal/podman/remove_container_podman.md
+          - install-pmm/install-pmm-server/deployment-options/podman/index.md
+          - install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.md
+          - install-pmm/install-pmm-server/deployment-options/podman/restore_container_podman.md
+          - install-pmm/install-pmm-server/deployment-options/podman/remove_container_podman.md
         - Virtual Applinace:
-          - install-pmm/install-pmm-server/baremetal/virtual/index.md
-          - install-pmm/install-pmm-server/baremetal/virtual/download_ova.md
-          - install-pmm/install-pmm-server/baremetal/virtual/vmware.md
-          - install-pmm/install-pmm-server/baremetal/virtual/virtualbox.md
-          - install-pmm/install-pmm-server/baremetal/virtual/login_UI.md
-          - install-pmm/install-pmm-server/baremetal/virtual/remove_virtual_machine.md
+          - install-pmm/install-pmm-server/deployment-options/virtual/index.md
+          - install-pmm/install-pmm-server/deployment-options/virtual/download_ova.md
+          - install-pmm/install-pmm-server/deployment-options/virtual/vmware.md
+          - install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.md
+          - install-pmm/install-pmm-server/deployment-options/virtual/login_UI.md
+          - install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.md
       - Helm: 
-        - install-pmm/install-pmm-server/baremetal/helm/index.md
-        - install-pmm/install-pmm-server/baremetal/helm/backup_container_helm.md
-        - install-pmm/install-pmm-server/baremetal/helm/restore_container_helm.md            
+        - install-pmm/install-pmm-server/deployment-options/helm/index.md
+        - install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.md
+        - install-pmm/install-pmm-server/deployment-options/helm/restore_container_helm.md            
       - AWS Marketplace:
         - install-pmm/install-pmm-server/aws/aws.md
         - install-pmm/install-pmm-server/aws/limit_access.md

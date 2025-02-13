@@ -17,10 +17,10 @@ Install and run at least one PMM Server. Choose from the following options:
 
 | Use | :material-thumb-up: **Benefits** | :material-thumb-down: **Drawbacks**|
 |---|---|---
-| [Docker](../install-pmm/install-pmm-server/baremetal/docker/index.md) | 1. Quick<br>2. Simple<br> 3. Rootless |  Additional network configuration required.
-| [Podman](../install-pmm/install-pmm-server/baremetal/podman/index.md) | 1. Quick<br>2. Simple<br>3. Rootless | Podman installation required.
-| [Helm](../install-pmm/install-pmm-server/baremetal/helm/index.md) (Technical Preview) | 1. Quick<br>2. Simple<br>3. Cloud-compatible <br> 4. Rootless| Requires running a Kubernetes cluster.
-| [Virtual appliance](../install-pmm/install-pmm-server/baremetal/virtual/index.md)  | 1. Easily import into Hypervisor of your choice <br> 2. Rootless| More system resources compared to Docker footprint.
+| [Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md) | 1. Quick<br>2. Simple<br> 3. Rootless |  Additional network configuration required.
+| [Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) | 1. Quick<br>2. Simple<br>3. Rootless | Podman installation required.
+| [Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md) (Technical Preview) | 1. Quick<br>2. Simple<br>3. Cloud-compatible <br> 4. Rootless| Requires running a Kubernetes cluster.
+| [Virtual appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)  | 1. Easily import into Hypervisor of your choice <br> 2. Rootless| More system resources compared to Docker footprint.
 | [Amazon AWS](../install-pmm/install-pmm-server/aws/aws.md) | 1. Wizard-driven install. <br>  2. Rootless| Paid, incurs infrastructure costs.
 
 ## Install PMM Client

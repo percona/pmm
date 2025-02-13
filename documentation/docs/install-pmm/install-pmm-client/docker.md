@@ -20,7 +20,7 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
       percona/pmm-client:3 /bin/true
     ```
 
-3. Run the container to start [pmm-agent](../../use/commands/pmm-agent.md) in setup mode. Set `X.X.X.X` to the IP address of your PMM Server. (Do not use the `docker --detach` option as PMM agent only logs to the console.)
+3. Execute the following command to start the [pmm-agent](../../use/commands/pmm-agent.md) in Setup mode. Replace `X.X.X.X` with the IP address of your PMM Server:
 
     ```sh
       PMM_SERVER=X.X.X.X:443
@@ -36,10 +36,11 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
       --volumes-from pmm-client-data \
       percona/pmm-client:3
     ```
-!!! hint alert-success "Tips"
-    You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
+    !!! hint alert-success "Important"
+       - Do not use the `docker --detach` option with Docker, as the pmm-agent logs output directly to the console, and detaching the container will prevent you from seeing these logs:
+      - You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
 
-3. Check status.
+3. Check status:
 
     ```sh
       docker exec -t pmm-client pmm-admin status
@@ -49,15 +50,19 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
 
 You can now add services with [`pmm-admin`](../../use/commands/pmm-admin.md) by prefixing commands with `docker exec pmm-client`.
 
-!!! hint alert alert-success "Tips"
-    - Adjust host firewall and routing rules to allow Docker communications. ([Read more](../../troubleshoot/checklist.md)
-    - For help: `docker run --rm percona/pmm-client:3 --help`
+!!! hint alert alert-success "Tips for Docker configuration"
+   - Firewall and routing rules: Ensure your host's firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see to the [troubleshooting checklist](https://chat.deepseek.com/a/troubleshoot/checklist.md).
 
-    In the GUI:
+   - Help command: If you need assistance with PMM Client, you can run the following command to display help information: `docker run --rm percona/pmm-client:3 --help`.
 
-    - Select :material-view-dashboard: *PMM Dashboards* → :material-dots-circle: *System (Node)* → :material-dots-circle: *Node Overview*.
-    - In the *Node Names* menu, select the new node.
-    - Change the time range to see data.
+  Steps in the UI:
+  {.power-number}
+
+    1. Go to the main menu and select **Operating System (OS) > Overview**.
+
+    2. In the **Node Names** drop-down menu, choose the new node you want to monitor.
+
+    3. Modify the time range to view the relevant data for your selected node.
 
 !!! danger alert alert-danger "Danger"
     `pmm-agent.yaml` contains sensitive credentials and should not be shared.
