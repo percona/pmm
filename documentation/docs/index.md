@@ -11,7 +11,7 @@ It allows you to observe the health of your database systems, explore new patter
 - Additional features include [advisors for database health assessments](details/develop-checks/index.md).
 
 !!! alert alert-info ""
-    This is the documentation for the latest PMM 2 release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
+    This is the documentation for the latest PMM 2 release, **PMM {{release}}** ([Release Notes](release-notes/2.44.0.1.md)).
     PMM 2 is no longer actively developed. For the latest features, security updates, and improvements, we strongly recommend using [PMM 3](https://docs.percona.com/percona-monitoring-and-management/3/quickstart.html).
 
 
