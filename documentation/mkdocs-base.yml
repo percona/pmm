@@ -338,7 +338,7 @@ nav:
 
   - Release notes:
     - Release notes index: release-notes/index.md
-    - "PMM 3.0.0-1 (2025-02-10)": release-notes/3.0.0.1.md
+    - "PMM 3.0.0-1 (2025-02-10)": release-notes/3.0.0_1.md
     - "PMM 3.0.0 (2025-01-30)": release-notes/3.0.0.md
   
   - Reference: 
