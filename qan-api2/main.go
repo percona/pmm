@@ -50,7 +50,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	qanpb "github.com/percona/pmm/api/qan/v1"
+	qanv1 "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 	aservice "github.com/percona/pmm/qan-api2/services/analytics"
 	rservice "github.com/percona/pmm/qan-api2/services/receiver"
@@ -94,8 +94,8 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 	)
 
 	aserv := aservice.NewService(rm, mm)
-	qanpb.RegisterCollectorServiceServer(grpcServer, rservice.NewService(mbm))
-	qanpb.RegisterQANServiceServer(grpcServer, aserv)
+	qanv1.RegisterCollectorServiceServer(grpcServer, rservice.NewService(mbm))
+	qanv1.RegisterQANServiceServer(grpcServer, aserv)
 	reflection.Register(grpcServer)
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
@@ -155,7 +155,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 
 	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
-		qanpb.RegisterQANServiceHandlerFromEndpoint,
+		qanv1.RegisterQANServiceHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, grpcBindF, opts); err != nil {
 			l.Panic(err)
