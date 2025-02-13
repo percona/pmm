@@ -82,7 +82,7 @@ type FileMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m FileMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -183,7 +183,7 @@ type PbmMetadataMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PbmMetadataMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -391,7 +391,7 @@ type MetadataMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetadataMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -494,7 +494,7 @@ type LogChunkMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m LogChunkMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

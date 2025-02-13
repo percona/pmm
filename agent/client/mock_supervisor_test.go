@@ -45,7 +45,7 @@ func (_m *mockSupervisor) AgentLogByID(_a0 string) ([]string, uint) {
 	return r0, r1
 }
 
-// AgentsList provides a mock function with given fields:
+// AgentsList provides a mock function with no fields
 func (_m *mockSupervisor) AgentsList() []*agentlocalv1.AgentInfo {
 	ret := _m.Called()
 
@@ -65,7 +65,7 @@ func (_m *mockSupervisor) AgentsList() []*agentlocalv1.AgentInfo {
 	return r0
 }
 
-// Changes provides a mock function with given fields:
+// Changes provides a mock function with no fields
 func (_m *mockSupervisor) Changes() <-chan *agentv1.StateChangedRequest {
 	ret := _m.Called()
 
@@ -85,7 +85,7 @@ func (_m *mockSupervisor) Changes() <-chan *agentv1.StateChangedRequest {
 	return r0
 }
 
-// ClearChangesChannel provides a mock function with given fields:
+// ClearChangesChannel provides a mock function with no fields
 func (_m *mockSupervisor) ClearChangesChannel() {
 	_m.Called()
 }
@@ -100,7 +100,7 @@ func (_m *mockSupervisor) Describe(_a0 chan<- *prometheus.Desc) {
 	_m.Called(_a0)
 }
 
-// QANRequests provides a mock function with given fields:
+// QANRequests provides a mock function with no fields
 func (_m *mockSupervisor) QANRequests() <-chan *agentv1.QANCollectRequest {
 	ret := _m.Called()
 
@@ -120,7 +120,7 @@ func (_m *mockSupervisor) QANRequests() <-chan *agentv1.QANCollectRequest {
 	return r0
 }
 
-// RestartAgents provides a mock function with given fields:
+// RestartAgents provides a mock function with no fields
 func (_m *mockSupervisor) RestartAgents() {
 	_m.Called()
 }

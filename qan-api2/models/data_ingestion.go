@@ -266,7 +266,8 @@ const insertSQL = `
     application_name,
     planid,
     query_plan,
-    histogram_items
+    histogram_items,
+    plan_summary
    )
   VALUES (
     :queryid,
@@ -495,7 +496,8 @@ const insertSQL = `
     :application_name,
     :planid,
     :query_plan,
-    :histogram_items
+    :histogram_items,
+    :plan_summary
   )
 `
 

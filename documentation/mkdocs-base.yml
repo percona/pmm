@@ -55,7 +55,7 @@ theme:
     - content.action.view
 
 extra_css:
-  - https://unicons.iconscout.com/release/v3.0.3/css/line.css
+  - https://unicons.iconscout.com/release/v4.0.8/css/line.css
   - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
   - css/nocopy.css
   - css/design.css
@@ -118,7 +118,7 @@ plugins:
   # https://pypi.org/project/mkdocs-exclude/
   exclude:
     glob:
-      - "setting-up/client/docker.md"
+      # - "install-pmm/install-pmm-client/docker.md"
   mike:
     version_selector: true
     css_dir: css
@@ -134,6 +134,7 @@ extra:
 # Common navigation for percona.com, render.com and PDF
 nav:
   - Home: index.md  
+  - Get help from Percona: get-help.md
   - Discover:
     - discover-pmm/why-pmm.md
     - discover-pmm/features.md
@@ -152,7 +153,6 @@ nav:
           - install-pmm/install-pmm-server/baremetal/docker/easy-install.md  
           - install-pmm/install-pmm-server/baremetal/docker/index.md
           - install-pmm/install-pmm-server/baremetal/docker/run_with_vol.md
-          - install-pmm/install-pmm-server/baremetal/docker/run_with_data_container.md
           - install-pmm/install-pmm-server/baremetal/docker/run_with_host_dir.md      
           - install-pmm/install-pmm-server/baremetal/docker/backup_container.md      
           - install-pmm/install-pmm-server/baremetal/docker/restore_container.md      
@@ -189,7 +189,7 @@ nav:
         - install-pmm/install-pmm-client/index.md
         - install-pmm/install-pmm-client/prerequisites.md
         - Percona repositories: install-pmm/install-pmm-client/package_manager.md          
-        - Images: install-pmm/install-pmm-client/docker.md
+        - Docker: install-pmm/install-pmm-client/docker.md
         - Manual binaries: install-pmm/install-pmm-client/binary_package.md          
         - Register Client node: install-pmm/register-client-node/index.md 
         - Add services to PMM: 
@@ -250,7 +250,7 @@ nav:
         - Manage dashboards:
           - use/dashboards-panels/manage-dashboards/create-folders.md
           - use/dashboards-panels/manage-dashboards/manage-folders.md
-          - use/dashboard-panels/set-custom-dashboard
+          - use/dashboards-panels/manage-dashboards/set-custom-dashboard.md
         - Share dashboards and panels: use/dashboards-panels/share-dashboards/share_dashboard.md
         - Annotate: use/dashboards-panels/annotate/annotate.md              
 
@@ -269,9 +269,10 @@ nav:
     - Percona Alerting:
       - alert/index.md
       - alert/alert_rules.md
-      - alert/alert_notifications.md
+      - alert/contact_points.md
       - alert/templates_list.md
       - alert/silence_alerts.md
+      - alert/disable_alerts.md
     - Backup and restore: 
       - backup/index.md
       - backup/prepare_storage_location.md
@@ -337,7 +338,8 @@ nav:
 
   - Release notes:
     - Release notes index: release-notes/index.md
-    - "PMM 3.0.0-BETA (2024-11-22)": release-notes/3.0.0_Beta.md
+    - "PMM 3.0.0-1 (2025-02-10)": release-notes/3.0.0_1.md
+    - "PMM 3.0.0 (2025-01-30)": release-notes/3.0.0.md
   
   - Reference: 
     - Architecture:
@@ -360,7 +362,7 @@ nav:
         - reference/dashboards/dashboard-victoriametrics-agents-overview.md
       - Environments:
         - reference/dashboards/dashboard-env-overview.md
-        - reference/dashboards/dashboard-environent-summary.md
+        - reference/dashboards/dashboard-environment-summary.md
       - Kubernetes:
         - reference/dashboards/kubernetes_cluster_summary.md
         - reference/dashboards/kubernetes_monitor_operators.md
@@ -406,6 +408,7 @@ nav:
         - reference/dashboards/dashboard-mongodb-instances-overview.md
         - reference/dashboards/dashboard-mongodb-instances-compare.md
         - reference/dashboards/dashboard-mongodb-replset-summary.md
+        - reference/dashboards/dashboard-mongodb-router-summary.md
         - reference/dashboards/dashboard-mongodb-inmemory-details.md
         - reference/dashboards/dashboard-mongodb-mmapv1-details.md
         - reference/dashboards/dashboard-mongodb-wiredtiger-details.md

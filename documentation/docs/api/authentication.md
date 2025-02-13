@@ -58,7 +58,7 @@ curl -H "Authorization: Bearer <service_token>" https://127.0.0.1/v1/version
 
 ## Use a service token in basic authentication
 
-You can include the service token as a query parameter in a REST API call using the following format. Replace YOUR_SERVICE_TOKEN with the actual service token you obtained in step 12.
+You can include the service token as a query parameter in a REST API call using the following format. Replace YOUR_SERVICE_TOKEN with the actual service token you obtained in step 9.
 
 
 **Example**
@@ -67,7 +67,7 @@ curl -X GET https://service_token:SERVICE_TOKEN@localhost/v1/version
 ```
 
 ## Use a service token in Bearer authentication (HTTP header)
-You can also include the service token in the header of an HTTP request for authentication. To do this, replace `SERVICE_TOKEN` with the actual service token you obtained in step 12.
+You can also include the service token in the header of an HTTP request for authentication. To do this, replace `SERVICE_TOKEN` with the actual service token you obtained in step 9.
 
 **Example**
 ```shell
