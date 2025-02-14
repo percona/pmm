@@ -19,16 +19,14 @@ To confirm that you have successfully connected the server and check the list of
 
 ## Check Percona Portal entitlements
 
-After connecting to the Percona Platform, PMM has access to [additional alert templates](/docs/alert/templates_list.md), [Advisor checks](/docs/advisors/advisors-details.md), and account information. See [Check Percona Portal account information](../how-to/account-info.md).
+After connecting to the Percona Platform, PMM has access to [additional alert templates](../../alert/templates_list.md), [Advisor checks](../../advisors/advisors-details.md), and account information. See [Check Percona Portal account information](account-info.md).
 
-
-After connecting to the Percona Platform, PMM has access to additional alert templates, Advisor checks, and account information. See [Check Percona Portal account information](../how-to/account-info.md).
 
 ### Disconnect a PMM instance
 
 Disconnect a PMM instance when you want to unlink it from your Percona Platform organization or stop monitoring it there.
 
-To disconnect a PMM Server, go to <i class="uil uil-cog"></i> **Configuration > Settings > Percona Platform** and click **Disconnect**.
+To disconnect a PMM Server, go to :material-cog: **Configuration > Settings > Percona Platform** and click **Disconnect**.
 
 #### Disconnecting instances as an Admin
 

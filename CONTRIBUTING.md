@@ -3,14 +3,14 @@
 We'd be glad to welcome you to Percona community which tries to keep the open source open. [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is an open source database monitoring solution. It allows you to monitor your databases, different services (HAProxy, ProxySQL and etc) as well as Nodes, Kubernetes clusters and containers. Please check our [Documentation](https://docs.percona.com/percona-monitoring-and-management/details/architecture.html) for the actual architecture.
 
 ## Table of contents
-1. [Project repos structure](#Project-repos-structure)
-2. [API documentation](#API-Reference-Documentation)
-3. [Prerequisites](#Prerequisites)
-4. [Submitting a bug](#Submitting-a-Bug)
-5. [Setup your local development environment](#Setup-your-local-development-environment)
-6. [Tests](#Tests)
-7. [Feature Build](#Feature-Build)
-8. [Code Reviews](#Code-Reviews)
+1. [Project repos structure](#project-repos-structure)
+2. [API documentation](#api-reference-documentation)
+3. [Prerequisites](#prerequisites)
+4. [Submitting a bug](#submitting-a-bug)
+5. [Setup your local development environment](#setup-your-local-development-environment)
+6. [Tests](#tests)
+7. [Feature build](#feature-build)
+8. [Code Reviews](#code-reviews)
 
 ## Project repos structure
 This project is built from several repositories:
@@ -26,7 +26,6 @@ This project is built from several repositories:
 
 * [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/main/admin)
 * [percona/qan-api](https://github.com/percona/pmm/tree/main/qan-api2) query analytics API
-* [percona/pmm-update](https://github.com/percona/pmm/tree/main/update) is a tool for updating packages and OS configuration for PMM
 
 #### Frontends
 
@@ -127,7 +126,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
   * This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
 * Once it's connected just use `make run` to run pmm-agent.
 * To work correctly, pmm-agent needs vmagent and exporters installed on the system.
-  * The first option is to install pmm-client using this instrucion https://docs.percona.com/percona-monitoring-and-management/setting-up/client/index.html#install. It will install all exporters as well.
+  * The first option is to install pmm-client using this instruction https://docs.percona.com/percona-monitoring-and-management/setting-up/client/index.html#install. It will install all exporters as well.
   * Another option is to do it manually
     * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in `pmm-agent-dev.yaml` file.
     * All paths to exporter binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually if necessary.
@@ -191,7 +190,7 @@ Please see: [How to create a feature build](https://github.com/Percona-Lab/pmm-s
 ### The Rules
 
 1. Create a Feature Build for every feature/improvement/bugfix you are working on.
-2. Create a draft Pull Request in https://percona-lab/pmm-submodules.
+2. Create a draft Pull Request in https://github.com/Percona-Lab/pmm-submodules.
 3. Change the status of the Pull Request from Draft to Open ONLY if you are contributing code changes to pmm-submodules (very rare).
 4. Provide a short explanation in the Description field of you feature build PR and checkboxes to all related Pull Requests. If you need examples, check out [PRs](https://github.com/Percona-Lab/pmm-submodules/pulls) made by others.
 5. After all related PRs in feature build are merged you should:

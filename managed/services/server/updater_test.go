@@ -28,8 +28,15 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	grpcstatus "google.golang.org/grpc/status"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/version"
 )
 
@@ -37,6 +44,9 @@ func TestUpdater(t *testing.T) {
 	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 	watchtowerURL, _ := url.Parse("http://watchtower:8080")
 	const tmpDistributionFile = "/tmp/distribution"
+
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	t.Run("TestNextVersion", func(t *testing.T) {
 		type args struct {
@@ -238,7 +248,7 @@ func TestUpdater(t *testing.T) {
 			tt := tt
 			t.Run(tt.name, func(t *testing.T) {
 				t.Parallel()
-				u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
+				u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
 				parsed, err := version.Parse(tt.args.currentVersion)
 				require.NoError(t, err)
 				_, next := u.next(*parsed, tt.args.results)
@@ -270,7 +280,7 @@ func TestUpdater(t *testing.T) {
 
 	t.Run("TestLatest", func(t *testing.T) {
 		version.Version = "2.41.0"
-		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
+		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
 
 		t.Run("LatestFromProduction", func(t *testing.T) {
 			_, latest, err := u.latest(context.Background())
@@ -303,7 +313,7 @@ func TestUpdater(t *testing.T) {
 		err := os.WriteFile(fileName, []byte(fileBody), 0o600)
 		require.NoError(t, err)
 
-		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
+		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
 		_, latest, err := u.latest(context.Background())
 		require.NoError(t, err)
 		assert.Equal(t, "2.41.1", latest.Version.String())
@@ -311,8 +321,23 @@ func TestUpdater(t *testing.T) {
 		assert.Equal(t, time.Date(2024, 3, 20, 15, 48, 7, 145620000, time.UTC), latest.BuildTime)
 	})
 
+	t.Run("with disabled updates check", func(t *testing.T) {
+		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
+			EnableUpdates: pointer.ToBool(false),
+		})
+		require.NoError(t, err)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
+		err = u.check(ctx)
+		require.Error(t, err)
+		tests.AssertGRPCError(t, grpcstatus.New(codes.FailedPrecondition, "PMM updates are disabled"), err)
+	})
+
 	t.Run("TestUpdateEnvFile", func(t *testing.T) {
-		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize)
+		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
 		tmpFile := filepath.Join(os.TempDir(), "pmm-service.env")
 		content := `PMM_WATCHTOWER_HOST=http://watchtower:8080
 PMM_WATCHTOWER_TOKEN=123
@@ -322,7 +347,7 @@ PMM_DISTRIBUTION_METHOD=ami`
 		err := os.WriteFile(tmpFile, []byte(content), 0o644)
 		require.NoError(t, err)
 
-		err = u.updatePodmanEnvironmentVariables(tmpFile, "perconalab/pmm-server:3-dev-container")
+		err = u.updatePodmanEnvironmentVariables(tmpFile, "PMM_IMAGE", "perconalab/pmm-server:3-dev-container")
 		require.NoError(t, err)
 		newContent, err := os.ReadFile(tmpFile)
 		require.NoError(t, err)

@@ -1,28 +1,18 @@
 # Remove podman container
 
-
-??? info "Summary"
-
-    !!! summary alert alert-info ""
-        - Stop PMM Server.
-        - Remove (delete) volume.
-        - Remove (delete) images.
-
-    ---
-
 !!! caution alert alert-warning "Caution"
     These steps delete the PMM Server Docker image and the associated PMM metrics data.
 
-To remove your contiainer:
+To remove your container:
 {.power-number}
 
-1. Stop PMM Server.
+1. Stop PMM Server:
 
     ```sh
     systemctl --user stop pmm-server
     ```
 
-2. Remove volume.
+2. Remove volume:
 
     <div hidden>
     ```sh
@@ -36,7 +26,7 @@ To remove your contiainer:
     podman volume rm --force pmm-server
     ```
 
-3. Remove the PMM images.
+3. Remove the PMM images:
 
     ```sh
     podman rmi $(podman images | grep "pmm-server" | awk {'print $3'})
@@ -44,8 +34,7 @@ To remove your contiainer:
 
 [tags]: https://hub.docker.com/r/percona/pmm-server/tags
 [Podman]: https://podman.io/getting-started/installation
-[Docker]: docker.md
+[Docker]: ../docker/index.md
 [Docker image]: https://hub.docker.com/r/percona/pmm-server
-[Docker Environment]: docker.md#environment-variables
-[trusted certificate]: ../../how-to/secure.md#ssl-encryption
-[Set up repos]: ../client/index.md#package-manager
+[Docker environment variables]: ../docker/env_var.md
+[trusted certificate]: ../../../../how-to/secure.md#ssl-encryption

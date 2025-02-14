@@ -39,6 +39,7 @@ func restoreSettingsDefaults(t *testing.T) {
 			EnableAdvisor:   pointer.ToBool(true),
 			EnableTelemetry: pointer.ToBool(true),
 			EnableAlerting:  pointer.ToBool(true),
+			EnableUpdates:   pointer.ToBool(true),
 			MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 				Hr: "5s",
 				Mr: "10s",

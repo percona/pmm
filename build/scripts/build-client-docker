@@ -19,11 +19,12 @@ main() {
     DOCKER_CLIENT_TAG="perconalab/pmm-client-fb:${shortcommit}"
   fi
 
-  CLIENT_IMAGE_VERSION=`echo $DOCKER_CLIENT_TAG | cut -d ':' -f2`
+  local CLIENT_IMAGE_VERSION=`echo $DOCKER_CLIENT_TAG | cut -d ':' -f2`
 
   docker buildx build \
     --build-arg BUILD_DATE="$BUILD_DATE" \
     --build-arg VERSION="$CLIENT_IMAGE_VERSION" \
+    --build-arg RELEASE=$(date +%s) \
     --progress plain \
     -f ${DOCKER_CONTEXT_DIR}/${docker_file} \
     -t ${DOCKER_CLIENT_TAG} \

@@ -16,6 +16,13 @@ main() {
       set -o errexit
       set -o xtrace
 
+      sudo_path=
+      if [ -e /usr/bin/sudo ]; then
+          sudo_path=/usr/bin/sudo
+      fi
+
+      [[ ${IMAGE} = ${rpmbuild_docker_image} ]] || \$sudo_path yum -y install git rpm-build
+
       export pmm_release=$pmm_release
       cd /home/builder/build
 

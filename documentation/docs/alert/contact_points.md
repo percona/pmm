@@ -41,9 +41,10 @@ To use SMTP with a PMM Docker installation:
     - `GF_SMTP_FROM_NAME`: Name to be used when sending out emails.
 
     *NB: If you are using your Gmail’s SMTP credentials as shown above, you will have to generate an app password and fill it in as the value of your $GF_SMTP_PASSWORD variable.*
+
 2. Pass in the `.env` file to Docker run using the `--env-file` flag:
     ```
-    docker run --env-file=.env -p 443:443 -p 80:80 perconalab/pmm-server:3.0.0-beta
+    docker run --env-file=.env -p 443:8443 percona/pmm-server:3
     ```
     This command starts a docker container and will keep running as long as the container is also running. Stopping the command (e.g with Ctrl+C) will stop the container hence, subsequent commands should be run in a new terminal.
 
@@ -97,7 +98,7 @@ To edit the root notification policy:
 {.power-number}
 
 1. Go to <i class="uil uil-bell"></i> **Alerting > Notification policies** tab.
-2. Click the ellipsis botton next to the root policy box and select the **Edit** option.
+2. Click the ellipsis button next to the root policy box and select the **Edit** option.
 3. Choose whether to keep the default Email contact point, select a new available contact point or create a new one.
 4. In the **Group by** field, specify how alert rules should be processed into notifications. If multiple alerts are matched for this policy, they will be grouped based on the labels you specify, and a notification will be sent per group.
 5. Expand the **Timing options** section and specify how notification wait times should be processed. These are short pauses the system can take to efficiently process multiple sets of alerts for notifications:
@@ -122,7 +123,7 @@ A policy will match an alert if the alert’s labels match all the matching labe
 This can be useful, for example, when you want to send notifications to a catch-all contact point as well as to one of more specific contact points handled by subsequent policies.
 6. Toggle **Override grouping** if you do not want to use root policy grouping.
 7. Toggle **Override general timings** to specify how often you want to wait until the initial notification is sent for a new group. When this is disabled, PMM uses root policy group timings instead.
-8. Add a mute timing if you want to mute notifications or this policy for a specific, regular interval. For example, you can create a mute to suppress trivial notifications during weekends.  Mute timings are different from silences in the sense that they are recurring, while silences have a fixed start and end time.
+8. Add a mute timing if you want to mute notifications or this policy for a specific, regular interval. For example, you can create a mute to suppress trivial notifications during weekends. Mute timings are different from silences in the sense that they are recurring, while silences have a fixed start and end time.
    
     !!! caution alert alert-warning "Important"
-        Time specified in mute timing must be in UTC and military format i.e. 14:00 not 2:00 PM.
+        Time specified in mute timing must be in UTC format, i.e. 14:00, not 2:00 PM.

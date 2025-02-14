@@ -93,7 +93,6 @@
       - pmm-qan-api
       - pmm-managed
       - pmm-ui
-      - pmm-update
       - pmm-dump
       - pmm-vmproxy
     state: installed
@@ -151,10 +150,10 @@
   register: managed_init_result
   changed_when: True
 
-- name: Disable pmm-update-perform-init
+- name: Disable pmm-init
   ini_file:
     path: /etc/supervisord.d/pmm.ini
-    section: program:pmm-update-perform-init
+    section: program:pmm-init
     option: autostart
     value: "false"
 

@@ -17,6 +17,7 @@ compose.yml
 ci.yml
 sbom.json
 *.log
+encryption.key
 
 api/nginx/*.pem
 api-tests/pmm-api-tests-output.txt

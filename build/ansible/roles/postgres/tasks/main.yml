@@ -42,7 +42,7 @@
     state: directory
     owner: pmm
     group: pmm
-    mode: 0766
+    mode: 0700
 
 - name: Initialize Postgres database
   command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust

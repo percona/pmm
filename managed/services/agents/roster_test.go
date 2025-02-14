@@ -57,7 +57,7 @@ func TestRoster(t *testing.T) {
 		exporters[node] = &models.Agent{
 			AgentID:   "agent1",
 			AgentType: models.RDSExporterType,
-			AWSOptions: &models.AWSOptions{
+			AWSOptions: models.AWSOptions{
 				AWSAccessKey: awsAccessKey,
 			},
 		}
@@ -97,7 +97,7 @@ func TestRoster(t *testing.T) {
 		exporters[node] = &models.Agent{
 			AgentID:   "agent1",
 			AgentType: models.RDSExporterType,
-			AWSOptions: &models.AWSOptions{
+			AWSOptions: models.AWSOptions{
 				AWSAccessKey: awsAccessKey,
 			},
 		}

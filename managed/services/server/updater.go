@@ -26,6 +26,7 @@ import (
 	"net/url"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -34,17 +35,21 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
+	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
 const (
-	pmmUpdatePerformLog    = "/srv/logs/pmm-update-perform-init.log"
+	pmmInitLog             = "/srv/logs/pmm-init.log"
 	updateCheckInterval    = 24 * time.Hour
 	updateCheckResultFresh = updateCheckInterval + 10*time.Minute
 	updateDefaultTimeout   = 30 * time.Second
-	envfilePath            = "/home/pmm/update/pmm-server.env"
+	pmmEnvfilePath         = "/home/pmm/update/pmm-server.env"
+	watchtowerEnvfilePath  = "/home/pmm/update/watchtower.env"
 )
 
 var fileName = "/etc/pmm-server-update-version.json"
@@ -52,6 +57,7 @@ var fileName = "/etc/pmm-server-update-version.json"
 // Updater is a service to check for updates and trigger the update process.
 type Updater struct {
 	l                  *logrus.Entry
+	db                 *reform.DB
 	watchtowerHost     *url.URL
 	gRPCMessageMaxSize uint32
 
@@ -68,9 +74,10 @@ type Updater struct {
 }
 
 // NewUpdater creates a new Updater service.
-func NewUpdater(watchtowerHost *url.URL, gRPCMessageMaxSize uint32) *Updater {
+func NewUpdater(watchtowerHost *url.URL, gRPCMessageMaxSize uint32, db *reform.DB) *Updater {
 	u := &Updater{
 		l:                  logrus.WithField("service", "updater"),
+		db:                 db,
 		watchtowerHost:     watchtowerHost,
 		gRPCMessageMaxSize: gRPCMessageMaxSize,
 		releaseNotes:       make(map[string]string),
@@ -97,7 +104,7 @@ func (up *Updater) Run(ctx context.Context) {
 	}
 }
 
-func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName string) error {
+func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName string, stopWatchtower bool) error {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return errors.Wrap(err, "failed to get hostname")
@@ -110,6 +117,7 @@ func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName str
 	q := u.Query()
 	q.Set("hostname", hostname)
 	q.Set("newImageName", newImageName)
+	q.Set("stopWatchtower", strconv.FormatBool(stopWatchtower)) // We stop watchtower on AMI and OVF, because systemd will restart it with new image.
 	u.RawQuery = q.Encode()
 
 	// Create a new request
@@ -132,7 +140,8 @@ func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName str
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	if resp.StatusCode == http.StatusBadRequest {
+	if resp.StatusCode == http.StatusBadRequest ||
+		resp.StatusCode == http.StatusPreconditionFailed {
 		bytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return errors.Wrap(err, "failed to read response body")
@@ -156,6 +165,15 @@ func (up *Updater) currentVersion() *version.Parsed {
 func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 	up.performM.Lock()
 	defer up.performM.Unlock()
+	settings, err := models.GetSettings(up.db)
+	if err != nil {
+		return grpcstatus.Error(codes.Internal, "failed to get PMM server settings")
+	}
+
+	if !settings.IsUpdatesEnabled() {
+		up.l.Debug("Updates are disabled")
+		return grpcstatus.Error(codes.FailedPrecondition, "updates are disabled")
+	}
 	if up.running {
 		return grpcstatus.Error(codes.FailedPrecondition, "update already in progress")
 	}
@@ -165,27 +183,38 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 		return errors.New("newImageName is empty")
 	}
 
-	err := up.checkWatchtowerHost()
+	err = up.checkWatchtowerHost()
 	if err != nil {
 		up.running = false
 		up.l.WithError(err).Error("Failed to check watchtower host")
 		return grpcstatus.Errorf(codes.FailedPrecondition, "failed to check watchtower host")
 	}
 
-	if _, e := os.Stat(envfilePath); e == nil {
-		err := up.updatePodmanEnvironmentVariables(envfilePath, newImageName)
+	restartWatchtower := false
+	if _, e := os.Stat(pmmEnvfilePath); e == nil {
+		watchtowerImageName := strings.Replace(newImageName, "pmm-server-fb", "pmm-watchtower-fb", 1) // for FB images
+		watchtowerImageName = strings.Replace(watchtowerImageName, "3-dev-latest", "dev-latest", 1)   // for dev images
+		watchtowerImageName = strings.Replace(watchtowerImageName, "pmm-server", "watchtower", 1)
+		err := up.updatePodmanEnvironmentVariables(watchtowerEnvfilePath, "WATCHTOWER_IMAGE", watchtowerImageName)
+		if err != nil {
+			up.running = false
+			up.l.WithError(err).Error("Failed to update environment variables file for watchtower")
+			return errors.Wrap(err, "failed to update environment variables file for watchtower")
+		}
+		err = up.updatePodmanEnvironmentVariables(pmmEnvfilePath, "PMM_IMAGE", newImageName)
 		if err != nil {
 			up.running = false
 			up.l.WithError(err).Error("Failed to update environment variables file")
 			return errors.Wrap(err, "failed to update environment variables file")
 		}
+		restartWatchtower = true
 	} else if !os.IsNotExist(e) {
 		up.running = false
 		up.l.WithError(e).Error("Failed to check environment variables file")
 		return errors.Wrap(e, "failed to check environment variables file")
 	}
 
-	if err := up.sendRequestToWatchtower(ctx, newImageName); err != nil {
+	if err := up.sendRequestToWatchtower(ctx, newImageName, restartWatchtower); err != nil {
 		up.running = false
 		up.l.WithError(err).Error("Failed to trigger update")
 		return err
@@ -224,6 +253,15 @@ func (up *Updater) ListUpdates(ctx context.Context) ([]*version.DockerVersionInf
 }
 
 func (up *Updater) latest(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
+	settings, err := models.GetSettings(up.db)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to get PMM server settings")
+	}
+
+	if !settings.IsUpdatesEnabled() {
+		return nil, nil, services.ErrPMMUpdatesDisabled
+	}
+
 	info, err := up.readFromFile()
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to read from file")
@@ -422,7 +460,7 @@ func (up *Updater) UpdateLog(offset uint32) ([]string, uint32, error) {
 	up.performM.Lock()
 	defer up.performM.Unlock()
 
-	f, err := os.Open(pmmUpdatePerformLog)
+	f, err := os.Open(pmmInitLog)
 	if err != nil {
 		return nil, 0, errors.WithStack(err)
 	}
@@ -471,9 +509,12 @@ func (up *Updater) checkResult(ctx context.Context) (*version.DockerVersionInfo,
 func (up *Updater) check(ctx context.Context) error {
 	up.checkRW.Lock()
 	defer up.checkRW.Unlock()
-
 	_, latest, err := up.latest(ctx)
 	if err != nil {
+		if errors.Is(err, services.ErrPMMUpdatesDisabled) {
+			up.l.Info("PMM updates are disabled")
+			return grpcstatus.Error(codes.FailedPrecondition, "PMM updates are disabled")
+		}
 		return errors.Wrap(err, "failed to get latest version")
 	}
 	up.lastCheckResult = latest
@@ -492,9 +533,9 @@ func (up *Updater) checkWatchtowerHost() error {
 	return nil
 }
 
-func (up *Updater) updatePodmanEnvironmentVariables(filename string, name string) error {
-	if len(strings.Split(name, "/")) < 3 {
-		name = "docker.io/" + name
+func (up *Updater) updatePodmanEnvironmentVariables(filename string, key string, imageName string) error {
+	if len(strings.Split(imageName, "/")) < 3 {
+		imageName = "docker.io/" + imageName
 	}
 	file, err := os.ReadFile(filename)
 	if err != nil {
@@ -502,8 +543,8 @@ func (up *Updater) updatePodmanEnvironmentVariables(filename string, name string
 	}
 	lines := strings.Split(string(file), "\n")
 	for i, line := range lines {
-		if strings.Contains(line, "PMM_IMAGE") {
-			lines[i] = fmt.Sprintf("PMM_IMAGE=%s", name)
+		if strings.Contains(line, key) {
+			lines[i] = fmt.Sprintf(key+"=%s", imageName)
 		}
 	}
 	err = os.WriteFile(filename, []byte(strings.Join(lines, "\n")), 0o644)

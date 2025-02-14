@@ -5,7 +5,7 @@
 
 ### Automatic migration of API keys
 
-When you install PMM v3.x, any existing API keys will be seamlessly converted to service accounts with corresponding service tokens.
+When you install PMM v3.x, any existing API keys will be seamlessly converted to service accounts with corresponding service tokens. For more information about the migration, see [Migrate PMM 2 to PMM 3](../pmm-upgrade/migrating_from_pmm_2.md).
 
 Service accounts in PMM provide a secure and efficient way to manage access to the PMM Server and its resources. They serve as a replacement for the basic authentication and API keys used in previous versions of PMM (v.2 and earlier).
 
@@ -58,7 +58,7 @@ curl -H "Authorization: Bearer <service_token>" https://127.0.0.1/v1/version
 
 ## Use a service token in basic authentication
 
-You can include the service token as a query parameter in a REST API call using the following format. Replace YOUR_SERVICE_TOKEN with the actual service token you obtained in step 12.
+You can include the service token as a query parameter in a REST API call using the following format. Replace YOUR_SERVICE_TOKEN with the actual service token you obtained in step 9.
 
 
 **Example**
@@ -67,7 +67,7 @@ curl -X GET https://service_token:SERVICE_TOKEN@localhost/v1/version
 ```
 
 ## Use a service token in Bearer authentication (HTTP header)
-You can also include the service token in the header of an HTTP request for authentication. To do this, replace `SERVICE_TOKEN` with the actual service token you obtained in step 12.
+You can also include the service token in the header of an HTTP request for authentication. To do this, replace `SERVICE_TOKEN` with the actual service token you obtained in step 9.
 
 **Example**
 ```shell

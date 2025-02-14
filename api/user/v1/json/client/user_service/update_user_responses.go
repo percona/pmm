@@ -199,6 +199,9 @@ type UpdateUserBody struct {
 
 	// Snooze update alert for a PMM version
 	SnoozedPMMVersion *string `json:"snoozed_pmm_version,omitempty"`
+
+	// Snoozed warning about API keys migration
+	SnoozedAPIKeysMigration *bool `json:"snoozed_api_keys_migration,omitempty"`
 }
 
 // Validate validates this update user body
@@ -465,6 +468,9 @@ type UpdateUserOKBody struct {
 
 	// Snooze update alert for a PMM version
 	SnoozedPMMVersion string `json:"snoozed_pmm_version,omitempty"`
+
+	// Snoozed warning about API keys migration
+	SnoozedAPIKeysMigration bool `json:"snoozed_api_keys_migration,omitempty"`
 }
 
 // Validate validates this update user OK body
