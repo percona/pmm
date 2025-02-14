@@ -34,7 +34,7 @@
     - /var/log/clickhouse-server
     - /run/clickhouse-server
 
-- name: Copy a customized clickhouse config
+- name: Copy customized clickhouse config files
   copy:
     src: "{{ item }}"
     dest: "/etc/clickhouse-server/{{ item }}"
