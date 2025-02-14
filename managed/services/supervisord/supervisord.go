@@ -48,6 +48,7 @@ const (
 	defaultClickhouseAddr               = "127.0.0.1:9000"
 	defaultClickhouseDataSourceAddr     = "127.0.0.1:8123"
 	defaultClickhouseUser               = "default"
+	defaultClickhousePassword           = "clickhouse"
 	defaultVMSearchMaxQueryLen          = "1MB"
 	defaultVMSearchLatencyOffset        = "5s"
 	defaultVMSearchMaxUniqueTimeseries  = "100000000"
@@ -279,7 +280,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhouseDataSourceAddr := getValueFromENV("PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
 	clickhouseUser := getValueFromENV("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
-	clickhousePassword := getValueFromENV("PMM_CLICKHOUSE_PASSWORD", "")
+	clickhousePassword := getValueFromENV("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
 	vmSearchDisableCache := getValueFromENV("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
 	vmSearchMaxQueryLen := getValueFromENV("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
 	vmSearchLatencyOffset := getValueFromENV("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
