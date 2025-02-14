@@ -13,6 +13,7 @@ The package manager will automatically select the appropriate version for your s
 === "Debian-based"
     To install PMM Client:
     {.power-number}
+    
     1. Configure repositories:
         ```sh
         wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
@@ -35,6 +36,9 @@ The package manager will automatically select the appropriate version for your s
     5. [Register the node](..//register-client-node/index.md).
 
 === "Red Hat-based"
+    To install PMM Client:
+    {.power-number}
+
     1. Configure repositories:
         ```sh
         yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
@@ -56,6 +60,7 @@ The package manager will automatically select the appropriate version for your s
 ## Package manager -- manual download
 To manually download package manager:
 {.power-number}
+
 1. Visit the [Percona Monitoring and Management 3 download](https://www.percona.com/downloads/) page.
 2. Under **Select Product Version** select the one you want (usually the latest).
 3. Under **Select Platform**, select the item matching your software platform and architecture (x86_64 or ARM64).
@@ -76,6 +81,7 @@ To manually download package manager:
 
 ??? info "Download page links"
     Here are the download page links for each supported platform:
+    
     - [Red Hat/CentOS/Oracle 8](https://www.percona.com/downloads/pmm3/{{release}}/binary/redhat/8/)
     - [Red Hat/CentOS/Oracle 9](https://www.percona.com/downloads/pmm3/{{release}}/binary/redhat/9/)
     - [Debian 11 (Bullseye)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/bullseye/)
