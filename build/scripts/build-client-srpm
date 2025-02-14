@@ -2,36 +2,34 @@
 
 . $(dirname $0)/vars
 
-set -o errexit
-set -o xtrace
-
-bin_dir=$(cd $(dirname $0); pwd -P)
-tmp_dir=${root_dir}/tmp
-
 main() {
-    local IMAGE=${1:-${rpmbuild_docker_image}}
-    docker run --rm -v ${bin_dir}:/home/builder/bin -v ${root_dir}/results:/home/builder/results ${IMAGE} sh -c "
-        set -o errexit
-        set -o xtrace
+  echo -----------------------------------------
+  echo "Building PMM Client source RPM packages..."
+  echo -----------------------------------------
 
-        export pmm_release=$pmm_release
-        export sudo_path=
-        if [ -e /usr/bin/sudo ]; then
-            export sudo_path=\$(ls /usr/bin/sudo)
-        fi
-        [[ ${IMAGE} = ${rpmbuild_docker_image} ]] || \$sudo_path yum -y install git rpm-build
+  local IMAGE=${1:-${rpmbuild_docker_image}}
+  docker run --rm \
+    --platform=${platform} \
+    -v ${bin_dir}:/home/builder/bin \
+    -v ${build_dir}:/home/builder/build \
+    ${IMAGE} sh -c "
+      set -o errexit
+      set -o xtrace
 
-        mkdir -p /tmp/pmm
-        pushd /home/builder/results
-            /home/builder/bin/build-client-packages \
-                --builddir=/tmp/pmm \
-                --build_src_rpm=1
-        popd
-        \$sudo_path chown -R $(id -u):$(id -g) /home/builder/results/srpm
+      sudo_path=
+      if [ -e /usr/bin/sudo ]; then
+          sudo_path=/usr/bin/sudo
+      fi
+
+      [[ ${IMAGE} = ${rpmbuild_docker_image} ]] || \$sudo_path yum -y install git rpm-build
+
+      export pmm_release=$pmm_release
+      cd /home/builder/build
+
+      /home/builder/bin/build-client-packages --build_src_rpm
     "
 }
 
 main $*
-exit 0
 
-# vim: expandtab shiftwidth=4 tabstop=4
+# vim: expandtab shiftwidth=2 tabstop=2

@@ -88,12 +88,13 @@
   yum:
     name:
       - percona-grafana
-      - percona-victoriametrics
-      - percona-qan-api2
       - percona-dashboards
+      - pmm-victoriametrics
+      - pmm-qan-api
       - pmm-managed
+      - pmm-ui
       - pmm-dump
-      - vmproxy
+      - pmm-vmproxy
     state: installed
     enablerepo: local
 
