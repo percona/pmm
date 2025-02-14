@@ -1,6 +1,6 @@
 # Welcome
 
-<i info>:material-information: Info:</i> This is the documentation for the latest PMM 2 release. For details, see the [PMM {{release}} release notes](release-notes/{{release}}.md) and the [PMM 2.44.0-1 update](../docs/release-notes/2.44.0.1.md).
+<i info>:material-information: Info:</i> This is the documentation for the latest PMM 2 release. For details, see the [PMM {{release}} release notes](release-notes/{{release}}.md) and the [PMM 2.44.0-1 update](release-notes/2.44.0.1.md).
 
 
 !!! warning "PMM 2 end of active development" 
