@@ -91,7 +91,7 @@ To add a MySQL instance:
         -credential_file=/path/to/credential-file.json
         ```
 
-6. Add instance.
+6. Add instance:
 
     ```sh
     pmm-admin add mysql --host=127.0.0.1 --port=3306 \
@@ -110,7 +110,7 @@ To add a PostgreSQL instance:
 
 3. [Enable Admin API][GOOGLE_CLOUD_ADMIN_API] and download the JSON credential file.
 
-4. Run Cloud SQL Proxy.
+4. Run Cloud SQL Proxy:
 
     ```sh
     ./cloud_sql_proxy -instances=example-project-NNNN:us-central1:pg-for-pmm=tcp:5432 \

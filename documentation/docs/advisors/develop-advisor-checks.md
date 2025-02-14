@@ -266,4 +266,4 @@ If debug logging is enabled, you can disable it with the following environment v
 
 
 ## Submit feedback
-We welcome your feedback on the current process for developing and debugging checks. Send us your comments over [Slack](https://percona.slack.com) or post a question on the [Percona Forums](https://forums.percona.com/).
+We welcome your feedback on the current process for developing and debugging checks. Send us your comments or post a question on the [Percona Forums](https://forums.percona.com/c/percona-monitoring-and-management-pmm/pmm-3/84).

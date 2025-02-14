@@ -84,10 +84,10 @@ To add an external service via PMM UI:
 
 2. Fill in the form and set the external service endpoint: 
 
- -  manually OR:
+    -  manually OR:
 
-    ![!](../../../images/PMM_External_Serverless_switcher_manually.png)
+        ![!](../../../images/PMM_External_Serverless_switcher_manually.png)
 
-- by parsing required data from a URL string. In this case you only need to pass a valid URL:
+    - by parsing required data from a URL string. In this case you only need to pass a valid URL:
 
-    ![!](../../../images/PMM_External_Serverless_switcher.png)
+        ![!](../../../images/PMM_External_Serverless_switcher.png)

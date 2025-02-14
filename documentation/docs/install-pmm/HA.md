@@ -545,11 +545,10 @@ The PMM Server orchestrates the collection, storage, and visualization of metric
 
 ### **Step 7: Running HAProxy**
 
-HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the `/v1/leaderHealthCheck` endpoint.
-    
+HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the `/v1/leaderHealthCheck` endpoint:
+{.power-number}   
 
-1. Pull the HAProxy Docker image.
-{.power-number}
+1. Pull the HAProxy Docker image:
     
     ```bash
     docker pull haproxy:2.4.2-alpine

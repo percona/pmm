@@ -126,6 +126,7 @@ For a more detailed comparison of extensions, follow [pg_stat monitor User Guide
 #### Configure
 
 To configure the extension:
+{.power-number}
 
 1. Add these lines to your `postgresql.conf` file:
 

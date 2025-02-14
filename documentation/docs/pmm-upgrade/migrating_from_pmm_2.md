@@ -206,7 +206,7 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
             rm ~/.config/systemd/user/pmm-server.service
             ```
 
-        5. Follow the installation steps from the [PMM 3 Podman installation guide](../install-pmm/install-pmm-server/baremetal/podman/index.md) to complete the upgrade.
+        5. Follow the installation steps from the [PMM 3 Podman installation guide](../install-pmm/install-pmm-server/deployment-options/podman/index.md) to complete the upgrade.
 
     === "AMI/OVF instance"
         Follow these steps to migrate a PMM 2 Server deployed as an AMI/OVF instance to PMM 3:

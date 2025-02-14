@@ -5,7 +5,7 @@
 Before starting the upgrade, complete these preparation steps to ensure you can recover your system if needed and confirm compatibility with the new version:
 {.power-number}
 
-1. [Create a backup](../install-pmm/install-pmm-server/baremetal/docker/backup_container.md) before upgrading, as downgrades are not possible. Therefore, reverting to a previous version requires an backup made prior to the upgrade.
+1. [Create a backup](../install-pmm/install-pmm-server/deployment-options/docker/backup_container.md) before upgrading, as downgrades are not possible. Therefore, reverting to a previous version requires an backup made prior to the upgrade.
 
 2. Verify your current PMM version: Check your current PMM version by navigating to **PMM Configuration > Updates** or by running the following command: 
 
@@ -48,5 +48,5 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
     percona/pmm-server:3
     ```
     
-5. After upgrading, verify that PMM Server is running correctly and all your data is accessible. You can always [rerestore your PMM Server](../install-pmm/install-pmm-server/baremetal/docker/restore_container.md) using the backup you created above.
+5. After upgrading, verify that PMM Server is running correctly and all your data is accessible. You can always [rerestore your PMM Server](../install-pmm/install-pmm-server/deployment-options/docker/restore_container.md) using the backup you created above.
 
