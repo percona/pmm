@@ -66,7 +66,7 @@ func TestAggregator(t *testing.T) {
 				{
 					Common: &agentv1.MetricsBucket_Common{
 						Queryid:             result.Buckets[0].Common.Queryid,
-						Fingerprint:         "INSERT people",
+						Fingerprint:         "db.people.insert(?)",
 						Database:            "collection",
 						Tables:              []string{"people"},
 						AgentId:             agentID,
@@ -129,7 +129,7 @@ func TestAggregator(t *testing.T) {
 				{
 					Common: &agentv1.MetricsBucket_Common{
 						Queryid:             result.Buckets[0].Common.Queryid,
-						Fingerprint:         "FIND people name_\ufffd",
+						Fingerprint:         "db.people.find({\"name_\\ufffd\":\"?\"})",
 						Database:            "collection",
 						Tables:              []string{"people"},
 						AgentId:             agentID,
