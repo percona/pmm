@@ -122,7 +122,7 @@
       "type": "ansible-local",
       "playbook_file": "ansible/pmm2/main.yml",
       "extra_arguments": [
-        "-v",
+        "-vvv",
         "-u root",
         "--extra-vars",
         "\"pmm2_server_repo='{{ user `pmm2_server_repo`}}' pmm_client_repo_name='{{ user `pmm_client_repo_name`}}' pmm_client_repos='{{ user `pmm_client_repos`}}'\""
