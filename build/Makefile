@@ -54,9 +54,9 @@ pmm2-ovf-el9-rc: fetch-el9
 pmm2-ovf-el9-dev-latest: fetch-el9
 	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 	/usr/bin/packer build \
-			-var 'pmm_client_repos=pmm2-client experimental' \
-			-var 'pmm_client_repo_name=pmm2-client-experimental-x86_64' \
-			-var 'pmm2_server_repo=experimental' \
+			-var 'pmm_client_repos=pmm2-client release' \
+			-var 'pmm_client_repo_name=pmm2-client-release-x86_64' \
+			-var 'pmm2_server_repo=release' \
 			-only virtualbox-ovf -color=false packer/pmm2.el9.json \
 					| tee build.log
 
