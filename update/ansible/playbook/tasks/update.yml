@@ -308,6 +308,11 @@
         state: latest
         exclude:
           - nginx*
+          - pmm-*
+          - pmm2-client-*
+          - percona-*
+          - dbaas-*
+          - vmproxy-*
 
     - name: Install nginx
       include_role:
