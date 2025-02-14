@@ -696,7 +696,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		templateParams["tmp_dir"] = cfg.Paths.TempDir
 		processParams.Path = cfg.Paths.VMAgent
 	case inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT:
-		templateParams["server_host"] = cfg.Server.URL().Host
+		templateParams["server_host"] = cfg.Server.URL().Hostname()
 		templateParams["nomad_data_dir"] = cfg.Paths.NomadDataDir
 		processParams.Path = cfg.Paths.Nomad
 	default:
