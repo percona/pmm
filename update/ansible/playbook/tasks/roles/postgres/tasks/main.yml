@@ -27,7 +27,7 @@
       yum:
         name:
           - percona-postgresql14-server-14.13-1.el9
-          - percona-postgresql11-contrib-11.22-1.el9
+          - percona-postgresql14-contrib-14.13-1.el9
           - percona-postgresql14-14.13-1.el9
           - percona-postgresql11-server-11.22-1.el9
           - percona-postgresql11-contrib-11.22-1.el9
@@ -64,8 +64,9 @@
         - not ansible_check_mode
       dnf:
         name:
+          - percona-postgresql14-libs-14.13-1.el9
           - percona-postgresql14-server-14.13-1.el9
-          - percona-postgresql11-contrib-11.22-1.el9
+          - percona-postgresql14-contrib-14.13-1.el9
           - percona-postgresql14-14.13-1.el9
           - percona-postgresql11-server-11.22-1.el9
           - percona-postgresql11-contrib-11.22-1.el9
