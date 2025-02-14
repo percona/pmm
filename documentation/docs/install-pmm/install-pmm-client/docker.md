@@ -51,12 +51,13 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
 You can now add services with [`pmm-admin`](../../use/commands/pmm-admin.md) by prefixing commands with `docker exec pmm-client`.
 
 !!! hint alert alert-success "Tips for Docker configuration"
+
    - Firewall and routing rules: Ensure your host's firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see to the [troubleshooting checklist](https://chat.deepseek.com/a/troubleshoot/checklist.md).
 
    - Help command: If you need assistance with PMM Client, you can run the following command to display help information: `docker run --rm percona/pmm-client:3 --help`.
 
-  Steps in the UI:
-  {.power-number}
+Steps in the UI:
+{.power-number}
 
     1. Go to the main menu and select **Operating System (OS) > Overview**.
 
