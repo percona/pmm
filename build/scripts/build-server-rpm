@@ -21,12 +21,24 @@ get_rpm_version() {
 
 get_shasum256() {
   local DIR=${1:-}
+  local SHASUM=sha256sum
   if [ ! -d "$DIR" ]; then
-    echo -e "Error: directory '$1' does not exist, exiting..."
+    echo
+    echo "Error: directory '$1' does not exist, exiting..." >&2
     exit 1
   fi
 
-  find "$DIR" -type f -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256 | cut -d " " -f1 | cut -c 1-8
+  if ! command -v sha256sum &> /dev/null; then
+    if command -v shasum &> /dev/null; then
+      SHASUM="shasum -a 256"
+    else
+      echo
+      echo "Error: 'sha256sum' or 'shasum' command not found, exiting..." >&2
+      exit 1
+    fi
+  fi
+
+  find "$DIR" -type f -print0 | sort -z | xargs -0 "$SHASUM" | "$SHASUM" | cut -d " " -f1 | cut -c 1-8
 }
 
 is_build_needed() {
