@@ -6,7 +6,7 @@
 .DS_Store
 
 # development
-.modules/
+.modules
 bin/
 !/documentation/resources/bin/
 dist/

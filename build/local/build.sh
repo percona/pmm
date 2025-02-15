@@ -22,6 +22,11 @@ Please note, the script will perform the update of submodules by default on ever
 EOF
 }
 
+print_error() {
+  echo
+  echo "Error: $1" >&2
+}
+
 parse_params() {
   # All global variables must be defined here
   INITIALIZE=0
@@ -35,10 +40,23 @@ parse_params() {
   LOG_FILE="$(dirname $0)/build.log"
   BASE_NAME=$(basename $0)
   PLATFORM=linux/amd64
-  SUBMODULES=.modules
+  SUBMODULES=""
   CLONE_BRANCH=v3
   BRANCH_NAME=""
   PATH_TO_SCRIPTS="sources/pmm/src/github.com/percona/pmm/build/scripts"
+
+  if ! test -L build.sh; then
+    print_error "the script must be run from the root of github.com/percona/pmm repository."
+    exit 1
+  fi
+
+  if ! cat .modules 2> /dev/null; then
+    local TMPDIR=$(mktemp -d)
+    echo "$TMPDIR" > .modules
+    SUBMODULES="$TMPDIR"
+  else
+    SUBMODULES=$(cat .modules)
+  fi
 
   # Exported variables
   export USE_S3_CACHE=0
@@ -209,8 +227,7 @@ update() {
     "$RPMBUILD_DOCKER_IMAGE"
 
   if [ ! -s "$SUBMODULES/build/build.json" ]; then
-    echo
-    echo "Error: could not find '$SUBMODULES/build/build.json' file, which means that the build failed, exiting..."
+    print_error "could not find '$SUBMODULES/build/build.json' file, which means that the build failed, exiting..."
     exit 1
   fi
 
@@ -236,7 +253,7 @@ get_branch_name() {
   local path=$(git config -f .gitmodules submodule.${module}.path)
 
   if [ ! -d "$path" ]; then
-    echo "Error: could not resolve the path to submodule ${module}"
+    print_error "could not resolve the path to submodule ${module}"
     exit 1
   fi
 
@@ -386,8 +403,7 @@ initialize() {
 check_if_installed() {
   local cmd="$1"
   if ! command -v "$cmd" &> /dev/null; then
-    echo "Error: $cmd is not installed, exiting..."
-    echo
+    print_error "$cmd is not installed, exiting..."
     return 1
   fi
 
@@ -395,15 +411,14 @@ check_if_installed() {
 }
 
 check_preprequisites() {
-  local commands=("docker" "make" "bash" "tar" "git" "curl" "find" "shasum")
+  local commands=("docker" "make" "bash" "tar" "git" "curl" "find")
   echo "Checking pre-requisites..."
   for cmd in "${commands[@]}"; do
     check_if_installed "$cmd"
   done
 
   if ! docker buildx version &> /dev/null; then
-    echo "Error: 'docker buildx plugin is not installed, exiting..."
-    echo
+    print_error "'docker buildx plugin is not installed, exiting..."
     exit 1
   fi
 
