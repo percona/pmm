@@ -16,7 +16,7 @@ The following questions might help you identify the origin of the problem while 
 9. Are you using a Technical Preview feature? Technical Preview features are not production-ready and should only be used in testing environments. For more information, see the relevant Release Notes.
 10. For installing the PMM client, are you using a package other than a binary package without root permissions?
 11. Is your [PMM Server](../install-pmm/install-pmm-server/index.md) installed and running with a known IP address accessible from the client node?
-12. Is the [PMM Client](../install-pmm/install-pmm-client/index.md) installed, and is the node [registered with PMM Server](../setting-up/client/index.md#register)?
+12. Is the [PMM Client](../install-pmm/install-pmm-client/index.md) installed, and is the node [registered with PMM Server](../../../documentation/docs/install-pmm/register-client-node/index.md)?
 13. Is PMM Client configured correctly and has access to the config file?
 14. For monitoring MongoDB, do you have adminUserAnyDatabase or superuser role privilege to any database servers you want to monitor?
 15. For monitoring Amazon RDS using PMM, is there too much latency between PMM Server and the Amazon RDS instance?

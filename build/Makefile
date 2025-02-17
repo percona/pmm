@@ -2,6 +2,7 @@ export PACKER_CACHE_DIR := .cache
 export PACKER_VERSION := 1.9.4
 export BOX_VERSION := 202407.23.0
 export PMM_SERVER_IMAGE ?= docker.io/perconalab/pmm-server:3-dev-latest
+export WATCHTOWER_IMAGE ?= docker.io/perconalab/watchtower:dev-latest
 export CENTOS_ISO := 2004.01
 
 ## ----------------- PACKER ------------------
@@ -12,12 +13,21 @@ fetch:
 		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 
-	# Add the box using Vagrant
+	test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
+			|| curl -fL https://pmm-build-cache.s3.us-east-2.amazonaws.com/VBOXES/oracle9-202407.23.0.box -o ${PACKER_CACHE_DIR}/box/oracle9.ova
+
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
-		|| VAGRANT_HOME=${PACKER_CACHE_DIR}/box vagrant box add bento/oraclelinux-9 --box-version ${BOX_VERSION} --provider virtualbox
+			|| tar -C ${PACKER_CACHE_DIR}/box -xvf ${PACKER_CACHE_DIR}/box/oracle9.ova
 
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
 		|| cp -rp ${PACKER_CACHE_DIR}/box/boxes/bento-VAGRANTSLASH-oraclelinux-9/${BOX_VERSION}/amd64/virtualbox/* ${PACKER_CACHE_DIR}/box
+
+	# # Add the box using Vagrant
+	# test -f ${PACKER_CACHE_DIR}/box/box.ovf \
+	# 	|| VAGRANT_HOME=${PACKER_CACHE_DIR}/box vagrant box add bento/oraclelinux-9 --box-version ${BOX_VERSION} --provider virtualbox
+
+	# test -f ${PACKER_CACHE_DIR}/box/box.ovf \
+	# 	|| cp -rp ${PACKER_CACHE_DIR}/box/boxes/bento-VAGRANTSLASH-oraclelinux-9/${BOX_VERSION}/amd64/virtualbox/* ${PACKER_CACHE_DIR}/box
 
 deps:
 	mkdir -p ${PACKER_CACHE_DIR} ~/bin || :
@@ -25,7 +35,10 @@ deps:
 	unzip -o ${PACKER_CACHE_DIR}/packer.zip -d ~/bin
 
 pmm-ovf: fetch
-	/usr/bin/packer build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}'  -only virtualbox-ovf -color=false packer/pmm.json | tee build.log
+	/usr/bin/packer build \
+		-var 'pmm_server_image_name=${PMM_SERVER_IMAGE}' \
+		-var 'watchtower_image_name=${WATCHTOWER_IMAGE}' \
+		-only virtualbox-ovf -color=false packer/pmm.json | tee build.log
 
 pmm-digitalocean:
 	packer build -only digitalocean -var 'single_disk=true' packer/pmm.json
@@ -35,7 +48,9 @@ pmm-azure:
 
 pmm-ami:
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build \hashicorp/packer:${PACKER_VERSION} \
-		build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}' -only amazon-ebs -color=false packer/pmm.json | tee build.log
+		build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}' \
+		-var 'watchtower_image_name=${WATCHTOWER_IMAGE}' \
+		-only amazon-ebs -color=false packer/pmm.json | tee build.log
 ## ----------------- PACKER ------------------
 
 check:

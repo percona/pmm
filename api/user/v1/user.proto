@@ -20,6 +20,8 @@ message GetUserResponse {
   bool alerting_tour_completed = 3;
   // Snoozed PMM version update
   string snoozed_pmm_version = 4;
+  // Snoozed warning about API keys migration
+  bool snoozed_api_keys_migration = 5;
 }
 
 message UpdateUserRequest {
@@ -29,6 +31,8 @@ message UpdateUserRequest {
   optional bool alerting_tour_completed = 3;
   // Snooze update alert for a PMM version
   optional string snoozed_pmm_version = 4;
+  // Snoozed warning about API keys migration
+  optional bool snoozed_api_keys_migration = 5;
 }
 
 message UpdateUserResponse {
@@ -40,6 +44,8 @@ message UpdateUserResponse {
   bool alerting_tour_completed = 3;
   // Snooze update alert for a PMM version
   string snoozed_pmm_version = 4;
+  // Snoozed warning about API keys migration
+  bool snoozed_api_keys_migration = 5;
 }
 
 message ListUsersRequest {}
