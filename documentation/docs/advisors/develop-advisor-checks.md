@@ -39,7 +39,7 @@ PMM uses Alertmanager API to get information about failed checks and show them o
 ## Format for checks
 Advisor checks use the following format:
 
-??? note alert alert-info "Checks Format"
+??? note alert alert-info "Checks format"
 
     {% raw %}
     ```yaml
@@ -184,7 +184,7 @@ Checks can include the following fields:
 
 Expand the table below for the list of checks types that you can use to define your query type and the PMM Service type for which the check will run.
 
-??? note alert alert-info "Check Types table"
+??? note alert alert-info "Check types"
 
     | Check type  |  Description | "query" required (must be empty if "No")   |
     |---|---|---|
@@ -213,8 +213,8 @@ Expand the table below for the list of checks types that you can use to define y
 
 ## Develop checks
 
-!!! note alert alert-primary "Development / Debugging Only"
-Note that check development in PMM is currently for **debugging only** and **NOT for production use!**  Future releases plan to include the option to run custom local checks in addition to hosted Percona Platform checks.
+!!! note alert alert-primary "Development/debugging only"
+    Note that check development in PMM is currently for **debugging only** and **NOT for production use!**  Future releases plan to include the option to run custom local checks in addition to hosted Percona Platform checks.
 
 To develop custom checks for PMM:
 {.power-number}
@@ -234,21 +234,21 @@ To develop custom checks for PMM:
     perconalab/pmm-server:3-dev-container
     ```
 
-3.  Log into Grafana with credentials **admin/admin**.
+3. Log into Grafana with credentials **admin/admin**.
 
 4. Go to **PMM Configuration > Settings > Advanced Settings** and make sure the **Advisors** option is enabled.
 
-5.  Create `/srv/custom-checks.yml` inside the `pmm-server` container with the content of your check. Specify **dev** advisor in your check.
+5. Create `/srv/custom-checks.yml` inside the `pmm-server` container with the content of your check. Specify **dev** advisor in your check.
 
-6.  The checks will run according to the time interval defined on the UI. You can see the result of running the check on the home dashboard:
+6. The checks will run according to the time interval defined on the UI. You can see the result of running the check on the home dashboard:
 
     ![!](../images/HomeDashboard.png)
 
-7.  Click on the number of failed checks to open the Failed Checks dashboard:
+7. Click on the number of failed checks to open the Failed Checks dashboard:
 
     ![!](../images/FailedChecks.png)
 
-8.  Check out pmm-managed logs:
+8. Check out pmm-managed logs:
     ```sh
     docker exec -it pmm-server supervisorctl tail -f pmm-managed
     ```
