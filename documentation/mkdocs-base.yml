@@ -15,7 +15,6 @@ theme:
   name: material
   custom_dir: overrides
   logo: assets/pmm-mark.svg
-  favicon: assets/pmm-fav.svg
   font:
     text: Roboto
     code: Roboto Mono
@@ -312,30 +311,30 @@ nav:
     - configure-pmm/advanced_settings.md
     - configure-pmm/ssh.md
     - Security in PMM:
-      - pmm-admin/security/index.md
-      - pmm-admin/security/ssl_encryption.md 
-      - pmm-admin/security/grafana_cookies.md  
-      - pmm-admin/security/data_encryption.md  
+      - admin/security/index.md
+      - admin/security/ssl_encryption.md 
+      - admin/security/grafana_cookies.md  
+      - admin/security/data_encryption.md  
     - Percona Platform:
       - configure-pmm/percona_platform/integrate_with_percona_platform.md
       - configure-pmm/percona_platform/check_percona_platform.md
   - Administer:
-    - pmm-admin/index.md
+    - admin/index.md
     - Manage users:
-      - pmm-admin/manage-users/index.md
-      - pmm-admin/manage-users/add_users.md
-      - pmm-admin/manage-users/edit_users.md
-      - pmm-admin/manage-users/delete_users.md
+      - admin/manage-users/index.md
+      - admin/manage-users/add_users.md
+      - admin/manage-users/edit_users.md
+      - admin/manage-users/delete_users.md
     - Roles and permissions:
-      - pmm-admin/roles/index.md
+      - admin/roles/index.md
       - Access Control:
-        - pmm-admin/roles/access-control/intro.md
-        - pmm-admin/roles/access-control/labels.md
-        - pmm-admin/roles/access-control/config_access_cntrl.md
-        - pmm-admin/roles/access-control/create_roles.md
-        - pmm-admin/roles/access-control/manage_roles.md
-        - pmm-admin/roles/access-control/assign_roles.md
-        - pmm-admin/roles/access-control/usecase.md
+        - admin/roles/access-control/intro.md
+        - admin/roles/access-control/labels.md
+        - admin/roles/access-control/config_access_cntrl.md
+        - admin/roles/access-control/create_roles.md
+        - admin/roles/access-control/manage_roles.md
+        - admin/roles/access-control/assign_roles.md
+        - admin/roles/access-control/usecase.md
 
 
   - Troubleshoot:
