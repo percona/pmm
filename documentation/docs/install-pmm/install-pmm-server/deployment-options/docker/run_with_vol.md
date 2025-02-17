@@ -24,7 +24,7 @@ To run Docker with volume:
     --env PMM_WATCHTOWER_HOST=your_watchtower_host \
     --env PMM_WATCHTOWER_TOKEN=your_watchtower_token \
     --volume pmm-data:/srv \
-    --network=pmm_default \
+    --network=**pmm-network** \
     --name pmm-server \
     percona/pmm-server:3
     ```
