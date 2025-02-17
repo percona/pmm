@@ -103,28 +103,28 @@ When migrating from PMM v2 to PMM v3, you'll need to update your environment var
     
     
     #### ClickHouse configuration
-    | PMM 2                               | PMM 3                              | Comments                 |
-    |-------------------------------------|------------------------------------|--------------------------|
-    | `PERCONA_TEST_PMM_CLICKHOUSE_ADDR`  | `PMM_CLICKHOUSE_ADDR`              |                          |
-    | `PERCONA_TEST_PMM_CLICKHOUSE_DATABASE` | `PMM_CLICKHOUSE_DATABASE`         |                        |
-    | `PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE` | `PMM_CLICKHOUSE_DATASOURCE`      |                       |
-    | `PERCONA_TEST_PMM_CLICKHOUSE_HOST`  | `PMM_CLICKHOUSE_HOST`              |                          |
-    | `PERCONA_TEST_PMM_CLICKHOUSE_PORT`  | `PMM_CLICKHOUSE_PORT`              |                          |
-    | `PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE` | `PMM_DISABLE_BUILTIN_CLICKHOUSE` |                  |
-    | `PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE` |                                    | Removed in PMM v3, new version|
-    | `PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE`  |                                    | Removed in PMM v3, new version|
+    | PMM 2                                         | PMM 3                            | Comments                      |
+    |-----------------------------------------------|----------------------------------|-------------------------------|
+    | `PERCONA_TEST_PMM_CLICKHOUSE_ADDR`            | `PMM_CLICKHOUSE_ADDR`            |                               |
+    | `PERCONA_TEST_PMM_CLICKHOUSE_DATABASE`        | `PMM_CLICKHOUSE_DATABASE`        |                               |
+    | `PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE`      | `PMM_CLICKHOUSE_DATASOURCE`      |                               |
+    | `PERCONA_TEST_PMM_CLICKHOUSE_HOST`            | `PMM_CLICKHOUSE_HOST`            |                               |
+    | `PERCONA_TEST_PMM_CLICKHOUSE_PORT`            | `PMM_CLICKHOUSE_PORT`            |                               |
+    | `PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE` | `PMM_DISABLE_BUILTIN_CLICKHOUSE` |                               |
+    | `PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE`      |                                  | Removed in PMM v3, new version|
+    | `PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE`       |                                  | Removed in PMM v3, new version|
     
     #### PostgreSQL configuration
-    | PMM 2                               | PMM 3                              | 
-    |-------------------------------------|------------------------------------|
-    | `PERCONA_TEST_POSTGRES_ADDR`        | `PMM_POSTGRES_ADDR`                |
-    | `PERCONA_TEST_POSTGRES_DBNAME`      | `PMM_POSTGRES_DBNAME`              |
-    | `PERCONA_TEST_POSTGRES_USERNAME`    | `PMM_POSTGRES_USERNAME`            | 
-    | `PERCONA_TEST_POSTGRES_DBPASSWORD`  | `PMM_POSTGRES_DBPASSWORD`          |  
-    | `PERCONA_TEST_POSTGRES_SSL_CA_PATH` | `PMM_POSTGRES_SSL_CA_PATH`         | 
-    | `PERCONA_TEST_POSTGRES_SSL_CERT_PATH` | `PMM_POSTGRES_SSL_CERT_PATH`      | 
-    | `PERCONA_TEST_POSTGRES_SSL_KEY_PATH` | `PMM_POSTGRES_SSL_KEY_PATH`       |   
-    | `PERCONA_TEST_POSTGRES_SSL_MODE`    | `PMM_POSTGRES_SSL_MODE`            |  
+    | PMM 2                                 | PMM 3                              | 
+    |---------------------------------------|------------------------------------|
+    | `PERCONA_TEST_POSTGRES_ADDR`          | `PMM_POSTGRES_ADDR`                |
+    | `PERCONA_TEST_POSTGRES_DBNAME`        | `PMM_POSTGRES_DBNAME`              |
+    | `PERCONA_TEST_POSTGRES_USERNAME`      | `PMM_POSTGRES_USERNAME`            | 
+    | `PERCONA_TEST_POSTGRES_DBPASSWORD`    | `PMM_POSTGRES_DBPASSWORD`          |  
+    | `PERCONA_TEST_POSTGRES_SSL_CA_PATH`   | `PMM_POSTGRES_SSL_CA_PATH`         | 
+    | `PERCONA_TEST_POSTGRES_SSL_CERT_PATH` | `PMM_POSTGRES_SSL_CERT_PATH`       | 
+    | `PERCONA_TEST_POSTGRES_SSL_KEY_PATH`  | `PMM_POSTGRES_SSL_KEY_PATH`        |   
+    | `PERCONA_TEST_POSTGRES_SSL_MODE`      | `PMM_POSTGRES_SSL_MODE`            |  
     | `PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES` | `PMM_DISABLE_BUILTIN_POSTGRES` |   
    
     #### Telemetry & development

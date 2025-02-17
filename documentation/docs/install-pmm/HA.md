@@ -49,7 +49,7 @@ Leader election will be managed using the Raft consensus algorithm, ensuring a s
 ### 4. Manual HA setup
 
 !!! caution alert alert-warning "Important"
-    Manual setup for HA is feature is currently in [Technical Preview](https://docs.percona.com/percona-monitoring-and-management/details/glossary.html#technical-preview). Early adopters are advised to use this feature for testing purposes only as it is subject to change.
+    Manual setup for HA is feature is currently in [Technical Preview](https://docs.percona.com/percona-monitoring-and-management/reference/glossary.html#technical-preview). Early adopters are advised to use this feature for testing purposes only as it is subject to change.
 
 If none of the above options work for your specific use case, consider setting up PMM in HA mode manually by following the steps below.
 
@@ -95,11 +95,11 @@ For all IP addresses, use the format `17.10.1.x`, and for all usernames and pass
 | `GF_PASSWORD`                                   | The password for your Grafana database user.</br></br>Example: `gfpassword`
 | `PMM_ACTIVE_IP`                                 | The IP address of the instance where the active PMM server is running or the desired IP address for your active PMM server container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.5`
 | `PMM_ACTIVE_NODE_ID`                            | The unique ID for your active PMM server node.</br></br>Example: `pmm-server-active`
-| `PMM_PASSIVE_IP`                                   | The IP address of the instance where the first passive PMM server is running or the desired IP address for your first passive PMM server container within the Docker network, depending on your setup. </br></br>Example: `17.10.1.6`
-| `PMM_PASSIVE_NODE_ID`                                  | The unique ID for your first passive PMM server node.</br></br>Example: `pmm-server-passive`
-| `PMM_PASSIVE2_IP`                                         | The IP address of the instance where the second passive PMM server is running or the desired IP address for your second passive PMM server container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.7`
-| `PMM_PASSIVE2_NODE_ID`                                    | The unique ID for your second passive PMM server node.</br></br>Example: `pmm-server-passive2`
-| `PMM_DOCKER_IMAGE` &nbsp; &nbsp; &nbsp; &nbsp;                                      | The specific PMM Server Docker image for this guide.</br></br>Example: `percona/pmm-server:3`
+| `PMM_PASSIVE_IP`                                | The IP address of the instance where the first passive PMM server is running or the desired IP address for your first passive PMM server container within the Docker network, depending on your setup. </br></br>Example: `17.10.1.6`
+| `PMM_PASSIVE_NODE_ID`                           | The unique ID for your first passive PMM server node.</br></br>Example: `pmm-server-passive`
+| `PMM_PASSIVE2_IP`                               | The IP address of the instance where the second passive PMM server is running or the desired IP address for your second passive PMM server container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.7`
+| `PMM_PASSIVE2_NODE_ID`                          | The unique ID for your second passive PMM server node.</br></br>Example: `pmm-server-passive2`
+| `PMM_DOCKER_IMAGE`                              | The specific PMM Server Docker image for this guide.</br></br>Example: `percona/pmm-server:3`
 
 ??? example "Expected output"
         
@@ -168,7 +168,7 @@ To set up ClickHouse:
         clickhouse/clickhouse-server:23.8.2.7-alpine
         ```
     
-    === "Run services on a seperate instance"
+    === "Run services on a separate instance"
 
         ```sh
         docker run -d \
@@ -228,7 +228,7 @@ To set up VictoriaMetrics:
         --influxListenAddr=:8089
         ```
     
-    === "Run services on a seperate instance"
+    === "Run services on a separate instance"
 
         ```sh
         docker run -d \
@@ -306,7 +306,7 @@ To set up PostgreSQL:
     
 6. Run the PostgreSQL container:
 
-    You can either run all the services on the same instance or on a seperate instance.
+    You can either run all the services on the same instance or on a separate instance.
 
     !!! note alert alert-primary "Note"
         It is recommended to use absolute paths instead of relative paths for volume mounts.
@@ -327,7 +327,7 @@ To set up PostgreSQL:
             postgres -c shared_preload_libraries=pg_stat_statements
         ```
         
-    === "Run services on a seperate instance"
+    === "Run services on a separate instance"
     
         ```sh
            docker run -d \
@@ -382,8 +382,6 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
         -e PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
         -e PMM_CLICKHOUSE_DATABASE=pmm \
-        -e PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
-        -e PMM_CLICKHOUSE_POOL_SIZE=2 \
         -e PMM_POSTGRES_ADDR=${PG_HOST_IP}:5432 \
         -e PMM_POSTGRES_USERNAME=${PG_USERNAME} \
         -e PMM_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
@@ -401,7 +399,7 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         ${PMM_DOCKER_IMAGE}
         ```
     
-    === "Run services on a seperate instance"
+    === "Run services on a separate instance"
     
         ```sh
         docker run -d \
@@ -417,8 +415,6 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
         -e PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
         -e PMM_CLICKHOUSE_DATABASE=pmm \
-        -e PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
-        -e PMM_CLICKHOUSE_POOL_SIZE=2 \
         -e PMM_POSTGRES_ADDR=${PG_HOST_IP}:5432 \
         -e PMM_POSTGRES_USERNAME=${PG_USERNAME} \
         -e PMM_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
@@ -452,8 +448,6 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
         -e PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
         -e PMM_CLICKHOUSE_DATABASE=pmm \
-        -e PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
-        -e PMM_CLICKHOUSE_POOL_SIZE=2 \
         -e PMM_POSTGRES_ADDR=${PG_HOST_IP}:5432 \
         -e PMM_POSTGRES_USERNAME=${PG_USERNAME} \
         -e PMM_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
@@ -471,7 +465,7 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         ${PMM_DOCKER_IMAGE}
         ```
     
-    === "Run services on a seperate instance"
+    === "Run services on a separate instance"
     
         ```sh
         docker run -d \
@@ -487,8 +481,6 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
         -e PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
         -e PMM_CLICKHOUSE_DATABASE=pmm \
-        -e PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
-        -e PMM_CLICKHOUSE_POOL_SIZE=2 \
         -e PMM_POSTGRES_ADDR=${PG_HOST_IP}:5432 \
         -e PMM_POSTGRES_USERNAME=${PG_USERNAME} \
         -e PMM_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
@@ -522,8 +514,6 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
         -e PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
         -e PMM_CLICKHOUSE_DATABASE=pmm \
-        -e PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
-        -e PMM_CLICKHOUSE_POOL_SIZE=2 \
         -e PMM_POSTGRES_ADDR=${PG_HOST_IP}:5432 \
         -e PMM_POSTGRES_USERNAME=${PG_USERNAME} \
         -e PMM_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
@@ -541,7 +531,7 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         ${PMM_DOCKER_IMAGE}
         ```
     
-    === "Run services on a seperate instance"
+    === "Run services on a separate instance"
     
         ```sh
         docker run -d \
@@ -557,8 +547,6 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
         -e PMM_CLICKHOUSE_ADDR=${CH_HOST_IP}:9000 \
         -e PMM_CLICKHOUSE_DATABASE=pmm \
-        -e PMM_CLICKHOUSE_BLOCK_SIZE=10000 \
-        -e PMM_CLICKHOUSE_POOL_SIZE=2 \
         -e PMM_POSTGRES_ADDR=${PG_HOST_IP}:5432 \
         -e PMM_POSTGRES_USERNAME=${PG_USERNAME} \
         -e PMM_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
