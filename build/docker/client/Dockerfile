@@ -26,7 +26,6 @@ RUN groupadd -g 1002 pmm-agent && \
             -d /usr/local/percona/pmm \
             -c "PMM Client User" pmm-agent
 
-RUN install -d -o pmm-agent -g pmm-agent -m 0775 /usr/local/percona/pmm
 ADD pmm-client.tar.gz /tmp/
 RUN cd /tmp/pmm-client* \
     && env PMM_USER=pmm-agent PMM_GROUP=root ./install_tarball \
@@ -102,6 +101,7 @@ COPY --from=builder --chown=0:0 /lib64/libgmp.so.10 /usr/lib64/
 COPY --from=builder --chown=0:0 /lib64/libmpfr.so.6 /usr/lib64/
 
 # Install pmm-client
+RUN install -d -o pmm-agent -g pmm-agent -m 0775 /usr/local/percona/pmm
 COPY --from=builder /usr/local/percona/pmm /usr/local/percona/pmm/
 
 USER pmm-agent
