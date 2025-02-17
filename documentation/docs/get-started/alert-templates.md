@@ -24,13 +24,7 @@ To access the Percona customers templates, you must be a Percona customer and [c
 
 The alerts are grouped in the following categories:
 
-- [OS Alerts](#os_alerts)
-- [PMM Alerts](#pmm_alerts)
-- [MongoDB Alerts](#mongodb_alerts)
-- [PBM Alerts](#pbm_alerts)
-- [MySQL Alerts](#mysql_alerts)
-- [PostgreSQL Alerts](#postgresql_alerts)
-- [ProxySQL Alerts](#proxysql_alerts)
+- [OS](#os_alerts), [PMM](#pmm_alerts), [MongoDB](#mongodb_alerts), [PBM](#pbm_alerts), [MySQL](#mysql_alerts), [PostgreSQL](#postgresql_alerts), [ProxySQL](#proxysql_alerts)
 
 | Category | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
