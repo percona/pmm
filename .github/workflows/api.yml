@@ -29,12 +29,12 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "ID=$ID" >> $GITHUB_ENV
 
-      - name: Sync API spec
-        uses: readmeio/rdme@51a80867c45de15e2b41af0c4bd5bbc61b932804 # v8.6.6
+      - name: API
+        uses: readmeio/rdme@e770fc3b3af009753fb02f636b59498523dccb37 # v10.1.1
         with:
           rdme: openapi ./api/swagger/swagger.json --version=${{ env.VERSION }} --id=${{ env.ID }} --key=${{ secrets.README_TOKEN }}
 
-      - name: Sync Markdown docs
-        uses: readmeio/rdme@51a80867c45de15e2b41af0c4bd5bbc61b932804 # v8.6.6
-        with: 
-          rdme: docs ./docs/api --version=${{ env.VERSION }} --key=${{ secrets.README_TOKEN }}
+      - name: Markdown docs
+        uses: readmeio/rdme@e770fc3b3af009753fb02f636b59498523dccb37 # v10.1.1
+        with:
+          rdme: docs docs/api --version=${{ env.VERSION }}  --key=${{ secrets.README_TOKEN }}

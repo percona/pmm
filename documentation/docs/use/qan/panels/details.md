@@ -33,7 +33,7 @@ For PostgreSQL queries (when using `pg_stat_monitor`) the top query will also be
 
 ![!image](../../../images/PMM_Query_Analytics_Tabs_Details_TopQuery.png)
 
-Other useful metrics (when using **pg_stat_monitor**) to monitor PostgreSQL Server performance are [Histograms](https://github.com/percona/pg_stat_monitor/blob/master/docs/USER_GUIDE.md#histogram). 
+Other useful metrics (when using **pg_stat_monitor**) to monitor PostgreSQL Server performance are [Histograms](https://docs.percona.com/pg-stat-monitor/user_guide.html#histogram). 
 **Histograms** provide more explicit information about number of queries for fingerprint (`queryid`). Ranges are from 0 seconds up to 100 seconds.  
 
 Here is picture of **histogram** in graph:

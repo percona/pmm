@@ -79,7 +79,7 @@ type NotificationEventMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m NotificationEventMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -189,7 +189,7 @@ type FetchingEventMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m FetchingEventMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -299,7 +299,7 @@ type DashboardUsageEventMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DashboardUsageEventMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -409,7 +409,7 @@ type UserFlowEventMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UserFlowEventMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -644,7 +644,7 @@ type StoreRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StoreRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -744,7 +744,7 @@ type StoreResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StoreResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

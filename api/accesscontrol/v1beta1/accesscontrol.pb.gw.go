@@ -10,6 +10,7 @@ package accesscontrolv1beta1
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -28,89 +29,74 @@ var (
 	_ codes.Code
 	_ io.Reader
 	_ status.Status
+	_ = errors.New
 	_ = runtime.String
 	_ = utilities.NewDoubleArray
 	_ = metadata.Join
 )
 
 func request_AccessControlService_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRoleRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateRoleRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.CreateRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_AccessControlService_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRoleRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateRoleRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.CreateRole(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_AccessControlService_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateRoleRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UpdateRoleRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["role_id"]
+	val, ok := pathParams["role_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "role_id")
 	}
-
 	protoReq.RoleId, err = runtime.Uint32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "role_id", err)
 	}
-
 	msg, err := client.UpdateRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_AccessControlService_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateRoleRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UpdateRoleRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["role_id"]
+	val, ok := pathParams["role_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "role_id")
 	}
-
 	protoReq.RoleId, err = runtime.Uint32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "role_id", err)
 	}
-
 	msg, err := server.UpdateRole(ctx, &protoReq)
 	return msg, metadata, err
 }
@@ -118,179 +104,151 @@ func local_request_AccessControlService_UpdateRole_0(ctx context.Context, marsha
 var filter_AccessControlService_DeleteRole_0 = &utilities.DoubleArray{Encoding: map[string]int{"role_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_AccessControlService_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteRoleRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteRoleRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["role_id"]
+	val, ok := pathParams["role_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "role_id")
 	}
-
 	protoReq.RoleId, err = runtime.Uint32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "role_id", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AccessControlService_DeleteRole_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.DeleteRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_AccessControlService_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteRoleRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteRoleRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["role_id"]
+	val, ok := pathParams["role_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "role_id")
 	}
-
 	protoReq.RoleId, err = runtime.Uint32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "role_id", err)
 	}
-
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AccessControlService_DeleteRole_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.DeleteRole(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_AccessControlService_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetRoleRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetRoleRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["role_id"]
+	val, ok := pathParams["role_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "role_id")
 	}
-
 	protoReq.RoleId, err = runtime.Uint32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "role_id", err)
 	}
-
 	msg, err := client.GetRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_AccessControlService_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetRoleRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetRoleRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["role_id"]
+	val, ok := pathParams["role_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "role_id")
 	}
-
 	protoReq.RoleId, err = runtime.Uint32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "role_id", err)
 	}
-
 	msg, err := server.GetRole(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_AccessControlService_ListRoles_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRolesRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListRolesRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := client.ListRoles(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_AccessControlService_ListRoles_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRolesRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListRolesRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := server.ListRoles(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_AccessControlService_AssignRoles_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AssignRolesRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq AssignRolesRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.AssignRoles(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_AccessControlService_AssignRoles_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AssignRolesRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq AssignRolesRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.AssignRoles(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_AccessControlService_SetDefaultRole_0(ctx context.Context, marshaler runtime.Marshaler, client AccessControlServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq SetDefaultRoleRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq SetDefaultRoleRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.SetDefaultRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_AccessControlService_SetDefaultRole_0(ctx context.Context, marshaler runtime.Marshaler, server AccessControlServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq SetDefaultRoleRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq SetDefaultRoleRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.SetDefaultRole(ctx, &protoReq)
 	return msg, metadata, err
 }
@@ -301,15 +259,13 @@ func local_request_AccessControlService_SetDefaultRole_0(ctx context.Context, ma
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAccessControlServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AccessControlServiceServer) error {
-	mux.Handle("POST", pattern_AccessControlService_CreateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AccessControlService_CreateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/CreateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/CreateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -321,19 +277,15 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_CreateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("PUT", pattern_AccessControlService_UpdateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_AccessControlService_UpdateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/UpdateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/UpdateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -345,19 +297,15 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_UpdateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("DELETE", pattern_AccessControlService_DeleteRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_AccessControlService_DeleteRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/DeleteRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/DeleteRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -369,19 +317,15 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_DeleteRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("GET", pattern_AccessControlService_GetRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AccessControlService_GetRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/GetRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/GetRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -393,19 +337,15 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_GetRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("GET", pattern_AccessControlService_ListRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AccessControlService_ListRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/ListRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/ListRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -417,19 +357,15 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_ListRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_AccessControlService_AssignRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AccessControlService_AssignRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/AssignRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:assign"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/AssignRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:assign"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -441,19 +377,15 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_AssignRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_AccessControlService_SetDefaultRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AccessControlService_SetDefaultRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/SetDefaultRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:setDefault"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/SetDefaultRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:setDefault"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -465,7 +397,6 @@ func RegisterAccessControlServiceHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_SetDefaultRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
@@ -493,7 +424,6 @@ func RegisterAccessControlServiceHandlerFromEndpoint(ctx context.Context, mux *r
 			}
 		}()
 	}()
-
 	return RegisterAccessControlServiceHandler(ctx, mux, conn)
 }
 
@@ -509,13 +439,11 @@ func RegisterAccessControlServiceHandler(ctx context.Context, mux *runtime.Serve
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AccessControlServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AccessControlServiceClient) error {
-	mux.Handle("POST", pattern_AccessControlService_CreateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AccessControlService_CreateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/CreateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/CreateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -526,17 +454,13 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_CreateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("PUT", pattern_AccessControlService_UpdateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_AccessControlService_UpdateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/UpdateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/UpdateRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -547,17 +471,13 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_UpdateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("DELETE", pattern_AccessControlService_DeleteRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_AccessControlService_DeleteRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/DeleteRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/DeleteRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -568,17 +488,13 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_DeleteRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("GET", pattern_AccessControlService_GetRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AccessControlService_GetRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/GetRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/GetRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles/{role_id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -589,17 +505,13 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_GetRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("GET", pattern_AccessControlService_ListRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AccessControlService_ListRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/ListRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/ListRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -610,17 +522,13 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_ListRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_AccessControlService_AssignRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AccessControlService_AssignRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/AssignRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:assign"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/AssignRoles", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:assign"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -631,17 +539,13 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_AssignRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_AccessControlService_SetDefaultRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AccessControlService_SetDefaultRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/SetDefaultRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:setDefault"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/accesscontrol.v1beta1.AccessControlService/SetDefaultRole", runtime.WithHTTPPathPattern("/v1/accesscontrol/roles:setDefault"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -652,41 +556,27 @@ func RegisterAccessControlServiceHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AccessControlService_SetDefaultRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
 	return nil
 }
 
 var (
-	pattern_AccessControlService_CreateRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "accesscontrol", "roles"}, ""))
-
-	pattern_AccessControlService_UpdateRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "accesscontrol", "roles", "role_id"}, ""))
-
-	pattern_AccessControlService_DeleteRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "accesscontrol", "roles", "role_id"}, ""))
-
-	pattern_AccessControlService_GetRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "accesscontrol", "roles", "role_id"}, ""))
-
-	pattern_AccessControlService_ListRoles_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "accesscontrol", "roles"}, ""))
-
-	pattern_AccessControlService_AssignRoles_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "accesscontrol", "roles"}, "assign"))
-
+	pattern_AccessControlService_CreateRole_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "accesscontrol", "roles"}, ""))
+	pattern_AccessControlService_UpdateRole_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "accesscontrol", "roles", "role_id"}, ""))
+	pattern_AccessControlService_DeleteRole_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "accesscontrol", "roles", "role_id"}, ""))
+	pattern_AccessControlService_GetRole_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "accesscontrol", "roles", "role_id"}, ""))
+	pattern_AccessControlService_ListRoles_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "accesscontrol", "roles"}, ""))
+	pattern_AccessControlService_AssignRoles_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "accesscontrol", "roles"}, "assign"))
 	pattern_AccessControlService_SetDefaultRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "accesscontrol", "roles"}, "setDefault"))
 )
 
 var (
-	forward_AccessControlService_CreateRole_0 = runtime.ForwardResponseMessage
-
-	forward_AccessControlService_UpdateRole_0 = runtime.ForwardResponseMessage
-
-	forward_AccessControlService_DeleteRole_0 = runtime.ForwardResponseMessage
-
-	forward_AccessControlService_GetRole_0 = runtime.ForwardResponseMessage
-
-	forward_AccessControlService_ListRoles_0 = runtime.ForwardResponseMessage
-
-	forward_AccessControlService_AssignRoles_0 = runtime.ForwardResponseMessage
-
+	forward_AccessControlService_CreateRole_0     = runtime.ForwardResponseMessage
+	forward_AccessControlService_UpdateRole_0     = runtime.ForwardResponseMessage
+	forward_AccessControlService_DeleteRole_0     = runtime.ForwardResponseMessage
+	forward_AccessControlService_GetRole_0        = runtime.ForwardResponseMessage
+	forward_AccessControlService_ListRoles_0      = runtime.ForwardResponseMessage
+	forward_AccessControlService_AssignRoles_0    = runtime.ForwardResponseMessage
 	forward_AccessControlService_SetDefaultRole_0 = runtime.ForwardResponseMessage
 )

@@ -7,11 +7,11 @@ This is the simplest and most efficient way to install PMM.
 ??? info "Alternative installation options"
      For alternative setups, explore the additional installation options detailed in the **Setting up** chapter:
 
-    - [Deploy on Podman](install-pmm/install-pmm-server/baremetal/podman/index.md)
-    - [Deploy based on a Docker image](install-pmm/install-pmm-server/baremetal/docker/index.md)
-    - [Deploy on Virtual Appliance](install-pmm/install-pmm-server/baremetal/virtual/index.md)
-    - [Deploy on Kubernetes via Helm](install-pmm/install-pmm-server/baremetal/helm/index.md)
-    - [Run a PMM instance hosted at AWS Marketplace](install-pmm/install-pmm-server/aws/aws.md)
+    - [Deploy on Podman](install-pmm/install-pmm-server/deployment-options/podman/index.md)
+    - [Deploy based on a Docker image](install-pmm/install-pmm-server/deployment-options/docker/index.md)
+    - [Deploy on Virtual Appliance](install-pmm/install-pmm-server/deployment-options/virtual/index.md)
+    - [Deploy on Kubernetes via Helm](install-pmm/install-pmm-server/deployment-options/helm/index.md)
+    - [Run a PMM instance hosted at AWS Marketplace](install-pmm/install-pmm-server/deployment-options/aws/aws.md)
 
 #### Prerequisites
 
@@ -142,7 +142,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
     3. Set up the `pg_stat_monitor` database extension and configure your database server accordingly. 
     
-        If you need to use the `pg_stat_statements` extension instead, see [Adding a PostgreSQL database](../setting-up/client/postgresql.md) and the [`pg_stat_monitor` online documentation](https://docs.percona.com/pg-stat-monitor/configuration.html) for details about available parameters.
+        If you need to use the `pg_stat_statements` extension instead, see [Adding a PostgreSQL database](../install-pmm/install-pmm-client/connect-database/postgresql.md) and the [`pg_stat_monitor` online documentation](https://docs.percona.com/pg-stat-monitor/configuration.html) for details about available parameters.
 
     4. Set or change the value for `shared_preload_library` in your `postgresql.conf` file:
 
@@ -211,7 +211,7 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add postgresql --username=pmm --password=<your_password>
         ```
             
-    For detailed instructions and advanced installation options, see [Adding a PostgreSQL database](../setting-up/client/postgresql.md).
+    For detailed instructions and advanced installation options, see [Adding a PostgreSQL database](../install-pmm/install-pmm-client/connect-database/postgresql.md).
 
 === ":simple-mongodb: MongoDB"
 
@@ -315,7 +315,7 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add mongodb --username=pmm --password=<your_password>
         ```
    
-    For detailed instructions, see [Adding a MongoDB database for monitoring](https://docs.percona.com/percona-monitoring-and-management/setting-up/client/mongodb.html).
+    For detailed instructions, see [Adding a MongoDB database for monitoring](install-pmm/install-pmm-client/connect-database/mongodb.html).
 
 === ":simple-nginxproxymanager: ProxySQL"
     To connect a ProxySQL service:
@@ -372,7 +372,7 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add proxysql --username=pmm --password=<your_password>
         ```
 
-    For detailed instructions, see [Enable ProxySQL performance metrics monitoring](../setting-up/client/proxysql.md).
+    For detailed instructions, see [Enable ProxySQL performance metrics monitoring](../install-pmm/install-pmm-client/connect-database/proxysql.md).
 
 === ":material-database: HAProxy"
     To connect an HAProxy service:

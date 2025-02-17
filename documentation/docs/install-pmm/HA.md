@@ -1,7 +1,7 @@
 # Install PMM in HA mode
 
 !!! caution alert alert-warning "Important"
-    This feature is currently in [Technical Preview](https://docs.percona.com/percona-monitoring-and-management/details/glossary.html#technical-preview). Early adopters are advised to use this feature for testing purposes only as it is subject to change.
+    This feature is currently in [Technical Preview](../reference/glossary.md#technical-preview). Early adopters are advised to use this feature for testing purposes only as it is subject to change.
 
 Set up PMM using Docker containers in a high-availability (HA) configuration following these instructions. 
 
@@ -54,7 +54,7 @@ For all IP addresses, use the format `17.10.1.x`, and for all usernames and pass
 | `PMM_PASSIVE_NODE_ID`                                  | The unique ID for your first passive PMM Server node.</br></br>Example: `pmm-server-passive`
 | `PMM_PASSIVE2_IP`                                         | The IP address of the instance where the second passive PMM Server is running or the desired IP address for your second passive PMM Server container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.7`
 | `PMM_PASSIVE2_NODE_ID`                                    | The unique ID for your second passive PMM Server node.</br></br>Example: `pmm-server-passive2`
-| `PMM_DOCKER_IMAGE` &nbsp; &nbsp; &nbsp; &nbsp;                                      | The specific PMM Server Docker image for this guide.</br></br>Example: `perconalab/pmm-server:3.0.0-beta`
+| `PMM_DOCKER_IMAGE` &nbsp; &nbsp; &nbsp; &nbsp;                                      | The specific PMM Server Docker image for this guide.</br></br>Example: `percona/pmm-server:3`
 
 
 ??? example "Expected output"
@@ -73,7 +73,7 @@ For all IP addresses, use the format `17.10.1.x`, and for all usernames and pass
     export PMM_PASSIVE_NODE_ID=pmm-server-passive
     export PMM_PASSIVE2_IP=17.10.1.7
     export PMM_PASSIVE2_NODE_ID=pmm-server-passive2
-    export PMM_DOCKER_IMAGE=perconalab/pmm-server:3.0.0-beta
+    export PMM_DOCKER_IMAGE=percona/pmm-server:3
     ```
 
 !!! note alert alert-primary "Note"
@@ -365,8 +365,8 @@ The PMM Server orchestrates the collection, storage, and visualization of metric
         ```sh
         docker run -d \
         --name ${PMM_ACTIVE_NODE_ID} \
-        -p 80:80 \
-        -p 443:443 \
+        -p 80:8080 \
+        -p 443:8443 \
         -p 9094:9094 \
         -p 9096:9096 \
         -p 9094:9094/udp \
@@ -435,8 +435,8 @@ The PMM Server orchestrates the collection, storage, and visualization of metric
         ```sh
         docker run -d \
         --name ${PMM_PASSIVE_NODE_ID} \
-        -p 80:80 \
-        -p 443:443 \
+        -p 80:8080 \
+        -p 443:8443 \
         -p 9094:9094 \
         -p 9096:9096 \
         -p 9094:9094/udp \
@@ -505,8 +505,8 @@ The PMM Server orchestrates the collection, storage, and visualization of metric
         ```sh
         docker run -d \
         --name ${PMM_PASSIVE2_NODE_ID} \
-        -p 80:80 \
-        -p 443:443 \
+        -p 80:8080 \
+        -p 443:8443 \
         -p 9094:9094 \
         -p 9096:9096 \
         -p 9094:9094/udp \
@@ -545,11 +545,10 @@ The PMM Server orchestrates the collection, storage, and visualization of metric
 
 ### **Step 7: Running HAProxy**
 
-HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the `/v1/leaderHealthCheck` endpoint.
-    
+HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the `/v1/leaderHealthCheck` endpoint:
+{.power-number}   
 
-1. Pull the HAProxy Docker image.
-{.power-number}
+1. Pull the HAProxy Docker image:
     
     ```bash
     docker pull haproxy:2.4.2-alpine
