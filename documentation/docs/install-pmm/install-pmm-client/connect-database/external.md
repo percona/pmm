@@ -29,11 +29,11 @@ Here are the differences between `external` and `external-serverless` types.
 
 Connection schema of external exporter:
 
-![!](../../../images/PMM_External_Exporter_Schema.jpg)
+![Connection schema of external exporter](../../../images/PMM_External_Exporter_Schema.jpg)
 
 Connection schema of external serverless exporter:
 
-![!](../../../images/PMM_External_Serverless_Exporter_Schema.jpg)
+![Connection schema of external serverless exporter](../../../images/PMM_External_Serverless_Exporter_Schema.jpg)
 
 ## Add a service not supported by PMM
 
@@ -43,7 +43,7 @@ From this point, PMM will collect and store available metrics.
 
 To browse and visualize collected metrics as a first step, we can look at the Advanced Data Exploration dashboard and select informative services and metrics.
 
-![!](../../../images/PMM_Advanced_Data_Exploration.jpg)
+![Advanced Data Exploration dashboard](../../../images/PMM_Advanced_Data_Exploration.jpg)
 
 Another way is to create a [new Grafana Dashboard to PMM as needed](https://grafana.com/docs/grafana/latest/best-practices/best-practices-for-creating-dashboards/).
 
@@ -80,14 +80,14 @@ To add an external service via PMM UI:
 
 1. In the PMM web interface, go to **PMM Configuration > PMM Inventory > Add Service > External Service**.
 
-    ![!](../../../images/PMM_External_Serverless.png)
+    ![!Add external service UI](../../../images/PMM_External_Serverless.png)
 
 2. Fill in the form and set the external service endpoint: 
 
     -  manually OR:
 
-        ![!](../../../images/PMM_External_Serverless_switcher_manually.png)
+        ![Set external service endpoint manually](../../../images/PMM_External_Serverless_switcher_manually.png)
 
     - by parsing required data from a URL string. In this case you only need to pass a valid URL:
 
-        ![!](../../../images/PMM_External_Serverless_switcher.png)
+        ![Parse from URL string](../../../images/PMM_External_Serverless_switcher.png)

@@ -18,4 +18,4 @@ The **PMM Configuration** page gives you access to PMM setup's settings and inve
     * [Check Percona Portal account information](../configure-pmm/percona_platform/account-info.md)
     * [Connect PMM to Percona Platform](../configure-pmm/percona_platform/check_percona_platform.md)
   
-You can also use the [**Administration** page](../pmm-admin/index.md) to manage Grafana-related configurations and account settings.
+You can also use the [**Administration** page](../admin/index.md) to manage Grafana-related configurations and account settings.

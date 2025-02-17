@@ -489,6 +489,6 @@ For more information, see [PMM Dashboards](../use/dashboards-panels/index.md).
 ## Next steps
 
 - [Configure PMM via the interface](../configure-pmm/configure.md)
-- [Manage users in PMM](../pmm-admin/manage-users/index.md)
-- [Set up roles and permissions](../pmm-admin/roles/index.md)
+- [Manage users in PMM](../admin/manage-users/index.md)
+- [Set up roles and permissions](../admin/roles/index.md)
 - [Back up and restore data in PMM](../backup/index.md)

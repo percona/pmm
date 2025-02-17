@@ -11,14 +11,10 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
       docker pull percona/pmm-client:3
     ```
 
-2. Use the image as a template to create a persistent data store that preserves local data when the image is updated:
-
-    ```sh
-      docker create \
-      --volume /srv \
-      --name pmm-client-data \
-      percona/pmm-client:3 /bin/true
-    ```
+2. Create a Docker volume to store persistent data:
++    ```sh
++    docker volume create pmm-client-data
++    ```
 
 3. Execute the following command to start the [pmm-agent](../../use/commands/pmm-agent.md) in Setup mode. Replace `X.X.X.X` with the IP address of your PMM Server:
 
@@ -33,7 +29,7 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
       -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
       -e PMM_AGENT_SETUP=1 \
       -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
-      --volumes-from pmm-client-data \
+      -v pmm-client-data:/srv \
       percona/pmm-client:3
     ```
     !!! hint alert-success "Important"
@@ -56,12 +52,12 @@ You can now add services with [`pmm-admin`](../../use/commands/pmm-admin.md) by 
 
    - Help command: If you need assistance with PMM Client, you can run the following command to display help information: `docker run --rm percona/pmm-client:3 --help`.
 
-Steps in the UI:
+How to view your monitored node
 {.power-number}
 
     1. Go to the main menu and select **Operating System (OS) > Overview**.
 
-    2. In the **Node Names** drop-down menu, choose the new node you want to monitor.
+    2. In the **Node Names** drop-down menu, select the node you recently registered.
 
     3. Modify the time range to view the relevant data for your selected node.
 
