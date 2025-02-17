@@ -20,7 +20,7 @@ To run Docker with the host directory:
     --env PMM_WATCHTOWER_HOST=your_watchtower_host \
     --env PMM_WATCHTOWER_TOKEN=your_watchtower_token \
     --volume /home/user/srv:/srv \
-    --network=pmm_default \
+    --network=pmm-network \
     --name pmm-server \
     percona/pmm-server:3
     ```
