@@ -4,12 +4,6 @@
     top: 0.6rem;
     left: 0.6rem;
   }
-
-  /* Do not render html tags with this class in PDF */
-  .no-pdf {
-    display: none !important;
-  }
-
   /* Modify rendering of numbered lists in PDF */
   .power-number+ol>li::before,
   .power-number+ol ol>li::before {
@@ -20,9 +14,15 @@
     margin-left: -1.7em;
     opacity: 1;
   }
-
+  /* Do not render html tags with this class in PDF */
+  .no-pdf {
+    display: none !important;
+  }
   .tabbed-content {
     display: contents;
   }
+} 
+.md-sidebar__inner {
+    font-size: 0.65rem;   /* Font size */
+    line-height: 1.6;
 }
-  

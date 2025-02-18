@@ -49,7 +49,7 @@ Before creating a backup, make sure to check the [MongoDB backup prerequisites](
         Unless you are using verified custom workflows, make sure to keep the default **Folder** value coming from the cluster name. Editing this field will impact PMM-PBM integration workflows.
 
 11. Click **Schedule** to start creating the backup artifact.
-12. Go to the **All Backups** tab, and check the **Status** column. An animated ellipsis indicator {{icon.bouncingellipsis}} shows that a backup is currently being created.
+12. Go to the **All Backups** tab, and check the **Status** column. An animated ellipsis icon :material-dots-horizontal: shows that a backup is currently being created.
 
 ![!](../../images/PMM_Backup_Management-MongoDB-PITR-Enable.jpg)
 

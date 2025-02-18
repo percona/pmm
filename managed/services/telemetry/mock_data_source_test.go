@@ -32,7 +32,7 @@ func (_m *mockDataSource) Dispose(ctx context.Context) error {
 	return r0
 }
 
-// Enabled provides a mock function with given fields:
+// Enabled provides a mock function with no fields
 func (_m *mockDataSource) Enabled() bool {
 	ret := _m.Called()
 

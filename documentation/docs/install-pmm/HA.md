@@ -49,7 +49,7 @@ Leader election will be managed using the Raft consensus algorithm, ensuring a s
 ### 4. Manual HA setup
 
 !!! caution alert alert-warning "Important"
-    Manual setup for HA is feature is currently in [Technical Preview](https://docs.percona.com/percona-monitoring-and-management/reference/glossary.html#technical-preview). Early adopters are advised to use this feature for testing purposes only as it is subject to change.
+    This feature is currently in [Technical Preview](../reference/glossary.md#technical-preview). Early adopters are advised to use this feature for testing purposes only as it is subject to change.
 
 If none of the above options work for your specific use case, consider setting up PMM in HA mode manually by following the steps below.
 
@@ -404,8 +404,8 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         ```sh
         docker run -d \
         --name ${PMM_ACTIVE_NODE_ID} \
-        -p 8080:8080 \
-        -p 8443:8443 \
+        -p 80:8080 \
+        -p 443:8443 \
         -p 9094:9094 \
         -p 9096:9096 \
         -p 9094:9094/udp \
@@ -470,8 +470,8 @@ The PMM server orchestrates the collection, storage, and visualization of metric
         ```sh
         docker run -d \
         --name ${PMM_PASSIVE_NODE_ID} \
-        -p 8080:8080 \
-        -p 8443:8443 \
+        -p 80:8080 \
+        -p 443:8443 \
         -p 9094:9094 \
         -p 9096:9096 \
         -p 9094:9094/udp \
@@ -573,8 +573,8 @@ The PMM server orchestrates the collection, storage, and visualization of metric
 
 #### **Step 7: Set up HAProxy**
 
-HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the `/v1/leaderHealthCheck` endpoint.
-{.power-number}    
+HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the `/v1/leaderHealthCheck` endpoint:
+{.power-number}   
 
 1. Pull the HAProxy Docker image:
     
