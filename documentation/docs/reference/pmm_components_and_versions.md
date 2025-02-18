@@ -10,7 +10,6 @@ The following table lists all the PMM client/server components and their version
 | Percona Distribution for PostgreSQL  | 14.5    | [Percona Distribution for PostgreSQL 14 Documentation](https://www.percona.com/doc/postgresql/LATEST/index.html)|              |
 | Clickhouse| 23.8.2.7 |[ClickHouse Documentation Documentation](https://clickhouse.com/docs/en/)|[Github ClickHouse](https://github.com/ClickHouse/ClickHouse)|
 | PerconaToolkit  | 3.4.0    | [Percona Toolkit Documentation](https://www.percona.com/doc/percona-toolkit/3.0/index.html)|[Github Percona Toolkit](https://github.com/percona/percona-toolkit)|
-| Alertmanager  | 0.22.0   | [Alertmanager Documentation](https://prometheus.io/docs/alerting/latest/alertmanager/)|[Github Alertmanager](https://github.com/prometheus/alertmanager)|
 | MongoDB exporter  | 0.37.0    | |[Github MongoDB Exporter](https://github.com/percona/mongodb_exporter)|
 | MySQL exporter| v0.14.0*   | [MySQL Server Exporter Documentation](https://grafana.com/oss/prometheus/exporters/mysql-exporter/)|[Github MySQL Server Exporter](https://github.com/percona/mysqld_exporter)    |
 | PostgreSQL exporter| v0.14.0*   |            |[Github PostgreSQL Server Exporter](https://github.com/percona/postgres_exporter)    |

@@ -8,7 +8,7 @@ PMM v3 Server can run natively, as a Docker image, a virtual appliance, or an AW
 
 To use the UI upgrade feature, you must have Watchtower installed and properly configured with your PMM Server. 
 
-If Watchtower is not installed, the UI upgrade options will not be available. See [Running PMM Server with Watchtower](../install-pmm/install-pmm-server/baremetal/docker/index.md) for setup instructions.
+If Watchtower is not installed, the UI upgrade options will not be available. See [Running PMM Server with Watchtower](../install-pmm/install-pmm-server/deployment-options/docker/index.md) for setup instructions.
 
 ## Upgrade process
 
