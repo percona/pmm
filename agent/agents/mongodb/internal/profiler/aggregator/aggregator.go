@@ -295,15 +295,53 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 		bucket.Mongodb.MDocsScannedP99 = float32(v.Scanned.Pct99)
 		bucket.Mongodb.MDocsScannedSum = float32(v.Scanned.Total)
 
-		bucket.Mongodb.MResponseLengthCnt = float32(v.Count) // TODO: Check is it right value
+		bucket.Mongodb.MResponseLengthCnt = float32(v.ResponseLengthCount)
 		bucket.Mongodb.MResponseLengthMax = float32(v.ResponseLength.Max)
 		bucket.Mongodb.MResponseLengthMin = float32(v.ResponseLength.Min)
 		bucket.Mongodb.MResponseLengthP99 = float32(v.ResponseLength.Pct99)
 		bucket.Mongodb.MResponseLengthSum = float32(v.ResponseLength.Total)
 
 		bucket.Mongodb.MFullScanCnt = float32(v.CollScanCount)
-		bucket.Mongodb.MFullScanSum = float32(v.CollScanSum) / 1000
+		bucket.Mongodb.MFullScanSum = float32(v.CollScanCount) // Sum is same like count in this case
 		bucket.Mongodb.PlanSummary = v.PlanSummary
+
+		bucket.Mongodb.ApplicationName = v.AppName
+		bucket.Mongodb.QueryHash = v.QueryHash
+		bucket.Mongodb.MDocsExaminedCnt = float32(v.DocsExaminedCount)
+		bucket.Mongodb.MDocsExaminedMax = float32(v.DocsExamined.Max)
+		bucket.Mongodb.MDocsExaminedMin = float32(v.DocsExamined.Min)
+		bucket.Mongodb.MDocsExaminedP99 = float32(v.DocsExamined.Pct99)
+		bucket.Mongodb.MDocsExaminedSum = float32(v.DocsExamined.Total)
+		bucket.Mongodb.MKeysExaminedCnt = float32(v.KeysExaminedCount)
+		bucket.Mongodb.MKeysExaminedMax = float32(v.KeysExamined.Max)
+		bucket.Mongodb.MKeysExaminedMin = float32(v.KeysExamined.Min)
+		bucket.Mongodb.MKeysExaminedP99 = float32(v.KeysExamined.Pct99)
+		bucket.Mongodb.MKeysExaminedSum = float32(v.KeysExamined.Total)
+		bucket.Mongodb.MLocksGlobalAcquireCountReadSharedCnt = float32(v.LocksGlobalAcquireCountReadShared)
+		bucket.Mongodb.MLocksGlobalAcquireCountReadSharedSum = float32(v.LocksGlobalAcquireCountReadShared) // Sum is same like count in this case
+		bucket.Mongodb.MLocksGlobalAcquireCountWriteSharedCnt = float32(v.LocksGlobalAcquireCountWriteShared)
+		bucket.Mongodb.MLocksGlobalAcquireCountWriteSharedSum = float32(v.LocksGlobalAcquireCountWriteShared) // Sum is same like count in this case
+		bucket.Mongodb.MLocksDatabaseAcquireCountReadSharedCnt = float32(v.LocksDatabaseAcquireCountReadShared)
+		bucket.Mongodb.MLocksDatabaseAcquireCountReadSharedSum = float32(v.LocksDatabaseAcquireCountReadShared) // Sum is same like count in this case
+		bucket.Mongodb.MLocksDatabaseAcquireWaitCountReadSharedCnt = float32(v.LocksDatabaseAcquireWaitCountReadShared)
+		bucket.Mongodb.MLocksDatabaseAcquireWaitCountReadSharedSum = float32(v.LocksDatabaseAcquireWaitCountReadShared) // Sum is same like count in this case
+		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedCnt = float32(v.LocksDatabaseTimeAcquiringMicrosReadSharedCount)
+		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedMax = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Max) / 1000000
+		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedMin = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Min) / 1000000
+		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedP99 = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Pct99) / 1000000
+		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedSum = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Total) / 1000000
+		bucket.Mongodb.MLocksCollectionAcquireCountReadSharedCnt = float32(v.LocksCollectionAcquireCountReadShared)
+		bucket.Mongodb.MLocksCollectionAcquireCountReadSharedSum = float32(v.LocksCollectionAcquireCountReadShared) // Sum is same like count in this case
+		bucket.Mongodb.MStorageBytesReadCnt = float32(v.StorageBytesReadCount)
+		bucket.Mongodb.MStorageBytesReadMax = float32(v.StorageBytesRead.Max)
+		bucket.Mongodb.MStorageBytesReadMin = float32(v.StorageBytesRead.Min)
+		bucket.Mongodb.MStorageBytesReadP99 = float32(v.StorageBytesRead.Pct99)
+		bucket.Mongodb.MStorageBytesReadSum = float32(v.StorageBytesRead.Total)
+		bucket.Mongodb.MStorageTimeReadingMicrosCnt = float32(v.StorageTimeReadingMicrosCount)
+		bucket.Mongodb.MStorageTimeReadingMicrosMax = float32(v.StorageTimeReadingMicros.Max) / 1000000
+		bucket.Mongodb.MStorageTimeReadingMicrosMin = float32(v.StorageTimeReadingMicros.Min) / 1000000
+		bucket.Mongodb.MStorageTimeReadingMicrosP99 = float32(v.StorageTimeReadingMicros.Pct99) / 1000000
+		bucket.Mongodb.MStorageTimeReadingMicrosSum = float32(v.StorageTimeReadingMicros.Total) / 1000000
 
 		buckets = append(buckets, bucket)
 	}
