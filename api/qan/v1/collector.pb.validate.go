@@ -541,6 +541,42 @@ func (m *MetricsBucket) validate(all bool) error {
 
 	// no validation rules for PlanSummary
 
+	// no validation rules for MDocsExaminedSum
+
+	// no validation rules for MDocsExaminedMin
+
+	// no validation rules for MDocsExaminedMax
+
+	// no validation rules for MDocsExaminedP99
+
+	// no validation rules for MKeysExaminedSum
+
+	// no validation rules for MKeysExaminedMin
+
+	// no validation rules for MKeysExaminedMax
+
+	// no validation rules for MKeysExaminedP99
+
+	// no validation rules for TimeStamp
+
+	// no validation rules for QueryHash
+
+	// no validation rules for MLockGlobalAcquireCountRshared
+
+	// no validation rules for MLockGlobalAcquireCountWshared
+
+	// no validation rules for MLockDatabaseAcquireCountRshared
+
+	// no validation rules for MLockDatabaseAcquireWaitCountRshared
+
+	// no validation rules for MLockDatabaseTimeAcquiringMicrosRshared
+
+	// no validation rules for MLockCollectionAcquireCountRshared
+
+	// no validation rules for MStorageBytesRead
+
+	// no validation rules for MStorageTimeReadingMicros
+
 	// no validation rules for MSharedBlksHitCnt
 
 	// no validation rules for MSharedBlksHitSum

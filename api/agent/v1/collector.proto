@@ -266,6 +266,25 @@ message MetricsBucket {
     float m_full_scan_sum = 17;
     // Plan summary type (COLLSCAN, IXSCAN, etc).
     string plan_summary = 18;
+    float m_docs_examined_sum = 19;
+    float m_docs_examined_min = 20;
+    float m_docs_examined_max = 21;
+    float m_docs_examined_p99 = 22;
+    float m_keys_examined_sum = 23;
+    float m_keys_examined_min = 24;
+    float m_keys_examined_max = 25;
+    float m_keys_examined_p99 = 26;
+    string time_stamp = 27;
+    string query_hash = 28;
+    string application_name = 29;
+    float m_lock_global_acquire_count_rshared = 30;
+    float m_lock_global_acquire_count_wshared = 31;
+    float m_lock_database_acquire_count_rshared = 32;
+    float m_lock_database_acquire_wait_count_rshared = 33;
+    float m_lock_database_time_acquiring_micros_rshared = 34;
+    float m_lock_collection_acquire_count_rshared = 35;
+    float m_storage_bytes_read = 36;
+    float m_storage_time_reading_micros = 37;
   }
   // PostgreSQL contains metrics for PostgreSQL.
   message PostgreSQL {

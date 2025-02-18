@@ -262,8 +262,8 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 				Fingerprint:         fingerprint,
 				Database:            db,
 				Tables:              []string{collection},
-				Username:            "",
-				ClientHost:          "",
+				Username:            v.User,
+				ClientHost:          v.Client,
 				AgentId:             a.agentID,
 				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 				PeriodStartUnixSecs: uint32(a.timeStart.Truncate(1 * time.Minute).Unix()),
@@ -272,6 +272,7 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 				NumQueries:          float32(v.Count),
 				IsTruncated:         truncated,
+				Comments:            nil,
 			},
 			Mongodb: &agentv1.MetricsBucket_MongoDB{},
 		}
