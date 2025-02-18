@@ -121,7 +121,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [MongoDB InMemory Details]: ../../reference/dashboards/dashboard-mongodb-inmemory-details.md
 [MongoDB MMAPv1 Details]: ../../reference/dashboards/dashboard-mongodb-mmapv1-details.md
 [MongoDB WiredTiger Details]: ../../reference/dashboards/dashboard-mongodb-wiredtiger-details.md
-[Experimental PostgreSQL Vacuum Monitoring]: ../../reference/dashboard-postgresql-vacuum-monitoring-experimental.md
+[Experimental PostgreSQL Vacuum Monitoring]: ../../reference/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.md
 [PostgreSQL Instances Overview]: ../../reference/dashboards/dashboard-postgresql-instances-overview.md
 [PostgreSQL Instance Summary]: ../../reference/dashboards/dashboard-postgresql-instance-summary.md
 [PostgreSQL Instances Compare]: ../../reference/dashboards/dashboard-postgresql-instances-compare.md
