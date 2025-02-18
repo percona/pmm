@@ -5,7 +5,7 @@
 
 | Variable                               | Description
 | -------------------------------------- | --------------------------------------------------------------------------------------------------------
-| `PMM_TEST_HA_ENAABLE`                  | Enable PMM to run in High Availability (HA) mode.
+| `PMM_TEST_HA_ENABLE`                  | Enable PMM to run in High Availability (HA) mode.
 | `PMM_TEST_HA_BOOTSTRAP`                | Bootstrap HA cluster.
 | `PMM_TEST_HA_NODE_ID`                  | HA Node ID.
 | `PMM_TEST_HA_ADVERTISE_ADDRESS`        | HA Advertise address.
