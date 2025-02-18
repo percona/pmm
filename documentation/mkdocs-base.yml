@@ -144,7 +144,6 @@ nav:
       - Plan your PMM installation: 
         - install-pmm/plan-pmm-installation/hardware_and_system.md
         - install-pmm/plan-pmm-installation/network_and_firewall.md
-      - Install PMM in HA mode: install-pmm/HA.md  
       - Install PMM Server:
         - install-pmm/install-pmm-server/index.md
         - install-pmm/install-pmm-server/prerequisites.md
@@ -219,6 +218,7 @@ nav:
               - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
           - Maintenance:
             - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
+      - Install PMM in HA mode: install-pmm/HA.md  
 
   - Upgrade: 
     - Upgrade PMM Server: 
