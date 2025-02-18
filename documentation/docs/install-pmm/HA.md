@@ -16,7 +16,7 @@ Since HA can add complexity, before considering HA for PMM, keep in mind that:
 
 ### 1. Simple Docker restart with data caching
 
-The most straightforward approach to increase availability in PMM is to launch the PMM Server within Docker using the `--restart=always` flag. See [Install PMM Server with Docker](../install-pmm/install-pmm-server/baremetal/docker/index.md) for more information.
+The most straightforward approach to increase availability in PMM is to launch the PMM Server within Docker using the `--restart=always` flag. See [Install PMM Server with Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md) for more information.
 
 This ensures that the PMM Server automatically restarts if a minor issue occurs. Additionally, PMM's data caching feature stores data locally on the PMM Client when the connection to the PMM Server is interrupted.
 
@@ -26,7 +26,7 @@ This option is suitable for scenarios where the primary concern is the ability t
 
 ### 2. Leverage Kubernetes for enhanced isolation
 
-If you are running PMM in a Kubernetes (K8s) environment, PMM offers a Helm chart that facilitates running PMM with enhanced isolation. See [Install PMM Server with Helm on the Kubernetes clusters](install-pmm-server/baremetal/helm/index.html).
+If you are running PMM in a Kubernetes (K8s) environment, PMM offers a Helm chart that facilitates running PMM with enhanced isolation. See [Install PMM Server with Helm on the Kubernetes clusters](../install-pmm/install-pmm-server/deployment-options/helm/index.md).
 
 In this setup, even if the physical infrastructure encounters a problem, K8s automatically handles failover, migrating the PMM instance to a healthy node. 
 
