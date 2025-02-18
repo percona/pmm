@@ -6,10 +6,10 @@
 | Variable                               | Description
 | -------------------------------------- | --------------------------------------------------------------------------------------------------------
 | `PMM_TEST_HA_ENAABLE`                  | Enable PMM to run in High Availability (HA) mode.
-| `PMM_TEST_HA_BOOTSTRAP`                | 
-| `PMM_TEST_HA_NODE_ID`                  |
-| `PMM_TEST_HA_ADVERTISE_ADDRESS`        |
-| `PMM_TEST_HA_GOSSIP_PORT`              |
-| `PMM_TEST_HA_RAFT_PORT`                |
-| `PMM_TEST_HA_GRAFANA_GOSSIP_PORT`      |
-| `PMM_TEST_HA_PEERS`                    |
+| `PMM_TEST_HA_BOOTSTRAP`                | Bootstrap HA cluster.
+| `PMM_TEST_HA_NODE_ID`                  | HA Node ID.
+| `PMM_TEST_HA_ADVERTISE_ADDRESS`        | HA Advertise address.
+| `PMM_TEST_HA_GOSSIP_PORT`              | HA gossip port.
+| `PMM_TEST_HA_RAFT_PORT`                | HA raft port.
+| `PMM_TEST_HA_GRAFANA_GOSSIP_PORT`      | HA Grafana gossip port.
+| `PMM_TEST_HA_PEERS`                    | HA Peers.
