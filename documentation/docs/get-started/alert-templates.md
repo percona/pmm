@@ -36,7 +36,7 @@ The following table provides a comprehensive listing of alert templates availabl
 - [PostgreSQL alerts](#postgresql_alerts)
 - [ProxySQL alerts](#proxysql_alerts)
 
-{: #os_alerts}
+<a id="os_alerts"></a>
 ### Operating System (OS) alerts 
 
 | Area | Template name | Description | Available for | Database technology |
@@ -45,8 +45,7 @@ The following table provides a comprehensive listing of alert templates availabl
 | OS | **Memory available less than a threshold** | Tracks available memory on nodes and alerts when free memory drops below 20% (default threshold). Helps prevent system instability due to memory constraints. | • Percona customers<br>• Community | MySQL, MongoDB, PostgreSQL |
 | OS | **Node high swap filling up** | Monitors node swap usage and alerts when it exceeds 80% (default threshold). Indicates potential memory pressure and performance degradation, allowing for timely intervention. | • Percona customers<br>• Community | MySQL, MongoDB, PostgreSQL |
 
-{: #pmm_alerts}
-
+<a id="pmm_alerts"></a>
 ### PMM alerts
 
 | Area | Template name | Description | Available for | Database technology |
@@ -54,7 +53,7 @@ The following table provides a comprehensive listing of alert templates availabl
 | PMM | **PMM agent down** | Monitors PMM Agent status and alerts when an agent becomes unreachable, indicating potential host or agent issues. | • Percona customers<br>• Community | MySQL, MongoDB, PostgreSQL, ProxySQL |
 | PMM | **Backup failed [Technical Preview]** | Monitors backup processes and alerts on failures, providing details about the failed backup artifact and service. Helps maintain data safety and recovery readiness. This template is currently in Technical Preview status and should be used for testing purposes only as it is subject to change. | • Percona customers<br>• Community | MySQL, MongoDB, PostgreSQL, ProxySQL |
 
-{: #mongodb_alerts}
+<a id="mongodb_alerts"></a>
 ### MongoDB alerts
 
 | Area | Template name | Description | Available for | Database technology |
@@ -73,7 +72,7 @@ The following table provides a comprehensive listing of alert templates availabl
 | MongoDB | **MongoDB write tickets** | Monitors write ticket availability in the WiredTiger storage engine and alerts when it falls below set thresholds. Aids in optimizing write performance and identifying potential bottlenecks. | Percona customers | MongoDB |
 | MongoDB | **MongoDB too many chunk migrations** | Monitors amount of chunk migrations in a MongoDB sharded cluster and alerts if they are more than set thresholds. | Percona customers | MongoDB |
 
-{: #pbm_alerts}
+<a id="pbm_alerts"></a>
 ### PBM (Percona Backup for MongoDB) alerts
 
 | Area | Template name | Description | Available for | Database technology |
@@ -82,7 +81,7 @@ The following table provides a comprehensive listing of alert templates availabl
 | PBM | **MongoDB PBM backup duration** |Monitors the time taken to complete a backup and alerts when it exceeds set thresholds. If the backup did not complete, no alerts are sent. | • Percona customers<br>• Community | MongoDB |
 | PBM | **MongoDB PBM backup size** | Monitors the amount of disk space taken by a completed backup and alerts when it exceeds set thresholds. If the backup did not complete, no alerts are sent. | • Percona customers<br>• Community | MongoDB |
 
-{: #mysql_alerts}
+<a id="mysql_alerts"></a>
 ### MySQL alerts
 
 | Area | Template name | Description | Available for | Database technology |
@@ -93,7 +92,7 @@ The following table provides a comprehensive listing of alert templates availabl
 | MySQL | **MySQL restarted** | Detects recent MySQL restarts, alerting if an instance has been restarted within the last 5 minutes (default threshold). Aids in investigating unexpected downtime and potential issues. | • Percona customers<br>• Community | MySQL |
 | MySQL | **MySQL connections in use** | Tracks MySQL connection usage and alerts when the percentage of active connections exceeds 80% of the maximum allowed (default threshold). Helps prevent performance degradation due to connection overload. | • Percona customers<br>• Community | MySQL |
 
-{: #postgresql_alerts}
+<a id="postgresql_alerts"></a>
 ### PostgreSQL alerts
 
 | Area | Template name | Description | Available for | Database technology |
@@ -110,7 +109,7 @@ The following table provides a comprehensive listing of alert templates availabl
 | PostgreSQL | **PostgreSQL tables not auto vacuumed** | Detects tables that are not being auto-vacuumed and alerts users. Essential for managing bloat, optimizing storage, and maintaining overall database health. | Percona customers | PostgreSQL |
 | PostgreSQL | **PostgreSQL unused replication slot** | Identifies and alerts on unused replication slots. Helps prevent excessive WAL retention and potential disk space issues, especially when replicas are offline. | Percona customers | PostgreSQL |
 
-{: #proxysql_alerts}
+<a id="proxysql_alerts"></a>
 ### ProxySQL alerts
 
 | Area | Template name | Description | Available for | Database technology |
