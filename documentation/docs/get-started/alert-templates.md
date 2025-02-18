@@ -7,6 +7,7 @@ Alert templates in Percona Monitoring and Management (PMM) provide pre-configure
 
 PMM offers three categories of alert templates to enhance database performance monitoring:
 
+1. **Built-in templates**: templates that are available out-of-the-box with the PMM installation and are available to all PMM users.
 2. **Percona Platform templates**: additional templates dynamically delivered to PMM if the instance is [connected to Percona Platform](../how-to/integrate-platform.md) using a Percona Account.
     When connected to the Platform, PMM automatically downloads these templates if the **Telemetry** option is enabled under **Configuration > Settings > Advanced Settings**.
 3. **Custom templates**: user-created templates for specific needs not met by built-in or Percona Platform templates. These allow you to tailor alerts to your unique environment and requirements.
@@ -26,7 +27,7 @@ To access the Percona customers templates, you must be a Percona customer and [c
 
 ## Template catalog
 
-The following table provides a comprehensive listing of alert templates available in PMM, organized by technology area. Jump to specific sections:
+The table below lists the alert templates available in PMM, organized by technology area. Jump to specific sections:
 
 - [Operating System alerts](#os_alerts)
 - [PMM alerts](#pmm_alerts)
@@ -37,7 +38,7 @@ The following table provides a comprehensive listing of alert templates availabl
 - [ProxySQL alerts](#proxysql_alerts)
 
 <a id="os_alerts"></a>
-### Operating System (OS) alerts 
+### Operating System (OS) templates 
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
@@ -46,7 +47,7 @@ The following table provides a comprehensive listing of alert templates availabl
 | OS | **Node high swap filling up** | Monitors node swap usage and alerts when it exceeds 80% (default threshold). Indicates potential memory pressure and performance degradation, allowing for timely intervention. | • Percona customers<br>• Community | MySQL, MongoDB, PostgreSQL |
 
 <a id="pmm_alerts"></a>
-### PMM alerts
+### PMM templates
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
@@ -54,7 +55,7 @@ The following table provides a comprehensive listing of alert templates availabl
 | PMM | **Backup failed [Technical Preview]** | Monitors backup processes and alerts on failures, providing details about the failed backup artifact and service. Helps maintain data safety and recovery readiness. This template is currently in Technical Preview status and should be used for testing purposes only as it is subject to change. | • Percona customers<br>• Community | MySQL, MongoDB, PostgreSQL, ProxySQL |
 
 <a id="mongodb_alerts"></a>
-### MongoDB alerts
+### MongoDB templates
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
@@ -73,7 +74,7 @@ The following table provides a comprehensive listing of alert templates availabl
 | MongoDB | **MongoDB too many chunk migrations** | Monitors amount of chunk migrations in a MongoDB sharded cluster and alerts if they are more than set thresholds. | Percona customers | MongoDB |
 
 <a id="pbm_alerts"></a>
-### PBM (Percona Backup for MongoDB) alerts
+### PBM (Percona Backup for MongoDB) templates
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
@@ -82,7 +83,7 @@ The following table provides a comprehensive listing of alert templates availabl
 | PBM | **MongoDB PBM backup size** | Monitors the amount of disk space taken by a completed backup and alerts when it exceeds set thresholds. If the backup did not complete, no alerts are sent. | • Percona customers<br>• Community | MongoDB |
 
 <a id="mysql_alerts"></a>
-### MySQL alerts
+### MySQL templates
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
@@ -93,7 +94,7 @@ The following table provides a comprehensive listing of alert templates availabl
 | MySQL | **MySQL connections in use** | Tracks MySQL connection usage and alerts when the percentage of active connections exceeds 80% of the maximum allowed (default threshold). Helps prevent performance degradation due to connection overload. | • Percona customers<br>• Community | MySQL |
 
 <a id="postgresql_alerts"></a>
-### PostgreSQL alerts
+### PostgreSQL templates
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
