@@ -1,8 +1,8 @@
 # Dashboards overview
 
-Dashboards are a compilation of visualizations, including charts and metrics, that enable you to view performance metrics from node to single query for multiple databases in a centralized location. 
+Dashboards are a compilation of visualizations, including charts and metrics, that enable you to view performance metrics from node to single query for multiple databases in a centralized location.
 
-A dashboard is a group of one or more panels organized and arranged into rows. Panels refer to individual components or visual elements that display specific data or visualizations within the dashboard's layout. These panels are the building blocks that collectively form a dashboard, providing a means to present and visualize data in various formats. Dashboards are grouped into folders. You can customize these by renaming them or creating new ones. 
+A dashboard is a group of one or more panels organized and arranged into rows. Panels refer to individual components or visual elements that display specific data or visualizations within the dashboard's layout. These panels are the building blocks that collectively form a dashboard, providing a means to present and visualize data in various formats. Dashboards are grouped into folders. You can customize these by renaming them or creating new ones.
 
 Dashboards provide insightful and actionable data, enabling you to gain an overview of your system status quickly. These dashboards enable you to drill down into specific time frames, apply filters, and analyze data trends for troubleshooting and performance optimization. Customizable dashboards and real-time alerting facilitate seamless monitoring of database performance.
 
@@ -71,29 +71,29 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 | High-availability | [PXC/Galera Nodes Compare]                                                               | 55
 | High-availability | [HAProxy Instance Summary]                                                               | 113
 
-[Advanced Data Exploration]: ../../reference/dashboards/dashboards/dashboard-advanced-data-exploration.md
-[Home Dashboard]: ../../reference/dashboards/dashboards/dashboard-home.md
+[Advanced Data Exploration]: ../../reference/dashboards/dashboard-advanced-data-exploration.md
+[Home Dashboard]: ../../reference/dashboards/dashboard-home.md
 [DB Cluster Summary]: ../../reference/dashboards/dashboard-cluster-summary.md
-[Prometheus Exporter Status]: ../../reference/dashboards/dashboards/dashboard-prometheus-exporter-status.md
-[Prometheus Exporters Overview]: ../../reference/dashboards/dashboards/dashboard-prometheus-exporters-overview.md
-[VictoriaMetrics]: ../../reference/dashboards/dashboards/dashboard-victoriametrics.md
-[VictoriaMetrics Agents Overview]: ../../reference/dashboards/dashboards/dashboard-victoriametrics-agents-overview.md
+[Prometheus Exporter Status]: ../../reference/dashboards/dashboard-prometheus-exporter-status.md
+[Prometheus Exporters Overview]: ../../reference/dashboards/dashboard-prometheus-exporters-overview.md
+[VictoriaMetrics]: ../../reference/dashboards/dashboard-victoriametrics.md
+[VictoriaMetrics Agents Overview]: ../../reference/dashboards/dashboard-victoriametrics-agents-overview.md
 [PMM Inventory]: ../../use/dashboard-inventory.md
-[Environment Overview]: ../../reference/dashboards/dashboards/dashboard-env-overview.md
-[Environment Summary]: ../../reference/dashboards/dashboards/dashboard-environent-summary.md
-[CPU Utilization Details]: ../../reference/dashboards/dashboards/dashboard-cpu-utilization-details.md
-[Disk Details]: ../../reference/dashboards/dashboards/dashboard-disk-details.md
-[Network Details]: ../../reference/dashboards/dashboards/dashboard-network-details.md
-[Memory Details]: ../../reference/dashboards/dashboards/dashboard-memory-details.md
-[Node Temperature Details]: ../../reference/dashboards/dashboards/dashboard-node-temperature-details.md
-[Nodes Compare]: ../../reference/dashboards/dashboards/dashboard-nodes-compare.md
-[Nodes Overview]: ../../reference/dashboards/dashboards/dashboard-nodes-overview.md
-[Node Summary]: ../../reference/dashboards/dashboards/dashboard-node-summary.md
-[NUMA Details]: ../../reference/dashboards/dashboards/dashboard-numa-details.md
-[Processes Details]: ../../reference/dashboards/dashboards/dashboard-processes-details.md
-[Prometheus Exporter Status]: ../../reference/dashboards/dashboards/dashboard-prometheus-exporter-status.md
-[Prometheus Exporters Overview]: ../../reference/dashboards/dashboards/dashboard-prometheus-exporters-overview.md
-[MySQL Amazon Aurora Details]: ../../reference/dashboards/dashboards/dashboard-mysql-amazon-aurora-details.md
+[Environment Overview]: ../../reference/dashboards/dashboard-env-overview.md
+[Environment Summary]: ../../reference/dashboards/dashboard-environent-summary.md
+[CPU Utilization Details]: ../../reference/dashboards/dashboard-cpu-utilization-details.md
+[Disk Details]: ../../reference/dashboards/dashboard-disk-details.md
+[Network Details]: ../../reference/dashboards/dashboard-network-details.md
+[Memory Details]: ../../reference/dashboards/dashboard-memory-details.md
+[Node Temperature Details]: ../../reference/dashboards/dashboard-node-temperature-details.md
+[Nodes Compare]: ../../reference/dashboards/dashboard-nodes-compare.md
+[Nodes Overview]: ../../reference/dashboards/dashboard-nodes-overview.md
+[Node Summary]: ../../reference/dashboards/dashboard-node-summary.md
+[NUMA Details]: ../../reference/dashboards/dashboard-numa-details.md
+[Processes Details]: ../../reference/dashboards/dashboard-processes-details.md
+[Prometheus Exporter Status]: ../../reference/dashboards/dashboard-prometheus-exporter-status.md
+[Prometheus Exporters Overview]: ../../reference/dashboards/dashboard-prometheus-exporters-overview.md
+[MySQL Amazon Aurora Details]: ../../reference/dashboards/dashboard-mysql-amazon-aurora-details.md
 [MySQL Command/Handler Counters Compare]: ../../reference/dashboards/dashboard-mysql-command-handler-counters-compare.md
 [MySQL InnoDB Compression Details]: ../../reference/dashboards/dashboard-mysql-innodb-compression-details.md
 [MySQL InnoDB Details]: ../../reference/dashboards/dashboard-mysql-innodb-details.md
@@ -113,7 +113,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [Experimental MongoDB Collection Overview]: ../../reference/dashboards/dashboard-mongodb-experimental_collection_overview.md
 [Experimental MongoDB Collection Details]: ../../reference/dashboards/dashboard-mongodb-experimental_collection_details.md
 [Experimental MongoDB Oplog Details]: ../../reference/dashboards/dashboard-mongodb-experimental_oplog.md
-[MongoDB Cluster Summary]: ../../reference/dashboards/dashboards/dashboard-mongodb-cluster-summary.md
+[MongoDB Cluster Summary]: ../../reference/dashboards/dashboard-mongodb-cluster-summary.md
 [MongoDB Instance Summary]: ../../reference/dashboards/dashboard-mongodb-instance-summary.md
 [MongoDB Instances Overview]: ../../reference/dashboards/dashboard-mongodb-instances-overview.md
 [MongoDB Instances Compare]: ../../reference/dashboards/dashboard-mongodb-instances-compare.md
