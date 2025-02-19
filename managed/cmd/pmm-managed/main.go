@@ -963,6 +963,7 @@ func main() { //nolint:maintidx,cyclop
 		VMAlertExternalRules: externalRules,
 		Updater:              updater,
 		Dus:                  dus,
+		Nomad:                nomad,
 	}
 
 	server, err := server.NewServer(serverParams)

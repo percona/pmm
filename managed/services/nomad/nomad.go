@@ -17,6 +17,7 @@
 package nomad
 
 import (
+	"context"
 	_ "embed" // embed is used to embed server.hcl file.
 	"fmt"
 	"os"
@@ -71,7 +72,7 @@ func New(db *reform.DB) (*Nomad, error) {
 }
 
 // UpdateConfiguration retrieves and applies updated settings for Nomad, regenerates certificates, and updates server config.
-func (c *Nomad) UpdateConfiguration() error {
+func (c *Nomad) UpdateConfiguration(context.Context) error {
 	c.m.Lock()
 	defer c.m.Unlock()
 	settings, err := models.GetSettings(c.db)
