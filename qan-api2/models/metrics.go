@@ -315,8 +315,48 @@ SUM(m_plan_time_sum) AS m_plan_time_sum,
 MIN(m_plan_time_min) AS m_plan_time_min,
 MAX(m_plan_time_max) AS m_plan_time_max,
 
-any(top_queryid) as top_queryid,
-any(top_query) as top_query
+any(top_queryid) AS top_queryid,
+any(top_query) AS top_query,
+
+SUM(m_docs_examined_cnt) AS m_docs_examined_cnt,
+SUM(m_docs_examined_sum) AS m_docs_examined_sum,
+MIN(m_docs_examined_min) AS m_docs_examined_min,
+MAX(m_docs_examined_max) AS m_docs_examined_max,
+AVG(m_docs_examined_p99) AS m_docs_examined_p99,
+
+SUM(m_keys_examined_cnt) AS m_keys_examined_cnt,
+SUM(m_keys_examined_sum) AS m_keys_examined_sum,
+MIN(m_keys_examined_min) AS m_keys_examined_min,
+MAX(m_keys_examined_max) AS m_keys_examined_max,
+AVG(m_keys_examined_p99) AS m_keys_examined_p99,
+
+SUM(m_locks_global_acquire_count_read_shared_sum) AS m_locks_global_acquire_count_read_shared_sum,
+
+SUM(m_locks_global_acquire_count_write_shared_sum) AS m_locks_global_acquire_count_write_shared_sum,
+
+SUM(m_locks_database_acquire_count_read_shared_sum) AS m_locks_database_acquire_count_read_shared_sum,
+
+SUM(m_locks_database_acquire_wait_count_read_shared_sum) AS m_locks_database_acquire_wait_count_read_shared_sum,
+
+SUM(m_locks_database_time_acquiring_micros_read_shared_cnt) AS m_locks_database_time_acquiring_micros_read_shared_cnt,
+SUM(m_locks_database_time_acquiring_micros_read_shared_sum) AS m_locks_database_time_acquiring_micros_read_shared_sum,
+MIN(m_locks_database_time_acquiring_micros_read_shared_min) AS m_locks_database_time_acquiring_micros_read_shared_min,
+MAX(m_locks_database_time_acquiring_micros_read_shared_max) AS m_locks_database_time_acquiring_micros_read_shared_max,
+AVG(m_locks_database_time_acquiring_micros_read_shared_p99) AS m_locks_database_time_acquiring_micros_read_shared_p99,
+
+SUM(m_locks_collection_acquire_count_read_shared_sum) AS m_locks_collection_acquire_count_read_shared_sum,
+
+SUM(m_storage_bytes_read_cnt) AS m_storage_bytes_read_cnt,
+SUM(m_storage_bytes_read_sum) AS m_storage_bytes_read_sum,
+MIN(m_storage_bytes_read_min) AS m_storage_bytes_read_min,
+MAX(m_storage_bytes_read_max) AS m_storage_bytes_read_max,
+AVG(m_storage_bytes_read_p99) AS m_storage_bytes_read_p99,
+
+SUM(m_storage_time_reading_micros_cnt) AS m_storage_time_reading_micros_cnt,
+SUM(m_storage_time_reading_micros_sum) AS m_storage_time_reading_micros_sum,
+MIN(m_storage_time_reading_micros_min) AS m_storage_time_reading_micros_min,
+MAX(m_storage_time_reading_micros_max) AS m_storage_time_reading_micros_max,
+AVG(m_storage_time_reading_micros_p99) AS m_storage_time_reading_micros_p99
 
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to

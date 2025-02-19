@@ -326,43 +326,53 @@ type MetricsBucket struct {
 	MDocsScannedMax float32 `protobuf:"fixed32,203,opt,name=m_docs_scanned_max,json=mDocsScannedMax,proto3" json:"m_docs_scanned_max,omitempty"`
 	MDocsScannedP99 float32 `protobuf:"fixed32,204,opt,name=m_docs_scanned_p99,json=mDocsScannedP99,proto3" json:"m_docs_scanned_p99,omitempty"`
 	// Plan summary type (COLLSCAN, IXSCAN, etc).
-	PlanSummary                                    string  `protobuf:"bytes,205,opt,name=plan_summary,json=planSummary,proto3" json:"plan_summary,omitempty"`
-	MDocsExaminedCnt                               float32 `protobuf:"fixed32,269,opt,name=m_docs_examined_cnt,json=mDocsExaminedCnt,proto3" json:"m_docs_examined_cnt,omitempty"`
-	MDocsExaminedSum                               float32 `protobuf:"fixed32,270,opt,name=m_docs_examined_sum,json=mDocsExaminedSum,proto3" json:"m_docs_examined_sum,omitempty"`
-	MDocsExaminedMin                               float32 `protobuf:"fixed32,271,opt,name=m_docs_examined_min,json=mDocsExaminedMin,proto3" json:"m_docs_examined_min,omitempty"`
-	MDocsExaminedMax                               float32 `protobuf:"fixed32,272,opt,name=m_docs_examined_max,json=mDocsExaminedMax,proto3" json:"m_docs_examined_max,omitempty"`
-	MDocsExaminedP99                               float32 `protobuf:"fixed32,273,opt,name=m_docs_examined_p99,json=mDocsExaminedP99,proto3" json:"m_docs_examined_p99,omitempty"`
-	MKeysExaminedCnt                               float32 `protobuf:"fixed32,274,opt,name=m_keys_examined_cnt,json=mKeysExaminedCnt,proto3" json:"m_keys_examined_cnt,omitempty"`
-	MKeysExaminedSum                               float32 `protobuf:"fixed32,275,opt,name=m_keys_examined_sum,json=mKeysExaminedSum,proto3" json:"m_keys_examined_sum,omitempty"`
-	MKeysExaminedMin                               float32 `protobuf:"fixed32,276,opt,name=m_keys_examined_min,json=mKeysExaminedMin,proto3" json:"m_keys_examined_min,omitempty"`
-	MKeysExaminedMax                               float32 `protobuf:"fixed32,277,opt,name=m_keys_examined_max,json=mKeysExaminedMax,proto3" json:"m_keys_examined_max,omitempty"`
-	MKeysExaminedP99                               float32 `protobuf:"fixed32,278,opt,name=m_keys_examined_p99,json=mKeysExaminedP99,proto3" json:"m_keys_examined_p99,omitempty"`
-	MLocksGlobalAcquireCountReadSharedCnt          float32 `protobuf:"fixed32,279,opt,name=m_locks_global_acquire_count_read_shared_cnt,json=mLocksGlobalAcquireCountReadSharedCnt,proto3" json:"m_locks_global_acquire_count_read_shared_cnt,omitempty"`
-	MLocksGlobalAcquireCountReadSharedSum          float32 `protobuf:"fixed32,280,opt,name=m_locks_global_acquire_count_read_shared_sum,json=mLocksGlobalAcquireCountReadSharedSum,proto3" json:"m_locks_global_acquire_count_read_shared_sum,omitempty"`
-	MLocksGlobalAcquireCountWriteSharedCnt         float32 `protobuf:"fixed32,281,opt,name=m_locks_global_acquire_count_write_shared_cnt,json=mLocksGlobalAcquireCountWriteSharedCnt,proto3" json:"m_locks_global_acquire_count_write_shared_cnt,omitempty"`
-	MLocksGlobalAcquireCountWriteSharedSum         float32 `protobuf:"fixed32,282,opt,name=m_locks_global_acquire_count_write_shared_sum,json=mLocksGlobalAcquireCountWriteSharedSum,proto3" json:"m_locks_global_acquire_count_write_shared_sum,omitempty"`
-	MLocksDatabaseAcquireCountReadSharedCnt        float32 `protobuf:"fixed32,283,opt,name=m_locks_database_acquire_count_read_shared_cnt,json=mLocksDatabaseAcquireCountReadSharedCnt,proto3" json:"m_locks_database_acquire_count_read_shared_cnt,omitempty"`
-	MLocksDatabaseAcquireCountReadSharedSum        float32 `protobuf:"fixed32,284,opt,name=m_locks_database_acquire_count_read_shared_sum,json=mLocksDatabaseAcquireCountReadSharedSum,proto3" json:"m_locks_database_acquire_count_read_shared_sum,omitempty"`
-	MLocksDatabaseAcquireWaitCountReadSharedCnt    float32 `protobuf:"fixed32,285,opt,name=m_locks_database_acquire_wait_count_read_shared_cnt,json=mLocksDatabaseAcquireWaitCountReadSharedCnt,proto3" json:"m_locks_database_acquire_wait_count_read_shared_cnt,omitempty"`
-	MLocksDatabaseAcquireWaitCountReadSharedSum    float32 `protobuf:"fixed32,286,opt,name=m_locks_database_acquire_wait_count_read_shared_sum,json=mLocksDatabaseAcquireWaitCountReadSharedSum,proto3" json:"m_locks_database_acquire_wait_count_read_shared_sum,omitempty"`
+	PlanSummary string `protobuf:"bytes,205,opt,name=plan_summary,json=planSummary,proto3" json:"plan_summary,omitempty"`
+	// Total number of documents scanned during query execution.
+	MDocsExaminedCnt float32 `protobuf:"fixed32,269,opt,name=m_docs_examined_cnt,json=mDocsExaminedCnt,proto3" json:"m_docs_examined_cnt,omitempty"`
+	MDocsExaminedSum float32 `protobuf:"fixed32,270,opt,name=m_docs_examined_sum,json=mDocsExaminedSum,proto3" json:"m_docs_examined_sum,omitempty"`
+	MDocsExaminedMin float32 `protobuf:"fixed32,271,opt,name=m_docs_examined_min,json=mDocsExaminedMin,proto3" json:"m_docs_examined_min,omitempty"`
+	MDocsExaminedMax float32 `protobuf:"fixed32,272,opt,name=m_docs_examined_max,json=mDocsExaminedMax,proto3" json:"m_docs_examined_max,omitempty"`
+	MDocsExaminedP99 float32 `protobuf:"fixed32,273,opt,name=m_docs_examined_p99,json=mDocsExaminedP99,proto3" json:"m_docs_examined_p99,omitempty"`
+	// Total number of index keys scanned during query execution.
+	MKeysExaminedCnt float32 `protobuf:"fixed32,274,opt,name=m_keys_examined_cnt,json=mKeysExaminedCnt,proto3" json:"m_keys_examined_cnt,omitempty"`
+	MKeysExaminedSum float32 `protobuf:"fixed32,275,opt,name=m_keys_examined_sum,json=mKeysExaminedSum,proto3" json:"m_keys_examined_sum,omitempty"`
+	MKeysExaminedMin float32 `protobuf:"fixed32,276,opt,name=m_keys_examined_min,json=mKeysExaminedMin,proto3" json:"m_keys_examined_min,omitempty"`
+	MKeysExaminedMax float32 `protobuf:"fixed32,277,opt,name=m_keys_examined_max,json=mKeysExaminedMax,proto3" json:"m_keys_examined_max,omitempty"`
+	MKeysExaminedP99 float32 `protobuf:"fixed32,278,opt,name=m_keys_examined_p99,json=mKeysExaminedP99,proto3" json:"m_keys_examined_p99,omitempty"`
+	// Number of times a global read lock was acquired during query execution.
+	MLocksGlobalAcquireCountReadSharedCnt float32 `protobuf:"fixed32,279,opt,name=m_locks_global_acquire_count_read_shared_cnt,json=mLocksGlobalAcquireCountReadSharedCnt,proto3" json:"m_locks_global_acquire_count_read_shared_cnt,omitempty"`
+	MLocksGlobalAcquireCountReadSharedSum float32 `protobuf:"fixed32,280,opt,name=m_locks_global_acquire_count_read_shared_sum,json=mLocksGlobalAcquireCountReadSharedSum,proto3" json:"m_locks_global_acquire_count_read_shared_sum,omitempty"`
+	// Number of times a global write lock was acquired during query execution.
+	MLocksGlobalAcquireCountWriteSharedCnt float32 `protobuf:"fixed32,281,opt,name=m_locks_global_acquire_count_write_shared_cnt,json=mLocksGlobalAcquireCountWriteSharedCnt,proto3" json:"m_locks_global_acquire_count_write_shared_cnt,omitempty"`
+	MLocksGlobalAcquireCountWriteSharedSum float32 `protobuf:"fixed32,282,opt,name=m_locks_global_acquire_count_write_shared_sum,json=mLocksGlobalAcquireCountWriteSharedSum,proto3" json:"m_locks_global_acquire_count_write_shared_sum,omitempty"`
+	// Number of times a read lock was acquired at the database level during query execution.
+	MLocksDatabaseAcquireCountReadSharedCnt float32 `protobuf:"fixed32,283,opt,name=m_locks_database_acquire_count_read_shared_cnt,json=mLocksDatabaseAcquireCountReadSharedCnt,proto3" json:"m_locks_database_acquire_count_read_shared_cnt,omitempty"`
+	MLocksDatabaseAcquireCountReadSharedSum float32 `protobuf:"fixed32,284,opt,name=m_locks_database_acquire_count_read_shared_sum,json=mLocksDatabaseAcquireCountReadSharedSum,proto3" json:"m_locks_database_acquire_count_read_shared_sum,omitempty"`
+	// Number of times a read lock at the database level was requested but had to wait before being granted.
+	MLocksDatabaseAcquireWaitCountReadSharedCnt float32 `protobuf:"fixed32,285,opt,name=m_locks_database_acquire_wait_count_read_shared_cnt,json=mLocksDatabaseAcquireWaitCountReadSharedCnt,proto3" json:"m_locks_database_acquire_wait_count_read_shared_cnt,omitempty"`
+	MLocksDatabaseAcquireWaitCountReadSharedSum float32 `protobuf:"fixed32,286,opt,name=m_locks_database_acquire_wait_count_read_shared_sum,json=mLocksDatabaseAcquireWaitCountReadSharedSum,proto3" json:"m_locks_database_acquire_wait_count_read_shared_sum,omitempty"`
+	// Indicates the time, spent acquiring a read lock at the database level during an operation.
 	MLocksDatabaseTimeAcquiringMicrosReadSharedCnt float32 `protobuf:"fixed32,287,opt,name=m_locks_database_time_acquiring_micros_read_shared_cnt,json=mLocksDatabaseTimeAcquiringMicrosReadSharedCnt,proto3" json:"m_locks_database_time_acquiring_micros_read_shared_cnt,omitempty"`
 	MLocksDatabaseTimeAcquiringMicrosReadSharedSum float32 `protobuf:"fixed32,288,opt,name=m_locks_database_time_acquiring_micros_read_shared_sum,json=mLocksDatabaseTimeAcquiringMicrosReadSharedSum,proto3" json:"m_locks_database_time_acquiring_micros_read_shared_sum,omitempty"`
 	MLocksDatabaseTimeAcquiringMicrosReadSharedMin float32 `protobuf:"fixed32,289,opt,name=m_locks_database_time_acquiring_micros_read_shared_min,json=mLocksDatabaseTimeAcquiringMicrosReadSharedMin,proto3" json:"m_locks_database_time_acquiring_micros_read_shared_min,omitempty"`
 	MLocksDatabaseTimeAcquiringMicrosReadSharedMax float32 `protobuf:"fixed32,290,opt,name=m_locks_database_time_acquiring_micros_read_shared_max,json=mLocksDatabaseTimeAcquiringMicrosReadSharedMax,proto3" json:"m_locks_database_time_acquiring_micros_read_shared_max,omitempty"`
 	MLocksDatabaseTimeAcquiringMicrosReadSharedP99 float32 `protobuf:"fixed32,291,opt,name=m_locks_database_time_acquiring_micros_read_shared_p99,json=mLocksDatabaseTimeAcquiringMicrosReadSharedP99,proto3" json:"m_locks_database_time_acquiring_micros_read_shared_p99,omitempty"`
-	MLocksCollectionAcquireCountReadSharedCnt      float32 `protobuf:"fixed32,292,opt,name=m_locks_collection_acquire_count_read_shared_cnt,json=mLocksCollectionAcquireCountReadSharedCnt,proto3" json:"m_locks_collection_acquire_count_read_shared_cnt,omitempty"`
-	MLocksCollectionAcquireCountReadSharedSum      float32 `protobuf:"fixed32,293,opt,name=m_locks_collection_acquire_count_read_shared_sum,json=mLocksCollectionAcquireCountReadSharedSum,proto3" json:"m_locks_collection_acquire_count_read_shared_sum,omitempty"`
-	MStorageBytesReadCnt                           float32 `protobuf:"fixed32,294,opt,name=m_storage_bytes_read_cnt,json=mStorageBytesReadCnt,proto3" json:"m_storage_bytes_read_cnt,omitempty"`
-	MStorageBytesReadSum                           float32 `protobuf:"fixed32,295,opt,name=m_storage_bytes_read_sum,json=mStorageBytesReadSum,proto3" json:"m_storage_bytes_read_sum,omitempty"`
-	MStorageBytesReadMin                           float32 `protobuf:"fixed32,296,opt,name=m_storage_bytes_read_min,json=mStorageBytesReadMin,proto3" json:"m_storage_bytes_read_min,omitempty"`
-	MStorageBytesReadMax                           float32 `protobuf:"fixed32,297,opt,name=m_storage_bytes_read_max,json=mStorageBytesReadMax,proto3" json:"m_storage_bytes_read_max,omitempty"`
-	MStorageBytesReadP99                           float32 `protobuf:"fixed32,298,opt,name=m_storage_bytes_read_p99,json=mStorageBytesReadP99,proto3" json:"m_storage_bytes_read_p99,omitempty"`
-	MStorageTimeReadingMicrosCnt                   float32 `protobuf:"fixed32,299,opt,name=m_storage_time_reading_micros_cnt,json=mStorageTimeReadingMicrosCnt,proto3" json:"m_storage_time_reading_micros_cnt,omitempty"`
-	MStorageTimeReadingMicrosSum                   float32 `protobuf:"fixed32,300,opt,name=m_storage_time_reading_micros_sum,json=mStorageTimeReadingMicrosSum,proto3" json:"m_storage_time_reading_micros_sum,omitempty"`
-	MStorageTimeReadingMicrosMin                   float32 `protobuf:"fixed32,301,opt,name=m_storage_time_reading_micros_min,json=mStorageTimeReadingMicrosMin,proto3" json:"m_storage_time_reading_micros_min,omitempty"`
-	MStorageTimeReadingMicrosMax                   float32 `protobuf:"fixed32,302,opt,name=m_storage_time_reading_micros_max,json=mStorageTimeReadingMicrosMax,proto3" json:"m_storage_time_reading_micros_max,omitempty"`
-	MStorageTimeReadingMicrosP99                   float32 `protobuf:"fixed32,303,opt,name=m_storage_time_reading_micros_p99,json=mStorageTimeReadingMicrosP99,proto3" json:"m_storage_time_reading_micros_p99,omitempty"`
-	MSharedBlksHitCnt                              float32 `protobuf:"fixed32,210,opt,name=m_shared_blks_hit_cnt,json=mSharedBlksHitCnt,proto3" json:"m_shared_blks_hit_cnt,omitempty"`
+	// Number of times a read lock was acquired on a specific collection during operations.
+	MLocksCollectionAcquireCountReadSharedCnt float32 `protobuf:"fixed32,292,opt,name=m_locks_collection_acquire_count_read_shared_cnt,json=mLocksCollectionAcquireCountReadSharedCnt,proto3" json:"m_locks_collection_acquire_count_read_shared_cnt,omitempty"`
+	MLocksCollectionAcquireCountReadSharedSum float32 `protobuf:"fixed32,293,opt,name=m_locks_collection_acquire_count_read_shared_sum,json=mLocksCollectionAcquireCountReadSharedSum,proto3" json:"m_locks_collection_acquire_count_read_shared_sum,omitempty"`
+	// Total number of bytes read from storage during a specific operation.
+	MStorageBytesReadCnt float32 `protobuf:"fixed32,294,opt,name=m_storage_bytes_read_cnt,json=mStorageBytesReadCnt,proto3" json:"m_storage_bytes_read_cnt,omitempty"`
+	MStorageBytesReadSum float32 `protobuf:"fixed32,295,opt,name=m_storage_bytes_read_sum,json=mStorageBytesReadSum,proto3" json:"m_storage_bytes_read_sum,omitempty"`
+	MStorageBytesReadMin float32 `protobuf:"fixed32,296,opt,name=m_storage_bytes_read_min,json=mStorageBytesReadMin,proto3" json:"m_storage_bytes_read_min,omitempty"`
+	MStorageBytesReadMax float32 `protobuf:"fixed32,297,opt,name=m_storage_bytes_read_max,json=mStorageBytesReadMax,proto3" json:"m_storage_bytes_read_max,omitempty"`
+	MStorageBytesReadP99 float32 `protobuf:"fixed32,298,opt,name=m_storage_bytes_read_p99,json=mStorageBytesReadP99,proto3" json:"m_storage_bytes_read_p99,omitempty"`
+	// Indicates the time, spent reading data from storage during an operation.
+	MStorageTimeReadingMicrosCnt float32 `protobuf:"fixed32,299,opt,name=m_storage_time_reading_micros_cnt,json=mStorageTimeReadingMicrosCnt,proto3" json:"m_storage_time_reading_micros_cnt,omitempty"`
+	MStorageTimeReadingMicrosSum float32 `protobuf:"fixed32,300,opt,name=m_storage_time_reading_micros_sum,json=mStorageTimeReadingMicrosSum,proto3" json:"m_storage_time_reading_micros_sum,omitempty"`
+	MStorageTimeReadingMicrosMin float32 `protobuf:"fixed32,301,opt,name=m_storage_time_reading_micros_min,json=mStorageTimeReadingMicrosMin,proto3" json:"m_storage_time_reading_micros_min,omitempty"`
+	MStorageTimeReadingMicrosMax float32 `protobuf:"fixed32,302,opt,name=m_storage_time_reading_micros_max,json=mStorageTimeReadingMicrosMax,proto3" json:"m_storage_time_reading_micros_max,omitempty"`
+	MStorageTimeReadingMicrosP99 float32 `protobuf:"fixed32,303,opt,name=m_storage_time_reading_micros_p99,json=mStorageTimeReadingMicrosP99,proto3" json:"m_storage_time_reading_micros_p99,omitempty"`
+	MSharedBlksHitCnt            float32 `protobuf:"fixed32,210,opt,name=m_shared_blks_hit_cnt,json=mSharedBlksHitCnt,proto3" json:"m_shared_blks_hit_cnt,omitempty"`
 	// Total number of shared block cache hits by the statement.
 	MSharedBlksHitSum  float32 `protobuf:"fixed32,211,opt,name=m_shared_blks_hit_sum,json=mSharedBlksHitSum,proto3" json:"m_shared_blks_hit_sum,omitempty"`
 	MSharedBlksReadCnt float32 `protobuf:"fixed32,212,opt,name=m_shared_blks_read_cnt,json=mSharedBlksReadCnt,proto3" json:"m_shared_blks_read_cnt,omitempty"`
