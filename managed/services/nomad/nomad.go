@@ -59,7 +59,7 @@ type Nomad struct {
 
 // New creates a new Nomad client.
 func New(db *reform.DB) (*Nomad, error) {
-	err := os.MkdirAll(pathToCerts, 0o750)
+	err := os.MkdirAll(pathToCerts, 0o750) //nolint:mng
 	if err != nil {
 		return nil, err
 	}
@@ -112,8 +112,8 @@ func (c *Nomad) generateServerConfig(publicAddress string) error {
 		return fmt.Errorf("failed to parse template: %w", err)
 	}
 
-	configPath := path.Join(pathToCerts, c.prefix+"-server.hcl") //nolint:gosec
-	configFile, err := os.Create(configPath)
+	configPath := path.Join(pathToCerts, c.prefix+"-server.hcl")
+	configFile, err := os.Create(configPath) //nolint:gosec
 	if err != nil {
 		return fmt.Errorf("failed to create config file: %w", err)
 	}
