@@ -511,7 +511,6 @@ func fillMongoDB(mb *qanv1.MetricsBucket, bm *agentv1.MetricsBucket_MongoDB) {
 	mb.PlanSummary = bm.PlanSummary
 
 	mb.ApplicationName = bm.ApplicationName
-	mb.QueryHash = bm.QueryHash
 
 	mb.MDocsExaminedCnt = bm.MDocsExaminedCnt
 	mb.MDocsExaminedSum = bm.MDocsExaminedSum

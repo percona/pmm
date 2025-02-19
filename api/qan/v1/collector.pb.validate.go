@@ -561,8 +561,6 @@ func (m *MetricsBucket) validate(all bool) error {
 
 	// no validation rules for MKeysExaminedP99
 
-	// no validation rules for QueryHash
-
 	// no validation rules for MLocksGlobalAcquireCountReadSharedCnt
 
 	// no validation rules for MLocksGlobalAcquireCountReadSharedSum

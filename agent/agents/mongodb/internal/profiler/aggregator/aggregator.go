@@ -258,7 +258,7 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 		query, truncated := truncate.Query(v.Query, a.maxQueryLength, truncate.GetMongoDBDefaultMaxQueryLength())
 		bucket := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
-				Queryid:             v.ID,
+				Queryid:             v.QueryHash,
 				Fingerprint:         fingerprint,
 				Database:            db,
 				Tables:              []string{collection},
@@ -277,19 +277,19 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 			Mongodb: &agentv1.MetricsBucket_MongoDB{},
 		}
 
-		bucket.Common.MQueryTimeCnt = float32(v.Count) // TODO: Check is it right value
+		bucket.Common.MQueryTimeCnt = float32(v.Count) // PMM-13788
 		bucket.Common.MQueryTimeMax = float32(v.QueryTime.Max) / 1000
 		bucket.Common.MQueryTimeMin = float32(v.QueryTime.Min) / 1000
 		bucket.Common.MQueryTimeP99 = float32(v.QueryTime.Pct99) / 1000
 		bucket.Common.MQueryTimeSum = float32(v.QueryTime.Total) / 1000
 
-		bucket.Mongodb.MDocsReturnedCnt = float32(v.Count) // TODO: Check is it right value
+		bucket.Mongodb.MDocsReturnedCnt = float32(v.Count) // PMM-13788
 		bucket.Mongodb.MDocsReturnedMax = float32(v.Returned.Max)
 		bucket.Mongodb.MDocsReturnedMin = float32(v.Returned.Min)
 		bucket.Mongodb.MDocsReturnedP99 = float32(v.Returned.Pct99)
 		bucket.Mongodb.MDocsReturnedSum = float32(v.Returned.Total)
 
-		bucket.Mongodb.MDocsScannedCnt = float32(v.Count) // TODO: Check is it right value
+		bucket.Mongodb.MDocsScannedCnt = float32(v.Count) // PMM-13788
 		bucket.Mongodb.MDocsScannedMax = float32(v.Scanned.Max)
 		bucket.Mongodb.MDocsScannedMin = float32(v.Scanned.Min)
 		bucket.Mongodb.MDocsScannedP99 = float32(v.Scanned.Pct99)
@@ -306,37 +306,46 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 		bucket.Mongodb.PlanSummary = v.PlanSummary
 
 		bucket.Mongodb.ApplicationName = v.AppName
-		bucket.Mongodb.QueryHash = v.QueryHash
+
 		bucket.Mongodb.MDocsExaminedCnt = float32(v.DocsExaminedCount)
 		bucket.Mongodb.MDocsExaminedMax = float32(v.DocsExamined.Max)
 		bucket.Mongodb.MDocsExaminedMin = float32(v.DocsExamined.Min)
 		bucket.Mongodb.MDocsExaminedP99 = float32(v.DocsExamined.Pct99)
 		bucket.Mongodb.MDocsExaminedSum = float32(v.DocsExamined.Total)
+
 		bucket.Mongodb.MKeysExaminedCnt = float32(v.KeysExaminedCount)
 		bucket.Mongodb.MKeysExaminedMax = float32(v.KeysExamined.Max)
 		bucket.Mongodb.MKeysExaminedMin = float32(v.KeysExamined.Min)
 		bucket.Mongodb.MKeysExaminedP99 = float32(v.KeysExamined.Pct99)
 		bucket.Mongodb.MKeysExaminedSum = float32(v.KeysExamined.Total)
+
 		bucket.Mongodb.MLocksGlobalAcquireCountReadSharedCnt = float32(v.LocksGlobalAcquireCountReadShared)
 		bucket.Mongodb.MLocksGlobalAcquireCountReadSharedSum = float32(v.LocksGlobalAcquireCountReadShared) // Sum is same like count in this case
+
 		bucket.Mongodb.MLocksGlobalAcquireCountWriteSharedCnt = float32(v.LocksGlobalAcquireCountWriteShared)
 		bucket.Mongodb.MLocksGlobalAcquireCountWriteSharedSum = float32(v.LocksGlobalAcquireCountWriteShared) // Sum is same like count in this case
+
 		bucket.Mongodb.MLocksDatabaseAcquireCountReadSharedCnt = float32(v.LocksDatabaseAcquireCountReadShared)
 		bucket.Mongodb.MLocksDatabaseAcquireCountReadSharedSum = float32(v.LocksDatabaseAcquireCountReadShared) // Sum is same like count in this case
+
 		bucket.Mongodb.MLocksDatabaseAcquireWaitCountReadSharedCnt = float32(v.LocksDatabaseAcquireWaitCountReadShared)
 		bucket.Mongodb.MLocksDatabaseAcquireWaitCountReadSharedSum = float32(v.LocksDatabaseAcquireWaitCountReadShared) // Sum is same like count in this case
+
 		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedCnt = float32(v.LocksDatabaseTimeAcquiringMicrosReadSharedCount)
 		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedMax = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Max) / 1000000
 		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedMin = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Min) / 1000000
 		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedP99 = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Pct99) / 1000000
 		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedSum = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Total) / 1000000
+
 		bucket.Mongodb.MLocksCollectionAcquireCountReadSharedCnt = float32(v.LocksCollectionAcquireCountReadShared)
 		bucket.Mongodb.MLocksCollectionAcquireCountReadSharedSum = float32(v.LocksCollectionAcquireCountReadShared) // Sum is same like count in this case
+
 		bucket.Mongodb.MStorageBytesReadCnt = float32(v.StorageBytesReadCount)
 		bucket.Mongodb.MStorageBytesReadMax = float32(v.StorageBytesRead.Max)
 		bucket.Mongodb.MStorageBytesReadMin = float32(v.StorageBytesRead.Min)
 		bucket.Mongodb.MStorageBytesReadP99 = float32(v.StorageBytesRead.Pct99)
 		bucket.Mongodb.MStorageBytesReadSum = float32(v.StorageBytesRead.Total)
+
 		bucket.Mongodb.MStorageTimeReadingMicrosCnt = float32(v.StorageTimeReadingMicrosCount)
 		bucket.Mongodb.MStorageTimeReadingMicrosMax = float32(v.StorageTimeReadingMicros.Max) / 1000000
 		bucket.Mongodb.MStorageTimeReadingMicrosMin = float32(v.StorageTimeReadingMicros.Min) / 1000000
