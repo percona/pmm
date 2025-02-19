@@ -240,6 +240,10 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 		return nil, err
 	}
 
+	if err := r.addNomadAgentToPMMAgent(q, md.ID, runsOnNodeID, agentVersion); err != nil {
+		return nil, err
+	}
+
 	agent.Version = &md.Version
 	if err := q.Update(agent); err != nil {
 		return nil, errors.Wrap(err, "failed to update agent")
@@ -327,7 +331,8 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 }
 
 func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string, pmmAgentVersion *version.Parsed) error {
-	if pmmAgentVersion.Less(models.PMMAgentWithPushMetricsSupport) {
+	if !pmmAgentVersion.IsFeatureSupported(version.NomadClientSupportVersion) {
+		return nil
 	}
 	nomadClientType := models.NomadClientType
 	nomadClient, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: &nomadClientType})

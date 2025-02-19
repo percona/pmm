@@ -17,6 +17,7 @@
 package nomad
 
 import (
+	_ "embed" // embed is used to embed server.hcl file.
 	"fmt"
 	"os"
 	"os/exec"
@@ -30,7 +31,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// go:embed server.hcl
+//go:embed server.hcl
 var serverConfig string
 
 const (
@@ -58,7 +59,7 @@ type Nomad struct {
 
 // New creates a new Nomad client.
 func New(db *reform.DB) (*Nomad, error) {
-	err := os.MkdirAll(pathToCerts, 0o755)
+	err := os.MkdirAll(pathToCerts, 0o750)
 	if err != nil {
 		return nil, err
 	}
@@ -69,6 +70,7 @@ func New(db *reform.DB) (*Nomad, error) {
 	}, nil
 }
 
+// UpdateConfiguration retrieves and applies updated settings for Nomad, regenerates certificates, and updates server config.
 func (c *Nomad) UpdateConfiguration() error {
 	c.m.Lock()
 	defer c.m.Unlock()
@@ -110,12 +112,12 @@ func (c *Nomad) generateServerConfig(publicAddress string) error {
 		return fmt.Errorf("failed to parse template: %w", err)
 	}
 
-	configPath := path.Join(pathToCerts, c.prefix+"-server.hcl")
+	configPath := path.Join(pathToCerts, c.prefix+"-server.hcl") //nolint:gosec
 	configFile, err := os.Create(configPath)
 	if err != nil {
 		return fmt.Errorf("failed to create config file: %w", err)
 	}
-	defer configFile.Close()
+	defer configFile.Close() //nolint:errcheck
 
 	m := config{Node: struct{ Address string }{Address: publicAddress}}
 	err = tmpl.Execute(configFile, m)
@@ -137,7 +139,7 @@ func (c *Nomad) generateCACert() error {
 }
 
 func (c *Nomad) generateServerCert(domain string) error {
-	command := exec.Command(pathToNomad,
+	command := exec.Command(pathToNomad, //nolint:gosec
 		"tls",
 		"cert",
 		"create",
@@ -157,7 +159,7 @@ func (c *Nomad) generateServerCert(domain string) error {
 }
 
 func (c *Nomad) generateClientCert() error {
-	command := exec.Command(pathToNomad,
+	command := exec.Command(pathToNomad, //nolint:gosec
 		"cert",
 		"create",
 		"-client",
@@ -181,6 +183,7 @@ func (c *Nomad) pathToCAKey() string {
 	return path.Join(pathToCerts, c.prefix+"-agent-ca-key.pem")
 }
 
+// GetCACert reads and returns the content of the CA certificate file for Nomad. Returns an error if it fails.
 func (c *Nomad) GetCACert() (string, error) {
 	file, err := os.ReadFile(c.pathToCA())
 	if err != nil {
@@ -189,6 +192,7 @@ func (c *Nomad) GetCACert() (string, error) {
 	return string(file), nil
 }
 
+// GetClientCert reads and returns the content of the global client certificate file for Nomad. Returns an error if it fails.
 func (c *Nomad) GetClientCert() (string, error) {
 	file, err := os.ReadFile(path.Join(pathToCerts, "global-client-nomad.pem"))
 	if err != nil {
@@ -197,6 +201,7 @@ func (c *Nomad) GetClientCert() (string, error) {
 	return string(file), nil
 }
 
+// GetClientKey reads and returns the content of the global client key file for Nomad. Returns an error if it fails.
 func (c *Nomad) GetClientKey() (string, error) {
 	file, err := os.ReadFile(path.Join(pathToCerts, "global-client-nomad-key.pem"))
 	if err != nil {

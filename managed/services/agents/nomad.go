@@ -17,9 +17,6 @@ package agents
 
 import (
 	"bytes"
-	_ "embed"
-	"os"
-	"path"
 	"strings"
 	"text/template"
 
@@ -97,11 +94,6 @@ plugin "raw_exec" {
 `
 
 func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*agentv1.SetStateRequest_AgentProcess, error) {
-	// TODO:
-	// list tls certificates
-	// command to start nomad client
-	// generate configuration file for nomad client
-	// nomad agent -client -config <tmp path>/nomad-client.hcl
 	args := []string{
 		"agent",
 		"-client",
@@ -142,15 +134,6 @@ func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*age
 	}
 
 	return params, nil
-}
-
-func readCertFile(pathToCerts string, filename string) (string, error) {
-	pathToFile := path.Join(pathToCerts, filename)
-	file, err := os.ReadFile(pathToFile)
-	if err != nil {
-		return "", errors.Wrap(err, "Failed to read file on path: "+pathToFile)
-	}
-	return string(file), nil
 }
 
 func generateNomadClientConfig(node *models.Node, exporter *models.Agent, tdp models.DelimiterPair) (string, error) {

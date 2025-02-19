@@ -908,6 +908,9 @@ func main() { //nolint:maintidx,cyclop
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
 	nomad, err := nomad.New(db)
+	if err != nil {
+		l.Fatalf("Could not create Nomad client: %s", err)
+	}
 
 	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
 	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams, nomad)
