@@ -28,7 +28,7 @@ Discover how PMM can help you monitor your systems and make informed decisions.
 
 Ready to dive into PMM? Follow our simple, step-by-step installation instructions to get started in no time!
 
-[Quickstart guide :material-arrow-right:](quickstart.md){ .md-button .md-button--primary }
+[Quickstart guide :material-arrow-right:](../docs/quickstart/quickstart.md){ .md-button .md-button--primary }
 
 </div><div data-banner markdown>
 

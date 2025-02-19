@@ -21,6 +21,7 @@ To see the metrics being collected by telemetry, from the [main menu](../referen
 ![!image](../images/PMM_Settings_Advanced_Settings_Telemetry.png)
 
 We do not gather anything that can identify your system, but consider the following:
+{.power-number}
 
 1. The Country Code is evaluated from the submitting IP address before being discarded.
 
