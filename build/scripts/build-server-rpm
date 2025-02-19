@@ -99,7 +99,7 @@ build() {
     local CH_VERSION=${rpm_version%-*}
     local CH_TAG=${rpm_version#*-}
 
-    if  [[ -n "${FORCE_REBUILD}" ]] || is_build_needed "${spec_name}" "${rpm_version}"; then
+    if  [[ -n "${FORCE_REBUILD}" ]] ; then
         echo "RPM Build Dir: ${rpmbuild_dir}, Docker image: ${rpmbuild_docker_image}"
 
         docker run --rm -v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
