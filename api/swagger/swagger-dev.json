@@ -27515,83 +27515,35 @@
                       "type": "boolean",
                       "x-order": 1
                     },
-                    "metrics_resolutions": {
-                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
-                      "type": "object",
-                      "properties": {
-                        "hr": {
-                          "description": "High resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "mr": {
-                          "description": "Medium resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string",
-                          "x-order": 1
-                        },
-                        "lr": {
-                          "description": "Low resolution. Should have a suffix in JSON: 1s, 1m, 1h.",
-                          "type": "string",
-                          "x-order": 2
-                        }
-                      },
-                      "x-order": 2
-                    },
-                    "data_retention": {
-                      "type": "string",
-                      "x-order": 3
-                    },
                     "advisor_enabled": {
                       "description": "True if Advisor is enabled.",
                       "type": "boolean",
-                      "x-order": 4
+                      "x-order": 2
                     },
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 3
                     },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 6
-                    },
-                    "advisor_run_intervals": {
-                      "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
-                      "type": "object",
-                      "properties": {
-                        "standard_interval": {
-                          "description": "Standard check interval.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "rare_interval": {
-                          "description": "Interval for rare check runs.",
-                          "type": "string",
-                          "x-order": 1
-                        },
-                        "frequent_interval": {
-                          "description": "Interval for frequent check runs.",
-                          "type": "string",
-                          "x-order": 2
-                        }
-                      },
-                      "x-order": 7
+                      "x-order": 4
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 5
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 6
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 7
                     }
                   },
                   "x-order": 0

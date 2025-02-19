@@ -497,16 +497,14 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 // convertReadOnlySettings creates a subset of database settings for non-admin roles.
 func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.ReadOnlySettings {
 	res := &serverv1.ReadOnlySettings{
-		UpdatesEnabled:       settings.IsUpdatesEnabled(),
-		TelemetryEnabled:     settings.IsTelemetryEnabled(),
-		AdvisorEnabled:       settings.IsAdvisorsEnabled(),
-		AzurediscoverEnabled: settings.IsAzureDiscoverEnabled(),
-		PmmPublicAddress:     settings.PMMPublicAddress,
-
+		UpdatesEnabled:          settings.IsUpdatesEnabled(),
+		TelemetryEnabled:        settings.IsTelemetryEnabled(),
+		AdvisorEnabled:          settings.IsAdvisorsEnabled(),
 		AlertingEnabled:         settings.IsAlertingEnabled(),
+		PmmPublicAddress:        settings.PMMPublicAddress,
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
-
-		EnableAccessControl: settings.IsAccessControlEnabled(),
+		AzurediscoverEnabled:    settings.IsAzureDiscoverEnabled(),
+		EnableAccessControl:     settings.IsAccessControlEnabled(),
 	}
 
 	return res

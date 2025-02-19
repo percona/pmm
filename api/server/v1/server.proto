@@ -187,22 +187,18 @@ message ReadOnlySettings {
   bool updates_enabled = 1;
   // True if telemetry is enabled.
   bool telemetry_enabled = 2;
-  MetricsResolutions metrics_resolutions = 3;
-  google.protobuf.Duration data_retention = 4;
   // True if Advisor is enabled.
-  bool advisor_enabled = 5;
+  bool advisor_enabled = 3;
   // True if Alerting is enabled.
-  bool alerting_enabled = 6;
+  bool alerting_enabled = 4;
   // PMM Server public address.
-  string pmm_public_address = 7;
-  // Intervals between Advisor runs.
-  AdvisorRunIntervals advisor_run_intervals = 8;
+  string pmm_public_address = 5;
   // True if Backup Management is enabled.
-  bool backup_management_enabled = 9;
+  bool backup_management_enabled = 6;
   // True if Azure Discover is enabled.
-  bool azurediscover_enabled = 10;
+  bool azurediscover_enabled = 7;
   // True if Access Control is enabled.
-  bool enable_access_control = 11;
+  bool enable_access_control = 8;
 }
 
 message GetSettingsRequest {}

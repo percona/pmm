@@ -2578,98 +2578,11 @@ func (m *ReadOnlySettings) validate(all bool) error {
 
 	// no validation rules for TelemetryEnabled
 
-	if all {
-		switch v := interface{}(m.GetMetricsResolutions()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ReadOnlySettingsValidationError{
-					field:  "MetricsResolutions",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ReadOnlySettingsValidationError{
-					field:  "MetricsResolutions",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ReadOnlySettingsValidationError{
-				field:  "MetricsResolutions",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetDataRetention()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ReadOnlySettingsValidationError{
-					field:  "DataRetention",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ReadOnlySettingsValidationError{
-					field:  "DataRetention",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetDataRetention()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ReadOnlySettingsValidationError{
-				field:  "DataRetention",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	// no validation rules for AdvisorEnabled
 
 	// no validation rules for AlertingEnabled
 
 	// no validation rules for PmmPublicAddress
-
-	if all {
-		switch v := interface{}(m.GetAdvisorRunIntervals()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ReadOnlySettingsValidationError{
-					field:  "AdvisorRunIntervals",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ReadOnlySettingsValidationError{
-					field:  "AdvisorRunIntervals",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetAdvisorRunIntervals()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ReadOnlySettingsValidationError{
-				field:  "AdvisorRunIntervals",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
 
 	// no validation rules for BackupManagementEnabled
 
