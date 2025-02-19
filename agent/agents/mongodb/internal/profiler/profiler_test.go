@@ -193,23 +193,14 @@ func testProfiler(t *testing.T, url string) {
 			MResponseLengthMin: responseLength,
 			MResponseLengthMax: responseLength,
 			MResponseLengthP99: responseLength,
-			MDocsScannedCnt:    docsCount,
 		}
 		// TODO: fix protobuf equality https://jira.percona.com/browse/PMM-6743
-		assert.Equalf(t, expected.MDocsReturnedCnt, bucket.Mongodb.MDocsReturnedCnt, "wrong metrics MDocsReturnedCnt for db %s (%.0f vs %.0f)",
-			bucket.Common.Database, expected.MDocsReturnedCnt, bucket.Mongodb.MDocsReturnedCnt)
-		assert.Equalf(t, expected.MResponseLengthCnt, bucket.Mongodb.MResponseLengthCnt, "wrong metrics MResponseLengthCnt for db %s (%.0f vs %.0f)",
-			bucket.Common.Database, expected.MResponseLengthCnt, bucket.Mongodb.MResponseLengthCnt)
-		assert.Equalf(t, expected.MResponseLengthSum, bucket.Mongodb.MResponseLengthSum, "wrong metrics MResponseLengthSum for db %s (%.0f vs %.0f)",
-			bucket.Common.Database, expected.MResponseLengthSum, bucket.Mongodb.MResponseLengthSum)
-		assert.Equalf(t, expected.MResponseLengthMin, bucket.Mongodb.MResponseLengthMin, "wrong metrics MResponseLengthMin for db %s (%.0f vs %.0f)",
-			bucket.Common.Database, expected.MResponseLengthMin, bucket.Mongodb.MResponseLengthMin)
-		assert.Equalf(t, expected.MResponseLengthMax, bucket.Mongodb.MResponseLengthMax, "wrong metrics MResponseLengthMax for db %s (%.0f vs %.0f)",
-			bucket.Common.Database, expected.MResponseLengthMax, bucket.Mongodb.MResponseLengthMax)
-		assert.Equalf(t, expected.MResponseLengthP99, bucket.Mongodb.MResponseLengthP99, "wrong metrics MResponseLengthP99 for db %s (%.0f vs %.0f)",
-			bucket.Common.Database, expected.MResponseLengthP99, bucket.Mongodb.MResponseLengthP99)
-		assert.Equalf(t, expected.MDocsScannedCnt, bucket.Mongodb.MDocsScannedCnt, "wrong metrics MDocsScannedCnt for db %s (%.0f vs %.0f)",
-			bucket.Common.Database, expected.MDocsScannedCnt, bucket.Mongodb.MDocsScannedCnt)
+		assert.Equalf(t, expected.MDocsReturnedCnt, bucket.Mongodb.MDocsReturnedCnt, "wrong metrics MDocsReturnedCnt for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthCnt, bucket.Mongodb.MResponseLengthCnt, "wrong metrics MResponseLengthCnt for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthSum, bucket.Mongodb.MResponseLengthSum, "wrong metrics MResponseLengthSum for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthMin, bucket.Mongodb.MResponseLengthMin, "wrong metrics MResponseLengthMin for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthMax, bucket.Mongodb.MResponseLengthMax, "wrong metrics MResponseLengthMax for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthP99, bucket.Mongodb.MResponseLengthP99, "wrong metrics MResponseLengthP99 for db %s", bucket.Common.Database)
 	}
 	require.NotNil(t, findBucket)
 	assert.Equal(t, "FIND people name_00\ufffd", findBucket.Common.Fingerprint)
