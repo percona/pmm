@@ -149,7 +149,7 @@ func testProfiler(t *testing.T, url string) {
 					b.Mongodb.MDocsReturnedCnt += bucket.Mongodb.MDocsReturnedCnt
 					b.Mongodb.MResponseLengthCnt += bucket.Mongodb.MResponseLengthCnt
 					b.Mongodb.MResponseLengthSum += bucket.Mongodb.MResponseLengthSum
-					b.Mongodb.MDocsScannedCnt += bucket.Mongodb.MDocsScannedCnt
+					b.Mongodb.MDocsExaminedCnt += bucket.Mongodb.MDocsExaminedCnt
 				} else {
 					bucketsMap[key] = bucket
 				}
@@ -201,6 +201,7 @@ func testProfiler(t *testing.T, url string) {
 		assert.Equalf(t, expected.MResponseLengthMin, bucket.Mongodb.MResponseLengthMin, "wrong metrics MResponseLengthMin for db %s", bucket.Common.Database)
 		assert.Equalf(t, expected.MResponseLengthMax, bucket.Mongodb.MResponseLengthMax, "wrong metrics MResponseLengthMax for db %s", bucket.Common.Database)
 		assert.Equalf(t, expected.MResponseLengthP99, bucket.Mongodb.MResponseLengthP99, "wrong metrics MResponseLengthP99 for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MDocsExaminedCnt, bucket.Mongodb.MDocsExaminedCnt, "wrong metrics MDocsExaminedCnt for db %s", bucket.Common.Database)
 	}
 	require.NotNil(t, findBucket)
 	assert.Equal(t, "FIND people name_00\ufffd", findBucket.Common.Fingerprint)
