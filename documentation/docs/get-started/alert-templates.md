@@ -19,7 +19,7 @@ To check the alert templates for your PMM instance, go to PMM > **Alerting > Ale
 
 ## Available alert template
 
-The table below lists all the alert templates available in Percona Monitoring and Management (PMM).
+The table below lists all the alert templates available in PMM.
 
 This list includes both built-in templates (accessible to all PMM users), and Customers-only templates.
 
@@ -29,16 +29,16 @@ To access the Customers-only templates, you must be a Percona customer and [conn
 
 The table below lists the alert templates available in PMM, organized by technology area. Jump to specific sections:
 
-- [Operating System alerts](#os_alerts)
-- [PMM alerts](#pmm_alerts)
-- [MongoDB alerts](#mongodb_alerts)
-- [PBM alerts](#pbm_alerts)
-- [MySQL alerts](#mysql_alerts)
-- [PostgreSQL alerts](#postgresql_alerts)
-- [ProxySQL alerts](#proxysql_alerts)
+- [Operating System templates](#os_alerts)
+- [PMM templates](#pmm_alerts)
+- [MongoDB templates](#mongodb_alerts)
+- [PBM templates](#pbm_alerts)
+- [MySQL templates](#mysql_alerts)
+- [PostgreSQL templates](#postgresql_alerts)
+- [ProxySQL templates](#proxysql_alerts)
 
 <a id="os_alerts"></a>
-### Operating System (OS) alerts 
+### Operating System (OS) templates 
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
@@ -47,7 +47,7 @@ The table below lists the alert templates available in PMM, organized by technol
 | OS | **Node high swap filling up** | Monitors node swap usage and alerts when it exceeds 80% (default threshold). Indicates potential memory pressure and performance degradation, allowing for timely intervention. |All users | MySQL, MongoDB, PostgreSQL |
 
 <a id="pmm_alerts"></a>
-### PMM alerts
+### PMM templates
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
@@ -55,7 +55,7 @@ The table below lists the alert templates available in PMM, organized by technol
 | PMM | **Backup failed [Technical Preview]** | Monitors backup processes and alerts on failures, providing details about the failed backup artifact and service. Helps maintain data safety and recovery readiness. This template is currently in Technical Preview status and should be used for testing purposes only as it is subject to change. |All users | MySQL, MongoDB, PostgreSQL, ProxySQL |
 
 <a id="mongodb_alerts"></a>
-### MongoDB alerts
+### MongoDB templates
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
@@ -74,7 +74,7 @@ The table below lists the alert templates available in PMM, organized by technol
 | MongoDB | **MongoDB too many chunk migrations** | Monitors amount of chunk migrations in a MongoDB sharded cluster and alerts if they are more than set thresholds. | Customers-only | MongoDB |
 
 <a id="pbm_alerts"></a>
-### PBM (Percona Backup for MongoDB) alerts
+### PBM (Percona Backup for MongoDB) templates
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
@@ -83,7 +83,7 @@ The table below lists the alert templates available in PMM, organized by technol
 | PBM | **MongoDB PBM backup size** | Monitors the amount of disk space taken by a completed backup and alerts when it exceeds set thresholds. If the backup did not complete, no alerts are sent. |All users | MongoDB |
 
 <a id="mysql_alerts"></a>
-### MySQL alerts
+### MySQL templates
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
@@ -94,7 +94,7 @@ The table below lists the alert templates available in PMM, organized by technol
 | MySQL | **MySQL connections in use** | Tracks MySQL connection usage and alerts when the percentage of active connections exceeds 80% of the maximum allowed (default threshold). Helps prevent performance degradation due to connection overload. |All users | MySQL |
 
 <a id="postgresql_alerts"></a>
-### PostgreSQL alerts
+### PostgreSQL templates
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
@@ -111,8 +111,9 @@ The table below lists the alert templates available in PMM, organized by technol
 | PostgreSQL | **PostgreSQL unused replication slot** | Identifies and alerts on unused replication slots. Helps prevent excessive WAL retention and potential disk space issues, especially when replicas are offline. | Customers-only | PostgreSQL |
 
 <a id="proxysql_alerts"></a>
-### ProxySQL alerts
+### ProxySQL templates
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
-| ProxySQL | **ProxySQL server status** | Monitors ProxySQL server status and alerts when a server transitions to OFFLINE_SOFT (3) or OFFLINE_HARD (4) state. Includes critical details such as server endpoint, hostgroup, and associated ProxySQL service. This alert is essential for maintaining high availability and preventing database access disruptions. |All users | ProxySQL |
+| ProxySQL | **ProxySQL server status** | Monitors ProxySQL server status and alerts when a server transitions to OFFLINE_SOFT (3) or OFFLINE_HARD (4) state. Includes critical details such as server endpoint, hostgroup, and associated ProxySQL service. 
+This alert is essential for maintaining high availability and preventing database access disruptions. |All users | ProxySQL |
