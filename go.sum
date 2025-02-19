@@ -418,6 +418,10 @@ github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c h1:1SZ7nS+kSaO63I
 github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c/go.mod h1:/SGLf9OMxlnK6jq4mkFiImBcJXXk5jwD+lDrwDaGXcw=
 github.com/percona/percona-toolkit v0.0.0-20250218140134-6ca0b1d6fc24 h1:DrQZ/VNJBCzFUAF0/PmpXCXKGxsSyJXBMgj1DXJjkrc=
 github.com/percona/percona-toolkit v0.0.0-20250218140134-6ca0b1d6fc24/go.mod h1:lyxl7V4jaZk/VyG/QSnhqNLSVVASdQqEY5u1p7SQTgE=
+github.com/percona/percona-toolkit v0.0.0-20250219134138-330ca87457fb h1:+qoDsLuyHkDo9zjaNvBmBCZiDaxJSryWqD92B7JTsng=
+github.com/percona/percona-toolkit v0.0.0-20250219134138-330ca87457fb/go.mod h1:lyxl7V4jaZk/VyG/QSnhqNLSVVASdQqEY5u1p7SQTgE=
+github.com/percona/percona-toolkit v0.0.0-20250219141346-30b8f4227f57 h1:UpmErJdOEfVVuXff+xCy1ZTMHrOxRcFC375lODczDFE=
+github.com/percona/percona-toolkit v0.0.0-20250219141346-30b8f4227f57/go.mod h1:lyxl7V4jaZk/VyG/QSnhqNLSVVASdQqEY5u1p7SQTgE=
 github.com/percona/promconfig v0.2.5 h1:f/HN/CbECQs7d9RIB6MKVkuXstsrsqEDxRvf6yigquc=
 github.com/percona/promconfig v0.2.5/go.mod h1:Y2uXi5QNk71+ceJHuI9poank+0S1kjxd3K105fXKVkg=
 github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e h1:xhk5ivxlTPat0SwLBqU1UdfqJb+2R3x4yAhjCf6WMEU=

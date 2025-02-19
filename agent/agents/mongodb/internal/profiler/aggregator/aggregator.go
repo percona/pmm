@@ -293,12 +293,6 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 		bucket.Mongodb.MDocsReturnedP99 = float32(v.Returned.Pct99)
 		bucket.Mongodb.MDocsReturnedSum = float32(v.Returned.Total)
 
-		bucket.Mongodb.MDocsScannedCnt = float32(v.Count) // PMM-13788
-		bucket.Mongodb.MDocsScannedMax = float32(v.Scanned.Max)
-		bucket.Mongodb.MDocsScannedMin = float32(v.Scanned.Min)
-		bucket.Mongodb.MDocsScannedP99 = float32(v.Scanned.Pct99)
-		bucket.Mongodb.MDocsScannedSum = float32(v.Scanned.Total)
-
 		bucket.Mongodb.MResponseLengthCnt = float32(v.ResponseLengthCount)
 		bucket.Mongodb.MResponseLengthMax = float32(v.ResponseLength.Max)
 		bucket.Mongodb.MResponseLengthMin = float32(v.ResponseLength.Min)
