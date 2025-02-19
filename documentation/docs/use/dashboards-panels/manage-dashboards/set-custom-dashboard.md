@@ -4,7 +4,8 @@ The home dashboard you set is the dashboard all the users will see after logging
 
 ### Set home dashboard for your organization
 
-Organization Admins can set the home dashboard for their organization. For information on managing users in an organization, see [Manage Users](../../../how-to/manage-users.md).
+Organization Admins can set the home dashboard for their organization. For information on managing users in an organization, see [Manage Users](../../../admin/manage-users/index.md)
+
 {.power-number}
 
 1. From the side menu, go to <i class="uil uil-apps"></i> **Dashboards** and click on the dashboard that you want to set as the home dashboard.
