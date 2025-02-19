@@ -13,6 +13,9 @@ replace github.com/alecthomas/kingpin/v2 => github.com/Percona-Lab/kingpin/v2 v2
 
 replace golang.org/x/crypto => github.com/percona-lab/crypto v0.0.0-20231108144114-756dfb24eaf2
 
+// Note: it's a workaround before the external PR is merged, should not be committed to the repository
+replace github.com/percona/go-mysql => github.com/yehornaumenko/go-mysql v0.0.0-20241227153140-7c11562cc5d3
+
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/ClickHouse/clickhouse-go/v2 v2.32.0
