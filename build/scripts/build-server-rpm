@@ -99,67 +99,65 @@ build() {
     local CH_VERSION=${rpm_version%-*}
     local CH_TAG=${rpm_version#*-}
 
-    if  [[ -n "${FORCE_REBUILD}" ]] ; then
-        echo "RPM Build Dir: ${rpmbuild_dir}, Docker image: ${rpmbuild_docker_image}"
+    echo "RPM Build Dir: ${rpmbuild_dir}, Docker image: ${rpmbuild_docker_image}"
 
-        docker run --rm -v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
-            set -o errexit
-            set -o xtrace
-            echo \"spec_name: ${spec_name}\"
-            echo \"repo_name: ${repo_name}\"
-            echo \"rpm_verison: ${rpm_version}\"
+    docker run --rm -v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
+        set -o errexit
+        set -o xtrace
+        echo \"spec_name: ${spec_name}\"
+        echo \"repo_name: ${repo_name}\"
+        echo \"rpm_verison: ${rpm_version}\"
 
-            sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
+        sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
 
-            # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
-            if [ -n \"$RPM_EPOCH\" ]; then
-                sed -i '/^Version:.*/i Epoch: 1' /home/builder/rpm/SOURCES/${spec_name}.spec
-            fi
-
-            rm -rf /home/builder/rpm/RPMS/${spec_name}-*
-
-            printf '[local]\nname=local\nbaseurl=file:///home/builder/rpm/RPMS\ngpgcheck=0\nenabled=1\n' \
-                | sudo tee /etc/yum.repos.d/local.repo
-
-            until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
-              echo waiting
-              sleep 1
-            done
-
-            if [[ ${spec_name} =~ ^grafana|^percona-dashboards ]]; then
-                sudo yum-builddep -y SOURCES/${spec_name}.spec
-            fi
-
-            spectool -C SOURCES -g SOURCES/${spec_name}.spec
-            rpmbuild  --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
-                      --define 'dist .${rpmbuild_dist}' \
-                      --define 'debug_package %{nil}' \
-                      -bb SOURCES/${spec_name}.spec \
-                      --rmspec
-
-            rm -f SOURCES/${spec_name}.spec*
-            sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
-        "
-
-        if [ -n "$RPM_EPOCH" ]; then
-            aws s3 sync \
-                --region us-east-2 \
-                --no-progress \
-                ${rpms_dir}/${spec_name}-${rpm_version} \
-                s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
-                || :
-        else
-            aws s3 sync \
-                --region us-east-2 \
-                --no-progress \
-                ${rpms_dir}/${spec_name}-${rpm_version} \
-                s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
-                || :
+        # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
+        if [ -n \"$RPM_EPOCH\" ]; then
+            sed -i '/^Version:.*/i Epoch: 1' /home/builder/rpm/SOURCES/${spec_name}.spec
         fi
 
-        cp ${rpms_dir}/${spec_name}-${rpm_version}/*/*.rpm ${rpms_dir}
+        rm -rf /home/builder/rpm/RPMS/${spec_name}-*
 
-    fi
+        printf '[local]\nname=local\nbaseurl=file:///home/builder/rpm/RPMS\ngpgcheck=0\nenabled=1\n' \
+            | sudo tee /etc/yum.repos.d/local.repo
+
+        until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
+            echo waiting
+            sleep 1
+        done
+
+        if [[ ${spec_name} =~ ^grafana|^percona-dashboards ]]; then
+            sudo yum-builddep -y SOURCES/${spec_name}.spec
+        fi
+
+        spectool -C SOURCES -g SOURCES/${spec_name}.spec
+        rpmbuild  --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
+                    --define 'dist .${rpmbuild_dist}' \
+                    --define 'debug_package %{nil}' \
+                    -bb SOURCES/${spec_name}.spec \
+                    --rmspec
+
+        rm -f SOURCES/${spec_name}.spec*
+        sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
+    "
+
+    # if [ -n "$RPM_EPOCH" ]; then
+    #     aws s3 sync \
+    #         --region us-east-2 \
+    #         --no-progress \
+    #         ${rpms_dir}/${spec_name}-${rpm_version} \
+    #         s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+    #         || :
+    # else
+    #     aws s3 sync \
+    #         --region us-east-2 \
+    #         --no-progress \
+    #         ${rpms_dir}/${spec_name}-${rpm_version} \
+    #         s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+    #         || :
+    # fi
+
+    cp ${rpms_dir}/${spec_name}-${rpm_version}/*/*.rpm ${rpms_dir}
+
 }
 
 build "$1" "$2"
