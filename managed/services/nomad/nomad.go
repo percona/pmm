@@ -59,7 +59,7 @@ type Nomad struct {
 
 // New creates a new Nomad client.
 func New(db *reform.DB) (*Nomad, error) {
-	err := os.MkdirAll(pathToCerts, 0o750) //nolint:mng
+	err := os.MkdirAll(pathToCerts, 0o750) //nolint:mnd
 	if err != nil {
 		return nil, err
 	}

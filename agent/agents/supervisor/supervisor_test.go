@@ -401,7 +401,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 		assert.NotEmpty(t, actual.TemplateParams)
 		assert.NotEmpty(t, actual.TemplateRenderer)
 		require.FileExists(t, configFilePath)
-		b, err := os.ReadFile(configFilePath)
+		b, err := os.ReadFile(configFilePath) //nolint:gosec
 		require.NoError(t, err)
 		assert.Equal(t, "test=12345", string(b))
 	})
