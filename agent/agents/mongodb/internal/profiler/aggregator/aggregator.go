@@ -272,7 +272,7 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 				NumQueries:          float32(v.Count),
 				IsTruncated:         truncated,
-				Comments:            nil,
+				Comments:            nil, // PMM-11866
 			},
 			Mongodb: &agentv1.MetricsBucket_MongoDB{},
 		}
