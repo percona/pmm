@@ -578,7 +578,7 @@ plugin "raw_exec" {
 		assert.NotEmpty(t, actual.TemplateParams)
 		assert.NotEmpty(t, actual.TemplateRenderer)
 		require.FileExists(t, configFilePath)
-		b, err := os.ReadFile(configFilePath)
+		b, err := os.ReadFile(configFilePath) //nolint:gosec
 		require.NoError(t, err)
 		assert.Equal(t, expectedConfig, string(b))
 	})
