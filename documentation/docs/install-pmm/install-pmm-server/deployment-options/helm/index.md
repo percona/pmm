@@ -117,7 +117,7 @@ PMM_ENABLE_UPDATES: "1"
 
 ### SSL certificates
 
-PMM comes with [self-signed SSL certificates](../../../../pmm-admin/security/ssl_encryption.md), ensuring a secure connection between the client and server. However, since these certificates are not issued by a trusted authority, you may encounter a security warning when connecting to PMM.
+PMM comes with [self-signed SSL certificates](../../../../admin/security/ssl_encryption.md), ensuring a secure connection between the client and server. However, since these certificates are not issued by a trusted authority, you may encounter a security warning when connecting to PMM.
 
 To enhance security, you have two options: 
 {.power-number}

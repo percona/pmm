@@ -5,6 +5,6 @@ By default, PMM ships with a self-signed certificate to enable usage out of the 
 
 Taking the following precautions will ensure that you are truly secure:
 
-- [SSL encryption with trusted certificates](../../pmm-admin/security/ssl_encryption.md) to secure traffic between clients and server;
+- [SSL encryption with trusted certificates](../../admin/security/ssl_encryption.md) to secure traffic between clients and server;
 
-- [Grafana HTTPS secure cookies](../../pmm-admin/security/grafana_cookies.md)
+- [Grafana HTTPS secure cookies](../../admin/security/grafana_cookies.md)
