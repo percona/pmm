@@ -20,15 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ServerService_Version_FullMethodName           = "/server.v1.ServerService/Version"
-	ServerService_Readiness_FullMethodName         = "/server.v1.ServerService/Readiness"
-	ServerService_LeaderHealthCheck_FullMethodName = "/server.v1.ServerService/LeaderHealthCheck"
-	ServerService_CheckUpdates_FullMethodName      = "/server.v1.ServerService/CheckUpdates"
-	ServerService_ListChangeLogs_FullMethodName    = "/server.v1.ServerService/ListChangeLogs"
-	ServerService_StartUpdate_FullMethodName       = "/server.v1.ServerService/StartUpdate"
-	ServerService_UpdateStatus_FullMethodName      = "/server.v1.ServerService/UpdateStatus"
-	ServerService_GetSettings_FullMethodName       = "/server.v1.ServerService/GetSettings"
-	ServerService_ChangeSettings_FullMethodName    = "/server.v1.ServerService/ChangeSettings"
+	ServerService_Version_FullMethodName             = "/server.v1.ServerService/Version"
+	ServerService_Readiness_FullMethodName           = "/server.v1.ServerService/Readiness"
+	ServerService_LeaderHealthCheck_FullMethodName   = "/server.v1.ServerService/LeaderHealthCheck"
+	ServerService_CheckUpdates_FullMethodName        = "/server.v1.ServerService/CheckUpdates"
+	ServerService_ListChangeLogs_FullMethodName      = "/server.v1.ServerService/ListChangeLogs"
+	ServerService_StartUpdate_FullMethodName         = "/server.v1.ServerService/StartUpdate"
+	ServerService_UpdateStatus_FullMethodName        = "/server.v1.ServerService/UpdateStatus"
+	ServerService_GetSettings_FullMethodName         = "/server.v1.ServerService/GetSettings"
+	ServerService_GetReadOnlySettings_FullMethodName = "/server.v1.ServerService/GetReadOnlySettings"
+	ServerService_ChangeSettings_FullMethodName      = "/server.v1.ServerService/ChangeSettings"
 )
 
 // ServerServiceClient is the client API for ServerService service.
@@ -54,6 +55,8 @@ type ServerServiceClient interface {
 	UpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatusResponse, error)
 	// GetSettings returns current PMM Server settings.
 	GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error)
+	// GetReadOnlySettings returns a limited number of PMM settings that is opened to authenticated users of all roles.
+	GetReadOnlySettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetReadOnlySettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
 	ChangeSettings(ctx context.Context, in *ChangeSettingsRequest, opts ...grpc.CallOption) (*ChangeSettingsResponse, error)
 }
@@ -146,6 +149,16 @@ func (c *serverServiceClient) GetSettings(ctx context.Context, in *GetSettingsRe
 	return out, nil
 }
 
+func (c *serverServiceClient) GetReadOnlySettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetReadOnlySettingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetReadOnlySettingsResponse)
+	err := c.cc.Invoke(ctx, ServerService_GetReadOnlySettings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serverServiceClient) ChangeSettings(ctx context.Context, in *ChangeSettingsRequest, opts ...grpc.CallOption) (*ChangeSettingsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ChangeSettingsResponse)
@@ -179,6 +192,8 @@ type ServerServiceServer interface {
 	UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error)
 	// GetSettings returns current PMM Server settings.
 	GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error)
+	// GetReadOnlySettings returns a limited number of PMM settings that is opened to authenticated users of all roles.
+	GetReadOnlySettings(context.Context, *GetSettingsRequest) (*GetReadOnlySettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
 	ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error)
 	mustEmbedUnimplementedServerServiceServer()
@@ -221,6 +236,10 @@ func (UnimplementedServerServiceServer) UpdateStatus(context.Context, *UpdateSta
 
 func (UnimplementedServerServiceServer) GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSettings not implemented")
+}
+
+func (UnimplementedServerServiceServer) GetReadOnlySettings(context.Context, *GetSettingsRequest) (*GetReadOnlySettingsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetReadOnlySettings not implemented")
 }
 
 func (UnimplementedServerServiceServer) ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error) {
@@ -391,6 +410,24 @@ func _ServerService_GetSettings_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServerService_GetReadOnlySettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSettingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).GetReadOnlySettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_GetReadOnlySettings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).GetReadOnlySettings(ctx, req.(*GetSettingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ServerService_ChangeSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeSettingsRequest)
 	if err := dec(in); err != nil {
@@ -447,6 +484,10 @@ var ServerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSettings",
 			Handler:    _ServerService_GetSettings_Handler,
+		},
+		{
+			MethodName: "GetReadOnlySettings",
+			Handler:    _ServerService_GetReadOnlySettings_Handler,
 		},
 		{
 			MethodName: "ChangeSettings",
