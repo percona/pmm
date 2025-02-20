@@ -22,11 +22,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	mongostats "github.com/percona/percona-toolkit/src/go/mongolib/stats"
-	"github.com/sirupsen/logrus"
-
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -36,9 +36,9 @@ import (
 var DefaultInterval = time.Duration(time.Minute)
 
 const (
-	reportChanBuffer = 1000
-	milliseconds     = 1000
-	microseconds     = 1000000
+	reportChanBuffer      = 1000
+	millisecondsToSeconds = 1000
+	microsecondsToSeconds = 1000000
 )
 
 // New returns configured *Aggregator
@@ -282,10 +282,10 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 		}
 
 		bucket.Common.MQueryTimeCnt = float32(v.Count) // PMM-13788
-		bucket.Common.MQueryTimeMax = float32(v.QueryTime.Max) / milliseconds
-		bucket.Common.MQueryTimeMin = float32(v.QueryTime.Min) / milliseconds
-		bucket.Common.MQueryTimeP99 = float32(v.QueryTime.Pct99) / milliseconds
-		bucket.Common.MQueryTimeSum = float32(v.QueryTime.Total) / milliseconds
+		bucket.Common.MQueryTimeMax = float32(v.QueryTime.Max) / millisecondsToSeconds
+		bucket.Common.MQueryTimeMin = float32(v.QueryTime.Min) / millisecondsToSeconds
+		bucket.Common.MQueryTimeP99 = float32(v.QueryTime.Pct99) / millisecondsToSeconds
+		bucket.Common.MQueryTimeSum = float32(v.QueryTime.Total) / millisecondsToSeconds
 
 		bucket.Mongodb.MDocsReturnedCnt = float32(v.Count) // PMM-13788
 		bucket.Mongodb.MDocsReturnedMax = float32(v.Returned.Max)
@@ -330,10 +330,10 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 		bucket.Mongodb.MLocksDatabaseAcquireWaitCountReadSharedSum = float32(v.LocksDatabaseAcquireWaitCountReadShared) // Sum is same like count in this case
 
 		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedCnt = float32(v.LocksDatabaseTimeAcquiringMicrosReadSharedCount)
-		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedMax = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Max) / microseconds
-		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedMin = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Min) / microseconds
-		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedP99 = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Pct99) / microseconds
-		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedSum = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Total) / microseconds
+		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedMax = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Max) / microsecondsToSeconds
+		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedMin = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Min) / microsecondsToSeconds
+		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedP99 = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Pct99) / microsecondsToSeconds
+		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedSum = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Total) / microsecondsToSeconds
 
 		bucket.Mongodb.MLocksCollectionAcquireCountReadSharedCnt = float32(v.LocksCollectionAcquireCountReadShared)
 		bucket.Mongodb.MLocksCollectionAcquireCountReadSharedSum = float32(v.LocksCollectionAcquireCountReadShared) // Sum is same like count in this case
@@ -345,10 +345,10 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 		bucket.Mongodb.MStorageBytesReadSum = float32(v.StorageBytesRead.Total)
 
 		bucket.Mongodb.MStorageTimeReadingMicrosCnt = float32(v.StorageTimeReadingMicrosCount)
-		bucket.Mongodb.MStorageTimeReadingMicrosMax = float32(v.StorageTimeReadingMicros.Max) / microseconds
-		bucket.Mongodb.MStorageTimeReadingMicrosMin = float32(v.StorageTimeReadingMicros.Min) / microseconds
-		bucket.Mongodb.MStorageTimeReadingMicrosP99 = float32(v.StorageTimeReadingMicros.Pct99) / microseconds
-		bucket.Mongodb.MStorageTimeReadingMicrosSum = float32(v.StorageTimeReadingMicros.Total) / microseconds
+		bucket.Mongodb.MStorageTimeReadingMicrosMax = float32(v.StorageTimeReadingMicros.Max) / microsecondsToSeconds
+		bucket.Mongodb.MStorageTimeReadingMicrosMin = float32(v.StorageTimeReadingMicros.Min) / microsecondsToSeconds
+		bucket.Mongodb.MStorageTimeReadingMicrosP99 = float32(v.StorageTimeReadingMicros.Pct99) / microsecondsToSeconds
+		bucket.Mongodb.MStorageTimeReadingMicrosSum = float32(v.StorageTimeReadingMicros.Total) / microsecondsToSeconds
 
 		buckets = append(buckets, bucket)
 	}
