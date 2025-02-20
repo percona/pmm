@@ -11,7 +11,7 @@ The **PMM Configuration** page gives you access to PMM setup's settings and inve
     * [Check for updates](advanced_settings.md#check-for-updates)
     * [Advisors](advanced_settings.md#advisors)
 * [Public address](../configure-pmm/advanced_settings.md#public-address)
-    * [Alerting](../configure-pmm/advanced_settings.md#alerting)
+    * [Alerting](../configure-pmm/advanced_settings.md#percona-alerting)
     * [Microsoft Azure Monitoring](../configure-pmm/advanced_settings.md#microsoft-azure-monitoring)
 * [SSH Key](ssh.md)
 * [Percona Portal](../configure-pmm/percona_platform/integrate_with_percona_platform.md)

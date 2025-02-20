@@ -209,7 +209,7 @@ DATABASE:= [[MongoDB](#mongodb) | [MySQL](#mysql) | [PostgreSQL](#postgresql) | 
     `--force`
     : Remove service with that name or ID and all dependent services and agents.
 
-When you remove a service, collected data remains on PMM Server for the specified [retention period](../../reference/faq.md#how-to-control-data-retention--retention-).
+When you remove a service, collected data remains on PMM Server for the specified [retention period](../../reference/faq.md#retention).
 #### `pmm-admin annotate`
 
 `pmm-admin annotate [--node|--service] <annotation> [--tags <tags>] [--node-name=<node>] [--service-name=<service>]`
