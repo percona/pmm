@@ -416,10 +416,6 @@ github.com/percona/exporter_shared v0.7.5 h1:sIhdDtKOfH0jsqtTAi41C7wm1R42yXYeAkK
 github.com/percona/exporter_shared v0.7.5/go.mod h1:P8ZHDzveyJRGD4ZIRNiEMuAdDexBpQWf2mAVwtyVcYU=
 github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c h1:1SZ7nS+kSaO63IpaKspf/gf8602QcgP2eXNPMNOIc0M=
 github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c/go.mod h1:/SGLf9OMxlnK6jq4mkFiImBcJXXk5jwD+lDrwDaGXcw=
-github.com/percona/percona-toolkit v0.0.0-20250218140134-6ca0b1d6fc24 h1:DrQZ/VNJBCzFUAF0/PmpXCXKGxsSyJXBMgj1DXJjkrc=
-github.com/percona/percona-toolkit v0.0.0-20250218140134-6ca0b1d6fc24/go.mod h1:lyxl7V4jaZk/VyG/QSnhqNLSVVASdQqEY5u1p7SQTgE=
-github.com/percona/percona-toolkit v0.0.0-20250219134138-330ca87457fb h1:+qoDsLuyHkDo9zjaNvBmBCZiDaxJSryWqD92B7JTsng=
-github.com/percona/percona-toolkit v0.0.0-20250219134138-330ca87457fb/go.mod h1:lyxl7V4jaZk/VyG/QSnhqNLSVVASdQqEY5u1p7SQTgE=
 github.com/percona/percona-toolkit v0.0.0-20250219141346-30b8f4227f57 h1:UpmErJdOEfVVuXff+xCy1ZTMHrOxRcFC375lODczDFE=
 github.com/percona/percona-toolkit v0.0.0-20250219141346-30b8f4227f57/go.mod h1:lyxl7V4jaZk/VyG/QSnhqNLSVVASdQqEY5u1p7SQTgE=
 github.com/percona/promconfig v0.2.5 h1:f/HN/CbECQs7d9RIB6MKVkuXstsrsqEDxRvf6yigquc=
