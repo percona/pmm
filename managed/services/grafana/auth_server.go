@@ -96,6 +96,7 @@ var rules = map[string]role{
 
 	"/prometheus":      admin,
 	"/victoriametrics": admin,
+	"/nomad":           admin,
 	"/graph":           none,
 	"/swagger":         none,
 
