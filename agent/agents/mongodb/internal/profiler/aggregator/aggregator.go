@@ -22,11 +22,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	mongostats "github.com/percona/percona-toolkit/src/go/mongolib/stats"
-	"github.com/sirupsen/logrus"
-
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -262,7 +262,7 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 		query, truncated := truncate.Query(v.Query, a.maxQueryLength, truncate.GetMongoDBDefaultMaxQueryLength())
 		bucket := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
-				Queryid:             v.QueryHash,
+				Queryid:             v.ID, // TODO PMM Ticket
 				Fingerprint:         fingerprint,
 				Database:            db,
 				Tables:              []string{collection},
@@ -317,17 +317,17 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 		bucket.Mongodb.MKeysExaminedP99 = float32(v.KeysExamined.Pct99)
 		bucket.Mongodb.MKeysExaminedSum = float32(v.KeysExamined.Total)
 
-		bucket.Mongodb.MLocksGlobalAcquireCountReadSharedCnt = float32(v.LocksGlobalAcquireCountReadShared)
-		bucket.Mongodb.MLocksGlobalAcquireCountReadSharedSum = float32(v.LocksGlobalAcquireCountReadShared) // Sum is same like count in this case
+		bucket.Mongodb.MLocksGlobalAcquireCountReadSharedCnt = float32(v.LocksGlobalAcquireCountReadSharedCount)
+		bucket.Mongodb.MLocksGlobalAcquireCountReadSharedSum = float32(v.LocksGlobalAcquireCountReadShared)
 
-		bucket.Mongodb.MLocksGlobalAcquireCountWriteSharedCnt = float32(v.LocksGlobalAcquireCountWriteShared)
-		bucket.Mongodb.MLocksGlobalAcquireCountWriteSharedSum = float32(v.LocksGlobalAcquireCountWriteShared) // Sum is same like count in this case
+		bucket.Mongodb.MLocksGlobalAcquireCountWriteSharedCnt = float32(v.LocksGlobalAcquireCountWriteSharedCount)
+		bucket.Mongodb.MLocksGlobalAcquireCountWriteSharedSum = float32(v.LocksGlobalAcquireCountWriteShared)
 
-		bucket.Mongodb.MLocksDatabaseAcquireCountReadSharedCnt = float32(v.LocksDatabaseAcquireCountReadShared)
-		bucket.Mongodb.MLocksDatabaseAcquireCountReadSharedSum = float32(v.LocksDatabaseAcquireCountReadShared) // Sum is same like count in this case
+		bucket.Mongodb.MLocksDatabaseAcquireCountReadSharedCnt = float32(v.LocksDatabaseAcquireCountReadSharedCount)
+		bucket.Mongodb.MLocksDatabaseAcquireCountReadSharedSum = float32(v.LocksDatabaseAcquireCountReadShared)
 
-		bucket.Mongodb.MLocksDatabaseAcquireWaitCountReadSharedCnt = float32(v.LocksDatabaseAcquireWaitCountReadShared)
-		bucket.Mongodb.MLocksDatabaseAcquireWaitCountReadSharedSum = float32(v.LocksDatabaseAcquireWaitCountReadShared) // Sum is same like count in this case
+		bucket.Mongodb.MLocksDatabaseAcquireWaitCountReadSharedCnt = float32(v.LocksDatabaseAcquireWaitCountReadSharedCount)
+		bucket.Mongodb.MLocksDatabaseAcquireWaitCountReadSharedSum = float32(v.LocksDatabaseAcquireWaitCountReadShared)
 
 		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedCnt = float32(v.LocksDatabaseTimeAcquiringMicrosReadSharedCount)
 		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedMax = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Max) / microsecondsToSeconds
@@ -335,8 +335,8 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedP99 = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Pct99) / microsecondsToSeconds
 		bucket.Mongodb.MLocksDatabaseTimeAcquiringMicrosReadSharedSum = float32(v.LocksDatabaseTimeAcquiringMicrosReadShared.Total) / microsecondsToSeconds
 
-		bucket.Mongodb.MLocksCollectionAcquireCountReadSharedCnt = float32(v.LocksCollectionAcquireCountReadShared)
-		bucket.Mongodb.MLocksCollectionAcquireCountReadSharedSum = float32(v.LocksCollectionAcquireCountReadShared) // Sum is same like count in this case
+		bucket.Mongodb.MLocksCollectionAcquireCountReadSharedCnt = float32(v.LocksCollectionAcquireCountReadSharedCount)
+		bucket.Mongodb.MLocksCollectionAcquireCountReadSharedSum = float32(v.LocksCollectionAcquireCountReadShared)
 
 		bucket.Mongodb.MStorageBytesReadCnt = float32(v.StorageBytesReadCount)
 		bucket.Mongodb.MStorageBytesReadMax = float32(v.StorageBytesRead.Max)
