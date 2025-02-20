@@ -41,5 +41,5 @@ For more information, see:
 [Docker image]: https://hub.docker.com/r/percona/pmm-server
 [Docker compose]: https://docs.docker.com/compose/
 [PMMC_COMPOSE]: ../../../install-pmm-client/docker.md
-[trusted certificate]: ../../../../how-to/secure.md#ssl-encryption
+[trusted certificate](../../../../admin/security/ssl_encryption.md)
 [Easy-install script]: easy-install.md

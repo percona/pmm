@@ -138,7 +138,7 @@ nav:
   - Discover:
     - discover-pmm/why-pmm.md
     - discover-pmm/features.md
-  - Quickstart guide: quickstart.md
+  - Quickstart guide: quickstart/quickstart.md
   - Install:
       - install-pmm/index.md
       - Plan your PMM installation: 
@@ -162,6 +162,7 @@ nav:
               - install-pmm/install-pmm-server/deployment-options/docker/backup_container.md
               - install-pmm/install-pmm-server/deployment-options/docker/restore_container.md
               - install-pmm/install-pmm-server/deployment-options/docker/remove_container.md
+              - install-pmm/install-pmm-server/deployment-options/docker/upgrade_container.md
           - Install on Podman:
             - install-pmm/install-pmm-server/deployment-options/podman/index.md
             - Maintenance:
@@ -217,6 +218,8 @@ nav:
             - Proxy services:
               - HAproxy: install-pmm/install-pmm-client/connect-database/haproxy.md
               - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
+            - External services:  
+               - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md  
           - Maintenance:
             - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
 
@@ -236,6 +239,7 @@ nav:
 
   - Uninstall:
     - Uninstall PMM Client: 
+      - index.md
       - Docker: uninstall-pmm/uninstall_docker.md
       - Helm: uninstall-pmm/uninstall_helm.md 
       - Package manager: uninstall-pmm/uninstall_package_manager.md
@@ -319,6 +323,7 @@ nav:
     - Percona Platform:
       - configure-pmm/percona_platform/integrate_with_percona_platform.md
       - configure-pmm/percona_platform/check_percona_platform.md
+      - configure-pmm/percona_platform/account-info.md
   - Administer:
     - admin/index.md
     - Manage users:
@@ -347,6 +352,7 @@ nav:
     - troubleshoot/qan_issues.md
     - troubleshoot/plugin_issues.md
     - troubleshoot/pmm_dump.md
+    - troubleshoot/data_issues.md
 
   - Release notes:
     - Release notes index: release-notes/index.md
