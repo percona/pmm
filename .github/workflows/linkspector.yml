@@ -1,0 +1,23 @@
+name: Linkspector
+on: 
+  pull_request:
+    paths:
+      - "documentation/**"
+
+jobs:
+  check-links:
+    name: linkspector
+    runs-on: ubuntu-22.04
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Run linkspector
+        uses: umbrelladocs/action-linkspector@de84085e0f51452a470558693d7d308fbb2fa261 # v1.2.5
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review
+          fail_level: error
+          filter_mode: nofilter
+          config_file: documentation/.linkspector.yml
