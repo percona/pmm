@@ -265,7 +265,7 @@ All check subsystem logs include the component=checks tag. Filter relevant logs 
 
 ### Development tab issues
 
-If your Development tab isn't appearing:
+If your Development tab isn't appearing on the **Advisors** page:
 {.power-number}
 
 1. Verify your check file links to the development advisor: `advisor: dev`.
