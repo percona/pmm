@@ -22,7 +22,7 @@ import (
 )
 
 // metricsNames is a map of metrics names and keys.
-// TODO PMM Ticket
+// PMM-13793
 var metricsNames = map[string]string{
 	"load":                    "Load",
 	"count":                   "Count",
