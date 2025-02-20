@@ -444,12 +444,18 @@ if(SUM(m_wal_bytes_cnt) == 0, NaN, SUM(m_wal_bytes_sum) / time_frame) AS m_wal_b
 if(SUM(m_plan_time_cnt) == 0, NaN, SUM(m_plan_time_sum) / time_frame) AS m_plan_time_sum_per_sec,
 if(SUM(m_docs_examined_cnt) == 0, NaN, SUM(m_docs_examined_sum) / time_frame) AS m_docs_examined_sum_per_sec,
 if(SUM(m_keys_examined_cnt) == 0, NaN, SUM(m_keys_examined_sum) / time_frame) AS m_keys_examined_sum_per_sec,
-if(SUM(m_locks_global_acquire_count_read_shared_cnt) == 0, NaN, SUM(m_locks_global_acquire_count_read_shared_sum) / time_frame) AS m_locks_global_acquire_count_read_shared_sum_per_sec,
-if(SUM(m_locks_global_acquire_count_write_shared_cnt) == 0, NaN, SUM(m_locks_global_acquire_count_write_shared_sum) / time_frame) AS m_locks_global_acquire_count_write_shared_sum_per_sec,
-if(SUM(m_locks_database_acquire_count_read_shared_cnt) == 0, NaN, SUM(m_locks_database_acquire_count_read_shared_sum) / time_frame) AS m_locks_database_acquire_count_read_shared_sum_per_sec,
-if(SUM(m_locks_database_acquire_wait_count_read_shared_cnt) == 0, NaN, SUM(m_locks_database_acquire_wait_count_read_shared_sum) / time_frame) AS m_locks_database_acquire_wait_count_read_shared_sum_per_sec,
-if(SUM(m_locks_database_time_acquiring_micros_read_shared_cnt) == 0, NaN, SUM(m_locks_database_time_acquiring_micros_read_shared_sum) / time_frame) AS m_locks_database_time_acquiring_micros_read_shared_sum_per_sec,
-if(SUM(m_locks_collection_acquire_count_read_shared_cnt) == 0, NaN, SUM(m_locks_collection_acquire_count_read_shared_sum) / time_frame) AS m_locks_collection_acquire_count_read_shared_sum_per_sec,
+if(SUM(m_locks_global_acquire_count_read_shared_cnt) == 0, NaN, SUM(m_locks_global_acquire_count_read_shared_sum) / time_frame) 
+AS m_locks_global_acquire_count_read_shared_sum_per_sec,
+if(SUM(m_locks_global_acquire_count_write_shared_cnt) == 0, NaN, SUM(m_locks_global_acquire_count_write_shared_sum) / time_frame) 
+AS m_locks_global_acquire_count_write_shared_sum_per_sec,
+if(SUM(m_locks_database_acquire_count_read_shared_cnt) == 0, NaN, SUM(m_locks_database_acquire_count_read_shared_sum) / time_frame) 
+AS m_locks_database_acquire_count_read_shared_sum_per_sec,
+if(SUM(m_locks_database_acquire_wait_count_read_shared_cnt) == 0, NaN, SUM(m_locks_database_acquire_wait_count_read_shared_sum) / time_frame) 
+AS m_locks_database_acquire_wait_count_read_shared_sum_per_sec,
+if(SUM(m_locks_database_time_acquiring_micros_read_shared_cnt) == 0, NaN, SUM(m_locks_database_time_acquiring_micros_read_shared_sum) / time_frame) 
+AS m_locks_database_time_acquiring_micros_read_shared_sum_per_sec,
+if(SUM(m_locks_collection_acquire_count_read_shared_cnt) == 0, NaN, SUM(m_locks_collection_acquire_count_read_shared_sum) / time_frame) 
+AS m_locks_collection_acquire_count_read_shared_sum_per_sec,
 if(SUM(m_storage_bytes_read_cnt) == 0, NaN, SUM(m_storage_bytes_read_sum) / time_frame) AS m_storage_bytes_read_sum_per_sec,
 if(SUM(m_storage_time_reading_micros_cnt) == 0, NaN, SUM(m_storage_time_reading_micros_sum) / time_frame) AS m_storage_time_reading_micros_sum_per_sec
 
