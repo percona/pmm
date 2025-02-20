@@ -63,6 +63,7 @@ type Server struct {
 	grafanaClient        grafanaClient
 	haService            haService
 	updater              *Updater
+	nomad                nomadService
 
 	l *logrus.Entry
 
@@ -95,6 +96,7 @@ type Params struct {
 	GrafanaClient        grafanaClient
 	Updater              *Updater
 	Dus                  *distribution.Service
+	Nomad                nomadService
 }
 
 // NewServer returns new server for Server service.
@@ -117,6 +119,7 @@ func NewServer(params *Params) (*Server, error) {
 		telemetryService:     params.TelemetryService,
 		grafanaClient:        params.GrafanaClient,
 		updater:              params.Updater,
+		nomad:                params.Nomad,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
@@ -566,7 +569,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}
 
 	var newSettings, oldSettings *models.Settings
-	errTX := s.db.InTransaction(func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		if oldSettings, err = models.GetSettings(tx); err != nil {
 			return errors.WithStack(err)
@@ -616,7 +619,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		if req.SshKey != nil {
 			if err = s.writeSSHKey(pointer.GetString(req.SshKey)); err != nil {
 				s.l.Error(errors.WithStack(err))
-				return status.Errorf(codes.Internal, err.Error())
+				return status.Error(codes.Internal, err.Error())
 			}
 		}
 
@@ -627,6 +630,9 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}
 
 	if err := s.UpdateConfigurations(ctx); err != nil {
+		return nil, err
+	}
+	if err := s.nomad.UpdateConfiguration(ctx); err != nil {
 		return nil, err
 	}
 

@@ -21,6 +21,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"runtime"
 	"slices"
 	"strings"
 	"sync"
@@ -74,7 +75,16 @@ type QueryValues struct {
 // New creates an encryption; if key on path doesn't exist, it will be generated.
 func New() *Encryption {
 	e := &Encryption{}
-	e.Path = encryptionKeyPath()
+	customKeyPath := os.Getenv("PMM_ENCRYPTION_KEY_PATH")
+	if customKeyPath != "" {
+		e.Path = customKeyPath
+	} else {
+		if runtime.GOOS == "darwin" { // for development on macOS
+			e.Path = "./encryption.key"
+		} else {
+			e.Path = DefaultEncryptionKeyPath
+		}
+	}
 
 	bytes, err := os.ReadFile(e.Path)
 	switch {
