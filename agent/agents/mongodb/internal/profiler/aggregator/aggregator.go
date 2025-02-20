@@ -262,7 +262,7 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 		query, truncated := truncate.Query(v.Query, a.maxQueryLength, truncate.GetMongoDBDefaultMaxQueryLength())
 		bucket := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
-				Queryid:             v.ID, // TODO PMM Ticket
+				Queryid:             v.ID, // PMM-13466
 				Fingerprint:         fingerprint,
 				Database:            db,
 				Tables:              []string{collection},
