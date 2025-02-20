@@ -82,6 +82,9 @@ func TestParserStartStop(t *testing.T) {
 }
 
 func TestParserRunning(t *testing.T) {
+	oldInterval := aggregator.DefaultInterval
+	aggregator.DefaultInterval = 10 * time.Second
+	defer func() { aggregator.DefaultInterval = oldInterval }()
 	docsChan := make(chan pm.SystemProfile)
 	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength())
 	reportChan := a.Start()
@@ -91,6 +94,7 @@ func TestParserRunning(t *testing.T) {
 	parser1 := New(docsChan, a, logrus.WithField("component", "test-parser"))
 	err := parser1.Start(context.TODO())
 	require.NoError(t, err)
+	defer parser1.Stop()
 
 	now := time.Now().UTC()
 	timeStart := now.Truncate(d).Add(d)
@@ -98,10 +102,12 @@ func TestParserRunning(t *testing.T) {
 
 	select {
 	case docsChan <- pm.SystemProfile{
+		Ns: "test.test",
 		Ts: timeStart,
 		Query: bson.D{
 			{"find", "test"},
 		},
+		Op:             "query",
 		ResponseLength: 100,
 		DocsExamined:   200,
 		Nreturned:      300,
@@ -135,6 +141,4 @@ func TestParserRunning(t *testing.T) {
 	case <-time.After(d + 5*time.Second):
 		t.Error("test timeout")
 	}
-
-	parser1.Stop()
 }
