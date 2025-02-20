@@ -1,12 +1,8 @@
 # List of available alert templates
 
-The table below lists all the alert templates available in Percona Monitoring and Management (PMM). 
-
-This list includes both built-in templates (accessible to all PMM users), and customer-only templates.
+The table below lists all the alert templates available in Percona Monitoring and Management (PMM). This list includes both built-in templates (accessible to all PMM users), and customer-only templates.
 
 To access the customer-only templates, you must be a Percona customer and [connect PMM to Percona Platform](../configure-pmm/percona_platform/check_percona_platform.md) using a Percona Account.## Template catalog
-
-The table below lists the alert templates available in PMM, organized by technology area. Jump to specific sections:
 
 - [Operating System templates](#os_alerts)
 - [PMM templates](#pmm_alerts)
