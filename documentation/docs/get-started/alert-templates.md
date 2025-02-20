@@ -115,5 +115,4 @@ The table below lists the alert templates available in PMM, organized by technol
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
-| ProxySQL | **ProxySQL server status** | Monitors ProxySQL server status and alerts when a server transitions to OFFLINE_SOFT (3) or OFFLINE_HARD (4) state. Includes critical details such as server endpoint, hostgroup, and associated ProxySQL service. 
-This alert is essential for maintaining high availability and preventing database access disruptions. |All users | ProxySQL |
+| ProxySQL | **ProxySQL server status** | Monitors ProxySQL server status and alerts when a server transitions to OFFLINE_SOFT (3) or OFFLINE_HARD (4) state. Includes critical details such as server endpoint, hostgroup, and associated ProxySQL service. This alert is essential for maintaining high availability and preventing database access disruptions. |All users | ProxySQL |
