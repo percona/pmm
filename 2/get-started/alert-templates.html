@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Alert templates provide a set of common events and expressions for alerting, serving as a foundation for creating alert rules.">
+        <meta name="description" content="Alert templates in Percona Monitoring and Management (PMM) provide pre-configured monitoring scenarios that help you detect and respond to critical database events. These templates serve as the foundation for creating effective alert rules with minimal configuration.">
       
       
         <meta name="author" content="Percona LLC">
@@ -1210,6 +1210,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#types-of-alert-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Types of alert templates
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#accessing-alert-templates" class="md-nav__link">
     <span class="md-ellipsis">
       Accessing alert templates
@@ -1224,6 +1233,84 @@
       Available alert template
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#template-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      Template catalog
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Template catalog">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#operating-system-os-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operating System (OS) templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pmm-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      PMM templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mongodb-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      MongoDB templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pbm-percona-backup-for-mongodb-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      PBM (Percona Backup for MongoDB) templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mysql-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      MySQL templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgresql-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      PostgreSQL templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proxysql-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      ProxySQL templates
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -7152,6 +7239,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#types-of-alert-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Types of alert templates
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#accessing-alert-templates" class="md-nav__link">
     <span class="md-ellipsis">
       Accessing alert templates
@@ -7166,6 +7262,84 @@
       Available alert template
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#template-catalog" class="md-nav__link">
+    <span class="md-ellipsis">
+      Template catalog
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Template catalog">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#operating-system-os-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operating System (OS) templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pmm-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      PMM templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mongodb-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      MongoDB templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pbm-percona-backup-for-mongodb-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      PBM (Percona Backup for MongoDB) templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mysql-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      MySQL templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#postgresql-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      PostgreSQL templates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proxysql-templates" class="md-nav__link">
+    <span class="md-ellipsis">
+      ProxySQL templates
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -7217,8 +7391,9 @@
 
 
 <h1 id="pmm-alert-templates">PMM alert templates<a class="headerlink" href="#pmm-alert-templates" title="Permanent link">&para;</a></h1>
-<p>Alert templates provide a set of common events and expressions for alerting, serving as a foundation for creating alert rules.</p>
-<p>Percona Monitoring and Management (PMM) offers three categories of alert templates to enhance database performance monitoring:</p>
+<p>Alert templates in Percona Monitoring and Management (PMM) provide pre-configured monitoring scenarios that help you detect and respond to critical database events. These templates serve as the foundation for creating effective alert rules with minimal configuration.</p>
+<h2 id="types-of-alert-templates">Types of alert templates<a class="headerlink" href="#types-of-alert-templates" title="Permanent link">&para;</a></h2>
+<p>PMM offers three categories of alert templates to enhance database performance monitoring:</p>
 <ol>
 <li><strong>Built-in templates</strong>: templates that are available out-of-the-box with the PMM installation and are available to all PMM users.</li>
 <li><strong>Percona Platform templates</strong>: additional templates dynamically delivered to PMM if the instance is <a href="../how-to/integrate-platform.html">connected to Percona Platform</a> using a Percona Account.
@@ -7229,9 +7404,22 @@
 <h2 id="accessing-alert-templates">Accessing alert templates<a class="headerlink" href="#accessing-alert-templates" title="Permanent link">&para;</a></h2>
 <p>To check the alert templates for your PMM instance, go to PMM &gt; <strong>Alerting &gt; Alert Rule Templates</strong> tab.</p>
 <h2 id="available-alert-template">Available alert template<a class="headerlink" href="#available-alert-template" title="Permanent link">&para;</a></h2>
-<p>The table below lists all the alert templates available in Percona Monitoring and Management (PMM).</p>
-<p>This list includes both built-in templates (accessible to all PMM users), and Percona customers templates.</p>
-<p>To access the Percona customers templates, you must be a Percona customer and <a href="../how-to/integrate-platform.html">connect PMM to Percona Platform</a> using a Percona Account.</p>
+<p>The table below lists all the alert templates available in PMM.</p>
+<p>This list includes both built-in templates (accessible to all PMM users), and Customers-only templates.</p>
+<p>To access the Customers-only templates, you must be a Percona customer and <a href="../how-to/integrate-platform.html">connect PMM to Percona Platform</a> using a Percona Account.</p>
+<h2 id="template-catalog">Template catalog<a class="headerlink" href="#template-catalog" title="Permanent link">&para;</a></h2>
+<p>The table below lists the alert templates available in PMM, organized by technology area. Jump to specific sections:</p>
+<ul>
+<li><a href="#os_alerts">Operating System templates</a></li>
+<li><a href="#pmm_alerts">PMM templates</a></li>
+<li><a href="#mongodb_alerts">MongoDB templates</a></li>
+<li><a href="#pbm_alerts">PBM templates</a></li>
+<li><a href="#mysql_alerts">MySQL templates</a></li>
+<li><a href="#postgresql_alerts">PostgreSQL templates</a></li>
+<li><a href="#proxysql_alerts">ProxySQL templates</a></li>
+</ul>
+<p><a id="os_alerts"></a></p>
+<h3 id="operating-system-os-templates">Operating System (OS) templates<a class="headerlink" href="#operating-system-os-templates" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -7247,267 +7435,364 @@
 <td style="text-align: left;">OS</td>
 <td style="text-align: left;"><strong>Node high CPU load</strong></td>
 <td style="text-align: left;">Monitors node CPU usage and alerts when it surpasses 80% (default threshold). Provides details about specific nodes experiencing high CPU load, indicating potential performance issues or scaling needs.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MySQL, MongoDB, PostgreSQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">OS</td>
 <td style="text-align: left;"><strong>Memory available less than a threshold</strong></td>
 <td style="text-align: left;">Tracks available memory on nodes and alerts when free memory drops below 20% (default threshold). Helps prevent system instability due to memory constraints.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MySQL, MongoDB, PostgreSQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">OS</td>
 <td style="text-align: left;"><strong>Node high swap filling up</strong></td>
 <td style="text-align: left;">Monitors node swap usage and alerts when it exceeds 80% (default threshold). Indicates potential memory pressure and performance degradation, allowing for timely intervention.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MySQL, MongoDB, PostgreSQL</td>
 </tr>
+</tbody>
+</table>
+<p><a id="pmm_alerts"></a></p>
+<h3 id="pmm-templates">PMM templates<a class="headerlink" href="#pmm-templates" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Area</th>
+<th style="text-align: left;">Template name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Available for</th>
+<th style="text-align: left;">Database technology</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td style="text-align: left;">PMM</td>
 <td style="text-align: left;"><strong>PMM agent down</strong></td>
 <td style="text-align: left;">Monitors PMM Agent status and alerts when an agent becomes unreachable, indicating potential host or agent issues.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MySQL, MongoDB, PostgreSQL, ProxySQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">PMM</td>
 <td style="text-align: left;"><strong>Backup failed [Technical Preview]</strong></td>
 <td style="text-align: left;">Monitors backup processes and alerts on failures, providing details about the failed backup artifact and service. Helps maintain data safety and recovery readiness. This template is currently in Technical Preview status and should be used for testing purposes only as it is subject to change.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MySQL, MongoDB, PostgreSQL, ProxySQL</td>
 </tr>
+</tbody>
+</table>
+<p><a id="mongodb_alerts"></a></p>
+<h3 id="mongodb-templates">MongoDB templates<a class="headerlink" href="#mongodb-templates" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Area</th>
+<th style="text-align: left;">Template name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Available for</th>
+<th style="text-align: left;">Database technology</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;"><strong>MongoDB down</strong></td>
 <td style="text-align: left;">Detects when a MongoDB instance becomes unavailable, enabling rapid response to maintain database accessibility.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;"><strong>Memory used by MongoDB connections</strong></td>
 <td style="text-align: left;">Tracks MongoDB connection memory usage and alerts when it exceeds configurable thresholds. Helps identify and address potential performance issues caused by high memory consumption.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;"><strong>Memory used by MongoDB</strong></td>
 <td style="text-align: left;">Monitors overall MongoDB memory usage and alerts when it exceeds 80% of total system memory. Provides details about specific MongoDB services and nodes experiencing high memory consumption, aiding in resource optimization.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;"><strong>MongoDB restarted</strong></td>
 <td style="text-align: left;">Detects recent MongoDB restarts, alerting if an instance has been restarted within the last 5 minutes (default threshold). Facilitates investigation of unexpected downtime and potential issues.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;"><strong>MongoDB DBPath disk space utilization</strong></td>
 <td style="text-align: left;">Monitors disk space usage in MongoDB&rsquo;s data directory and alerts when it exceeds set thresholds. Helps prevent storage-related issues and ensures adequate space for database operations.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;"><strong>MongoDB host SSL certificate expiry</strong></td>
 <td style="text-align: left;">Tracks SSL certificate expiration dates for MongoDB hosts and alerts when certificates are approaching expiry. Enables timely certificate renewal to maintain secure connections.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;"><strong>MongoDB oplog window</strong></td>
 <td style="text-align: left;">Monitors the oplog window size and alerts when it falls below the recommended threshold (typically 24-48 hours). Ensures sufficient time for secondary nodes to replicate data and maintain cluster consistency.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;"><strong>MongoDB read tickets</strong></td>
 <td style="text-align: left;">Tracks read ticket availability in the WiredTiger storage engine and alerts when it falls below set thresholds. Helps optimize read performance and identify potential bottlenecks.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;"><strong>MongoDB replication lag is high</strong></td>
 <td style="text-align: left;">Monitors replication lag and alerts when it exceeds acceptable thresholds. Crucial for maintaining data consistency across replicas and identifying synchronization issues.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;"><strong>MongoDB ReplicaSet has no primary</strong></td>
 <td style="text-align: left;">Detects when a replica set loses its primary node and alerts users. Indicates that the cluster is in read-only mode, potentially affecting write operations and overall database functionality.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;"><strong>MongoDB member is in unusual state</strong></td>
 <td style="text-align: left;">Identifies and alerts when replica set members enter unusual states such as Recovering, Startup, or Rollback. Helps maintain cluster health and performance by enabling quick intervention.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;"><strong>MongoDB write tickets</strong></td>
 <td style="text-align: left;">Monitors write ticket availability in the WiredTiger storage engine and alerts when it falls below set thresholds. Aids in optimizing write performance and identifying potential bottlenecks.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;"><strong>MongoDB too many chunk migrations</strong></td>
 <td style="text-align: left;">Monitors amount of chunk migrations in a MongoDB sharded cluster and alerts if they are more than set thresholds.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
+</tbody>
+</table>
+<p><a id="pbm_alerts"></a></p>
+<h3 id="pbm-percona-backup-for-mongodb-templates">PBM (Percona Backup for MongoDB) templates<a class="headerlink" href="#pbm-percona-backup-for-mongodb-templates" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Area</th>
+<th style="text-align: left;">Template name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Available for</th>
+<th style="text-align: left;">Database technology</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td style="text-align: left;">PBM</td>
 <td style="text-align: left;"><strong>MongoDB PBM Agent down</strong></td>
 <td style="text-align: left;">Monitors the status of Percona Backup for MongoDB (PBM) Agents and alerts when an Agent becomes unresponsive. This indicates potential issues with the host system or with the PBM Agent itself.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">PBM</td>
 <td style="text-align: left;"><strong>MongoDB PBM backup duration</strong></td>
 <td style="text-align: left;">Monitors the time taken to complete a backup and alerts when it exceeds set thresholds. If the backup did not complete, no alerts are sent.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
 <tr>
 <td style="text-align: left;">PBM</td>
 <td style="text-align: left;"><strong>MongoDB PBM backup size</strong></td>
 <td style="text-align: left;">Monitors the amount of disk space taken by a completed backup and alerts when it exceeds set thresholds. If the backup did not complete, no alerts are sent.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MongoDB</td>
 </tr>
+</tbody>
+</table>
+<p><a id="mysql_alerts"></a></p>
+<h3 id="mysql-templates">MySQL templates<a class="headerlink" href="#mysql-templates" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Area</th>
+<th style="text-align: left;">Template name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Available for</th>
+<th style="text-align: left;">Database technology</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td style="text-align: left;">MySQL</td>
 <td style="text-align: left;"><strong>MySQL down</strong></td>
 <td style="text-align: left;">Monitors MySQL instance availability and alerts when any MySQL service becomes unreachable. Enables quick response to maintain database services.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MySQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">MySQL</td>
 <td style="text-align: left;"><strong>MySQL replication running IO</strong></td>
 <td style="text-align: left;">Tracks MySQL replication I/O thread status and alerts if it stops running on a replica. Crucial for ensuring data is being received from the primary server.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MySQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">MySQL</td>
 <td style="text-align: left;"><strong>MySQL replication running SQL</strong></td>
 <td style="text-align: left;">Monitors MySQL replication SQL thread status and alerts if it stops running on a replica. Essential for verifying that received data is being applied correctly to maintain data consistency.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MySQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">MySQL</td>
 <td style="text-align: left;"><strong>MySQL restarted</strong></td>
 <td style="text-align: left;">Detects recent MySQL restarts, alerting if an instance has been restarted within the last 5 minutes (default threshold). Aids in investigating unexpected downtime and potential issues.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MySQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">MySQL</td>
 <td style="text-align: left;"><strong>MySQL connections in use</strong></td>
 <td style="text-align: left;">Tracks MySQL connection usage and alerts when the percentage of active connections exceeds 80% of the maximum allowed (default threshold). Helps prevent performance degradation due to connection overload.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">MySQL</td>
 </tr>
+</tbody>
+</table>
+<p><a id="postgresql_alerts"></a></p>
+<h3 id="postgresql-templates">PostgreSQL templates<a class="headerlink" href="#postgresql-templates" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Area</th>
+<th style="text-align: left;">Template name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Available for</th>
+<th style="text-align: left;">Database technology</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td style="text-align: left;">PostgreSQL</td>
 <td style="text-align: left;"><strong>PostgreSQL down</strong></td>
 <td style="text-align: left;">Detects when PostgreSQL instances become unavailable, enabling quick response to maintain database services. Provides details about affected services and nodes.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">PostgreSQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">PostgreSQL</td>
 <td style="text-align: left;"><strong>PostgreSQL restarted</strong></td>
 <td style="text-align: left;">Identifies recent PostgreSQL restarts, alerting if an instance has been restarted within the last 5 minutes (default threshold). Aids in investigating unexpected downtime and potential issues.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">PostgreSQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">PostgreSQL</td>
 <td style="text-align: left;"><strong>PostgreSQL connections in use</strong></td>
 <td style="text-align: left;">Monitors PostgreSQL connection usage and alerts when the percentage of active connections exceeds 80% of the maximum allowed (default threshold). Helps prevent performance degradation due to excessive connections.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">PostgreSQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">PostgreSQL</td>
 <td style="text-align: left;"><strong>PostgreSQL index bloat is high</strong></td>
 <td style="text-align: left;">Detects excessive index bloat and alerts users. Helps identify performance degradation due to bloated indexes, enabling timely maintenance to improve query performance.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">PostgreSQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">PostgreSQL</td>
 <td style="text-align: left;"><strong>PostgreSQL high number of dead tuples</strong></td>
 <td style="text-align: left;">Monitors the accumulation of dead tuples in relations and alerts when they exceed set thresholds. Indicates potential issues with vacuum settings and helps optimize storage and query performance.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">PostgreSQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">PostgreSQL</td>
 <td style="text-align: left;"><strong>PostgreSQL has a high number of statement timeouts</strong></td>
 <td style="text-align: left;">Tracks and alerts on frequent query cancellations due to statement timeouts. Helps identify various issues such as high load, poorly written queries, or inadequate resource allocation.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">PostgreSQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">PostgreSQL</td>
 <td style="text-align: left;"><strong>PostgreSQL table bloat is high</strong></td>
 <td style="text-align: left;">Detects excessive table bloat and alerts users. Indicates a need to adjust vacuum settings for specific relations or globally, helping to maintain optimal query performance and storage efficiency.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">PostgreSQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">PostgreSQL</td>
 <td style="text-align: left;"><strong>PostgreSQL high rate of transaction rollbacks</strong></td>
 <td style="text-align: left;">Monitors the ratio of transaction rollbacks to commits and alerts on high rates. Helps identify potential application or database issues leading to frequent transaction failures.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">PostgreSQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">PostgreSQL</td>
 <td style="text-align: left;"><strong>PostgreSQL tables not auto analyzed</strong></td>
 <td style="text-align: left;">Identifies tables that are not being auto-analyzed and alerts users. Crucial for maintaining accurate statistics and generating proper query execution plans.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">PostgreSQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">PostgreSQL</td>
 <td style="text-align: left;"><strong>PostgreSQL tables not auto vacuumed</strong></td>
 <td style="text-align: left;">Detects tables that are not being auto-vacuumed and alerts users. Essential for managing bloat, optimizing storage, and maintaining overall database health.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">PostgreSQL</td>
 </tr>
 <tr>
 <td style="text-align: left;">PostgreSQL</td>
 <td style="text-align: left;"><strong>PostgreSQL unused replication slot</strong></td>
 <td style="text-align: left;">Identifies and alerts on unused replication slots. Helps prevent excessive WAL retention and potential disk space issues, especially when replicas are offline.</td>
-<td style="text-align: left;">Percona customers</td>
+<td style="text-align: left;">Customers-only</td>
 <td style="text-align: left;">PostgreSQL</td>
 </tr>
+</tbody>
+</table>
+<p><a id="proxysql_alerts"></a></p>
+<h3 id="proxysql-templates">ProxySQL templates<a class="headerlink" href="#proxysql-templates" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Area</th>
+<th style="text-align: left;">Template name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Available for</th>
+<th style="text-align: left;">Database technology</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td style="text-align: left;">ProxySQL</td>
 <td style="text-align: left;"><strong>ProxySQL server status</strong></td>
-<td style="text-align: left;">Monitors ProxySQL server status and alerts when a server transitions to OFFLINE_SOFT (3) or OFFLINE_HARD (4) state. Includes critical details such as server endpoint, hostgroup, and associated ProxySQL service. This alert is essential for maintaining high availability and preventing database access disruptions.</td>
-<td style="text-align: left;">• Percona customers<br>• Community</td>
+<td style="text-align: left;">Monitors ProxySQL server status and alerts when a server transitions to OFFLINE_SOFT (3) or OFFLINE_HARD (4) state. Includes critical details such as server endpoint, hostgroup, and associated ProxySQL service.</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">This alert is essential for maintaining high availability and preventing database access disruptions.</td>
+<td style="text-align: left;">All users</td>
 <td style="text-align: left;">ProxySQL</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
 </tr>
 </tbody>
 </table>
@@ -7531,7 +7816,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-19
+    2025-02-20
   </span>
 
     
