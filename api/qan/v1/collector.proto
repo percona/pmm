@@ -306,6 +306,51 @@ message MetricsBucket {
   float m_docs_scanned_p99 = 204;
   // Plan summary type (COLLSCAN, IXSCAN, etc).
   string plan_summary = 205;
+  // Total number of documents scanned during query execution.
+  float m_docs_examined_cnt = 269;
+  float m_docs_examined_sum = 270;
+  float m_docs_examined_min = 271;
+  float m_docs_examined_max = 272;
+  float m_docs_examined_p99 = 273;
+  // Total number of index keys scanned during query execution.
+  float m_keys_examined_cnt = 274;
+  float m_keys_examined_sum = 275;
+  float m_keys_examined_min = 276;
+  float m_keys_examined_max = 277;
+  float m_keys_examined_p99 = 278;
+  // Number of times a global read lock was acquired during query execution.
+  float m_locks_global_acquire_count_read_shared_cnt = 279;
+  float m_locks_global_acquire_count_read_shared_sum = 280;
+  // Number of times a global write lock was acquired during query execution.
+  float m_locks_global_acquire_count_write_shared_cnt = 281;
+  float m_locks_global_acquire_count_write_shared_sum = 282;
+  // Number of times a read lock was acquired at the database level during query execution.
+  float m_locks_database_acquire_count_read_shared_cnt = 283;
+  float m_locks_database_acquire_count_read_shared_sum = 284;
+  // Number of times a read lock at the database level was requested but had to wait before being granted.
+  float m_locks_database_acquire_wait_count_read_shared_cnt = 285;
+  float m_locks_database_acquire_wait_count_read_shared_sum = 286;
+  // Indicates the time, spent acquiring a read lock at the database level during an operation.
+  float m_locks_database_time_acquiring_micros_read_shared_cnt = 287;
+  float m_locks_database_time_acquiring_micros_read_shared_sum = 288;
+  float m_locks_database_time_acquiring_micros_read_shared_min = 289;
+  float m_locks_database_time_acquiring_micros_read_shared_max = 290;
+  float m_locks_database_time_acquiring_micros_read_shared_p99 = 291;
+  // Number of times a read lock was acquired on a specific collection during operations.
+  float m_locks_collection_acquire_count_read_shared_cnt = 292;
+  float m_locks_collection_acquire_count_read_shared_sum = 293;
+  // Total number of bytes read from storage during a specific operation.
+  float m_storage_bytes_read_cnt = 294;
+  float m_storage_bytes_read_sum = 295;
+  float m_storage_bytes_read_min = 296;
+  float m_storage_bytes_read_max = 297;
+  float m_storage_bytes_read_p99 = 298;
+  // Indicates the time, spent reading data from storage during an operation.
+  float m_storage_time_reading_micros_cnt = 299;
+  float m_storage_time_reading_micros_sum = 300;
+  float m_storage_time_reading_micros_min = 301;
+  float m_storage_time_reading_micros_max = 302;
+  float m_storage_time_reading_micros_p99 = 303;
 
   //
   // PostgreSQL metrics.

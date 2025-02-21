@@ -22,7 +22,7 @@ import (
 )
 
 // metricsNames is a map of metrics names and keys.
-var metricsNames = map[string]string{
+var metricsNames = map[string]string{ // PMM-13793
 	"load":                    "Load",
 	"count":                   "Count",
 	"latency":                 "Latency",
