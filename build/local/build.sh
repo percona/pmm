@@ -52,7 +52,7 @@ parse_params() {
 
   if ! cat .modules 2> /dev/null; then
     local TMPDIR=$(mktemp -d)
-    echo "$TMPDIR" > .modules
+    echo -n "$TMPDIR" > .modules
     SUBMODULES="$TMPDIR"
   else
     SUBMODULES=$(cat .modules)
@@ -61,11 +61,12 @@ parse_params() {
   # Exported variables
   export USE_S3_CACHE=0
   export DEBUG_MODE=0
-  export ROOT_DIR="$(realpath ./${SUBMODULES})"
   export RPMBUILD_DOCKER_IMAGE=$([ -n "${CI:-}" ] && echo "public.ecr.aws/e7j3v3n0/rpmbuild:3" || echo "perconalab/rpmbuild:3")
   # This replaces the old `RPM_EPOCH=1`, which was used for feature builds
   export RELEASE_BUILD=0
   export BUILD_SUMMARY=""
+  # This is used in "build/scripts/vars"
+  export ROOT_DIR="$SUBMODULES"
 
   while test "$#" -gt 0; do
     case "$1" in
@@ -140,15 +141,12 @@ check_files() {
 
   # Thouroughly verify the presence of known files, bail out on failure
   if [ ! -d "$DIR" ] ; then
-    echo "Error: could not locate the '$SUBMODULES' directory."
-    echo "Consider running './build.sh --init' to clone the source code, then try again."
-    echo
+    print_error "could not locate the '$SUBMODULES' directory, exiting..."
     exit 1
   fi
 
   if [ ! -d "$DIR/sources" ] || [ ! -d "$DIR/.git" ] || [ ! -f "$DIR/.gitmodules" ] || [ ! -f "$DIR/ci.py" ]; then
-    echo "Error: the contents of directory $DIR do not look like a clone of https://github.com/percona-lab/pmm-submodules repository, exiting..."
-    echo
+    print_error "the contents of directory $DIR do not look like a clone of https://github.com/percona-lab/pmm-submodules repository, exiting..."
     exit 1
   fi
 
@@ -156,14 +154,13 @@ check_files() {
   # The value must be taken from percona/pmm repository
   BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
   if [ -z "$BRANCH_NAME" ]; then
-    echo "Error: could not determine the current branch name, exiting..."
-    echo
+    print_error "could not determine the current branch name, exiting..."
     exit 1
   fi
+
   if [[ "$BRANCH_NAME" =~ ^main$|^v3$ ]] && [ "$RELEASE_BUILD" -eq 0 ]; then
-    echo "Error: you are not on a feature branch, but on '$BRANCH_NAME'."
+    print_error "you are not on a feature branch, but on '$BRANCH_NAME'."
     echo "Please make sure to create a feature branch before proceeding."
-    echo
     exit 1
   fi
 
@@ -209,7 +206,7 @@ update() {
 
   if [ "$NO_UPDATE" -eq 1 ]; then
     echo
-    echo "Info: skip refreshing the source code from upstream repositories..."
+    echo "Info: not refreshing the source code from upstream repositories."
     return
   fi
 
@@ -217,7 +214,7 @@ update() {
   echo "This script rewinds submodule branches as per the joint config of '.gitmodules' and the user-supplied 'ci.yml'."
 
   docker run --rm --platform="$PLATFORM" \
-    -v $ROOT_DIR:/app \
+    -v $SUBMODULES:/app \
     -v $CURDIR/ci.yml:/app/ci.yml \
     -v $CURDIR/build/local/ci.py:/app/ci.py \
     -v $CURDIR/build/local/entrypoint.sh:/entrypoint.sh \
@@ -378,26 +375,31 @@ initialize() {
   local CURDIR="$PWD"
   local NPROCS=$(getconf _NPROCESSORS_ONLN 2>/dev/null)
 
-  if [ -d "$SUBMODULES" ]; then
+  if [ -d "$SUBMODULES" ] && [ -f "$SUBMODULES/VERSION" ]; then
     echo
-    echo "Info: the source code has already been cloned to '$SUBMODULES', exiting..."
+    echo "Info: the source code is located in '$SUBMODULES'."
     return
   fi
 
   echo
+  echo "Checking out the source code, it may take a while..."
   git clone --branch "$CLONE_BRANCH" git@github.com:/Percona-Lab/pmm-submodules.git "$SUBMODULES"
   cd "$SUBMODULES" > /dev/null
   git submodule update --init --jobs ${NPROCS:-2}
   git submodule status
 
   echo
-  echo "Info: the source code has been cloned to '$SUBMODULES'."
+  echo "Info: the source code has been checked out to '$SUBMODULES'."
 
   echo
   echo "Pulling the docker image $RPMBUILD_DOCKER_IMAGE ..."
   docker pull --platform="$PLATFORM" "$RPMBUILD_DOCKER_IMAGE"
 
   cd "$CURDIR" > /dev/null
+
+  if [ "$INITIALIZE" -eq 1 ]; then
+    exit 0
+  fi
 }
 
 check_if_installed() {
@@ -418,7 +420,7 @@ check_preprequisites() {
   done
 
   if ! docker buildx version &> /dev/null; then
-    print_error "'docker buildx plugin is not installed, exiting..."
+    print_error "docker buildx plugin is not installed, exiting..."
     exit 1
   fi
 
@@ -436,7 +438,7 @@ cleanup() {
 
 main() {
   # All global variables are declared in `parse_params` for this script,
-  # and in `scripts/vars` for the other build scripts.
+  # and in `scripts/vars` for the dependent build scripts.
   parse_params "$@"
 
   if [ "$CLEAN" -eq 1 ]; then
@@ -450,10 +452,7 @@ main() {
 
   check_preprequisites
 
-  if [ "$INITIALIZE" -eq 1 ]; then
-    initialize
-    exit 0
-  fi
+  initialize
   
   check_files "$SUBMODULES"
 
@@ -492,7 +491,6 @@ main() {
     run_build_script build-server-rpm pmm-managed pmm
     run_build_script build-server-rpm pmm-ui pmm
     run_build_script build-server-rpm pmm-qan-api pmm
-    run_build_script build-server-rpm pmm-update pmm
     run_build_script build-server-rpm pmm-dump
     run_build_script build-server-rpm pmm-vmproxy pmm
 

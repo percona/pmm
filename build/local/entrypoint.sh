@@ -61,7 +61,7 @@ rewind() {
 # Join the dependencies listed in .gitmodules and ci.yml and output the result to gitmodules.yml.
 # This script accepts an empty ci.yml.
 if ! python ci.py --convert; then
-  echo "Error: could not convert the 'ci.yml' config file to 'gitmodules.yml', exiting..."
+  echo "Error: could not run '--convert' and generate 'gitmodules.yml', exiting..."
   exit 1
 fi
 
