@@ -69,6 +69,7 @@
         - /var/lib/pgsql
         - /srv/pmm-encryption.key
         - /var/cache/yum
+        - /etc/yum.repos.d/percona-pmm2-client-release.repo
 
     - name: Remove users created by installers
       user:
