@@ -2,16 +2,16 @@
 
 To get up and running with Percona Monitoring and Management (PMM) in no time, install PMM on Bare Metal/Virtual using the Easy-install script for Docker.
 
-This is the simplest and most efficient way to install PMM.
+This is the simplest and most efficient way to install PMM with Docker.
 
 ??? info "Alternative installation options"
-     For alternative setups, explore the additional installation options detailed in the **Setting up** chapter:
+     For alternative setups or if you're not using Docker, explore the additional installation options detailed in the **Setting up** chapter:
 
-    - [Deploy on Podman](install-pmm/install-pmm-server/deployment-options/podman/index.md)
-    - [Deploy based on a Docker image](install-pmm/install-pmm-server/deployment-options/docker/index.md)
-    - [Deploy on Virtual Appliance](install-pmm/install-pmm-server/deployment-options/virtual/index.md)
-    - [Deploy on Kubernetes via Helm](install-pmm/install-pmm-server/deployment-options/helm/index.md)
-    - [Run a PMM instance hosted at AWS Marketplace](install-pmm/install-pmm-server/deployment-options/aws/aws.md)
+    - [Deploy on Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md)
+    - [Deploy based on a Docker image](../install-pmm/install-pmm-server/deployment-options/docker/index.md)
+    - [Deploy on Virtual Appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)
+    - [Deploy on Kubernetes via Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md)
+    - [Run a PMM instance hosted at AWS Marketplace](../install-pmm/install-pmm-server/deployment-options/aws/aws.md)
 
 #### Prerequisites
 
@@ -80,7 +80,12 @@ Once PMM is set up, choose the database or the application that you want it to m
                 dpkg -i percona-release_latest.generic_all.deb
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 apt update
@@ -92,13 +97,18 @@ Once PMM is set up, choose the database or the application that you want it to m
             Install the following with `root` permission:
             { .power-number} 
 
-            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version.
+            4. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool. If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version.
 
                 ```sh
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
                 ```
 
-            2. Install the PMM Client package:
+            5. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            6. Install the PMM Client package:
 
                 ```sh
                 yum install -y pmm-client
@@ -116,11 +126,11 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add mysql --query-source=perfschema --username=pmm --password=<your_password>
         ```
     ??? info "Alternative database connection workflows"
-        While the default instructions above focus on connecting a self-hosted MySQL database, PMM offers the flexibility to connect to various MySQL databases, including [AWS RDS](install-pmm/install-pmm-client/connect-database/aws.md), [Azure MySQL](install-pmm/install-pmm-client/connect-database/azure.md) or [Google Cloud MySQL](install-pmm/install-pmm-client/connect-database/google.md). 
+        While the default instructions above focus on connecting a self-hosted MySQL database, PMM offers the flexibility to connect to various MySQL databases, including [AWS RDS](../install-pmm/install-pmm-client/connect-database/aws.md), [Azure MySQL](../install-pmm/install-pmm-client/connect-database/azure.md) or [Google Cloud MySQL](../install-pmm/install-pmm-client/connect-database/google.md). 
 
-        The PMM Client installation also comes with options: in addition to the installation via Package Manager described above, you can also install it as a Docker container or as a binary package. Explore [alternative PMM Client installation options](install-pmm/install-pmm-client/binary_package.md) for more information.
+        The PMM Client installation also comes with options: in addition to the installation via Package Manager described above, you can also install it as a Docker container or as a binary package. Explore [alternative PMM Client installation options](../install-pmm/install-pmm-client/connect-database/index.md) for more information.
 
-        Additionally, if direct access to the database node isn't available, opt to [Add remote instance via User Interface](install-pmm/install-pmm-client/connect-database/mysql.md#add-service) instead. 
+        Additionally, if direct access to the database node isn't available, opt to [Add remote instance via User Interface](../install-pmm/install-pmm-client/connect-database/mysql.md#check-the-service) instead. 
 
 === ":simple-postgresql: PostgreSQL"
 
@@ -176,7 +186,12 @@ Once PMM is set up, choose the database or the application that you want it to m
                 dpkg -i percona-release_latest.generic_all.deb
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 apt update
@@ -188,12 +203,17 @@ Once PMM is set up, choose the database or the application that you want it to m
             Install the following with `root` permission: 
             { .power-number}   
 
-            3. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
+            1. Install [percona-release](https://docs.percona.com/percona-software-repositories/installing.html) tool.  If this is already installed, [update percona-release](https://docs.percona.com/percona-software-repositories/updating.html) to the latest version:
 
                 ```sh
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
                 ```
-            4. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 yum install -y pmm-client
@@ -280,7 +300,12 @@ Once PMM is set up, choose the database or the application that you want it to m
                 dpkg -i percona-release_latest.generic_all.deb
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 apt update
@@ -297,7 +322,12 @@ Once PMM is set up, choose the database or the application that you want it to m
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 yum install -y pmm-client
@@ -315,7 +345,7 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add mongodb --username=pmm --password=<your_password>
         ```
    
-    For detailed instructions, see [Adding a MongoDB database for monitoring](install-pmm/install-pmm-client/connect-database/mongodb.html).
+    For detailed instructions, see [Adding a MongoDB database for monitoring](../install-pmm/install-pmm-client/connect-database/mongodb.md).
 
 === ":simple-nginxproxymanager: ProxySQL"
     To connect a ProxySQL service:
@@ -337,7 +367,12 @@ Once PMM is set up, choose the database or the application that you want it to m
                 dpkg -i percona-release_latest.generic_all.deb
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 apt update
@@ -354,7 +389,12 @@ Once PMM is set up, choose the database or the application that you want it to m
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 yum install -y pmm-client
@@ -393,7 +433,12 @@ Once PMM is set up, choose the database or the application that you want it to m
                 dpkg -i percona-release_latest.generic_all.deb
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 apt update
@@ -410,7 +455,12 @@ Once PMM is set up, choose the database or the application that you want it to m
                 yum install -y https://repo.percona.com/yum/percona-release-latest.noarch.rpm
                 ```
 
-            2. Install the PMM Client package:
+            2. Enable the PMM client repository:
+
+                ```sh
+                percona-release enable pmm3-client release
+                ```
+            3. Install the PMM Client package:
 
                 ```sh
                 yum install -y pmm-client
@@ -428,17 +478,17 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add haproxy --listen-port=8404
         ```
 
-    For detailed instructions and more information on the command arguments, see the [HAProxy topic](install-pmm/install-pmm-client/connect-database/haproxy.md).
+    For detailed instructions and more information on the command arguments, see the [HAProxy topic](../install-pmm/install-pmm-client/connect-database/haproxy.md).
 
 ## Check database monitoring results
 
 After installing PMM and connecting the database, go to the database's Instance Summary dashboard. This shows essential information about your database performance and an overview of your environment.
 
-For more information, see [PMM Dashboards](use/dashboards-panels/index.md).
+For more information, see [PMM Dashboards](../use/dashboards-panels/index.md).
 
 ## Next steps
 
-- [Configure PMM via the interface](configure-pmm/configure.md)
-- [Manage users in PMM](pmm-admin/manage-users/index.md)
-- [Set up roles and permissions](pmm-admin/roles/access-control/intro.md)
-- [Back up and restore data in PMM](backup/index.md)
+- [Configure PMM via the interface](../configure-pmm/configure.md)
+- [Manage users in PMM](../admin/manage-users/index.md)
+- [Set up roles and permissions](../admin/roles/index.md)
+- [Back up and restore data in PMM](../backup/index.md)
