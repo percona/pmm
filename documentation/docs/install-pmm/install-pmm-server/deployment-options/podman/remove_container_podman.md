@@ -37,4 +37,3 @@ To remove your container:
 [Docker]: ../docker/index.md
 [Docker image]: https://hub.docker.com/r/percona/pmm-server
 [Docker environment variables]: ../docker/env_var.md
-[trusted certificate]: ../../../../how-to/secure.md#ssl-encryption
