@@ -56,7 +56,7 @@ If you want to see how things look as you edit, MkDocs has a built-in server for
 docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve --dev-addr=0.0.0.0:8000
 ```
 
-Wait until you see `INFO    -  Start detecting changes` then point your browser to http://0.0.0.0:8000
+Wait until you see `INFO    -  Start detecting changes` then point your browser to `http://0.0.0.0:8000`
 
 ### Without Docker
 
@@ -84,7 +84,7 @@ Or, to run the built-in web server:
 mkdocs serve
 ```
 
-View the site at <http://0.0.0.0:8000>
+View the site at `http://0.0.0.0:8000`
 
 ## PDF
 

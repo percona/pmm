@@ -211,15 +211,15 @@ To make the review process effective, we use a mixed approach:
 * for repos that don't have CODEOWNERS
   * add reviewers as follows:
       * add `pmm-review-fe` for UI/UX reviews
-      * add `pmm-review-exporters` for exporter reviews [see PMM Client](#PMM-Client)
+      * add `pmm-review-exporters` for exporter reviews [see PMM Client](#pmm-client)
       * add `pmm-review-be` for backend reviews
 * if you know exactly who should review your code, add them to the review
 
 
 | Team                 | Description                                                    | Members |
 | -------------------- | -------------------------------------------------------------- | ------- |
-| pmm-review-fe        | UI reviewers of PRs to [FrontEnd repos](#frontend)             | [FE team](https://github.com/orgs/percona/teams/pmm-review-fe/members)        |
-| pmm-review-exporters | exporter reviewers of PRs to [PMM Client](#PMM-Client)         | [Exporters team](https://github.com/orgs/percona/teams/pmm-review-exporters/members) |
+| pmm-review-fe        | UI reviewers of PRs to [FrontEnd repos](#frontends)             | [FE team](https://github.com/orgs/percona/teams/pmm-review-fe/members)        |
+| pmm-review-exporters | exporter reviewers of PRs to [PMM Client](#pmm-client)         | [Exporters team](https://github.com/orgs/percona/teams/pmm-review-exporters/members) |
 | pmm-review-be        | reviewers of backend (Go) PRs                                  | [BE team](https://github.com/orgs/percona/teams/pmm-review-be/members)        |
 | PMM Admins           | reviewers that could use admins rights to force merge or change repo settings | [PMM Admin team](https://github.com/orgs/percona/teams/pmm-admins/members)           |
 
