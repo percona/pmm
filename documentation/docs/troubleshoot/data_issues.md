@@ -5,10 +5,9 @@
 
 There might be multiple places where the problem might come from:
 
-- Connection problem between pmm-agent and pmm-managed
+- Connection problem between `pmm-agent` and `pmm-managed`
 - PMM-agent cannot connect to the database.
 - Data source is not properly configured.
-
 
 **Why don't I see the whole query?**
 
