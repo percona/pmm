@@ -943,8 +943,3 @@ For other collectors that you can disable with the `--disable-collectors` option
 - [`mongodb_exporter`](https://github.com/percona/mongodb_exporter)
 - [`postgres_exporter`](https://github.com/percona/postgres_exporter)
 - [`proxysql_exporter`](https://github.com/percona/proxysql_exporter)
-
-[inventory]: ../dashboards/dashboard-inventory.md
-
-
-[inventory]: ../dashboards/dashboard-inventory.md

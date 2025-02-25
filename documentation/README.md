@@ -56,7 +56,7 @@ If you want to see how things look as you edit, MkDocs has a built-in server for
 docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve --dev-addr=0.0.0.0:8000
 ```
 
-Wait until you see `INFO    -  Start detecting changes` then point your browser to [http://0.0.0.0:8000](http://0.0.0.0:8000).
+Wait until you see `INFO    -  Start detecting changes` then point your browser to http://0.0.0.0:8000
 
 ### Without Docker
 
@@ -163,9 +163,9 @@ A [GitHub actions] workflow runs `mike` which in turn runs `mkdocs`. The HTML is
 
 `docs/using/interface.md` uses an image of the home dashboard overlaid with numbered boxes to identify menu bars and control. This approach means the home dashboard image and its numbered version always look the same. You need only recreate the home page image in 1280x1280 format, then merge with the numbered overlay.
 
-Here's how it's done.
+Here's how it's done:
 
-- `PMM_Home_Dashboard.jpg` is created by [pmm-screenshots-pw](https://github.com/PaulJacobs-percona/pmm-screenshots-pw). If snapped by hand, it should be 1280x1280 pixels, to match the overlay image.
+- `PMM_Home_Dashboard.jpg` is snapped manually and it should be 1280x1280 pixels, to match the overlay image.
 
 - `PMM_Home_Dashboard_Overlay.png` is exported from `documentation/docs/images/PMM_Home_Dashboard_Overlay.drawio` using <https://app.diagrams.net/>.
 

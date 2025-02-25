@@ -105,7 +105,7 @@ Please make sure to read and agree to our [Code of Conduct](https://github.com/p
 
 ## Submitting a Bug
 
-See [Submitting Bug Reports](README.md#Submitting-Bug-Reports) in [README.md](README.md).
+See [Submitting Bug Reports](README.md#submitting-bug-reports) in [README.md](README.md).
 
 
 ## Setup your local development environment
@@ -133,7 +133,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 
 ### Exporters
 
-Exporters by themselves are independent applications, so each of them contains its own README files explaining how to set up a local environment [see PMM Client](#PMM-Client).
+Exporters by themselves are independent applications, so each of them contains its own README files explaining how to set up a local environment [see PMM Client](#pmm-client).
 
 ### UI
 
@@ -218,7 +218,7 @@ To make the review process effective, we use a mixed approach:
 
 | Team                 | Description                                                    | Members |
 | -------------------- | -------------------------------------------------------------- | ------- |
-| pmm-review-fe        | UI reviewers of PRs to [FrontEnd repos](#FrontEnd)             | [FE team](https://github.com/orgs/percona/teams/pmm-review-fe/members)        |
+| pmm-review-fe        | UI reviewers of PRs to [FrontEnd repos](#frontend)             | [FE team](https://github.com/orgs/percona/teams/pmm-review-fe/members)        |
 | pmm-review-exporters | exporter reviewers of PRs to [PMM Client](#PMM-Client)         | [Exporters team](https://github.com/orgs/percona/teams/pmm-review-exporters/members) |
 | pmm-review-be        | reviewers of backend (Go) PRs                                  | [BE team](https://github.com/orgs/percona/teams/pmm-review-be/members)        |
 | PMM Admins           | reviewers that could use admins rights to force merge or change repo settings | [PMM Admin team](https://github.com/orgs/percona/teams/pmm-admins/members)           |
