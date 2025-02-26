@@ -39,23 +39,23 @@ To resolve this issue:
 
 1. Install Docker manually:
    ```sh
-    # Install required packages
-    dnf install -y yum-utils device-mapper-persistent-data lvm2
+        # Install required packages
+        dnf install -y yum-utils device-mapper-persistent-data lvm2
 
-    # Add Docker repository
-    dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        # Add Docker repository
+        dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 
-    # Install Docker
-    dnf install -y docker-ce docker-ce-cli containerd.io
+        # Install Docker
+        dnf install -y docker-ce docker-ce-cli containerd.io
 
-    # Start and enable Docker service
-    systemctl start docker
-    systemctl enable docker
+        # Start and enable Docker service
+        systemctl start docker
+        systemctl enable docker
     ```
 
 2. Run the PMM installation script again:
    ```sh
-    curl -fsSL https://raw.githubusercontent.com/percona/pmm/refs/heads/v3/get-pmm.sh | /bin/bash
+        curl -fsSL https://raw.githubusercontent.com/percona/pmm/refs/heads/v3/get-pmm.sh | /bin/bash
     ```
 
 The script should now successfully complete the PMM installation. For more information, see [Install PMM Server with Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md).
