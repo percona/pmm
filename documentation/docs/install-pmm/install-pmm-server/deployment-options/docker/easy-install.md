@@ -2,6 +2,10 @@
 !!! caution alert alert-warning "Caution"
     You can download and check the installation script before running it from our [Github](https://www.percona.com/get/pmm):
 
+
+### Docker installation on Rocky Linux
+When using the Easy-install script on Rocky Linux, you may encounter `ERROR: Unsupported distribution 'rocky'`. This occurs because the Docker installation script doesn't explicitly support Rocky Linux. In this case, you'll need to [install Docker manually](../docker/index.md#installation-options) before running the Easy-install script.
+
 ## Linux or macOS
 Download and install PMM Server using `cURL` or `wget`:
 === "cURL"
