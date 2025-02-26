@@ -4,7 +4,28 @@
 
 ## Overview
 
-Displays essential data for individual nodes, such as their role, CPU usage, memory consumption, disk space, network traffic, uptime, and the current MongoDB version.
+Displays essential data for individual nodes organized by component type (shards, config servers, and mongos routers). For each node, you can monitor role-specific metrics, CPU usage, memory consumption, disk utilization, network traffic, uptime statistics, and MongoDB version information. 
+
+This component-based organization provides clear visibility into both cluster-wide performance patterns and component-specific health indicators, enabling more efficient troubleshooting and resource optimization across your MongoDB infrastructure.
+
+### Configuration for proper visualization
+
+When adding MongoDB instances through `pmm-admin add mongodb` command or via the PMM UI, use these settings to ensure MongoDB cluster elements (config servers, shard nodes, and mongos routers) appear in the correct dashboard sections:
+
+
+ - Use the same `--cluster` name for all components
+ - Add each component as a separate service
+ - Set proper `--replication-set` values:
+    - config servers: `--replication-set=cfg`
+    - shards: `--replication-set=shardX`
+    - mongos: `--replication-set=cfg`
+
+??? info "Example command for adding a shard node"          
+    sh
+    pmm-admin add mongodb --username=pmm --password=password \
+     --service-name=rs-0-1 --replication-set=shard0 \
+     --host=127.0.0.1 --port=27018 --cluster=myMongoCluster
+
 
 ## Node States
 Shows the state timeline of MongoDB replica set members during the selected time range. Each node's state (PRIMARY, SECONDARY, ARBITER, etc.) is color-coded for easy monitoring, with green indicating healthy states and red showing potential issues. 
