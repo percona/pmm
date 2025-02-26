@@ -8,7 +8,7 @@ You can collect metrics from [HAProxy](https://www.haproxy.com/) on a node when:
 {.power-number}
 
   1. See [How to configure HAProxy](https://www.haproxy.com/blog/haproxy-exposes-a-prometheus-metrics-endpoint).
-  2. After HAProxy is running (default address <http://localhost:8404/metrics>) you can add it to PMM.
+  2. After HAProxy is running (default address `<http://localhost:8404/metrics>`) you can add it to PMM.
   3. Use the `haproxy` alias to enable HAProxy metrics monitoring.
 
 - There is already a pmm-agent instance running.
