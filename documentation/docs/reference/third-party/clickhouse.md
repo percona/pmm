@@ -40,5 +40,5 @@ To use ClickHouse as an external database instance, start the PMM docker with th
 
 ## Troubleshooting
 
-To troubleshoot issues, see the ClickHouse [troubleshooting documentation](https://clickhouse.com/docs/en/operations/troubleshooting/).
+To troubleshoot issues, see the ClickHouse [troubleshooting documentation](https://clickhouse.com/docs/guides/troubleshooting).
 

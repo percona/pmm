@@ -10,24 +10,24 @@ Choose your installation instructions based on whether you have root permissions
 
         === "For x86_64 (AMD64)"
             ```sh
-            wget https://downloads.percona.com/downloads/pmm/{{release}}/binary/tarball/pmm-client-{{release}}-x86_64.tar.gz
+            wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-x86_64.tar.gz
             ```
 
         === "For ARM64 (aarch64)"
             ```sh 
-            wget https://downloads.percona.com/downloads/pmm/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz
+            wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz
             ```
 
     2. Download the corresponding checksum file:
 
         === "For x86_64 (AMD64)"
             ```sh
-            wget https://downloads.percona.com/downloads/pmm/{{release}}/binary/tarball/pmm-client-{{release}}-x86_64.tar.gz.sha256sum
+            wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-x86_64.tar.gz.sha256sum
             ```
 
         === "For ARM64 (aarch64)"
             ```sh
-            wget https://downloads.percona.com/downloads/pmm/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz.sha256sum
+            wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz.sha256sum
             ```
 
     3. Verify the download:
@@ -99,24 +99,24 @@ Choose your installation instructions based on whether you have root permissions
 
         === "For x86_64 (AMD64)"
             ```sh
-            wget https://downloads.percona.com/downloads/pmm/{{release}}/binary/tarball/pmm-client-{{release}}-x86_64.tar.gz
+            wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-x86_64.tar.gz
             ```
 
         === "For ARM64 (aarch64)"
             ```sh
-            wget https://downloads.percona.com/downloads/pmm/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz
+            wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz
             ```
 
     2. Download the corresponding checksum file:
 
         === "For x86_64 (AMD64)"
             ```sh
-            wget https://downloads.percona.com/downloads/pmm/{{release}}/binary/tarball/pmm-client-{{release}}-x86_64.tar.gz.sha256sum
+            wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-x86_64.tar.gz.sha256sum
             ```
 
         === "For ARM64 (aarch64)"
             ```sh
-            wget https://downloads.percona.com/downloads/pmm/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz.sha256sum
+            wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz.sha256sum
             ```
 
     3. Verify the download:
