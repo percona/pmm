@@ -8853,7 +8853,7 @@
 
 
 <h1 id="ssl-encryption">SSL encryption<a class="headerlink" href="#ssl-encryption" title="Permanent link">&para;</a></h1>
-<p>Valid and trusted SSL certificates are needed to encrypt traffic between the client and server.  Certificates can be purchased online from various sources, or some organizations generate their own trusted certificates.  Regardless of which path you choose for enabling maximum security, the process to secure PMM consists of the following components:</p>
+<p class="power-number">Valid and trusted SSL certificates are needed to encrypt traffic between the client and server.  Certificates can be purchased online from various sources, or some organizations generate their own trusted certificates.  Regardless of which path you choose for enabling maximum security, the process to secure PMM consists of the following components:</p>
 <ol>
 <li>
 <p>Staging the files in the proper locations:</p>
@@ -8863,9 +8863,9 @@
 </ul>
 </li>
 <li>
-<p>Restarting PMM</p>
+<p>Restarting PMM.</p>
 </li>
-<li>Ensuring the client(s) trust the certificate issuer (<a href="https://ubuntu.com/server/docs/security-trust-store">Ubuntu</a> | <a href="https://www.redhat.com/sysadmin/configure-ca-trust-list">RedHat</a> can get you started but this is somewhat OS specific)</li>
+<li>Ensuring the Clients trust the certificate issuer (<a href="https://ubuntu.com/server/docs/install-a-root-ca-certificate-in-the-trust-store">Ubuntu</a> | <a href="https://www.redhat.com/sysadmin/configure-ca-trust-list">RedHat</a> can get you started but this is somewhat OS specific)</li>
 </ol>
 <p>With our Docker, OVF and AMI images, certificates are stored in <code>/srv/nginx</code> and our self-signed certificates are staged there by default.</p>
 <h3 id="mounting-certificates">Mounting certificates<a class="headerlink" href="#mounting-certificates" title="Permanent link">&para;</a></h3>
@@ -8932,7 +8932,7 @@ percona/pmm-client:3
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-02-17
+    2025-02-26
   </span>
 
     

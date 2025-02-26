@@ -8771,12 +8771,9 @@
 </code></pre></div>
 </li>
 <li>
-<p>Create a Docker volume to store persistent data:</p>
-</li>
-<li>```sh</li>
-<li>docker volume create pmm-client-data</li>
-<li>
-<p>```</p>
+<p>Create a Docker volume to store persistent data:
+   <div class="highlight"><pre><span></span><code><span class="w"> </span>docker<span class="w"> </span>volume<span class="w"> </span>create<span class="w"> </span>pmm-client-data
+</code></pre></div></p>
 </li>
 <li>
 <p>Execute the following command to start the <a href="../../use/commands/pmm-agent.html">pmm-agent</a> in Setup mode. Replace <code>X.X.X.X</code> with the IP address of your PMM Server:</p>
@@ -8802,10 +8799,9 @@
 </ul>
 </li>
 <li>
-<p>Check status:</p>
-<div class="highlight"><pre><span></span><code><span class="w">  </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-client<span class="w"> </span>pmm-admin<span class="w"> </span>status
-</code></pre></div>
-<p>In the PMM user interface you will also see an increase in the number of monitored nodes.</p>
+<p>Run the following command to verify the PMM client status. You should also see an increase in the number of monitored nodes in the PMM user interface:
+    <div class="highlight"><pre><span></span><code><span class="w">  </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-client<span class="w"> </span>pmm-admin<span class="w"> </span>status
+</code></pre></div></p>
 </li>
 </ol>
 <p>You can now add services with <a href="../../use/commands/pmm-admin.html"><code>pmm-admin</code></a> by prefixing commands with <code>docker exec pmm-client</code>.</p>
@@ -8814,13 +8810,13 @@
 </div>
 <ul>
 <li>
-<p>Firewall and routing rules: Ensure your host&rsquo;s firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see to the <a href="https://chat.deepseek.com/a/troubleshoot/checklist.md">troubleshooting checklist</a>.</p>
+<p>Firewall and routing rules: Ensure your host&rsquo;s firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see to the <a href="../../troubleshoot/checklist.html">troubleshooting checklist</a>.</p>
 </li>
 <li>
 <p>Help command: If you need assistance with PMM Client, you can run the following command to display help information: <code>docker run --rm percona/pmm-client:3 --help</code>.</p>
 </li>
 </ul>
-<p class="power-number">How to view your monitored node</p>
+<p class="power-number">View your monitored node:</p>
 <div class="highlight"><pre><span></span><code>1. Go to the main menu and select **Operating System (OS) &gt; Overview**.
 
 2. In the **Node Names** drop-down menu, select the node you recently registered.
@@ -8851,7 +8847,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-02-17
+    2025-02-26
   </span>
 
     
