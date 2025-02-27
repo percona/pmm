@@ -30,35 +30,12 @@ Quick reference for typical deployment (up to 30 nodes):
 PMM 3 introduces significant architectural changes that require gradual transition from PMM 2. For detailed instructions, see [Upgrade from PMM2](../pmm-upgrade/migrating_from_pmm_2.md).
 
 
-## Why does the PMM installation script fail on Rocky Linux?
-
-When installing PMM on Rocky Linux using the installation script (`get-pmm.sh`), you may encounter the error: `ERROR: Unsupported distribution 'rocky' during Docker installation`. This occurs because the Docker installation script doesn't explicitly support Rocky Linux.
-
-To resolve this issue:
+## Why does the PMM installation script fail during Docker installation?
+If you encounter errors such as `ERROR: Unsupported distribution` when running the, follow these steps:
 {.power-number}
 
-1. Install Docker manually:
-    ```sh
-    # Install required packages
-    dnf install -y yum-utils device-mapper-persistent-data lvm2
-
-    # Add Docker repository
-    dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-
-    # Install Docker
-    dnf install -y docker-ce docker-ce-cli containerd.io
-
-    # Start and enable Docker service
-    systemctl start docker
-    systemctl enable docker
-    ```
-
-2. Run the PMM installation script again:
-    ```sh
-    curl -fsSL https://raw.githubusercontent.com/percona/pmm/refs/heads/v3/get-pmm.sh | /bin/bash
-    ```
-
-The script should now successfully complete the PMM installation. For more information, see [Install PMM Server with Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md).
+1. [Install Docker manually](../install-pmm/install-pmm-server/deployment-options//docker/index.md#installation-options).
+2. Run the [PMM Easy-install script](../install-pmm/install-pmm-server/deployment-options/docker/easy-install.md) again.
 
 ## Retention
 
