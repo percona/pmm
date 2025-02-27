@@ -34,7 +34,7 @@ PMM 3 introduces significant architectural changes that require gradual transiti
 If you encounter errors such as `ERROR: Unsupported distribution` when running the, follow these steps:
 {.power-number}
 
-1. [Install Docker manually](../install-pmm/install-pmm-server/deployment-options//docker/index.md#installation-options).
+1. [Install Docker manually](https://docs.docker.com/engine/install/).
 2. Run the [PMM Easy-install script](../install-pmm/install-pmm-server/deployment-options/docker/easy-install.md) again.
 
 ## Retention
