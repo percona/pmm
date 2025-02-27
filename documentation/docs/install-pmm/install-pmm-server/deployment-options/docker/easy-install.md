@@ -29,4 +29,5 @@ Download and install PMM Server using `cURL` or `wget`:
         ```
 ### Next steps
 Start by installing PMM Client:
+
 [Install PMM Client :material-arrow-right:](../../../install-pmm-client/index.md){.md-button}
