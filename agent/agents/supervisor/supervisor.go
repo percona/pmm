@@ -42,6 +42,7 @@ import (
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
+	"github.com/percona/pmm/agent/utils/cgroups"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
@@ -462,6 +463,10 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		"agentID":   agentID,
 		"type":      agentType,
 	})
+	if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT && !cgroups.IsCgroupsWritable() {
+		s.handleNomadAgent(agentID, agentProcess, port, cancel, processParams, logStore, l)
+		return nil
+	}
 	l.Debugf("Starting: %s.", processParams)
 
 	process := process.New(processParams, agentProcess.RedactWords, l)
@@ -509,6 +514,30 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		logStore:        logStore,
 	}
 	return nil
+}
+
+func (s *Supervisor) handleNomadAgent(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16, cancel context.CancelFunc, processParams *process.Params, logStore *tailog.Store, l *logrus.Entry) {
+	done := make(chan struct{})
+	s.agentProcesses[agentID] = &agentProcessInfo{
+		cancel:          cancel,
+		done:            done,
+		requestedState:  proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess),
+		listenPort:      port,
+		processExecPath: processParams.Path,
+		logStore:        logStore,
+	}
+
+	status := inventoryv1.AgentStatus_AGENT_STATUS_DONE
+	s.storeLastStatus(agentID, status)
+	l.Infof("Sending status: %s (port %d).", status, port)
+	s.changes <- &agentv1.StateChangedRequest{
+		AgentId:         agentID,
+		Status:          status,
+		ListenPort:      uint32(port),
+		ProcessExecPath: processParams.Path,
+	}
+
+	close(done)
 }
 
 // startBuiltin starts built-in Agent.
