@@ -29,9 +29,9 @@ Quick reference for typical deployment (up to 30 nodes):
 
 PMM 3 introduces significant architectural changes that require gradual transition from PMM 2. For detailed instructions, see [Upgrade from PMM2](../pmm-upgrade/migrating_from_pmm_2.md).
 
-## How to control data retention? {: #retention }
+## Retention
 
-Go to **PMM Configuration > Settings > Advanced Settings > Data retention** to adjust the value in days.
+To control data retention, go to **PMM Configuration > Settings > Advanced Settings > Data retention** to adjust the value in days.
 
 !!! seealso alert alert-info "See also"
     [Configure data retention](../configure-pmm/advanced_settings.md#data-retention)

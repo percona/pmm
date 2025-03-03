@@ -33,6 +33,7 @@ To prevent node registration failures, PMM automatically manages service account
 PMM uses Grafana service account tokens for authentication. These tokens are randomly generated strings that serve as alternatives to API keys or basic authentication passwords.
 
 Here's how to generate a service account token:
+{.power-number}
 
 1. Log into PMM.
 2. From the side menu, click **Administration > Users and access**.
@@ -50,7 +51,7 @@ Now you can use your new service token for authentication in PMM API calls or in
 You can authenticate your request using the HTTPS header.
 
 !!! caution alert alert-warning "Important"
-    Use the `-k` or `--insecure` parameter to force cURL to ignore invalid and self-signed SSL certificate errors. The option will skip the SSL verification process, and you can bypass any SSL errors while still having SSL-encrypted communication. However, using the `--insecure`  parameter is not recommended. Although the data transfer is encrypted, it is not entirely secure. For enhanced security of your PMM installation, you need valid SSL certificates. For information on validating SSL certificates, refer to: [SSL certificates](../how-to/secure.md).
+    Use the `-k` or `--insecure` parameter to force cURL to ignore invalid and self-signed SSL certificate errors. The option will skip the SSL verification process, and you can bypass any SSL errors while still having SSL-encrypted communication. However, using the `--insecure`  parameter is not recommended. Although the data transfer is encrypted, it is not entirely secure. For enhanced security of your PMM installation, you need valid SSL certificates. For information on validating SSL certificates, see [SSL certificates](../admin/security/ssl_encryption.md).
 
 ```sh
 curl -H "Authorization: Bearer <service_token>" https://127.0.0.1/v1/version
