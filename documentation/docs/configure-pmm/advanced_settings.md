@@ -21,6 +21,7 @@ To see the metrics being collected by telemetry, from the [main menu](../referen
 ![!image](../images/PMM_Settings_Advanced_Settings_Telemetry.png)
 
 We do not gather anything that can identify your system, but consider the following:
+{.power-number}
 
 1. The Country Code is evaluated from the submitting IP address before being discarded.
 
@@ -36,6 +37,8 @@ As well as via the **PMM Settings** page, you can also disable telemetry with th
 
 For information on the various config parameters for telemetry, see the [config file](https://github.com/percona/pmm/blob/main/managed/services/telemetry/config.default.yml).
 
+## Check for updates
+
 When active, PMM will automatically check for updates and put a notification in the home page **Updates** dashboard if any are available.
 
 ## Advisors
@@ -44,7 +47,7 @@ Advisors are sets of checks grouped by functionality that run a range of databas
 
 The findings are reported on the **Advisors > Advisor Insights** page, and an overview is displayed on the Home dashboard.
 
-The Advisors option is enabled by default.  Checks are re-fetched and rerun at intervals.
+The Advisors option is enabled by default. Checks are re-fetched and rerun at intervals.
 
 See [Working with Advisor checks](../advisors/advisors.md).
 

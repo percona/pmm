@@ -67,7 +67,7 @@ func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {
 		JobName:        "grafana",
 		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
-		MetricsPath:    "/metrics",
+		MetricsPath:    "/graph/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
 				Targets: []string{"127.0.0.1:3000"},
