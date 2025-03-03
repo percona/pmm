@@ -98,7 +98,7 @@ func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*age
 		"agent",
 		"-client",
 		"-config",
-		"{{ .TextFiles.nomadConfigPlaceholder }}",
+		"{{ .TextFiles.nomadConfig }}",
 	}
 
 	tdp := models.TemplateDelimsPair()
@@ -126,10 +126,10 @@ func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*age
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		TextFiles: map[string]string{
-			"nomadConfigPlaceholder": config,
-			"caCert":                 caCert,
-			"certFile":               certFile,
-			"keyFile":                keyFile,
+			"nomadConfig": config,
+			"caCert":      caCert,
+			"certFile":    certFile,
+			"keyFile":     keyFile,
 		},
 	}
 

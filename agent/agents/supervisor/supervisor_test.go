@@ -551,19 +551,19 @@ plugin "raw_exec" {
 				"agent",
 				"-client",
 				"-config",
-				"{{ .TextFiles.nomadConfigPlaceholder }}",
+				"{{ .TextFiles.nomadConfig }}",
 			},
 			TextFiles: map[string]string{
-				"nomadConfigPlaceholder": configTemplate,
-				"caCert":                 "-----BEGIN CERTIFICATE-----\n...",
-				"certFile":               "---BEGIN CERTIFICATE---\n...",
-				"keyFile":                "---BEGIN PRIVATE",
+				"nomadConfig": configTemplate,
+				"caCert":      "-----BEGIN CERTIFICATE-----\n...",
+				"certFile":    "---BEGIN CERTIFICATE---\n...",
+				"keyFile":     "---BEGIN PRIVATE",
 			},
 		}
 		actual, err := s.processParams("ID", p, 12345)
 		require.NoError(t, err)
 
-		configFilePath := filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_nomad_agent", "ID", "nomadConfigPlaceholder")
+		configFilePath := filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_nomad_agent", "ID", "nomadConfig")
 		expected := process.Params{
 			Path: "/path/to/nomad",
 			Args: []string{
