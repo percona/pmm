@@ -1,7 +1,7 @@
 # Run Docker via the Easy-install script
 
 ## Security best practice
-You can download and check the installation script before running it from our [Github](https://www.percona.com/get/pmm).
+You can download and check the [installation script](https://www.percona.com/get/pmm) before running it.
 
 ## Installation instructions
 
