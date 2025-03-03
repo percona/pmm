@@ -646,7 +646,7 @@ redirect_stderr = true
 {{define "nomad-server"}}
 [program:nomad-server]
 priority = 5
-command = /usr/local/percona/pmm/tools/nomad agent -config /srv/nomad/nomad-server.hcl
+command = /usr/local/percona/pmm/tools/nomad agent -config /srv/nomad/nomad-server-{{ .PMMServerHost }}.hcl
 user = pmm
 autorestart = {{ .NomadEnabled }}
 autostart = {{ .NomadEnabled }}

@@ -58,11 +58,11 @@ client {
 
   # disable Docker plugin
   options = {
-    "driver.denylist" = "docker,qemu,java,exec"
+    "driver.denylist" = "docker,qemu,java,exec,storage,podman,containerd"
     "driver.allowlist" = "raw_exec"
   }
 
-  # optional lables set to Nomad Client, may be the same as for PMM Agent.
+  # optional labels assigned to Nomad Client, can be the same as PMM Agent's.
   meta {
     pmm-agent = "1"
   {{- range $key, $value := .Labels }}
@@ -150,12 +150,12 @@ func generateNomadClientConfig(node *models.Node, exporter *models.Agent, tdp mo
 		"NodeName":         node.NodeName,
 		"NodeID":           node.NodeID,
 		"Labels":           labels,
-		"PMMServerAddress": tdp.Left + "server_host" + tdp.Right + ":4647",
+		"PMMServerAddress": tdp.Left + " .server_host " + tdp.Right + ":4647",
 		"NodeAddress":      node.Address,
-		"CaFile":           "{{ .TextFiles.caCert }}",
-		"CertFile":         "{{ .TextFiles.certFile }}",
-		"KeyFile":          "{{ .TextFiles.keyFile }}",
-		"DataDir":          tdp.Left + "nomad_data_dir" + tdp.Right,
+		"CaFile":           tdp.Left + " .TextFiles.caCert " + tdp.Right,
+		"CertFile":         tdp.Left + " .TextFiles.certFile " + tdp.Right,
+		"KeyFile":          tdp.Left + " .TextFiles.keyFile " + tdp.Right,
+		"DataDir":          tdp.Left + " .nomad_data_dir " + tdp.Right,
 		"LogLevel":         strings.ToUpper(logLevel),
 	}
 

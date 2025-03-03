@@ -260,7 +260,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		}
 
 		if cfg.Paths.NomadDataDir == "" {
-			cfg.Paths.NomadDataDir = filepath.Join(cfg.Paths.PathsBase, agentDataPath, "nomad")
+			cfg.Paths.NomadDataDir = filepath.Join(cfg.Paths.PathsBase, agentTmpPath, "nomad")
 			l.Infof("Nomad data directory will default to %s", cfg.Paths.NomadDataDir)
 		}
 

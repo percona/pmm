@@ -110,5 +110,5 @@ type victoriaMetricsParams interface {
 
 // nomadService represents an interface for managing and updating Nomad-related configurations in a given context.
 type nomadService interface {
-	UpdateConfiguration(context.Context) error
+	UpdateConfiguration(settings *models.Settings) error
 }

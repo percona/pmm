@@ -34,7 +34,7 @@ tls {
   http = true
   # encrypt Nomad Server <-> Nomad Client communication channel
   rpc  = true
-  ca_file   = "/srv/nomad/certs/global-agent-ca.pem"
+  ca_file   = "/srv/nomad/certs/nomad-agent-ca.pem"
   cert_file = "/srv/nomad/certs/global-server-{{ .Node.Address }}.pem"
   key_file  = "/srv/nomad/certs/global-server-{{ .Node.Address }}-key.pem"
 
@@ -46,4 +46,12 @@ plugin "raw_exec" {
   config {
     enabled = true
   }
+}
+
+telemetry {
+  collection_interval = "10s"
+  disable_hostname = true
+  prometheus_metrics = true
+  publish_allocation_metrics = true
+  publish_node_metrics = true
 }

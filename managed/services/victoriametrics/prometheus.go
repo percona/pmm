@@ -212,7 +212,14 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 				agent:             agent,
 				metricsResolution: &mr,
 			})
-
+		case models.NomadClientType:
+			scfgs, err = scrapeConfigsForNomadAgent(&mr, &scrapeConfigParams{
+				host:              paramsHost,
+				node:              paramsNode,
+				service:           paramsService,
+				agent:             agent,
+				metricsResolution: &mr,
+			})
 		default:
 			l.Warnf("Skipping scrape config for %s.", agent)
 			continue
@@ -236,5 +243,6 @@ func AddInternalServicesToScrape(cfg *config.Config, s models.MetricsResolutions
 		scrapeConfigForGrafana(s.MR),
 		scrapeConfigForPMMManaged(s.MR),
 		scrapeConfigForQANAPI2(s.MR),
-		scrapeConfigForClickhouse(s.MR))
+		scrapeConfigForClickhouse(s.MR),
+		scrapeConfigForNomadServer(s.MR))
 }

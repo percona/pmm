@@ -43,7 +43,7 @@ func TestGenerateNomadClientConfig(t *testing.T) {
 		expected := `log_level = "DEBUG"
 
 disable_update_check = true
-data_dir = "{{nomad_data_dir}}" # it shall be persistent
+data_dir = "{{ .nomad_data_dir }}" # it shall be persistent
 region = "global"
 datacenter = "PMM Deployment"
 name = "PMM Agent node-name"
@@ -67,7 +67,7 @@ client {
   enabled = true
   cpu_total_compute = 1000
 
-  servers = ["{{server_host}}:4647"] # filled by PMM Server
+  servers = ["{{ .server_host }}:4647"] # filled by PMM Server
 
   # disable Docker plugin
   options = {

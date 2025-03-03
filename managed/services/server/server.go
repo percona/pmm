@@ -149,6 +149,10 @@ func (s *Server) UpdateSettingsFromEnv(env []string) []error {
 		return []error{err}
 	}
 	s.envSettings = envSettings
+	err = s.UpdateConfigurations(context.Background())
+	if err != nil {
+		return []error{err}
+	}
 	return nil
 }
 
@@ -628,11 +632,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	if errTX != nil {
 		return nil, errTX
 	}
-
 	if err := s.UpdateConfigurations(ctx); err != nil {
-		return nil, err
-	}
-	if err := s.nomad.UpdateConfiguration(ctx); err != nil {
 		return nil, err
 	}
 
@@ -691,6 +691,10 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 		if !errors.Is(err, models.ErrNotConnectedToPortal) {
 			return errors.Wrap(err, "failed to get SSO details")
 		}
+	}
+
+	if err := s.nomad.UpdateConfiguration(settings); err != nil {
+		return errors.Wrap(err, "failed to update nomad configuration")
 	}
 	if err := s.supervisord.UpdateConfiguration(settings, ssoDetails); err != nil {
 		return errors.Wrap(err, "failed to update supervisord configuration")
