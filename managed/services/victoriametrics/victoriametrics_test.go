@@ -287,7 +287,7 @@ scrape_configs:
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
-      metrics_path: /metrics
+      metrics_path: /graph/metrics
       static_configs:
         - targets:
             - 127.0.0.1:3000
@@ -843,7 +843,7 @@ scrape_configs:
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
-      metrics_path: /metrics
+      metrics_path: /graph/metrics
       static_configs:
         - targets:
             - 127.0.0.1:3000
