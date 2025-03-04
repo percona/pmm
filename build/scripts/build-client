@@ -9,4 +9,4 @@ ${bin_dir}/build-client-source
 ${bin_dir}/build-client-binary
 ${bin_dir}/build-client-docker
 
-# vim: expandtab shiftwidth=4 tabstop=4
+# vim: expandtab shiftwidth=2 tabstop=2
