@@ -84,6 +84,8 @@ type ClientService interface {
 
 	CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) (*CheckUpdatesOK, error)
 
+	GetReadOnlySettings(params *GetReadOnlySettingsParams, opts ...ClientOption) (*GetReadOnlySettingsOK, error)
+
 	GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error)
 
 	LeaderHealthCheck(params *LeaderHealthCheckParams, opts ...ClientOption) (*LeaderHealthCheckOK, error)
@@ -178,6 +180,45 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) 
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*CheckUpdatesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetReadOnlySettings gets read only settings
+
+Returns a stripped version of PMM Server settings.
+*/
+func (a *Client) GetReadOnlySettings(params *GetReadOnlySettingsParams, opts ...ClientOption) (*GetReadOnlySettingsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetReadOnlySettingsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetReadOnlySettings",
+		Method:             "GET",
+		PathPattern:        "/v1/server/settings/readonly",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetReadOnlySettingsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetReadOnlySettingsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetReadOnlySettingsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
