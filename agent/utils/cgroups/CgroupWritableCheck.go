@@ -26,13 +26,14 @@ func IsCgroupsWritable() bool {
 	testFile := filepath.Join(cgroupDir, "test_write")
 
 	// Attempt to create and remove a test file to check for write access
-	file, err := os.Create(testFile)
+	file, err := os.Create(testFile) //nolint:gosec
 	if err != nil {
 		return false // Not writable
 	}
 	defer func() {
-		file.Close()
-		os.Remove(testFile) // Clean up the test file
+		// Clean up the test file
+		file.Close()        //nolint:errcheck
+		os.Remove(testFile) //nolint:errcheck
 	}()
 
 	return true // Writable

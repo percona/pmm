@@ -21,7 +21,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
-	"runtime"
 	"slices"
 	"strings"
 	"sync"
@@ -72,6 +71,16 @@ type QueryValues struct {
 	WhereValues [][]any
 }
 
+func isTest() bool {
+	// Check if tests are running by inspecting os.Args
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "-test.") {
+			return true
+		}
+	}
+	return false
+}
+
 // New creates an encryption; if key on path doesn't exist, it will be generated.
 func New() *Encryption {
 	e := &Encryption{}
@@ -79,7 +88,7 @@ func New() *Encryption {
 	if customKeyPath != "" {
 		e.Path = customKeyPath
 	} else {
-		if runtime.GOOS == "darwin" { // for development on macOS
+		if isTest() {
 			e.Path = "./encryption.key"
 		} else {
 			e.Path = DefaultEncryptionKeyPath
