@@ -25,10 +25,11 @@ When adding MongoDB instances through `pmm-admin add mongodb` command or via the
     - mongos: `--replication-set=cfg`
 
 ??? info "Example command for adding a shard node"          
-    sh
-    pmm-admin add mongodb --username=pmm --password=password \
+    ```sh
+     pmm-admin add mongodb --username=pmm --password=password \
      --service-name=rs-0-1 --replication-set=shard0 \
      --host=127.0.0.1 --port=27018 --cluster=myMongoCluster
+    ```
 
 
 ### QPS of Services in Shard
