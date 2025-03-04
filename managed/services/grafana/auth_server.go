@@ -63,6 +63,7 @@ var rules = map[string]role{
 	"/v1/alerting":                    viewer,
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
+	"/v1/advisors/failedServices":     editor,
 	"/v1/actions/":                    viewer,
 	"/v1/actions:":                    viewer,
 	"/v1/backups":                     admin,
@@ -77,6 +78,7 @@ var rules = map[string]role{
 	"/v1/server/updates:start":        admin,
 	"/v1/server/updates:getStatus":    none, // special token-based auth
 	"/v1/server/settings":             admin,
+	"/v1/server/settings/readonly":    viewer,
 	"/v1/platform:":                   admin,
 	"/v1/platform/":                   viewer,
 	"/v1/users":                       viewer,
