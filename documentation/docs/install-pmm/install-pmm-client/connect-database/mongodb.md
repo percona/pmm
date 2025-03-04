@@ -10,7 +10,7 @@ Check that:
 - [PMM Client is installed](../../install-pmm-client/index.md) and the [nodes are registered with PMM Server](../../register-client-node/index.md).
 - You have superuser (root) access on the client host.
 - You have `adminUserAnyDatabase` or superuser role privilege to any database servers that you want to monitor.
-- Your MongoDB server is version 4.0 or higher.
+- Your MongoDB server is version 6.0 or higher.
 
 ## Create PMM account and set permissions
 
