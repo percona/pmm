@@ -66,6 +66,8 @@ type ChangeSettingsParams struct {
 	// Enable Advisors
 	EnableAdvisors *bool
 
+	EnableNomad *bool
+
 	// List of Advisor checks to disable
 	DisableAdvisorChecks []string
 	// List of Advisor checks to enable
@@ -167,6 +169,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableAdvisors != nil {
 		settings.SaaS.Enabled = params.EnableAdvisors
+	}
+
+	if params.EnableNomad != nil {
+		settings.Nomad.Enabled = params.EnableNomad
 	}
 
 	if params.AdvisorsRunInterval.RareInterval != 0 {
