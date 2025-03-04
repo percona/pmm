@@ -37,5 +37,5 @@ To use ClickHouse as an external database instance, run PMM in docker or podman 
 
 ## Troubleshooting
 
-To troubleshoot issues, see the ClickHouse [troubleshooting documentation](https://clickhouse.com/docs/en/operations/troubleshooting/).
+To troubleshoot issues, see the ClickHouse [troubleshooting documentation](https://clickhouse.com/docs/guides/troubleshooting).
 

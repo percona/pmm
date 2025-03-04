@@ -83,7 +83,7 @@ jobs:
           cache: false
 
       - name: Enable Go build cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0c907a75c2c80ebcb7f088228285e798b750cf8f # v4.2.1
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -92,7 +92,7 @@ jobs:
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0c907a75c2c80ebcb7f088228285e798b750cf8f # v4.2.1
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
@@ -113,7 +113,7 @@ jobs:
         run: make test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         with:
           files: cover.out
           flags: agent
