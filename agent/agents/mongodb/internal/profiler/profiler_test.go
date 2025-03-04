@@ -143,7 +143,7 @@ func testProfiler(t *testing.T, url string) {
 	for _, r := range ms.reports {
 		for _, bucket := range r.Buckets {
 			switch bucket.Common.Fingerprint {
-			case "INSERT people":
+			case "db.people.insert(?)":
 				key := fmt.Sprintf("%s:%s", bucket.Common.Database, bucket.Common.Fingerprint)
 				if b, ok := bucketsMap[key]; ok {
 					b.Mongodb.MDocsReturnedCnt += bucket.Mongodb.MDocsReturnedCnt
@@ -153,24 +153,15 @@ func testProfiler(t *testing.T, url string) {
 				} else {
 					bucketsMap[key] = bucket
 				}
-			case "FIND people name_00\ufffd":
+			case `db.people.find({"name_00\ufffd":"?"})`:
 				findBucket = bucket
+			default:
+				t.Logf("unknown fingerprint: %s", bucket.Common.Fingerprint)
 			}
 		}
 	}
 
-	version, err := GetMongoVersion(context.TODO(), sess)
-	require.NoError(t, err)
-
-	var responseLength float32
-	switch version {
-	case "3.4":
-		responseLength = 44
-	case "3.6":
-		responseLength = 29
-	default:
-		responseLength = 45
-	}
+	responseLength := float32(45)
 
 	assert.Equal(t, dbsCount, len(bucketsMap)) // 300 sample docs / 10 = different database names
 	var buckets []*agentv1.MetricsBucket
@@ -182,7 +173,7 @@ func testProfiler(t *testing.T, url string) {
 	})
 	for i, bucket := range buckets {
 		assert.Equal(t, bucket.Common.Database, fmt.Sprintf("test_%02d", i))
-		assert.Equal(t, "INSERT people", bucket.Common.Fingerprint)
+		assert.Equal(t, "db.people.insert(?)", bucket.Common.Fingerprint)
 		assert.Equal(t, []string{"people"}, bucket.Common.Tables)
 		assert.Equal(t, "test-id", bucket.Common.AgentId)
 		assert.Equal(t, inventoryv1.AgentType(9), bucket.Common.AgentType)
@@ -204,7 +195,7 @@ func testProfiler(t *testing.T, url string) {
 		assert.Equalf(t, expected.MDocsExaminedCnt, bucket.Mongodb.MDocsExaminedCnt, "wrong metrics MDocsExaminedCnt for db %s", bucket.Common.Database)
 	}
 	require.NotNil(t, findBucket)
-	assert.Equal(t, "FIND people name_00\ufffd", findBucket.Common.Fingerprint)
+	assert.Equal(t, `db.people.find({"name_00\ufffd":"?"})`, findBucket.Common.Fingerprint)
 	assert.Equal(t, docsCount, findBucket.Mongodb.MDocsReturnedSum)
 }
 
