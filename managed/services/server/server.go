@@ -528,7 +528,7 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 }
 
 // GetReadOnlySettings returns current PMM Server settings .
-func (s *Server) GetReadOnlySettings(ctx context.Context, req *serverv1.GetSettingsRequest) (*serverv1.GetReadOnlySettingsResponse, error) { //nolint:revive
+func (s *Server) GetReadOnlySettings(ctx context.Context, req *serverv1.GetReadOnlySettingsRequest) (*serverv1.GetReadOnlySettingsResponse, error) { //nolint:revive
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 

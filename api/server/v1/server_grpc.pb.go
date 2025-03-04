@@ -56,7 +56,7 @@ type ServerServiceClient interface {
 	// GetSettings returns current PMM Server settings.
 	GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error)
 	// GetReadOnlySettings returns a limited number of PMM settings that is opened to authenticated users of all roles.
-	GetReadOnlySettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetReadOnlySettingsResponse, error)
+	GetReadOnlySettings(ctx context.Context, in *GetReadOnlySettingsRequest, opts ...grpc.CallOption) (*GetReadOnlySettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
 	ChangeSettings(ctx context.Context, in *ChangeSettingsRequest, opts ...grpc.CallOption) (*ChangeSettingsResponse, error)
 }
@@ -149,7 +149,7 @@ func (c *serverServiceClient) GetSettings(ctx context.Context, in *GetSettingsRe
 	return out, nil
 }
 
-func (c *serverServiceClient) GetReadOnlySettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetReadOnlySettingsResponse, error) {
+func (c *serverServiceClient) GetReadOnlySettings(ctx context.Context, in *GetReadOnlySettingsRequest, opts ...grpc.CallOption) (*GetReadOnlySettingsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetReadOnlySettingsResponse)
 	err := c.cc.Invoke(ctx, ServerService_GetReadOnlySettings_FullMethodName, in, out, cOpts...)
@@ -193,7 +193,7 @@ type ServerServiceServer interface {
 	// GetSettings returns current PMM Server settings.
 	GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error)
 	// GetReadOnlySettings returns a limited number of PMM settings that is opened to authenticated users of all roles.
-	GetReadOnlySettings(context.Context, *GetSettingsRequest) (*GetReadOnlySettingsResponse, error)
+	GetReadOnlySettings(context.Context, *GetReadOnlySettingsRequest) (*GetReadOnlySettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
 	ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error)
 	mustEmbedUnimplementedServerServiceServer()
@@ -238,7 +238,7 @@ func (UnimplementedServerServiceServer) GetSettings(context.Context, *GetSetting
 	return nil, status.Errorf(codes.Unimplemented, "method GetSettings not implemented")
 }
 
-func (UnimplementedServerServiceServer) GetReadOnlySettings(context.Context, *GetSettingsRequest) (*GetReadOnlySettingsResponse, error) {
+func (UnimplementedServerServiceServer) GetReadOnlySettings(context.Context, *GetReadOnlySettingsRequest) (*GetReadOnlySettingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReadOnlySettings not implemented")
 }
 
@@ -411,7 +411,7 @@ func _ServerService_GetSettings_Handler(srv interface{}, ctx context.Context, de
 }
 
 func _ServerService_GetReadOnlySettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetSettingsRequest)
+	in := new(GetReadOnlySettingsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -423,7 +423,7 @@ func _ServerService_GetReadOnlySettings_Handler(srv interface{}, ctx context.Con
 		FullMethod: ServerService_GetReadOnlySettings_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServiceServer).GetReadOnlySettings(ctx, req.(*GetSettingsRequest))
+		return srv.(ServerServiceServer).GetReadOnlySettings(ctx, req.(*GetReadOnlySettingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

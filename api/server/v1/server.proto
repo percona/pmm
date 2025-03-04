@@ -203,6 +203,8 @@ message ReadOnlySettings {
 
 message GetSettingsRequest {}
 
+message GetReadOnlySettingsRequest {}
+
 message GetSettingsResponse {
   Settings settings = 1;
 }
@@ -313,7 +315,7 @@ service ServerService {
     };
   }
   // GetReadOnlySettings returns a limited number of PMM settings that is opened to authenticated users of all roles.
-  rpc GetReadOnlySettings(GetSettingsRequest) returns (GetReadOnlySettingsResponse) {
+  rpc GetReadOnlySettings(GetReadOnlySettingsRequest) returns (GetReadOnlySettingsResponse) {
     option (google.api.http) = {get: "/v1/server/settings/readonly"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get read-only settings"

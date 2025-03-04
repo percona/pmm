@@ -221,7 +221,7 @@ func local_request_ServerService_GetSettings_0(ctx context.Context, marshaler ru
 
 func request_ServerService_GetReadOnlySettings_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq GetSettingsRequest
+		protoReq GetReadOnlySettingsRequest
 		metadata runtime.ServerMetadata
 	)
 	msg, err := client.GetReadOnlySettings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -230,7 +230,7 @@ func request_ServerService_GetReadOnlySettings_0(ctx context.Context, marshaler 
 
 func local_request_ServerService_GetReadOnlySettings_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq GetSettingsRequest
+		protoReq GetReadOnlySettingsRequest
 		metadata runtime.ServerMetadata
 	)
 	msg, err := server.GetReadOnlySettings(ctx, &protoReq)
