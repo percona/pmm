@@ -69,15 +69,15 @@ Dashboard creators in PMM automatically get Admin permissions for the dashboards
     | View Update Status | ✓ | ✓ | ✓ |
     | Start Updates | ✗ | ✗ | ✓ |
 
-=== "Data Sources"
+=== "Data sources"
     | Permission | Viewer | Editor | Admin |
     |------------|--------|--------|-------|
     | View Data Sources | ✓ | ✓ | ✓ |
     | Add, edit, delete Data Sources | ✗ | ✗ | ✓ |
     | Configure Data Source Access | ✗ | ✗ | ✓ |
 
-=== "API Access"
-    | API Path | Minimum Role Required | Purpose |
+=== "API access"
+    | API Path | Minimum role required | Purpose |
     |----------|----------------------|---------|
     | `/v1/alerting` | Viewer | Access alert information |
     | `/v1/advisors` | Editor | Access advisor functionality |
