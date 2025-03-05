@@ -20,4 +20,4 @@ jobs:
           reporter: github-pr-review
           fail_level: error
           filter_mode: nofilter
-          config_file: documentation/.linkspector.ym
+          config_file: documentation/.linkspector.yml
