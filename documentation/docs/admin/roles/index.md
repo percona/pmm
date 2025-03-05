@@ -1,12 +1,12 @@
-Here's the revised version with sentence case capitalization for subheadings and the note content moved to a separate heading:
-
 # PMM roles and permissions
 
 Roles are the sets of permissions and configurations that determine which metrics a user can access in Percona Monitoring and Management (PMM).
 
 Each PMM user is associated with a role that includes permissions. Permissions determine the privileges that a user has in PMM.
 
-By creating roles, you can specify which data can be queried based on specific label criteria, for instance, allowing the QA team to view data related to test environments.
+PMM provides two methods of access control: standard roles (Viewer, Editor, Admin) that determine feature-level permissions, and label-based access control that allows administrators to create custom roles to specify which data can be queried based on specific label criteria, for instance, allowing the QA team to view data related only to test environments.
+
+For more granular data access control, see [Labels for access control](../roles/access-control/intro.md) which allows you to restrict which metrics users can query based on labels.
 
 ## Role types in PMM
 
@@ -40,7 +40,7 @@ Dashboard creators in PMM automatically get Admin permissions for the dashboards
 | View Query Analytics | ✓ | ✓ | ✓ |
 | View Insights | ✓ | ✓ | ✓ |
 
-### Alerting and advisory permissions
+### Alerting and Advisors permissions
 
 | Permission | Viewer | Editor | Admin |
 |------------|--------|--------|-------|
@@ -52,7 +52,7 @@ Dashboard creators in PMM automatically get Admin permissions for the dashboards
 | Create Alerts from Templates | ✗ | ✓ | ✓ |
 | Add, edit, delete Alert Templates | ✗ | ✓ | ✓ |
 | View Advisors | ✗ | ✓ | ✓ |
-| Run Advisor Checks | ✗ | ✓ | ✓ |
+| Run Advisor Checks | ✗ | ✗ | ✓ |
 
 ### Configuration and management permissions
 
@@ -83,11 +83,11 @@ Dashboard creators in PMM automatically get Admin permissions for the dashboards
 
 Different PMM API endpoints require different minimum role levels:
 
-| API Path | Minimum Role Required | Purpose |
+| API Path | Minimum role required | Purpose |
 |----------|----------------------|---------|
 | `/v1/alerting` | Viewer | Access alert information |
 | `/v1/advisors` | Editor | Access advisor functionality |
-| `/v1/advisors/checks` | Editor | Run advisor checks |
+| `/v1/advisors/checks` | Admin | Run advisor checks |
 | `/v1/actions/` | Viewer | View and execute actions |
 | `/v1/backups` | Admin | Manage backups |
 | `/v1/inventory/` | Admin | Manage inventory items |
