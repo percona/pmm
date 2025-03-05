@@ -21,14 +21,5 @@ jobs:
           fail_level: error
           filter_mode: nofilter
           config_file: documentation/.linkspector.yml
-          excludedUrls:
-            - "https://www.reddit.com/r/VictoriaMetrics/"
-            - "https://linux.die.net/man/8/logrotate"
-          excludedAnchors:
-            - "#os_alerts"
-            - "#pmm_alerts"
-            - "#mongodb_alerts"
-            - "#pbm_alerts"
-            - "#mysql_alerts"
-            - "#postgresql_alerts"
-            - "#proxysql_alerts"
+          excludedUrls: "https://www.reddit.com/r/VictoriaMetrics/, https://linux.die.net/man/8/logrotate"
+          excludedAnchors: "#os_alerts, #pmm_alerts, #mongodb_alerts, #pbm_alerts, #mysql_alerts, #postgresql_alerts, #proxysql_alerts"
