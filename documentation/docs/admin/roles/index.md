@@ -1,4 +1,4 @@
-# PMM roles and permissions
+# Standard role permissions
 
 Roles are the sets of permissions and configurations that determine which metrics a user can access in Percona Monitoring and Management (PMM).
 
@@ -26,78 +26,73 @@ Dashboard creators in PMM automatically get Admin permissions for the dashboards
 
 ## Permission matrix
 
-### Dashboard and monitoring permissions
+=== "Dashboard & Monitoring"
+    | Permission | Viewer | Editor | Admin |
+    |------------|--------|--------|-------|
+    | View dashboards | ✓ | ✓ | ✓ |
+    | Add, edit, delete dashboards | ✗ | ✓ | ✓ |
+    | Add, edit, delete folders | ✗ | ✓ | ✓ |
+    | View playlists | ✓ | ✓ | ✓ |
+    | Add, edit, delete playlists | ✗ | ✓ | ✓ |
+    | Access Explore | ✗ | ✓ | ✓ |
+    | Query data sources | ✓ | ✓ | ✓ |
+    | View Query Analytics | ✓ | ✓ | ✓ |
+    | View Insights | ✓ | ✓ | ✓ |
 
-| Permission | Viewer | Editor | Admin |
-|------------|--------|--------|-------|
-| View dashboards | ✓ | ✓ | ✓ |
-| Add, edit, delete dashboards | ✗ | ✓ | ✓ |
-| Add, edit, delete folders | ✗ | ✓ | ✓ |
-| View playlists | ✓ | ✓ | ✓ |
-| Add, edit, delete playlists | ✗ | ✓ | ✓ |
-| Access Explore | ✗ | ✓ | ✓ |
-| Query data sources | ✓ | ✓ | ✓ |
-| View Query Analytics | ✓ | ✓ | ✓ |
-| View Insights | ✓ | ✓ | ✓ |
+=== "Alerting & Advisors"
+    | Permission | Viewer | Editor | Admin |
+    |------------|--------|--------|-------|
+    | View Alert Rules | ✓ | ✓ | ✓ |
+    | Add, edit, delete Alert Rules | ✗ | ✓ | ✓ |
+    | View Fired Alerts | ✓ | ✓ | ✓ |
+    | Silence Alerts | ✗ | ✓ | ✓ |
+    | View Alert Templates | ✗ | ✓ | ✓ |
+    | Create Alerts from Templates | ✗ | ✓ | ✓ |
+    | Add, edit, delete Alert Templates | ✗ | ✓ | ✓ |
+    | View Advisors | ✗ | ✓ | ✓ |
+    | Run, disable, edit Advisors | ✗ | ✗ | ✓ |
+    | Run Advisor Checks | ✗ | ✗ | ✓ |
 
-### Alerting and Advisors permissions
+=== "Configuration & Management"
+    | Permission | Viewer | Editor | Admin |
+    |------------|--------|--------|-------|
+    | View Inventory | ✓ | ✓ | ✓ |
+    | Add, edit, delete Services | ✗ | ✗ | ✓ |
+    | View Actions | ✓ | ✓ | ✓ |
+    | Execute Actions | ✓ | ✓ | ✓ |
+    | View Server Settings | ✓ | ✓ | ✓ |
+    | Modify Server Settings | ✗ | ✗ | ✓ |
+    | Add, edit, delete Users | ✗ | ✗ | ✓ |
+    | Add, edit, delete Teams | ✗ | ✗ | ✓ |
+    | View Backups | ✗ | ✗ | ✓ |
+    | Manage Backups | ✗ | ✗ | ✓ |
+    | View Update Status | ✓ | ✓ | ✓ |
+    | Start Updates | ✗ | ✗ | ✓ |
 
-| Permission | Viewer | Editor | Admin |
-|------------|--------|--------|-------|
-| View Alert Rules | ✓ | ✓ | ✓ |
-| Add, edit, delete Alert Rules | ✗ | ✓ | ✓ |
-| View Fired Alerts | ✓ | ✓ | ✓ |
-| Silence Alerts | ✗ | ✓ | ✓ |
-| View Alert Templates | ✗ | ✓ | ✓ |
-| Create Alerts from Templates | ✗ | ✓ | ✓ |
-| Add, edit, delete Alert Templates | ✗ | ✓ | ✓ |
-| View Advisors | ✗ | ✓ | ✓ |
-| Run Advisor Checks | ✗ | ✗ | ✓ |
+=== "Data Sources"
+    | Permission | Viewer | Editor | Admin |
+    |------------|--------|--------|-------|
+    | View Data Sources | ✓ | ✓ | ✓ |
+    | Add, edit, delete Data Sources | ✗ | ✗ | ✓ |
+    | Configure Data Source Access | ✗ | ✗ | ✓ |
 
-### Configuration and management permissions
+=== "API Access"
+    | API Path | Minimum Role Required | Purpose |
+    |----------|----------------------|---------|
+    | `/v1/alerting` | Viewer | Access alert information |
+    | `/v1/advisors` | Editor | Access advisor functionality |
+    | `/v1/advisors/checks` | Admin | Run advisor checks |
+    | `/v1/actions/` | Viewer | View and execute actions |
+    | `/v1/backups` | Admin | Manage backups |
+    | `/v1/inventory/` | Admin | Manage inventory items |
+    | `/v1/inventory/services:getTypes` | Viewer | View service types |
+    | `/v1/management/` | Admin | Server management functions |
+    | `/v1/management/Jobs` | Viewer | View management jobs |
+    | `/v1/server/updates` | Viewer | Check for updates |
+    | `/v1/server/updates:start` | Admin | Start update process |
+    | `/v1/server/settings/readonly` | Viewer | View read-only settings |
+    | `/v1/server/settings` | Admin | Configure server settings |
+    | `/v1/platform:` | Admin | Platform management |
+    | `/v1/platform/` | Viewer | Platform information |
+    | `/v1/qan` | Viewer | Query Analytics |
 
-| Permission | Viewer | Editor | Admin |
-|------------|--------|--------|-------|
-| View Inventory | ✓ | ✓ | ✓ |
-| Add, edit, delete Services | ✗ | ✗ | ✓ |
-| View Actions | ✓ | ✓ | ✓ |
-| Execute Actions | ✓ | ✓ | ✓ |
-| View Server Settings | ✓ | ✓ | ✓ |
-| Modify Server Settings | ✗ | ✗ | ✓ |
-| Add, edit, delete Users | ✗ | ✗ | ✓ |
-| Add, edit, delete Teams | ✗ | ✗ | ✓ |
-| View Backups | ✗ | ✗ | ✓ |
-| Manage Backups | ✗ | ✗ | ✓ |
-| View Update Status | ✓ | ✓ | ✓ |
-| Start Updates | ✗ | ✗ | ✓ |
-
-### Data source permissions
-
-| Permission | Viewer | Editor | Admin |
-|------------|--------|--------|-------|
-| View Data Sources | ✓ | ✓ | ✓ |
-| Add, edit, delete Data Sources | ✗ | ✗ | ✓ |
-| Configure Data Source Access | ✗ | ✗ | ✓ |
-
-## API access by role
-
-Different PMM API endpoints require different minimum role levels:
-
-| API Path | Minimum role required | Purpose |
-|----------|----------------------|---------|
-| `/v1/alerting` | Viewer | Access alert information |
-| `/v1/advisors` | Editor | Access advisor functionality |
-| `/v1/advisors/checks` | Admin | Run advisor checks |
-| `/v1/actions/` | Viewer | View and execute actions |
-| `/v1/backups` | Admin | Manage backups |
-| `/v1/inventory/` | Admin | Manage inventory items |
-| `/v1/inventory/services:getTypes` | Viewer | View service types |
-| `/v1/management/` | Admin | Server management functions |
-| `/v1/management/Jobs` | Viewer | View management jobs |
-| `/v1/server/updates` | Viewer | Check for updates |
-| `/v1/server/updates:start` | Admin | Start update process |
-| `/v1/server/settings/readonly` | Viewer | View read-only settings |
-| `/v1/server/settings` | Admin | Configure server settings |
-| `/v1/platform:` | Admin | Platform management |
-| `/v1/platform/` | Viewer | Platform information |
-| `/v1/qan` | Viewer | Query Analytics |
