@@ -142,6 +142,7 @@ func getDefaultKongOptions(appName string) []kong.Option {
 
 	mongoDBQuerySources := []string{
 		management.MongodbQuerySourceProfiler,
+		management.MongodbQuerySourceSlowlog,
 		management.MongodbQuerySourceNone,
 	}
 
@@ -158,13 +159,13 @@ func getDefaultKongOptions(appName string) []kong.Option {
 			"nodeIp":                       nodeinfo.PublicAddress,
 			"nodeTypeDefault":              nodeTypeDefault,
 			"hostname":                     hostname,
-			"serviceTypesEnum":             strings.Join(management.AllServiceTypesKeys, ","),
+			"serviceTypesEnum":             strings.Join(management.AllServiceTypesKeys, ", "),
 			"defaultMachineID":             defaultMachineID,
 			"distro":                       nodeinfo.Distro,
-			"metricsModesEnum":             strings.Join(management.MetricsModes, ","),
-			"mysqlQuerySourcesEnum":        strings.Join(mysqlQuerySources, ","),
+			"metricsModesEnum":             strings.Join(management.MetricsModes, ", "),
+			"mysqlQuerySourcesEnum":        strings.Join(mysqlQuerySources, ", "),
 			"mysqlQuerySourceDefault":      mysqlQuerySources[0],
-			"mongoDbQuerySourcesEnum":      strings.Join(mongoDBQuerySources, ","),
+			"mongoDbQuerySourcesEnum":      strings.Join(mongoDBQuerySources, ", "),
 			"mongoDbQuerySourceDefault":    mongoDBQuerySources[0],
 			"externalDefaultServiceName":   management.DefaultServiceNameSuffix,
 			"externalDefaultGroupExporter": management.DefaultGroupExternalExporter,

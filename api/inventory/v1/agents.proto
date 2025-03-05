@@ -23,6 +23,7 @@ enum AgentType {
   AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT = 7;
   AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT = 8;
   AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT = 9;
+  AGENT_TYPE_QAN_MONGODB_SLOWLOG_AGENT = 17;
   AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 10;
   AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT = 13;
   AGENT_TYPE_EXTERNAL_EXPORTER = 12;
@@ -418,6 +419,42 @@ message QANMongoDBProfilerAgent {
   LogLevel log_level = 22;
 }
 
+// QANMongoDBSlowlogAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+message QANMongoDBSlowlogAgent {
+  reserved 8; // TODO https://jira.percona.com/browse/PMM-4650
+  reserved "query_examples_disabled";
+
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // MongoDB username for getting profiler data.
+  string username = 5;
+  // Use TLS for database connections.
+  bool tls = 6;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 7;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  int32 max_query_length = 9;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 20;
+  // Path to exec process.
+  string process_exec_path = 21;
+  // Log level for exporter.
+  LogLevel log_level = 22;
+}
+
 // QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 message QANPostgreSQLPgStatementsAgent {
   // Unique randomly generated instance identifier.
@@ -636,6 +673,7 @@ message ListAgentsResponse {
   repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 8;
   repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
   repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
+  repeated QANMongoDBSlowlogAgent qan_mongodb_slowlog_agent = 16;
   repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
   repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 12;
   repeated ExternalExporter external_exporter = 13;
@@ -662,6 +700,7 @@ message GetAgentResponse {
     QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 8;
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
+    QANMongoDBSlowlogAgent qan_mongodb_slowlog_agent = 16;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 12;
     ExternalExporter external_exporter = 13;
@@ -702,6 +741,7 @@ message AddAgentRequest {
     AddQANMySQLPerfSchemaAgentParams qan_mysql_perfschema_agent = 10;
     AddQANMySQLSlowlogAgentParams qan_mysql_slowlog_agent = 11;
     AddQANMongoDBProfilerAgentParams qan_mongodb_profiler_agent = 12;
+    AddQANMongoDBSlowlogAgentParams qan_mongodb_slowlog_agent = 15;
     AddQANPostgreSQLPgStatementsAgentParams qan_postgresql_pgstatements_agent = 13;
     AddQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
   }
@@ -721,6 +761,7 @@ message AddAgentResponse {
     QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 10;
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 11;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 12;
+    QANMongoDBSlowlogAgent qan_mongodb_slowlog_agent = 15;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
   }
@@ -743,6 +784,7 @@ message ChangeAgentRequest {
     ChangeQANMySQLPerfSchemaAgentParams qan_mysql_perfschema_agent = 10;
     ChangeQANMySQLSlowlogAgentParams qan_mysql_slowlog_agent = 11;
     ChangeQANMongoDBProfilerAgentParams qan_mongodb_profiler_agent = 12;
+    ChangeQANMongoDBSlowlogAgentParams qan_mongodb_slowlog_agent = 15;
     ChangeQANPostgreSQLPgStatementsAgentParams qan_postgresql_pgstatements_agent = 13;
     ChangeQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
   }
@@ -763,6 +805,7 @@ message ChangeAgentResponse {
     QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 10;
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 11;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 12;
+    QANMongoDBSlowlogAgent qan_mongodb_slowlog_agent = 15;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
   }
@@ -1100,7 +1143,7 @@ message ChangeQANMySQLSlowlogAgentParams {
   // Replace all custom user-assigned labels.
   optional common.StringMap custom_labels = 2;
   // Enables push metrics with vmagent.
-  optional bool enable_push_metrics = 3;
+  optional bool enable_push_metrics = 3; //TODO needed for slowlog?
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
 }
@@ -1143,6 +1186,54 @@ message AddQANMongoDBProfilerAgentParams {
 }
 
 message ChangeQANMongoDBProfilerAgentParams {
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 4;
+}
+
+// Add/Change QANMongoDBSlowlogAgent
+
+message AddQANMongoDBSlowlogAgentParams {
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
+  // Service identifier.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+  // MongoDB username for getting profile data.
+  string username = 3;
+  // MongoDB password for getting profile data.
+  string password = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
+  // Client certificate and key.
+  string tls_certificate_key = 7;
+  // Password for decrypting tls_certificate_key.
+  string tls_certificate_key_file_password = 8;
+  // Certificate Authority certificate chain.
+  string tls_ca = 9;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  int32 max_query_length = 10;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 11;
+  // Skip connection check.
+  bool skip_connection_check = 12;
+  // Authentication mechanism.
+  // See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
+  // for details.
+  string authentication_mechanism = 13;
+  // Authentication database.
+  string authentication_database = 14;
+  // Log level for exporter.
+  LogLevel log_level = 15;
+}
+
+message ChangeQANMongoDBSlowlogAgentParams {
   // Enable this Agent. Agents are enabled by default when they get added.
   optional bool enable = 1;
   // Replace all custom user-assigned labels.
