@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package sender
+package parser
 
 import (
 	"context"
@@ -21,22 +21,24 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
+	"github.com/percona/pmm/agent/agents/mongodb/profiler/internal/aggregator"
 )
 
-func New(reportChan <-chan *report.Report, w Writer, logger *logrus.Entry) *Sender {
-	return &Sender{
-		reportChan: reportChan,
-		w:          w,
+func New(docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, logger *logrus.Entry) *Parser {
+	return &Parser{
+		docsChan:   docsChan,
+		aggregator: aggregator,
 		logger:     logger,
 	}
 }
 
-type Sender struct {
+type Parser struct {
 	// dependencies
-	reportChan <-chan *report.Report
-	w          Writer
-	logger     *logrus.Entry
+	docsChan   <-chan proto.SystemProfile
+	aggregator *aggregator.Aggregator
+
+	logger *logrus.Entry
 
 	// state
 	m        sync.Mutex      // Lock() to protect internal consistency of the service
@@ -46,85 +48,91 @@ type Sender struct {
 }
 
 // Start starts but doesn't wait until it exits
-func (s *Sender) Start() error {
-	s.m.Lock()
-	defer s.m.Unlock()
-	if s.running {
+func (p *Parser) Start(context.Context) error {
+	p.m.Lock()
+	defer p.m.Unlock()
+	if p.running {
 		return nil
 	}
 
 	// create new channels over which we will communicate to...
 	// ... inside goroutine to close it
-	s.doneChan = make(chan struct{})
+	p.doneChan = make(chan struct{})
 
 	// start a goroutine and Add() it to WaitGroup
 	// so we could later Wait() for it to finish
-	s.wg = &sync.WaitGroup{}
-	s.wg.Add(1)
+	p.wg = &sync.WaitGroup{}
+	p.wg.Add(1)
 
 	ctx := context.Background()
-	labels := pprof.Labels("component", "mongodb.sender")
+	labels := pprof.Labels("component", "mongodb.monitor")
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
-		start(ctx, s.wg, s.reportChan, s.w, s.logger, s.doneChan)
+		start(
+			ctx,
+			p.wg,
+			p.docsChan,
+			p.aggregator,
+			p.doneChan,
+			p.logger)
 	})
 
-	s.running = true
+	p.running = true
 	return nil
 }
 
 // Stop stops running
-func (s *Sender) Stop() {
-	s.m.Lock()
-	defer s.m.Unlock()
-	if !s.running {
+func (p *Parser) Stop() {
+	p.m.Lock()
+	defer p.m.Unlock()
+	if !p.running {
 		return
 	}
-	s.running = false
+	p.running = false
 
 	// notify goroutine to close
-	close(s.doneChan)
+	close(p.doneChan)
 
 	// wait for goroutines to exit
-	s.wg.Wait()
+	p.wg.Wait()
 	return
 }
 
-func (s *Sender) Name() string {
-	return "sender"
+func (p *Parser) Name() string {
+	return "parser"
 }
 
-func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Report, w Writer, logger *logrus.Entry, doneChan <-chan struct{}) {
+func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, doneChan <-chan struct{}, logger *logrus.Entry) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
+	// update stats
 	for {
+		// check if we should shutdown
 		select {
-		case report, ok := <-reportChan:
+		case <-doneChan:
+			return
+		default:
+			// just continue if not
+		}
+
+		// aggregate documents and create report
+		select {
+		case doc, ok := <-docsChan:
 			// if channel got closed we should exit as there is nothing we can listen to
 			if !ok {
 				return
 			}
 
-			// check if we should shutdown
-			select {
-			case <-doneChan:
-				return
-			default:
-				// just continue if not
-			}
-
-			// sent report
-			if err := w.Write(report); err != nil {
-				logger.Warn("Lost report:", err)
-				continue
+			// aggregate the doc
+			err := aggregator.Add(ctx, doc)
+			if err != nil {
+				logger.Warn("couldn't add document to aggregator")
 			}
 		case <-doneChan:
+			// doneChan needs to be repeated in this select as docsChan can block
+			// doneChan needs to be also in separate select statement
+			// as docsChan could be always picked since select picks channels pseudo randomly
 			return
 		}
 	}
-}
-
-// Writer write QAN Report
-type Writer interface {
-	Write(r *report.Report) error
 }

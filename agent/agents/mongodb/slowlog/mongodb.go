@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package mongodb runs built-in QAN Agent for MongoDB profiler.
-package mongodb
+// Package slowlog runs built-in QAN Agent for MongoDB Slowlog.
+package slowlog
 
 import (
 	"context"
@@ -23,8 +23,8 @@ import (
 	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
 
 	"github.com/percona/pmm/agent/agents"
-	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler"
-	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
+	slowlog "github.com/percona/pmm/agent/agents/mongodb/slowlog/internal"
+	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/report"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -69,20 +69,20 @@ func newMongo(mongoDSN string, l *logrus.Entry, params *Params) *MongoDB {
 
 // Run extracts performance data and sends it to the channel until ctx is canceled.
 func (m *MongoDB) Run(ctx context.Context) {
-	var prof Profiler
+	var slog Slowlog
 
 	defer func() {
-		prof.Stop() //nolint:errcheck
-		prof = nil
+		slog.Stop() //nolint:errcheck
+		slog = nil
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
 
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
-	prof = profiler.New(m.mongoDSN, m.l, m, m.agentID, m.maxQueryLength)
-	if err := prof.Start(); err != nil {
-		m.l.Errorf("can't run profiler, reason: %v", err)
+	slog = slowlog.New(m.mongoDSN, m.l, m, m.agentID, m.maxQueryLength)
+	if err := slog.Start(); err != nil {
+		m.l.Errorf("can't run slowlog, reason: %v", err)
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
 		return
 	}
@@ -104,7 +104,7 @@ func (m *MongoDB) Write(r *report.Report) error {
 	return nil
 }
 
-type Profiler interface { //nolint:revive
+type Slowlog interface { //nolint:revive
 	Start() error
 	Stop() error
 }

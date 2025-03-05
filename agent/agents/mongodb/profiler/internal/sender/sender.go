@@ -12,33 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package parser
+package sender
 
 import (
 	"context"
 	"runtime/pprof"
 	"sync"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
+	"github.com/percona/pmm/agent/agents/mongodb/profiler/internal/report"
 )
 
-func New(docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, logger *logrus.Entry) *Parser {
-	return &Parser{
-		docsChan:   docsChan,
-		aggregator: aggregator,
+func New(reportChan <-chan *report.Report, w Writer, logger *logrus.Entry) *Sender {
+	return &Sender{
+		reportChan: reportChan,
+		w:          w,
 		logger:     logger,
 	}
 }
 
-type Parser struct {
+type Sender struct {
 	// dependencies
-	docsChan   <-chan proto.SystemProfile
-	aggregator *aggregator.Aggregator
-
-	logger *logrus.Entry
+	reportChan <-chan *report.Report
+	w          Writer
+	logger     *logrus.Entry
 
 	// state
 	m        sync.Mutex      // Lock() to protect internal consistency of the service
@@ -48,91 +46,85 @@ type Parser struct {
 }
 
 // Start starts but doesn't wait until it exits
-func (p *Parser) Start(context.Context) error {
-	p.m.Lock()
-	defer p.m.Unlock()
-	if p.running {
+func (s *Sender) Start() error {
+	s.m.Lock()
+	defer s.m.Unlock()
+	if s.running {
 		return nil
 	}
 
 	// create new channels over which we will communicate to...
 	// ... inside goroutine to close it
-	p.doneChan = make(chan struct{})
+	s.doneChan = make(chan struct{})
 
 	// start a goroutine and Add() it to WaitGroup
 	// so we could later Wait() for it to finish
-	p.wg = &sync.WaitGroup{}
-	p.wg.Add(1)
+	s.wg = &sync.WaitGroup{}
+	s.wg.Add(1)
 
 	ctx := context.Background()
-	labels := pprof.Labels("component", "mongodb.monitor")
+	labels := pprof.Labels("component", "mongodb.sender")
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
-		start(
-			ctx,
-			p.wg,
-			p.docsChan,
-			p.aggregator,
-			p.doneChan,
-			p.logger)
+		start(ctx, s.wg, s.reportChan, s.w, s.logger, s.doneChan)
 	})
 
-	p.running = true
+	s.running = true
 	return nil
 }
 
 // Stop stops running
-func (p *Parser) Stop() {
-	p.m.Lock()
-	defer p.m.Unlock()
-	if !p.running {
+func (s *Sender) Stop() {
+	s.m.Lock()
+	defer s.m.Unlock()
+	if !s.running {
 		return
 	}
-	p.running = false
+	s.running = false
 
 	// notify goroutine to close
-	close(p.doneChan)
+	close(s.doneChan)
 
 	// wait for goroutines to exit
-	p.wg.Wait()
+	s.wg.Wait()
 	return
 }
 
-func (p *Parser) Name() string {
-	return "parser"
+func (s *Sender) Name() string {
+	return "sender"
 }
 
-func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, doneChan <-chan struct{}, logger *logrus.Entry) {
+func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Report, w Writer, logger *logrus.Entry, doneChan <-chan struct{}) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
-	// update stats
 	for {
-		// check if we should shutdown
 		select {
-		case <-doneChan:
-			return
-		default:
-			// just continue if not
-		}
-
-		// aggregate documents and create report
-		select {
-		case doc, ok := <-docsChan:
+		case report, ok := <-reportChan:
 			// if channel got closed we should exit as there is nothing we can listen to
 			if !ok {
 				return
 			}
 
-			// aggregate the doc
-			err := aggregator.Add(ctx, doc)
-			if err != nil {
-				logger.Warn("couldn't add document to aggregator")
+			// check if we should shutdown
+			select {
+			case <-doneChan:
+				return
+			default:
+				// just continue if not
+			}
+
+			// sent report
+			if err := w.Write(report); err != nil {
+				logger.Warn("Lost report:", err)
+				continue
 			}
 		case <-doneChan:
-			// doneChan needs to be repeated in this select as docsChan can block
-			// doneChan needs to be also in separate select statement
-			// as docsChan could be always picked since select picks channels pseudo randomly
 			return
 		}
 	}
+}
+
+// Writer write QAN Report
+type Writer interface {
+	Write(r *report.Report) error
 }
