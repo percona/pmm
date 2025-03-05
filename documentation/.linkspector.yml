@@ -1,3 +1,17 @@
 # https://github.com/UmbrellaDocs/linkspector
+
 dirs:
   - documentation/docs
+
+excludedUrls: 
+  - "https://www.reddit.com/r/VictoriaMetrics/"
+  - "https://linux.die.net/man/8/logrotate"
+
+excludedAnchors: 
+  - "#os_alerts"
+  - "#pmm_alerts"
+  - "#mongodb_alerts"
+  - "#pbm_alerts"
+  - "#mysql_alerts"
+  - "#postgresql_alerts"
+  - "#proxysql_alerts"
