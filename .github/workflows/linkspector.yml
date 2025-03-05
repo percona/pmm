@@ -21,7 +21,6 @@ jobs:
           fail_level: error
           filter_mode: nofilter
           config_file: documentation/.linkspector.yml
-          excludedFiles:
           excludedUrls:
             - "https://www.reddit.com/r/VictoriaMetrics/"
             - "https://linux.die.net/man/8/logrotate"
