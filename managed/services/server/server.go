@@ -496,6 +496,22 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 	return res
 }
 
+// convertReadOnlySettings creates a subset of database settings for non-admin roles.
+func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.ReadOnlySettings {
+	res := &serverv1.ReadOnlySettings{
+		UpdatesEnabled:          settings.IsUpdatesEnabled(),
+		TelemetryEnabled:        settings.IsTelemetryEnabled(),
+		AdvisorEnabled:          settings.IsAdvisorsEnabled(),
+		AlertingEnabled:         settings.IsAlertingEnabled(),
+		PmmPublicAddress:        settings.PMMPublicAddress,
+		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
+		AzurediscoverEnabled:    settings.IsAzureDiscoverEnabled(),
+		EnableAccessControl:     settings.IsAccessControlEnabled(),
+	}
+
+	return res
+}
+
 // GetSettings returns current PMM Server settings.
 func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsRequest) (*serverv1.GetSettingsResponse, error) { //nolint:revive
 	s.envRW.RLock()
@@ -510,6 +526,21 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 
 	return &serverv1.GetSettingsResponse{
 		Settings: s.convertSettings(settings, err == nil),
+	}, nil
+}
+
+// GetReadOnlySettings returns current PMM Server settings .
+func (s *Server) GetReadOnlySettings(ctx context.Context, req *serverv1.GetReadOnlySettingsRequest) (*serverv1.GetReadOnlySettingsResponse, error) { //nolint:revive
+	s.envRW.RLock()
+	defer s.envRW.RUnlock()
+
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serverv1.GetReadOnlySettingsResponse{
+		Settings: s.convertReadOnlySettings(settings),
 	}, nil
 }
 

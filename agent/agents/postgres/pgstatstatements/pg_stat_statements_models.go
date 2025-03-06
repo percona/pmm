@@ -214,6 +214,7 @@ type pgStatStatementsExtended struct {
 	Tables           []string
 	IsQueryTruncated bool
 	Comments         map[string]string
+	RealQuery        string // RealQuery is a query which is not truncated, it's not sent to API and stored only locally in memory.
 }
 
 func (e *pgStatStatementsExtended) String() string {
