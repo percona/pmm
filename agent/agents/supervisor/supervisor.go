@@ -463,10 +463,6 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		"agentID":   agentID,
 		"type":      agentType,
 	})
-	if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT && !cgroups.IsCgroupsWritable() {
-		s.handleNomadAgent(agentID, agentProcess, port, cancel, processParams, logStore, l)
-		return nil
-	}
 	l.Debugf("Starting: %s.", processParams)
 
 	process := process.New(processParams, agentProcess.RedactWords, l)
@@ -498,6 +494,11 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 	select {
 	case isInitialized := <-process.IsInitialized():
 		if !isInitialized {
+			access := cgroups.CheckAccess(l)
+			if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT && !access.WriteAccess {
+				s.handleNomadAgent(agentID, agentProcess, port, cancel, processParams, logStore, l)
+				return nil
+			}
 			defer cancel()
 			return process.GetError()
 		}
@@ -529,6 +530,7 @@ func (s *Supervisor) handleNomadAgent(agentID string, agentProcess *agentv1.SetS
 
 	status := inventoryv1.AgentStatus_AGENT_STATUS_DONE
 	s.storeLastStatus(agentID, status)
+	l.Warn("Cannot start Nomad Agent: cgroups are not writable.")
 	l.Infof("Sending status: %s (port %d).", status, port)
 	s.changes <- &agentv1.StateChangedRequest{
 		AgentId:         agentID,
