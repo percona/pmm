@@ -25,73 +25,73 @@ When a user signs in to PMM for the first time and has no role assigned, they ar
 Dashboard creators in PMM automatically get Admin permissions for the dashboards they create. Folder permissions cascade to all dashboards within that folder.
 
 ## Permission matrix
+To create tables without borders in Markdown, we need to use a different approach since standard Markdown tables always include borders. Here's how you can format those permission tables without borders:
 
 === "Dashboard & Monitoring"
-    | Permission | Viewer | Editor | Admin |
-    |------------|--------|--------|-------|
-    | View dashboards | ✓ | ✓ | ✓ |
-    | Add, edit, delete dashboards | ✗ | ✓ | ✓ |
-    | Add, edit, delete folders | ✗ | ✓ | ✓ |
-    | View playlists | ✓ | ✓ | ✓ |
-    | Add, edit, delete playlists | ✗ | ✓ | ✓ |
-    | Access Explore | ✗ | ✓ | ✓ |
-    | Query data sources | ✓ | ✓ | ✓ |
-    | View Query Analytics (QAN)| ✓ | ✓ | ✓ |
-    | View Insights | ✓ | ✓ | ✓ |
+    Permission | Viewer | Editor | Admin
+    :--- | :---: | :---: | :---:
+    View dashboards | ✓ | ✓ | ✓
+    Add, edit, delete dashboards | ✗ | ✓ | ✓
+    Add, edit, delete folders | ✗ | ✓ | ✓
+    View playlists | ✓ | ✓ | ✓
+    Add, edit, delete playlists | ✗ | ✓ | ✓
+    Access Explore | ✗ | ✓ | ✓
+    Query data sources | ✓ | ✓ | ✓
+    View Query Analytics (QAN)| ✓ | ✓ | ✓
+    View Insights | ✓ | ✓ | ✓
 
 === "Alerting & Advisors"
-    | Permission | Viewer | Editor | Admin |
-    |------------|--------|--------|-------|
-    | View alert rules | ✓ | ✓ | ✓ |
-    | Add, edit, delete alert rules | ✗ | ✓ | ✓ |
-    | View fired alerts | ✓ | ✓ | ✓ |
-    | Silence alerts | ✗ | ✓ | ✓ |
-    | View alert templates | ✗ | ✓ | ✓ |
-    | Create alerts from templates | ✗ | ✓ | ✓ |
-    | Add, edit, delete alert templates | ✗ | ✓ | ✓ |
-    | View Advisor checks | ✗ | ✓ | ✓ |
-    | Run, disable, edit Advisor checks | ✗ | ✗ | ✓ |
-    | Run Advisor checks | ✗ | ✗ | ✓ |
+    Permission | Viewer | Editor | Admin
+    :--- | :---: | :---: | :---:
+    View alert rules | ✓ | ✓ | ✓
+    Add, edit, delete alert rules | ✗ | ✓ | ✓
+    View fired alerts | ✓ | ✓ | ✓
+    Silence alerts | ✗ | ✓ | ✓
+    View alert templates | ✗ | ✓ | ✓
+    Create alerts from templates | ✗ | ✓ | ✓
+    Add, edit, delete alert templates | ✗ | ✓ | ✓
+    View Advisor checks | ✗ | ✓ | ✓
+    Run, disable, edit Advisor checks | ✗ | ✗ | ✓
+    Run Advisor checks | ✗ | ✗ | ✓
 
 === "Configuration & Management"
-    | Permission | Viewer | Editor | Admin |
-    |------------|--------|--------|-------|
-    | View inventory | ✗| ✗ | ✓ |
-    | Add, edit, delete services | ✗ | ✗ | ✓ |
-    | View and run system actions | ✗ | ✗| ✓ |
-    | View server settings | ✗ | ✗| ✓ |
-    | Modify server settings | ✗ | ✗ | ✓ |
-    | Add, edit, delete users | ✗ | ✗ | ✓ |
-    | Add, edit, delete teams | ✗ | ✗ | ✓ |
-    | View backups | ✗ | ✗ | ✓ |
-    | Manage backups | ✗ | ✗ | ✓ |
-    | View update status | ✗ |✗ | ✓ |
-    | Start updates | ✗ | ✗ | ✓ |
+    Permission | Viewer | Editor | Admin
+    :--- | :---: | :---: | :---:
+    View inventory | ✗ | ✗ | ✓
+    Add, edit, delete services | ✗ | ✗ | ✓
+    View and run system actions | ✗ | ✗ | ✓
+    View server settings | ✗ | ✗ | ✓
+    Modify server settings | ✗ | ✗ | ✓
+    Add, edit, delete users | ✗ | ✗ | ✓
+    Add, edit, delete teams | ✗ | ✗ | ✓
+    View backups | ✗ | ✗ | ✓
+    Manage backups | ✗ | ✗ | ✓
+    View update status | ✗ | ✗ | ✓
+    Start updates | ✗ | ✗ | ✓
 
 === "Data sources"
-    | Permission | Viewer | Editor | Admin |
-    |------------|--------|--------|-------|
-    | View data sources | ✓ | ✓ | ✓ |
-    | Add, edit, delete data sources | ✗ | ✗ | ✓ |
-    | Configure data source access | ✗ | ✗ | ✓ |
+    Permission | Viewer | Editor | Admin
+    :--- | :---: | :---: | :---:
+    View data sources | ✓ | ✓ | ✓
+    Add, edit, delete data sources | ✗ | ✗ | ✓
+    Configure data source access | ✗ | ✗ | ✓
 
 === "API access"
-    | API Path | Minimum role required | Purpose |
-    |----------|----------------------|---------|
-    | `/v1/alerting` | Viewer | Access alert information |
-    | `/v1/advisors` | Editor | Access advisor functionality |
-    | `/v1/advisors/checks` | Admin | Run advisor checks |
-    | `/v1/actions/` | Viewer | View and execute actions |
-    | `/v1/backups` | Admin | Manage backups |
-    | `/v1/inventory/` | Admin | Manage inventory items |
-    | `/v1/inventory/services:getTypes` | Viewer | View service types |
-    | `/v1/management/` | Admin | Server management functions |
-    | `/v1/management/Jobs` | Viewer | View management jobs |
-    | `/v1/server/updates` | Viewer | Check for updates |
-    | `/v1/server/updates:start` | Admin | Start update process |
-    | `/v1/server/settings/readonly` | Viewer | View read-only settings |
-    | `/v1/server/settings` | Admin | Configure server settings |
-    | `/v1/platform:` | Admin | Platform management |
-    | `/v1/platform/` | Viewer | Platform information |
-    | `/v1/qan` | Viewer | Query Analytics (QAN) |
-
+    API Path | Minimum role required | Purpose
+    :--- | :--- | :---
+    `/v1/alerting` | Viewer | Access alert information
+    `/v1/advisors` | Editor | Access advisor functionality
+    `/v1/advisors/checks` | Admin | Run advisor checks
+    `/v1/actions/` | Viewer | View and execute actions
+    `/v1/backups` | Admin | Manage backups
+    `/v1/inventory/` | Admin | Manage inventory items
+    `/v1/inventory/services:getTypes` | Viewer | View service types
+    `/v1/management/` | Admin | Server management functions
+    `/v1/management/Jobs` | Viewer | View management jobs
+    `/v1/server/updates` | Viewer | Check for updates
+    `/v1/server/updates:start` | Admin | Start update process
+    `/v1/server/settings/readonly` | Viewer | View read-only settings
+    `/v1/server/settings` | Admin | Configure server settings
+    `/v1/platform:` | Admin | Platform management
+    `/v1/platform/` | Viewer | Platform information
+    `/v1/qan` | Viewer | Query Analytics (QAN)
