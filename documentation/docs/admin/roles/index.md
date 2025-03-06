@@ -92,6 +92,7 @@ Dashboard creators in PMM automatically get Admin permissions for the dashboards
     | `/v1/server/updates:start` | Admin | Start update process |
     | `/v1/server/settings/readonly` | Viewer | View read-only settings |
     | `/v1/server/settings` | Admin | Configure server settings |
+    | `/v1/server/settings/readonly` | Viewer | View read-only settings |
     | `/v1/platform:` | Admin | Platform management |
     | `/v1/platform/` | Viewer | Platform information |
     | `/v1/qan` | Viewer | Query Analytics |
