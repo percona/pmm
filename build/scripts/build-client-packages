@@ -172,8 +172,16 @@ get_system(){
         OS="rpm"
     else
         ARCH=$(uname -m)
-        OS_NAME="$(lsb_release -sc)"
-        OS="deb"
+        if command -v lsb_release &>/dev/null; then
+            OS_NAME="$(lsb_release -sc)"
+            OS="deb"
+        elif [ -f /etc/os-release ]; then
+            . /etc/os-release
+            if [[ "$ID" == "amzn" && "$VERSION_ID" == "2023" ]]; then
+                OS_NAME="amzn2023"
+                OS="rpm"
+            fi
+        fi
     fi
     return
 }
