@@ -81,7 +81,7 @@ Dashboard creators in PMM automatically get Admin permissions for the dashboards
     |----------|----------------------|---------|
     | `/v1/alerting` | Viewer | Access alert information |
     | `/v1/advisors` | Editor | Access advisor functionality |
-    | `/v1/advisors/checks` | Admin | Run advisor checks |
+    | `/v1/advisors/checks` | Editor | Run advisor checks |
     | `/v1/actions/` | Viewer | View and execute actions |
     | `/v1/backups` | Admin | Manage backups |
     | `/v1/inventory/` | Admin | Manage inventory items |
