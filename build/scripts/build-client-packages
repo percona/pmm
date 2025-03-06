@@ -196,7 +196,7 @@ install_deps() {
         exit 1
     fi
     if [ "$OS" = "rpm" ]; then
-        yum -y install git wget rpmdevtools bison yum-utils rpm-build
+        yum -y install git wget rpmdevtools bison yum-utils rpm-build systemd-devel
     else
         apt-get update
         apt-get -y install devscripts equivs debhelper
