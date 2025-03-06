@@ -512,7 +512,7 @@ client {
     "driver.allowlist" = "raw_exec"
   }
 
-  # optional lables set to Nomad Client, may be the same as for PMM Agent.
+  # optional labels assigned to Nomad Client, can be the same as PMM Agent's.
   meta {
     pmm-agent = "1"
     agent_type = "nomad-client"
