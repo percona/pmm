@@ -36,52 +36,51 @@ Dashboard creators in PMM automatically get Admin permissions for the dashboards
     | Add, edit, delete playlists | ✗ | ✓ | ✓ |
     | Access Explore | ✗ | ✓ | ✓ |
     | Query data sources | ✓ | ✓ | ✓ |
-    | View Query Analytics | ✓ | ✓ | ✓ |
+    | View Query Analytics (QAN)| ✓ | ✓ | ✓ |
     | View Insights | ✓ | ✓ | ✓ |
 
 === "Alerting & Advisors"
     | Permission | Viewer | Editor | Admin |
     |------------|--------|--------|-------|
-    | View Alert Rules | ✓ | ✓ | ✓ |
-    | Add, edit, delete Alert Rules | ✗ | ✓ | ✓ |
-    | View Fired Alerts | ✓ | ✓ | ✓ |
-    | Silence Alerts | ✗ | ✓ | ✓ |
-    | View Alert Templates | ✗ | ✓ | ✓ |
-    | Create Alerts from Templates | ✗ | ✓ | ✓ |
-    | Add, edit, delete Alert Templates | ✗ | ✓ | ✓ |
-    | View Advisors | ✗ | ✓ | ✓ |
-    | Run, disable, edit Advisors | ✗ | ✗ | ✓ |
-    | Run Advisor Checks | ✗ | ✗ | ✓ |
+    | View alert rules | ✓ | ✓ | ✓ |
+    | Add, edit, delete alert rules | ✗ | ✓ | ✓ |
+    | View fired alerts | ✓ | ✓ | ✓ |
+    | Silence alerts | ✗ | ✓ | ✓ |
+    | View alert templates | ✗ | ✓ | ✓ |
+    | Create alerts from templates | ✗ | ✓ | ✓ |
+    | Add, edit, delete alert templates | ✗ | ✓ | ✓ |
+    | View Advisor checks | ✗ | ✓ | ✓ |
+    | Run, disable, edit Advisor checks | ✗ | ✗ | ✓ |
+    | Run Advisor checks | ✗ | ✗ | ✓ |
 
 === "Configuration & Management"
     | Permission | Viewer | Editor | Admin |
     |------------|--------|--------|-------|
-    | View Inventory | ✓ | ✓ | ✓ |
-    | Add, edit, delete Services | ✗ | ✗ | ✓ |
-    | View Actions | ✓ | ✓ | ✓ |
-    | Execute Actions | ✓ | ✓ | ✓ |
-    | View Server Settings | ✓ | ✓ | ✓ |
-    | Modify Server Settings | ✗ | ✗ | ✓ |
-    | Add, edit, delete Users | ✗ | ✗ | ✓ |
-    | Add, edit, delete Teams | ✗ | ✗ | ✓ |
-    | View Backups | ✗ | ✗ | ✓ |
-    | Manage Backups | ✗ | ✗ | ✓ |
-    | View Update Status | ✓ | ✓ | ✓ |
-    | Start Updates | ✗ | ✗ | ✓ |
+    | View inventory | ✗| ✗ | ✓ |
+    | Add, edit, delete services | ✗ | ✗ | ✓ |
+    | View and run system actions | ✗ | ✗| ✓ |
+    | View server settings | ✗ | ✗| ✓ |
+    | Modify server settings | ✗ | ✗ | ✓ |
+    | Add, edit, delete users | ✗ | ✗ | ✓ |
+    | Add, edit, delete teams | ✗ | ✗ | ✓ |
+    | View backups | ✗ | ✗ | ✓ |
+    | Manage backups | ✗ | ✗ | ✓ |
+    | View update status | ✗ |✗ | ✓ |
+    | Start updates | ✗ | ✗ | ✓ |
 
 === "Data sources"
     | Permission | Viewer | Editor | Admin |
     |------------|--------|--------|-------|
-    | View Data Sources | ✓ | ✓ | ✓ |
-    | Add, edit, delete Data Sources | ✗ | ✗ | ✓ |
-    | Configure Data Source Access | ✗ | ✗ | ✓ |
+    | View data sources | ✓ | ✓ | ✓ |
+    | Add, edit, delete data sources | ✗ | ✗ | ✓ |
+    | Configure data source access | ✗ | ✗ | ✓ |
 
 === "API access"
     | API Path | Minimum role required | Purpose |
     |----------|----------------------|---------|
     | `/v1/alerting` | Viewer | Access alert information |
     | `/v1/advisors` | Editor | Access advisor functionality |
-    | `/v1/advisors/checks` | Editor | Run advisor checks |
+    | `/v1/advisors/checks` | Admin | Run advisor checks |
     | `/v1/actions/` | Viewer | View and execute actions |
     | `/v1/backups` | Admin | Manage backups |
     | `/v1/inventory/` | Admin | Manage inventory items |
@@ -92,9 +91,7 @@ Dashboard creators in PMM automatically get Admin permissions for the dashboards
     | `/v1/server/updates:start` | Admin | Start update process |
     | `/v1/server/settings/readonly` | Viewer | View read-only settings |
     | `/v1/server/settings` | Admin | Configure server settings |
-    | `/v1/server/settings/readonly` | Viewer | View read-only settings |
     | `/v1/platform:` | Admin | Platform management |
     | `/v1/platform/` | Viewer | Platform information |
-    | `/v1/qan` | Viewer | Query Analytics |
-    | `/v1/users` | Viewer | View user information |
+    | `/v1/qan` | Viewer | Query Analytics (QAN) |
 
