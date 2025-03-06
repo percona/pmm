@@ -219,6 +219,24 @@ func local_request_ServerService_GetSettings_0(ctx context.Context, marshaler ru
 	return msg, metadata, err
 }
 
+func request_ServerService_GetReadOnlySettings_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetReadOnlySettingsRequest
+		metadata runtime.ServerMetadata
+	)
+	msg, err := client.GetReadOnlySettings(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_ServerService_GetReadOnlySettings_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetReadOnlySettingsRequest
+		metadata runtime.ServerMetadata
+	)
+	msg, err := server.GetReadOnlySettings(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_ServerService_ChangeSettings_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ChangeSettingsRequest
@@ -408,6 +426,26 @@ func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 			return
 		}
 		forward_ServerService_GetSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_ServerService_GetReadOnlySettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/server.v1.ServerService/GetReadOnlySettings", runtime.WithHTTPPathPattern("/v1/server/settings/readonly"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_ServerService_GetReadOnlySettings_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ServerService_GetReadOnlySettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPut, pattern_ServerService_ChangeSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -605,6 +643,23 @@ func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 		forward_ServerService_GetSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_ServerService_GetReadOnlySettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/server.v1.ServerService/GetReadOnlySettings", runtime.WithHTTPPathPattern("/v1/server/settings/readonly"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_ServerService_GetReadOnlySettings_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_ServerService_GetReadOnlySettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPut, pattern_ServerService_ChangeSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -626,25 +681,27 @@ func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 }
 
 var (
-	pattern_ServerService_Version_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "version"}, ""))
-	pattern_ServerService_Readiness_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "readyz"}, ""))
-	pattern_ServerService_LeaderHealthCheck_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "leaderHealthCheck"}, ""))
-	pattern_ServerService_CheckUpdates_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "updates"}, ""))
-	pattern_ServerService_ListChangeLogs_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "server", "updates", "changelogs"}, ""))
-	pattern_ServerService_StartUpdate_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "updates"}, "start"))
-	pattern_ServerService_UpdateStatus_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "updates"}, "getStatus"))
-	pattern_ServerService_GetSettings_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "settings"}, ""))
-	pattern_ServerService_ChangeSettings_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "settings"}, ""))
+	pattern_ServerService_Version_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "version"}, ""))
+	pattern_ServerService_Readiness_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "readyz"}, ""))
+	pattern_ServerService_LeaderHealthCheck_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "leaderHealthCheck"}, ""))
+	pattern_ServerService_CheckUpdates_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "updates"}, ""))
+	pattern_ServerService_ListChangeLogs_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "server", "updates", "changelogs"}, ""))
+	pattern_ServerService_StartUpdate_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "updates"}, "start"))
+	pattern_ServerService_UpdateStatus_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "updates"}, "getStatus"))
+	pattern_ServerService_GetSettings_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "settings"}, ""))
+	pattern_ServerService_GetReadOnlySettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "server", "settings", "readonly"}, ""))
+	pattern_ServerService_ChangeSettings_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "server", "settings"}, ""))
 )
 
 var (
-	forward_ServerService_Version_0           = runtime.ForwardResponseMessage
-	forward_ServerService_Readiness_0         = runtime.ForwardResponseMessage
-	forward_ServerService_LeaderHealthCheck_0 = runtime.ForwardResponseMessage
-	forward_ServerService_CheckUpdates_0      = runtime.ForwardResponseMessage
-	forward_ServerService_ListChangeLogs_0    = runtime.ForwardResponseMessage
-	forward_ServerService_StartUpdate_0       = runtime.ForwardResponseMessage
-	forward_ServerService_UpdateStatus_0      = runtime.ForwardResponseMessage
-	forward_ServerService_GetSettings_0       = runtime.ForwardResponseMessage
-	forward_ServerService_ChangeSettings_0    = runtime.ForwardResponseMessage
+	forward_ServerService_Version_0             = runtime.ForwardResponseMessage
+	forward_ServerService_Readiness_0           = runtime.ForwardResponseMessage
+	forward_ServerService_LeaderHealthCheck_0   = runtime.ForwardResponseMessage
+	forward_ServerService_CheckUpdates_0        = runtime.ForwardResponseMessage
+	forward_ServerService_ListChangeLogs_0      = runtime.ForwardResponseMessage
+	forward_ServerService_StartUpdate_0         = runtime.ForwardResponseMessage
+	forward_ServerService_UpdateStatus_0        = runtime.ForwardResponseMessage
+	forward_ServerService_GetSettings_0         = runtime.ForwardResponseMessage
+	forward_ServerService_GetReadOnlySettings_0 = runtime.ForwardResponseMessage
+	forward_ServerService_ChangeSettings_0      = runtime.ForwardResponseMessage
 )

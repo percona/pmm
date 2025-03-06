@@ -143,7 +143,7 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	var err error
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
-	if current, _, err := m.getStatStatementsExtended(ctx, m.q, m.maxQueryLength); err == nil {
+	if current, _, err := m.getStatStatementsExtended(ctx); err == nil {
 		if err = m.statementsCache.Set(current); err == nil {
 			m.l.Debugf("Got %d initial stat statements.", len(current))
 			running = true
@@ -204,8 +204,6 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 // and the previous cashed state.
 func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	ctx context.Context,
-	q *reform.Querier,
-	maxQueryLength int32,
 ) (statementsMap, statementsMap, error) {
 	var totalN, newN, newSharedN, oldN int
 	var err error
@@ -220,6 +218,8 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	if err := m.statementsCache.Get(prev); err != nil {
 		return nil, nil, err
 	}
+
+	q := m.q
 
 	// load all databases and usernames first as we can't use querier while iterating over rows below
 	databases := queryDatabases(q)
@@ -251,6 +251,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 			pgStatStatements: *row,
 			Database:         databases[row.DBID],
 			Username:         usernames[row.UserID],
+			RealQuery:        row.Query,
 		}
 
 		if p := prev[c.QueryID]; p != nil {
@@ -262,7 +263,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 		} else {
 			newN++
 
-			c.Query, c.IsQueryTruncated = truncate.Query(c.Query, maxQueryLength, truncate.GetDefaultMaxQueryLength())
+			c.Query, c.IsQueryTruncated = truncate.Query(c.Query, m.maxQueryLength, truncate.GetDefaultMaxQueryLength())
 		}
 
 		current[c.QueryID] = c
@@ -278,7 +279,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 }
 
 func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) {
-	current, prev, err := m.getStatStatementsExtended(ctx, m.q, m.maxQueryLength)
+	current, prev, err := m.getStatStatementsExtended(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -336,7 +337,7 @@ func (m *PGStatStatementsQAN) makeBuckets(current, prev statementsMap) []*agentv
 		}
 
 		if len(currentPSS.Tables) == 0 {
-			currentPSS.Tables = extractTables(currentPSS.Query, m.maxQueryLength, l)
+			currentPSS.Tables = extractTables(currentPSS.RealQuery, m.maxQueryLength, l)
 		}
 
 		if !m.disableCommentsParsing {

@@ -285,7 +285,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			Common: &agentv1.MetricsBucket_Common{
 				Fingerprint:         selectAllCitiesLong,
 				Database:            "pmm-agent",
-				Tables:              []string{},
+				Tables:              []string{"city"},
 				Comments:            map[string]string{"controller": "test"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
@@ -331,7 +331,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			Common: &agentv1.MetricsBucket_Common{
 				Fingerprint:         selectAllCitiesLong,
 				Database:            "pmm-agent",
-				Tables:              []string{},
+				Tables:              []string{"city"},
 				Comments:            map[string]string{"controller": "test"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
