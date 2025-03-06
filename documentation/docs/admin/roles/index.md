@@ -96,4 +96,5 @@ Dashboard creators in PMM automatically get Admin permissions for the dashboards
     | `/v1/platform:` | Admin | Platform management |
     | `/v1/platform/` | Viewer | Platform information |
     | `/v1/qan` | Viewer | Query Analytics |
+    | `/v1/users` | Viewer | View user information |
 
