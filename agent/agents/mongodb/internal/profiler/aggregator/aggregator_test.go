@@ -51,10 +51,11 @@ func TestAggregator(t *testing.T) {
 		defer aggregator.Stop()
 		ctx := context.TODO()
 		err := aggregator.Add(ctx, proto.SystemProfile{
-			NscannedObjects: 2,
-			Nreturned:       3,
-			Ns:              "collection.people",
-			Op:              "insert",
+			Nreturned:    3,
+			Ns:           "collection.people",
+			Op:           "insert",
+			DocsExamined: 2,
+			KeysExamined: 3,
 		})
 		require.NoError(t, err)
 
@@ -85,11 +86,16 @@ func TestAggregator(t *testing.T) {
 						MDocsReturnedMax:   3,
 						MDocsReturnedP99:   3,
 						MResponseLengthCnt: 1,
-						MDocsScannedCnt:    1,
-						MDocsScannedSum:    2,
-						MDocsScannedMin:    2,
-						MDocsScannedMax:    2,
-						MDocsScannedP99:    2,
+						MDocsExaminedCnt:   1,
+						MDocsExaminedSum:   2,
+						MDocsExaminedMin:   2,
+						MDocsExaminedMax:   2,
+						MDocsExaminedP99:   2,
+						MKeysExaminedCnt:   1,
+						MKeysExaminedSum:   3,
+						MKeysExaminedMin:   3,
+						MKeysExaminedMax:   3,
+						MKeysExaminedP99:   3,
 					},
 				},
 			},
@@ -104,10 +110,9 @@ func TestAggregator(t *testing.T) {
 		defer aggregator.Stop()
 		ctx := context.TODO()
 		err := aggregator.Add(ctx, proto.SystemProfile{
-			NscannedObjects: 2,
-			Nreturned:       3,
-			Ns:              "collection.people",
-			Op:              "query",
+			Nreturned: 3,
+			Ns:        "collection.people",
+			Op:        "query",
 			Command: bson.D{
 				primitive.E{Key: "find", Value: "people"},
 				primitive.E{
@@ -117,6 +122,8 @@ func TestAggregator(t *testing.T) {
 					},
 				},
 			},
+			DocsExamined: 2,
+			KeysExamined: 3,
 		})
 		require.NoError(t, err)
 
@@ -148,11 +155,16 @@ func TestAggregator(t *testing.T) {
 						MDocsReturnedMax:   3,
 						MDocsReturnedP99:   3,
 						MResponseLengthCnt: 1,
-						MDocsScannedCnt:    1,
-						MDocsScannedSum:    2,
-						MDocsScannedMin:    2,
-						MDocsScannedMax:    2,
-						MDocsScannedP99:    2,
+						MDocsExaminedCnt:   1,
+						MDocsExaminedSum:   2,
+						MDocsExaminedMin:   2,
+						MDocsExaminedMax:   2,
+						MDocsExaminedP99:   2,
+						MKeysExaminedCnt:   1,
+						MKeysExaminedSum:   3,
+						MKeysExaminedMin:   3,
+						MKeysExaminedMax:   3,
+						MKeysExaminedP99:   3,
 					},
 				},
 			},
