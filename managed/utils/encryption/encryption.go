@@ -71,10 +71,29 @@ type QueryValues struct {
 	WhereValues [][]any
 }
 
+func isTest() bool {
+	// Check if tests are running by inspecting os.Args
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "-test.") {
+			return true
+		}
+	}
+	return false
+}
+
 // New creates an encryption; if key on path doesn't exist, it will be generated.
 func New() *Encryption {
 	e := &Encryption{}
-	e.Path = encryptionKeyPath()
+	customKeyPath := os.Getenv("PMM_ENCRYPTION_KEY_PATH")
+	if customKeyPath != "" {
+		e.Path = customKeyPath
+	} else {
+		if isTest() {
+			e.Path = "./encryption.key"
+		} else {
+			e.Path = DefaultEncryptionKeyPath
+		}
+	}
 
 	bytes, err := os.ReadFile(e.Path)
 	switch {

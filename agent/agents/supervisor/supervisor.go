@@ -42,6 +42,7 @@ import (
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
+	"github.com/percona/pmm/agent/utils/cgroups"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
@@ -493,6 +494,11 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 	select {
 	case isInitialized := <-process.IsInitialized():
 		if !isInitialized {
+			access := cgroups.CheckAccess(l)
+			if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT && !access.WriteAccess {
+				s.handleNomadAgent(agentID, agentProcess, port, cancel, processParams, logStore, l)
+				return nil
+			}
 			defer cancel()
 			return process.GetError()
 		}
@@ -509,6 +515,31 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		logStore:        logStore,
 	}
 	return nil
+}
+
+func (s *Supervisor) handleNomadAgent(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16, cancel context.CancelFunc, processParams *process.Params, logStore *tailog.Store, l *logrus.Entry) {
+	done := make(chan struct{})
+	s.agentProcesses[agentID] = &agentProcessInfo{
+		cancel:          cancel,
+		done:            done,
+		requestedState:  proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess),
+		listenPort:      port,
+		processExecPath: processParams.Path,
+		logStore:        logStore,
+	}
+
+	status := inventoryv1.AgentStatus_AGENT_STATUS_DONE
+	s.storeLastStatus(agentID, status)
+	l.Warn("Cannot start Nomad Agent: cgroups are not writable.")
+	l.Infof("Sending status: %s (port %d).", status, port)
+	s.changes <- &agentv1.StateChangedRequest{
+		AgentId:         agentID,
+		Status:          status,
+		ListenPort:      uint32(port),
+		ProcessExecPath: processParams.Path,
+	}
+
+	close(done)
 }
 
 // startBuiltin starts built-in Agent.
@@ -696,7 +727,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		templateParams["tmp_dir"] = cfg.Paths.TempDir
 		processParams.Path = cfg.Paths.VMAgent
 	case inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT:
-		templateParams["server_host"] = cfg.Server.URL().Host
+		templateParams["server_host"] = cfg.Server.URL().Hostname()
 		templateParams["nomad_data_dir"] = cfg.Paths.NomadDataDir
 		processParams.Path = cfg.Paths.Nomad
 	default:

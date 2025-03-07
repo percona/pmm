@@ -91,6 +91,7 @@ import (
 	managementdump "github.com/percona/pmm/managed/services/management/dump"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/minio"
+	"github.com/percona/pmm/managed/services/nomad"
 	"github.com/percona/pmm/managed/services/platform"
 	"github.com/percona/pmm/managed/services/qan"
 	"github.com/percona/pmm/managed/services/scheduler"
@@ -906,9 +907,13 @@ func main() { //nolint:maintidx,cyclop
 
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
+	nomad, err := nomad.New(db)
+	if err != nil {
+		l.Fatalf("Could not create Nomad client: %s", err)
+	}
 
 	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
-	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams)
+	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams, nomad)
 	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
@@ -958,6 +963,7 @@ func main() { //nolint:maintidx,cyclop
 		VMAlertExternalRules: externalRules,
 		Updater:              updater,
 		Dus:                  dus,
+		Nomad:                nomad,
 	}
 
 	server, err := server.NewServer(serverParams)
