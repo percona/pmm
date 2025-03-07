@@ -118,7 +118,7 @@ plugins:
   # https://pypi.org/project/mkdocs-exclude/
   exclude:
     glob:
-      - "setting-up/client/docker.md"
+      # - "install-pmm/install-pmm-client/docker.md"
   mike:
     version_selector: true
     css_dir: css
@@ -133,112 +133,127 @@ extra:
 
 # Common navigation for percona.com, render.com and PDF
 nav:
-  - Home: index.md  
+  - Home: index.md
   - Get help from Percona: get-help.md
   - Discover:
     - discover-pmm/why-pmm.md
     - discover-pmm/features.md
-  - Quickstart guide: quickstart.md
+  - Quickstart guide: quickstart/quickstart.md
   - Install:
-    - install-pmm/index.md
-    - Plan your PMM installation: 
-      - install-pmm/plan-pmm-installation/hardware_and_system.md
-      - install-pmm/plan-pmm-installation/network_and_firewall.md
-    - Install PMM in HA mode: install-pmm/HA.md  
-    - Install PMM Server:
-      - install-pmm/install-pmm-server/index.md
-      - install-pmm/install-pmm-server/prerequisites.md
-      - Bare metal:
-        - Docker:
-          - install-pmm/install-pmm-server/baremetal/docker/easy-install.md  
-          - install-pmm/install-pmm-server/baremetal/docker/index.md
-          - install-pmm/install-pmm-server/baremetal/docker/run_with_vol.md
-          - install-pmm/install-pmm-server/baremetal/docker/run_with_host_dir.md      
-          - install-pmm/install-pmm-server/baremetal/docker/backup_container.md      
-          - install-pmm/install-pmm-server/baremetal/docker/restore_container.md      
-          - install-pmm/install-pmm-server/baremetal/docker/remove_container.md      
-          - install-pmm/install-pmm-server/baremetal/docker/env_var.md      
-          - install-pmm/install-pmm-server/baremetal/docker/preview_env_var.md      
-          - install-pmm/install-pmm-server/baremetal/docker/isolated_hosts.md        
-        - Podman:
-          - install-pmm/install-pmm-server/baremetal/podman/index.md
-          - install-pmm/install-pmm-server/baremetal/podman/backup_container_podman.md
-          - install-pmm/install-pmm-server/baremetal/podman/restore_container_podman.md
-          - install-pmm/install-pmm-server/baremetal/podman/remove_container_podman.md
-        - Virtual Applinace:
-          - install-pmm/install-pmm-server/baremetal/virtual/index.md
-          - install-pmm/install-pmm-server/baremetal/virtual/download_ova.md
-          - install-pmm/install-pmm-server/baremetal/virtual/vmware.md
-          - install-pmm/install-pmm-server/baremetal/virtual/virtualbox.md
-          - install-pmm/install-pmm-server/baremetal/virtual/login_UI.md
-          - install-pmm/install-pmm-server/baremetal/virtual/remove_virtual_machine.md
-      - Helm: 
-        - install-pmm/install-pmm-server/baremetal/helm/index.md
-        - install-pmm/install-pmm-server/baremetal/helm/backup_container_helm.md
-        - install-pmm/install-pmm-server/baremetal/helm/restore_container_helm.md            
-      - AWS Marketplace:
-        - install-pmm/install-pmm-server/aws/aws.md
-        - install-pmm/install-pmm-server/aws/limit_access.md
-        - install-pmm/install-pmm-server/aws/settings.md
-        - install-pmm/install-pmm-server/aws/run.md
-        - install-pmm/install-pmm-server/aws/back_pmm_server.md
-        - install-pmm/install-pmm-server/aws/restore_pmm_server.md
-        - install-pmm/install-pmm-server/aws/remove_pmm_server.md
-    - Set up PMM Client:
+      - install-pmm/index.md
+      - Plan your PMM installation:
+        - install-pmm/plan-pmm-installation/hardware_and_system.md
+        - install-pmm/plan-pmm-installation/network_and_firewall.md
+      - Install PMM Server:
+        - install-pmm/install-pmm-server/index.md
+        - install-pmm/install-pmm-server/prerequisites.md
+        - Deployment options:
+          - Install on Docker:
+            - install-pmm/install-pmm-server/deployment-options/docker/index.md
+            - install-pmm/install-pmm-server/deployment-options/docker/easy-install.md
+            - Setup and configuration:
+              - install-pmm/install-pmm-server/deployment-options/docker/run_with_vol.md
+              - install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.md
+              - install-pmm/install-pmm-server/deployment-options/docker/env_var.md
+              - install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.md
+              - install-pmm/install-pmm-server/deployment-options/docker/isolated_hosts.md
+            - Maintenance:
+              - install-pmm/install-pmm-server/deployment-options/docker/backup_container.md
+              - install-pmm/install-pmm-server/deployment-options/docker/restore_container.md
+              - install-pmm/install-pmm-server/deployment-options/docker/remove_container.md
+              - install-pmm/install-pmm-server/deployment-options/docker/upgrade_container.md
+          - Install on Podman:
+            - install-pmm/install-pmm-server/deployment-options/podman/index.md
+            - Maintenance:
+              - install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.md
+              - install-pmm/install-pmm-server/deployment-options/podman/restore_container_podman.md
+              - install-pmm/install-pmm-server/deployment-options/podman/remove_container_podman.md
+          - Install on Virtual Appliance:
+            - install-pmm/install-pmm-server/deployment-options/virtual/index.md
+            - Setup:
+              - install-pmm/install-pmm-server/deployment-options/virtual/download_ova.md
+              - install-pmm/install-pmm-server/deployment-options/virtual/vmware.md
+              - install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.md
+              - install-pmm/install-pmm-server/deployment-options/virtual/login_UI.md
+            - Maintenance:
+              - install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.md
+          - Install on Helm:
+            - install-pmm/install-pmm-server/deployment-options/helm/index.md
+            - Maintenance:
+              - install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.md
+              - install-pmm/install-pmm-server/deployment-options/helm/restore_container_helm.md
+          - Install on AWS Marketplace:
+            - install-pmm/install-pmm-server/deployment-options/aws/aws.md
+            - Setup and configuration:
+              - install-pmm/install-pmm-server/deployment-options/aws/limit_access.md
+              - install-pmm/install-pmm-server/deployment-options/aws/settings.md
+              - install-pmm/install-pmm-server/deployment-options/aws/run.md
+            - Maintenance:
+              - install-pmm/install-pmm-server/deployment-options/aws/back_pmm_server.md
+              - install-pmm/install-pmm-server/deployment-options/aws/restore_pmm_server.md
+              - install-pmm/install-pmm-server/deployment-options/aws/remove_pmm_server.md
       - Install PMM Client:
         - install-pmm/install-pmm-client/index.md
         - install-pmm/install-pmm-client/prerequisites.md
-        - Percona repositories: install-pmm/install-pmm-client/package_manager.md          
-        - Images: install-pmm/install-pmm-client/docker.md
-        - Manual binaries: install-pmm/install-pmm-client/binary_package.md          
-        - Register Client node: install-pmm/register-client-node/index.md 
-        - Add services to PMM: 
-          - install-pmm/install-pmm-client/connect-database/index.md
-          - MySQL: install-pmm/install-pmm-client/connect-database/mysql.md
-          - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
-          - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
-          - AWS: install-pmm/install-pmm-client/connect-database/aws.md
-          - Azure: install-pmm/install-pmm-client/connect-database/azure.md
-          - Google Cloud: install-pmm/install-pmm-client/connect-database/google.md
-          - Linux: install-pmm/install-pmm-client/connect-database/linux.md
-          - Remote: install-pmm/install-pmm-client/connect-database/remote.md
-          - External:
-            - install-pmm/install-pmm-client/connect-database/external.md
-            - HAproxy: install-pmm/install-pmm-client/connect-database/haproxy.md
-            - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
-        - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
+        - Deployment options:
+          - Install from Percona repositories: install-pmm/install-pmm-client/package_manager.md
+          - Install on Docker: install-pmm/install-pmm-client/docker.md
+          - Install from binaries: install-pmm/install-pmm-client/binary_package.md
+        - Configuration:
+          - Register Client node: install-pmm/register-client-node/index.md
+          - Configure monitoring:
+            - install-pmm/install-pmm-client/connect-database/index.md
+            - Databases:
+              - MySQL: install-pmm/install-pmm-client/connect-database/mysql.md
+              - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
+              - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
+            - Cloud services:
+              - AWS: install-pmm/install-pmm-client/connect-database/aws.md
+              - Azure: install-pmm/install-pmm-client/connect-database/azure.md
+              - Google Cloud: install-pmm/install-pmm-client/connect-database/google.md
+            - System monitoring:
+              - Linux: install-pmm/install-pmm-client/connect-database/linux.md
+              - Remote: install-pmm/install-pmm-client/connect-database/remote.md
+            - Proxy services:
+              - HAproxy: install-pmm/install-pmm-client/connect-database/haproxy.md
+              - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
+            - External services:
+               - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
+          - Maintenance:
+            - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
 
-  - Upgrade: 
-    - Upgrade PMM Server: 
+  - Upgrade:
+    - Upgrade PMM Server:
       - pmm-upgrade/index.md
       - pmm-upgrade/ui_upgrade.md
-      - Manual upgrade:     
+      - Manual upgrade:
         - pmm-upgrade/upgrade_docker.md
         - pmm-upgrade/upgrade_podman.md
-      - Upgrade PMM Server in K8s: 
+      - Upgrade PMM Server in K8s:
         - pmm-upgrade/upgrade_helm.md
       - pmm-upgrade/migrating_from_pmm_2.md
       - pmm-upgrade/upgrade_aws.md
-    - Upgrade PMM Client:       
+    - Upgrade PMM Client:
       - pmm-upgrade/upgrade_client.md
 
   - Uninstall:
-    - Uninstall PMM Client: 
+    - Uninstall PMM Client:
+      - uninstall-pmm/index.md
       - Docker: uninstall-pmm/uninstall_docker.md
-      - Helm: uninstall-pmm/uninstall_helm.md 
+      - Helm: uninstall-pmm/uninstall_helm.md
       - Package manager: uninstall-pmm/uninstall_package_manager.md
     - uninstall-pmm/unregister_client.md
 
   - Use:
     - use/using-pmm.md
     - PMM user interface:
-      - reference/ui/ui_components.md  
+      - reference/ui/ui_components.md
       - reference/ui/log_in.md
       - reference/ui/timezone.md
     - PMM Inventory: use/dashboard-inventory.md
-    - Metrics monitoring: 
+    - Metrics monitoring:
       - use/monitor.md
-      - PMM metrics: 
+      - PMM metrics:
         - use/metrics/index.md
         - use/metrics/extend_metrics.md
       - Optimize:
@@ -250,9 +265,9 @@ nav:
         - Manage dashboards:
           - use/dashboards-panels/manage-dashboards/create-folders.md
           - use/dashboards-panels/manage-dashboards/manage-folders.md
-          - use/dashboard-panels/set-custom-dashboard
+          - use/dashboards-panels/manage-dashboards/set-custom-dashboard.md
         - Share dashboards and panels: use/dashboards-panels/share-dashboards/share_dashboard.md
-        - Annotate: use/dashboards-panels/annotate/annotate.md              
+        - Annotate: use/dashboards-panels/annotate/annotate.md
 
     - Query Analytics:
       - use/qan/index.md
@@ -264,7 +279,7 @@ nav:
         - use/qan/panels/details.md
     - Advisors:
       - advisors/advisors.md
-      - advisors/advisor-details.md 
+      - advisors/advisor-details.md
       - advisors/develop-advisor-checks.md
     - Percona Alerting:
       - alert/index.md
@@ -273,7 +288,7 @@ nav:
       - alert/templates_list.md
       - alert/silence_alerts.md
       - alert/disable_alerts.md
-    - Backup and restore: 
+    - Backup and restore:
       - backup/index.md
       - backup/prepare_storage_location.md
       - MongoDB backups:
@@ -294,36 +309,37 @@ nav:
       - use/commands/index.md
       - use/commands/pmm-admin.md
       - use/commands/pmm-agent.md
-  - Configure:      
+  - Configure:
     - configure-pmm/configure.md
     - configure-pmm/metrics_res.md
     - configure-pmm/advanced_settings.md
     - configure-pmm/ssh.md
     - Security in PMM:
-      - pmm-admin/security/index.md
-      - pmm-admin/security/ssl_encryption.md 
-      - pmm-admin/security/grafana_cookies.md  
-      - pmm-admin/security/data_encryption.md  
+      - admin/security/index.md
+      - admin/security/ssl_encryption.md
+      - admin/security/grafana_cookies.md
+      - admin/security/data_encryption.md
     - Percona Platform:
       - configure-pmm/percona_platform/integrate_with_percona_platform.md
       - configure-pmm/percona_platform/check_percona_platform.md
+      - configure-pmm/percona_platform/account-info.md
   - Administer:
-    - pmm-admin/index.md
+    - admin/index.md
     - Manage users:
-      - pmm-admin/manage-users/index.md
-      - pmm-admin/manage-users/add_users.md
-      - pmm-admin/manage-users/edit_users.md
-      - pmm-admin/manage-users/delete_users.md
+      - admin/manage-users/index.md
+      - admin/manage-users/add_users.md
+      - admin/manage-users/edit_users.md
+      - admin/manage-users/delete_users.md
     - Roles and permissions:
-      - pmm-admin/roles/index.md
+      - admin/roles/index.md
       - Access Control:
-        - pmm-admin/roles/access-control/intro.md
-        - pmm-admin/roles/access-control/labels.md
-        - pmm-admin/roles/access-control/config_access_cntrl.md
-        - pmm-admin/roles/access-control/create_roles.md
-        - pmm-admin/roles/access-control/manage_roles.md
-        - pmm-admin/roles/access-control/assign_roles.md
-        - pmm-admin/roles/access-control/usecase.md
+        - admin/roles/access-control/intro.md
+        - admin/roles/access-control/labels.md
+        - admin/roles/access-control/config_access_cntrl.md
+        - admin/roles/access-control/create_roles.md
+        - admin/roles/access-control/manage_roles.md
+        - admin/roles/access-control/assign_roles.md
+        - admin/roles/access-control/usecase.md
 
 
   - Troubleshoot:
@@ -335,15 +351,17 @@ nav:
     - troubleshoot/qan_issues.md
     - troubleshoot/plugin_issues.md
     - troubleshoot/pmm_dump.md
+    - troubleshoot/data_issues.md
 
   - Release notes:
     - Release notes index: release-notes/index.md
+    - "PMM 3.0.0-1 (2025-02-10)": release-notes/3.0.0_1.md
     - "PMM 3.0.0 (2025-01-30)": release-notes/3.0.0.md
-  
-  - Reference: 
+
+  - Reference:
     - Architecture:
       - reference/index.md
-      - Third-party components in PMM: 
+      - Third-party components in PMM:
         - reference/third-party/victoria.md
         - reference/third-party/clickhouse.md
         - reference/third-party/postgresql.md
@@ -352,7 +370,7 @@ nav:
       - PMM API:
         - api/index.md
         - api/authentication.md
-      
+
     - PMM dashboards:
       - Insight:
         - reference/dashboards/dashboard-home.md
@@ -361,7 +379,7 @@ nav:
         - reference/dashboards/dashboard-victoriametrics-agents-overview.md
       - Environments:
         - reference/dashboards/dashboard-env-overview.md
-        - reference/dashboards/dashboard-environent-summary.md
+        - reference/dashboards/dashboard-environment-summary.md
       - Kubernetes:
         - reference/dashboards/kubernetes_cluster_summary.md
         - reference/dashboards/kubernetes_monitor_operators.md

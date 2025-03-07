@@ -44,7 +44,7 @@ To use SMTP with a PMM Docker installation:
 
 2. Pass in the `.env` file to Docker run using the `--env-file` flag:
     ```
-    docker run --env-file=.env -p 443:443 -p 80:80 percona/pmm-server:3
+    docker run --env-file=.env -p 443:8443 percona/pmm-server:3
     ```
     This command starts a docker container and will keep running as long as the container is also running. Stopping the command (e.g with Ctrl+C) will stop the container hence, subsequent commands should be run in a new terminal.
 
@@ -63,7 +63,9 @@ After configuring the SMTP settings, specify email delivery options for an Email
 4. Expand **Optional Email settings** and fill in any other relevant settings:
     - Enable the **Single email** option to send a single email to the recipients containing alerts that are firing. For example, if an alert fires for three nodes, this would send only one email listing all three alerts.
     - Add an optional message to include with the email notifications.
-    - Edit the email subject for the notifications. The default subject line uses the following format [FIRING: *number of alerts firing for the alert rule*](*Name of alert rule and instance*).
+    - Edit the email subject for the notifications. The default subject line uses the following format:
+    [FIRING: *number of alerts firing for the alert rule*] (*Name of alert rule and instance*).    
+
 5. If you do not want to be notified when an alert resolves, expand **Notification settings**, and tick the **Disable Resolved Message** checkbox.
 6. If you want your contact point to notify via multiple channels, for example, both via Email and Teams, click **New contact point type** and fill out additional contact point type details.
 7. Click the **Test** button to send a test email and make sure your contact point works as expected.
