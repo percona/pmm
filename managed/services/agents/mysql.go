@@ -117,21 +117,33 @@ func mysqldExporterConfig(
 
 	files := exporter.Files()
 	if files != nil {
-		// // Newer versions of exporter expect these to be provided in `my.cnf` file
-		// if pmmAgentVersion.Less(v3_2_0) {
-		for k := range files {
-			switch k {
-			case "tlsCa":
-				args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
-			case "tlsCert":
-				args = append(args, "--mysql.ssl-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
-			case "tlsKey":
-				args = append(args, "--mysql.ssl-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
-			default:
-				continue
+		if pmmAgentVersion.Less(v3_2_0) {
+			for k := range files {
+				switch k {
+				case "tlsCa":
+					args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
+				case "tlsCert":
+					args = append(args, "--mysql.ssl-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
+				case "tlsKey":
+					args = append(args, "--mysql.ssl-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
+				default:
+					continue
+				}
+			}
+		} else {
+			for k := range files {
+				switch k {
+				case "tlsCa":
+					args = append(args, "--tls.ssl-ca="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
+				case "tlsCert":
+					args = append(args, "--tls.ssl-cert="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
+				case "tlsKey":
+					args = append(args, "--tls.ssl-key="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
+				default:
+					continue
+				}
 			}
 		}
-		// }
 
 		if exporter.TLSSkipVerify {
 			if pmmAgentVersion.Less(v3_2_0) {

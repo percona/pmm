@@ -823,6 +823,7 @@ const webConfigTemplate = `basic_auth_users:
 
 // BuildWebConfigFile builds prometheus-compatible basic auth configuration.
 func (s *Agent) BuildWebConfigFile() (string, error) {
+	// If not provided by the user, it is the `agent_id`.
 	password := s.GetAgentPassword()
 	salt := getPasswordSalt(s)
 
