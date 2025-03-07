@@ -23,7 +23,7 @@ When a user signs in to PMM for the first time and has no role assigned, they ar
 Dashboard creators in PMM automatically get Admin permissions for the dashboards they create. Folder permissions cascade to all dashboards within that folder.
 
 ## Permission matrix
-To create tables without borders in Markdown, we need to use a different approach since standard Markdown tables always include borders. Here's how you can format those permission tables without borders:
+Use the matrix below to check which permissions users have based on their assigned role:
 
 === "Dashboard & Monitoring"
     Permission | Viewer | Editor | Admin
