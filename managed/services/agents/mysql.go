@@ -27,17 +27,20 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-var mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
+var (
+	mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
+	// TODO: put back 3.2.0 when 3.1.0 is released.
+	v3_2_0 = version.MustParse("3.1.0-0")
+)
 
-// The mysqldExporterConfig returns desired configuration of mysqld_exporter process.
-
+// mysqldExporterConfig returns desired configuration of mysqld_exporter process.
 func mysqldExporterConfig(
 	node *models.Node,
 	service *models.Service,
 	exporter *models.Agent,
 	redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
-) *agentv1.SetStateRequest_AgentProcess {
+) (*agentv1.SetStateRequest_AgentProcess, error) {
 	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
 
@@ -77,13 +80,15 @@ func mysqldExporterConfig(
 		"--exporter.max-idle-conns=3",
 		"--exporter.max-open-conns=3",
 		"--exporter.conn-max-lifetime=55s",
-		"--exporter.global-conn-pool",
 		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
 	if !pmmAgentVersion.Less(mysqlExporterVersionWithPluginCollector) {
-		args = append(args,
-			"--collect.plugins")
+		args = append(args, "--collect.plugins")
+	}
+
+	if pmmAgentVersion.Less(v3_2_0) {
+		args = append(args, "--exporter.global-conn-pool")
 	}
 
 	if exporter.IsMySQLTablestatsGroupEnabled() {
@@ -112,21 +117,40 @@ func mysqldExporterConfig(
 
 	files := exporter.Files()
 	if files != nil {
-		for k := range files {
-			switch k {
-			case "tlsCa":
-				args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
-			case "tlsCert":
-				args = append(args, "--mysql.ssl-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
-			case "tlsKey":
-				args = append(args, "--mysql.ssl-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
-			default:
-				continue
+		if pmmAgentVersion.Less(v3_2_0) {
+			for k := range files {
+				switch k {
+				case "tlsCa":
+					args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
+				case "tlsCert":
+					args = append(args, "--mysql.ssl-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
+				case "tlsKey":
+					args = append(args, "--mysql.ssl-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
+				default:
+					continue
+				}
+			}
+		} else {
+			for k := range files {
+				switch k {
+				case "tlsCa":
+					args = append(args, "--tls.ssl-ca="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
+				case "tlsCert":
+					args = append(args, "--tls.ssl-cert="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
+				case "tlsKey":
+					args = append(args, "--tls.ssl-key="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
+				default:
+					continue
+				}
 			}
 		}
 
 		if exporter.TLSSkipVerify {
-			args = append(args, "--mysql.ssl-skip-verify")
+			if pmmAgentVersion.Less(v3_2_0) {
+				args = append(args, "--mysql.ssl-skip-verify")
+			} else {
+				args = append(args, "--tls.insecure-skip-verify")
+			}
 		}
 	}
 
@@ -139,16 +163,31 @@ func mysqldExporterConfig(
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
-		Env: []string{
+		TextFiles:          files,
+	}
+	if pmmAgentVersion.Less(v3_2_0) {
+		env := []string{
 			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
-		},
-		TextFiles: exporter.Files(),
+		}
+		res.Env = env
+	} else {
+		cfg, err := exporter.BuildMyCnfConfig(service)
+		if err != nil {
+			return nil, err
+		}
+		res.TextFiles["myCnf"] = cfg
+		res.Args = append(res.Args, "--config.my-cnf="+tdp.Left+" .TextFiles.myCnf "+tdp.Right)
+
+		if err := ensureAuthParams(exporter, res, pmmAgentVersion, v3_2_0, true); err != nil {
+			return nil, err
+		}
 	}
+
 	if redactMode != exposeSecrets {
 		res.RedactWords = redactWords(exporter)
 	}
-	return res
+	return res, nil
 }
 
 // qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema built-in agent.
