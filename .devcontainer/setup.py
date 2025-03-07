@@ -26,11 +26,9 @@ def install_packages():
     run_commands([
         "dnf install -y gcc git make pkgconfig \
             vim \
-            mc tmux psmisc lsof which iproute diffutils \
-            bash-completion \
+            mc psmisc procps lsof which iproute diffutils \
             man man-pages \
-            openssl-devel \
-            wget",
+            openssl-devel",
         
         "dnf install -y ansible-lint glibc-static --enablerepo=ol9_codeready_builder"
 
@@ -41,7 +39,7 @@ def install_go():
     """Installs Go toolchain."""
 
     run_commands([
-        "curl -sS https://raw.githubusercontent.com/travis-ci/gimme/v1.5.5/gimme -o /usr/local/bin/gimme",
+        "curl -sS https://raw.githubusercontent.com/travis-ci/gimme/v1.5.6/gimme -o /usr/local/bin/gimme",
         "chmod +x /usr/local/bin/gimme"
     ])
 
@@ -67,7 +65,7 @@ def make_init():
     """Runs make init."""
 
     run_commands([
-        "make init",
+        "make -C .. init",
     ])
 
 
