@@ -38,7 +38,7 @@ The table below lists the alert templates available in PMM, organized by technol
 - [ProxySQL templates](#proxysql_alerts)
 
 <a id="os_alerts"></a>
-### Operating System (OS) templates 
+### Operating System (OS) templates
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
@@ -59,7 +59,7 @@ The table below lists the alert templates available in PMM, organized by technol
 
 | Area | Template name | Description | Available for | Database technology |
 | :----|:------------- | :---------- | :------------ | :------------------ |
-| MongoDB | **MongoDB down** | Detects when a MongoDB instance becomes unavailable, enabling rapid response to maintain database accessibility. | All users | MongoDB |
+| MongoDB | **MongoDB down** | Detects when a MongoDB instance becomes unavailable, enabling rapid response to maintain database accessibility. When monitoring MongoDB sharded clusters, alerts using this template detect outages in any cluster component (configuration servers, Mongos routers, data-bearing nodes, and arbiters). | All users | MongoDB |
 | MongoDB | **Memory used by MongoDB connections** | Tracks MongoDB connection memory usage and alerts when it exceeds configurable thresholds. Helps identify and address potential performance issues caused by high memory consumption. |All users | MongoDB |
 | MongoDB | **Memory used by MongoDB** | Monitors overall MongoDB memory usage and alerts when it exceeds 80% of total system memory. Provides details about specific MongoDB services and nodes experiencing high memory consumption, aiding in resource optimization. |All users | MongoDB |
 | MongoDB | **MongoDB restarted** | Detects recent MongoDB restarts, alerting if an instance has been restarted within the last 5 minutes (default threshold). Facilitates investigation of unexpected downtime and potential issues. |All users | MongoDB |
