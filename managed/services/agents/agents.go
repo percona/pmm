@@ -123,7 +123,7 @@ func redactWords(agent *models.Agent) []string {
 	return words
 }
 
-// pathsBase returns paths base and in case of unsupported PMM client old hardcoded value.
+// pathsBase returns paths base and in case of unsupported PMM client or hardcoded value.
 func pathsBase(agentVersion *version.Parsed, tdpLeft, tdpRight string) string {
 	if agentVersion == nil || agentVersion.Less(pmmAgentPathsBaseSupport) {
 		return "/usr/local/percona/pmm"
@@ -138,22 +138,23 @@ func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_Ag
 ) error {
 	if agentVersion.Less(minAuthVersion) {
 		params.Env = append(params.Env, fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()))
-	} else {
-		if params.TextFiles == nil {
-			params.TextFiles = make(map[string]string)
-		}
+		return nil
+	}
 
-		wcf, err := exporter.BuildWebConfigFile()
-		if err != nil {
-			return err
-		}
-		params.TextFiles["webConfigPlaceholder"] = wcf
-		// see https://github.com/prometheus/exporter-toolkit/tree/v0.1.0/https
-		if useNewTLSConfig {
-			params.Args = append(params.Args, "--web.config.file="+params.TemplateLeftDelim+" .TextFiles.webConfigPlaceholder "+params.TemplateRightDelim)
-		} else {
-			params.Args = append(params.Args, "--web.config="+params.TemplateLeftDelim+" .TextFiles.webConfigPlaceholder "+params.TemplateRightDelim)
-		}
+	if params.TextFiles == nil {
+		params.TextFiles = make(map[string]string)
+	}
+
+	wcf, err := exporter.BuildWebConfigFile()
+	if err != nil {
+		return err
+	}
+	params.TextFiles["webConfigPlaceholder"] = wcf
+	// see https://github.com/prometheus/exporter-toolkit/blob/v0.14.0/docs/web-configuration.md
+	if useNewTLSConfig {
+		params.Args = append(params.Args, "--web.config.file="+params.TemplateLeftDelim+" .TextFiles.webConfigPlaceholder "+params.TemplateRightDelim)
+	} else {
+		params.Args = append(params.Args, "--web.config="+params.TemplateLeftDelim+" .TextFiles.webConfigPlaceholder "+params.TemplateRightDelim)
 	}
 
 	return nil
