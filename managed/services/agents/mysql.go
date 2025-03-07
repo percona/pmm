@@ -27,18 +27,20 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-var mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
-var mysqlExporterVersion30 = version.MustParse("3.0.0-0")
+var (
+	mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
+	// TODO: put back to 3.2.0 before release
+	v3_2_0 = version.MustParse("3.1.0-0")
+)
 
-// The mysqldExporterConfig returns desired configuration of mysqld_exporter process.
-
+// mysqldExporterConfig returns desired configuration of mysqld_exporter process.
 func mysqldExporterConfig(
 	node *models.Node,
 	service *models.Service,
 	exporter *models.Agent,
 	redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
-) *agentv1.SetStateRequest_AgentProcess {
+) (*agentv1.SetStateRequest_AgentProcess, error) {
 	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
 
@@ -85,7 +87,7 @@ func mysqldExporterConfig(
 		args = append(args, "--collect.plugins")
 	}
 
-	if pmmAgentVersion.Less(mysqlExporterVersion30) {
+	if pmmAgentVersion.Less(v3_2_0) {
 		args = append(args, "--exporter.global-conn-pool")
 	}
 
@@ -115,35 +117,25 @@ func mysqldExporterConfig(
 
 	files := exporter.Files()
 	if files != nil {
+		// // Newer versions of exporter expect these to be provided in `my.cnf` file
+		// if pmmAgentVersion.Less(v3_2_0) {
 		for k := range files {
-			if pmmAgentVersion.Less(mysqlExporterVersion30) {
-				switch k {
-				case "tlsCa":
-					args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
-				case "tlsCert":
-					args = append(args, "--mysql.ssl-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
-				case "tlsKey":
-					args = append(args, "--mysql.ssl-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
-				default:
-					continue
-				}
-			} else {
-				switch k {
-				case "tlsCa":
-					args = append(args, "--tls.ca="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
-				case "tlsCert":
-					args = append(args, "--tls.cert="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
-				case "tlsKey":
-					args = append(args, "--tls.key="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
-				default:
-					continue
-				}
+			switch k {
+			case "tlsCa":
+				args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
+			case "tlsCert":
+				args = append(args, "--mysql.ssl-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
+			case "tlsKey":
+				args = append(args, "--mysql.ssl-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
+			default:
+				continue
 			}
 		}
+		// }
 
 		if exporter.TLSSkipVerify {
-			if pmmAgentVersion.Less(mysqlExporterVersion30) {
-				args = append(args, "--mysql.ssl-insecure-skip-verify")
+			if pmmAgentVersion.Less(v3_2_0) {
+				args = append(args, "--mysql.ssl-skip-verify")
 			} else {
 				args = append(args, "--tls.insecure-skip-verify")
 			}
@@ -154,24 +146,36 @@ func mysqldExporterConfig(
 
 	sort.Strings(args)
 
-	var env []string
-	if pmmAgentVersion.Less(mysqlExporterVersion30) {
-		env = []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion)),
-			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
-		}
-	}
 	res := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
-		Env:                env,
+		TextFiles:          files,
 	}
+	if pmmAgentVersion.Less(v3_2_0) {
+		env := []string{
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion)),
+			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
+		}
+		res.Env = env
+	} else {
+		cfg, err := exporter.BuildMyCnfConfig(service)
+		if err != nil {
+			return nil, err
+		}
+		res.TextFiles["myCnf"] = cfg
+		res.Args = append(res.Args, "--config.my-cnf="+tdp.Left+" .TextFiles.myCnf "+tdp.Right)
+
+		if err := ensureAuthParams(exporter, res, pmmAgentVersion, v3_2_0, true); err != nil {
+			return nil, err
+		}
+	}
+
 	if redactMode != exposeSecrets {
 		res.RedactWords = redactWords(exporter)
 	}
-	return res
+	return res, nil
 }
 
 // qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema built-in agent.

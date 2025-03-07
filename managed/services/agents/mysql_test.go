@@ -47,7 +47,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	}
 	pmmAgentVersion := version.MustParse("2.21.0")
 
-	actual := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
+	actual, err := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -99,19 +99,22 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
 	}
 	requireNoDuplicateFlags(t, actual.Args)
+	require.NoError(t, err)
 	require.Equal(t, expected.Args, actual.Args)
 	require.Equal(t, expected.Env, actual.Env)
 	require.Equal(t, expected, actual)
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
-		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
 		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
 	})
 
@@ -122,7 +125,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			TLSCert: "content-of-tls-certificate-key",
 			TLSKey:  "content-of-tls-key",
 		}
-		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		expected := "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom"
 		assert.Equal(t, expected, actual.Env[0])
 		expectedFiles := map[string]string{
@@ -130,6 +133,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			"tlsCert": exporter.MySQLOptions.TLSCert,
 			"tlsKey":  exporter.MySQLOptions.TLSKey,
 		}
+		require.NoError(t, err)
 		assert.Equal(t, expectedFiles, actual.TextFiles)
 	})
 }
@@ -158,7 +162,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 	}
 	pmmAgentVersion := version.MustParse("2.24.0")
 
-	actual := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
+	actual, err := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -210,31 +214,36 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 		},
 	}
 	requireNoDuplicateFlags(t, actual.Args)
+	require.NoError(t, err)
 	require.Equal(t, expected.Args, actual.Args)
 	require.Equal(t, expected.Env, actual.Env)
 	require.Equal(t, expected, actual)
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
-		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
 		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
 	})
 
 	t.Run("V236_EnablesPluginCollector", func(t *testing.T) {
 		pmmAgentVersion := version.MustParse("2.36.0")
-		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
 		assert.Contains(t, actual.Args, "--collect.plugins")
 	})
 
 	t.Run("beforeV236_NoPluginCollector", func(t *testing.T) {
 		pmmAgentVersion := version.MustParse("2.35.0")
-		actual := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		require.NoError(t, err)
 		assert.NotContains(t, actual.Args, "--collect.plugins")
 	})
 }
@@ -259,7 +268,7 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 	}
 	pmmAgentVersion := version.MustParse("2.24.0")
 
-	actual := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
+	actual, err := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -307,6 +316,7 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 		RedactWords: []string{"s3cur3 p@$$w0r4."},
 	}
 	requireNoDuplicateFlags(t, actual.Args)
+	require.NoError(t, err)
 	require.Equal(t, expected.Args, actual.Args)
 	require.Equal(t, expected.Env, actual.Env)
 	require.Equal(t, expected, actual)
