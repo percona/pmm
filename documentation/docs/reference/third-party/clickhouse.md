@@ -18,6 +18,9 @@ To use ClickHouse as an external database instance, provide the following enviro
 `PMM_CLICKHOUSE_PASSWORD` -> password
 :   User password to connect to the external ClickHouse database.
 
+`PMM_DISABLE_BUILTIN_CLICKHOUSE` -> 1
+:   Disables the built-in ClickHouse database instance.
+
 **Optional environment variables**
 
 `PMM_CLICKHOUSE_DATABASE` -> database name
@@ -33,6 +36,7 @@ To use ClickHouse as an external database instance, run PMM in docker or podman 
 -e PMM_CLICKHOUSE_DATABASE=$DB
 -e PMM_CLICKHOUSE_USER=$CH_USER
 -e PMM_CLICKHOUSE_PASSWORD=$CH_PASSWORD
+-e PMM_DISABLE_BUILTIN_CLICKHOUSE=1
 ```
 
 ## Troubleshooting

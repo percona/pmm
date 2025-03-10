@@ -68,9 +68,8 @@ func openQANDBConnection(dsn string, enabled bool, l *logrus.Entry) (*sql.DB, er
 		uri, parseErr := url.Parse(dsn)
 		if parseErr != nil {
 			l.Warnf("Failed to parse ClickHouse DSN %s", parseErr)
-		} else {
-			l.Warnf("ClickHouse DB is not reachable [%s]: %s", uri.Redacted(), err)
 		}
+		l.Warnf("ClickHouse DB is not reachable [%s]: %s", uri.Redacted(), err)
 	}
 	return db, nil
 }

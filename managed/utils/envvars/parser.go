@@ -97,8 +97,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
-		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR", "PMM_CLICKHOUSE_DATASOURCE",
-			"PMM_CLICKHOUSE_USER", "PMM_CLICKHOUSE_PASSWORD", "PMM_DISABLE_BUILTIN_CLICKHOUSE":
+		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR", "PMM_CLICKHOUSE_DATASOURCE_ADDR",
+			"PMM_CLICKHOUSE_USER", "PMM_CLICKHOUSE_PASSWORD", "PMM_DISABLE_BUILTIN_CLICKHOUSE",
+			"PMM_CLICKHOUSE_HOST", "PMM_CLICKHOUSE_PORT":
 			// skip env variables for external clickhouse
 			continue
 		case "PMM_WATCHTOWER_TOKEN", "PMM_WATCHTOWER_HOST":
