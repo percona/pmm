@@ -1,8 +1,13 @@
-# Filters Panel
+# QAN Filters panel
+
+The Filters panel on the left hand side of the [QAN dashboard](../../qan/index.md) helps you narrow down query data to focus on specific metrics, database instances, or performance issues.
+
 
 ![!image](../../../images/PMM_Query_Analytics_Panels_Filters.jpg)
 
-- The **Filter** panel on the left hand side of the dashboard lists the filters grouped by category. It also shows the percentage of the main metrics (explained below). If you select a different metric, the percentages on the left panel will change as per this metric. When you select a metric, it reduces the overview list as per the matching filter.
+## Understanding filters
+
+- The **Filter** panel lists the filters grouped by category. It also shows the percentage of the main metrics (explained below). If you select a different metric, the percentages on the left panel will change as per this metric. When you select a metric, it reduces the overview list as per the matching filter.
 - The first five of each category are shown. If there are more, the list is expanded by clicking **Show all** beside the category name, and collapsed again with **Show top 5**.
 - Applying a filter may make other filters inapplicable. These become grayed out and inactive.
 - Click the chart symbol <i class="uil uil-graph-bar"></i> to navigate directly to an item's associated dashboard.
@@ -10,6 +15,42 @@
 
 ![!image](../../../images/PMM_Query_Analytics_Time_Range.jpg)
 
+## Available filter groups
+The available filter groups depend on the database type you're monitoring.
+
+### Common filter groups
+These filter groups are available for all database types:
+
+- **Environment**
+- **Cluster**
+- **Replication Set**
+- **Database**
+- **Schema**
+- **Node Name**
+- **Service Name**
+- **Client Host**
+- **Username**
+- **Service Type**
+- **Node Type**
+- **City**
+- **AZ**
+
+### MySQL-specific filter groups
+
+
+
+- **Command Class**: filters by SQL command class (SELECT, INSERT, UPDATE, etc.)
+- **Fingerprint**: Filters by normalized query pattern
+
+### PostgreSQL-specific filter groups
+
+- **Application**
+- **Command Type**
+- **Tables**
+
+### MongoDB-specific filter groups
+- **Plan Summary**: filters queries by execution plan type (COLLSCAN, IXSCAN, etc.) to easily identify inefficient full collection scans
+- **Client Application Name**: filters queries by the application name that generated them
 
 ## Custom filter groups
 
@@ -51,7 +92,7 @@ In the output, you can see another custom group in the `OperationSystem` filter.
 
 ### Enabling custom filter groups
 
-- **CLI**: While adding a service through CLI use the flag `comments-parsing`. Possible values are `on/off`. 
+- **via CLI**: While adding a service through CLI use the flag `comments-parsing`. Possible values are `on/off`. 
 
     Example for adding MySQL with comments parsing on:
 
@@ -59,7 +100,7 @@ In the output, you can see another custom group in the `OperationSystem` filter.
     pmm-admin add mysql --username=root --password=root-password --comments-parsing="on"
     ```
 
-- **UI**: While adding a service through the UI you will see new checkbox to `enable/disable` comments parsing for current service.
+- **via UI**: While adding a service through the UI you will see new checkbox to `enable/disable` comments parsing for current service.
 
     ![!image](../../../images/PMM_QAN_Parsing.png)
 
