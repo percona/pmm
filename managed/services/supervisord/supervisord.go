@@ -46,7 +46,6 @@ import (
 const (
 	defaultClickhouseDatabase           = "pmm"
 	defaultClickhouseAddr               = "127.0.0.1:9000"
-	defaultClickhouseDataSourceAddr     = "127.0.0.1:8123"
 	defaultClickhouseUser               = "default"
 	defaultClickhousePassword           = "clickhouse"
 	defaultVMSearchMaxQueryLen          = "1MB"
@@ -277,7 +276,6 @@ func getValueFromENV(envName string, defaultValue string) string {
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
 	clickhouseDatabase := getValueFromENV("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
 	clickhouseAddr := getValueFromENV("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-	clickhouseDataSourceAddr := getValueFromENV("PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
 	clickhouseUser := getValueFromENV("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
 	clickhousePassword := getValueFromENV("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
@@ -308,7 +306,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
 		"ClickhouseAddr":               clickhouseAddr,
-		"ClickhouseDataSourceAddr":     clickhouseDataSourceAddr,
 		"ClickhouseDatabase":           clickhouseDatabase,
 		"ClickhouseHost":               clickhouseAddrPair[0],
 		"ClickhousePort":               clickhouseAddrPair[1],
@@ -628,7 +625,6 @@ environment =
     PMM_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
     PMM_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
     PMM_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
-    PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
     PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
