@@ -23,4 +23,7 @@ var (
 
 	// ErrActionQueueOverflow is returned when the agent is already running the maximum number of actions.
 	ErrActionQueueOverflow = errors.New("action queue overflow")
+
+	// ErrActionUnimplemented is returned when action type is not handled/implemented.
+	ErrActionUnimplemented = errors.New("action not implemented")
 )
