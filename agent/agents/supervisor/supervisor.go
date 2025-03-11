@@ -730,6 +730,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		templateParams["server_host"] = cfg.Server.URL().Hostname()
 		templateParams["nomad_data_dir"] = cfg.Paths.NomadDataDir
 		processParams.Path = cfg.Paths.Nomad
+		processParams.Env = append(processParams.Env, os.Environ()...)
 	default:
 		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
 	}
