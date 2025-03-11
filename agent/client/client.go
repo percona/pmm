@@ -989,14 +989,12 @@ func argListFromMongoDBParams(pParams *agentv1.StartActionRequest_PTMongoDBSumma
 func convertAgentErrorToGrpcStatus(agentErr error) *grpcstatus.Status {
 	var status *grpcstatus.Status
 	switch {
-	case errors.Is(agentErr, agenterrors.ErrInvalidArgument):
-		status = grpcstatus.New(codes.InvalidArgument, agentErr.Error())
 	case errors.Is(agentErr, agenterrors.ErrActionQueueOverflow):
 		status = grpcstatus.New(codes.ResourceExhausted, agentErr.Error())
 	case errors.Is(agentErr, agenterrors.ErrActionUnimplemented):
 		status = grpcstatus.New(codes.Unimplemented, agentErr.Error())
 	default:
-		status = grpcstatus.New(codes.FailedPrecondition, agentErr.Error())
+		status = grpcstatus.New(codes.InvalidArgument, agentErr.Error())
 	}
 	return status
 }
