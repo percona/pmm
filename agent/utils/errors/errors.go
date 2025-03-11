@@ -25,5 +25,5 @@ var (
 	ErrActionQueueOverflow = errors.New("action queue overflow")
 
 	// ErrActionUnimplemented is returned when action type is not handled/implemented.
-	ErrActionUnimplemented = errors.New("action not implemented")
+	ErrActionUnimplemented = errors.New("action is not implemented")
 )
