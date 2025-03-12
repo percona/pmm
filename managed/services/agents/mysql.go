@@ -35,7 +35,7 @@ import (
 var (
 	mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
 	// TODO: put back 3.2.0 when 3.1.0 is released.
-	v3_2_0 = version.MustParse("3.0.0-0")
+	v3_2_0 = version.MustParse("3.1.0-0")
 )
 
 // mysqldExporterConfig returns desired configuration of mysqld_exporter process.
