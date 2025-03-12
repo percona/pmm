@@ -136,13 +136,15 @@ func mysqldExporterConfig(
 				}
 			}
 		}
+	} else {
+		files = make(map[string]string)
+	}
 
-		if exporter.TLSSkipVerify {
-			if pmmAgentVersion.Less(v3_2_0) {
-				args = append(args, "--mysql.ssl-skip-verify")
-			} else {
-				args = append(args, "--tls.insecure-skip-verify")
-			}
+	if exporter.TLSSkipVerify {
+		if pmmAgentVersion.Less(v3_2_0) {
+			args = append(args, "--mysql.ssl-skip-verify")
+		} else {
+			args = append(args, "--tls.insecure-skip-verify")
 		}
 	}
 

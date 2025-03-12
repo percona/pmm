@@ -1,44 +1,74 @@
-# Host Makefile.
+# Devcontainer Makefile.
 
 include Makefile.include
--include documentation/Makefile
 
-ifeq ($(PROFILES),)
-PROFILES := 'pmm'
-endif
+release-dev-managed:              ## Build pmm-managed
+	make -C managed release-dev
 
-env-up: 							## Start devcontainer
-	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose up -d --wait --wait-timeout 100
+release-dev-agent:                ## Build pmm-agent
+	make -C agent release-dev
 
-env-up-rebuild: env-update-image	## Rebuild and start devcontainer. Useful for custom $PMM_SERVER_IMAGE
-	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose up --build -d
+release-vmproxy:                  ## Build vmproxy
+	make -C vmproxy release
 
-env-update-image:					## Pull latest dev image
-	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose pull
+release-qan:                      ## Build QAN
+	make -C qan-api2 release
 
-env-compose-up: env-update-image
-	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose up --detach --renew-anon-volumes --remove-orphans --wait --wait-timeout 100
+# used by host Makefile
+_bash:
+	/bin/bash
 
-env-devcontainer:
-	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-server .devcontainer/setup.py
+PMM_RELEASE_PATH ?= ./bin
 
-env-down:							## Stop devcontainer
-	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose down --remove-orphans
+run-managed: release-dev-managed    ## Replace pmm-managed from build, restart and tail logs
+	supervisorctl stop pmm-managed
+	cp $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/pmm-managed
+	supervisorctl start pmm-managed &
+	supervisorctl tail -f pmm-managed
 
-env-remove:
-	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose down --volumes --remove-orphans
+run-managed-ci: release-dev-managed    ## Replace pmm-managed from build, restart (used in CI)
+	supervisorctl stop pmm-managed
+	cp $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/pmm-managed
+	supervisorctl start pmm-managed
 
-TARGET ?= _bash
+run-agent: release-dev-agent        ## Replace pmm-agent from build and restart
+	supervisorctl stop pmm-agent
+	cp $(PMM_RELEASE_PATH)/pmm-agent /usr/sbin/pmm-agent
+	supervisorctl start pmm-agent
 
-env:								## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash
-	COMPOSE_PROFILES=$(PROFILES) \
-	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-server make $(TARGET)
+run-vmproxy: release-vmproxy
+	supervisorctl stop vmproxy
+	cp $(PMM_RELEASE_PATH)/vmproxy /usr/sbin/vmproxy
+	supervisorctl start vmproxy
 
-rotate-encryption: 							## Rotate encryption key
-	go run ./encryption-rotation/main.go
+run-qan: release-qan
+	supervisorctl stop qan-api2
+	cp $(PMM_RELEASE_PATH)/qan-api2 /usr/sbin/percona-qan-api2
+	echo -n > /srv/logs/qan-api2.log
+	supervisorctl start qan-api2
+
+run-all: run-agent run-managed       ## Run pmm-managed and pmm-agent
+
+run:                                 ## Deprecated
+	echo "Deprecated: please use run-all"
+
+# TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
+# run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
+# 	go test -coverpkg="github.com/percona/pmm/managed/..." \
+# 			-tags maincover \
+# 			$(PMM_LD_FLAGS) \
+# 			-race -c -o bin/pmm-managed.test
+# 	bin/pmm-managed.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
+
+psql:                           ## Open database for the pmm-managed instance in psql shell
+	env PGPASSWORD=pmm-managed psql -U pmm-managed pmm-managed
+
+psql-test:                      ## Open database used in unit tests in psql shell
+	env psql -U postgres pmm-managed-dev
+
+dlv/attach:                     ## Attach Delve to `pmm-managed`
+	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient attach $(shell pgrep pmm-managed)
+
+refresh-swagger:                ## Refresh swagger files
+	cp /root/go/src/github.com/percona/pmm/api/swagger/swagger.json /usr/share/pmm-managed/swagger/swagger.json
+	cp /root/go/src/github.com/percona/pmm/api/swagger/swagger-dev.json /usr/share/pmm-managed/swagger/swagger-dev.json
