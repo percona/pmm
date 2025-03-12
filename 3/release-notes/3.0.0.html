@@ -6474,6 +6474,30 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#internal-port-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Internal port changes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal port changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#impact-and-required-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impact and required actions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ui-based-upgrades-for-podman-installations" class="md-nav__link">
     <span class="md-ellipsis">
       UI-based upgrades for Podman installations
@@ -9173,6 +9197,30 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#internal-port-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Internal port changes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Internal port changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#impact-and-required-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Impact and required actions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ui-based-upgrades-for-podman-installations" class="md-nav__link">
     <span class="md-ellipsis">
       UI-based upgrades for Podman installations
@@ -9637,6 +9685,48 @@
 <p>PMM Server now supports rootless deployment through multiple methods, including the latest versions of Podman, Helm, Docker, Virtual Appliance, and Amazon AWS.</p>
 <p>This rootless setup enhances security by eliminating the need for root privileges to create, run, and manage containers. By running PMM Server as a non-root user, you avoid granting root permissions on the host system, providing an additional layer of protection against potential vulnerabilities and security breaches.</p>
 <p>For instructions on deploying rootless PMM, check the <a href="../install-pmm/install-pmm-server/index.html">Setting up PMM Server</a> topic.</p>
+<h3 id="internal-port-changes">Internal port changes<a class="headerlink" href="#internal-port-changes" title="Permanent link">&para;</a></h3>
+<p>As part of the rootless deployment support, PMM 3 changes the internal ports used by the PMM Server to enabling services to run without elevated (root) privileges:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Old port</th>
+<th>New port</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTTPS</td>
+<td>443</td>
+<td>8443</td>
+</tr>
+<tr>
+<td>HTTP</td>
+<td>80</td>
+<td>8080</td>
+</tr>
+</tbody>
+</table>
+<h4 id="impact-and-required-actions">Impact and required actions<a class="headerlink" href="#impact-and-required-actions" title="Permanent link">&para;</a></h4>
+<ul>
+<li>
+<p>if you have custom scripts that reference the old internal ports (<code>443</code> and <code>80</code>), update them to use the new ports (<code>8443</code> and <code>8080</code>)</p>
+</li>
+<li>
+<p>for Docker or Docker Compose deployments, update your port mappings to point to the new internal ports while keeping your external ports the same if desired:</p>
+</li>
+</ul>
+<details class="info">
+<summary>Docker Compose example</summary>
+<div class="highlight"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">pmm-server</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;443:8443&quot;</span><span class="w">  </span><span class="c1"># Map external 443 to internal 8443</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;80:8080&quot;</span><span class="w">   </span><span class="c1"># Map external 80 to internal 8080</span>
+</code></pre></div>
+</details>
+<p>For examples of configuring PMM 3 with Docker Compose, including port mappings, see <a href="../install-pmm/install-pmm-server/deployment-options/docker/run_with_vol.html">Docker deployment documentation</a> and this <a href="https://forums.percona.com/t/install-pmm-3-using-docker-compose-and-connect-mysql-postgres-mongodb/36457">Percona Forum thread</a>.</p>
 <h3 id="ui-based-upgrades-for-podman-installations">UI-based upgrades for Podman installations<a class="headerlink" href="#ui-based-upgrades-for-podman-installations" title="Permanent link">&para;</a></h3>
 <p>You can now upgrade PMM Server installations running under Podman directly through the <strong>PMM Configuration &gt; Updates</strong> panel in the UI. </p>
 <p>This functionality integrates Watchtower for automated container updates and requires configuration of new environment variables (<code>PMM_WATCHTOWER_HOST</code>, <code>PMM_WATCHTOWER_TOKEN</code>) as well as relevant systemd service settings.</p>
@@ -9855,7 +9945,7 @@ While the Nomad binary is now included and properly configured within the PMM Cl
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-02-20
+    2025-03-12
   </span>
 
     
