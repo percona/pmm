@@ -7,19 +7,20 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Percona Monitoring and Management (PMM) is a free and open-source platform for managing and monitoring MySQL, MongoDB, and PostgreSQL performance.">
+        <meta name="description" content="Release date: March 12th, 2025                                                                
+Percona Monitoring and Management (PMM) is an open-source database monitoring, management, and observability solution for MySQL, PostgreSQL, and MongoDB.">
       
       
         <meta name="author" content="Percona LLC">
       
       
-        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.13.0.html">
+        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.43.2-1.html">
       
       
-        <link rel="prev" href="2.14.0.html">
+        <link rel="prev" href="2.44.0.html">
       
       
-        <link rel="next" href="2.12.0.html">
+        <link rel="next" href="2.43.2.html">
       
       
       <link rel="icon" href="../assets/pmm-fav.svg">
@@ -27,7 +28,7 @@
     
     
       
-        <title>PMM 2.13.0 - Percona Monitoring and Management</title>
+        <title>PMM 2.43.2-1 - Percona Monitoring and Management</title>
       
     
     
@@ -90,7 +91,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - PMM 2.13.0" />
+                 <meta property="og:title" content="Percona Monitoring and Management - PMM 2.43.2-1" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -113,7 +114,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#percona-monitoring-and-management-2130" class="md-skip">
+        <a href="#percona-monitoring-and-management-2432-1" class="md-skip">
           Skip to content
         </a>
       
@@ -198,7 +199,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              PMM 2.13.0
+              PMM 2.43.2-1
             
           </span>
         </div>
@@ -5648,10 +5649,31 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="2.43.2-1.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    PMM 2.43.2-1
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="2.43.2-1.html" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -5661,6 +5683,119 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#severity-critical-immediate-action-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      SEVERITY: CRITICAL - IMMEDIATE ACTION REQUIRED
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SEVERITY: CRITICAL - IMMEDIATE ACTION REQUIRED">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#immediate-actions-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      Immediate actions required
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vulnerability-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Vulnerability details
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#affected-installations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Affected installations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#not-affected-installations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Not affected installations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mitigation-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mitigation options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mitigation options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verification-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification steps
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#support-additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support &amp; additional resources
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrading-from-pmm-300" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrading from PMM 3.0.0?
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -6528,31 +6663,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    PMM 2.13.0
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="2.13.0.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="2.13.0.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -6562,53 +6676,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#release-highlights" class="md-nav__link">
-    <span class="md-ellipsis">
-      Release Highlights
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#improvements" class="md-nav__link">
-    <span class="md-ellipsis">
-      Improvements
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bugs-fixed" class="md-nav__link">
-    <span class="md-ellipsis">
-      Bugs Fixed
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -7181,29 +7248,95 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#release-highlights" class="md-nav__link">
+  <a href="#severity-critical-immediate-action-required" class="md-nav__link">
     <span class="md-ellipsis">
-      Release Highlights
+      SEVERITY: CRITICAL - IMMEDIATE ACTION REQUIRED
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SEVERITY: CRITICAL - IMMEDIATE ACTION REQUIRED">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#immediate-actions-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      Immediate actions required
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#improvements" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#vulnerability-details" class="md-nav__link">
     <span class="md-ellipsis">
-      Improvements
+      Vulnerability details
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#bugs-fixed" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#affected-installations" class="md-nav__link">
     <span class="md-ellipsis">
-      Bugs Fixed
+      Affected installations
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#not-affected-installations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Not affected installations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mitigation-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mitigation options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mitigation options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#verification-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification steps
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#support-additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Support &amp; additional resources
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrading-from-pmm-300" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrading from PMM 3.0.0?
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -7238,7 +7371,7 @@
 
 
   
-    <a href="https://github.com/percona/pmm/edit/main/documentation/docs/release-notes/2.13.0.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/edit/main/documentation/docs/release-notes/2.43.2-1.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -7247,79 +7380,191 @@
     
       
     
-    <a href="https://github.com/percona/pmm/raw/main/documentation/docs/release-notes/2.13.0.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/main/documentation/docs/release-notes/2.43.2-1.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="percona-monitoring-and-management-2130">Percona Monitoring and Management 2.13.0<a class="headerlink" href="#percona-monitoring-and-management-2130" title="Permanent link">&para;</a></h1>
-<table class="docutils field-list" frame="void" rules="none">
-  <colgroup>
-    <col class="field-name">
-    <col class="field-body">
-  </colgroup>
-  <tbody valign="top">
-    <tr class="field-odd field">
-      <th class="field-name">Date:</th>
-      <td class="field-body">December 29, 2020</td>
-    </tr>
-    <tr class="field-even field">
-      <th class="field-name">Installation:</th>
-      <td class="field-body">
-        <a class="reference external" href="https://www.percona.com/software/pmm/quickstart">Installing Percona Monitoring and Management</a></td>
-    </tr>
-  </tbody>
+<h1 id="percona-monitoring-and-management-2432-1">Percona Monitoring and Management 2.43.2-1<a class="headerlink" href="#percona-monitoring-and-management-2432-1" title="Permanent link">&para;</a></h1>
+<p><strong>Release date</strong>: March 12<sup>th</sup>, 2025                                                                <br />
+Percona Monitoring and Management (PMM) is an open-source database monitoring, management, and observability solution for MySQL, PostgreSQL, and MongoDB. </p>
+<p>It provides tools to observe database health, analyze performance trends, troubleshoot issues, and execute database management tasks—whether your databases are on-premises or in the cloud.</p>
+<h2 id="severity-critical-immediate-action-required">SEVERITY: CRITICAL - IMMEDIATE ACTION REQUIRED<a class="headerlink" href="#severity-critical-immediate-action-required" title="Permanent link">&para;</a></h2>
+<p>A critical vulnerability has been identified in PMM Open Virtual Appliance (OVA) installations that enables unauthorized <code>root</code> access and potential exposure of system credentials. This vulnerability is tracked as <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=2025-26701">CVE-2025-26701</a>.</p>
+<h3 id="immediate-actions-required">Immediate actions required<a class="headerlink" href="#immediate-actions-required" title="Permanent link">&para;</a></h3>
+<ol>
+<li>UPGRADE IMMEDIATELY to PMM 2.43.2-1 or to the latest PMM 2 release <a href="2.44.0.1.html">PMM 2.44.0-1</a>.</li>
+<li>CHANGE ALL CREDENTIALS for connected services.</li>
+<li>AUDIT ACCESS LOGS for potential unauthorized access.</li>
+</ol>
+<h3 id="vulnerability-details">Vulnerability details<a class="headerlink" href="#vulnerability-details" title="Permanent link">&para;</a></h3>
+<p>This vulnerability stems from default service account credentials in OVA provisioning that enables:</p>
+<ul>
+<li>unauthorized SSH access</li>
+<li>privilege escalation to <code>root</code> via <code>sudo</code> capabilities</li>
+<li>potential exposure of service credentials and configurations</li>
+</ul>
+<h3 id="affected-installations">Affected installations<a class="headerlink" href="#affected-installations" title="Permanent link">&para;</a></h3>
+<p>The table below lists currently known affected deployments. We will update it if additional deployments are identified as vulnerable:</p>
+<table>
+<thead>
+<tr>
+<th>Affected deployments</th>
+<th>Version</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PMM Open Virtual Appliance (OVA) installations</td>
+<td>PMM 2.38.0 through  2.44.0 and PMM 3.0.0</td>
+<td>Fixed in  PMM 2.43.2-1, 2.44.0-1 and 3.0.0-1</td>
+</tr>
+</tbody>
 </table>
-
-<p>Percona Monitoring and Management (PMM) is a free and open-source platform for managing and monitoring MySQL, MongoDB, and PostgreSQL performance.</p>
-<h2 id="release-highlights">Release Highlights<a class="headerlink" href="#release-highlights" title="Permanent link">&para;</a></h2>
-<ol>
-<li>
-<p>Ability to monitor SSL-enabled MongoDB</p>
-<p>Allows PMM administrators to set up configured SSL certificate “keys” to authenticate the connection to PMM, specifically for setting up MongoDB. This is a critical security requirement especially in large enterprise infrastructure environments.</p>
-</li>
-<li>
-<p>Technical Previews</p>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Caution</p>
-<p>We do not recommend the use of technical preview features in enterprise or production environments until the functionality is released as general availability (GA). While in Technical Preview status, these features are not supported by Percona Support SLA, except by Product/Engineering on a best-efforts basis.</p>
+<div class="admonition warning">
+<p class="admonition-title">Restrict SSH access</p>
+<p>PMM OVA installations should never have port <code>22</code> exposed to the public Internet unless you have implemented additional security hardening measures. Always use firewalls, VPNs, or other secure remote access methods.</p>
 </div>
+<h3 id="not-affected-installations">Not affected installations<a class="headerlink" href="#not-affected-installations" title="Permanent link">&para;</a></h3>
+<p>This vulnerability affects ONLY OVA installations. The following deployment methods are NOT impacted:</p>
+<ul>
+<li>Docker/Podman containers</li>
+<li>Amazon Machine Images (AMIs)</li>
+<li>Kubernetes deployments (via Helm)</li>
+</ul>
+<h3 id="mitigation-options">Mitigation options<a class="headerlink" href="#mitigation-options" title="Permanent link">&para;</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">PREFERRED: Upgrade to PMM 2.43.2-1 or 2.44.0-1</label><label for="__tabbed_1_2">TEMPORARY MITIGATION: If you cannot upgrade immediately</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>This release enhances security in OVA deployments by automatically removing unnecessary system accounts during the initial setup.</p>
+<p>To secure your system, follow these steps to upgrade:</p>
 <ol>
 <li>
-<p>Integrated Alerting MVP</p>
-<p>A new feature in PMM to set up parameters and revive alerts about the Services and Nodes monitored by PMM.</p>
-<p>Read more <a href="https://www.percona.com/blog/2020/12/18/percona-monitoring-and-management-introduces-integrated-alerting-in-v2-13-via-a-technical-preview/">on our blog</a> and in our <a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/get-started/alerting.html">documentation</a>.</p>
+<p>Download and deploy the new OVA file from <a href="https://www.percona.com/downloads">Percona website</a>.</p>
 </li>
 <li>
-<p>Node Summary/Nodes Overview dashboards: Show External services on dashboards</p>
-<p>Improves the user experience for adding and viewing external services on the Node Summary dashboard of PMM. External services means any data that can be monitored by a Prometheus exporter, for example, non-Percona supported databases like Redis, ElasticSearch, Cassandra, etc. or an organization’s external application.</p>
+<p>Log in to your system:
+    <div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>admin@your-pmm-server
+</code></pre></div></p>
 </li>
 <li>
-<p>DBaaS Preview phase 1.0</p>
-<p>We are also releasing the first preview of DBaaS functionality; when combined with a compatible Kubernetes environment and Percona Operators, you can create Percona XtraDB or MongoDB clusters with just a few clicks. (Read more about <a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/server/dbaas.html">configuration</a> and <a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/get-started/platform/dbaas.html">usage</a>.)</p>
+<p>Switch to <code>root</code> or use <code>sudo</code> for the following commands:
+    <div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>-i
+<span class="c1"># or use sudo before each command</span>
+</code></pre></div></p>
+</li>
+<li>Stop services on your current installation: 
+    <div class="highlight"><pre><span></span><code>supervisorctl<span class="w"> </span>stop<span class="w"> </span>all
+</code></pre></div></li>
+<li>Back up and transfer your data:
+    <div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/srv
+tar<span class="w"> </span>-cvf<span class="w"> </span>srv.tar<span class="w"> </span>.
+</code></pre></div></li>
+<li>
+<p>Transfer srv.tar to new server via scp.</p>
+</li>
+<li>
+<p>Deploy data on the new installation:
+    <div class="highlight"><pre><span></span><code><span class="c1"># Stop all services</span>
+supervisorctl<span class="w"> </span>stop<span class="w"> </span>all
+
+<span class="c1"># Clear existing data</span>
+<span class="nb">cd</span><span class="w"> </span>/srv
+rm<span class="w"> </span>-rf<span class="w"> </span>*
+
+<span class="c1"># Extract backup</span>
+tar<span class="w"> </span>-xvf<span class="w"> </span>PATH_TO/srv.tar
+
+<span class="c1"># Start all services</span>
+supervisorctl<span class="w"> </span>start<span class="w"> </span>all
+</code></pre></div></p>
+</li>
+<li>Update DNS records or swap IP addresses to ensure uninterrupted Client connectivity.</li>
+</ol>
+<h4 id="verification-steps">Verification steps<a class="headerlink" href="#verification-steps" title="Permanent link">&para;</a></h4>
+<p>After upgrading, verify that your system is functioning correctly:</p>
+<ol>
+<li>Check service status to confirm both PMM Client and PMM Server are running:
+    <div class="highlight"><pre><span></span><code>supervisorctl<span class="w"> </span>status
+</code></pre></div></li>
+<li>
+<p>Ensure Client connectivity to validate data flow.</p>
+</li>
+<li>
+<p>Test system functionality by performing basic monitoring tasks.</p>
 </li>
 </ol>
+</div>
+<div class="tabbed-block">
+<p>If an upgrade is not immediately possible, follow these steps to mitigate the vulnerability:</p>
+<ol>
+<li>
+<p>Secure SSH access:</p>
+<ul>
+<li>block port <code>22</code> access at firewall level</li>
+<li>if remote access is required, restrict it to specific IP addresses</li>
+<li>consider using a VPN for remote management</li>
+</ul>
+</li>
+<li>
+<p>Log in to your system:
+    <div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>admin@your-pmm-server
+</code></pre></div></p>
+</li>
+<li>Switch to <code>root</code> or use <code>sudo</code> for the following commands:
+    <div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>-i
+<span class="c1"># or use sudo before each command</span>
+</code></pre></div></li>
+<li>
+<p>Execute ONE of these commands to secure the vulnerable account:</p>
+<ul>
+<li>
+<p>disable login:
+    <div class="highlight"><pre><span></span><code>usermod<span class="w"> </span>-s<span class="w"> </span>/sbin/nologin<span class="w"> </span>vagrant
+</code></pre></div></p>
+</li>
+<li>
+<p>lock account:
+    <div class="highlight"><pre><span></span><code>passwd<span class="w"> </span>-l<span class="w"> </span>vagrant
+</code></pre></div></p>
+</li>
+<li>
+<p>remove user completely:
+    <div class="highlight"><pre><span></span><code><span class="nb">kill</span><span class="w"> </span>-9<span class="w"> </span><span class="k">$(</span>pgrep<span class="w"> </span>-f<span class="w"> </span>vagrant<span class="k">)</span>
+userdel<span class="w"> </span>-r<span class="w"> </span>vagrant
+</code></pre></div></p>
+</li>
+</ul>
+</li>
+<li>
+<p>Update service credentials:</p>
+<ul>
+<li>change monitoring user passwords in your databases (MySQL, PostgreSQL, MongoDB)</li>
+<li>update any custom service accounts you&rsquo;ve created</li>
+<li>rotate authentication tokens for monitored services</li>
+<li>update corresponding credentials in PMM configuration</li>
+<li>configure SSH access: add public key via <strong>PMM Configuration &gt; Settings &gt; SSH Key</strong></li>
+</ul>
+</li>
+<li>
+<p>Monitor system logs for unauthorized access.</p>
 </li>
 </ol>
-<h2 id="improvements">Improvements<a class="headerlink" href="#improvements" title="Permanent link">&para;</a></h2>
+</div>
+</div>
+</div>
+<h3 id="support-additional-resources">Support &amp; additional resources<a class="headerlink" href="#support-additional-resources" title="Permanent link">&para;</a></h3>
+<p>For further clarification or assistance, we are available to assist you 24/7:</p>
 <ul>
-<li><a href="https://jira.percona.com/browse/PMM-5364">PMM-5364</a>: Ability to monitor SSL-enabled MongoDB by passing certificate parameters in <code>pmm-admin add</code> command (Thanks to Hubertus Krogmann for reporting this issue)</li>
-<li><a href="https://jira.percona.com/browse/PMM-7086">PMM-7086</a>: Re-mapped <code>/prometheus/&lt;end-point&gt;</code> to <code>/victoriametrics/&lt;end-point&gt;</code> but created aliases for users that still rely on the <code>/prometheus/&lt;end-point&gt;</code> in bookmarks and scripts (Thanks to Daniel Guzman Burgos for reporting this issue)</li>
-<li><a href="https://jira.percona.com/browse/PMM-6713">PMM-6713</a>: Node Summary/Nodes Overview dashboards: External exporters can now be added to dashboard and shown as part of grouping of a broader service</li>
-<li><a href="https://jira.percona.com/browse/PMM-7173">PMM-7173</a>: VictoriaMetrics updated to 1.50.2: Includes HTML pages vs JSON output and new functions available for alerting rules (<a href="https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/v1.50.2">see all tags</a>)</li>
+<li><a href="https://my.percona.com">Technical support portal for customers</a></li>
+<li><a href="https://forums.percona.com/c/percona-monitoring-and-management-pmm">Technical support for community</a></li>
+<li><a href="https://www.percona.com/blog/security-advisory-cve-affecting-percona-monitoring-and-management-pmm/">Security advisory announcement</a></li>
 </ul>
-<h2 id="bugs-fixed">Bugs Fixed<a class="headerlink" href="#bugs-fixed" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="https://jira.percona.com/browse/PMM-7054">PMM-7054</a>: ProxySQL Instance Summary dashboard: no Node Metrics</li>
-<li><a href="https://jira.percona.com/browse/PMM-7092">PMM-7092</a>: PMM Server Docker update from 2.11.1 to 2.12.0 leaves container in unhealthy state (Thanks to Hubertus Krogmann for reporting this issue)</li>
-<li><a href="https://jira.percona.com/browse/PMM-7208">PMM-7208</a>: Confusing &ldquo;Access denied&rdquo; message for &lsquo;Viewer&rsquo; users on many dashboards</li>
-<li><a href="https://jira.percona.com/browse/PMM-6987">PMM-6987</a>: No IP address shown in log file of OVF appliance running in headless mode</li>
-<li><a href="https://jira.percona.com/browse/PMM-7146">PMM-7146</a>: MongoDB Instance Summary dashboard: <code>ReplSet</code> element showing metric name instead of replication set</li>
-<li><a href="https://jira.percona.com/browse/PMM-6992">PMM-6992</a>: Administrators can&rsquo;t see user&rsquo;s actual IP address in Grafana profile-Preferences-Sessions</li>
-<li><a href="https://jira.percona.com/browse/PMM-6865">PMM-6865</a>: Rendered dashboard images partly obscured by error message</li>
-</ul>
+<h3 id="upgrading-from-pmm-300">Upgrading from PMM 3.0.0?<a class="headerlink" href="#upgrading-from-pmm-300" title="Permanent link">&para;</a></h3>
+<p>If you are running PMM 3.0.0, make sure to upgrade to PMM 3.0.0-1. For upgrade instructions, see the <a href="https://docs.percona.com/percona-monitoring-and-management/3/release-notes/3.0.0_1.html">PMM 3.0.0-1 release notes</a>.</p>
 
 
 
@@ -7340,7 +7585,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-19
+    2025-03-12
   </span>
 
     

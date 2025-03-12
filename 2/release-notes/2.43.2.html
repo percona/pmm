@@ -16,14 +16,14 @@
         <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.43.2.html">
       
       
-        <link rel="prev" href="2.44.0.html">
+        <link rel="prev" href="2.43.2-1.html">
       
       
         <link rel="next" href="2.43.1.html">
       
       
       <link rel="icon" href="../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
     
     
       
@@ -5648,6 +5648,28 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="2.43.2-1.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PMM 2.43.2-1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -5699,6 +5721,25 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#security-update-available-pmm-2432-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security update available: PMM 2.43.2-1
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-highlights" class="md-nav__link">
+    <span class="md-ellipsis">
+      Release highlights
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Release highlights">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#postgresql-17-support-for-query-analytics-qan" class="md-nav__link">
     <span class="md-ellipsis">
       PostgreSQL 17 support for Query Analytics (QAN)
@@ -5706,8 +5747,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#secure-grafana-image-rendering" class="md-nav__link">
     <span class="md-ellipsis">
       Secure Grafana image rendering
@@ -5715,11 +5756,16 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#fixed-high-memory-consumption-in-mongodb-exporter" class="md-nav__link">
+  <a href="#fixed-issue-high-memory-consumption-in-mongodb-exporter" class="md-nav__link">
     <span class="md-ellipsis">
-      Fixed: High memory consumption in MongoDB exporter
+      Fixed issue: High memory consumption in MongoDB exporter
     </span>
   </a>
   
@@ -5728,7 +5774,7 @@
         <li class="md-nav__item">
   <a href="#cve-2023-34409-vulnerability-mitigation" class="md-nav__link">
     <span class="md-ellipsis">
-      CVE-2023-34409: Vulnerability mitigation
+      CVE-2023-34409 vulnerability mitigation
     </span>
   </a>
   
@@ -7168,6 +7214,25 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#security-update-available-pmm-2432-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security update available: PMM 2.43.2-1
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-highlights" class="md-nav__link">
+    <span class="md-ellipsis">
+      Release highlights
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Release highlights">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#postgresql-17-support-for-query-analytics-qan" class="md-nav__link">
     <span class="md-ellipsis">
       PostgreSQL 17 support for Query Analytics (QAN)
@@ -7175,8 +7240,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#secure-grafana-image-rendering" class="md-nav__link">
     <span class="md-ellipsis">
       Secure Grafana image rendering
@@ -7184,11 +7249,16 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#fixed-high-memory-consumption-in-mongodb-exporter" class="md-nav__link">
+  <a href="#fixed-issue-high-memory-consumption-in-mongodb-exporter" class="md-nav__link">
     <span class="md-ellipsis">
-      Fixed: High memory consumption in MongoDB exporter
+      Fixed issue: High memory consumption in MongoDB exporter
     </span>
   </a>
   
@@ -7197,7 +7267,7 @@
         <li class="md-nav__item">
   <a href="#cve-2023-34409-vulnerability-mitigation" class="md-nav__link">
     <span class="md-ellipsis">
-      CVE-2023-34409: Vulnerability mitigation
+      CVE-2023-34409 vulnerability mitigation
     </span>
   </a>
   
@@ -7267,11 +7337,14 @@
 </table>
 <p>Percona Monitoring and Management (PMM) is an open source database monitoring, management, and observability solution for MySQL, PostgreSQL, and MongoDB.</p>
 <p>It enables you to observe the health of your database systems, explore new patterns in their behavior, troubleshoot them, and execute database management operations regardless of whether your databases are located on-premises or in the cloud.</p>
-<h2 id="postgresql-17-support-for-query-analytics-qan">PostgreSQL 17 support for Query Analytics (QAN)<a class="headerlink" href="#postgresql-17-support-for-query-analytics-qan" title="Permanent link">&para;</a></h2>
+<h2 id="security-update-available-pmm-2432-1">Security update available: PMM 2.43.2-1<a class="headerlink" href="#security-update-available-pmm-2432-1" title="Permanent link">&para;</a></h2>
+<p>A critical security issue affecting PMM Open Virtual Appliance (OVA) installations was identified post-release. If you are running PMM 2.43.2, we strongly recommend upgrading to <a href="2.43.2-1.html">PMM 2.43.2-1</a> immediately to mitigate this vulnerability  tracked as <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=2025-26701">CVE-2025-26701</a>.</p>
+<h2 id="release-highlights">Release highlights<a class="headerlink" href="#release-highlights" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql-17-support-for-query-analytics-qan">PostgreSQL 17 support for Query Analytics (QAN)<a class="headerlink" href="#postgresql-17-support-for-query-analytics-qan" title="Permanent link">&para;</a></h3>
 <p>This patch release adds PostgreSQL 17 support for Query Analytics with updates to the <code>pg_stat_statements</code> and <code>pg_stat_monitor</code> extensions.</p>
 <p>To align with PostgreSQL 17 standards, we&rsquo;ve renamed the <code>blk_read_time</code> field to <code>shared_blk_read_time</code> and the <code>blk_write_time</code> field to <code>shared_blk_write_time</code>.</p>
 <p>All dashboards reflect these changes, and the API supports both old and new field names, for backward compatibility.</p>
-<h2 id="secure-grafana-image-rendering">Secure Grafana image rendering<a class="headerlink" href="#secure-grafana-image-rendering" title="Permanent link">&para;</a></h2>
+<h3 id="secure-grafana-image-rendering">Secure Grafana image rendering<a class="headerlink" href="#secure-grafana-image-rendering" title="Permanent link">&para;</a></h3>
 <p>PMM Server now supports secure Grafana image rendering capabilities through a dedicated container deployment, providing isolated rendering operations without impacting PMM Server resources.</p>
 <p>Previously installed directly within PMM Server, the Grafana Image Renderer plugin now runs in a separate container, offering secure HTTPS communication and custom CA certificate configuration through the PMM API.</p>
 <p>To update the plugin installation:</p>
@@ -7285,10 +7358,10 @@
 </ul>
 </li>
 </ol>
-<h2 id="fixed-high-memory-consumption-in-mongodb-exporter">Fixed: High memory consumption in MongoDB exporter<a class="headerlink" href="#fixed-high-memory-consumption-in-mongodb-exporter" title="Permanent link">&para;</a></h2>
+<h2 id="fixed-issue-high-memory-consumption-in-mongodb-exporter">Fixed issue: High memory consumption in MongoDB exporter<a class="headerlink" href="#fixed-issue-high-memory-consumption-in-mongodb-exporter" title="Permanent link">&para;</a></h2>
 <p>We have updated the MongoDB exporter to address a critical issue present in version 2.43.1 where unclosed connections led to increasingly high memory consumption over time.</p>
 <p>This resolves the <em><code>Failed to get PBM configuration</code></em> error, the users may have encountered as a result of the memory leak, and significantly reduces the rate of increase in total memory allocations.</p>
-<h2 id="cve-2023-34409-vulnerability-mitigation">CVE-2023-34409: Vulnerability mitigation<a class="headerlink" href="#cve-2023-34409-vulnerability-mitigation" title="Permanent link">&para;</a></h2>
+<h2 id="cve-2023-34409-vulnerability-mitigation">CVE-2023-34409 vulnerability mitigation<a class="headerlink" href="#cve-2023-34409-vulnerability-mitigation" title="Permanent link">&para;</a></h2>
 <p>CVE scanners may flag <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-34409">CVE-2023-34409</a> in relation to the <code>dbaas-controller</code> component within PMM. This vulnerability, tied to an authentication function, was addressed in PMM version 2.37.1. 
 Although <code>dbaas-controller</code> imports older PMM packages, it does not actually use the affected authentication function and is therefore unaffected by this CVE.</p>
 <p>In addition, the upcoming PMM 3 release will fully remove this component and its legacy imports from the Docker container, further enhancing security and eliminating this CVE from scan results.</p>
@@ -7312,7 +7385,7 @@ Although <code>dbaas-controller</code> imports older PMM packages, it does not a
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-19
+    2025-03-12
   </span>
 
     
@@ -7418,7 +7491,7 @@ Although <code>dbaas-controller</code> imports older PMM packages, it does not a
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 
-      <script src="../assets/javascripts/bundle.f1b6f286.min.js"></script>
+      <script src="../assets/javascripts/bundle.c8b220af.min.js"></script>
       
         <script src="../js/promptremover.js"></script>
       
