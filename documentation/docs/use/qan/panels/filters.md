@@ -32,8 +32,6 @@ These filter groups are available for all database types:
 - **Username**
 - **Service Type**
 - **Node Type**
-- **City**
-- **AZ**
 
 ### MySQL-specific filter groups
 
