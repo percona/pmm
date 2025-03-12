@@ -763,14 +763,15 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		processParams.Args[i] = string(b)
 	}
 
-	processParams.Env = make([]string, len(agentProcess.Env))
+	env := make([]string, len(agentProcess.Env))
 	for i, e := range agentProcess.Env {
 		b, err := tr.RenderTemplate("env", e, templateParams)
 		if err != nil {
 			return nil, err
 		}
-		processParams.Env[i] = string(b)
+		env[i] = string(b)
 	}
+	processParams.Env = append(processParams.Env, env...)
 
 	return &processParams, nil
 }
