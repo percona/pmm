@@ -846,49 +846,6 @@ func (s *Agent) BuildWebConfigFile() (string, error) {
 	return config, nil
 }
 
-// https://dev.mysql.com/doc/refman/8.4/en/mysql-command-options.html
-// https://dev.mysql.com/doc/refman/8.4/en/connection-options.html#encrypted-connection-options
-const myCnfTemplate = `[client]
-{{if .Host}}host={{ .Host }}{{end}}
-{{if .Port}}port={{ .Port }}{{end}}
-{{if .User}}user={{ .User }}{{end}}
-{{if .Password}}password={{ .Password }}{{end}}
-{{if .Socket}}socket={{ .Socket }}{{end}}
-`
-
-// BuildMyCnfConfig builds my.cnf configuration for MySQL connection.
-func (s *Agent) BuildMyCnfConfig(svc *Service) (string, error) {
-	tmpl, err := template.New("myCnf").Parse(myCnfTemplate)
-	if err != nil {
-		return "", errors.Wrap(err, "Failed to parse my.cnf template")
-	}
-
-	var configBuffer bytes.Buffer
-	options := struct {
-		User     string
-		Password string
-		Socket   string
-		Host     string
-		Port     int
-	}{
-		User:     pointer.GetString(s.Username),
-		Password: pointer.GetString(s.Password),
-		Host:     pointer.GetString(svc.Address),
-		Port:     int(pointer.GetUint16(svc.Port)),
-	}
-
-	if svc.Socket != nil {
-		options.Socket = *svc.Socket
-	}
-
-	if err = tmpl.Execute(&configBuffer, options); err != nil {
-		return "", errors.Wrap(err, "Failed to execute myCnf template")
-	}
-
-	config := configBuffer.String()
-	return config, nil
-}
-
 func getPasswordSalt(s *Agent) string {
 	if s.AgentID != "" && len(s.AgentID) >= bcrypt.MaxSaltSize {
 		return s.AgentID[len(s.AgentID)-bcrypt.MaxSaltSize:]
