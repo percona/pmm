@@ -78,7 +78,7 @@ COPY --from=builder --chown=0:0 /usr/share/perl5 /usr/share/perl5
 COPY --from=builder --chown=0:0 /usr/lib64/libcrypt.so* /usr/lib64/
 COPY --from=builder --chown=0:0 /usr/lib64/libstdc++.so* /usr/lib64/
 COPY --from=builder --chown=0:0 /usr/lib64/libreadline.so* /usr/lib64/
-COPY --from=builder --chown=0:0 /etc/ld.so.conf.d/mysql-x86_64.conf /etc/ld.so.conf.d
+COPY --from=builder --chown=0:0 /etc/ld.so.conf.d/mysql-*.conf /etc/ld.so.conf.d
 
 # Install dependencies of curl
 COPY --from=builder --chown=0:0 /usr/lib64/libkeyutils.so* /usr/lib64/
