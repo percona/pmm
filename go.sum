@@ -417,8 +417,8 @@ github.com/percona/exporter_shared v0.7.5 h1:sIhdDtKOfH0jsqtTAi41C7wm1R42yXYeAkK
 github.com/percona/exporter_shared v0.7.5/go.mod h1:P8ZHDzveyJRGD4ZIRNiEMuAdDexBpQWf2mAVwtyVcYU=
 github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c h1:1SZ7nS+kSaO63IpaKspf/gf8602QcgP2eXNPMNOIc0M=
 github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c/go.mod h1:/SGLf9OMxlnK6jq4mkFiImBcJXXk5jwD+lDrwDaGXcw=
-github.com/percona/percona-toolkit v0.0.0-20250129114007-6c2dec8502c1 h1:PcxNtc+EWjdl3ru82jsi5RFZSIcZWOxBab8qoE9b7n8=
-github.com/percona/percona-toolkit v0.0.0-20250129114007-6c2dec8502c1/go.mod h1:SOEgMF9Ay1wS6kjSGp9x51IxexTjLZWE2DntUoVl2gY=
+github.com/percona/percona-toolkit v0.0.0-20250306213812-9ad6dc01250f h1:Er+ppsr2eqqyurdMCV8eCwjrGE9LOdDCblfWElnxouA=
+github.com/percona/percona-toolkit v0.0.0-20250306213812-9ad6dc01250f/go.mod h1:lyxl7V4jaZk/VyG/QSnhqNLSVVASdQqEY5u1p7SQTgE=
 github.com/percona/promconfig v0.2.5 h1:f/HN/CbECQs7d9RIB6MKVkuXstsrsqEDxRvf6yigquc=
 github.com/percona/promconfig v0.2.5/go.mod h1:Y2uXi5QNk71+ceJHuI9poank+0S1kjxd3K105fXKVkg=
 github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e h1:xhk5ivxlTPat0SwLBqU1UdfqJb+2R3x4yAhjCf6WMEU=
@@ -444,8 +444,8 @@ github.com/posener/complete v1.2.3/go.mod h1:WZIdtGGp+qx0sLrYKtIRAruyNpv6hFCicSg
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v1.0.0/go.mod h1:db9x61etRT2tGnBNRi70OPL5FsnadC4Ky3P0J6CfImo=
 github.com/prometheus/client_golang v1.4.0/go.mod h1:e9GMxYsXl05ICDXkRhurwBS4Q3OK1iX/F2sw+iXX5zU=
-github.com/prometheus/client_golang v1.20.4 h1:Tgh3Yr67PaOv/uTqloMsCEdeuFTatm5zIq5+qNN23vI=
-github.com/prometheus/client_golang v1.20.4/go.mod h1:PIEt8X02hGcP8JWbeHyeZ53Y/jReSnHgO035n//V5WE=
+github.com/prometheus/client_golang v1.21.1 h1:DOvXXTqVzvkIewV/CDPFdejpMCGeMcbGCQ8YOmu+Ibk=
+github.com/prometheus/client_golang v1.21.1/go.mod h1:U9NM32ykUErtVBxdvD3zfi+EuFkkaBvMb09mIfe0Zgg=
 github.com/prometheus/client_model v0.0.0-20180712105110-5c3871d89910/go.mod h1:MbSGuTsp3dbXC40dX6PRTWyKYBIrTGTE9sqQNg2J8bo=
 github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=
 github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:xMI15A0UPsDsEKsMN9yxemIoYk6Tm2C1GtYGdfGttqA=

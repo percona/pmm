@@ -53,14 +53,14 @@ require (
 	github.com/minio/minio-go/v7 v7.0.55
 	github.com/percona/exporter_shared v0.7.5
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
-	github.com/percona/percona-toolkit v0.0.0-20250129114007-6c2dec8502c1
+	github.com/percona/percona-toolkit v0.0.0-20250306213812-9ad6dc01250f
 	github.com/percona/promconfig v0.2.5
 	github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e
 	github.com/pganalyze/pg_query_go/v5 v5.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.6
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2
-	github.com/prometheus/client_golang v1.20.4
+	github.com/prometheus/client_golang v1.21.1
 	github.com/prometheus/common v0.62.0
 	github.com/ramr/go-reaper v0.2.1
 	github.com/robfig/cron/v3 v3.0.1
