@@ -135,18 +135,18 @@ Shows router instances that direct queries to appropriate shards. These routers 
 ### Shards
 Groups data-bearing nodes by shard name (e.g., `Shard - rs1`, `Shard - rs2`). Each shard contains a subset of the sharded data.
 
-### Configuration for proper visualization
+### Configuration for visualizing MongoDB cluster topology correctly
 
-When adding MongoDB instances through `pmm-admin add mongodb` command or via the PMM UI, use these settings to ensure MongoDB cluster elements (config servers, shard nodes, and mongos routers) appear in the correct dashboard sections:
+To ensure your MongoDB sharded cluster components appear in the correct sections of the dashboard, follow these configuration guidelines when adding MongoDB instances using the `pmm-admin add mongodb` command or via the PMM UI:
 
- - Use the same `--cluster` name for all components
- - Add each component as a separate service
- - Set proper `--replication-set` values:
-    - config servers: `--replication-set=cfg`
-    - shards: `--replication-set=shardX`
-    - mongos: `--replication-set=cfg`
+ - use the same `--cluster` name for all components of your sharded cluster
+ - add each component (config servers, shard nodes, and mongos routers) as a separate service. 
+ 
+ For detailed instructions on adding MongoDB nodes, see [Add MongoDB services via CLI](../../install-pmm/install-pmm-client/connect-database/mongodb.md#on-the-command-line).
 
-??? info "Example command for adding a shard node"          
+
+??? info "Example command for adding a MongoDB shard node" 
+
     ```sh
      pmm-admin add mongodb --username=pmm --password=password \
      --service-name=rs-0-1 --replication-set=shard0 \
