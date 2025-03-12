@@ -71,7 +71,7 @@ client {
 
   # disable Docker plugin
   options = {
-    "driver.denylist" = "docker,qemu,java,exec"
+    "driver.denylist" = "docker,qemu,java,exec,storage,podman,containerd"
     "driver.allowlist" = "raw_exec"
   }
 

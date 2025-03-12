@@ -72,6 +72,10 @@ func TestServer(t *testing.T) {
 		ts.Test(t)
 		ts.On("GetSummaries").Return(nil)
 
+		var nomad mockNomadService
+		nomad.Test(t)
+		nomad.On("UpdateConfiguration", mock.Anything).Return(nil)
+
 		s, err := NewServer(&Params{
 			DB:                   reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
 			VMDB:                 &mvmdb,
@@ -82,6 +86,7 @@ func TestServer(t *testing.T) {
 			Supervisord:          &r,
 			VMAlertExternalRules: &par,
 			TelemetryService:     &ts,
+			Nomad:                &nomad,
 		})
 		require.NoError(t, err)
 		return s

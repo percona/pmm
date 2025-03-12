@@ -55,7 +55,7 @@ func CheckAccess(l *logrus.Entry) CgroupAccess {
 
 	// Check write permissions
 	testPath := filepath.Join(cgroupPath, "test_write")
-	err := os.Mkdir(testPath, 0755)
+	err := os.Mkdir(testPath, 0o755)
 	if err == nil {
 		result.WriteAccess = true
 		os.Remove(testPath) //nolint:errcheck

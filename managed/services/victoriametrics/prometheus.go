@@ -243,6 +243,5 @@ func AddInternalServicesToScrape(cfg *config.Config, s models.MetricsResolutions
 		scrapeConfigForGrafana(s.MR),
 		scrapeConfigForPMMManaged(s.MR),
 		scrapeConfigForQANAPI2(s.MR),
-		scrapeConfigForClickhouse(s.MR),
-		scrapeConfigForNomadServer(s.MR))
+		scrapeConfigForClickhouse(s.MR))
 }

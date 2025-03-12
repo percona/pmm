@@ -17,6 +17,7 @@ package models
 
 import (
 	"database/sql/driver"
+	"github.com/AlekSi/pointer"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/endpoints"
@@ -161,10 +162,7 @@ func (s *Settings) IsAdvisorsEnabled() bool {
 
 // IsNomadEnabled returns true if Nomad is enabled.
 func (s *Settings) IsNomadEnabled() bool {
-	if s.Nomad.Enabled != nil {
-		return *s.Nomad.Enabled && s.PMMPublicAddress != ""
-	}
-	return false
+	return pointer.GetBool(s.Nomad.Enabled) && s.PMMPublicAddress != ""
 }
 
 // IsAzureDiscoverEnabled returns true if Azure discovery is enabled.

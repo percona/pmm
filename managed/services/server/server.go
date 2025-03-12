@@ -698,12 +698,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 	}
 
-	if isAgentsStateUpdateNeeded(req.MetricsResolutions) {
-		if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
-			return nil, err
-		}
-	}
-
 	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 
 	return &serverv1.ChangeSettingsResponse{
@@ -732,6 +726,10 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
+
+	if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
+		return errors.Wrap(err, "failed to update agents state")
+	}
 	return nil
 }
 
@@ -768,18 +766,6 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 	return nil
-}
-
-// isAgentsStateUpdateNeeded - checks metrics resolution changes,
-// if it was changed, agents state must be updated.
-func isAgentsStateUpdateNeeded(mr *serverv1.MetricsResolutions) bool {
-	if mr == nil {
-		return false
-	}
-	if mr.Lr == nil && mr.Hr == nil && mr.Mr == nil {
-		return false
-	}
-	return true
 }
 
 func canUpdateDurationSetting(newValue, envValue time.Duration) bool {
