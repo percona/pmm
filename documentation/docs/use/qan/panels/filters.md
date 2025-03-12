@@ -34,21 +34,19 @@ These filter groups are available for all database types:
 - **Node Type**
 
 ### MySQL-specific filter groups
-
-
-
 - **Command Class**: filters by SQL command class (SELECT, INSERT, UPDATE, etc.)
 - **Fingerprint**: Filters by normalized query pattern
-
-### PostgreSQL-specific filter groups
-
-- **Application**
-- **Command Type**
-- **Tables**
 
 ### MongoDB-specific filter groups
 - **Plan Summary**: filters queries by execution plan type (COLLSCAN, IXSCAN, etc.) to easily identify inefficient full collection scans
 - **Client Application Name**: filters queries by the application name that generated them
+
+### PostgreSQL-specific filter groups
+- **Application**
+- **Command Type**
+- **Tables**
+- **Client Application Name**
+
 
 ## Custom filter groups
 
