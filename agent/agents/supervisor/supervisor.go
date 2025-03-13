@@ -42,7 +42,6 @@ import (
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
-	"github.com/percona/pmm/agent/utils/cgroups"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
@@ -489,14 +488,23 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		close(done)
 	}()
 
+	processInfo := &agentProcessInfo{
+		cancel:          cancel,
+		done:            done,
+		requestedState:  proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess),
+		listenPort:      port,
+		processExecPath: processParams.Path,
+		logStore:        logStore,
+	}
+
 	t := time.NewTimer(start_Process_Waiting)
 	defer t.Stop()
 	select {
 	case isInitialized := <-process.IsInitialized():
 		if !isInitialized {
-			access := cgroups.CheckAccess(l)
-			if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT && !access.WriteAccess {
-				s.handleNomadAgent(agentID, agentProcess, port, cancel, processParams, logStore, l)
+			// TODO: handle initialization error for nomad agent
+			if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT {
+				s.handleNomadAgent(agentID, processInfo, l)
 				return nil
 			}
 			defer cancel()
@@ -506,37 +514,23 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 	}
 
 	//nolint:forcetypeassert
-	s.agentProcesses[agentID] = &agentProcessInfo{
-		cancel:          cancel,
-		done:            done,
-		requestedState:  proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess),
-		listenPort:      port,
-		processExecPath: processParams.Path,
-		logStore:        logStore,
-	}
+	s.agentProcesses[agentID] = processInfo
 	return nil
 }
 
-func (s *Supervisor) handleNomadAgent(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16, cancel context.CancelFunc, processParams *process.Params, logStore *tailog.Store, l *logrus.Entry) {
+func (s *Supervisor) handleNomadAgent(agentID string, processInfo *agentProcessInfo, l *logrus.Entry) { //nolint:lll
 	done := make(chan struct{})
-	s.agentProcesses[agentID] = &agentProcessInfo{
-		cancel:          cancel,
-		done:            done,
-		requestedState:  proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess),
-		listenPort:      port,
-		processExecPath: processParams.Path,
-		logStore:        logStore,
-	}
+	s.agentProcesses[agentID] = processInfo
 
 	status := inventoryv1.AgentStatus_AGENT_STATUS_DONE
 	s.storeLastStatus(agentID, status)
 	l.Warn("Cannot start Nomad Agent: cgroups are not writable.")
-	l.Infof("Sending status: %s (port %d).", status, port)
+	l.Infof("Sending status: %s (port %d).", status, processInfo.listenPort)
 	s.changes <- &agentv1.StateChangedRequest{
 		AgentId:         agentID,
 		Status:          status,
-		ListenPort:      uint32(port),
-		ProcessExecPath: processParams.Path,
+		ListenPort:      uint32(processInfo.listenPort),
+		ProcessExecPath: processInfo.processExecPath,
 	}
 
 	close(done)

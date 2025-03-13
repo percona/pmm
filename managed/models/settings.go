@@ -17,9 +17,9 @@ package models
 
 import (
 	"database/sql/driver"
-	"github.com/AlekSi/pointer"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 )
 

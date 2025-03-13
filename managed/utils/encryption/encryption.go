@@ -44,6 +44,9 @@ var (
 	defaultEncryptionMtx sync.Mutex
 )
 
+// CustomEncryptionKeyPathEnvVar is an environment variable to set custom encryption key path.
+const CustomEncryptionKeyPathEnvVar = "PMM_ENCRYPTION_KEY_PATH"
+
 // Encryption contains fields required for encryption.
 type Encryption struct {
 	Path      string
@@ -84,7 +87,7 @@ func isTest() bool {
 // New creates an encryption; if key on path doesn't exist, it will be generated.
 func New() *Encryption {
 	e := &Encryption{}
-	customKeyPath := os.Getenv("PMM_ENCRYPTION_KEY_PATH")
+	customKeyPath := os.Getenv(CustomEncryptionKeyPathEnvVar)
 	if customKeyPath != "" {
 		e.Path = customKeyPath
 	} else {

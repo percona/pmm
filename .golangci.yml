@@ -83,6 +83,13 @@ linters-settings:
   unparam:
     check-exported: true
 
+  recvcheck:
+    exclusions:
+      - "*.pb.go"
+      - "*_test.go"
+      - "mock_*.go"
+      - "*_reform.go"
+
 linters:
   enable-all: true
   disable:
@@ -115,7 +122,6 @@ linters:
     - wastedassign     # disabled because of generics
     - wrapcheck        # we do not use wrapping everywhere
     - wsl              # too annoying
-    - recvcheck        # we need to use pointers and non-pointers together in models
 
     # TODO: carefully review all the rules below and either fix the code
     # or leave disabled and provide a reason why

@@ -50,7 +50,7 @@ func TestServer(t *testing.T) {
 		mvmdb.On("RequestConfigurationUpdate").Return(nil)
 		mState := &mockAgentsStateUpdater{}
 		mState.Test(t)
-		mState.On("UpdateAgentsState", context.TODO()).Return(nil)
+		mState.On("UpdateAgentsState", context.Background()).Return(nil)
 
 		var mvmalert mockPrometheusService
 		mvmalert.Test(t)

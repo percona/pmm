@@ -160,9 +160,13 @@ func generateNomadClientConfig(node *models.Node, exporter *models.Agent, tdp mo
 	}
 
 	var configBuffer bytes.Buffer
-	if tmpl, err := template.New("nomadConfig").Parse(nomadConfigTemplate); err != nil {
+	tmpl, err := template.New("nomadConfig").Parse(nomadConfigTemplate)
+	if err != nil {
 		return "", errors.Wrap(err, "Failed to parse nomad config template")
-	} else if err = tmpl.Execute(&configBuffer, nomadConfigParams); err != nil {
+	}
+
+	err = tmpl.Execute(&configBuffer, nomadConfigParams)
+	if err != nil {
 		return "", errors.Wrap(err, "Failed to execute nomad config template")
 	}
 	return configBuffer.String(), nil

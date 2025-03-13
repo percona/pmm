@@ -42,13 +42,14 @@ func TestEncryptionRotation(t *testing.T) {
 	db := testdb.Open(t, models.SkipFixtures, nil)
 	defer db.Close() //nolint:errcheck
 
-	err := createOriginEncryptionKey()
+	err := createOriginEncryptionKey(t)
 	require.NoError(t, err)
 
 	err = insertTestData(db)
 	require.NoError(t, err)
 
-	statusCode := RotateEncryptionKey(db, "pmm-managed-dev")
+	statusCode, err := RotateEncryptionKey(db, "pmm-managed-dev")
+	require.NoError(t, err)
 	require.Equal(t, 0, statusCode)
 
 	newEncryptionKey, err := os.ReadFile(encryptionKeyTestPath)
@@ -62,8 +63,8 @@ func TestEncryptionRotation(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func createOriginEncryptionKey() error {
-	encryption.DefaultEncryptionKeyPath = encryptionKeyTestPath
+func createOriginEncryptionKey(t *testing.T) error {
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, encryptionKeyTestPath)
 	err := os.WriteFile(encryptionKeyTestPath, []byte(originEncryptionKey), 0o600)
 	if err != nil {
 		return err
