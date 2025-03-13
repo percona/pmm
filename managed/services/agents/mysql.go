@@ -166,7 +166,7 @@ func mysqldExporterConfig(
 		}
 		res.Env = env
 	} else {
-		cfg, err := buildMyCnfConfig(service, exporter)
+		cfg, err := buildMyCnfConfig(service, exporter, files)
 		if err != nil {
 			return nil, err
 		}
@@ -237,7 +237,7 @@ const myCnfTemplate = `[client]
 `
 
 // BuildMyCnfConfig builds my.cnf configuration for MySQL connection.
-func buildMyCnfConfig(service *models.Service, agent *models.Agent) (string, error) {
+func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[string]string) (string, error) {
 	tmpl, err := template.New("myCnf").Parse(myCnfTemplate)
 	if err != nil {
 		return "", errors.Wrap(err, "Failed to parse my.cnf template")
@@ -260,9 +260,16 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent) (string, err
 		Password: pointer.GetString(agent.Password),
 		Host:     pointer.GetString(service.Address),
 		Port:     int(pointer.GetUint16(service.Port)),
-		CaFile:   tdp.Left + " .TextFiles.tlsCa " + tdp.Right,
-		CertFile: tdp.Left + " .TextFiles.tlsCert " + tdp.Right,
-		KeyFile:  tdp.Left + " .TextFiles.tlsKey " + tdp.Right,
+	}
+
+	if files["tlsCa"] != "" {
+		myCnfParams.CaFile = tdp.Left + " .TextFiles.tlsCa " + tdp.Right
+	}
+	if files["tlsCert"] != "" {
+		myCnfParams.CertFile = tdp.Left + " .TextFiles.tlsCert " + tdp.Right
+	}
+	if files["tlsKey"] != "" {
+		myCnfParams.KeyFile = tdp.Left + " .TextFiles.tlsKey " + tdp.Right
 	}
 
 	if service.Socket != nil {
