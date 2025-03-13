@@ -80,7 +80,7 @@ func (m *MongoDB) Run(ctx context.Context) {
 
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
-	slog = slowlog.New(m.mongoDSN, m.l, m, m.agentID, m.maxQueryLength)
+	slog = slowlog.New(m.mongoDSN, m.l, m.changes, m.agentID, m.maxQueryLength)
 	if err := slog.Start(); err != nil {
 		m.l.Errorf("can't run slowlog, reason: %v", err)
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}

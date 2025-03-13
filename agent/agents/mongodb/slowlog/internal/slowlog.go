@@ -17,6 +17,7 @@ package slowlog
 import (
 	"context"
 	"fmt"
+	"log"
 	"runtime/pprof"
 	"sync"
 	"time"
@@ -25,18 +26,23 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/aggregator"
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/sender"
+	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/reader"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 )
 
+const (
+	MgoTimeoutDialInfo      = 5 * time.Second
+	MgoTimeoutSessionSocket = 5 * time.Second
+)
+
 // New creates new slowlog
-func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, maxQueryLength int32) *slowlog {
+func New(mongoDSN string, logger *logrus.Entry, changes chan agents.Change, agentID string, maxQueryLength int32) *slowlog {
 	return &slowlog{
 		mongoDSN:       mongoDSN,
 		maxQueryLength: maxQueryLength,
 		logger:         logger,
-		w:              w,
+		changes:        changes,
 		agentID:        agentID,
 	}
 }
@@ -44,15 +50,12 @@ func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string,
 type slowlog struct {
 	// dependencies
 	mongoDSN string
-	w        sender.Writer
+	changes  chan agents.Change
 	logger   *logrus.Entry
 	agentID  string
 
 	// internal deps
-	monitors   *monitors
-	client     *mongo.Client
-	aggregator *aggregator.Aggregator
-	sender     *sender.Sender
+	client *mongo.Client
 
 	// state
 	m        sync.Mutex      // Lock() to protect internal consistency of the service
@@ -77,25 +80,11 @@ func (s *slowlog) Start() error {
 	if err != nil {
 		return err
 	}
-	s.client = client
-
-	// create aggregator which collects documents and aggregates them into qan report
-	s.aggregator = aggregator.New(time.Now(), s.agentID, s.logger, s.maxQueryLength)
-	reportChan := s.aggregator.Start()
-
-	// create sender which sends qan reports and start it
-	s.sender = sender.New(reportChan, s.w, s.logger)
-	err = s.sender.Start()
+	logsPath, err := reader.GetLogFilePath(client)
 	if err != nil {
 		return err
 	}
-
-	f := func(client *mongo.Client, logger *logrus.Entry, dbName string) *monitor {
-		return NewMonitor(client, dbName, s.aggregator, logger)
-	}
-
-	// create monitors service which we use to periodically scan server for new/removed databases
-	s.monitors = NewMonitors(client, f, s.logger)
+	client.Disconnect(context.TODO())
 
 	// create new channel over which
 	// we will tell goroutine it should close
@@ -114,7 +103,7 @@ func (s *slowlog) Start() error {
 	ctx := context.Background()
 	labels := pprof.Labels("component", "mongodb.slowlog")
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
-		start(ctx, s.monitors, s.wg, s.doneChan, ready, s.logger)
+		start(ctx, s.wg, s.changes, s.doneChan, ready, logsPath, s.logger)
 	})
 
 	// wait until we actually fetch data from db
@@ -138,50 +127,43 @@ func (s *slowlog) Stop() error {
 	// wait for goroutine to exit
 	s.wg.Wait()
 
-	// stop aggregator; do it after goroutine is closed
-	s.aggregator.Stop()
-
-	// stop sender; do it after goroutine is closed
-	s.sender.Stop()
-
-	// close the session; do it after goroutine is closed
-	s.client.Disconnect(context.TODO()) //nolint:errcheck
-
 	// set state to "not running"
 	s.running = false
 	return nil
 }
 
-func start(ctx context.Context, monitors *monitors, wg *sync.WaitGroup, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry) {
+func start(ctx context.Context, wg *sync.WaitGroup, changes chan agents.Change, doneChan <-chan struct{}, ready *sync.Cond, logsPath string, logger *logrus.Entry) {
+	// TODO context usage
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
-
-	// stop all monitors
-	defer monitors.StopAll()
-
-	// monitor all databases
-	err := monitors.MonitorAll(ctx)
-	if err != nil {
-		logger.Debugf("couldn't monitor all databases, reason: %v", err)
-	}
 
 	// signal we started monitoring
 	signalReady(ready)
 
-	// loop to periodically refresh monitors
-	for {
-		// check if we should shutdown
-		select {
-		case <-doneChan:
-			return
-		case <-time.After(1 * time.Minute):
-			// just continue after delay if not
-		}
+	fr := reader.NewFileReader(logsPath)
+	lineChannel := make(chan string)
+	ticker := time.NewTicker(1 * time.Minute)
+	var s []string
 
-		// update monitors
-		err = monitors.MonitorAll(ctx)
+	go func() {
+		err := fr.ReadFile(lineChannel)
 		if err != nil {
-			logger.Debugf("couldn't monitor all databases, reason: %v", err)
+			log.Fatalf("Error: %v", err)
+		}
+	}()
+
+	for {
+		select {
+		case line := <-lineChannel:
+			s = append(s, line)
+		case <-doneChan:
+			ticker.Stop()
+			return
+		case <-ticker.C:
+			// TODO convert to metrics buckets
+			fmt.Println(s)
+			changes <- agents.Change{MetricsBucket: nil}
+			s = nil
 		}
 	}
 }
