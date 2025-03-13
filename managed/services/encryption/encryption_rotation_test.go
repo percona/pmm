@@ -64,6 +64,7 @@ func TestEncryptionRotation(t *testing.T) {
 }
 
 func createOriginEncryptionKey(t *testing.T) error {
+	t.Helper()
 	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, encryptionKeyTestPath)
 	err := os.WriteFile(encryptionKeyTestPath, []byte(originEncryptionKey), 0o600)
 	if err != nil {

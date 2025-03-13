@@ -488,7 +488,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		close(done)
 	}()
 
-	processInfo := &agentProcessInfo{
+	processInfo := &agentProcessInfo{ //nolint:forcetypeassert
 		cancel:          cancel,
 		done:            done,
 		requestedState:  proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess),

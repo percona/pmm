@@ -501,7 +501,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	deps.l.Infof("Updating settings...")
 	env := os.Environ()
 	sort.Strings(env)
-	if errs := deps.server.UpdateSettingsFromEnv(env); len(errs) != 0 {
+	if errs := deps.server.UpdateSettingsFromEnv(ctx, env); len(errs) != 0 {
 		// This should be impossible in the normal workflow.
 		// An invalid environment variable must be caught with pmm-managed-init
 		// and the docker run must be terminated.

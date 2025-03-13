@@ -129,7 +129,7 @@ func NewServer(params *Params) (*Server, error) {
 
 // UpdateSettingsFromEnv updates settings in the database with environment variables values.
 // It returns only validation or database errors; invalid environment variables are logged and skipped.
-func (s *Server) UpdateSettingsFromEnv(env []string) []error {
+func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []error {
 	s.envRW.Lock()
 	defer s.envRW.Unlock()
 
@@ -149,7 +149,7 @@ func (s *Server) UpdateSettingsFromEnv(env []string) []error {
 		return []error{err}
 	}
 	s.envSettings = envSettings
-	err = s.UpdateConfigurations(context.Background())
+	err = s.UpdateConfigurations(ctx)
 	if err != nil {
 		return []error{err}
 	}
