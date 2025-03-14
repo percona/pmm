@@ -41,7 +41,7 @@ ui {
 
 ports {
   # Bind HTTP interface to this port
-  http = "4648"
+  http = "{{ .listen_port }}"
   # Bind RPC interface to this port
   rpc  = "4649"
 }
@@ -163,6 +163,7 @@ func generateNomadClientConfig(node *models.Node, exporter *models.Agent, tdp mo
 		"CertFile":         tdp.Left + " .TextFiles.certFile " + tdp.Right,
 		"KeyFile":          tdp.Left + " .TextFiles.keyFile " + tdp.Right,
 		"DataDir":          tdp.Left + " .nomad_data_dir " + tdp.Right,
+		"listen_port":      tdp.Left + ".listen_port" + tdp.Right,
 		"LogLevel":         strings.ToUpper(logLevel),
 	}
 

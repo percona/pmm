@@ -52,6 +52,13 @@ ui {
   enabled = false
 }
 
+ports {
+  # Bind HTTP interface to this port
+  http = "{{ .listen_port }}"
+  # Bind RPC interface to this port
+  rpc  = "4649"
+}
+
 addresses {
   http = "127.0.0.1"
   rpc = "127.0.0.1"
