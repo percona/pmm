@@ -81,7 +81,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 		}
 		mysql.Service = invService.(*inventoryv1.MySQLService) //nolint:forcetypeassert
 
-		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
+		req.MetricsMode, err = supportedMetricsMode(req.MetricsMode, req.PmmAgentId)
 		if err != nil {
 			return err
 		}
