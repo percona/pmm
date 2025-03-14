@@ -1,14 +1,32 @@
 ---
 - name: Create required directories for Nginx
-  file:
-    path: "{{ item }}"
-    state: directory
-    owner: pmm
-    group: pmm
-  loop:
-    - /usr/share/pmm-server/static/
-    - /etc/nginx/conf.d/
-    - /etc/nginx/ssl/
+  block:
+    - name: Create directories for static content, nginx conf, and SSL files
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: pmm
+        group: pmm
+        mode: '0755'
+      loop:
+        - /usr/share/pmm-server/static/
+        - /etc/nginx/conf.d/
+        - /etc/nginx/ssl/
+
+    - name: Verify directories were created
+      stat:
+        path: "{{ item }}"
+      loop:
+        - /usr/share/pmm-server/static/
+        - /etc/nginx/conf.d/
+        - /etc/nginx/ssl/
+      register: nginx_dirs_stat
+
+    - name: Fail if any required directory is missing
+      fail:
+        msg: "One or more required Nginx directories are missing: {{ item.item }}"
+      loop: "{{ nginx_dirs_stat.results }}"
+      when: not item.stat.exists
 
 - name: Install nginx
   yum:
@@ -16,57 +34,116 @@
     state: installed
     exclude:
       - logrotate-*
+  register: nginx_install
+
+- name: Verify nginx is installed
+  command: rpm -q nginx
+  register: nginx_installed
+  changed_when: false
+  failed_when: nginx_installed.rc != 0
 
 - name: Add ssl-related files and scripts
-  copy:
-    src: "ssl/{{ item.src }}"
-    dest: "{{ item.dest }}"
-    mode: "{{ item.mode }}"
-  loop:
-    - { src: ca-certs.pem, dest: /etc/nginx/ssl/ca-certs.pem, mode: "0644" }
-    - { src: certificate.conf, dest: /etc/nginx/ssl/certificate.conf, mode: "0644" }
-    - { src: dhparam.pem, dest: /etc/nginx/ssl/dhparam.pem, mode: "0644" }
-    - { src: generate-ssl-certificate, dest: /var/lib/cloud/scripts/per-boot/generate-ssl-certificate, mode: "0755" }
-    - { src: upgrade-certificate, dest: /var/lib/cloud/scripts/per-boot/upgrade-certificate, mode: "0755" }
+  block:
+    - name: Copy SSL-related files and scripts
+      copy:
+        src: "ssl/{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: "{{ item.mode }}"
+      loop:
+        - { src: ca-certs.pem, dest: /etc/nginx/ssl/ca-certs.pem, mode: "0644" }
+        - { src: certificate.conf, dest: /etc/nginx/ssl/certificate.conf, mode: "0644" }
+        - { src: dhparam.pem, dest: /etc/nginx/ssl/dhparam.pem, mode: "0644" }
+        - { src: generate-ssl-certificate, dest: /var/lib/cloud/scripts/per-boot/generate-ssl-certificate, mode: "0755" }
+        - { src: upgrade-certificate, dest: /var/lib/cloud/scripts/per-boot/upgrade-certificate, mode: "0755" }
+      register: ssl_files_copy
+
+    - name: Verify SSL files were copied
+      stat:
+        path: "{{ item.dest }}"
+      loop:
+        - { dest: "/etc/nginx/ssl/ca-certs.pem" }
+        - { dest: "/etc/nginx/ssl/certificate.conf" }
+        - { dest: "/etc/nginx/ssl/dhparam.pem" }
+        - { dest: "/var/lib/cloud/scripts/per-boot/generate-ssl-certificate" }
+        - { dest: "/var/lib/cloud/scripts/per-boot/upgrade-certificate" }
+      register: ssl_files_stat
+
+    - name: Fail if any SSL file is missing
+      fail:
+        msg: "SSL file {{ item.item.dest }} is missing!"
+      loop: "{{ ssl_files_stat.results }}"
+      when: not item.stat.exists
 
 - name: Copy nginx configs
-  copy:
-    src: "{{ item }}"
-    dest: "/etc/nginx/{{ item }}"
-    mode: 0644
-  loop:
-    - "nginx.conf"
-    - "conf.d/pmm-ssl.conf"
-    - "conf.d/pmm.conf"
+  block:
+    - name: Copy custom nginx configuration files
+      copy:
+        src: "{{ item }}"
+        dest: "/etc/nginx/{{ item }}"
+        mode: '0644'
+      loop:
+        - "nginx.conf"
+        - "conf.d/pmm-ssl.conf"
+        - "conf.d/pmm.conf"
+      register: nginx_config_copy
+
+    - name: Verify nginx config files were copied
+      stat:
+        path: "/etc/nginx/{{ item }}"
+      loop:
+        - "nginx.conf"
+        - "conf.d/pmm-ssl.conf"
+        - "conf.d/pmm.conf"
+      register: nginx_config_stat
+
+    - name: Fail if any nginx config file is missing
+      fail:
+        msg: "Nginx config file /etc/nginx/{{ item.item }} is missing!"
+      loop: "{{ nginx_config_stat.results }}"
+      when: not item.stat.exists
 
 - name: Check if the user-provided certificate exists
   stat:
     path: /srv/nginx/certificate.crt
   register: certificate_file
 
-- name: Generate SSL certificates
+- name: Generate SSL certificates if certificate is missing
   when: not certificate_file.stat.exists
   command: /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
+  register: generate_ssl
+  changed_when: true
 
-- name: Find the default nginx config files
+- name: Verify generated SSL certificate exists (if generated)
+  stat:
+    path: /srv/nginx/certificate.crt
+  register: generated_cert_stat
+  when: not certificate_file.stat.exists
+
+- name: Find default nginx config files
   find:
     paths: /etc/nginx
     patterns: "*.default"
   register: default_config
 
-- name: Remove the default nginx config files
+- name: Remove default nginx config files
   file:
     path: "{{ item }}"
     state: absent
   loop: "{{ default_config.files | map(attribute='path') | list }}"
   when: default_config.files | length > 0
 
-- name: Change ownership of nginx dirs
+- name: Verify default nginx config files are removed
+  shell: "find /etc/nginx -type f -name '*.default'"
+  register: default_config_verify
+  changed_when: false
+  failed_when: default_config_verify.stdout != ""
+
+- name: Change ownership of nginx directories
   file:
     path: "{{ item }}"
     state: directory
-    group: pmm
     owner: pmm
+    group: pmm
     recurse: yes
   loop:
     - /var/lib/nginx
@@ -74,24 +151,51 @@
     - /etc/nginx
     - /srv/nginx
 
-- name: Provision empty Nginx configuration files
+- name: Provision empty nginx configuration files
   file:
     path: "{{ item }}"
     state: touch
-    group: pmm
     owner: pmm
+    group: pmm
   loop:
     - /run/nginx.pid
     - /srv/logs/nginx.log
 
-- name: Check nginx configuration
-  command: nginx -t
-  changed_when: false
+- name: Verify provisioned files exist
+  stat:
+    path: "{{ item }}"
+  loop:
+    - /run/nginx.pid
+    - /srv/logs/nginx.log
+  register: provisioned_files_stat
 
-- name: Copy local-rss.xml file
+- name: Fail if provisioned file is missing
+  fail:
+    msg: "Provisioned file {{ item.item }} is missing!"
+  loop: "{{ provisioned_files_stat.results }}"
+  when: not item.stat.exists
+
+- name: Check nginx configuration syntax
+  command: nginx -t
+  register: nginx_config_test
+  changed_when: false
+  failed_when: nginx_config_test.rc != 0
+
+- name: Copy local-rss.xml file to static directory
   copy:
     src: local-rss.xml
-    dest: /usr/share/pmm-server/static/
-    group: pmm
+    dest: /usr/share/pmm-server/static/local-rss.xml
     owner: pmm
-    mode: 0644
+    group: pmm
+    mode: '0644'
+  register: local_rss_copy
+
+- name: Verify local-rss.xml file was copied
+  stat:
+    path: /usr/share/pmm-server/static/local-rss.xml
+  register: local_rss_stat
+
+- name: Fail if local-rss.xml is missing
+  fail:
+    msg: "local-rss.xml was not copied to /usr/share/pmm-server/static/!"
+  when: not local_rss_stat.stat.exists

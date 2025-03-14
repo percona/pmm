@@ -1,38 +1,55 @@
 ---
-# We use percona-release package to install the gpg keys and ppg-14
-# To workaround the package's incompatibility with RHEL9, we have to disable the gpg verification :(
-- name: Add percona-release package
+# This playbook installs PMM Server components and its dependencies,
+# including setting up local repositories, installing OS tools, creating
+# required users and groups, directories, and configuring services.
+# Verification steps follow key operations to ensure the expected state.
+
+- name: Install percona-release package (with disabled GPG check)
   yum:
     name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     state: installed
     disable_gpg_check: yes
+  register: percona_release_install
 
-- name: List installed gpg keys
+- name: Verify percona-release package is installed
+  command: rpm -q percona-release
+  register: percona_release_verify
+  changed_when: false
+  failed_when: percona_release_verify.rc != 0
+
+- name: List installed GPG keys (for diagnostic purposes)
   command: ls -la /etc/pki/rpm-gpg
+  register: gpg_keys_list
+  changed_when: false
 
-# Local yum repo for building pmm server docker image in autobuild jobs
-- name: Add a local YUM repository
+- debug:
+    msg: "Installed GPG keys: {{ gpg_keys_list.stdout_lines }}"
+
+- name: Add a local YUM repository for PMM Server Docker image
   yum_repository:
     name: local
-    description: Local YUM repository - x86_64
+    description: "Local YUM repository - x86_64"
     baseurl: file:///tmp/RPMS
     gpgcheck: no
     enabled: no
+  register: local_repo
 
-- name: Update OS packages
+- name: Update OS packages (excluding percona-release repo)
   yum:
     name: "*"
     state: latest
     disablerepo: percona-release-x86_64
 
-- name: Install OS tools
+- name: Install essential OS tools
   yum:
     name:
       - python3-pip
       - rsync
     state: latest
+  register: os_tools_install
 
-- name: Create groups
+# Create required groups with specified GIDs
+- name: Create groups for PMM, nginx, and Clickhouse
   group:
     name: "{{ item.name }}"
     gid: "{{ item.gid }}"
@@ -41,8 +58,8 @@
     - { name: nginx, gid: 1001 }
     - { name: clickhouse, gid: 1002 }
 
-# Note: nginx and clickhouse users will get removed in post-build.
-- name: Create users
+# Create users; note that nginx and clickhouse users will be removed later in post-build.
+- name: Create required users
   user:
     name: "{{ item.name }}"
     uid: "{{ item.uid }}"
@@ -51,39 +68,53 @@
     shell: "{{ item.shell }}"
     group: "{{ item.group }}"
   loop:
-    - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: pmm, }
-    - { name: nginx, uid: 1001, comment: "Nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
-    - { name: clickhouse, uid: 1002, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/dev/null", group: clickhouse, }
+    - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: pmm }
+    - { name: nginx, uid: 1001, comment: "Nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx }
+    - { name: clickhouse, uid: 1002, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/dev/null", group: clickhouse }
 
-- name: Create directories (mask 022)
-  file: 
-    path: "{{ item }}"
-    state: directory
-    owner: pmm
-    group: pmm
-  loop:
-    - /srv # otherwise it's owned by root
-    - /srv/prometheus/rules
-    - /etc/grafana
-    - /srv/clickhouse
+# Create required directories with appropriate ownership
+- name: Create key directories (ensuring ownership by pmm)
+  block:
+    - name: Create directory {{ item }}
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: pmm
+        group: pmm
+        mode: '0755'
+      loop:
+        - /srv          # Ensure /srv is owned by pmm (otherwise defaults to root)
+        - /srv/prometheus/rules
+        - /etc/grafana
+        - /srv/clickhouse
 
-# Note a special mode required mainly by nginx
-- name: Create a directory for logs
+    - name: Verify /srv directory ownership
+      stat:
+        path: /srv
+      register: srv_stat
+
+    - name: Fail if /srv directory is not owned by pmm
+      fail:
+        msg: "/srv directory ownership is incorrect!"
+      when: srv_stat.stat.pw_name != "pmm"
+      
+- name: Create directory for logs with special mode for nginx
   file:
     path: /srv/logs
     state: directory
     owner: pmm
     group: pmm
-    mode: 0775
+    mode: '0775'
 
-- name: Create dirs
-  file: 
+- name: Create cloud-init script directories
+  file:
     path: "{{ item }}"
     state: directory
   loop:
     - /var/lib/cloud/scripts/per-once
     - /var/lib/cloud/scripts/per-boot
 
+# Install PMM Server components using local repository
 - name: Install PMM Server components
   yum:
     name:
@@ -96,24 +127,32 @@
       - vmproxy
     state: installed
     enablerepo: local
+  register: pmm_server_components
 
-- name: Create grafana config
+- name: Verify PMM Server components installation
+  shell: "rpm -q percona-grafana pmm-managed"
+  register: pmm_components_verify
+  changed_when: false
+  failed_when: pmm_components_verify.rc != 0
+
+# Include roles for various components
+- name: Create Grafana configuration
   include_role:
     name: grafana
 
-- name: Install clickhouse
+- name: Install clickhouse components
   include_role:
     name: clickhouse
 
-- name: Install nginx
+- name: Install nginx configuration
   include_role:
     name: nginx
 
-- name: Install postgres
+- name: Install postgres configuration
   include_role:
     name: postgres
 
-- name: Install supervisord
+- name: Install supervisord configuration
   include_role:
     name: supervisord
 
@@ -121,54 +160,80 @@
   include_role:
     name: pmm-client
 
-- name: Create a backup directory
+# Create additional directories required by PMM Server
+- name: Create backup directory
   file:
     path: /srv/backup
     state: directory
     owner: pmm
     group: pmm
-    mode: 0775
+    mode: '0775'
 
-- name: Create a working directory for VictoriaMetrics
+- name: Create VictoriaMetrics working directory
   file:
     path: /srv/victoriametrics/data
     state: directory
     owner: pmm
     group: pmm
 
-- name: Create an empty configuration file for VictoriaMetrics
+- name: Create empty configuration file for VictoriaMetrics
   file:
     path: /etc/victoriametrics-promscrape.yml
     state: touch
     owner: pmm
     group: pmm
 
-# Launch pmm-managed-init first as it may update supervisord configuration on start
-- name: Generate new supervisor config
+# Generate supervisor configuration
+- name: Generate new supervisor config using pmm-managed-init
   command: pmm-managed-init
   register: managed_init_result
   changed_when: True
 
-- name: Disable pmm-init
+- name: Verify supervisor configuration was generated
+  stat:
+    path: /etc/supervisord.conf
+  register: supervisord_conf_stat
+  failed_when: not supervisord_conf_stat.stat.exists
+
+- name: Disable pmm-init autostart in supervisord
   ini_file:
     path: /etc/supervisord.d/pmm.ini
     section: program:pmm-init
     option: autostart
     value: "false"
 
-# During build time, this will be the first start of supervisord.
-- name: Start supervisord
+# Start supervisord (first start during build time)
+- name: Start supervisord using PMM user
   shell: supervisord -c /etc/supervisord.conf &
   become: true
   become_user: pmm
   become_method: su
+  register: supervisord_start
 
-- name: Run initialization playbook
+- name: Wait for supervisord to start
+  pause:
+    seconds: 10
+
+# Run the PMM Server initialization playbook
+- name: Run initialization playbook for PMM Server
   include_role:
     name: initialization
 
-- name: Check supervisord logs
+# Check logs for diagnostics
+- name: Check supervisord logs (last 200 lines)
   shell: sleep 10 && tail -n 200 /srv/logs/supervisord.log
+  register: supervisord_logs
+  changed_when: false
+
+- name: Output supervisord logs for review
+  debug:
+    msg: "{{ supervisord_logs.stdout_lines }}"
 
 - name: Check grafana logs
   shell: cat /srv/logs/grafana.log
+  register: grafana_logs
+  changed_when: false
+
+- name: Output grafana logs for review
+  debug:
+    msg: "{{ grafana_logs.stdout_lines }}"

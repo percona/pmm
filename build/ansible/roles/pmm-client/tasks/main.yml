@@ -1,39 +1,108 @@
 ---
 # This role installs pmm-client.
-- name: Get the image version
+
+- name: Get the image version from percona-dashboards
   slurp:
     src: /usr/share/percona-dashboards/VERSION
   register: image_version_file
 
-- name: Set the PMM image version
+- name: Set the PMM image version fact
   set_fact:
     pmm_image_version: "{{ image_version_file['content'] | b64decode | trim }}"
 
-- name: Create a temporary directory
+- name: Debug: Show PMM image version
+  debug:
+    msg: "PMM Image Version is {{ pmm_image_version }}"
+
+- name: Create a temporary directory for pmm-client installation
   file:
     path: /tmp/pmm-client
     state: directory
+    mode: '0755'
 
-- name: Unpack the tarball
+- name: Verify temporary directory was created
+  stat:
+    path: /tmp/pmm-client
+  register: tmp_dir_stat
+  changed_when: false
+
+- name: Fail if temporary directory was not created
+  fail:
+    msg: "Temporary directory /tmp/pmm-client was not created!"
+  when: not tmp_dir_stat.stat.exists
+
+- name: Unpack the pmm-client tarball
   unarchive:
     src: /tmp/pmm-client.tar.gz
     dest: /tmp/pmm-client
     remote_src: true
     extra_opts: [--strip-components=1]
+  register: unarchive_result
 
-- name: Install the client
+- name: Verify that the pmm-client install script exists after unarchiving
+  stat:
+    path: /tmp/pmm-client/install_tarball
+  register: install_script_stat
+  changed_when: false
+
+- name: Fail if the pmm-client install script is missing
+  fail:
+    msg: "The install_tarball script was not found in /tmp/pmm-client!"
+  when: not install_script_stat.stat.exists
+
+- name: Install the pmm-client using the tarball installer
   command: env PMM_USER=pmm PMM_GROUP=pmm /tmp/pmm-client/install_tarball
+  register: install_client_result
+  changed_when: install_client_result.rc == 0
 
-- name: Remove the temporary directory
+- name: Verify pmm-client installation by checking for pmm-admin binary
+  stat:
+    path: /usr/local/percona/pmm/bin/pmm-admin
+  register: pmm_admin_stat
+  changed_when: false
+
+- name: Fail if pmm-admin binary was not installed
+  fail:
+    msg: "pmm-admin binary is missing in /usr/local/percona/pmm/bin!"
+  when: not pmm_admin_stat.stat.exists
+
+- name: Remove the temporary pmm-client directory
   file:
     path: /tmp/pmm-client
     state: absent
 
-- name: Create symlinks to the binaries
+- name: Verify temporary directory removal
+  stat:
+    path: /tmp/pmm-client
+  register: tmp_dir_removed
+  changed_when: false
+
+- name: Fail if temporary directory was not removed
+  fail:
+    msg: "Temporary directory /tmp/pmm-client still exists!"
+  when: tmp_dir_removed.stat.exists
+
+- name: Create symlinks for pmm binaries in /usr/sbin
   file:
-    src: /usr/local/percona/pmm/bin/{{ item }}
-    dest: /usr/sbin/{{ item }}
+    src: "/usr/local/percona/pmm/bin/{{ item }}"
+    dest: "/usr/sbin/{{ item }}"
     state: link
   loop:
     - pmm-admin
     - pmm-agent
+  register: symlink_result
+
+- name: Verify symlink for pmm binaries
+  stat:
+    path: "/usr/sbin/{{ item }}"
+  loop:
+    - pmm-admin
+    - pmm-agent
+  register: symlink_stat
+  changed_when: false
+
+- name: Fail if any pmm binary symlink is missing or incorrect
+  fail:
+    msg: "Symlink /usr/sbin/{{ item.item }} is missing or incorrect!"
+  loop: "{{ symlink_stat.results }}"
+  when: not item.stat.islnk or (item.stat.lnk_source != "/usr/local/percona/pmm/bin/" ~ (item.item))

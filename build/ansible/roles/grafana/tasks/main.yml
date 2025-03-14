@@ -1,55 +1,116 @@
 ---
-- name: Create grafana directory
-  file:
-    path: "{{ item }}"
-    state: directory
-    owner: pmm
-    group: pmm
-    mode: 0755
-  loop:
-    - /srv/grafana
-    - /srv/grafana/plugins
+- name: Create Grafana directories and set permissions
+  block:
+    - name: Create /srv/grafana and /srv/grafana/plugins directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: pmm
+        group: pmm
+        mode: '0755'
+      loop:
+        - /srv/grafana
+        - /srv/grafana/plugins
 
-- name: Set ownership on /etc/grafana
+    - name: Verify /srv/grafana directory exists
+      stat:
+        path: /srv/grafana
+      register: srv_grafana_stat
+
+    - name: Fail if /srv/grafana was not created
+      fail:
+        msg: "/srv/grafana directory was not created!"
+      when: not srv_grafana_stat.stat.exists
+
+- name: Set ownership on /etc/grafana recursively
   file:
     path: /etc/grafana
     state: directory
     owner: pmm
     group: pmm
-    mode: 0744
-    recurse: true
+    mode: '0744'
+    recurse: yes
 
-- name: Copy a custom version of grafana.ini
+- name: Copy custom grafana.ini configuration
   copy:
     src: grafana.ini
     dest: /etc/grafana/grafana.ini
     owner: pmm
     group: pmm
+    mode: '0644'
+  register: grafana_ini_copy
 
-- name: Create provisioning directory
-  file:
-    path: "/usr/share/grafana/conf/provisioning/{{ item }}"
-    owner: pmm
-    group: pmm
-    state: directory
-  loop:
-    - datasources
-    - plugins
-    - dashboards
+- name: Verify grafana.ini was copied successfully
+  stat:
+    path: /etc/grafana/grafana.ini
+  register: grafana_ini_stat
 
-- name: Copy grafana provisioning files
-  copy:
-    src: "{{ item }}.yml"
-    dest: "/usr/share/grafana/conf/provisioning/{{ item }}/default.yml"
-    owner: pmm
-    group: pmm
-  loop:
-    - datasources
-    - plugins
-    - dashboards
+- name: Fail if grafana.ini is missing
+  fail:
+    msg: "grafana.ini was not successfully copied to /etc/grafana/grafana.ini"
+  when: not grafana_ini_stat.stat.exists
 
-- name: Copy change-admin-password command
+- name: Create provisioning directories for Grafana
+  block:
+    - name: Create provisioning directories under /usr/share/grafana/conf/provisioning
+      file:
+        path: "/usr/share/grafana/conf/provisioning/{{ item }}"
+        state: directory
+        owner: pmm
+        group: pmm
+        mode: '0755'
+      loop:
+        - datasources
+        - plugins
+        - dashboards
+
+    - name: Verify provisioning directory for datasources exists
+      stat:
+        path: "/usr/share/grafana/conf/provisioning/datasources"
+      register: prov_datasources_stat
+
+    - name: Fail if provisioning directory for datasources is missing
+      fail:
+        msg: "/usr/share/grafana/conf/provisioning/datasources was not created!"
+      when: not prov_datasources_stat.stat.exists
+
+- name: Copy Grafana provisioning files
+  block:
+    - name: Copy provisioning files for each type
+      copy:
+        src: "{{ item }}.yml"
+        dest: "/usr/share/grafana/conf/provisioning/{{ item }}/default.yml"
+        owner: pmm
+        group: pmm
+        mode: '0644'
+      loop:
+        - datasources
+        - plugins
+        - dashboards
+
+    - name: Verify provisioning file for datasources exists
+      stat:
+        path: "/usr/share/grafana/conf/provisioning/datasources/default.yml"
+      register: prov_datasources_file_stat
+
+    - name: Fail if provisioning file for datasources is missing
+      fail:
+        msg: "Provisioning file for datasources was not copied!"
+      when: not prov_datasources_file_stat.stat.exists
+
+- name: Copy change-admin-password command script
   copy:
     src: change-admin-password
     dest: /usr/local/sbin/change-admin-password
-    mode: 0755
+    mode: '0755'
+  register: change_admin_copy
+
+- name: Verify change-admin-password script exists
+  stat:
+    path: /usr/local/sbin/change-admin-password
+  register: change_admin_stat
+
+- name: Fail if change-admin-password script is missing
+  fail:
+    msg: "The change-admin-password command was not copied to /usr/local/sbin!"
+  when: not change_admin_stat.stat.exists

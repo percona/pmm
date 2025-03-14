@@ -1,3 +1,4 @@
+---
 - name: Create user-specific volume directory
   file:
     path: /home/admin/volume/srv/
@@ -13,8 +14,7 @@
 
 - name: Set distribution for AMI
   when: >
-    ( ansible_virtualization_type == "xen"
-    or ansible_virtualization_type == "kvm" )
+    ( ansible_virtualization_type == "xen" or ansible_virtualization_type == "kvm" )
     and ansible_system_vendor != "DigitalOcean"
   set_fact:
     pmm_distribution_method: ami
@@ -24,28 +24,33 @@
     policy: targeted
     state: permissive
 
-- name: Update podman.conf
+- name: Update podman.conf to modify tmpfiles rules
   lineinfile:
     path: /usr/lib/tmpfiles.d/podman.conf
     regexp: '^x /tmp/storage-run-\*'
     line: 'R! /tmp/storage-run-*'
     backrefs: yes
 
-- name: Create a volume on the host
+- name: Create a volume on the host using podman
   command: podman volume create pmm-data
   become: true
   become_user: admin
+  register: podman_volume
+  changed_when: "'pmm-data' in podman_volume.stdout"
 
-- name: Create a network
+- name: Create a network using podman
   command: podman network create pmm_default
   become: true
   become_user: admin
+  register: podman_network
+  changed_when: "'pmm_default' in podman_network.stdout"
 
-- name: Enable privileged port
+- name: Enable privileged port 443 for unprivileged users
   become: true
   sysctl:
     name: net.ipv4.ip_unprivileged_port_start
     value: 443
+    state: present
 
 - name: Create user-specific systemd directory
   file:
@@ -58,23 +63,24 @@
 - name: Copy pmm-server environment file for service to user-specific directory
   template:
     src: pmm-server.env
-    dest: /home/admin/.config/systemd/user/
+    dest: /home/admin/.config/systemd/user/pmm-server.env
     owner: admin
     group: admin
     mode: '0644'
 
-- name: Display the contents of the environment file
+- name: Display the contents of the pmm-server environment file
   command: cat /home/admin/.config/systemd/user/pmm-server.env
-  register: command_output
+  register: pmm_server_env
+  changed_when: false
 
-- name: Print to console
+- name: Print pmm-server environment file to console
   debug:
-    msg: "{{command_output.stdout}}"
+    msg: "{{ pmm_server_env.stdout }}"
 
 - name: Copy pmm-server systemd service file to user-specific directory
   template:
     src: pmm-server.service
-    dest: /home/admin/.config/systemd/user/
+    dest: /home/admin/.config/systemd/user/pmm-server.service
     owner: admin
     group: admin
     mode: '0644'
@@ -82,7 +88,7 @@
 - name: Copy watchtower environment file for service to user-specific directory
   template:
     src: watchtower.env
-    dest: /home/admin/.config/systemd/user/
+    dest: /home/admin/.config/systemd/user/watchtower.env
     owner: admin
     group: admin
     mode: '0644'
@@ -90,7 +96,7 @@
 - name: Copy watchtower systemd service file to user-specific directory
   template:
     src: watchtower.service
-    dest: /home/admin/.config/systemd/user/
+    dest: /home/admin/.config/systemd/user/watchtower.service
     owner: admin
     group: admin
     mode: '0644'
@@ -98,14 +104,19 @@
 - name: Get user ID of admin user
   command: id -u admin
   register: admin_user_id
+  changed_when: false
 
 - name: Enable linger for the admin user
   command: loginctl enable-linger {{ admin_user_id.stdout }}
+  register: linger_enable
+  changed_when: "'Created' in linger_enable.stdout"  # Optional check
 
 - name: Pull the PMM image
   command: podman pull {{ pmm_server_image_name }}
   become: true
   become_user: admin
+  register: pmm_image_pull
+  changed_when: "'Downloaded' in pmm_image_pull.stdout or 'Pulling from' in pmm_image_pull.stdout"
 
 - name: Enable and start PMM container as a user service
   command: systemctl --user enable --now pmm-server
@@ -113,13 +124,17 @@
   become_user: admin
   environment:
     DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
+  register: pmm_service_enable
+  changed_when: "'enabled' in pmm_service_enable.stdout"
 
-- name: Enable socket
+- name: Enable podman.socket for user service
   command: systemctl --user enable --now podman.socket
   become: true
   become_user: admin
   environment:
     DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
+  register: podman_socket_enable
+  changed_when: "'enabled' in podman_socket_enable.stdout"
 
 - name: Enable and start watchtower container as a user service
   command: systemctl --user enable --now watchtower
@@ -127,7 +142,9 @@
   become_user: admin
   environment:
     DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
+  register: watchtower_service_enable
+  changed_when: "'enabled' in watchtower_service_enable.stdout"
 
-- name: Sleep for 1 minute
+- name: Pause for 1 minute to allow services to start
   pause:
     minutes: 1

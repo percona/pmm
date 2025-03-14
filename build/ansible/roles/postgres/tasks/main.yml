@@ -1,108 +1,226 @@
 ---
+# Add PostgreSQL 14 YUM repository and verify its creation
 - name: Add PostgreSQL 14 YUM repository
   yum_repository:
     name: percona-ppg-14
     description: PostgreSQL YUM repository
-    baseurl: http://repo.percona.com/ppg-14/yum/release/$releasever/RPMS/$basearch/
+    baseurl: "http://repo.percona.com/ppg-14/yum/release/$releasever/RPMS/$basearch/"
     gpgcheck: yes
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
+  register: repo_result
 
-- name: Install Postgres
-  when:
-    - not ansible_check_mode
+- name: Verify percona-ppg-14 repository file exists
+  stat:
+    path: "/etc/yum.repos.d/percona-ppg-14.repo"
+  register: repo_stat
+  failed_when: not repo_stat.stat.exists
+
+# Install PostgreSQL packages
+- name: Install Postgres packages
+  when: not ansible_check_mode
   yum:
     name:
       - percona-postgresql14-server
       - percona-postgresql14-contrib
       - percona-postgresql14
-      - python3-psycopg2 # Python PostgreSQL database adapter
+      - python3-psycopg2
     state: installed
+  register: postgres_install
 
+- name: Verify PostgreSQL packages are installed
+  shell: rpm -q percona-postgresql14-server percona-postgresql14-contrib percona-postgresql14 python3-psycopg2
+  register: postgres_pkg_check
+  changed_when: false
+  failed_when: postgres_pkg_check.rc != 0
+
+# Create required directories and files for Postgres
 - name: Create a socket directory for Postgres
   file:
     path: /run/postgresql
     state: directory
     owner: pmm
     group: pmm
-    mode: 0775  
+    mode: '0775'
+  register: socket_dir
+
+- name: Verify socket directory exists
+  stat:
+    path: /run/postgresql
+  register: socket_dir_stat
+  failed_when: not socket_dir_stat.stat.exists
 
 - name: Create Postgres log file
   file:
     path: /srv/logs/postgresql14.log
     state: touch
     force: yes
-    group: pmm
     owner: pmm
-    mode: 0644
+    group: pmm
+    mode: '0644'
+  register: pg_log_file
 
-- name: Create Postgres data dir
+- name: Verify Postgres log file exists
+  stat:
+    path: /srv/logs/postgresql14.log
+  register: pg_log_stat
+  failed_when: not pg_log_stat.stat.exists
+
+- name: Create Postgres data directory
   file:
     path: /srv/postgres14
     state: directory
     owner: pmm
     group: pmm
-    mode: 0700
+    mode: '0700'
+  register: pg_data_dir
 
+- name: Verify Postgres data directory exists
+  stat:
+    path: /srv/postgres14
+  register: pg_data_stat
+  failed_when: not pg_data_stat.stat.exists
+
+# Initialize Postgres database cluster
 - name: Initialize Postgres database
   command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust
   become: true
   become_user: pmm
   become_method: su
+  register: initdb_result
 
+- name: Verify Postgres initialization (check PG_VERSION file)
+  stat:
+    path: /srv/postgres14/PG_VERSION
+  register: pg_version_stat
+  failed_when: not pg_version_stat.stat.exists
+
+# Start Postgres database without supervisor
 - name: Start Postgres database without supervisor
   command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
   become: true
   become_user: pmm
   become_method: su
+  register: pg_start
+  changed_when: pg_start.rc == 0
 
-- name: Create postgres user
+- name: Wait for Postgres to become responsive
+  wait_for:
+    host: 127.0.0.1
+    port: 5432
+    delay: 5
+    timeout: 30
+
+# Create postgres superuser (if not exists) using createuser
+- name: Create postgres user (superuser)
   shell: /usr/pgsql-14/bin/createuser --echo --superuser --host=/run/postgresql --no-password postgres
   become: true
   become_user: pmm
-  become_method: su      
+  become_method: su
+  register: createuser_result
 
+- name: Verify postgres user creation
+  shell: "psql -U postgres -tAc \"SELECT 1 FROM pg_roles WHERE rolname='postgres'\""
+  become: true
+  become_user: pmm
+  become_method: su
+  register: postgres_user_check
+  changed_when: false
+  failed_when: postgres_user_check.stdout.strip() != "1"
+
+# Create databases and users in Postgres
 - name: Create pmm-managed database
   postgresql_db:
     name: pmm-managed
     state: present
+  register: pmm_managed_db
+
+- name: Verify pmm-managed database exists
+  shell: "psql -U postgres -tAc \"SELECT 1 FROM pg_database WHERE datname='pmm-managed'\""
+  register: pmm_managed_db_check
+  changed_when: false
+  failed_when: pmm_managed_db_check.stdout.strip() != "1"
 
 - name: Create pmm-managed user
   postgresql_user:
     db: pmm-managed
     name: pmm-managed
     password: "md5da757ec3e22c6d86a2bb8e70307fa937"
-    priv: "ALL"
+    priv: ALL
     expires: infinity
     state: present
+  register: pmm_managed_user
 
-- name: Create pg_stat_statements extension
+- name: Verify pmm-managed user exists
+  shell: "psql -U postgres -tAc \"SELECT 1 FROM pg_roles WHERE rolname='pmm-managed'\""
+  register: pmm_managed_user_check
+  changed_when: false
+  failed_when: pmm_managed_user_check.stdout.strip() != "1"
+
+- name: Create pg_stat_statements extension in postgres
   postgresql_ext:
     db: postgres
     name: pg_stat_statements
     schema: public
+  register: pg_stat_ext
+
+- name: Verify pg_stat_statements extension is installed
+  shell: "psql -U postgres -tAc \"SELECT 1 FROM pg_extension WHERE extname='pg_stat_statements'\""
+  register: pg_stat_ext_check
+  changed_when: false
+  failed_when: pg_stat_ext_check.stdout.strip() != "1"
 
 - name: Create grafana database in postgres
   postgresql_db:
     name: grafana
     state: present
+  register: grafana_db
+
+- name: Verify grafana database exists
+  shell: "psql -U postgres -tAc \"SELECT 1 FROM pg_database WHERE datname='grafana'\""
+  register: grafana_db_check
+  changed_when: false
+  failed_when: grafana_db_check.stdout.strip() != "1"
 
 - name: Create grafana user in postgres
   postgresql_user:
     db: grafana
     name: grafana
     password: grafana
-    priv: 'ALL'
+    priv: ALL
     expires: infinity
     state: present
   when: not ansible_check_mode
+  register: grafana_user
 
-- name: Upgrade grafana database to the latest schema
+- name: Verify grafana user exists
+  shell: "psql -U postgres -tAc \"SELECT 1 FROM pg_roles WHERE rolname='grafana'\""
+  register: grafana_user_check
+  changed_when: false
+  failed_when: grafana_user_check.stdout.strip() != "1"
+
+# Upgrade grafana database to the latest schema
+- name: Upgrade grafana database schema
   command: grafana cli --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini admin data-migration encrypt-datasource-passwords
   changed_when: true
+  register: grafana_upgrade
 
-- name: Stop Postgres 14 database without supervisor
+- name: Verify grafana upgrade command output (optional)
+  debug:
+    msg: "Grafana upgrade output: {{ grafana_upgrade.stdout }}"
+
+# Stop Postgres 14 database without supervisor
+- name: Stop Postgres database without supervisor
   command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
   become: true
   become_user: pmm
   become_method: su
+  register: pg_stop
+  changed_when: pg_stop.rc == 0
+
+- name: Verify Postgres has stopped
+  shell: "pgrep -u pmm postgres"
+  register: pg_stop_check
+  changed_when: false
+  failed_when: pg_stop_check.stdout | trim != ""
+  ignore_errors: true

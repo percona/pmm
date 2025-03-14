@@ -1,7 +1,14 @@
 ---
-- name: Install supervisor
+- name: Install supervisor via pip
   pip:
     name: supervisor==4.2.4
+  register: supervisor_pip_install
+
+- name: Verify supervisor is installed
+  shell: supervisord --version
+  register: supervisor_version
+  changed_when: false
+  failed_when: supervisor_version.rc != 0
 
 - name: Create a symlink for supervisord
   file:
@@ -9,80 +16,137 @@
     dest: /usr/bin/supervisord
     state: link
 
+- name: Verify supervisord symlink exists
+  stat:
+    path: /usr/bin/supervisord
+  register: supervisord_symlink
+  changed_when: false
+  failed_when: not supervisord_symlink.stat.islnk
+
 - name: Create a default configuration file for supervisord
   shell: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
+  register: echo_conf
+  changed_when: echo_conf.rc == 0
 
-- name: Modify supervisord.conf
+- name: Verify default supervisord.conf was created
+  stat:
+    path: /etc/supervisord.conf
+  register: supervisord_conf_stat
+  changed_when: false
+  failed_when: not supervisord_conf_stat.stat.exists
+
+- name: Modify supervisord.conf: Set include files
   ini_file:
     dest: /etc/supervisord.conf
     section: include
     option: files
     value: supervisord.d/*.ini
 
-- name: Modify supervisord.conf
+- name: Modify supervisord.conf: Set socket file for unix_http_server
   ini_file:
     dest: /etc/supervisord.conf
     section: unix_http_server
     option: file
     value: /run/supervisor/supervisor.sock
 
-- name: Modify supervisord.conf
+- name: Modify supervisord.conf: Set logfile for supervisord
   ini_file:
     dest: /etc/supervisord.conf
     section: supervisord
     option: logfile
     value: /srv/logs/supervisord.log
 
-- name: Modify supervisord.conf
+- name: Modify supervisord.conf: Set serverurl for supervisorctl
   ini_file:
     dest: /etc/supervisord.conf
     section: supervisorctl
     option: serverurl
     value: unix:///run/supervisor/supervisor.sock
 
-- name: Create a directory for socket
+- name: Create directory for supervisor socket
   file:
     path: /run/supervisor
     state: directory
     owner: pmm
     group: pmm
-    mode: 0770
+    mode: '0770'
 
-- name: Create /etc/supervisord.d dir
+- name: Verify /run/supervisor directory exists
+  stat:
+    path: /run/supervisor
+  register: socket_dir_stat
+  changed_when: false
+  failed_when: not socket_dir_stat.stat.exists
+
+- name: Create /etc/supervisord.d directory
   file:
     path: /etc/supervisord.d
     state: directory
     owner: pmm
     group: pmm
-    mode: 0755
+    mode: '0755'
 
-- name: Copy *.ini files for PMM components
+- name: Verify /etc/supervisord.d directory exists
+  stat:
+    path: /etc/supervisord.d
+  register: supervisord_d_stat
+  changed_when: false
+  failed_when: not supervisord_d_stat.stat.exists
+
+- name: Copy *.ini files for PMM components into /etc/supervisord.d
   copy:
     src: "{{ item }}"
     dest: "/etc/supervisord.d/{{ item }}"
     owner: pmm
     group: pmm
-    mode: 0644
+    mode: '0644'
   loop:
     - supervisord.ini
     - grafana.ini
     - pmm.ini
 
-- name: Fix credentials
+- name: Verify PMM component .ini files were copied
+  stat:
+    path: "/etc/supervisord.d/{{ item }}"
+  loop:
+    - supervisord.ini
+    - grafana.ini
+    - pmm.ini
+  register: ini_files_stat
+  changed_when: false
+
+- name: Fail if any .ini file is missing in /etc/supervisord.d
+  fail:
+    msg: "Missing .ini file: /etc/supervisord.d/{{ item.item }}"
+  loop: "{{ ini_files_stat.results }}"
+  when: not item.stat.exists
+
+- name: Fix supervisorctl credentials (username)
   ini_file:
     dest: /etc/supervisord.conf
     section: supervisorctl
     option: username
     value: dummy
 
-- name: Fix credentials
+- name: Fix supervisorctl credentials (password)
   ini_file:
     dest: /etc/supervisord.conf
     section: supervisorctl
     option: password
     value: dummy
 
+- name: Verify supervisord.conf contains expected settings
+  shell: |
+    grep -q '^files[[:space:]]*=[[:space:]]*supervisord.d/\*.ini' /etc/supervisord.conf &&
+    grep -q '^file[[:space:]]*=[[:space:]]*/run/supervisor/supervisor.sock' /etc/supervisord.conf &&
+    grep -q '^logfile[[:space:]]*=[[:space:]]*/srv/logs/supervisord.log' /etc/supervisord.conf &&
+    grep -q '^serverurl[[:space:]]*=[[:space:]]*unix:///run/supervisor/supervisor.sock' /etc/supervisord.conf &&
+    grep -q '^username[[:space:]]*=[[:space:]]*dummy' /etc/supervisord.conf &&
+    grep -q '^password[[:space:]]*=[[:space:]]*dummy' /etc/supervisord.conf
+  register: supervisord_conf_verify
+  changed_when: false
+  failed_when: supervisord_conf_verify.rc != 0
+
 - name: Print the contents of supervisord.conf
   debug:
-    msg:
-      - "{{ lookup('file', '/etc/supervisord.conf') | split('\n') }}"
+    msg: "{{ lookup('file', '/etc/supervisord.conf') | split('\n') }}"

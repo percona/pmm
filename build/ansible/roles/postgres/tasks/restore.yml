@@ -1,8 +1,6 @@
 ---
 # Restore Postgres Databases
-# This playbook can be run on its own as follows:
-# ansible-playbook -i localhost /opt/ansible/roles/postgres/tasks/restore.yml
-# or using `include_role` from another playbook with `tasks_from: restore.yml`
+# This playbook can be run on its own or via include_role with tasks_from: restore.yml
 
 - name: Check if supervisor socket exists
   stat:
@@ -11,68 +9,121 @@
 
 - name: Set fact is_supervisor_running
   set_fact:
-    is_supervisor_running: supervisor_socket.stat.exists
+    is_supervisor_running: "{{ supervisor_socket.stat.exists }}"
 
 - name: Set fact is_ha
   set_fact:
-    is_ha: not (lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '')
+    is_ha: "{{ not (lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '') }}"
 
 - name: Restore the database
   block:
-  - name: Stop pmm-managed, pmm-agent and postgres before backing up
-    supervisorctl:
-      name: "{{ item }}"
-      state: stopped
-    loop:
-      - pmm-managed
-      - pmm-agent
-      - postgresql
-    become: true
-    become_user: pmm
-    become_method: su
+    - name: Stop pmm-managed, pmm-agent, and postgresql before restoring
+      supervisorctl:
+        name: "{{ item }}"
+        state: stopped
+      loop:
+        - pmm-managed
+        - pmm-agent
+        - postgresql
+      become: true
+      become_user: pmm
+      become_method: su
 
-  - name: Run Postgres database without supervisor
-    command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres
-    become: true
-    become_user: pmm
-    become_method: su
+    - name: Verify services are stopped
+      shell: "supervisorctl status {{ item }}"
+      loop:
+        - pmm-managed
+        - pmm-agent
+        - postgresql
+      register: stopped_status
+      changed_when: false
+      failed_when: stopped_status.results | selectattr('stdout', 'search', 'RUNNING') | list | length > 0
 
-  - name: Restore pmm-managed database
-    postgresql_db:
-      name: pmm-managed
-      state: restore
-      target: /srv/postgres14/pmm-managed.sql
+    - name: Start Postgres database without supervisor
+      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
+      become: true
+      become_user: pmm
+      become_method: su
+      register: pg_start
+      changed_when: pg_start.rc == 0
 
-  - name: Restore grafana database
-    postgresql_db:
-      name: grafana
-      state: restore
-      target: /srv/postgres14/grafana.sql
-    when: not is_ha
+    - name: Wait for Postgres to become responsive
+      wait_for:
+        host: 127.0.0.1
+        port: 5432
+        delay: 5
+        timeout: 30
 
-  - name: Check pg_stat_statements extension
-    postgresql_ext:
-      db: postgres
-      name: pg_stat_statements
-      schema: public
+    - name: Restore pmm-managed database
+      postgresql_db:
+        name: pmm-managed
+        state: restore
+        target: /srv/postgres14/pmm-managed.sql
+      register: restore_pmm_managed
 
-  - name: Stop Postgres database without supervisor
-    command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
-    become: true
-    become_user: pmm
-    become_method: su
+    - name: Verify pmm-managed database restoration
+      shell: "psql -U postgres -tAc \"SELECT 1 FROM pg_database WHERE datname='pmm-managed'\""
+      register: pmm_managed_verify
+      changed_when: false
+      failed_when: pmm_managed_verify.stdout.strip() != "1"
 
-  - name: Start pmm-managed, pmm-agent and postgres after restoring
-    supervisorctl:
-      name: "{{ item }}"
-      state: started
-    loop:
-      - postgresql
-      - pmm-managed
-      - pmm-agent
-    become: true
-    become_user: pmm
-    become_method: su
- 
+    - name: Restore grafana database
+      postgresql_db:
+        name: grafana
+        state: restore
+        target: /srv/postgres14/grafana.sql
+      when: not is_ha
+      register: restore_grafana
+
+    - name: Verify grafana database restoration
+      shell: "psql -U postgres -tAc \"SELECT 1 FROM pg_database WHERE datname='grafana'\""
+      register: grafana_verify
+      changed_when: false
+      when: not is_ha
+      failed_when: grafana_verify.stdout.strip() != "1"
+
+    - name: Check pg_stat_statements extension exists in postgres
+      postgresql_ext:
+        db: postgres
+        name: pg_stat_statements
+        schema: public
+      register: pg_ext_check
+
+    - name: Stop Postgres database without supervisor
+      command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+      become: true
+      become_user: pmm
+      become_method: su
+      register: pg_stop
+      changed_when: pg_stop.rc == 0
+
+    - name: Verify Postgres has stopped
+      shell: "pgrep -u pmm postgres"
+      register: pg_stop_check
+      changed_when: false
+      failed_when: pg_stop_check.stdout | trim != ""
+      ignore_errors: true
+
+    - name: Start pmm-managed, pmm-agent, and postgresql via supervisorctl
+      supervisorctl:
+        name: "{{ item }}"
+        state: started
+      loop:
+        - postgresql
+        - pmm-managed
+        - pmm-agent
+      become: true
+      become_user: pmm
+      become_method: su
+
+    - name: Verify services are started via supervisorctl
+      shell: "supervisorctl status {{ item }}"
+      loop:
+        - postgresql
+        - pmm-managed
+        - pmm-agent
+      register: start_status
+      changed_when: false
+      failed_when: start_status.results | selectattr('stdout', 'search', 'RUNNING') | list | length != 3
 
   when: is_supervisor_running

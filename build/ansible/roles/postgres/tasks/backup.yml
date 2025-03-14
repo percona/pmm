@@ -1,9 +1,6 @@
 ---
 # Backup Postgres Databases
-# This playbook can be run on its own as follows:
-# ansible-playbook -i localhost /opt/ansible/roles/postgres/tasks/backup.yml
-# or using `include_role` from another playbook with `tasks_from: backup.yml`
-
+# This playbook can be run on its own or included as a role task.
 - name: Check if supervisor socket exists
   stat:
     path: /run/supervisor/supervisor.sock
@@ -11,62 +8,118 @@
 
 - name: Set fact is_supervisor_running
   set_fact:
-    is_supervisor_running: supervisor_socket.stat.exists
+    is_supervisor_running: "{{ supervisor_socket.stat.exists }}"
 
 - name: Set fact is_ha
   set_fact:
-    is_ha: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == ''
+    is_ha: "{{ (lookup('env','GF_DATABASE_URL') == '') and (lookup('env','GF_DATABASE_HOST') == '') }}"
 
 - name: Backup the database
   block:
-  - name: Stop pmm-managed, pmm-agent and postgres before backing up
-    supervisorctl:
-      name: "{{ item }}"
-      state: stopped
-    loop:
-      - pmm-managed
-      - pmm-agent
-      - postgresql
-    become: true
-    become_user: pmm
-    become_method: su
 
-  - name: Run Postgres database without supervisor
-    command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
-    become: true
-    become_user: pmm
-    become_method: su
+    - name: Stop pmm-managed, pmm-agent and postgresql before backup
+      supervisorctl:
+        name: "{{ item }}"
+        state: stopped
+      loop:
+        - pmm-managed
+        - pmm-agent
+        - postgresql
+      become: true
+      become_user: pmm
+      become_method: su
 
-  - name: Dump pmm-managed database
-    postgresql_db:
-      name: pmm-managed
-      state: dump
-      target: /srv/backup/pmm-managed.sql
+    - name: Verify services are stopped
+      shell: "supervisorctl status {{ item }}"
+      loop:
+        - pmm-managed
+        - pmm-agent
+        - postgresql
+      register: stopped_status
+      changed_when: false
+      failed_when: stopped_status.results | selectattr('stdout', 'search', 'STOPPED|FATAL') | list | length != 3
 
-  - name: Dump grafana database
-    postgresql_db:
-      name: grafana
-      state: dump
-      target: /srv/backup/grafana.sql
-    when: not is_ha
+    - name: Start Postgres without supervisor
+      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
+      become: true
+      become_user: pmm
+      become_method: su
+      register: pg_start
+      changed_when: pg_start.rc == 0
 
-  - name: Stop Postgres database without supervisor
-    command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
-    become: true
-    become_user: pmm
-    become_method: su
+    - name: Wait for Postgres to become responsive
+      wait_for:
+        host: 127.0.0.1
+        port: 5432
+        delay: 5
+        timeout: 30
 
-  # TODO: Is this task necessary?
-  - name: Start pmm-managed, pmm-agent and postgres after backing up
-    supervisorctl:
-      name: "{{ item }}"
-      state: started
-    loop:
-      - postgresql
-      - pmm-managed
-      - pmm-agent
-    become: true
-    become_user: pmm
-    become_method: su 
+    - name: Dump pmm-managed database
+      postgresql_db:
+        name: pmm-managed
+        state: dump
+        target: /srv/backup/pmm-managed.sql
+      register: dump_pmm_managed
+
+    - name: Verify pmm-managed dump file exists
+      stat:
+        path: /srv/backup/pmm-managed.sql
+      register: dump_pmm_managed_stat
+      changed_when: false
+      failed_when: not dump_pmm_managed_stat.stat.exists
+
+    - name: Dump grafana database
+      postgresql_db:
+        name: grafana
+        state: dump
+        target: /srv/backup/grafana.sql
+      when: not is_ha
+      register: dump_grafana
+
+    - name: Verify grafana dump file exists
+      stat:
+        path: /srv/backup/grafana.sql
+      register: dump_grafana_stat
+      changed_when: false
+      when: not is_ha
+      failed_when: not dump_grafana_stat.stat.exists
+
+    - name: Stop Postgres without supervisor
+      command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+      become: true
+      become_user: pmm
+      become_method: su
+      register: pg_stop
+      changed_when: pg_stop.rc == 0
+
+    - name: Verify Postgres is stopped
+      shell: "pgrep -u pmm postgres"
+      register: pg_stopped_check
+      changed_when: false
+      # We expect no output when Postgres is stopped.
+      failed_when: pg_stopped_check.stdout | trim != ""
+      ignore_errors: true
+
+    - name: Start pmm-managed, pmm-agent and postgresql via supervisorctl
+      supervisorctl:
+        name: "{{ item }}"
+        state: started
+      loop:
+        - postgresql
+        - pmm-managed
+        - pmm-agent
+      become: true
+      become_user: pmm
+      become_method: su
+
+    - name: Verify services are started
+      shell: "supervisorctl status {{ item }}"
+      loop:
+        - postgresql
+        - pmm-managed
+        - pmm-agent
+      register: start_status
+      changed_when: false
+      failed_when: start_status.results | selectattr('stdout', 'search', 'RUNNING') | list | length != 3
 
   when: is_supervisor_running

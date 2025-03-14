@@ -9,6 +9,16 @@
     repo_gpgcheck: yes
     enabled: no
 
+- name: Verify ClickHouse repository file exists
+  stat:
+    path: /etc/yum.repos.d/clickhouse.repo
+  register: repo_stat
+
+- name: Fail if ClickHouse repository file is missing
+  fail:
+    msg: "The ClickHouse repository file is missing!"
+  when: not repo_stat.stat.exists
+
 - name: Install clickhouse package
   yum:
     name:
@@ -17,7 +27,13 @@
       - clickhouse-common-static-{{ clickhouse_version }}
     state: installed
     enablerepo: clickhouse
-  ignore_errors: "{{ ansible_check_mode }}" # We don't have clickhouse repo when we run ansible with --check
+  ignore_errors: "{{ ansible_check_mode }}" # We don't have clickhouse repo when running in check mode
+
+- name: Verify clickhouse-client package is installed
+  command: rpm -q clickhouse-client-{{ clickhouse_version }}
+  register: clickhouse_client_installed
+  changed_when: false
+  failed_when: clickhouse_client_installed.rc != 0
 
 - name: Change ownership of clickhouse directories
   file:
@@ -25,7 +41,7 @@
     state: directory
     owner: pmm
     group: pmm
-    mode: 0755
+    mode: '0755'
     recurse: yes
   loop:
     - /etc/clickhouse-server
@@ -34,17 +50,43 @@
     - /var/log/clickhouse-server
     - /run/clickhouse-server
 
-- name: Copy a customized clickhouse config
+- name: Verify ownership of ClickHouse directories
+  stat:
+    path: "{{ item }}"
+  register: clickhouse_dir_stat
+  loop:
+    - /etc/clickhouse-server
+    - /etc/clickhouse-client
+    - /var/lib/clickhouse
+    - /var/log/clickhouse-server
+    - /run/clickhouse-server
+
+- name: Fail if any ClickHouse directory does not have correct owner/group/mode
+  fail:
+    msg: "Directory {{ item.item }} does not have correct permissions, owner, or group!"
+  loop: "{{ clickhouse_dir_stat.results }}"
+  when: not (item.stat.exists and item.stat.uid ==  (lookup('ansible.builtin.id', 'pmm')).uid and item.stat.mode | string == '0755')
+
+- name: Copy a customized ClickHouse config
   copy:
     src: config.xml
     dest: /etc/clickhouse-server/config.xml
     owner: pmm
     group: pmm
-    mode: 0664
+    mode: '0664'
 
-# We need to remove capabilities because we run PMM in an unprivileged container
-# But we run clickhouse as root user
-- name: Remove cap_ipc_lock from clickhouse binary
+- name: Verify customized ClickHouse config exists
+  stat:
+    path: /etc/clickhouse-server/config.xml
+  register: clickhouse_config_stat
+
+- name: Fail if customized ClickHouse config is missing
+  fail:
+    msg: "/etc/clickhouse-server/config.xml is missing!"
+  when: not clickhouse_config_stat.stat.exists
+
+# Remove capabilities from clickhouse binary
+- name: Remove cap_ipc_lock, cap_sys_nice, and cap_net_admin from clickhouse binary
   capabilities:
     path: /usr/bin/clickhouse
     state: absent
@@ -54,7 +96,27 @@
     - cap_sys_nice
     - cap_net_admin
 
+- name: Verify capabilities have been removed from clickhouse binary
+  command: getcap /usr/bin/clickhouse
+  register: getcap_output
+  changed_when: false
+
+- name: Fail if undesired capabilities remain on clickhouse binary
+  fail:
+    msg: "The ClickHouse binary still has unwanted capabilities: {{ getcap_output.stdout }}"
+  when: "'cap_ipc_lock' in getcap_output.stdout or 'cap_sys_nice' in getcap_output.stdout or 'cap_net_admin' in getcap_output.stdout"
+
 - name: Remove clickhouse-odbc-bridge binary
   file:
     path: /usr/bin/clickhouse-odbc-bridge
     state: absent
+
+- name: Verify clickhouse-odbc-bridge binary removal
+  stat:
+    path: /usr/bin/clickhouse-odbc-bridge
+  register: odbc_bridge_stat
+
+- name: Fail if clickhouse-odbc-bridge binary still exists
+  fail:
+    msg: "clickhouse-odbc-bridge binary was not removed!"
+  when: odbc_bridge_stat.stat.exists

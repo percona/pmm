@@ -1,15 +1,29 @@
 ---
 # Common things for all OVF images
-- name: ovf                 | Disable EC2, CloudStack
+
+- name: ovf | Disable EC2 and CloudStack data sources for cloud-init
   when: ansible_virtualization_type == "virtualbox"
-  copy:
-    content: |
-      datasource_list: [ NoCloud, ConfigDrive, OpenNebula, DigitalOcean, Azure, AltCloud, OVF, MAAS, GCE, OpenStack, CloudSigma, SmartOS, None ]
-      disable_ec2_metadata: true
-      datasource:
-        OpenStack:
-          max_wait: 6
-          timeout: 3
-          retries: 2
-    dest: /etc/cloud/cloud.cfg.d/90_disable-cloud.cfg
-    mode: 0644
+  block:
+    - name: Copy cloud configuration to disable EC2 and CloudStack
+      copy:
+        content: |
+          datasource_list: [ NoCloud, ConfigDrive, OpenNebula, DigitalOcean, Azure, AltCloud, OVF, MAAS, GCE, OpenStack, CloudSigma, SmartOS, None ]
+          disable_ec2_metadata: true
+          datasource:
+            OpenStack:
+              max_wait: 6
+              timeout: 3
+              retries: 2
+        dest: /etc/cloud/cloud.cfg.d/90_disable-cloud.cfg
+        mode: '0644'
+      register: disable_cloud_cfg_copy
+
+    - name: Verify cloud configuration file exists
+      stat:
+        path: /etc/cloud/cloud.cfg.d/90_disable-cloud.cfg
+      register: disable_cloud_cfg_stat
+
+    - name: Fail if cloud configuration file is missing
+      fail:
+        msg: "/etc/cloud/cloud.cfg.d/90_disable-cloud.cfg was not created!"
+      when: not disable_cloud_cfg_stat.stat.exists

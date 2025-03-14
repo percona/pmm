@@ -1,32 +1,45 @@
 ---
 # Common things for all AWS images
 
-    - name: ami                 | Enable swap on AWS
-      when: ansible_virtualization_type == "xen"
-      command: dd if=/dev/zero of=/var/tmp/swapfile bs=1024 count=1000000
+- name: ami | Check if swap file exists
+  stat:
+    path: /var/tmp/swapfile
+  register: swapfile_stat
+  when: ansible_virtualization_type == "xen"
 
-    - name: ami                 | Enable swap on AWS
-      when: ansible_virtualization_type == "xen"
-      file:
-        path: /var/tmp/swapfile
-        owner: root
-        group: root
-        mode: 0600
+- name: ami | Create swap file on AWS with dd
+  shell: "dd if=/dev/zero of=/var/tmp/swapfile bs=1024 count=1000000 >> /var/log/ami_swap.log 2>&1"
+  register: dd_swap_result
+  failed_when: dd_swap_result.rc != 0
+  when:
+    - ansible_virtualization_type == "xen"
+    - not swapfile_stat.stat.exists
 
-    - name: ami                 | Enable swap on AWS
-      when: ansible_virtualization_type == "xen"
-      command: mkswap /var/tmp/swapfile
+- name: ami | Set swap file permissions
+  file:
+    path: /var/tmp/swapfile
+    owner: root
+    group: root
+    mode: '0600'
+  when: ansible_virtualization_type == "xen"
 
-    - name: ami                 | Enable swap on AWS
-      when: ansible_virtualization_type == "xen"
-      mount:
-        path: swap
-        src: /var/tmp/swapfile
-        fstype: swap
-        opts: defaults
-        state: present
+- name: ami | Create swap signature with mkswap
+  shell: "mkswap /var/tmp/swapfile >> /var/log/ami_swap.log 2>&1"
+  register: mkswap_result
+  failed_when: mkswap_result.rc != 0
+  when: ansible_virtualization_type == "xen"
 
-    - name: ami                 | Enable swap on AWS
-      when: ansible_virtualization_type == "xen"
-      command: swapon -a
+- name: ami | Ensure swap file is added and mounted
+  mount:
+    path: swap
+    src: /var/tmp/swapfile
+    fstype: swap
+    opts: defaults
+    state: present
+  when: ansible_virtualization_type == "xen"
 
+- name: ami | Enable swap on AWS
+  shell: "swapon -a >> /var/log/ami_swap.log 2>&1"
+  register: swapon_result
+  failed_when: swapon_result.rc != 0
+  when: ansible_virtualization_type == "xen"

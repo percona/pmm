@@ -1,7 +1,7 @@
 ---
-- name: Disable SELinux            | EL9
+- name: Disable SELinux | EL9
   when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
     - ansible_distribution_major_version == '9'
   vars:
     ansible_python_interpreter: /usr/bin/python3.9
@@ -9,42 +9,107 @@
     policy: targeted
     state: permissive
 
-- name: Add firewalld rule        | EL9
+- name: Add firewalld rule | EL9
   when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
     - ansible_distribution_major_version == '9'
   vars:
     ansible_python_interpreter: /usr/bin/python3.9
-  firewalld: port={{ item }} permanent=true state=enabled immediate=yes
-  with_items:
+  firewalld:
+    port: "{{ item }}"
+    permanent: true
+    state: enabled
+    immediate: yes
+  loop:
     - 80/tcp
     - 443/tcp
 
-- name: PMM                        | Add script which show PMM URL
+- name: Verify firewalld rules include 80/tcp and 443/tcp (EL9)
+  when:
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
+    - ansible_distribution_major_version == '9'
+  command: firewall-cmd --list-ports
+  register: ports_output
+  changed_when: false
+
+- name: Fail if port 80/tcp is not enabled in firewalld
+  when: "'80/tcp' not in ports_output.stdout"
+  fail:
+    msg: "80/tcp is not enabled in firewalld."
+
+- name: Fail if port 443/tcp is not enabled in firewalld
+  when: "'443/tcp' not in ports_output.stdout"
+  fail:
+    msg: "443/tcp is not enabled in firewalld."
+
+- name: PMM | Add script which shows PMM URL
   copy:
     src: show-pmm-url
     dest: /var/lib/cloud/scripts/per-boot/show-pmm-url
     mode: 0755
 
-# PMM-12248 - Add /usr/local/bin to secure_path in /etc/sudoers so
-# that we can use supervisorctl command without the absolute path
-- name: PMM                        | Update secure_path in /etc/sudoers EL9
+- name: Verify PMM URL script exists
+  stat:
+    path: /var/lib/cloud/scripts/per-boot/show-pmm-url
+  register: pmm_url_stat
+
+- name: Fail if PMM URL script is missing
+  when: not pmm_url_stat.stat.exists
+  fail:
+    msg: "The PMM URL script was not copied to /var/lib/cloud/scripts/per-boot/show-pmm-url."
+
+# PMM-12248 - Update secure_path in /etc/sudoers EL9 so supervisorctl can be used without absolute path.
+- name: PMM | Update secure_path in /etc/sudoers EL9
+  when:
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
+    - ansible_distribution_major_version == '9'
   replace:
     dest: /etc/sudoers
-    regexp: "Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin"
+    regexp: "Defaults[[:space:]]+secure_path[[:space:]]*=[[:space:]]*/sbin:/bin:/usr/sbin:/usr/bin"
     replace: "Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin"
+
+- name: Verify secure_path update in /etc/sudoers
   when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
     - ansible_distribution_major_version == '9'
+  command: grep "Defaults[[:space:]]\+secure_path[[:space:]]*=" /etc/sudoers
+  register: sudoers_secure_path
+  changed_when: false
 
-- name: PMM                        | Delete ec2-user EL9
-  shell: cd /tmp; nohup sh -c "trap 'userdel -r ec2-user' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+- name: Fail if /etc/sudoers does not include /usr/local/bin in secure_path
+  when: "'/usr/local/bin' not in sudoers_secure_path.stdout"
+  fail:
+    msg: "The /etc/sudoers file does not include /usr/local/bin in secure_path."
+
+- name: PMM | Delete ec2-user on EL9 if it exists
   when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
     - ansible_distribution_major_version == '9'
+  user:
+    name: ec2-user
+    state: absent
 
-- name: PMM                        | Delete vagrant
-  shell: cd /tmp; nohup sh -c "trap 'userdel -r vagrant' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+- name: Verify ec2-user deletion
+  when:
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
+    - ansible_distribution_major_version == '9'
+  command: getent passwd ec2-user
+  register: ec2_user_check
+  changed_when: false
+  failed_when: ec2_user_check.rc == 0
 
-- name: PMM                        | Delete Azure user
-  shell: cd /tmp; nohup sh -c "trap '/usr/sbin/waagent -force -deprovision+user && sync' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+- name: PMM | Delete vagrant if it exists
+  user:
+    name: vagrant
+    state: absent
+
+- name: Verify vagrant deletion
+  command: getent passwd vagrant
+  register: vagrant_check
+  changed_when: false
+  failed_when: vagrant_check.rc == 0
+
+- name: PMM | Delete Azure user using waagent
+  shell: /usr/sbin/waagent -force -deprovision+user && sync
+  register: azure_user_delete
+  failed_when: azure_user_delete.rc != 0

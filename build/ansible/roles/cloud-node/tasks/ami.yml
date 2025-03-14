@@ -1,24 +1,55 @@
 ---
-# Common things for all AWS images
+- name: Enable swap on AWS (Xen)
+  when: ansible_virtualization_type == "xen"
+  block:
 
-    - name: ami                 | Enable swap on AWS
-      when: ansible_virtualization_type == "xen"
+    - name: Create swap file using dd
       command: dd if=/dev/zero of=/var/tmp/swapfile bs=1024 count=1000000
+      register: dd_result
 
-    - name: ami                 | Enable swap on AWS
-      when: ansible_virtualization_type == "xen"
+    - name: Verify swap file was created
+      stat:
+        path: /var/tmp/swapfile
+      register: swapfile_stat
+
+    - name: Fail if swap file size is incorrect
+      fail:
+        msg: "Swap file size is {{ swapfile_stat.stat.size }}; expected 1024000000 bytes."
+      when: swapfile_stat.stat.size != 1024000000
+
+    - name: Set swap file permissions to 0600
       file:
         path: /var/tmp/swapfile
         owner: root
         group: root
-        mode: 0600
+        mode: '0600'
 
-    - name: ami                 | Enable swap on AWS
-      when: ansible_virtualization_type == "xen"
+    - name: Verify swap file permissions are set to 0600
+      stat:
+        path: /var/tmp/swapfile
+      register: swapfile_perm
+      changed_when: false
+
+    - name: Fail if swap file permissions are not 0600
+      fail:
+        msg: "Swap file permissions are {{ swapfile_perm.stat.mode | string }}, expected 0600."
+      when: swapfile_perm.stat.mode | string != "0600"
+
+    - name: Create swap signature on the swap file
       command: mkswap /var/tmp/swapfile
+      register: mkswap_result
 
-    - name: ami                 | Enable swap on AWS
-      when: ansible_virtualization_type == "xen"
+    - name: Verify swap file signature using file command
+      command: file /var/tmp/swapfile
+      register: file_output
+      changed_when: false
+
+    - name: Fail if swap file does not appear to be a swap area
+      fail:
+        msg: "Swap file does not appear to be a swap area: {{ file_output.stdout }}"
+      when: "'swap space' not in file_output.stdout"
+
+    - name: Mount the swap file
       mount:
         path: swap
         src: /var/tmp/swapfile
@@ -26,7 +57,16 @@
         opts: defaults
         state: present
 
-    - name: ami                 | Enable swap on AWS
-      when: ansible_virtualization_type == "xen"
+    - name: Enable swap on the system
       command: swapon -a
+      register: swapon_result
 
+    - name: Verify that the swap file is active
+      command: swapon --show
+      register: swap_status
+      changed_when: false
+
+    - name: Fail if swap file /var/tmp/swapfile is not active
+      fail:
+        msg: "/var/tmp/swapfile is not active. Current swap list: {{ swap_status.stdout }}"
+      when: "'/var/tmp/swapfile' not in swap_status.stdout"

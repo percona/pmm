@@ -1,25 +1,61 @@
 ---
-- name: PMM                        | Delete ec2-user EL9
-  shell: cd /tmp; nohup sh -c "trap 'userdel -r ec2-user' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+# Delete ec2-user on EL9 for OracleLinux/AlmaLinux if it exists
+- name: PMM | Check if ec2-user exists on EL9
+  getent:
+    database: passwd
+    key: ec2-user
+  register: ec2_user_check
   when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
     - ansible_distribution_major_version == '9'
 
-- name: PMM                        | Delete vagrant
-  shell: cd /tmp; nohup sh -c "trap 'userdel -r vagrant' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+- name: PMM | Delete ec2-user on EL9 if present
+  shell: userdel -r ec2-user >> /var/log/pmm_user_actions.log 2>&1
+  register: ec2user_del_result
+  failed_when: ec2user_del_result.rc != 0
+  when:
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
+    - ansible_distribution_major_version == '9'
+    - ec2_user_check.found
 
-- name: PMM                        | Delete Azure user
-  shell: cd /tmp; nohup sh -c "trap '/usr/sbin/waagent -force -deprovision+user && sync' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+# Delete vagrant on non-VirtualBox systems if the user exists
+- name: PMM | Check if vagrant user exists (non-VirtualBox)
+  getent:
+    database: passwd
+    key: vagrant
+  register: vagrant_user_check
+  when: ansible_virtualization_type != "virtualbox"
 
-- name: Lock vagrant user
+- name: PMM | Delete vagrant user (non-VirtualBox)
+  shell: userdel -r vagrant >> /var/log/pmm_user_actions.log 2>&1
+  register: vagrant_del_result
+  failed_when: vagrant_del_result.rc != 0
+  when:
+    - ansible_virtualization_type != "virtualbox"
+    - vagrant_user_check.found
+
+# Delete Azure user using waagent if available
+- name: PMM | Check if waagent exists
+  stat:
+    path: /usr/sbin/waagent
+  register: waagent_stat
+
+- name: PMM | Delete Azure user if waagent exists
+  shell: /usr/sbin/waagent -force -deprovision+user && sync >> /var/log/pmm_user_actions.log 2>&1
+  register: azure_del_result
+  failed_when: azure_del_result.rc != 0
+  when: waagent_stat.stat.exists
+
+# On VirtualBox, lock the vagrant account and schedule removal on first boot via systemd
+- name: PMM | Lock vagrant user on VirtualBox
   ansible.builtin.user:
     name: vagrant
     password_lock: true
   when: ansible_virtualization_type == "virtualbox"
 
-- name: Configure systemd service to remove vagrant user
+- name: PMM | Configure systemd service to remove vagrant user on VirtualBox
   block:
-    - name: Create systemd service file
+    - name: Create systemd service file for remove-vagrant
       copy:
         dest: /etc/systemd/system/remove-vagrant.service
         content: |
@@ -29,7 +65,7 @@
 
           [Service]
           Type=oneshot
-          ExecStart=/usr/sbin/userdel -r vagrant
+          ExecStart=/usr/sbin/userdel -r vagrant >> /var/log/pmm_user_actions.log 2>&1
           ExecStartPost=/usr/bin/touch /etc/remove-vagrant-done
 
           [Install]

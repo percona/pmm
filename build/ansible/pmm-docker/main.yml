@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- name: Create PMM Images on All Target Hosts
+  hosts: all
   become: yes
   gather_facts: yes
   

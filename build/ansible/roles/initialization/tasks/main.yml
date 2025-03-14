@@ -42,81 +42,143 @@
     msg: "Need upgrade: {{ need_upgrade }}"
 
 - name: Execute PMM upgrade & initialization tasks
-  block: # when need_initialization or need_upgrade
-  - name: Enable maintenance mode before upgrade
-    copy:
-      src: maintenance.html
-      dest: /usr/share/pmm-server/maintenance/
-      owner: pmm
-      group: pmm
-      mode: 0644
+  block:
+    - name: Enable maintenance mode before upgrade
+      copy:
+        src: maintenance.html
+        dest: /usr/share/pmm-server/maintenance/maintenance.html
+        owner: pmm
+        group: pmm
+        mode: '0644'
+      register: maintenance_enable
 
-  - name: Wait for PostgreSQL to become responsive
-    wait_for:
-      host: 127.0.0.1
-      port: 5432
-      timeout: 150
+    - name: Verify maintenance mode file exists
+      stat:
+        path: /usr/share/pmm-server/maintenance/maintenance.html
+      register: maintenance_stat
 
-  - name: Create Grafana DB
-    block:
-      - name: Create grafana database in postgres
-        postgresql_db:
-          name: grafana
-          login_user: postgres
-          state: present
+    - name: Fail if maintenance mode file was not created
+      fail:
+        msg: "Maintenance mode file /usr/share/pmm-server/maintenance/maintenance.html was not created!"
+      when: not maintenance_stat.stat.exists
 
-      - name: Create grafana user in postgres
-        postgresql_user:
-          db: grafana
-          name: grafana
-          password: grafana
-          priv: 'ALL'
-          expires: infinity
-          login_user: postgres
-          state: present
-        when: not ansible_check_mode
-    when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and need_initialization
+    - name: Wait for PostgreSQL to become responsive
+      wait_for:
+        host: 127.0.0.1
+        port: 5432
+        timeout: 150
 
-  - name: Upgrade/Install dashboards
-    include_role:
-      name: dashboards
+    - name: Create Grafana DB and user (if needed)
+      block:
+        - name: Create grafana database in postgres
+          postgresql_db:
+            name: grafana
+            login_user: postgres
+            state: present
 
-  - name: Create a backup directory
-    file:
-      path: /srv/backup
-      state: directory
-      owner: pmm
-      group: pmm
-      mode: 0775
-    when: need_upgrade
+        - name: Verify grafana database exists
+          shell: "psql -U postgres -tAc \"SELECT 1 FROM pg_database WHERE datname='grafana'\""
+          register: grafana_db_check
+          changed_when: false
+          failed_when: grafana_db_check.stdout.strip() != "1"
 
-  # Note: we want to leave this for some time until we achieve stable builds
-  - name: Output pmm-managed logs
-    shell: sleep 10 && tail -n 300 /srv/logs/pmm-managed.log
+        - name: Create grafana user in postgres
+          postgresql_user:
+            db: grafana
+            name: grafana
+            password: grafana
+            priv: 'ALL'
+            expires: infinity
+            login_user: postgres
+            state: present
+          when: not ansible_check_mode
 
-  - name: Wait for PMM to be ready
-    ansible.builtin.uri:
-      url: "http://127.0.0.1:7772/v1/server/readyz"
-      status_code: 200
-      method: GET
-    retries: 20
-    delay: 5
-    register: pmm_ready
-    until: pmm_ready.status == 200
-    ignore_errors: true
+        - name: Verify grafana user exists
+          shell: "psql -U postgres -tAc \"SELECT 1 FROM pg_roles WHERE rolname='grafana'\""
+          register: grafana_user_check
+          changed_when: false
+          failed_when: grafana_user_check.stdout.strip() != "1"
+      when: (lookup('env', 'GF_DATABASE_URL') == '' and lookup('env', 'GF_DATABASE_HOST') == '') and need_initialization
 
-  - name: Initialize admin password for AMI if needed
-    include_role:
-      name: init-admin-password-ami
-    when: need_initialization and is_ami
+    - name: Upgrade/Install dashboards
+      include_role:
+        name: dashboards
+
+    - name: Create backup directory if upgrade is needed
+      file:
+        path: /srv/backup
+        state: directory
+        owner: pmm
+        group: pmm
+        mode: '0775'
+      when: need_upgrade
+
+    - name: Verify backup directory exists (if created)
+      stat:
+        path: /srv/backup
+      register: backup_dir_stat
+      when: need_upgrade
+
+    - name: Fail if backup directory is missing
+      fail:
+        msg: "Backup directory /srv/backup is missing!"
+      when: need_upgrade and not backup_dir_stat.stat.exists
+
+    - name: Output pmm-managed logs for diagnostics
+      shell: sleep 10 && tail -n 300 /srv/logs/pmm-managed.log
+      register: pmm_logs
+      changed_when: false
+
+    - name: Wait for PMM to be ready
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:7772/v1/server/readyz"
+        status_code: 200
+        method: GET
+      retries: 20
+      delay: 5
+      register: pmm_ready
+      until: pmm_ready.status == 200
+      ignore_errors: true
+
+    - name: Debug PMM readiness status
+      debug:
+        msg: "PMM readiness returned status: {{ pmm_ready.status }}"
+      when: pmm_ready is defined
+
+    - name: Initialize admin password for AMI if needed
+      include_role:
+        name: init-admin-password-ami
+      when: need_initialization and is_ami
   when: need_initialization or need_upgrade
 
 - name: Disable maintenance mode
   file:
     state: absent
     path: /usr/share/pmm-server/maintenance/maintenance.html
+  register: maintenance_disable
+
+- name: Verify maintenance mode file removal
+  stat:
+    path: /usr/share/pmm-server/maintenance/maintenance.html
+  register: maintenance_disable_stat
+
+- name: Fail if maintenance mode file still exists
+  fail:
+    msg: "Maintenance mode file /usr/share/pmm-server/maintenance/maintenance.html was not removed!"
+  when: maintenance_disable_stat.stat.exists
 
 - name: Remove the file provisioned by 'getStatus'
   file:
     state: absent
     path: /srv/pmm-update.json
+  register: update_file_remove
+
+- name: Verify PMM update file removal
+  stat:
+    path: /srv/pmm-update.json
+  register: update_file_stat
+
+- name: Fail if PMM update file still exists
+  fail:
+    msg: "PMM update file /srv/pmm-update.json still exists!"
+  when: update_file_stat.stat.exists

@@ -1,10 +1,20 @@
-- name: Fetch instance metadata
+- name: Fetch instance metadata (instance ID)
   uri:
     url: http://169.254.169.254/latest/meta-data/instance-id
     return_content: yes
-  register: jsondata
+    status_code: 200
+  register: instance_metadata
 
-- debug: msg="Instance ID {{ jsondata['content'] }}"
+- name: Debug instance metadata
+  debug:
+    msg: "Instance ID: {{ instance_metadata.content }}"
 
-- name: change admin password
-  command: change-admin-password {{ jsondata['content'] }}
+- name: Change admin password using instance ID
+  command: change-admin-password {{ instance_metadata.content }}
+  register: change_admin_result
+
+- name: Verify admin password change succeeded
+  assert:
+    that:
+      - change_admin_result.rc == 0
+    fail_msg: "The change-admin-password command failed with return code {{ change_admin_result.rc }}"

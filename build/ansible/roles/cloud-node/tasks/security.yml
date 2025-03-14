@@ -1,12 +1,34 @@
 ---
-    - name: security                   | Disable root SSH access
+- name: security | Disable root SSH access in sshd_config
+  block:
+    - name: Set "PermitRootLogin no" in /etc/ssh/sshd_config
       lineinfile:
         dest: /etc/ssh/sshd_config
         regexp: '^PermitRootLogin'
         line: 'PermitRootLogin no'
         state: present
+      register: permit_root_change
 
-    - name: security                   | Remove authorized_keys file
+    - name: Verify "PermitRootLogin no" is set
+      command: grep -q '^PermitRootLogin no' /etc/ssh/sshd_config
+      register: verify_root_ssh
+      changed_when: false
+      failed_when: verify_root_ssh.rc != 0
+
+- name: security | Remove root's authorized_keys file
+  block:
+    - name: Remove /root/.ssh/authorized_keys
       file:
         path: /root/.ssh/authorized_keys
         state: absent
+      register: remove_auth_keys
+
+    - name: Verify /root/.ssh/authorized_keys has been removed
+      stat:
+        path: /root/.ssh/authorized_keys
+      register: auth_keys_stat
+
+    - name: Fail if /root/.ssh/authorized_keys still exists
+      fail:
+        msg: "/root/.ssh/authorized_keys still exists!"
+      when: auth_keys_stat.stat.exists

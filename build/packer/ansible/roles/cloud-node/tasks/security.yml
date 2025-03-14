@@ -1,12 +1,24 @@
 ---
-    - name: security                   | Disable root SSH access
-      lineinfile:
-        dest: /etc/ssh/sshd_config
-        regexp: '^PermitRootLogin'
-        line: 'PermitRootLogin no'
-        state: present
+- name: security | Disable root SSH access in sshd_config
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin no'
+    backup: yes
 
-    - name: security                   | Remove authorized_keys file
-      file:
-        path: /root/.ssh/authorized_keys
-        state: absent
+- name: security | Verify that PermitRootLogin is set to no
+  command: grep -q '^PermitRootLogin no' /etc/ssh/sshd_config
+  register: permitrootlogin_check
+  changed_when: false
+  failed_when: permitrootlogin_check.rc != 0
+
+- name: security | Validate updated SSH configuration syntax
+  command: sshd -t -f /etc/ssh/sshd_config
+  register: sshd_config_test
+  changed_when: false
+  failed_when: sshd_config_test.rc != 0
+
+- name: security | Remove root's authorized_keys file
+  file:
+    path: /root/.ssh/authorized_keys
+    state: absent

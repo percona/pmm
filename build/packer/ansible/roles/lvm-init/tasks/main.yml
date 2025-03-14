@@ -1,5 +1,5 @@
 ---
-- name: Packages                   | Install OS tools
+- name: Packages | Install OS tools
   yum:
     name:
       - lvm2
@@ -7,76 +7,90 @@
     state: installed
 
 - block:
-    - name: Data partition             | https://bugzilla.redhat.com/show_bug.cgi?id=1965941
-      shell: sed -i 's/devices {/devices { \nuse_devicesfile=0/g' /etc/lvm/lvm.conf
-      ignore_errors: True
+    - name: Data partition | Disable use_devicesfile in lvm.conf (Bug: https://bugzilla.redhat.com/show_bug.cgi?id=1965941)
+      shell: sed -i 's/devices {/devices { \nuse_devicesfile=0/g' /etc/lvm/lvm.conf >> /var/log/data_partition.log 2>&1
+      register: lvm_conf_result
+      # If the sed command fails, this task will now fail.
+      failed_when: lvm_conf_result.rc != 0
 
-    - name: Data partition             | list
-      shell: ls /dev/sda /dev/sdb /dev/sdc /dev/xvdb | grep -v ^$(pvdisplay -c | grep ':VolGroup00:' | cut -d ':' -f 1 | tr -d '[:space:]' | sed 's/[0-9]$//')$ | grep -v ^$(findmnt -f -n -o SOURCE / | sed 's/[0-9]$//')$ | grep -v ^$(findmnt -f -n -o SOURCE /mnt/resource | sed 's/[0-9]$//')$
+    - name: Data partition | List available drives
+      shell: >
+        ls /dev/sda /dev/sdb /dev/sdc /dev/xvdb |
+        grep -v ^$(pvdisplay -c | grep ':VolGroup00:' | cut -d ':' -f 1 | tr -d '[:space:]' | sed 's/[0-9]$//')$ |
+        grep -v ^$(findmnt -f -n -o SOURCE / | sed 's/[0-9]$//')$ |
+        grep -v ^$(findmnt -f -n -o SOURCE /mnt/resource | sed 's/[0-9]$//')$
+        >> /var/log/data_partition.log 2>&1
       register: available_drives
-      failed_when: available_drives.stdout_lines|length != 1
-      changed_when: False
+      failed_when: available_drives.stdout_lines | length != 1
+      changed_when: false
 
-    - name: Data partition             | Create Volume Group
+    - name: Data partition | Create Volume Group
       when: enable_lvm == "true"
       lvg:
         vg: DataVG
         pvs: "{{ available_drives.stdout_lines[0] }}"
-      ignore_errors: True
+      register: lvg_result
+      failed_when: lvg_result is failed
 
-    - name: Data partition             | Create Thin Pool
+    - name: Data partition | Create Thin Pool
       when: enable_lvm == "true"
-      register: thin_pool
-      failed_when: "thin_pool is failed and 'Sorry, no shrinking of DataLV to 0 permitted' not in thin_pool.msg"
       lvol:
         lv: DataLV
         vg: DataVG
         size: 100%FREE
         opts: --thinpool ThinPool -V 1G
-      ignore_errors: True
+      register: thin_pool
+      # Fail unless the error message contains the known non‐fatal message.
+      failed_when: thin_pool.rc != 0 and "'Sorry, no shrinking of DataLV to 0 permitted'" not in thin_pool.msg
 
-    - name: Data partition             | Format LVM
+    - name: Data partition | Format LVM
       when: enable_lvm == "true"
       filesystem:
         fstype: xfs
         dev: /dev/DataVG/DataLV
         opts: -L DATA
-      ignore_errors: True
+      register: format_lvm
+      failed_when: format_lvm is failed
 
-    - name: Data partition             | Format Device
+    - name: Data partition | Format Device
       when: enable_lvm != "true"
       filesystem:
         fstype: xfs
         dev: "{{ available_drives.stdout_lines[0] }}"
         opts: -L DATA
-      ignore_errors: True
+      register: format_device
+      failed_when: format_device is failed
 
-    - name: Data partition             | Mount
+    - name: Data partition | Mount the DATA partition
       mount:
         name: "{{ data_partition }}"
         src: LABEL=DATA
         fstype: xfs
         opts: defaults,nofail
         state: mounted
-      ignore_errors: True
+      register: mount_result
+      failed_when: mount_result is failed
   when: single_disk == "false"
 
-- name: System Log                 | stat /boot/grub/grub.conf
-  stat: path=/boot/grub/grub.conf
+- name: System Log | Check for legacy grub config (/boot/grub/grub.conf)
+  stat:
+    path: /boot/grub/grub.conf
   register: grub1_conf
 
-- name: System Log                 | change /boot/grub/grub.conf
+- name: System Log | Update legacy grub config to use serial console
   when: grub1_conf.stat.exists
   replace:
     dest: /boot/grub/grub.conf
     regexp: "console=hvc0"
     replace: "console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 xen_emul_unplug=unnecessary"
+  register: grub1_update
 
-- name: System Log                 | stat /boot/grub2/grub.cfg
-  stat: path=/boot/grub2/grub.cfg
+- name: System Log | Check for grub2 config (/boot/grub2/grub.cfg)
+  stat:
+    path: /boot/grub2/grub.cfg
   register: grub2_conf
 
-- name: System Log                 | change /etc/default/grub
+- name: System Log | Update /etc/default/grub for serial console
   when: grub2_conf.stat.exists
   replace:
     dest: /etc/default/grub
@@ -84,31 +98,39 @@
     replace: "console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 xen_emul_unplug=unnecessary"
   register: grub2_var
 
-- name: System Log                 | run grub2-mkconfig
+- name: System Log | Generate new grub2 configuration
   when: grub2_var.changed and grub2_conf.stat.exists
-  command: grub2-mkconfig -o /boot/grub2/grub.cfg
+  shell: grub2-mkconfig -o /boot/grub2/grub.cfg >> /var/log/grub2-mkconfig.log 2>&1
+  register: grub2_mkconfig_result
+  failed_when: grub2_mkconfig_result.rc != 0
 
-- name: Create dirs                | Create dirs
-  file: path={{ item }} state=directory
+- name: Create dirs | Create required directories for cloud scripts
+  file:
+    path: "{{ item }}"
+    state: directory
   with_items:
     - /var/lib/cloud/scripts/per-once
     - /var/lib/cloud/scripts/per-boot
 
-- name: Data partition             | Auto resize LVM
+- name: Data partition | Auto resize LVM script (for LVM setups)
   when: enable_lvm == "true" and single_disk == "false"
   template:
     src: resize-xfs-lvm
     dest: /var/lib/cloud/scripts/per-boot/resize-xfs
-    mode: 0755
+    mode: '0755'
+  register: resize_lvm_template
+  failed_when: resize_lvm_template is failed
 
-- name: Data partition             | Auto resize device
+- name: Data partition | Auto resize device script (for non-LVM setups)
   when: enable_lvm != "true"
   template:
     src: resize-xfs-no-lvm
     dest: /var/lib/cloud/scripts/per-boot/resize-xfs
-    mode: 0755
+    mode: '0755'
+  register: resize_device_template
+  failed_when: resize_device_template is failed
 
-- name: Cron tasks                 | Add resize task to cron
+- name: Cron tasks | Add auto-resize task to cron
   cron:
     name: "resize data partition"
     minute: "*/5"

@@ -1,8 +1,11 @@
 ---
 # Common things for all OVF images
-- name: ovf                 | Disable EC2, CloudStack
+
+# Disable EC2 and CloudStack data sources for cloud-init
+- name: ovf | Disable EC2, CloudStack by configuring cloud-init
   when: ansible_virtualization_type == "virtualbox"
   copy:
+    dest: /etc/cloud/cloud.cfg.d/90_disable-cloud.cfg
     content: |
       datasource_list: [ NoCloud, ConfigDrive, OpenNebula, DigitalOcean, Azure, AltCloud, OVF, MAAS, GCE, OpenStack, CloudSigma, SmartOS, None ]
       disable_ec2_metadata: true
@@ -11,10 +14,10 @@
           max_wait: 6
           timeout: 3
           retries: 2
-    dest: /etc/cloud/cloud.cfg.d/90_disable-cloud.cfg
-    mode: 0644
+    mode: '0644'
 
-- name: Create user-specific .ssh directory
+# Create the .ssh directory for the admin user if running on OVF (VirtualBox)
+- name: ovf | Create admin user's .ssh directory
   when: ansible_virtualization_type == "virtualbox"
   file:
     path: /home/admin/.ssh
@@ -23,7 +26,8 @@
     group: admin
     mode: '0700'
 
-- name: create authorized_keys file
+# Ensure the authorized_keys file exists for the admin user
+- name: ovf | Create admin user's authorized_keys file
   when: ansible_virtualization_type == "virtualbox"
   file:
     path: /home/admin/.ssh/authorized_keys

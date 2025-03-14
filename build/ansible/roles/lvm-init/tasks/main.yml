@@ -1,5 +1,5 @@
 ---
-- name: Packages                   | Install OS tools
+- name: Packages | Install OS tools
   yum:
     name:
       - lvm2
@@ -7,51 +7,91 @@
     state: installed
 
 - block:
-    - name: Data partition             | https://bugzilla.redhat.com/show_bug.cgi?id=1965941
+    - name: Data partition | Apply bug fix in /etc/lvm/lvm.conf
       shell: sed -i 's/devices {/devices { \nuse_devicesfile=0/g' /etc/lvm/lvm.conf
       ignore_errors: True
+      register: lvm_conf_fix
 
-    - name: Data partition             | list
-      shell: ls /dev/sda /dev/sdb /dev/sdc /dev/xvdb | grep -v ^$(pvdisplay -c | grep ':VolGroup00:' | cut -d ':' -f 1 | tr -d '[:space:]' | sed 's/[0-9]$//')$ | grep -v ^$(findmnt -f -n -o SOURCE / | sed 's/[0-9]$//')$ | grep -v ^$(findmnt -f -n -o SOURCE /mnt/resource | sed 's/[0-9]$//')$
+    - name: Verify that lvm.conf was updated with use_devicesfile=0
+      shell: "grep -q 'use_devicesfile=0' /etc/lvm/lvm.conf"
+      register: lvm_conf_verify
+      changed_when: false
+      failed_when: lvm_conf_verify.rc != 0
+      ignore_errors: True
+
+    - name: Data partition | List available drives
+      shell: >
+        ls /dev/sda /dev/sdb /dev/sdc /dev/xvdb |
+        grep -v ^$(pvdisplay -c | grep ':VolGroup00:' | cut -d ':' -f 1 | tr -d '[:space:]' | sed 's/[0-9]$//')$ |
+        grep -v ^$(findmnt -f -n -o SOURCE / | sed 's/[0-9]$//')$ |
+        grep -v ^$(findmnt -f -n -o SOURCE /mnt/resource | sed 's/[0-9]$//')$
       register: available_drives
-      failed_when: available_drives.stdout_lines|length != 1
-      changed_when: False
+      failed_when: available_drives.stdout_lines | length != 1
+      changed_when: false
 
-    - name: Data partition             | Create Volume Group
+    - name: Data partition | Create Volume Group
       when: enable_lvm == "true"
       lvg:
         vg: DataVG
         pvs: "{{ available_drives.stdout_lines[0] }}"
       ignore_errors: True
+      register: lvg_create
 
-    - name: Data partition             | Create Thin Pool
+    - name: Verify Volume Group DataVG exists
+      shell: "vgs --noheadings -o vg_name | grep -w DataVG"
+      register: vg_check
+      changed_when: false
+      failed_when: vg_check.rc != 0
+
+    - name: Data partition | Create Thin Pool
       when: enable_lvm == "true"
-      register: thin_pool
-      failed_when: "thin_pool is failed and 'Sorry, no shrinking of DataLV to 0 permitted' not in thin_pool.msg"
       lvol:
         lv: DataLV
         vg: DataVG
         size: 100%FREE
         opts: --thinpool ThinPool -V 1G
       ignore_errors: True
+      register: thin_pool
+      failed_when: thin_pool is failed and "'Sorry, no shrinking of DataLV to 0 permitted'" not in thin_pool.msg
 
-    - name: Data partition             | Format LVM
+    - name: Verify Thin Pool DataLV exists in DataVG
+      shell: "lvs --noheadings -o lv_name,vg_name | grep -w 'DataLV DataVG'"
+      register: lv_check
+      changed_when: false
+      failed_when: lv_check.rc != 0
+
+    - name: Data partition | Format LVM
       when: enable_lvm == "true"
       filesystem:
         fstype: xfs
         dev: /dev/DataVG/DataLV
         opts: -L DATA
       ignore_errors: True
+      register: format_lvm
 
-    - name: Data partition             | Format Device
+    - name: Verify LVM device is formatted with label DATA
+      shell: "blkid /dev/DataVG/DataLV | grep 'LABEL=\"DATA\"'"
+      register: lvm_format_verify
+      changed_when: false
+      failed_when: lvm_format_verify.rc != 0
+
+    - name: Data partition | Format Device (non-LVM)
       when: enable_lvm != "true"
       filesystem:
         fstype: xfs
         dev: "{{ available_drives.stdout_lines[0] }}"
         opts: -L DATA
       ignore_errors: True
+      register: format_device
 
-    - name: Data partition             | Mount
+    - name: Verify Device is formatted with label DATA (non-LVM)
+      when: enable_lvm != "true"
+      shell: "blkid {{ available_drives.stdout_lines[0] }} | grep 'LABEL=\"DATA\"'"
+      register: device_format_verify
+      changed_when: false
+      failed_when: device_format_verify.rc != 0
+
+    - name: Data partition | Mount the DATA partition
       mount:
         name: "{{ data_partition }}"
         src: LABEL=DATA
@@ -59,24 +99,41 @@
         opts: defaults,nofail
         state: mounted
       ignore_errors: True
+      register: mount_data
+
+    - name: Verify DATA partition is mounted
+      shell: "mount | grep '{{ data_partition }}'"
+      register: mount_verify
+      changed_when: false
+      failed_when: "'{{ data_partition }}' not in mount_verify.stdout"
   when: single_disk == "false"
 
-- name: System Log                 | stat /boot/grub/grub.conf
-  stat: path=/boot/grub/grub.conf
+- name: System Log | Stat /boot/grub/grub.conf
+  stat:
+    path: /boot/grub/grub.conf
   register: grub1_conf
 
-- name: System Log                 | change /boot/grub/grub.conf
+- name: System Log | Update /boot/grub/grub.conf for serial console
   when: grub1_conf.stat.exists
   replace:
     dest: /boot/grub/grub.conf
     regexp: "console=hvc0"
     replace: "console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 xen_emul_unplug=unnecessary"
+  register: grub1_replace
 
-- name: System Log                 | stat /boot/grub2/grub.cfg
-  stat: path=/boot/grub2/grub.cfg
+- name: Verify /boot/grub/grub.conf updated for serial console
+  when: grub1_conf.stat.exists
+  shell: "grep 'console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 xen_emul_unplug=unnecessary' /boot/grub/grub.conf"
+  register: grub1_verify
+  changed_when: false
+  failed_when: grub1_verify.rc != 0
+
+- name: System Log | Stat /boot/grub2/grub.cfg
+  stat:
+    path: /boot/grub2/grub.cfg
   register: grub2_conf
 
-- name: System Log                 | change /etc/default/grub
+- name: System Log | Update /etc/default/grub for serial console
   when: grub2_conf.stat.exists
   replace:
     dest: /etc/default/grub
@@ -84,34 +141,73 @@
     replace: "console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 xen_emul_unplug=unnecessary"
   register: grub2_var
 
-- name: System Log                 | run grub2-mkconfig
+- name: Verify /etc/default/grub updated for serial console
+  when: grub2_conf.stat.exists
+  shell: "grep 'console=ttyS0,115200n8 earlyprintk=ttyS0,115200 rootdelay=300 xen_emul_unplug=unnecessary' /etc/default/grub"
+  register: grub2_verify
+  changed_when: false
+  failed_when: grub2_verify.rc != 0
+
+- name: System Log | Run grub2-mkconfig
   when: grub2_var.changed and grub2_conf.stat.exists
   command: grub2-mkconfig -o /boot/grub2/grub.cfg
+  register: grub2_mkconfig
 
-- name: Create dirs                | Create dirs
-  file: path={{ item }} state=directory
-  with_items:
+- name: Verify grub2 configuration was generated
+  when: grub2_conf.stat.exists
+  stat:
+    path: /boot/grub2/grub.cfg
+  register: grub2_cfg_stat
+  failed_when: not grub2_cfg_stat.stat.exists
+
+- name: Create dirs | Create cloud-init script directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
     - /var/lib/cloud/scripts/per-once
     - /var/lib/cloud/scripts/per-boot
 
-- name: Data partition             | Auto resize LVM
+- name: Data partition | Deploy auto resize script for LVM
   when: enable_lvm == "true" and single_disk == "false"
   template:
     src: resize-xfs-lvm
     dest: /var/lib/cloud/scripts/per-boot/resize-xfs
-    mode: 0755
+    mode: '0755'
+  register: resize_lvm_template
 
-- name: Data partition             | Auto resize device
+- name: Verify LVM auto resize script exists
+  when: enable_lvm == "true" and single_disk == "false"
+  stat:
+    path: /var/lib/cloud/scripts/per-boot/resize-xfs
+  register: resize_lvm_stat
+  failed_when: not resize_lvm_stat.stat.exists
+
+- name: Data partition | Deploy auto resize script for non-LVM
   when: enable_lvm != "true"
   template:
     src: resize-xfs-no-lvm
     dest: /var/lib/cloud/scripts/per-boot/resize-xfs
-    mode: 0755
+    mode: '0755'
+  register: resize_device_template
 
-- name: Cron tasks                 | Add resize task to cron
+- name: Verify non-LVM auto resize script exists
+  when: enable_lvm != "true"
+  stat:
+    path: /var/lib/cloud/scripts/per-boot/resize-xfs
+  register: resize_device_stat
+  failed_when: not resize_device_stat.stat.exists
+
+- name: Cron tasks | Add resize task to cron
   cron:
     name: "resize data partition"
     minute: "*/5"
     user: root
     job: "/var/lib/cloud/scripts/per-boot/resize-xfs"
     cron_file: resizeXfs
+
+- name: Verify cron job for resize task exists
+  shell: "crontab -l -u root | grep 'resize data partition'"
+  register: cron_verify
+  changed_when: false
+  failed_when: cron_verify.rc != 0

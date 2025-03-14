@@ -1,7 +1,8 @@
 ---
-- name: Create PMM image
+- name: Create PMM Image on All Target Hosts
   hosts: all
   become: yes
+  gather_facts: yes
   become_user: root
   roles:
     - cloud-node

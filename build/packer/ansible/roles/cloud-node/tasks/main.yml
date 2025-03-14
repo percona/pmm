@@ -1,6 +1,7 @@
 ---
 # Common things for all cloud images
-- name: Packages                   | Add EPEL repository for EL9
+
+- name: Packages | Add EPEL repository for EL9
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
@@ -8,9 +9,10 @@
     name: epel-release
     state: installed
 
-- name: Packages                   | Install OS tools for EL9
+- name: Packages | Install OS tools for EL9
   when:
-    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux')
+      and ansible_distribution_major_version == '9'
   yum:
     name:
       - screen
@@ -20,7 +22,7 @@
       - python3-libselinux
       - python3-firewall
 
-- name: Firewalld                  | Start EL9
+- name: Firewalld | Start EL9
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
@@ -30,17 +32,23 @@
     state: started
     enabled: yes
 
-- name: Add firewalld rule        | EL9
+- name: Add firewalld rule | EL9
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
-  firewalld: port={{ item }} permanent=true state=enabled immediate=yes
+  firewalld:
+    port: "{{ item }}"
+    permanent: true
+    state: enabled
+    immediate: yes
   with_items:
     - 80/tcp
     - 443/tcp
 
-- name: cleanup cache              | Cleanup cache
-  file: path={{ item }} state=absent
+- name: cleanup cache | Cleanup cache
+  file:
+    path: "{{ item }}"
+    state: absent
   with_items:
     - /var/lib/cloud/sem
     - /var/lib/cloud/data
@@ -49,12 +57,12 @@
     - /var/log/cloud-init.log
     - /var/log/cloud-init-output.log
 
-- name: create dir                 | Create getty@.service.d directory
+- name: create dir | Create getty@.service.d directory
   file:
     path: /etc/systemd/system/getty@.service.d
     state: directory
 
-- name: cloud-init                 | Disable console cleanup
+- name: cloud-init | Disable console cleanup
   copy:
     content: |
       [Service]
@@ -62,34 +70,40 @@
     dest: /etc/systemd/system/getty@.service.d/nodisallocate.conf
     mode: 0644
 
-- name: root password              | Set root password
+- name: root password | Set root password (VirtualBox)
   when: ansible_virtualization_type == "virtualbox"
   user:
     name: root
     password: "$6$J7pGg2a7vuRTbTV5$vORqkiAKdkyomU3iYwr/SPn.yLIkGsl5ludEx5DUvGVASSTquTjOldHt/nUWrFRnJeZyzt6CIOjAcugbcfGtN1"
 
-- name: root password              | Set root password
+- name: root password | Force password change for root (VirtualBox)
   when: ansible_virtualization_type == "virtualbox"
-  command: chage -d 0 root
-  changed_when: False
+  command: chage -d 0 root >> /var/log/cloud_init.log 2>&1
+  register: chage_root_result
+  failed_when: chage_root_result.rc != 0
+  changed_when: false
 
-- name: root password              | Disable root password
+- name: root password | Disable root password (delete) on non-VirtualBox
   when: ansible_virtualization_type != "virtualbox"
-  command: passwd --delete root
-  changed_when: False
+  command: passwd --delete root >> /var/log/cloud_init.log 2>&1
+  register: passwd_delete_result
+  failed_when: passwd_delete_result.rc != 0
+  changed_when: false
 
-- name: root password              | Disable root password
+- name: root password | Disable root password (lock) on non-VirtualBox
   when: ansible_virtualization_type != "virtualbox"
-  command: passwd --lock root
-  changed_when: False
+  command: passwd --lock root >> /var/log/cloud_init.log 2>&1
+  register: passwd_lock_result
+  failed_when: passwd_lock_result.rc != 0
+  changed_when: false
 
-- name: chronyd                    | Fix start-up sequence
+- name: chronyd | Fix start-up sequence
   replace:
     dest: /usr/lib/systemd/system/chronyd.service
     regexp: "After="
     replace: 'Before=cloud-config.target\nAfter=network-online.target '
 
-- name: disable root user          | Disable root user
+- name: disable root user | Disable root user
   copy:
     content: |
       no_ssh_fingerprints: true
@@ -97,7 +111,7 @@
     dest: /etc/cloud/cloud.cfg.d/00_disable-root.cfg
     mode: 0644
 
-- name: add user                   | Add admin user
+- name: add user | Add admin user
   when: create_admin == "true"
   user:
     name: admin
@@ -105,15 +119,15 @@
     groups: wheel,adm,systemd-journal
     shell: /bin/bash
 
-- name: add user                   | Add sudo for admin user
+- name: add user | Add sudo for admin user
   when: create_admin == "true"
   copy:
     content: |
       admin ALL=(ALL) NOPASSWD: ALL
     dest: /etc/sudoers.d/90-admin-user
-    mode: 0440
+    mode: '0440'
 
-- name: change cloud user for OVF EL9      | Change cloud user
+- name: change cloud user for OVF EL9 | Change cloud user (OVF)
   when:
     - create_admin == "true"
     - ansible_virtualization_type == "virtualbox"
@@ -124,7 +138,7 @@
     regexp: "name: cloud-user"
     replace: "name: admin"
 
-- name: change cloud user for AMI EL9      | Change cloud user
+- name: change cloud user for AMI EL9 | Change cloud user (AMI)
   when:
     - create_admin == "true"
     - ansible_virtualization_type != "virtualbox"
@@ -135,11 +149,12 @@
     regexp: "name: ec2-user"
     replace: "name: admin"
 
-- name: cloud-init configuration   | stat /etc/waagent.conf
-  stat: path=/etc/waagent.conf
+- name: cloud-init configuration | stat /etc/waagent.conf
+  stat:
+    path: /etc/waagent.conf
   register: waagent_conf
 
-- name: cloud-init configuration   | Enable cloud-init for Azure
+- name: cloud-init configuration | Enable cloud-init for Azure
   when: waagent_conf.stat.exists
   replace:
     dest: /etc/waagent.conf
@@ -153,25 +168,25 @@
     regexp: "warnings, actions, deluser=deluser"
     replace: "warnings, actions, include_once=False, deluser=deluser"
 
-- name: PMM URL file               | Add script which show PMM URL
+- name: PMM URL file | Add script which shows PMM URL
   copy:
     src: show-url
     dest: /opt/show-url
-    mode: 0755
+    mode: '0755'
 
-- name: PMM URL Service            | Add Service for script which show PMM URL
+- name: PMM URL Service | Add service for script which shows PMM URL
   copy:
     src: banner.service
     dest: /etc/systemd/system/banner.service
-    mode: 0755
+    mode: '0755'
 
-- name: Enable PMM URL Service     | Enable PMM URL Service
+- name: Enable PMM URL Service | Enable PMM URL Service
   systemd:
     name: banner
     state: started
     enabled: yes
 
-- name: PMM IP in Log              | Add PMM IP in Log file
+- name: PMM IP in Log | Add PMM IP in Log file
   lineinfile:
     line: 'IP: \4'
     path: /etc/issue

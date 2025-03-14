@@ -1,16 +1,18 @@
 ---
-# Common things for all cloud images
-- name: Packages                   | Add EPEL repository for EL9
+# Common tasks for all cloud images
+
+- name: Packages | Add EPEL repository for EL9
   when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
     - ansible_distribution_major_version == '9'
   yum:
     name: epel-release
     state: installed
 
-- name: Packages                   | Install OS tools for EL9
-  when:
-    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+- name: Packages | Install OS tools for EL9
+  when: >
+    (ansible_distribution in ['OracleLinux', 'AlmaLinux']) and 
+    (ansible_distribution_major_version == '9')
   yum:
     name:
       - screen
@@ -19,10 +21,11 @@
       - firewalld
       - python3-libselinux
       - python3-firewall
+    state: installed
 
-- name: Firewalld                  | Start EL9
+- name: Firewalld | Start firewalld on EL9
   when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
     - ansible_distribution_major_version == '9'
     - ansible_os_family == 'RedHat'
   vars:
@@ -31,10 +34,22 @@
     name: firewalld
     state: started
     enabled: yes
+  register: firewalld_service
 
-- name: cleanup cache              | Cleanup cache
-  file: path={{ item }} state=absent
-  with_items:
+- name: Verify firewalld is running
+  when:
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
+    - ansible_distribution_major_version == '9'
+  command: firewall-cmd --state
+  register: firewalld_state
+  changed_when: false
+  failed_when: firewalld_state.stdout.strip() != "running"
+
+- name: Cleanup cache directories and files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
     - /var/lib/cloud/sem
     - /var/lib/cloud/data
     - /var/lib/cloud/instance
@@ -42,133 +57,215 @@
     - /var/log/cloud-init.log
     - /var/log/cloud-init-output.log
 
-- name: create dir                 | Create getty@.service.d directory
+- name: Create getty@.service.d directory
   file:
     path: /etc/systemd/system/getty@.service.d
     state: directory
+    mode: '0755'
+  register: getty_dir
 
-- name: cloud-init                 | Disable console cleanup
+- name: Verify getty@.service.d directory exists
+  assert:
+    that:
+      - getty_dir.stat.exists
+    fail_msg: "The directory /etc/systemd/system/getty@.service.d was not created."
+
+- name: Disable console cleanup via cloud-init
   copy:
     content: |
       [Service]
       TTYVTDisallocate=no
     dest: /etc/systemd/system/getty@.service.d/nodisallocate.conf
-    mode: 0644
+    mode: '0644'
+  register: nodisallocate_copy
 
-- name: root password              | Set root password
+- name: Verify nodisallocate.conf exists
+  stat:
+    path: /etc/systemd/system/getty@.service.d/nodisallocate.conf
+  register: nodisallocate_stat
+- name: Fail if nodisallocate.conf is missing
+  fail:
+    msg: "/etc/systemd/system/getty@.service.d/nodisallocate.conf not found!"
+  when: not nodisallocate_stat.stat.exists
+
+# Root password and account management (different for VirtualBox and non-VirtualBox)
+
+- name: Set root password (VirtualBox)
   when: ansible_virtualization_type == "virtualbox"
   user:
     name: root
     password: "$6$J7pGg2a7vuRTbTV5$vORqkiAKdkyomU3iYwr/SPn.yLIkGsl5ludEx5DUvGVASSTquTjOldHt/nUWrFRnJeZyzt6CIOjAcugbcfGtN1"
+  register: root_password_set
 
-- name: root password              | Set root password
+- name: Force root password change (VirtualBox)
   when: ansible_virtualization_type == "virtualbox"
   command: chage -d 0 root
-  changed_when: False
+  changed_when: false
 
-- name: root password              | Disable root password
+- name: Disable root password (non-VirtualBox) - delete
   when: ansible_virtualization_type != "virtualbox"
   command: passwd --delete root
-  changed_when: False
+  changed_when: false
 
-- name: root password              | Disable root password
+- name: Disable root password (non-VirtualBox) - lock
   when: ansible_virtualization_type != "virtualbox"
   command: passwd --lock root
-  changed_when: False
+  changed_when: false
 
-- name: chronyd                    | Fix start-up sequence
+- name: Fix chronyd start-up sequence
   replace:
     dest: /usr/lib/systemd/system/chronyd.service
     regexp: "After="
-    replace: 'Before=cloud-config.target\nAfter=network-online.target '
+    replace: "Before=cloud-config.target\nAfter=network-online.target "
+  register: chronyd_replace
 
-- name: disable root user          | Disable root user
+- name: Disable root user via cloud-init configuration
   copy:
     content: |
       no_ssh_fingerprints: true
       disable_root: true
     dest: /etc/cloud/cloud.cfg.d/00_disable-root.cfg
-    mode: 0644
+    mode: '0644'
+  register: disable_root_copy
 
-- name: add user                   | Add admin user
+- name: Verify /etc/cloud/cloud.cfg.d/00_disable-root.cfg exists
+  stat:
+    path: /etc/cloud/cloud.cfg.d/00_disable-root.cfg
+  register: disable_root_stat
+- name: Fail if /etc/cloud/cloud.cfg.d/00_disable-root.cfg is missing
+  fail:
+    msg: "Cloud configuration to disable root is missing!"
+  when: not disable_root_stat.stat.exists
+
+- name: Add admin user (if create_admin is true)
   when: create_admin == "true"
   user:
     name: admin
-    comment: Cloud User
+    comment: "Cloud User"
     groups: wheel,adm,systemd-journal
     shell: /bin/bash
+  register: admin_user
 
-- name: add user                   | Add sudo for admin user
+- name: Verify admin user creation
+  when: create_admin == "true"
+  command: getent passwd admin
+  register: admin_user_check
+  changed_when: false
+  failed_when: admin_user_check.rc != 0
+
+- name: Add sudo privileges for admin user (if create_admin is true)
   when: create_admin == "true"
   copy:
-    content: |
-      admin ALL=(ALL) NOPASSWD: ALL
+    content: "admin ALL=(ALL) NOPASSWD: ALL\n"
     dest: /etc/sudoers.d/90-admin-user
-    mode: 0440
+    mode: '0440'
+  register: admin_sudo_copy
 
-- name: change cloud user for OVF EL9      | Change cloud user
+- name: Verify sudoers file for admin exists
+  stat:
+    path: /etc/sudoers.d/90-admin-user
+  register: admin_sudo_stat
+- name: Fail if sudoers file for admin is missing
+  fail:
+    msg: "Sudoers file for admin is missing!"
+  when: not admin_sudo_stat.stat.exists
+
+- name: Change cloud user for OVF EL9 (set admin user)
   when:
     - create_admin == "true"
     - ansible_virtualization_type == "virtualbox"
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
     - ansible_distribution_major_version == '9'
   replace:
     dest: /etc/cloud/cloud.cfg
     regexp: "name: cloud-user"
     replace: "name: admin"
+  register: ovf_cloud_user
 
-- name: change cloud user for AMI EL9      | Change cloud user
+- name: Change cloud user for AMI EL9 (set admin user)
   when:
     - create_admin == "true"
     - ansible_virtualization_type != "virtualbox"
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution in ['OracleLinux', 'AlmaLinux']
     - ansible_distribution_major_version == '9'
   replace:
     dest: /etc/cloud/cloud.cfg.d/00_ol-default-user.cfg
     regexp: "name: ec2-user"
     replace: "name: admin"
+  register: ami_cloud_user
 
-- name: cloud-init configuration   | stat /etc/waagent.conf
-  stat: path=/etc/waagent.conf
+- name: Check if /etc/waagent.conf exists
+  stat:
+    path: /etc/waagent.conf
   register: waagent_conf
 
-- name: cloud-init configuration   | Enable cloud-init for Azure
+- name: Enable cloud-init for Azure (if waagent.conf exists)
   when: waagent_conf.stat.exists
   replace:
     dest: /etc/waagent.conf
     regexp: "Provisioning.UseCloudInit=n"
     replace: "Provisioning.UseCloudInit=y"
+  register: azure_cloud_init
 
-- name: Azure tweaks
+- name: Apply Azure tweaks (if waagent.conf exists)
   when: waagent_conf.stat.exists
   replace:
     dest: /usr/lib/python2.7/site-packages/azurelinuxagent/pa/deprovision/default.py
     regexp: "warnings, actions, deluser=deluser"
     replace: "warnings, actions, include_once=False, deluser=deluser"
+  register: azure_tweaks
 
-- name: PMM URL file               | Add script which show PMM URL
+- name: Copy PMM URL script
   copy:
     src: show-url
     dest: /opt/show-url
-    mode: 0755
+    mode: '0755'
+  register: pmm_url_copy
 
-- name: PMM URL Service            | Add Service for script which show PMM URL
+- name: Verify PMM URL script exists
+  stat:
+    path: /opt/show-url
+  register: pmm_url_stat
+- name: Fail if PMM URL script is missing
+  fail:
+    msg: "/opt/show-url is missing!"
+  when: not pmm_url_stat.stat.exists
+
+- name: Copy PMM URL service file
   copy:
     src: banner.service
     dest: /etc/systemd/system/banner.service
-    mode: 0755
+    mode: '0755'
+  register: banner_service_copy
 
-- name: Enable PMM URL Service     | Enable PMM URL Service
+- name: Verify PMM URL service file exists
+  stat:
+    path: /etc/systemd/system/banner.service
+  register: banner_service_stat
+- name: Fail if PMM URL service file is missing
+  fail:
+    msg: "/etc/systemd/system/banner.service is missing!"
+  when: not banner_service_stat.stat.exists
+
+- name: Enable and start PMM URL service
   systemd:
     name: banner
     state: started
     enabled: yes
+  register: banner_service_status
 
-- name: PMM IP in Log              | Add PMM IP in Log file
+- name: Verify PMM URL service is active
+  command: systemctl is-active banner
+  register: banner_active
+  changed_when: false
+  failed_when: banner_active.stdout.strip() != "active"
+
+- name: Add PMM IP line in /etc/issue
   lineinfile:
     line: 'IP: \4'
     path: /etc/issue
     create: yes
+  register: issue_update
 
 - import_tasks: security.yml
 - import_tasks: ovf.yml

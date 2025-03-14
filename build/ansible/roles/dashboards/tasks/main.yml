@@ -1,30 +1,40 @@
 ---
-- name: Retrieve Percona plugins
+- name: Retrieve Percona plugins from source directory
   find:
     paths: /usr/share/percona-dashboards/panels/
     depth: 2
     file_type: directory
   register: plugin_list
 
-- name: Delete outdated plugins
+- name: Delete outdated plugins from Grafana plugin directory
   file:
-    path: "/srv/grafana/plugins/{{ item['path'].split('/')[-1] }}"
+    path: "/srv/grafana/plugins/{{ item.path | basename }}"
     state: absent
-  loop: "{{ plugin_list['files'] }}"
+  loop: "{{ plugin_list.files }}"
+  register: delete_plugins_result
 
-- name: Copy new plugins to the plugin directory
+- name: Verify outdated plugins are removed
+  shell: "find /srv/grafana/plugins -mindepth 1 -maxdepth 1 -type d"
+  register: grafana_plugin_dirs
+  changed_when: false
+  # Optionally, you could assert that the list of directories does not include plugins that should be removed
+
+- name: Copy new plugins to Grafana plugin directory
   synchronize:
     src: /usr/share/percona-dashboards/panels/
     dest: /srv/grafana/plugins/
+    delete: no
+  register: sync_plugins
 
-- name: Set permissions for the plugin directory
+- name: Set permissions for Grafana plugin directory
   file:
     path: /srv/grafana/plugins
     state: directory
     owner: pmm
     group: pmm
-    mode: 0775
+    mode: '0775'
     recurse: yes
+  register: plugin_dir_perms
 
 - name: Synchronize Percona Dashboards version file after upgrade
   copy:
@@ -32,10 +42,11 @@
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
     owner: pmm
     group: pmm
-    mode: 0644
+    mode: '0644'
     remote_src: yes
+  register: version_file_copy
 
-- name: Restart Grafana service with new plugins 
+- name: Restart Grafana service with new plugins using Supervisorctl
   shell: "supervisorctl {{ item }} grafana"
   become: true
   become_user: pmm
@@ -44,3 +55,13 @@
     - stop
     - remove
     - add
+  register: supervisorctl_result
+
+- name: Verify Grafana service restart
+  shell: "supervisorctl status grafana"
+  become: true
+  become_user: pmm
+  become_method: su
+  register: grafana_status
+  changed_when: false
+  failed_when: "'RUNNING' not in grafana_status.stdout"
