@@ -150,7 +150,7 @@ func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_Ag
 		return err
 	}
 	params.TextFiles["webConfigPlaceholder"] = wcf
-	// see https://github.com/prometheus/exporter-toolkit/blob/v0.14.0/docs/web-configuration.md
+	// see https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md
 	if useNewTLSConfig {
 		params.Args = append(params.Args, "--web.config.file="+params.TemplateLeftDelim+" .TextFiles.webConfigPlaceholder "+params.TemplateRightDelim)
 	} else {
