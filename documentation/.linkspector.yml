@@ -2,14 +2,12 @@ dirs:
   - documentation/docs
 
 ignorePatterns:
-  - pattern: '^https://www.reddit.com/r/VictoriaMetrics/'
+  - pattern: "^https://www.reddit.com/r/VictoriaMetrics/"
   - pattern: "^https://linux.die.net/man/8/logrotate"
-
-excludedAnchors: 
-  - "#os_alerts"
-  - "#pmm_alerts"
-  - "#mongodb_alerts"
-  - "#pbm_alerts"
-  - "#mysql_alerts"
-  - "#postgresql_alerts"
-  - "#proxysql_alerts"
+  - pattern: "#os_alerts$"
+  - pattern: "#pmm_alerts$"
+  - pattern: "#mongodb_alerts$"
+  - pattern: "#pbm_alerts$"
+  - pattern: "#mysql_alerts$"
+  - pattern: "#postgresql_alerts$"
+  - pattern: "#proxysql_alerts$"
