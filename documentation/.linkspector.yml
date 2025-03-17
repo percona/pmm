@@ -1,9 +1,9 @@
 dirs:
   - documentation/docs
 
-excludedUrls: 
-  - "https://www.reddit.com/r/VictoriaMetrics/"
-  - "https://linux.die.net/man/8/logrotate"
+ignorePatterns:
+  - pattern: '^https://www.reddit.com/r/VictoriaMetrics/'
+  - pattern: "^https://linux.die.net/man/8/logrotate"
 
 excludedAnchors: 
   - "#os_alerts"
