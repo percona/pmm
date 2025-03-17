@@ -35,7 +35,7 @@ import (
 var (
 	mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
 	// TODO: put back 3.2.0 when 3.1.0 is released.
-	v3_2_0 = version.MustParse("3.1.0-0")
+	mysqlExporterMySQL8Support = version.MustParse("3.1.0-0")
 )
 
 // mysqldExporterConfig returns desired configuration of mysqld_exporter process.
@@ -92,7 +92,7 @@ func mysqldExporterConfig(
 		args = append(args, "--collect.plugins")
 	}
 
-	if pmmAgentVersion.Less(v3_2_0) {
+	if pmmAgentVersion.Less(mysqlExporterMySQL8Support) {
 		args = append(args, "--exporter.global-conn-pool")
 	}
 
@@ -120,10 +120,10 @@ func mysqldExporterConfig(
 		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
-	files := exporter.Files()
-	if files != nil {
-		if pmmAgentVersion.Less(v3_2_0) {
-			for k := range files {
+	textFiles := exporter.Files()
+	if textFiles != nil {
+		if pmmAgentVersion.Less(mysqlExporterMySQL8Support) {
+			for k := range textFiles {
 				switch k {
 				case "tlsCa":
 					args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
@@ -136,12 +136,10 @@ func mysqldExporterConfig(
 				}
 			}
 		}
-	} else {
-		files = make(map[string]string)
 	}
 
 	if exporter.TLSSkipVerify {
-		if pmmAgentVersion.Less(v3_2_0) {
+		if pmmAgentVersion.Less(mysqlExporterMySQL8Support) {
 			args = append(args, "--mysql.ssl-skip-verify")
 		} else {
 			args = append(args, "--tls.insecure-skip-verify")
@@ -157,23 +155,25 @@ func mysqldExporterConfig(
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
-		TextFiles:          files,
+		TextFiles:          textFiles,
 	}
-	if pmmAgentVersion.Less(v3_2_0) {
+
+	switch {
+	case pmmAgentVersion.Less(mysqlExporterMySQL8Support):
 		env := []string{
 			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
 		}
 		res.Env = env
-	} else {
-		cfg, err := buildMyCnfConfig(service, exporter, files)
+	case textFiles != nil:
+		cfg, err := buildMyCnfConfig(service, exporter, textFiles)
 		if err != nil {
 			return nil, err
 		}
 		res.TextFiles["myCnf"] = cfg
 		res.Args = append(res.Args, "--config.my-cnf="+tdp.Left+" .TextFiles.myCnf "+tdp.Right)
 
-		if err := ensureAuthParams(exporter, res, pmmAgentVersion, v3_2_0, true); err != nil {
+		if err := ensureAuthParams(exporter, res, pmmAgentVersion, mysqlExporterMySQL8Support, true); err != nil {
 			return nil, err
 		}
 	}

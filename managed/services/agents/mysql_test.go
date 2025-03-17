@@ -321,3 +321,209 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 	require.Equal(t, expected.Env, actual.Env)
 	require.Equal(t, expected, actual)
 }
+
+func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
+	mysql := &models.Service{
+		Address: pointer.ToString("1.2.3.4"),
+		Port:    pointer.ToUint16(3306),
+	}
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
+	exporter := &models.Agent{
+		AgentID:         "agent-id",
+		AgentType:       models.MySQLdExporterType,
+		Username:        pointer.ToString("username"),
+		Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentPassword:   pointer.ToString("agent-password"),
+		ExporterOptions: models.ExporterOptions{},
+	}
+	pmmAgentVersion := version.MustParse("3.2.0")
+
+	t.Run("SSLEnabled", func(t *testing.T) {
+		exporter.MySQLOptions = models.MySQLOptions{
+			TLSCa:   "content-of-tls-ca",
+			TLSCert: "content-of-tls-certificate-key",
+			TLSKey:  "content-of-tls-key",
+		}
+
+		actual, err := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
+		expected := &agentv1.SetStateRequest_AgentProcess{
+			Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+			Args: []string{
+				"--collect.auto_increment.columns",
+				"--collect.binlog_size",
+				"--collect.custom_query.hr",
+				"--collect.custom_query.hr.directory={{ .paths_base }}/collectors/custom-queries/mysql/high-resolution",
+				"--collect.custom_query.lr",
+				"--collect.custom_query.lr.directory={{ .paths_base }}/collectors/custom-queries/mysql/low-resolution",
+				"--collect.custom_query.mr",
+				"--collect.custom_query.mr.directory={{ .paths_base }}/collectors/custom-queries/mysql/medium-resolution",
+				"--collect.engine_innodb_status",
+				"--collect.engine_tokudb_status",
+				"--collect.global_status",
+				"--collect.global_variables",
+				"--collect.heartbeat",
+				"--collect.info_schema.clientstats",
+				"--collect.info_schema.innodb_cmp",
+				"--collect.info_schema.innodb_cmpmem",
+				"--collect.info_schema.innodb_metrics",
+				"--collect.info_schema.innodb_tablespaces",
+				"--collect.info_schema.processlist",
+				"--collect.info_schema.query_response_time",
+				"--collect.info_schema.tables",
+				"--collect.info_schema.tablestats",
+				"--collect.info_schema.userstats",
+				"--collect.perf_schema.eventsstatements",
+				"--collect.perf_schema.eventswaits",
+				"--collect.perf_schema.file_events",
+				"--collect.perf_schema.file_instances",
+				"--collect.perf_schema.indexiowaits",
+				"--collect.perf_schema.tableiowaits",
+				"--collect.perf_schema.tablelocks",
+				"--collect.plugins",
+				"--collect.slave_status",
+				"--collect.standard.go",
+				"--collect.standard.process",
+				"--exporter.conn-max-lifetime=55s",
+				"--exporter.max-idle-conns=3",
+				"--exporter.max-open-conns=3",
+				"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+				"--config.my-cnf={{ .TextFiles.myCnf }}",
+				"--web.config.file={{ .TextFiles.webConfigPlaceholder }}",
+			},
+			RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password", "content-of-tls-key"},
+			TextFiles: map[string]string{
+				"myCnf":                "[client]\nhost=1.2.3.4\nport=3306\nuser=username\npassword=s3cur3 p@$$w0r4.\n\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n",
+				"tlsCa":                "content-of-tls-ca",
+				"tlsCert":              "content-of-tls-certificate-key",
+				"tlsKey":               "content-of-tls-key",
+				"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-password\n",
+			},
+		}
+		requireNoDuplicateFlags(t, actual.Args)
+		require.NoError(t, err)
+		require.Equal(t, expected.Args, actual.Args)
+		require.Equal(t, expected.Env, actual.Env)
+		require.Equal(t, expected, actual)
+	})
+
+	t.Run("EmptyPassword", func(t *testing.T) {
+		exporter.Password = nil
+		actual, err := mysqldExporterConfig(node, mysql, exporter, redactSecrets, pmmAgentVersion)
+		expected := &agentv1.SetStateRequest_AgentProcess{
+			Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+			Args: []string{
+				"--collect.auto_increment.columns",
+				"--collect.binlog_size",
+				"--collect.custom_query.hr",
+				"--collect.custom_query.hr.directory={{ .paths_base }}/collectors/custom-queries/mysql/high-resolution",
+				"--collect.custom_query.lr",
+				"--collect.custom_query.lr.directory={{ .paths_base }}/collectors/custom-queries/mysql/low-resolution",
+				"--collect.custom_query.mr",
+				"--collect.custom_query.mr.directory={{ .paths_base }}/collectors/custom-queries/mysql/medium-resolution",
+				"--collect.engine_innodb_status",
+				"--collect.engine_tokudb_status",
+				"--collect.global_status",
+				"--collect.global_variables",
+				"--collect.heartbeat",
+				"--collect.info_schema.clientstats",
+				"--collect.info_schema.innodb_cmp",
+				"--collect.info_schema.innodb_cmpmem",
+				"--collect.info_schema.innodb_metrics",
+				"--collect.info_schema.innodb_tablespaces",
+				"--collect.info_schema.processlist",
+				"--collect.info_schema.query_response_time",
+				"--collect.info_schema.tables",
+				"--collect.info_schema.tablestats",
+				"--collect.info_schema.userstats",
+				"--collect.perf_schema.eventsstatements",
+				"--collect.perf_schema.eventswaits",
+				"--collect.perf_schema.file_events",
+				"--collect.perf_schema.file_instances",
+				"--collect.perf_schema.indexiowaits",
+				"--collect.perf_schema.tableiowaits",
+				"--collect.perf_schema.tablelocks",
+				"--collect.plugins",
+				"--collect.slave_status",
+				"--collect.standard.go",
+				"--collect.standard.process",
+				"--exporter.conn-max-lifetime=55s",
+				"--exporter.max-idle-conns=3",
+				"--exporter.max-open-conns=3",
+				"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+				"--config.my-cnf={{ .TextFiles.myCnf }}",
+				"--web.config.file={{ .TextFiles.webConfigPlaceholder }}",
+			},
+			RedactWords: []string{"agent-password", "content-of-tls-key"},
+			TextFiles: map[string]string{
+				"myCnf":                "[client]\nhost=1.2.3.4\nport=3306\nuser=username\n\n\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n",
+				"tlsCa":                "content-of-tls-ca",
+				"tlsCert":              "content-of-tls-certificate-key",
+				"tlsKey":               "content-of-tls-key",
+				"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-password\n",
+			},
+		}
+		require.NoError(t, err)
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("EmptyUsername", func(t *testing.T) {
+		exporter.Username = nil
+		exporter.Password = pointer.ToString("s3cur3 p@$$w0r4.")
+		exporter.MySQLOptions = models.MySQLOptions{}
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		expected := &agentv1.SetStateRequest_AgentProcess{
+			Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+			Args: []string{
+				"--collect.auto_increment.columns",
+				"--collect.binlog_size",
+				"--collect.custom_query.hr",
+				"--collect.custom_query.hr.directory={{ .paths_base }}/collectors/custom-queries/mysql/high-resolution",
+				"--collect.custom_query.lr",
+				"--collect.custom_query.lr.directory={{ .paths_base }}/collectors/custom-queries/mysql/low-resolution",
+				"--collect.custom_query.mr",
+				"--collect.custom_query.mr.directory={{ .paths_base }}/collectors/custom-queries/mysql/medium-resolution",
+				"--collect.engine_innodb_status",
+				"--collect.engine_tokudb_status",
+				"--collect.global_status",
+				"--collect.global_variables",
+				"--collect.heartbeat",
+				"--collect.info_schema.clientstats",
+				"--collect.info_schema.innodb_cmp",
+				"--collect.info_schema.innodb_cmpmem",
+				"--collect.info_schema.innodb_metrics",
+				"--collect.info_schema.innodb_tablespaces",
+				"--collect.info_schema.processlist",
+				"--collect.info_schema.query_response_time",
+				"--collect.info_schema.tables",
+				"--collect.info_schema.tablestats",
+				"--collect.info_schema.userstats",
+				"--collect.perf_schema.eventsstatements",
+				"--collect.perf_schema.eventswaits",
+				"--collect.perf_schema.file_events",
+				"--collect.perf_schema.file_instances",
+				"--collect.perf_schema.indexiowaits",
+				"--collect.perf_schema.tableiowaits",
+				"--collect.perf_schema.tablelocks",
+				"--collect.plugins",
+				"--collect.slave_status",
+				"--collect.standard.go",
+				"--collect.standard.process",
+				"--exporter.conn-max-lifetime=55s",
+				"--exporter.max-idle-conns=3",
+				"--exporter.max-open-conns=3",
+				"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+			},
+		}
+
+		require.NoError(t, err)
+		assert.Equal(t, expected, actual)
+	})
+}
