@@ -30,7 +30,7 @@ Before installing the PMM client, check [Prerequisites to install PMM client](./
 
 ## Connect services
 
-You must configure and add services according to the service type.
+You must configure each service according to its service type.
 
 - [MySQL](connect-database/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
 - [MongoDB](connect-database/mongodb.md)
