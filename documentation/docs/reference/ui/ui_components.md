@@ -30,7 +30,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 
 
 !!! info alert alert-info "See also"
-    - [How to render dashboard images](../../use/dashboards-panels/share-dashboards/share_dashboard.md#render-dashboard-image)
+    - [How to render dashboard images](../../use/dashboards-panels/share-dashboards/share_dashboard.md#render-panel-image)
     - [How to annotate special events](../../use/dashboards-panels/annotate/annotate.md)
 
 [grafana]: https://grafana.com/docs/grafana/latest/

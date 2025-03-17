@@ -153,7 +153,7 @@ GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
     It may take longer for PMM to discover Amazon RDS instances in the `creating` state. You must wait a bit longer until PMM discovers these instances.
 
 
-The preferred method of adding an Amazon RDS database instance to PMM is via the :material-cog: **Configuration** → :material-clipboard-list-outline: **PMM Inventory** → :material-plus-circle-outline: **Add Instance** menu option.
+The preferred method of adding an Amazon RDS database instance to PMM is via the :material-cog: **PMM Configuration > PMM Inventory > Add Instance** menu option.
 
 This method supports Amazon RDS database instances that use Amazon Aurora, MySQL, or MariaDB engines, as well as any remote PostgreSQL, ProxySQL, MySQL and MongoDB instances.
 
