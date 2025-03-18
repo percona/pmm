@@ -21,7 +21,11 @@ The available filter groups depend on the database type you're monitoring.
 ### Common filter groups
 These filter groups are available for all database types:
 
+- **Command Type**: filters by SQL command class (SELECT, INSERT, UPDATE, etc.) 
+- **Fingerprint**: Filters by normalized query pattern
+- **Node Type**
 - **Environment**
+- **Availability Zone**
 - **Cluster**
 - **Replication Set**
 - **Database**
@@ -31,20 +35,17 @@ These filter groups are available for all database types:
 - **Client Host**
 - **Username**
 - **Service Type**
-- **Node Type**
 
 ### MySQL-specific filter groups
-- **Command Class**: filters by SQL command class (SELECT, INSERT, UPDATE, etc.)
+- **Command Type**: filters by SQL command class (SELECT, INSERT, UPDATE, etc.)
 - **Fingerprint**: Filters by normalized query pattern
 
 ### MongoDB-specific filter groups
 - **Plan Summary**: filters queries by execution plan type (COLLSCAN, IXSCAN, etc.) to easily identify inefficient full collection scans
-- **Client Application Name**: filters queries by the application name that generated them
 
 ### PostgreSQL-specific filter groups
-- **Application**
+- **Application**: filters queries by the application name that generated them
 - **Command Type**
-- **Tables**
 - **Client Application Name**
 
 
