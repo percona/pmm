@@ -86,7 +86,7 @@ func mysqldExporterConfig(
 		args = append(args, "--collect.plugins")
 	}
 
-	if !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8) {
+	if !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8_4) {
 		args = append(args, "--exporter.global-conn-pool")
 	}
 
@@ -115,7 +115,7 @@ func mysqldExporterConfig(
 	}
 
 	textFiles := exporter.Files()
-	if textFiles != nil && !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8) {
+	if textFiles != nil && !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8_4) {
 		for k := range textFiles {
 			switch k {
 			case "tlsCa":
@@ -131,7 +131,7 @@ func mysqldExporterConfig(
 	}
 
 	if exporter.TLSSkipVerify {
-		if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8) {
+		if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8_4) {
 			args = append(args, "--tls.insecure-skip-verify")
 		} else {
 			args = append(args, "--mysql.ssl-skip-verify")
@@ -151,7 +151,7 @@ func mysqldExporterConfig(
 	}
 
 	switch {
-	case !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8):
+	case !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8_4):
 		env := []string{
 			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
@@ -165,7 +165,7 @@ func mysqldExporterConfig(
 		res.TextFiles["myCnf"] = cfg
 		res.Args = append(res.Args, "--config.my-cnf="+tdp.Left+" .TextFiles.myCnf "+tdp.Right)
 
-		if err := ensureAuthParams(exporter, res, pmmAgentVersion, version.MysqlExporterMySQL8, true); err != nil {
+		if err := ensureAuthParams(exporter, res, pmmAgentVersion, version.MysqlExporterMySQL8_4, true); err != nil {
 			return nil, err
 		}
 	}

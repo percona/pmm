@@ -29,7 +29,7 @@ type FeatureVersion *Parsed
 // Features list.
 var (
 	NodeExporterNewTLSConfig     FeatureVersion = V3_0_0
-	MysqlExporterMySQL8          FeatureVersion = V3_2_0
+	MysqlExporterMySQL8_4        FeatureVersion = V3_2_0
 	MysqlExporterPluginCollector FeatureVersion = V2_36_0
 )
 
