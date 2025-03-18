@@ -520,6 +520,12 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 				"--exporter.max-idle-conns=3",
 				"--exporter.max-open-conns=3",
 				"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+				"--config.my-cnf={{ .TextFiles.myCnf }}",
+				"--web.config.file={{ .TextFiles.webConfig }}",
+			},
+			TextFiles: map[string]string{
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\n\npassword=s3cur3 p@$$w0r4.\n\n\n\n\n",
+				"webConfig": "basic_auth_users:\n    pmm: agent-password\n",
 			},
 		}
 
