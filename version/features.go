@@ -17,7 +17,7 @@ package version
 
 // Versions list.
 var (
-	V2_26_0 = MustParse("2.36.0-0") //nolint:revive,stylecheck
+	V2_36_0 = MustParse("2.36.0-0") //nolint:revive,stylecheck
 	V3_0_0  = MustParse("3.0.0-0")  //nolint:revive,stylecheck
 	// TODO: change to 3.2.0 when 3.1.0 is released.
 	V3_2_0 = MustParse("3.1.0-0") //nolint:revive,stylecheck
@@ -30,7 +30,7 @@ type FeatureVersion *Parsed
 var (
 	NodeExporterNewTLSConfig     FeatureVersion = V3_0_0
 	MysqlExporterMySQL8          FeatureVersion = V3_2_0
-	MysqlExporterPluginCollector FeatureVersion = V2_26_0
+	MysqlExporterPluginCollector FeatureVersion = V2_36_0
 )
 
 // IsFeatureSupported checks if the feature is supported by the version.
