@@ -32,12 +32,6 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-var (
-	mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
-	// TODO: put back 3.2.0 when 3.1.0 is released.
-	mysqlExporterMySQL8Support = version.MustParse("3.1.0-0")
-)
-
 // mysqldExporterConfig returns desired configuration of mysqld_exporter process.
 func mysqldExporterConfig(
 	node *models.Node,
@@ -88,11 +82,11 @@ func mysqldExporterConfig(
 		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
-	if !pmmAgentVersion.Less(mysqlExporterVersionWithPluginCollector) {
+	if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterPluginCollector) {
 		args = append(args, "--collect.plugins")
 	}
 
-	if pmmAgentVersion.Less(mysqlExporterMySQL8Support) {
+	if !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8) {
 		args = append(args, "--exporter.global-conn-pool")
 	}
 
@@ -121,28 +115,26 @@ func mysqldExporterConfig(
 	}
 
 	textFiles := exporter.Files()
-	if textFiles != nil {
-		if pmmAgentVersion.Less(mysqlExporterMySQL8Support) {
-			for k := range textFiles {
-				switch k {
-				case "tlsCa":
-					args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
-				case "tlsCert":
-					args = append(args, "--mysql.ssl-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
-				case "tlsKey":
-					args = append(args, "--mysql.ssl-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
-				default:
-					continue
-				}
+	if textFiles != nil && !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8) {
+		for k := range textFiles {
+			switch k {
+			case "tlsCa":
+				args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
+			case "tlsCert":
+				args = append(args, "--mysql.ssl-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
+			case "tlsKey":
+				args = append(args, "--mysql.ssl-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
+			default:
+				continue
 			}
 		}
 	}
 
 	if exporter.TLSSkipVerify {
-		if pmmAgentVersion.Less(mysqlExporterMySQL8Support) {
-			args = append(args, "--mysql.ssl-skip-verify")
-		} else {
+		if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8) {
 			args = append(args, "--tls.insecure-skip-verify")
+		} else {
+			args = append(args, "--mysql.ssl-skip-verify")
 		}
 	}
 
@@ -159,7 +151,7 @@ func mysqldExporterConfig(
 	}
 
 	switch {
-	case pmmAgentVersion.Less(mysqlExporterMySQL8Support):
+	case !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8):
 		env := []string{
 			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
@@ -173,7 +165,7 @@ func mysqldExporterConfig(
 		res.TextFiles["myCnf"] = cfg
 		res.Args = append(res.Args, "--config.my-cnf="+tdp.Left+" .TextFiles.myCnf "+tdp.Right)
 
-		if err := ensureAuthParams(exporter, res, pmmAgentVersion, mysqlExporterMySQL8Support, true); err != nil {
+		if err := ensureAuthParams(exporter, res, pmmAgentVersion, version.MysqlExporterMySQL8, true); err != nil {
 			return nil, err
 		}
 	}
