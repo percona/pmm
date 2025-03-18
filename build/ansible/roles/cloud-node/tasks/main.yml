@@ -19,7 +19,6 @@
       - firewalld
       - python3-libselinux
       - python3-firewall
-      - iproute
 
 - name: Firewalld                  | Start EL9
   when:

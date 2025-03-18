@@ -30,6 +30,7 @@
     name:
       - python3-pip
       - rsync
+      - iproute
     state: latest
 
 - name: Create groups
