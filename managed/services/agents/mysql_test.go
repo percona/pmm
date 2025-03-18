@@ -392,15 +392,15 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 				"--exporter.max-open-conns=3",
 				"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 				"--config.my-cnf={{ .TextFiles.myCnf }}",
-				"--web.config.file={{ .TextFiles.webConfigPlaceholder }}",
+				"--web.config.file={{ .TextFiles.webConfig }}",
 			},
 			RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password", "content-of-tls-key"},
 			TextFiles: map[string]string{
-				"myCnf":                "[client]\nhost=1.2.3.4\nport=3306\nuser=username\npassword=s3cur3 p@$$w0r4.\n\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n",
-				"tlsCa":                "content-of-tls-ca",
-				"tlsCert":              "content-of-tls-certificate-key",
-				"tlsKey":               "content-of-tls-key",
-				"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-password\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\npassword=s3cur3 p@$$w0r4.\n\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n",
+				"tlsCa":     "content-of-tls-ca",
+				"tlsCert":   "content-of-tls-certificate-key",
+				"tlsKey":    "content-of-tls-key",
+				"webConfig": "basic_auth_users:\n    pmm: agent-password\n",
 			},
 		}
 		requireNoDuplicateFlags(t, actual.Args)
@@ -457,15 +457,15 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 				"--exporter.max-open-conns=3",
 				"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 				"--config.my-cnf={{ .TextFiles.myCnf }}",
-				"--web.config.file={{ .TextFiles.webConfigPlaceholder }}",
+				"--web.config.file={{ .TextFiles.webConfig }}",
 			},
 			RedactWords: []string{"agent-password", "content-of-tls-key"},
 			TextFiles: map[string]string{
-				"myCnf":                "[client]\nhost=1.2.3.4\nport=3306\nuser=username\n\n\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n",
-				"tlsCa":                "content-of-tls-ca",
-				"tlsCert":              "content-of-tls-certificate-key",
-				"tlsKey":               "content-of-tls-key",
-				"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-password\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\n\n\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n",
+				"tlsCa":     "content-of-tls-ca",
+				"tlsCert":   "content-of-tls-certificate-key",
+				"tlsKey":    "content-of-tls-key",
+				"webConfig": "basic_auth_users:\n    pmm: agent-password\n",
 			},
 		}
 		require.NoError(t, err)
