@@ -22,7 +22,7 @@ The available filter groups depend on the database type you're monitoring.
 These filter groups are available for all database types:
 
 - **Command Type**: filters by SQL command class (SELECT, INSERT, UPDATE, etc.) 
-- **Fingerprint**: Filters by normalized query pattern
+- **Fingerprint**: filters by normalized query pattern
 - **Node Type**
 - **Environment**
 - **Availability Zone**
@@ -46,8 +46,6 @@ These filter groups are available for all database types:
 ### PostgreSQL-specific filter groups
 - **Application**: filters queries by the application name that generated them
 - **Command Type**
-- **Client Application Name**
-
 
 ## Custom filter groups
 
