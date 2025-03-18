@@ -33,7 +33,7 @@ These filter groups are available for all database types:
 - **Node Name**
 - **Service Name**
 - **Client Host**
-- **Username**
+- **User Name**
 - **Service Type**
 
 ### MySQL-specific filter groups
