@@ -147,27 +147,30 @@ func mysqldExporterConfig(
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
-		TextFiles:          textFiles,
 	}
 
-	switch {
-	case !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8_4):
+	if !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8_4) {
 		env := []string{
 			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
 		}
 		res.Env = env
-	case textFiles != nil:
-		cfg, err := buildMyCnfConfig(service, exporter, textFiles)
-		if err != nil {
-			return nil, err
-		}
-		res.TextFiles["myCnf"] = cfg
-		res.Args = append(res.Args, "--config.my-cnf="+tdp.Left+" .TextFiles.myCnf "+tdp.Right)
+	}
 
-		if err := ensureAuthParams(exporter, res, pmmAgentVersion, version.MysqlExporterMySQL8_4, true); err != nil {
-			return nil, err
-		}
+	if textFiles == nil {
+		textFiles = make(map[string]string)
+	}
+	res.TextFiles = textFiles
+
+	cfg, err := buildMyCnfConfig(service, exporter, textFiles)
+	if err != nil {
+		return nil, err
+	}
+	res.TextFiles["myCnf"] = cfg
+	res.Args = append(res.Args, "--config.my-cnf="+tdp.Left+" .TextFiles.myCnf "+tdp.Right)
+
+	if err := ensureAuthParams(exporter, res, pmmAgentVersion, version.MysqlExporterMySQL8_4, true); err != nil {
+		return nil, err
 	}
 
 	if redactMode != exposeSecrets {
