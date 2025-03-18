@@ -2,3 +2,4 @@ apiVersion: 1
 
 apps:
   - type: pmm-app
+  - type: 'pmm-compat-app'

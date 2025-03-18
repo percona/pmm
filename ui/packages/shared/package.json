@@ -1,0 +1,48 @@
+{
+  "name": "@pmm/shared",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --fix",
+    "format": "prettier .  --write",
+    "rm-build-dir": "rm -rf dist",
+    "build": "rollup -c"
+  },
+  "private": "true",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "main": "dist/esm/index.js",
+  "module": "dist/esm/index.js",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "prettier": "@percona/prettier-config",
+  "dependencies": {},
+  "devDependencies": {
+    "@percona/eslint-config-react": "^1.0.0",
+    "@percona/prettier-config": "^1.0.0",
+    "@percona/tsconfig": "^1.0.0",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@types/react": "^18.2.15",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rollup": "^4.22.4",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.2",
+    "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
