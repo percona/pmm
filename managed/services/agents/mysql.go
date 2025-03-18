@@ -147,6 +147,7 @@ func mysqldExporterConfig(
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
+		TextFiles:          textFiles,
 	}
 
 	if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8_4) {
