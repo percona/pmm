@@ -16,15 +16,15 @@ Check that:
 
 We recommend using a dedicated account to connect PMM Client to the monitored database instance.
 
-Run the example codes below in a `mongo` session to:
+Run the example commands below in a mongo shell session to:
 
--  create custom roles with the privileges required for creating/restoring backups and working with Query Analytics (QAN)
--  create/update a database user with these roles above, plus the built-in  `clusterMonitor` role
+-  Create custom roles with the privileges required for creating/restoring backups and working with Query Analytics (QAN)
+-  Create/update a database user with these roles, plus the built-in  `clusterMonitor` role
   
-!!! caution alert alert-warning ""
+!!! caution alert alert-warning "Important"
     Values for username (`user`) and password (`pwd`) are examples. Replace them before using these code snippets.
 
-=== "Create a role with monitoring and QAN privileges"
+=== "Monitoring and QAN privileges"
     This role grants the essential minimum privileges needed for monitoring and QAN. 
         ```{.javascript data-prompt=">"}
         db.getSiblingDB("admin").createRole({
@@ -32,18 +32,22 @@ Run the example codes below in a `mongo` session to:
         "privileges": [
             {
                 "resource": { "db": "", "collection": "" },
-                "actions": [ "dbHash", "find", "listIndexes", "listCollections"  ]
+                "actions": [ "dbHash", "find", "listIndexes", "listCollections", "collStats", "dbStats", "indexStats" ]
             },
             {
-                "resource": { "db": "", "collection": "system.version"  },
+                "resource": { "db": "", "collection": "system.version" },
                 "actions": [ "find" ]
-            }
+            },
+            {
+                "resource": { "db": "", "collection": "system.profile" },
+                "actions": [ "dbStats", "collStats", "indexStats" ]
+            }         
         ],
-        "roles": []
+        "roles": [ { role: "directShardOperations", db: "admin" } ]
         })
         ```    
-
-=== "Create a role with backup management privileges"
+        
+=== "Full backup management privileges"
     This role provides the necessary privileges for using PMM's backup management features. It is required only if you plan to use this feature.
         ```{.javascript data-prompt=">"}
         db.getSiblingDB("admin").createRole({
@@ -58,28 +62,11 @@ Run the example codes below in a `mongo` session to:
         });
         ```
 
-### Permissions for advanced metrics
-
-To fetch advanced metrics like usage statistics for collection and indexes, assign the following additional privileges to an existing PMM user:
-    ```{.javascript data-prompt=">"}
-    db.getSiblingDB("admin").updateRole(
-    "explainRole",
-    {
-        "privileges": [
-        {
-            "resource": { "db": "", "collection": "" },
-            "actions": [ "collStats", "dbStats", "indexStats" ]
-        },
-        {
-            "resource": { "db": "", "collection": "system.profile" },
-            "actions": [ "dbStats", "collStats", "indexStats" ]
-        },
-        ]
-    }
-    )
-    ```
 ### Create/update user and assign created roles
 
+!!! caution alert alert-warning "Important"
+    For MongoDB 8.0+ also include the `directShardOperations` role for PMM user
+    
 Create or update a user with the minimum required privileges for monitoring by assigning the following roles:
 ```{.javascript data-prompt=">"}
  db.getSiblingDB("admin").createUser({
@@ -180,7 +167,7 @@ db.setProfilingLevel(2, {slowms: 0})
 When you have configured your database server, you can add a MongoDB service with the user interface or on the command line.
 
 !!! caution alert alert-warning "Important"
-    To monitor MongoDB sharded clusters, PMM requires access to all cluster components. Make sure to add all config servers, shards, and mongos. Otherwise, PMM will not be able to correctly collect metrics and populate dashboards.
+    To monitor MongoDB sharded clusters, PMM requires access to all cluster components. Make sure to add all config servers, shards, and at least one mongos router. Otherwise, PMM will not be able to correctly collect metrics and populate dashboards.
 
 ### With the user interface
 
@@ -212,28 +199,7 @@ Add basic data collection:
 
 ```sh
 pmm-admin add mongodb \
---username=pmm_mongodb --password=password \
---query-source=profiler --cluster=mycluster
-```
-
-Add complete data collection with a custom service name:
-
-```sh
-pmm-admin add mongodb \
---username=pmm_mongodb --password=password \
-mongo 127.0.0.1:27017
-```
-
-```sh
-pmm-admin add mongodb \
---username=pmm_mongodb --password=password \
---service-name=mymongosvc --host=127.0.0.1 --port=27017
-```
-
-#### Connect via UNIX socket
-
-```sh
-pmm-admin add mongodb --socket=/tmp/mongodb-27017.sock
+--username=pmm_mongodb --password=password
 ```
 
 #### Connecting via SSL/TLS
