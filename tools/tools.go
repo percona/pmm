@@ -64,4 +64,4 @@ import (
 //go:generate go build -o ../bin/swagger-order github.com/Percona-Lab/swagger-order
 //go:generate go build -o ../bin/protoc-gen-validate github.com/envoyproxy/protoc-gen-validate
 //go:generate go build -o ../bin/ifacemaker github.com/vburenin/ifacemaker
-//go:generate CGO_ENABLED=0 go build -o ../bin/license-eye github.com/apache/skywalking-eyes/cmd/license-eye
+//go:generate env CGO_ENABLED=0 go build -o ../bin/license-eye github.com/apache/skywalking-eyes/cmd/license-eye
