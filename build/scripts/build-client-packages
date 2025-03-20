@@ -165,22 +165,20 @@ get_sources(){
 }
 
 get_system(){
+    ARCH=$(uname -m)
     if [ -f /etc/redhat-release ]; then
         RHEL=$(rpm --eval %rhel)
         ARCH=$(echo $(uname -m) | sed -e 's:i686:i386:g')
         OS_NAME="el$RHEL"
-        OS="rpm"
-    else
-        ARCH=$(uname -m)
-        if command -v lsb_release &>/dev/null; then
-            OS_NAME="$(lsb_release -sc)"
-            OS="deb"
-        elif [ -f /etc/os-release ]; then
-            . /etc/os-release
-            if [[ "$ID" == "amzn" && "$VERSION_ID" == "2023" ]]; then
-                OS_NAME="amzn2023"
-                OS="rpm"
-            fi
+        PACKAGE_MANAGER="rpm"
+    elif command -v lsb_release &>/dev/null; then
+        OS_NAME="$(lsb_release -sc)"
+        PACKAGE_MANAGER="deb"
+    elif [ -f /etc/os-release ]; then
+        . /etc/os-release
+        if [[ "$ID" == "amzn" && "$VERSION_ID" == "2023" ]]; then
+            OS_NAME="amzn2023"
+            PACKAGE_MANAGER="rpm"
         fi
     fi
     return
@@ -195,7 +193,7 @@ install_deps() {
         echo "It is not possible to instal dependencies. Please run as root"
         exit 1
     fi
-    if [ "$OS" = "rpm" ]; then
+    if [ "$PACKAGE_MANAGER" = "rpm" ]; then
         yum -y install git wget rpmdevtools bison yum-utils rpm-build systemd pkgconf-pkg-config
     else
         apt-get update
@@ -244,7 +242,7 @@ build_srpm(){
         echo "SRC RPM will not be created"
         return;
     fi
-    if [ "$OS" = "deb" ]; then
+    if [ "$PACKAGE_MANAGER" = "deb" ]; then
         echo "It is not possible to build src rpm here"
         exit 1
     fi
@@ -283,7 +281,7 @@ build_rpm(){
         echo "RPM will not be created"
         return;
     fi
-    if [ "$OS" = "deb" ]; then
+    if [ "$PACKAGE_MANAGER" = "deb" ]; then
         echo "It is not possible to build rpm here"
         exit 1
     fi
@@ -327,7 +325,7 @@ build_source_deb(){
         echo "source deb package will not be created"
         return;
     fi
-    if [ "$OS" = "rpm" ]; then
+    if [ "$PACKAGE_MANAGER" = "rpm" ]; then
         echo "It is not possible to build source deb here"
         exit 1
     fi
@@ -408,7 +406,7 @@ build_deb(){
         echo "source deb package will not be created"
         return;
     fi
-    if [ "$OS" = "rpm" ]; then
+    if [ "$PACKAGE_MANAGER" = "rpm" ]; then
         echo "It is not possible to build source deb here"
         exit 1
     fi
@@ -451,7 +449,7 @@ SOURCE=0
 TARBALL=0
 OS_NAME=
 ARCH=
-OS=
+PACKAGE_MANAGER=
 SUBMODULE_BRANCH="v3"
 INSTALL=0
 RPM_RELEASE=7
