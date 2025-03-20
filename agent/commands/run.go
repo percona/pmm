@@ -158,6 +158,22 @@ func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 			log.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
 		}
 	}
+	// Remove all other directories found in tmpRoot.
+	// This is needed to cleanup directories created by connection ckecker and other routines.
+	dirs, err := os.ReadDir(tmpRoot)
+	if err != nil {
+		log.Warnf("Failed to read directory '%s': %s", tmpRoot, err.Error())
+		return
+	}
+	for _, dir := range dirs {
+		if dir.IsDir() {
+			dirPath := filepath.Join(tmpRoot, dir.Name())
+			err := os.RemoveAll(dirPath)
+			if err != nil {
+				log.Warnf("Failed to cleanup directory '%s': %s", dirPath, err.Error())
+			}
+		}
+	}
 }
 
 func prepareConnectionService(ctx context.Context, cfg *config.Config) *connectionuptime.Service {
