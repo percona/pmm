@@ -2326,49 +2326,54 @@
                       "type": "boolean",
                       "x-order": 13
                     },
+                    "qan_mongodb_slowlog": {
+                      "description": "If true, adds qan-mongodb-slowlog-agent for provided service.",
+                      "type": "boolean",
+                      "x-order": 14
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels for Service.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "skip_connection_check": {
                       "description": "Skip connection check.",
                       "type": "boolean",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "tls_certificate_key": {
                       "description": "Client certificate and key.",
                       "type": "string",
-                      "x-order": 18
+                      "x-order": 19
                     },
                     "tls_certificate_key_file_password": {
                       "description": "Password for decrypting tls_certificate_key.",
                       "type": "string",
-                      "x-order": 19
+                      "x-order": 20
                     },
                     "tls_ca": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
-                      "x-order": 20
+                      "x-order": 21
                     },
                     "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 21
+                      "x-order": 22
                     },
                     "metrics_mode": {
                       "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.\n\n - METRICS_MODE_UNSPECIFIED: Auto",
@@ -2379,7 +2384,7 @@
                         "METRICS_MODE_PULL",
                         "METRICS_MODE_PUSH"
                       ],
-                      "x-order": 22
+                      "x-order": 23
                     },
                     "disable_collectors": {
                       "description": "List of collector names to disable in this exporter.",
@@ -2387,22 +2392,22 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 23
+                      "x-order": 24
                     },
                     "authentication_mechanism": {
                       "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                       "type": "string",
-                      "x-order": 24
+                      "x-order": 25
                     },
                     "authentication_database": {
                       "description": "Authentication database.",
                       "type": "string",
-                      "x-order": 25
+                      "x-order": 26
                     },
                     "agent_password": {
                       "description": "Custom password for exporter endpoint /metrics.",
                       "type": "string",
-                      "x-order": 26
+                      "x-order": 27
                     },
                     "stats_collections": {
                       "description": "List of collections to get stats from. Can use * .",
@@ -2410,18 +2415,18 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 27
+                      "x-order": 28
                     },
                     "collections_limit": {
                       "type": "integer",
                       "format": "int32",
                       "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
-                      "x-order": 28
+                      "x-order": 29
                     },
                     "enable_all_collectors": {
                       "type": "boolean",
                       "title": "Enable all collectors",
-                      "x-order": 29
+                      "x-order": 30
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -2436,12 +2441,12 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 30
+                      "x-order": 31
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 31
+                      "x-order": 32
                     }
                   },
                   "x-order": 1

@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package profiler
+package slowlog
 
 import (
 	"context"
 	"fmt"
+	"log"
 	"runtime/pprof"
 	"sync"
 	"time"
@@ -25,34 +26,36 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
-	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/sender"
+	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/reader"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 )
 
-// New creates new Profiler
-func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, maxQueryLength int32) *profiler {
-	return &profiler{
+const (
+	MgoTimeoutDialInfo      = 5 * time.Second
+	MgoTimeoutSessionSocket = 5 * time.Second
+)
+
+// New creates new slowlog
+func New(mongoDSN string, logger *logrus.Entry, changes chan agents.Change, agentID string, maxQueryLength int32) *slowlog {
+	return &slowlog{
 		mongoDSN:       mongoDSN,
 		maxQueryLength: maxQueryLength,
 		logger:         logger,
-		w:              w,
+		changes:        changes,
 		agentID:        agentID,
 	}
 }
 
-type profiler struct {
+type slowlog struct {
 	// dependencies
 	mongoDSN string
-	w        sender.Writer
+	changes  chan agents.Change
 	logger   *logrus.Entry
 	agentID  string
 
 	// internal deps
-	monitors   *monitors
-	client     *mongo.Client
-	aggregator *aggregator.Aggregator
-	sender     *sender.Sender
+	client *mongo.Client
 
 	// state
 	m        sync.Mutex      // Lock() to protect internal consistency of the service
@@ -65,46 +68,32 @@ type profiler struct {
 }
 
 // Start starts analyzer but doesn't wait until it exits
-func (p *profiler) Start() error {
-	p.m.Lock()
-	defer p.m.Unlock()
-	if p.running {
+func (s *slowlog) Start() error {
+	s.m.Lock()
+	defer s.m.Unlock()
+	if s.running {
 		return nil
 	}
 
 	// create new session
-	client, err := createSession(p.mongoDSN, p.agentID)
+	client, err := createSession(s.mongoDSN, s.agentID)
 	if err != nil {
 		return err
 	}
-	p.client = client
-
-	// create aggregator which collects documents and aggregates them into qan report
-	p.aggregator = aggregator.New(time.Now(), p.agentID, p.logger, p.maxQueryLength)
-	reportChan := p.aggregator.Start()
-
-	// create sender which sends qan reports and start it
-	p.sender = sender.New(reportChan, p.w, p.logger)
-	err = p.sender.Start()
+	logsPath, err := reader.GetLogFilePath(client)
 	if err != nil {
 		return err
 	}
-
-	f := func(client *mongo.Client, logger *logrus.Entry, dbName string) *monitor {
-		return NewMonitor(client, dbName, p.aggregator, logger)
-	}
-
-	// create monitors service which we use to periodically scan server for new/removed databases
-	p.monitors = NewMonitors(client, f, p.logger)
+	client.Disconnect(context.TODO())
 
 	// create new channel over which
 	// we will tell goroutine it should close
-	p.doneChan = make(chan struct{})
+	s.doneChan = make(chan struct{})
 
 	// start a goroutine and Add() it to WaitGroup
 	// so we could later Wait() for it to finish
-	p.wg = &sync.WaitGroup{}
-	p.wg.Add(1)
+	s.wg = &sync.WaitGroup{}
+	s.wg.Add(1)
 
 	// create ready sync.Cond so we could know when goroutine actually started getting data from db
 	ready := sync.NewCond(&sync.Mutex{})
@@ -112,76 +101,69 @@ func (p *profiler) Start() error {
 	defer ready.L.Unlock()
 
 	ctx := context.Background()
-	labels := pprof.Labels("component", "mongodb.profiler")
+	labels := pprof.Labels("component", "mongodb.slowlog")
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
-		start(ctx, p.monitors, p.wg, p.doneChan, ready, p.logger)
+		start(ctx, s.wg, s.changes, s.doneChan, ready, logsPath, s.logger)
 	})
 
 	// wait until we actually fetch data from db
 	ready.Wait()
 
-	p.running = true
+	s.running = true
 	return nil
 }
 
 // Stop stops running analyzer, waits until it stops
-func (p *profiler) Stop() error {
-	p.m.Lock()
-	defer p.m.Unlock()
-	if !p.running {
+func (s *slowlog) Stop() error {
+	s.m.Lock()
+	defer s.m.Unlock()
+	if !s.running {
 		return nil
 	}
 
 	// notify goroutine to close
-	close(p.doneChan)
+	close(s.doneChan)
 
 	// wait for goroutine to exit
-	p.wg.Wait()
-
-	// stop aggregator; do it after goroutine is closed
-	p.aggregator.Stop()
-
-	// stop sender; do it after goroutine is closed
-	p.sender.Stop()
-
-	// close the session; do it after goroutine is closed
-	p.client.Disconnect(context.TODO()) //nolint:errcheck
+	s.wg.Wait()
 
 	// set state to "not running"
-	p.running = false
+	s.running = false
 	return nil
 }
 
-func start(ctx context.Context, monitors *monitors, wg *sync.WaitGroup, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry) {
+func start(ctx context.Context, wg *sync.WaitGroup, changes chan agents.Change, doneChan <-chan struct{}, ready *sync.Cond, logsPath string, logger *logrus.Entry) {
+	// TODO context usage
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
-
-	// stop all monitors
-	defer monitors.StopAll()
-
-	// monitor all databases
-	err := monitors.MonitorAll(ctx)
-	if err != nil {
-		logger.Debugf("couldn't monitor all databases, reason: %v", err)
-	}
 
 	// signal we started monitoring
 	signalReady(ready)
 
-	// loop to periodically refresh monitors
-	for {
-		// check if we should shutdown
-		select {
-		case <-doneChan:
-			return
-		case <-time.After(1 * time.Minute):
-			// just continue after delay if not
-		}
+	fr := reader.NewFileReader(logsPath)
+	lineChannel := make(chan string)
+	ticker := time.NewTicker(1 * time.Minute)
+	var s []string
 
-		// update monitors
-		err = monitors.MonitorAll(ctx)
+	go func() {
+		err := fr.ReadFile(lineChannel)
 		if err != nil {
-			logger.Debugf("couldn't monitor all databases, reason: %v", err)
+			log.Fatalf("Error: %v", err)
+		}
+	}()
+
+	for {
+		select {
+		case line := <-lineChannel:
+			s = append(s, line)
+		case <-doneChan:
+			ticker.Stop()
+			return
+		case <-ticker.C:
+			// TODO convert to metrics buckets
+			fmt.Println(s)
+			changes <- agents.Change{MetricsBucket: nil}
+			s = nil
 		}
 	}
 }
@@ -205,7 +187,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 		SetDirect(true).
 		SetReadPreference(readpref.Nearest()).
 		SetSocketTimeout(MgoTimeoutSessionSocket).
-		SetAppName(fmt.Sprintf("QAN-mongodb-profiler-%s", agentID))
+		SetAppName(fmt.Sprintf("QAN-mongodb-slowlog-%s", agentID))
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
