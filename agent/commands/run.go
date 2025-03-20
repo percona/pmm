@@ -158,8 +158,7 @@ func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 			log.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
 		}
 	}
-	// Remove all other directories found in tmpRoot.
-	// This is needed to cleanup directories created by connection ckecker and other routines.
+	// Remove all other directories found in tmpRoot. They shouldn't be necessary once the agent is stopped.
 	dirs, err := os.ReadDir(tmpRoot)
 	if err != nil {
 		log.Warnf("Failed to read directory '%s': %s", tmpRoot, err.Error())
