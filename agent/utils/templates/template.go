@@ -115,6 +115,7 @@ func RenderDSN(dsn string, files *agentv1.TextFiles, tempDir string) (string, er
 	return dsn, nil
 }
 
+// CleanupTempDir removes the temporary directory.
 func CleanupTempDir(tempDir string, logger *logrus.Entry) {
 	if err := os.RemoveAll(tempDir); err != nil {
 		logger.Debugf("failed to remove the temporary directory: %s", err)
