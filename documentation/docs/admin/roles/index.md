@@ -1,6 +1,6 @@
 # Standard role permissions
 
-Roles are the sets of permissions and configurations that determine which metrics a user can access in Percona Monitoring and Management (PMM). Each PMM user is associated with a role that includes permissions. Permissions determine the privileges that a user has in PMM.
+Roles are the sets of permissions and configurations that determine which metrics a user can access in Percona Monitoring and Management (PMM). Each PMM user is associated with a role that includes permissions. PMM Users then inherit permissions defined in the role which then determines the privileges that a user has in PMM.
 
 PMM provides two methods of access control: standard roles (Viewer, Editor, Admin) that determine feature-level permissions, and label-based access control that allows administrators to create custom roles to specify which data can be queried based on specific label criteria, for instance, allowing the QA team to view data related only to test environments.
 
