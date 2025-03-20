@@ -12,7 +12,7 @@
     "pmm": "pmm"
   },
   "dependencies": {
-    "@playwright/test": "^1.50.1",
+    "@playwright/test": "^1.51.1",
     "@types/luxon": "^3.4.2",
     "dotenv": "^16.4.0",
     "luxon": "^3.5.0",
