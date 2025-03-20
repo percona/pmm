@@ -166,6 +166,9 @@
 - name: Run initialization playbook
   include_role:
     name: initialization
+    become: true
+    become_user: pmm
+    become_method: su
 
 - name: Check supervisord logs
   shell: sleep 10 && tail -n 200 /srv/logs/supervisord.log

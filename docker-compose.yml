@@ -88,6 +88,7 @@ services:
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
+      - srv:/srv
       # grafana
 #      - "../grafana:/workspace"
 #      - "../grafana/public:/usr/share/grafana/public"
@@ -467,6 +468,7 @@ volumes:
   pgdata:  # Volume for PostgreSQL data
   go-modules:
   root-cache:
+  srv:
 
 networks:
   minikube:
