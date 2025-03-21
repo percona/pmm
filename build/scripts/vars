@@ -42,7 +42,7 @@ unset new_pmm_version
 unset new_pmm_release
 echo -e "\n\n\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_version} pmm_release=${pmm_release}\n\n\n"
 
-rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:2}
+rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:3}
 rpms_dir=${root_dir}/tmp/pmm-server/RPMS
 rpmbuild_dir=${root_dir}/sources/pmm/src/github.com/percona/pmm/build/packages/rpm/server
 rpmbuild_dist=${RPMBUILD_DIST:-"el9"}
