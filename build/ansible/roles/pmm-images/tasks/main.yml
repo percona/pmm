@@ -59,22 +59,9 @@
   file: 
     path: "{{ item }}"
     state: directory
-    owner: pmm
-    group: pmm
+    mode: 0755
   loop:
-    - /srv # otherwise it's owned by root
-    - /srv/prometheus/rules
     - /etc/grafana
-    - /srv/clickhouse
-
-# Note a special mode required mainly by nginx
-- name: Create a directory for logs
-  file:
-    path: /srv/logs
-    state: directory
-    owner: pmm
-    group: pmm
-    mode: 0775
 
 - name: Create dirs
   file: 
@@ -120,28 +107,6 @@
 - name: Install pmm-client
   include_role:
     name: pmm-client
-
-- name: Create a backup directory
-  file:
-    path: /srv/backup
-    state: directory
-    owner: pmm
-    group: pmm
-    mode: 0775
-
-- name: Create a working directory for VictoriaMetrics
-  file:
-    path: /srv/victoriametrics/data
-    state: directory
-    owner: pmm
-    group: pmm
-
-- name: Create an empty configuration file for VictoriaMetrics
-  file:
-    path: /etc/victoriametrics-promscrape.yml
-    state: touch
-    owner: pmm
-    group: pmm
 
 # Launch pmm-managed-init first as it may update supervisord configuration on start
 - name: Generate new supervisor config

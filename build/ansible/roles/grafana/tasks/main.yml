@@ -1,36 +1,21 @@
 ---
-- name: Create grafana directory
-  file:
-    path: "{{ item }}"
-    state: directory
-    owner: pmm
-    group: pmm
-    mode: 0755
-  loop:
-    - /srv/grafana
-    - /srv/grafana/plugins
-
 - name: Set ownership on /etc/grafana
   file:
     path: /etc/grafana
     state: directory
-    owner: pmm
-    group: pmm
-    mode: 0744
+    mode: 0755
     recurse: true
 
 - name: Copy a custom version of grafana.ini
   copy:
     src: grafana.ini
     dest: /etc/grafana/grafana.ini
-    owner: pmm
-    group: pmm
+    mode: 0644
 
 - name: Create provisioning directory
   file:
     path: "/usr/share/grafana/conf/provisioning/{{ item }}"
-    owner: pmm
-    group: pmm
+    mode: 0755
     state: directory
   loop:
     - datasources
@@ -41,8 +26,7 @@
   copy:
     src: "{{ item }}.yml"
     dest: "/usr/share/grafana/conf/provisioning/{{ item }}/default.yml"
-    owner: pmm
-    group: pmm
+    mode: 0755
   loop:
     - datasources
     - plugins

@@ -13,6 +13,7 @@ services:
     #   dockerfile: ./.devcontainer/Dockerfile
     container_name: pmm-server
     hostname: pmm-server
+    user: 2000:2000
     networks:
       - ${NETWORK:-default}
     environment:

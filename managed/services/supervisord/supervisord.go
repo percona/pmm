@@ -81,7 +81,7 @@ type sub struct {
 
 // values from supervisord configuration.
 const (
-	pmmConfig = "/etc/supervisord.d/pmm.ini"
+	pmmConfig = "/srv/supervisord.d/pmm.ini"
 )
 
 // New creates new service.
@@ -485,7 +485,7 @@ var templates = template.Must(template.New("").Option("missingkey=error").Parse(
 priority = 7
 command =
 	/usr/sbin/victoriametrics
-		--promscrape.config=/etc/victoriametrics-promscrape.yml
+		--promscrape.config=/srv/victoriametrics/promscrape.yml
 		--retentionPeriod={{ .DataRetentionDays }}d
 		--storageDataPath=/srv/victoriametrics/data
 		--httpListenAddr={{ .InterfaceToBind }}:9090

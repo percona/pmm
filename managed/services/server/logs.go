@@ -168,14 +168,14 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 
 		"/srv/prometheus/prometheus.base.yml",
 
-		"/etc/victoriametrics-promscrape.yml",
+		"/srv/victoriametrics/promscrape.yml",
 
 		"/etc/supervisord.conf",
-		"/etc/supervisord.d/pmm.ini",
-		"/etc/supervisord.d/qan-api2.ini",
-		"/etc/supervisord.d/victoriametrics.ini",
-		"/etc/supervisord.d/vmalert.ini",
-		"/etc/supervisord.d/vmproxy.ini",
+		"/srv/supervisord.d/pmm.ini",
+		"/srv/supervisord.d/qan-api2.ini",
+		"/srv/supervisord.d/victoriametrics.ini",
+		"/srv/supervisord.d/vmalert.ini",
+		"/srv/supervisord.d/vmproxy.ini",
 
 		"/usr/local/percona/pmm/config/pmm-agent.yaml",
 	} {

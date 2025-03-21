@@ -3,8 +3,7 @@
   file:
     path: "{{ item }}"
     state: directory
-    owner: pmm
-    group: pmm
+    mode: 0755
   loop:
     - /usr/share/pmm-server/static/
     - /etc/nginx/conf.d/
@@ -78,20 +77,12 @@
   file:
     path: "{{ item }}"
     state: touch
-    group: pmm
-    owner: pmm
+    mode: 0666
   loop:
     - /run/nginx.pid
-    - /srv/logs/nginx.log
-
-- name: Check nginx configuration
-  command: nginx -t
-  changed_when: false
 
 - name: Copy local-rss.xml file
   copy:
     src: local-rss.xml
     dest: /usr/share/pmm-server/static/
-    group: pmm
-    owner: pmm
     mode: 0644
