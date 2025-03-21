@@ -37,12 +37,14 @@ type postgresqlShowIndexAction struct {
 	timeout time.Duration
 	params  *agentv1.StartActionRequest_PostgreSQLShowIndexParams
 	dsn     string
+	tmpDir  string
 }
 
 // NewPostgreSQLShowIndexAction creates PostgreSQL SHOW INDEX Action.
 // This is an Action that can run `SHOW INDEX` command on PostgreSQL service with given DSN.
 func NewPostgreSQLShowIndexAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_PostgreSQLShowIndexParams, tempDir string) (Action, error) {
-	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLShowIndexActionType, id))
+	tmpDir := filepath.Join(tempDir, postgreSQLShowIndexActionType, id)
+	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, tmpDir)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -52,6 +54,7 @@ func NewPostgreSQLShowIndexAction(id string, timeout time.Duration, params *agen
 		timeout: timeout,
 		params:  params,
 		dsn:     dsn,
+		tmpDir:  tmpDir,
 	}, nil
 }
 
@@ -77,6 +80,8 @@ func (a *postgresqlShowIndexAction) DSN() string {
 
 // Run runs an Action and returns output and error.
 func (a *postgresqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
+	defer templates.CleanupTempDir(a.tmpDir, nil)
+
 	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
