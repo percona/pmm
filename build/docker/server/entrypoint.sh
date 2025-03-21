@@ -13,17 +13,26 @@ fi
 # Initialize /srv if empty
 DIST_FILE=/srv/pmm-distribution
 if [ ! -f $DIST_FILE ]; then
+    if ! whoami &> /dev/null; then
+      if [ -w /etc/passwd ]; then
+        echo "${USER_NAME:-default}:x:$(id -u):0:${USER_NAME:-default} user:${HOME}:/sbin/nologin" >> /etc/passwd
+      fi
+    fi
     echo $PMM_DISTRIBUTION_METHOD > $DIST_FILE
     echo "Initializing /srv..."
-    mkdir -p /srv/{backup,clickhouse,grafana,logs,nginx,postgres14,prometheus,victoriametrics}
+    mkdir -p /srv/{backup,clickhouse,grafana,logs,nginx,postgres14,prometheus,victoriametrics,supervisord.d}
     echo "Copying grafana plugins and the VERSION file..."
     mkdir -p /srv/grafana/plugins
     cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
+
+    mkdir -p /srv/nginx/{client_body_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp}
+    chmod 700 /srv/nginx/client_body_temp /srv/nginx/proxy_temp /srv/nginx/fastcgi_temp /srv/nginx/uwsgi_temp /srv/nginx/scgi_temp
     
     echo "Generating self-signed certificates for nginx..."
     bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
     
     echo "Initializing Postgres..."
+    chmod 700 /srv/postgres14
     /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust --username=postgres
     
     echo "Enabling pg_stat_statements extension for PostgreSQL..."

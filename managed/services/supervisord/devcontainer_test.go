@@ -35,7 +35,7 @@ func TestDevContainer(t *testing.T) {
 		vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 		require.NoError(t, err)
 
-		s := New("/etc/supervisord.d", &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}})
+		s := New("/srv/supervisord.d", &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}})
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())
@@ -44,7 +44,7 @@ func TestDevContainer(t *testing.T) {
 
 		// restore original files after test
 		originals := make(map[string][]byte)
-		matches, err := filepath.Glob("/etc/supervisord.d/*.ini")
+		matches, err := filepath.Glob("/srv/supervisord.d/*.ini")
 		require.NoError(t, err)
 		for _, m := range matches {
 			b, err := os.ReadFile(m) //nolint:gosec

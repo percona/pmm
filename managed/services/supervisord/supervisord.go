@@ -81,7 +81,7 @@ type sub struct {
 
 // values from supervisord configuration.
 const (
-	pmmConfig = "/etc/supervisord.d/pmm.ini"
+	pmmConfig = "/srv/supervisord.d/pmm.ini"
 )
 
 // New creates new service.
@@ -485,7 +485,7 @@ var templates = template.Must(template.New("").Option("missingkey=error").Parse(
 priority = 7
 command =
 	/usr/sbin/victoriametrics
-		--promscrape.config=/etc/victoriametrics-promscrape.yml
+		--promscrape.config=/srv/victoriametrics/promscrape.yml
 		--retentionPeriod={{ .DataRetentionDays }}d
 		--storageDataPath=/srv/victoriametrics/data
 		--httpListenAddr={{ .InterfaceToBind }}:9090
@@ -501,7 +501,6 @@ command =
 		--http.pathPrefix=/prometheus
 		--envflag.enable
 		--envflag.prefix=VM_
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -530,7 +529,6 @@ command =
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}
 {{- end }}
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -552,7 +550,6 @@ command =
       --listen-port=8430
       --listen-address={{ .InterfaceToBind }}
       --header-name=X-Proxy-Filter
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -576,7 +573,6 @@ environment =
 	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
 
 
-user = pmm
 autorestart = true
 autostart = true
 startretries = 1000
@@ -631,7 +627,6 @@ environment =
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_PEERS="{{ .HANodes }}"
     {{- end}}
-user = pmm
 directory = /usr/share/grafana
 autorestart = true
 autostart = true

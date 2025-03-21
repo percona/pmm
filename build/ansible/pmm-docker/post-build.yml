@@ -8,16 +8,6 @@
     pmm_server_distribution: "docker"
 
   tasks:
-    # pmm-managed checks that if /srv/pmm-distribution exists, it contains "docker", "ovf", "ami" or "digitalocean" - all lowercase.
-    # TODO: refactor the build pipelines to call post-build.yml with the distribution name provided in the variable (above).
-    # https://jira.percona.com/browse/PMM-4991
-    - name: Create a distribution file for Docker
-      copy:
-        content: "{{ pmm_server_distribution}}"
-        dest: /srv/pmm-distribution
-        owner: pmm
-        group: pmm
-
     - name: Set up pmm-agent
       command: >
         pmm-agent setup
@@ -26,24 +16,6 @@
         --id=pmm-server
         --server-address=127.0.0.1:8443
         --server-insecure-tls
-
-    - name: Remove pmm-managed database from PostgreSQL
-      postgresql_db:
-        login_user: postgres
-        name: pmm-managed
-        force: true
-        state: absent
-
-    - name: Remove pmm-managed role from PostgreSQL database
-      postgresql_user:
-        name: pmm-managed
-        state: absent
-
-    - name: Stop supervisord service
-      command: supervisorctl shutdown
-      become: true
-      become_user: pmm
-      become_method: su
 
     - name: Cleanup dnf cache
       command: dnf clean all
@@ -81,37 +53,3 @@
 
     - name: Clean Clickhouse dir
       shell: find /srv/clickhouse -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
-
-    # This step is required because of a change between VictoriaMetrics 1.77.1 and 1.82.1.
-    # VictoriaMetrics tries to atomically rename directories in this folder on startup.
-    # With RedHat-based docker images the rename fails with an error "Invalid cross-device link".
-    # This is due to the way OverlayFS and kernel works. More info https://github.com/moby/moby/issues/25409
-    # This step ensures the directory is empty on startup and the contents are recreated.
-    # This is not an issue if the folder is in a volume or mounted from the host OS.
-    - name: Recreate '/srv/victoriametrics' directory
-      file:
-        state: "{{ item }}"
-        path: /srv/victoriametrics
-        owner: pmm
-        group: pmm
-        mode: 0775
-      loop:
-        - absent
-        - directory
-
-    - name: Create '/srv/logs' directory
-      file:
-        path: /srv/logs
-        state: directory
-        owner: pmm
-        group: pmm
-        mode: 0775
-
-    # nginx needs to be able to write to /var/lib/nginx, but it's owned by root.
-    - name: Change ownership of nginx dirs
-      file:
-        path: /var/lib/nginx
-        state: directory
-        group: pmm
-        owner: pmm
-        recurse: yes
