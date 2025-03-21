@@ -34,11 +34,13 @@ type postgresqlQueryShowAction struct {
 	id      string
 	timeout time.Duration
 	dsn     string
+	tmpDir  string
 }
 
 // NewPostgreSQLQueryShowAction creates PostgreSQL SHOW query Action.
 func NewPostgreSQLQueryShowAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_PostgreSQLQueryShowParams, tempDir string) (Action, error) {
-	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLQueryShowActionType, id))
+	tmpDir := filepath.Join(tempDir, postgreSQLQueryShowActionType, id)
+	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, tmpDir)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -47,6 +49,7 @@ func NewPostgreSQLQueryShowAction(id string, timeout time.Duration, params *agen
 		id:      id,
 		timeout: timeout,
 		dsn:     dsn,
+		tmpDir:  tmpDir,
 	}, nil
 }
 
@@ -72,6 +75,8 @@ func (a *postgresqlQueryShowAction) DSN() string {
 
 // Run runs an Action and returns output and error.
 func (a *postgresqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
+	defer templates.CleanupTempDir(a.tmpDir, nil)
+
 	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)

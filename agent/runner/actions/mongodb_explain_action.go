@@ -37,6 +37,7 @@ type mongodbExplainAction struct {
 	timeout time.Duration
 	params  *agentv1.StartActionRequest_MongoDBExplainParams
 	dsn     string
+	tmpDir  string
 }
 
 type explain struct {
@@ -52,7 +53,8 @@ var errCannotExplain = fmt.Errorf("cannot explain this type of query")
 
 // NewMongoDBExplainAction creates a MongoDB EXPLAIN query Action.
 func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MongoDBExplainParams, tempDir string) (Action, error) {
-	dsn, err := templates.RenderDSN(params.Dsn, params.TextFiles, filepath.Join(tempDir, mongoDBExplainActionType, id))
+	tmpDir := filepath.Join(tempDir, mongoDBExplainActionType, id)
+	dsn, err := templates.RenderDSN(params.Dsn, params.TextFiles, tmpDir)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -62,6 +64,7 @@ func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentv1.S
 		timeout: timeout,
 		params:  params,
 		dsn:     dsn,
+		tmpDir:  tmpDir,
 	}, nil
 }
 
@@ -87,6 +90,8 @@ func (a *mongodbExplainAction) DSN() string {
 
 // Run runs an action and returns output and error.
 func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
+	defer templates.CleanupTempDir(a.tmpDir, nil)
+
 	opts, err := mongo_fix.ClientOptionsForDSN(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)

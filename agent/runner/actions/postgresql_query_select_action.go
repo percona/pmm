@@ -36,6 +36,7 @@ type postgresqlQuerySelectAction struct {
 	timeout time.Duration
 	params  *agentv1.StartActionRequest_PostgreSQLQuerySelectParams
 	dsn     string
+	tmpDir  string
 }
 
 // NewPostgreSQLQuerySelectAction creates PostgreSQL SELECT query Action.
@@ -50,7 +51,8 @@ func NewPostgreSQLQuerySelectAction(id string, timeout time.Duration, params *ag
 		return nil, errors.New("query contains ';'")
 	}
 
-	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLQuerySelectActionType, id))
+	tmpDir := filepath.Join(tempDir, postgreSQLQuerySelectActionType, id)
+	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, tmpDir)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -60,6 +62,7 @@ func NewPostgreSQLQuerySelectAction(id string, timeout time.Duration, params *ag
 		timeout: timeout,
 		params:  params,
 		dsn:     dsn,
+		tmpDir:  tmpDir,
 	}, nil
 }
 
@@ -85,6 +88,8 @@ func (a *postgresqlQuerySelectAction) DSN() string {
 
 // Run runs an Action and returns output and error.
 func (a *postgresqlQuerySelectAction) Run(ctx context.Context) ([]byte, error) {
+	defer templates.CleanupTempDir(a.tmpDir, nil)
+
 	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)

@@ -69,6 +69,7 @@ type postgresqlShowCreateTableAction struct {
 	timeout time.Duration
 	params  *agentv1.StartActionRequest_PostgreSQLShowCreateTableParams
 	dsn     string
+	tmpDir  string
 }
 
 // NewPostgreSQLShowCreateTableAction creates PostgreSQL SHOW CREATE TABLE Action.
@@ -79,7 +80,8 @@ func NewPostgreSQLShowCreateTableAction(
 	params *agentv1.StartActionRequest_PostgreSQLShowCreateTableParams,
 	tempDir string,
 ) (Action, error) {
-	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLShowCreateTableActionType, id))
+	tmpDir := filepath.Join(tempDir, postgreSQLShowCreateTableActionType, id)
+	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, tmpDir)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -89,6 +91,7 @@ func NewPostgreSQLShowCreateTableAction(
 		timeout: timeout,
 		params:  params,
 		dsn:     dsn,
+		tmpDir:  tmpDir,
 	}, nil
 }
 
@@ -114,6 +117,8 @@ func (a *postgresqlShowCreateTableAction) DSN() string {
 
 // Run runs an Action and returns output and error.
 func (a *postgresqlShowCreateTableAction) Run(ctx context.Context) ([]byte, error) {
+	defer templates.CleanupTempDir(a.tmpDir, nil)
+
 	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
