@@ -19,6 +19,13 @@ if [ ! -f $DIST_FILE ]; then
     echo "Copying grafana plugins and the VERSION file..."
     mkdir -p /srv/grafana/plugins
     cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
+
+    mkdir -p /srv/nginx/client_body_temp
+    mkdir -p /srv/nginx/proxy_temp
+    mkdir -p /srv/nginx/fastcgi_temp
+    mkdir -p /srv/nginx/uwsgi_temp
+    mkdir -p /srv/nginx/scgi_temp
+    chmod 700 /srv/nginx/client_body_temp /srv/nginx/proxy_temp /srv/nginx/fastcgi_temp /srv/nginx/uwsgi_temp /srv/nginx/scgi_temp
     
     echo "Generating self-signed certificates for nginx..."
     bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
