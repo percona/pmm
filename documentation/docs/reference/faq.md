@@ -29,6 +29,14 @@ Quick reference for typical deployment (up to 30 nodes):
 
 PMM 3 introduces significant architectural changes that require gradual transition from PMM 2. For detailed instructions, see [Upgrade from PMM2](../pmm-upgrade/migrating_from_pmm_2.md).
 
+
+## Why does the PMM installation script fail during Docker installation?
+If you encounter errors such as `ERROR: Unsupported distribution` when running the, follow these steps:
+{.power-number}
+
+1. [Install Docker manually](https://docs.docker.com/engine/install/).
+2. Run the [PMM Easy-install script](../install-pmm/install-pmm-server/deployment-options/docker/easy-install.md) again.
+
 ## Retention
 
 To control data retention, go to **PMM Configuration > Settings > Advanced Settings > Data retention** to adjust the value in days.
