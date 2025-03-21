@@ -259,7 +259,7 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
 
 1. Check service registration:
 
-    === "From the user interface"
+    === "Via UI"
         To check the service from the UI:
         {.power-number}
 
@@ -268,7 +268,7 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
         3. Verify the **Service name**, **Addresses**, and other connection details are correct.
         4. In the **Options** column, expand the **Details** section to check that agents are properly connected.
 
-    === "On the command line"
+    === "Via CLI
         Look for your service in the output of this command:
 
         ```sh
