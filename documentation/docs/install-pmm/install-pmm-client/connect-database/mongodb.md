@@ -261,14 +261,13 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
 
     === "Via UI"
         To check the service from the UI:
-        {.power-number}
 
-        1. Select **PMM Configuration > Inventory > Services**. 
-        2. Find your MongoDB service in the list and verify it shows "Active" status.
-        3. Verify the **Service name**, **Addresses**, and other connection details are correct.
-        4. In the **Options** column, expand the **Details** section to check that agents are properly connected.
+        - Select **PMM Configuration > Inventory > Services**. 
+        - Find your MongoDB service in the list and verify it shows "Active" status.
+        - Verify the **Service name**, **Addresses**, and other connection details are correct.
+        - In the **Options** column, expand the **Details** section to check that agents are properly connected.
 
-    === "Via CLI
+    === "Via CLI"
         Look for your service in the output of this command:
 
         ```sh
@@ -276,17 +275,15 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
         ```
 
 2. Verify data collection:
-    {.power-number}
 
-    1. Open the **MongoDB Instances Overview** dashboard.
-    2. Set the **Service Name** to the newly-added service.
-    3. Confirm that metrics are being displayed in the dashboard.
+    - Open the **MongoDB Instances Overview** dashboard.
+    - Set the **Service Name** to the newly-added service.
+    - Confirm that metrics are being displayed in the dashboard.
 
 3. Verify Query Analytics for the service:
-    {.power-number}
 
-    1. Open **PMM Query Analytics** dashboard and use the filters to select your MongoDB service. 
-    2. Check that query data is visible (it may take a few minutes for data to appear after initial setup).
+    - Open **PMM Query Analytics** dashboard and use the filters to select your MongoDB service. 
+    - Check that query data is visible (it may take a few minutes for data to appear after initial setup).
 
 ## Remove MongoDB Service
 
