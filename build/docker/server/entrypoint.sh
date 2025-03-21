@@ -13,6 +13,11 @@ fi
 # Initialize /srv if empty
 DIST_FILE=/srv/pmm-distribution
 if [ ! -f $DIST_FILE ]; then
+    if ! whoami &> /dev/null; then
+      if [ -w /etc/passwd ]; then
+        echo "${USER_NAME:-default}:x:$(id -u):0:${USER_NAME:-default} user:${HOME}:/sbin/nologin" >> /etc/passwd
+      fi
+    fi
     echo $PMM_DISTRIBUTION_METHOD > $DIST_FILE
     echo "Initializing /srv..."
     mkdir -p /srv/{backup,clickhouse,grafana,logs,nginx,postgres14,prometheus,victoriametrics,supervisord.d}
@@ -27,6 +32,7 @@ if [ ! -f $DIST_FILE ]; then
     bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
     
     echo "Initializing Postgres..."
+    chmod 700 /srv/postgres14
     /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust --username=postgres
     
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
