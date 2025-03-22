@@ -4,6 +4,7 @@ dirs:
 ignorePatterns:
   - pattern: "^https://www.reddit.com/r/VictoriaMetrics/"
   - pattern: "^https://linux.die.net/man/8/logrotate"
+  - pattern: "^https://pmmdemo.percona.com"
   - pattern: "#os_alerts$"
   - pattern: "#pmm_alerts$"
   - pattern: "#mongodb_alerts$"
