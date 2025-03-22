@@ -86,7 +86,7 @@ func mysqldExporterConfig(
 		args = append(args, "--collect.plugins")
 	}
 
-	if !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8_4) {
+	if !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 		args = append(args, "--exporter.global-conn-pool")
 	}
 
@@ -115,7 +115,7 @@ func mysqldExporterConfig(
 	}
 
 	textFiles := exporter.Files()
-	if textFiles != nil && !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8_4) {
+	if textFiles != nil && !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 		for k := range textFiles {
 			switch k {
 			case "tlsCa":
@@ -131,7 +131,7 @@ func mysqldExporterConfig(
 	}
 
 	if exporter.TLSSkipVerify {
-		if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8_4) {
+		if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 			args = append(args, "--tls.insecure-skip-verify")
 		} else {
 			args = append(args, "--mysql.ssl-skip-verify")
@@ -150,7 +150,7 @@ func mysqldExporterConfig(
 		TextFiles:          textFiles,
 	}
 
-	if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterMySQL8_4) {
+	if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 		if textFiles == nil {
 			textFiles = make(map[string]string)
 		}
@@ -163,7 +163,7 @@ func mysqldExporterConfig(
 		res.TextFiles["myCnf"] = cfg
 		res.Args = append(res.Args, "--config.my-cnf="+tdp.Left+" .TextFiles.myCnf "+tdp.Right)
 
-		if err := ensureAuthParams(exporter, res, pmmAgentVersion, version.MysqlExporterMySQL8_4, true); err != nil {
+		if err := ensureAuthParams(exporter, res, pmmAgentVersion, version.MysqlExporterV0_17_2, true); err != nil {
 			return nil, err
 		}
 	} else {
