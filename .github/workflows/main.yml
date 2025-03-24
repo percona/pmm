@@ -102,7 +102,7 @@ jobs:
           echo "$out" | bin/reviewdog -f=buf -reporter=github-pr-review -fail-level=error
 
       - name: Run code linters
-        uses: reviewdog/action-golangci-lint@dd3fda91790ca90e75049e5c767509dc0ec7d99b # v2.7.0
+        uses: reviewdog/action-golangci-lint@64c149605d92715a545b1d80908eff8cecec21b1 # v2.7.1
         with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version_file: ${{ github.workspace }}/go.mod
