@@ -4,14 +4,15 @@
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",
     "dev": "webpack -w -c ./webpack.config.ts --env development",
-    "test": "jest --watch --onlyChanged",
-    "test:ci": "jest --passWithNoTests --maxWorkers 4",
+    "test:watch": "jest --watch --onlyChanged",
+    "test": "jest --passWithNoTests --maxWorkers 4",
     "typecheck": "tsc --noEmit",
     "lint": "eslint --cache --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx .",
-    "lint:fix": "pnpm run lint --fix && prettier --write --list-different .",
+    "lint:fix": "yarn run lint --fix && prettier --write --list-different .",
     "e2e": "playwright test",
     "server": "docker compose up --build",
-    "sign": "npx --yes @grafana/sign-plugin@latest"
+    "sign": "npx --yes @grafana/sign-plugin@latest",
+    "clean": "rm -rf dist"
   },
   "author": "PMM",
   "license": "",
@@ -63,7 +64,7 @@
     "webpack-virtual-modules": "^0.6.2"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=18"
   },
   "dependencies": {
     "@emotion/css": "11.10.6",
@@ -71,11 +72,10 @@
     "@grafana/runtime": "^11.5.2",
     "@grafana/schema": "^11.5.2",
     "@grafana/ui": "^11.5.2",
-    "@pmm/shared": "workspace:*",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "@pmm/shared": "*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-router-dom": "^6.22.0",
     "rxjs": "7.8.1"
-  },
-  "packageManager": "pnpm@9.0.0"
+  }
 }

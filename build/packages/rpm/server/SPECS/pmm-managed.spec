@@ -50,6 +50,7 @@ install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_datadir}/%{name}
 install -d -p %{buildroot}%{_datadir}/pmm-ui
+install -d -p %{buildroot}%{_datadir}/pmm-compat
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation %{buildroot}%{_sbindir}/pmm-encryption-rotation
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
@@ -57,7 +58,8 @@ install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-
 
 cd src/github.com/percona/pmm
 cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
-cp -pa ./ui/dist/. %{buildroot}%{_datadir}/pmm-ui
+cp -pa ./ui/apps/pmm/dist/. %{buildroot}%{_datadir}/pmm-ui
+cp -pa ./ui/apps/pmm-compat/dist/. %{buildroot}%{_datadir}/percona-dashboards/panels/pmm-compat
 
 %files
 %license src/%{provider}/LICENSE
@@ -68,6 +70,7 @@ cp -pa ./ui/dist/. %{buildroot}%{_datadir}/pmm-ui
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
 %{_datadir}/pmm-ui
+%{_datadir}/percona-dashboards/panels/pmm-compat
 
 %changelog
 * Mon Sep 23 2024 Jiri Ctvrtka <jiri.ctvrtka@ext.percona.com> - 3.0.0-1

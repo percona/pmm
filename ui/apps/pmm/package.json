@@ -10,10 +10,11 @@
     "format": "prettier .  --write",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@pmm/shared": "workspace:*",
+    "@pmm/shared": "*",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@fontsource/poppins": "^5.0.15",

@@ -4,8 +4,9 @@
   "description": "",
   "scripts": {
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --fix",
+    "test": "",
     "format": "prettier .  --write",
-    "rm-build-dir": "rm -rf dist",
+    "clean": "rm -rf ./dist",
     "build": "rollup -c"
   },
   "private": "true",
@@ -25,6 +26,7 @@
   "prettier": "@percona/prettier-config",
   "dependencies": {},
   "devDependencies": {
+    "eslint": "^8.57.0",
     "@percona/eslint-config-react": "^1.0.0",
     "@percona/prettier-config": "^1.0.0",
     "@percona/tsconfig": "^1.0.0",

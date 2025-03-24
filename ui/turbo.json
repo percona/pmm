@@ -6,6 +6,9 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "test": {
+      "dependsOn": ["^test"]
+    },
     "lint": {
       "dependsOn": ["^lint"]
     },
@@ -18,6 +21,9 @@
     },
     "format": {
       "dependsOn": ["^format"]
+    },
+    "clean": {
+      "dependsOn": ["^clean"]
     }
   }
 }
