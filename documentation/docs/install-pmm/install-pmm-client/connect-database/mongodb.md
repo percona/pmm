@@ -74,7 +74,7 @@ Create or update a user with the minimum required privileges for monitoring by a
     ```{.javascript data-prompt=">"}
     db.getSiblingDB("admin").createUser({
         "user": "pmm",
-        "pwd": "pmm",  // Replace with a secure password
+        "pwd": "<SECURE_PASSWORD>",  // Replace with a secure password
         "roles": [
             { "db": "admin", "role": "explainRole" },
             { "db": "local", "role": "read" },
