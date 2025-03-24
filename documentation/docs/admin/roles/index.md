@@ -18,6 +18,11 @@ PMM inherits its basic role structure from [Grafana](https://grafana.com/docs/gr
 
 When a user signs in to PMM for the first time and has no role assigned, they are automatically assigned the default role. Administrators can configure which role is used as the default through the access control settings.
 
+If an Admin has not configured a custom default role, PMM assigns:
+
+- Grafana role: Viewer
+- PMM access control: Full Access to all metrics
+
 ## Dashboard permissions
 
 Dashboard creators in PMM automatically get Admin permissions for the dashboards they create. Folder permissions cascade to all dashboards within that folder.
