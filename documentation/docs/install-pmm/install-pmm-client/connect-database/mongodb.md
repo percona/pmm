@@ -29,7 +29,7 @@ Run the example commands below in a mongo shell session to:
 
         ```javascript
         db.getSiblingDB("admin").createRole({
-        "role": "explainRole",
+        "role": "pmmMonitor",
         "privileges": [
             {
                 "resource": { "db": "", "collection": "" },
@@ -46,7 +46,7 @@ Run the example commands below in a mongo shell session to:
         ],
         "roles": [ ]
         })
-        ```    
+        ```
         
 === "Full backup management privileges"
     This role provides the necessary privileges for using PMM's backup management features. It is required only if you plan to use this feature:
@@ -76,7 +76,7 @@ Create or update a user with the minimum required privileges for monitoring by a
         "user": "pmm",
         "pwd": "<SECURE_PASSWORD>",  // Replace with a secure password
         "roles": [
-            { "db": "admin", "role": "explainRole" },
+            { "db": "admin", "role": "pmmMonitor" },
             { "db": "local", "role": "read" },
             { "db": "admin", "role": "clusterMonitor" },
             { "db": "admin", "role": "directShardOperations" }
@@ -91,7 +91,7 @@ Create or update a user with the minimum required privileges for monitoring by a
         "user": "pmm",
         "pwd": "<SECURE_PASSWORD>",  // Replace with a secure password
         "roles": [
-            { "db" : "admin", "role": "explainRole" },
+            { "db" : "admin", "role": "pmmMonitor" },
             { "db" : "local", "role": "read" },
             { "db" : "admin", "role" : "readWrite", "collection": "" },
             { "db" : "admin", "role" : "backup" },
@@ -110,7 +110,7 @@ Create or update a user with the minimum required privileges for monitoring by a
         "user": "pmm",
         "pwd": "pmm",
         "roles": [
-            { "db": "admin", "role": "explainRole" },
+            { "db": "admin", "role": "pmmMonitor" },
             { "db": "local", "role": "read" },
             { "db": "admin", "role": "clusterMonitor" }
         ]
@@ -123,7 +123,7 @@ Create or update a user with the minimum required privileges for monitoring by a
         "user": "pmm",
         "pwd": "pmm",
         "roles": [
-            { "db" : "admin", "role": "explainRole" },
+            { "db" : "admin", "role": "pmmMonitor" },
             { "db" : "local", "role": "read" },
             { "db" : "admin", "role" : "readWrite", "collection": "" },
             { "db" : "admin", "role" : "backup" },
