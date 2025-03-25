@@ -92,7 +92,7 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
             docker pull percona/pmm-server:3
             ```
 
-        6. Run new new version of PMM Server with the existing volume:
+        6. Run the new version of PMM Server with the existing volume:
        
             ```sh
             docker run -d -v pmm-server-data:/srv -p 443:8443 --name pmm-server --restart always percona/pmm-server:3
@@ -285,27 +285,24 @@ For detailed instructions, see the [Upgrade PMM Client topic](../pmm-upgrade/upg
 PMM 3 replaces API keys with service accounts to enhance security and simplify access management. You can trigger this API key conversion from the UI or from the CLI.
 
 === "From CLI"
-You can also initiate the conversion using the following command. 
-Be sure to replace `admin:admin` with your credentials and update the server address (`localhost` or `127.0.0.1`) and port number (`3000`) if they differ from the defaults:
-	
-```sh
-curl -X POST http://localhost:3000/api/serviceaccounts/migrate \
--u admin:admin \
--H "Content-Type: application/json"
-```
-	
-The response will display the migration details:
-
-!!! example "Expected output"
-
-	```
-	{"total":3,"migrated":3,"failed":0,"failedApikeyIDs":[],"failedDetails":[]}
-	```    
+    You can also initiate the conversion using the following command. 
+    Be sure to replace `admin:admin` with your credentials and update the server address (`localhost` or `127.0.0.1`) and port number (`3000`) if they differ from the defaults:
+    
+    ```sh
+    curl -X POST http://localhost:3000/api/serviceaccounts/migrate \
+    -u admin:admin \
+    -H "Content-Type: application/json"
+    ```
+    
+    The response will display the migration details:
+    !!! example "Expected output"
+        ```
+        {"total":3,"migrated":3,"failed":0,"failedApikeyIDs":[],"failedDetails":[]}
+        ```    
  
 === "From the UI"
-PMM automatically migrates existing API keys to service accounts when you first log in as an Admin user. The migration results are displayed in a popup dialog box. 
-
-If no popup appears, it likely means there are no API keys to migrate—this is typical for PMM Servers without connected services.
+    PMM automatically migrates existing API keys to service accounts when you first log in as an Admin user. The migration results are displayed in a popup dialog box.
+    If no popup appears, it likely means there are no API keys to migrate—this is typical for PMM Servers without connected services.
 
 ### Verify the conversion
 	
