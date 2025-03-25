@@ -18,7 +18,7 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
 ## Step 2: Migrate PMM 2 Server to PMM 3
 
 === "Automated Docker migration (Recommended)"
-    Use this upgrade script for a simplified migration process:
+    Use this upgrade script for a simplified migration process.
     { .power-number}
 
     1. Download and prepare the automated migration script:   
