@@ -1,3 +1,4 @@
+export const PMM_NEW_NAV_PATH = '/with-nav';
 export const PMM_HOME_URL = '/graph/d/pmm-home';
 export const PMM_LOGIN_URL = '/graph/login';
 export const PMM_SETTINGS_URL = '/graph/settings/advanced-settings';
