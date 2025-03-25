@@ -287,12 +287,11 @@ PMM 3 replaces API keys with service accounts to enhance security and simplify a
 === "From CLI"
 You can also initiate the conversion using the following command. 
 Be sure to replace `admin:admin` with your credentials and update the server address (`localhost` or `127.0.0.1`) and port number (`3000`) if they differ from the defaults:
-
 	
 ```sh
 curl -X POST http://localhost:3000/api/serviceaccounts/migrate \
 -u admin:admin \
--H "Content-Type: application/json
+-H "Content-Type: application/json"
 ```
 	
 The response will display the migration details:
@@ -302,13 +301,12 @@ The response will display the migration details:
 	```
 	{"total":3,"migrated":3,"failed":0,"failedApikeyIDs":[],"failedDetails":[]}
 	```    
-
+ 
 === "From the UI"
 PMM automatically migrates existing API keys to service accounts when you first log in as an Admin user. The migration results are displayed in a popup dialog box. 
 
 If no popup appears, it likely means there are no API keys to migrate—this is typical for PMM Servers without connected services.
 
-  
 ### Verify the conversion
 	
 To verify that API keys were successfully migrated, go to **Administration > Users and Access > Service Accounts**, where you can check the list of service accounts available and confirm that the **API Keys** menu is no longer displayed.
