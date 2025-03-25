@@ -26,31 +26,29 @@ Run the example commands below in a mongo shell session to:
 
 === "Monitoring and QAN privileges"
     This role grants the essential minimum privileges needed for monitoring and QAN:
-
-        ```javascript
-        db.getSiblingDB("admin").createRole({
-        "role": "pmmMonitor",
-        "privileges": [
-            {
-                "resource": { "db": "", "collection": "" },
-                "actions": [ "dbHash", "find", "listIndexes", "listCollections", "collStats", "dbStats", "indexStats" ]
-            },
-            {
-                "resource": { "db": "", "collection": "system.version" },
-                "actions": [ "find" ]
-            },
-            {
-                "resource": { "db": "", "collection": "system.profile" },
-                "actions": [ "dbStats", "collStats", "indexStats" ]
-            }         
-        ],
-        "roles": [ ]
-        })
-        ```
+    ```javascript
+    db.getSiblingDB("admin").createRole({
+    "role": "pmmMonitor",
+    "privileges": [
+        {
+        "resource": { "db": "", "collection": "" },
+        "actions": [ "dbHash", "find", "listIndexes", "listCollections", "collStats", "dbStats", "indexStats" ]
+        },
+        {
+        "resource": { "db": "", "collection": "system.version" },
+        "actions": [ "find" ]
+        },
+        {
+        "resource": { "db": "", "collection": "system.profile" },
+        "actions": [ "dbStats", "collStats", "indexStats" ]
+        }         
+    ],
+    "roles": [ ]
+    })
+    ```
         
 === "Full backup management privileges"
     This role provides the necessary privileges for using PMM's backup management features. It is required only if you plan to use this feature:
-
         ```javascript
         db.getSiblingDB("admin").createRole({
             "role": "pbmAnyAction",
@@ -198,7 +196,7 @@ After configuring your database server, add a MongoDB service using either the u
 !!! caution alert alert-warning "Important"
     To monitor MongoDB sharded clusters, PMM requires access to all cluster components. Make sure to add all config servers, shards, and at least one mongos router. Otherwise, PMM will not be able to correctly collect metrics and populate dashboards.
 
-=== "Add service via CLI"
+=== "Via CLI"
 
     Use `pmm-admin` to add the database server as a service using one of these example commands:
 
@@ -238,7 +236,7 @@ After configuring your database server, add a MongoDB service using either the u
         - You can also use the `--replication-set` option to specify a replication set. For instance, you can use `--replication-set config` for your config servers; `--replication-set rs1` for your servers in the first replica set, `--replication-set rs2` for your servers in the second replica set, and so on.
         - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
 
-=== "Add service via UI"
+=== "Via UI"
 
     To add a service with the UI:
     {.power-number}
@@ -266,7 +264,7 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
         pmm-admin list
         ```
 
-        === "Via UI"
+    === "Via UI"
         To check the service from the UI:
 
         - Select **PMM Configuration > Inventory > Services**. 
