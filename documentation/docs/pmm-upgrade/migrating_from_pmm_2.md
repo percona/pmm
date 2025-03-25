@@ -286,10 +286,10 @@ PMM 3 replaces API keys with service accounts to enhance security and simplify a
 
 === "From CLI"
     You can also initiate the conversion using the following command. 
-    Be sure to replace `admin:admin` with your credentials and update the server address (`localhost` or `127.0.0.1`) and port number (`3000`) if they differ from the defaults:
-    
+    Be sure to replace `admin:admin` with your credentials and update the server address to match your PMM Server address (the same URL you use to access the PMM web interface):
+
     ```sh
-    curl -X POST -k https://localhost/graph/api/serviceaccounts/migrate \
+    curl -X POST -k https://YOUR PMM SERVER ADDRESS/graph/api/serviceaccounts/migrate \
     -u admin:admin \
     -H "Content-Type: application/json"
     ```
