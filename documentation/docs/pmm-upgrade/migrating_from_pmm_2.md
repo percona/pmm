@@ -21,22 +21,22 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
     Use this upgrade script for a simplified migration process:
     { .power-number}
 
-    1. Download and prepare the migration script:
-        ```sh
-        # Download the automated migration script
+    1. Download and prepare the automated migration script:   
+	```sh
         curl -fsSL https://raw.githubusercontent.com/percona/pmm/main/get-pmm.sh -o get-pmm.sh
-     
-        # Make the script executable
+	```
+    2. Make the script executable: 
+        ```sh
         chmod +x get-pmm.sh
         ```
-    2. Run the migration script with the `-b` flag to create a backup of your PMM2 instance before the migration:
+    3. Run the migration script with the `-b` flag to create a backup of your PMM2 instance before the migration:
 
         ```sh
         ./get-pmm.sh -n <container-name> -b
         ```
-    3. Note the backup volume name displayed during the migration (e.g., `pmm-data-2025-01-16-165135`) so that you can restore this backup if needed.
+    4. Note the backup volume name displayed during the migration (e.g., `pmm-data-2025-01-16-165135`) so that you can restore this backup if needed.
 
-    4. Check additional script options:
+    5. Check additional script options:
         ```sh
         ./get-pmm.sh -h
         ```
