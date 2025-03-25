@@ -1,19 +1,19 @@
 # Migrate PMM 2 to PMM 3
 
-PMM 3 introduces significant architectural changes that require gradual transition from PMM 2.
+PMM 3 introduces significant architectural changes that require a gradual transition from PMM 2.
 
-You can migrate to PMM 3 either automatically using the automated migration script (recommended), or manually by following step-by-step instructions.
+You can migrate to PMM 3 either automatically using the automated migration script (recommended) or manually by following step-by-step instructions.
 
-To graduallly migrate to PMM 3:
+To gradually migrate to PMM 3:
 
 ## Step 1: Upgrade PMM 2 Server to the latest version
 
 Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest version:
 {.power-number}
 
-1. From the **Home** page, scroll to the **PMM Upgrade** panel and click the Refresh button to manually check for updates.
+1. From the **Home** page, scroll to the **PMM Upgrade** panel and click the Refresh button to check for updates manually.
 2. If an update is available, click the **Update** button to install the latest PMM 2 version.
-3. Verify the update was successful by checking the version number after the update completes.
+3. Verify that the update was successful by checking the version number after the update completes.
 
 ## Step 2: Migrate PMM 2 Server to PMM 3
 
@@ -21,14 +21,25 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
     Use this upgrade script for a simplified migration process:
     { .power-number}
 
-    1. Download and run the [automated migration script](https://www.percona.com/get/pmm) to start the migration. The `-b` flag creates a backup of your PMM2 instance to ensure that your data is backed up before the migration.
+    1. Download and prepare the migration script:
+    
+    ```sh
+    # Download the automated migration script
+    curl -fsSL https://raw.githubusercontent.com/percona/pmm/main/get-pmm.sh -o get-pmm.sh
+    
+    # Make the script executable
+    chmod +x get-pmm.sh
+    ```
 
-        ```sh
-        ./get-pmm.sh -n <container-name> -b
+    2. ✅ Run the migration script with the `-b` flag to create a backup of your PMM2 instance before the migration:
+
+    ```sh
+    ./get-pmm.sh -n <container-name> -b
+    ```
         ```
-    2. Note the backup volume name displayed during the migration (e.g., `pmm-data-2025-01-16-165135`) so that you can restore this backup if needed.
+    3. Note the backup volume name displayed during the migration (e.g., `pmm-data-2025-01-16-165135`) so that you can restore this backup if needed.
 
-    3. Check additional script options:
+    4. Check additional script options:
         ```sh
         ./get-pmm.sh -h
         ```
@@ -275,13 +286,8 @@ For detailed instructions, see the [Upgrade PMM Client topic](../pmm-upgrade/upg
 ## Step 4: Migrate your API keys to service accounts
 
 PMM 3 replaces API keys with service accounts to enhance security and simplify access management. You can trigger this API key conversion from the UI or from the CLI.
-	
-### From the UI
-PMM automatically migrates existing API keys to service accounts when you first log in as an Admin user. The migration results are displayed in a popup dialog box. 
 
-If no popup appears, it likely means there are no API keys to migrate—this is typical for PMM Servers without connected services.
-	
-### From CLI
+=== "From CLI"
 You can also initiate the conversion using the following command. 
 Be sure to replace `admin:admin` with your credentials and update the server address (`localhost` or `127.0.0.1`) and port number (`3000`) if they differ from the defaults:
 
@@ -299,10 +305,16 @@ The response will display the migration details:
 	```
 	{"total":3,"migrated":3,"failed":0,"failedApikeyIDs":[],"failedDetails":[]}
 	```    
-	
+
+=== "From the UI"
+PMM automatically migrates existing API keys to service accounts when you first log in as an Admin user. The migration results are displayed in a popup dialog box. 
+
+If no popup appears, it likely means there are no API keys to migrate—this is typical for PMM Servers without connected services.
+
+  
 ### Verify the conversion
 	
-To verify the that API keys were successfully migrated, go to **Administration > Users and Access > Service Accounts** where you can check the list of service accounts available and confirm that the **API Keys** menu is no longer displayed.
+To verify that API keys were successfully migrated, go to **Administration > Users and Access > Service Accounts**, where you can check the list of service accounts available and confirm that the **API Keys** menu is no longer displayed.
 
 If any API keys fail to migrate, you can either: 
 
@@ -339,7 +351,7 @@ When migrating from PMM v2 to PMM v3, you'll need to update your environment var
 
 #### Migration reference table
 
-The following table lists all the environment variable changes between PMM v2 and PMM v3. Make sure to review this table when updating your deployment configurations.
+The following table lists all the environment variable changes between PMM v2 and PMM v3. Review this table when updating your deployment configurations.
 
 ??? note "Click to expand migration reference table"
 
