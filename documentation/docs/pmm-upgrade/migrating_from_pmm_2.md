@@ -23,7 +23,7 @@ Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest 
     
     1. Download and prepare the automated migration script:   
 	```sh
-	curl -fsSL https://raw.githubusercontent.com/percona/pmm/main/get-pmm.sh -o get-pmm.sh
+	curl -o get-pmm.sh https://www.percona.com/get/pmm
 	```
     2. Make the script executable: 
         ```sh
