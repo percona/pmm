@@ -286,6 +286,7 @@ PMM 3 replaces API keys with service accounts to enhance security and simplify a
 
 === "From CLI"
     You can also initiate the conversion using the following command. 
+    
     Be sure to replace `admin:admin` with your credentials and update the server address to match your PMM Server address (the same URL you use to access the PMM web interface):
 
     ```sh
