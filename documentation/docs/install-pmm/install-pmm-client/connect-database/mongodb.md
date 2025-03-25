@@ -143,18 +143,16 @@ Choose one of the following methods to enable profiling:
     {.power-number}
     
     1. Edit the configuration file (usually `/etc/mongod.conf`).
-
-    2. Create or add this to the `operationProfiling` section. ([Read more][MONGODB_CONFIG_OP_PROF].)
-
+    2. Add or modify the `operationProfiling` section in the configuration file. Pay close attention to indentation as YAML is whitespace-sensitive:
+    
         ```yml
         operationProfiling:
-          mode: all # Collects data for all operations
-          slowOpThresholdMs: 200 # Operations taking longer than 200ms are considered "slow".
-          rateLimit: 100 # (Percona Server for MongoDB only). A value of 100 means only 1 out of every 100 operations will be profiled. Lower values increase profiling accuracy but also increase server load. Higher values reduce load but capture fewer operations. [Learn more about rate limiting](https://docs.percona.com/percona-server-for-mongodb/8.0/rate-limit.html).
+        mode: all              # Collects data for all operations
+        slowOpThresholdMs: 200 # Operations taking longer than 200ms are considered "slow"
+        rateLimit: 100         # Sampling rate (Percona Server for MongoDB only)
         ```
 
-        !!! caution alert alert-warning "Important"
-            This is a [YAML] file. Make sure to pay attention to indentation, as it is crucial for correct parsing.
+        For more information about profiling configuration options, see the [MongoDB documentation][MONGODB_CONFIG_OP_PROF] and the [Percona Server for MongoDB documentation][PSMDB_RATELIMIT].
 
     3. Restart the `mongod` service using the appropriate command for your system. For example, for `systemd`:
 
@@ -268,7 +266,7 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
         To check the service from the UI:
 
         - Select **PMM Configuration > Inventory > Services**. 
-        - Find your MongoDB service in the list and verify it shows "Active" status.
+        - Find your MongoDB service in the list and verify it shows **Active** status.
         - Verify the **Service name**, **Addresses**, and other connection details are correct.
         - In the **Options** column, expand the **Details** section to check that agents are properly connected.
 
