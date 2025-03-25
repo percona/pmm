@@ -289,7 +289,7 @@ PMM 3 replaces API keys with service accounts to enhance security and simplify a
     Be sure to replace `admin:admin` with your credentials and update the server address (`localhost` or `127.0.0.1`) and port number (`3000`) if they differ from the defaults:
     
     ```sh
-    curl -X POST http://localhost:3000/api/serviceaccounts/migrate \
+    curl -X POST -k https://localhost/graph/api/serviceaccounts/migrate \
     -u admin:admin \
     -H "Content-Type: application/json"
     ```
