@@ -38,7 +38,7 @@ docker cp certificate.crt pmm-server:/srv/nginx/certificate.crt
 docker cp certificate.key pmm-server:/srv/nginx/certificate.key
 docker cp ca-certs.pem pmm-server:/srv/nginx/ca-certs.pem
 docker cp dhparam.pem pmm-server:/srv/nginx/dhparam.pem
-docker exec -it pmm-server chown pmm.pmm /srv/nginx/*
+docker exec -it pmm-server chown pmm:pmm /srv/nginx/*
 ```
 
 ### Use trusted SSL when connecting PMM Client to PMM Server
