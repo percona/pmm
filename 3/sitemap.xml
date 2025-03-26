@@ -2,982 +2,982 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/get-help.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/manage-orgs/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/manage-orgs/create_org.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/manage-orgs/del_org.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/manage-orgs/edit_org.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/manage-users/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/manage-users/add_users.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/manage-users/delete_users.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/manage-users/edit_users.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/manage-users/manage_users_in_org.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/roles/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/roles/access-control/assign_roles.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/roles/access-control/config_access_cntrl.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/roles/access-control/create_roles.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/roles/access-control/intro.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/roles/access-control/labels.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/roles/access-control/manage_roles.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/roles/access-control/usecase.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/security/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/security/data_encryption.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/security/grafana_cookies.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/admin/security/ssl_encryption.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/advisor-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/advisors.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/advisors/develop-advisor-checks.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/alert/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/alert/alert_rules.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/alert/contact_points.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/alert/disable_alerts.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/alert/silence_alerts.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/alert/templates_list.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/api/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/api/authentication.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/delete_a_backup.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/edit_scheduled.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/prepare_storage_location.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/mongodb-backup/backup_mongo.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/mongodb-backup/create_PITR_mongo.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/mongodb-backup/create_mongo_on_demand.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/mongodb-backup/mongo_prerequisites.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/mongodb-backup/mongodb_limitations.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/mongodb-backup/restore_MongoDB_backups.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/mysql-backup/backup_mysql.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/mysql-backup/create_mysql_backup.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/mysql-backup/mysql_prerequisites.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/backup/mysql-backup/restore_mysql_backup.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/configure-pmm/advanced_settings.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/configure-pmm/configure.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/configure-pmm/metrics_res.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/configure-pmm/ssh.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/configure-pmm/percona_platform/account-info.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/configure-pmm/percona_platform/check_percona_platform.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/configure-pmm/percona_platform/integrate_with_percona_platform.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/discover-pmm/features.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/discover-pmm/why-pmm.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/binary_package.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/docker.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/package_manager.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/prerequisites.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/aws.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/azure.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/external.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/google.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/haproxy.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/linux.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mongodb.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/postgresql.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/proxysql.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/remote.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/remove-services/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/prerequisites.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/aws.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/back_pmm_server.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/limit_access.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/remove_pmm_server.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/restore_pmm_server.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/run.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/settings.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/backup_container.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/easy-install.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/env_var.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/isolated_hosts.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/remove_container.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/restore_container.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/run_with_vol.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/upgrade_container.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/helm/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/helm/restore_container_helm.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/podman/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/podman/remove_container_podman.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/podman/restore_container_podman.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/virtual/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/virtual/download_ova.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/virtual/login_UI.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/virtual/vmware.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/plan-pmm-installation/hardware_and_system.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/plan-pmm-installation/network_and_firewall.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/register-client-node/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/optimize/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/optimize/change_number_tables.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/optimize/disable_table_stats.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/optimize/improve_perf.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/migrating_from_pmm_2.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/ui_upgrade.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/upgrade_aws.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/upgrade_client.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/upgrade_docker.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/upgrade_helm.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/upgrade_podman.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/quickstart/quickstart.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/copyright.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/faq.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/glossary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/personal_data_handling.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/pmm_components_and_versions.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/trademark-policy.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-advanced-data-exploration.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-cpu-utilization-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-disk-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-env-overview.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-environment-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-haproxy-instance-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-home.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-memory-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-cluster-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-experimental_collection_details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-experimental_collection_overview.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-experimental_oplog.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-inmemory-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-instance-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-instances-compare.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-instances-overview.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-mmapv1-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-replset-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-router-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-wiredtiger-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-amazon-aurora-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-command-handler-counters-compare.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-group-replication-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-innodb-compression-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-innodb-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-instance-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-instances-compare.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-instances-overview.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-myisam-aria-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-myrocks-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-performance-schema-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-query-response-time-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-replication-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-table-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-tokudb-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-user-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mysql-wait-event-analyses-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-network-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-node-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-node-temperature-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-nodes-compare.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-nodes-overview.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-numa-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-postgresql-instance-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-postgresql-instances-compare.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-postgresql-instances-overview.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-processes-details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-prometheus-exporter-status.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-prometheus-exporters-overview.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-proxysql-instance-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-pxc-galera-cluster-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-pxc-galera-node-summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-pxc-galera-nodes-compare.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-victoriametrics-agents-overview.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-victoriametrics.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/kubernetes_cluster_summary.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/kubernetes_monitor_db_clusters_managed.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/kubernetes_monitor_operators.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/third-party/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/third-party/clickhouse.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/third-party/postgresql.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/third-party/victoria.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/ui/log_in.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/ui/timezone.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/ui/ui_components.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/release-notes/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/release-notes/3.0.0.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/release-notes/3.0.0_1.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/troubleshoot/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/troubleshoot/alerting_issues.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/troubleshoot/checklist.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/troubleshoot/components_issues.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/troubleshoot/config_issues.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/troubleshoot/dashboard_issues.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/troubleshoot/data_issues.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/troubleshoot/plugin_issues.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/troubleshoot/pmm_dump.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/troubleshoot/qan_issues.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/troubleshoot/upgrade_issues.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/uninstall-pmm/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/uninstall-pmm/uninstall_docker.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/uninstall-pmm/uninstall_helm.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/uninstall-pmm/uninstall_package_manager.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/uninstall-pmm/unregister_client.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/dashboard-inventory.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/monitor.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/using-pmm.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/commands/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/commands/pmm-admin.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/commands/pmm-agent.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/dashboards-panels/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/dashboards-panels/annotate/annotate.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/dashboards-panels/export-dashboards/export_dashboards.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/dashboards-panels/export-dashboards/import_dashboards.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/dashboards-panels/manage-dashboards/create-folders.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/dashboards-panels/manage-dashboards/manage-folders.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/dashboards-panels/manage-dashboards/set-custom-dashboard.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/dashboards-panels/share-dashboards/publish_snapshot.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/dashboards-panels/share-dashboards/share_dashboard.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/dashboards-panels/use-dashboards/dashboard-feature.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/dashboards-panels/use-dashboards/dashboard-settings.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/dashboards-panels/use-dashboards/dashboard-time-range.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/metrics/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/metrics/extend_metrics.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/qan/index.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/qan/qan_mongo.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/qan/share_link.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/qan/panels/details.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/qan/panels/filters.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/use/qan/panels/overview.html</loc>
-         <lastmod>2025-03-21</lastmod>
+         <lastmod>2025-03-26</lastmod>
     </url>
 </urlset>
