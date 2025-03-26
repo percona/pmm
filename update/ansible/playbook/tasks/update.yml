@@ -10,17 +10,18 @@
 
   vars:
     pmm_packages:
-      - percona-victoriametrics
-      - percona-qan-api2
-      - percona-alertmanager
-      - pmm-managed
-      - pmm-update
-      - dbaas-controller
-      - dbaas-tools
-      - pmm2-client
-      - pmm-dump
-      - vmproxy
-      - grafana-db-migrator
+      - percona-release-1.0-28.noarch
+      - percona-victoriametrics-1.93.4-1.el9
+      - percona-qan-api2-2.42.0-17.2406060947.74e5752.el9
+      - percona-alertmanager-0.25.0-3.el9
+      - pmm-managed-2.42.0-20.2406060943.74e5752.el9
+      - pmm-update-2.42.0-67.2406060948.74e5752.el9
+      - dbaas-controller-2.42.0-1.2405221302.9900837.el9
+      - dbaas-tools-0.6.10-2.2405202018.el9
+      - pmm2-client-2.42.0-6.el9
+      - pmm-dump-2.42.0-1.2405221305.b397c6d.el9
+      - vmproxy-2.42.0-1.2406060949.74e5752.el9
+      - grafana-db-migrator-1.0.8-2.el9
   pre_tasks:
     - name: Check for updates of ansible-core package | EL9
       shell: yum list updates ansible-core | grep -q 'ansible-core' && echo 'Available' || echo 'Not Available'
@@ -97,9 +98,9 @@
     - name: Update percona-dashboards package
       yum:
         name:
-          - percona-dashboards
-          - percona-grafana
-        state: latest
+          - percona-dashboards-2.42.0-20.2405290803.1cb04ae.el9
+          - percona-grafana-9.2.20-100.2405311247.eb726d0.el9
+        state: present
 
     - name: Cleanup yum metadata
       command: yum clean metadata
@@ -318,6 +319,11 @@
         state: latest
         exclude:
           - nginx*
+          - pmm-*
+          - pmm2-client-*
+          - percona-*
+          - dbaas-*
+          - vmproxy-*
 
     - name: Install nginx
       include_role:

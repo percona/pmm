@@ -26,12 +26,12 @@
         - not ansible_check_mode
       yum:
         name:
-          - percona-postgresql14-server
-          - percona-postgresql14-contrib
-          - percona-postgresql14
-          - percona-postgresql11-server
-          - percona-postgresql11-contrib
-          - percona-postgresql11
+          - percona-postgresql14-server-14.11-1.el9
+          - percona-postgresql14-contrib-14.11-1.el9
+          - percona-postgresql14-14.11-1.el9
+          - percona-postgresql11-server-11.22-1.el9
+          - percona-postgresql11-contrib-11.22-1.el9
+          - percona-postgresql11-11.22-1.el9
           - python-psycopg2 # Python PostgreSQL database adapter§
         state: installed
   when:
@@ -64,12 +64,14 @@
         - not ansible_check_mode
       dnf:
         name:
-          - percona-postgresql14-server
-          - percona-postgresql14-contrib
-          - percona-postgresql14
-          - percona-postgresql11-server
-          - percona-postgresql11-contrib
-          - percona-postgresql11
+          - percona-postgresql14-libs-14.11-1.el9
+          - percona-postgresql14-server-14.11-1.el9
+          - percona-postgresql14-contrib-14.11-1.el9
+          - percona-postgresql14-14.11-1.el9
+          - percona-postgresql11-libs-11.22-1.el9
+          - percona-postgresql11-server-11.22-1.el9
+          - percona-postgresql11-contrib-11.22-1.el9
+          - percona-postgresql11-11.22-1.el9
           - python-psycopg2 # Python PostgreSQL database adapter§
         state: installed
   when:

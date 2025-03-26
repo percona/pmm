@@ -33,7 +33,7 @@
 
 - name: Install nginx rpm          | Install nginx
   yum:
-    name: nginx
+    name: nginx-1.20.1-14.0.2.el9_2.1
     state: installed
 
 - name: Add ssl-related files and scripts
