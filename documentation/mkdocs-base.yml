@@ -177,12 +177,12 @@ nav:
               - install-pmm/install-pmm-server/deployment-options/virtual/login_UI.md
             - Maintenance:
               - install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.md
-          - Install on Helm:
+          - Install on Kubernetes:
             - install-pmm/install-pmm-server/deployment-options/helm/index.md
             - Maintenance:
               - install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.md
               - install-pmm/install-pmm-server/deployment-options/helm/restore_container_helm.md
-          - Install on AWS Marketplace:
+          - Install on AWS:
             - install-pmm/install-pmm-server/deployment-options/aws/aws.md
             - Setup and configuration:
               - install-pmm/install-pmm-server/deployment-options/aws/limit_access.md
@@ -192,13 +192,15 @@ nav:
               - install-pmm/install-pmm-server/deployment-options/aws/back_pmm_server.md
               - install-pmm/install-pmm-server/deployment-options/aws/restore_pmm_server.md
               - install-pmm/install-pmm-server/deployment-options/aws/remove_pmm_server.md
+          - Install on Azure:
+          - Install on Google Cloud: 
       - Install PMM Client:
         - install-pmm/install-pmm-client/index.md
         - install-pmm/install-pmm-client/prerequisites.md
         - Deployment options:
           - Install from Percona repositories: install-pmm/install-pmm-client/package_manager.md
-          - Install on Docker: install-pmm/install-pmm-client/docker.md
           - Install from binaries: install-pmm/install-pmm-client/binary_package.md
+          - Install on Docker: install-pmm/install-pmm-client/docker.md
         - Configuration:
           - Register Client node: install-pmm/register-client-node/index.md
           - Configure monitoring:
