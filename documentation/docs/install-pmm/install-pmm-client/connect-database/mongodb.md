@@ -144,14 +144,19 @@ Choose one of the following methods to enable profiling:
     
     1. Edit the configuration file (usually `/etc/mongod.conf`).
     2. Add or modify the `operationProfiling` section in the configuration file. Pay close attention to indentation as YAML is whitespace-sensitive:
-    
+
         ```yml
         operationProfiling:
-        mode: all              # Collects data for all operations
-        slowOpThresholdMs: 200 # Operations taking longer than 200ms are considered "slow"
-        rateLimit: 100         # Sampling rate (Percona Server for MongoDB only)
+        mode: all             
+        slowOpThresholdMs: 200
+        rateLimit: 100        
         ```
-
+        These settings control the following:
+        
+            - `mode: all` - Collects data for all operations.
+            - `slowOpThresholdMs: 200` - Marks operations exceeding 200ms as "slow."
+            - `rateLimit: 100` -  Limits profiling sampling rate (Percona Server for MongoDB only).
+            
         For more information about profiling configuration options, see the [MongoDB documentation][MONGODB_CONFIG_OP_PROF] and the [Percona Server for MongoDB documentation][PSMDB_RATELIMIT].
 
     3. Restart the `mongod` service using the appropriate command for your system. For example, for `systemd`:
