@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="How to set up PMM to monitor a MongoDB or Percona Server for MongoDB database instance.">
+        <meta name="description" content="Connect a MongoDB instance to PMM to monitor a MongoDB or Percona Server for MongoDB database server.">
       
       
         <meta name="author" content="Percona LLC">
@@ -2460,9 +2460,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#before-you-start" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
-      Before you start
+      Prerequisites
     </span>
   </a>
   
@@ -2479,15 +2479,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#permissions-for-advanced-metrics" class="md-nav__link">
-    <span class="md-ellipsis">
-      Permissions for advanced metrics
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#createupdate-user-and-assign-created-roles" class="md-nav__link">
     <span class="md-ellipsis">
       Create/update user and assign created roles
@@ -2502,200 +2493,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#profiling" class="md-nav__link">
+  <a href="#enable-mongodb-profiling-for-query-analytics-qan" class="md-nav__link">
     <span class="md-ellipsis">
-      Profiling
+      Enable MongoDB profiling for Query Analytics (QAN)
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Profiling">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#set-profiling-in-the-configuration-file" class="md-nav__link">
-    <span class="md-ellipsis">
-      Set profiling in the configuration file
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set-profiling-on-the-command-line" class="md-nav__link">
-    <span class="md-ellipsis">
-      Set profiling on the command Line
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set-profiling-in-a-mongo-session" class="md-nav__link">
-    <span class="md-ellipsis">
-      Set profiling in a mongo session
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#add-service" class="md-nav__link">
+  <a href="#add-mongodb-service-to-pmm" class="md-nav__link">
     <span class="md-ellipsis">
-      Add service
+      Add MongoDB service to PMM
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Add service">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#with-the-user-interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      With the user interface
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#on-the-command-line" class="md-nav__link">
-    <span class="md-ellipsis">
-      On the command line
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      Examples
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Examples">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#connect-via-unix-socket" class="md-nav__link">
-    <span class="md-ellipsis">
-      Connect via UNIX socket
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#connecting-via-ssltls" class="md-nav__link">
-    <span class="md-ellipsis">
-      Connecting via SSL/TLS
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#check-the-service" class="md-nav__link">
+  <a href="#verify-mongodb-service-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      Check the service
+      Verify MongoDB Service Configuration
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Check the service">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#from-the-user-interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      From the user interface
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#on-the-command-line_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      On the command line
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#check-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Check data
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Check data">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#query-analytics" class="md-nav__link">
-    <span class="md-ellipsis">
-      Query Analytics
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#remove-service" class="md-nav__link">
+  <a href="#remove-mongodb-service" class="md-nav__link">
     <span class="md-ellipsis">
-      Remove service
+      Remove MongoDB Service
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Remove service">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#with-the-user-interface_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      With the user interface
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#on-the-command-line_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      On the command line
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -8976,9 +8805,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#before-you-start" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
-      Before you start
+      Prerequisites
     </span>
   </a>
   
@@ -8995,15 +8824,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#permissions-for-advanced-metrics" class="md-nav__link">
-    <span class="md-ellipsis">
-      Permissions for advanced metrics
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#createupdate-user-and-assign-created-roles" class="md-nav__link">
     <span class="md-ellipsis">
       Create/update user and assign created roles
@@ -9018,200 +8838,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#profiling" class="md-nav__link">
+  <a href="#enable-mongodb-profiling-for-query-analytics-qan" class="md-nav__link">
     <span class="md-ellipsis">
-      Profiling
+      Enable MongoDB profiling for Query Analytics (QAN)
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Profiling">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#set-profiling-in-the-configuration-file" class="md-nav__link">
-    <span class="md-ellipsis">
-      Set profiling in the configuration file
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set-profiling-on-the-command-line" class="md-nav__link">
-    <span class="md-ellipsis">
-      Set profiling on the command Line
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#set-profiling-in-a-mongo-session" class="md-nav__link">
-    <span class="md-ellipsis">
-      Set profiling in a mongo session
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#add-service" class="md-nav__link">
+  <a href="#add-mongodb-service-to-pmm" class="md-nav__link">
     <span class="md-ellipsis">
-      Add service
+      Add MongoDB service to PMM
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Add service">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#with-the-user-interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      With the user interface
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#on-the-command-line" class="md-nav__link">
-    <span class="md-ellipsis">
-      On the command line
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      Examples
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Examples">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#connect-via-unix-socket" class="md-nav__link">
-    <span class="md-ellipsis">
-      Connect via UNIX socket
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#connecting-via-ssltls" class="md-nav__link">
-    <span class="md-ellipsis">
-      Connecting via SSL/TLS
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#check-the-service" class="md-nav__link">
+  <a href="#verify-mongodb-service-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      Check the service
+      Verify MongoDB Service Configuration
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Check the service">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#from-the-user-interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      From the user interface
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#on-the-command-line_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      On the command line
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#check-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Check data
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Check data">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#query-analytics" class="md-nav__link">
-    <span class="md-ellipsis">
-      Query Analytics
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#remove-service" class="md-nav__link">
+  <a href="#remove-mongodb-service" class="md-nav__link">
     <span class="md-ellipsis">
-      Remove service
+      Remove MongoDB Service
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Remove service">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#with-the-user-interface_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      With the user interface
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#on-the-command-line_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      On the command line
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -9263,49 +8921,54 @@
 
 
 <h1 id="connect-mongodb-instance">Connect MongoDB instance<a class="headerlink" href="#connect-mongodb-instance" title="Permanent link">&para;</a></h1>
-<p>How to set up PMM to monitor a <a href="https://www.mongodb.com/">MongoDB</a> or <a href="https://www.percona.com/software/mongodb/percona-server-for-mongodb">Percona Server for MongoDB</a> database instance.</p>
-<h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">&para;</a></h2>
-<p>Check that:</p>
+<p>Connect a MongoDB instance to PMM to monitor a <a href="https://www.mongodb.com/">MongoDB</a> or <a href="https://www.percona.com/software/mongodb/percona-server-for-mongodb">Percona Server for MongoDB</a> database server.</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<p>Before you start, ensure you have:</p>
 <ul>
-<li><a href="../../install-pmm-server/index.html">PMM Server is installed</a> and running with a known IP address or hostname accessible from the client node.</li>
-<li><a href="../index.html">PMM Client is installed</a> and the <a href="../../register-client-node/index.html">nodes are registered with PMM Server</a>.</li>
-<li>You have superuser (root) access on the client host.</li>
-<li>You have <code>adminUserAnyDatabase</code> or superuser role privilege to any database servers that you want to monitor.</li>
-<li>Your MongoDB server is version 4.0 or higher.</li>
+<li><a href="../../install-pmm-server/index.html">PMM Server installed</a> and running with a known IP address or hostname accessible from the Client node.</li>
+<li><a href="../index.html">PMM Client installed</a> and the <a href="../../register-client-node/index.html">nodes are registered with PMM Server</a>.</li>
+<li>Admin privileges to install and configure PMM Client on the host.</li>
+<li>Preconfigured MongoDB user with appropriate monitoring privileges, or sufficient privileges to create the required roles and users.</li>
+<li>MongoDB server version 6.0 or higher. PMM may work with MongoDB versions as old as 4.4, but we recommend using MongoDB 6.0+ for complete feature support.</li>
 </ul>
 <h2 id="create-pmm-account-and-set-permissions">Create PMM account and set permissions<a class="headerlink" href="#create-pmm-account-and-set-permissions" title="Permanent link">&para;</a></h2>
-<p>We recommend using a dedicated account to connect PMM Client to the monitored database instance.</p>
-<p>Run the example codes below in a <code>mongo</code> session to:</p>
+<p>We recommend using a dedicated account to connect PMM Client to the monitored database instance. The permissions required depend on which PMM features you plan to use.</p>
+<p>Run the example commands below in a mongo shell session to:</p>
 <ul>
-<li>create custom roles with the privileges required for creating/restoring backups and working with Query Analytics (QAN)</li>
-<li>create/update a database user with these roles above, plus the built-in  <code>clusterMonitor</code> role</li>
+<li>Create custom roles with the privileges required for creating/restoring backups and working with Query Analytics (QAN).</li>
+<li>Create/update a database user with these roles, plus the built-in  <code>clusterMonitor</code> role.</li>
 </ul>
 <div class="admonition caution alert alert-warning">
+<p class="admonition-title">Important</p>
 <p>Values for username (<code>user</code>) and password (<code>pwd</code>) are examples. Replace them before using these code snippets.</p>
 </div>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Create a role with monitoring and QAN privileges</label><label for="__tabbed_1_2">Create a role with backup management privileges</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Monitoring and QAN privileges</label><label for="__tabbed_1_2">Full backup management privileges</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p>This role grants the essential minimum privileges needed for monitoring and QAN. 
-    <div class="highlight" data-prompt=">"><pre><span></span><code><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createRole</span><span class="p">({</span>
-<span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;explainRole&quot;</span><span class="p">,</span>
+<p>This role grants the essential minimum privileges needed for monitoring and QAN:
+<div class="highlight"><pre><span></span><code><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createRole</span><span class="p">({</span>
+<span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmmMonitor&quot;</span><span class="p">,</span>
 <span class="s2">&quot;privileges&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">        </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;dbHash&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;find&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;listIndexes&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;listCollections&quot;</span><span class="w">  </span><span class="p">]</span>
+<span class="w">    </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;dbHash&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;find&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;listIndexes&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;listCollections&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dbStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;indexStats&quot;</span><span class="w"> </span><span class="p">]</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;system.version&quot;</span><span class="w">  </span><span class="p">},</span>
-<span class="w">        </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;find&quot;</span><span class="w"> </span><span class="p">]</span>
-<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;system.version&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;find&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;system.profile&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;dbStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;indexStats&quot;</span><span class="w"> </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span><span class="w">         </span>
 <span class="p">],</span>
-<span class="s2">&quot;roles&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="s2">&quot;roles&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span>
 <span class="p">})</span>
 </code></pre></div></p>
 </div>
 <div class="tabbed-block">
-<p>This role provides the necessary privileges for using PMM&rsquo;s backup management features. It is required only if you plan to use this feature.
-    <div class="highlight" data-prompt=">"><pre><span></span><code><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createRole</span><span class="p">({</span>
+<p>This role provides the necessary privileges for using PMM&rsquo;s backup management features. It is required only if you plan to use this feature:
+    <div class="highlight"><pre><span></span><code><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createRole</span><span class="p">({</span>
 <span class="w">    </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pbmAnyAction&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="s2">&quot;privileges&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
@@ -9319,42 +8982,57 @@
 </div>
 </div>
 </div>
-<h3 id="permissions-for-advanced-metrics">Permissions for advanced metrics<a class="headerlink" href="#permissions-for-advanced-metrics" title="Permanent link">&para;</a></h3>
-<p>To fetch advanced metrics like usage statistics for collection and indexes, assign the following additional privileges to an existing PMM user:
-    <div class="highlight" data-prompt=">"><pre><span></span><code><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">updateRole</span><span class="p">(</span>
-<span class="s2">&quot;explainRole&quot;</span><span class="p">,</span>
-<span class="p">{</span>
-<span class="w">    </span><span class="s2">&quot;privileges&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">        </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;collStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dbStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;indexStats&quot;</span><span class="w"> </span><span class="p">]</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="s2">&quot;resource&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;system.profile&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">        </span><span class="s2">&quot;actions&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&quot;dbStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collStats&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;indexStats&quot;</span><span class="w"> </span><span class="p">]</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="p">]</span>
-<span class="p">}</span>
-<span class="p">)</span>
-</code></pre></div></p>
 <h3 id="createupdate-user-and-assign-created-roles">Create/update user and assign created roles<a class="headerlink" href="#createupdate-user-and-assign-created-roles" title="Permanent link">&para;</a></h3>
-<p>Create or update a user with the minimum required privileges for monitoring by assigning the following roles:
-<div class="highlight" data-prompt=">"><pre><span></span><code><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createUser</span><span class="p">({</span>
+<p>Create or update a user with the minimum required privileges for monitoring by assigning the following roles:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">MongoDB 8.0+</label><label for="__tabbed_2_2">MongoDB &lt;8.0</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>MongoDB 8.0 introduced stricter security for direct shard access. For MongoDB 8.0 and later, the PMM user also requires the <code>directShardOperations</code> role to collect complete metrics from all cluster components.</p>
+<div class="highlight"><pre><span></span><code><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createUser</span><span class="p">({</span>
+<span class="w">    </span><span class="s2">&quot;user&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmm&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pwd&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&lt;SECURE_PASSWORD&gt;&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// Replace with a secure password</span>
+<span class="w">    </span><span class="s2">&quot;roles&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmmMonitor&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;local&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;read&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;clusterMonitor&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;directShardOperations&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">})</span>
+</code></pre></div>
+<p>If you intend to use PMM&rsquo;s backup management features, grant these additional permissions: </p>
+<div class="highlight"><pre><span></span><code><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createUser</span><span class="p">({</span>
+<span class="w">    </span><span class="s2">&quot;user&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmm&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pwd&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&lt;SECURE_PASSWORD&gt;&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// Replace with a secure password</span>
+<span class="w">    </span><span class="s2">&quot;roles&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmmMonitor&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;local&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;read&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;readWrite&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;backup&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;clusterMonitor&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;restore&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pbmAnyAction&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;directShardOperations&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">})</span><span class="w">      </span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).({</span>
 <span class="w">    </span><span class="s2">&quot;user&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmm&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="s2">&quot;pwd&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmm&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="s2">&quot;roles&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;explainRole&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmmMonitor&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;local&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;read&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;clusterMonitor&quot;</span><span class="w"> </span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="p">})</span>
-</code></pre></div></p>
-<p>If you intent to use PMM&rsquo;s backup management features, also grant these additional permissions: 
-<div class="highlight" data-prompt=">"><pre><span></span><code><span class="w"> </span><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createUser</span><span class="p">({</span>
+</code></pre></div>
+<p>If you intend to use PMM&rsquo;s backup management features, also grant these additional permissions: 
+<div class="highlight"><pre><span></span><code><span class="nx">db</span><span class="p">.</span><span class="nx">getSiblingDB</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">).</span><span class="nx">createUser</span><span class="p">({</span>
 <span class="w">    </span><span class="s2">&quot;user&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmm&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="s2">&quot;pwd&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmm&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="s2">&quot;roles&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;explainRole&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pmmMonitor&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;local&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;read&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;readWrite&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;collection&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;backup&quot;</span><span class="w"> </span><span class="p">},</span>
@@ -9362,44 +9040,45 @@
 <span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;restore&quot;</span><span class="w"> </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s2">&quot;db&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;role&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;pbmAnyAction&quot;</span><span class="w"> </span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>
-<span class="p">})</span>
+<span class="p">})</span><span class="w">      </span>
 </code></pre></div></p>
-<h2 id="profiling">Profiling<a class="headerlink" href="#profiling" title="Permanent link">&para;</a></h2>
-<p>To use PMM Query Analytics, you must turn on MongoDB&rsquo;s <a href="https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/">profiling feature</a>.</p>
-<p>You can set profiling:</p>
-<ul>
-<li>permanently, by editing the MongoDB configuration file  and restarting the database instance (recommended);</li>
-<li>when starting MongoDB, by passing arguments to <code>mongod</code> on the command line;</li>
-<li>until the next database instance restart, by running a command in a <code>mongo</code> session.</li>
-</ul>
-<div class="admonition note alert alert-primary">
-<p>Profiling is turned off by default as it can adversely affect the performance of the database server.</p>
 </div>
-<h3 id="set-profiling-in-the-configuration-file">Set profiling in the configuration file<a class="headerlink" href="#set-profiling-in-the-configuration-file" title="Permanent link">&para;</a></h3>
-<p class="power-number">To set profiling in the configuration file:</p>
+</div>
+</div>
+<h2 id="enable-mongodb-profiling-for-query-analytics-qan">Enable MongoDB profiling for Query Analytics (QAN)<a class="headerlink" href="#enable-mongodb-profiling-for-query-analytics-qan" title="Permanent link">&para;</a></h2>
+<p>To use PMM QAN, you must turn on MongoDB&rsquo;s <a href="https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/">profiling feature</a>. By default, profiling is turned off as it can adversely affect the performance of the database server.</p>
+<p>Choose one of the following methods to enable profiling: </p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">In MongoDB configuration file (Recommended)</label><label for="__tabbed_3_2">On CLI</label><label for="__tabbed_3_3">In MongoDB shell (temporary)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p class="power-number">This method ensures your settings persist across server restarts and system reboots. It&rsquo;s the recommended approach for production environments:</p>
+<ol>
+<li>Edit the configuration file (usually <code>/etc/mongod.conf</code>).</li>
+<li>
+<p>Add or modify the <code>operationProfiling</code> section in the configuration file. Pay close attention to indentation as YAML is whitespace-sensitive:</p>
+<div class="highlight"><pre><span></span><code>operationProfiling:
+mode: all             
+slowOpThresholdMs: 200
+rateLimit: 100        
+</code></pre></div>
+</li>
+</ol>
+<p>These settings control the following:</p>
+<div class="highlight"><pre><span></span><code>- `mode: all` - Collects data for all operations.
+- `slowOpThresholdMs: 200` - Marks operations exceeding 200ms as &quot;slow.&quot;
+- `rateLimit: 100` -  Limits profiling sampling rate (Percona Server for MongoDB only).
+</code></pre></div>
+<p>For more information about profiling configuration options, see the <a href="https://docs.mongodb.com/manual/reference/configuration-options/#operationprofiling-options">MongoDB documentation</a> and the <a href="https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html#enabling-the-rate-limit">Percona Server for MongoDB documentation</a>.</p>
 <ol>
 <li>
-<p>Edit the configuration file (usually <code>/etc/mongod.conf</code>).</p>
-</li>
-<li>
-<p>Create or add this to the <code>operationProfiling</code> section. (<a href="https://docs.mongodb.com/manual/reference/configuration-options/#operationprofiling-options">Read more</a>.)</p>
-<div class="highlight"><pre><span></span><code>operationProfiling:
-  mode: all
-  slowOpThresholdMs: 200
-  rateLimit: 100 # (Only available with Percona Server for MongoDB.)
-</code></pre></div>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Important</p>
-<p>This is a <a href="http://yaml.org/spec/">YAML</a> file. Indentation matters.</p>
-</div>
-</li>
-<li>
-<p>Restart the <code>mongod</code> service. (Example for <code>systemd</code>.)</p>
+<p>Restart the <code>mongod</code> service using the appropriate command for your system. For example, for <code>systemd</code>:</p>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>restart<span class="w"> </span>mongod
 </code></pre></div>
 </li>
 </ol>
-<h3 id="set-profiling-on-the-command-line">Set profiling on the command Line<a class="headerlink" href="#set-profiling-on-the-command-line" title="Permanent link">&para;</a></h3>
+</div>
+<div class="tabbed-block">
+<p>Use this method when starting the MongoDB server manually:</p>
 <div class="highlight"><pre><span></span><code>mongod<span class="w"> </span>--dbpath<span class="o">=</span>DATABASEDIR<span class="w"> </span>--profile<span class="w"> </span><span class="m">2</span><span class="w"> </span>--slowms<span class="w"> </span><span class="m">200</span><span class="w"> </span>--rateLimit<span class="w"> </span><span class="m">100</span>
 </code></pre></div>
 <ul>
@@ -9407,141 +9086,151 @@
 <li><code>--profile</code>: The MongoDB profiling level. A value of <code>2</code> tells the server to collect profiling data for <em>all</em> operations. To lower the load on the server, use a value of <code>1</code> to only record slow operations.</li>
 <li><code>--slowms</code>: An operation is classified as <em>slow</em> if it runs for longer than this number of milliseconds.</li>
 <li>
-<p><code>--rateLimit</code>: (Only available with Percona Server for MongoDB.) The sample rate of profiled queries. A value of <code>100</code> means sample every 100<sup>th</sup> fast query. (<a href="https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html#enabling-the-rate-limit">Read more</a>.)</p>
+<p><code>--rateLimit</code>: (Only available with Percona Server for MongoDB.) The sample rate of profiled queries. A value of <code>100</code> means sample every 100<sup>th</sup> fast query. (<a href="https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html#enabling-the-rate-limit">Read more</a>)</p>
 <div class="admonition caution alert alert-warning">
 <p class="admonition-title">Caution</p>
-<p>Smaller values improve accuracy but can adversly affect the performance of your server.</p>
+<p>Smaller values improve accuracy but can adversely affect the performance of your server.</p>
 </div>
 </li>
 </ul>
-<h3 id="set-profiling-in-a-mongo-session">Set profiling in a <code>mongo</code> session<a class="headerlink" href="#set-profiling-in-a-mongo-session" title="Permanent link">&para;</a></h3>
-<p>In a <code>mongo</code> session, the profiler should be enabled <strong>per</strong> database.
-For example, to enable the profiler in the <code>testdb</code>, run this:</p>
+</div>
+<div class="tabbed-block">
+<p>This method enables profiling until the next server restart. Profiling must be enabled for <strong>each</strong> database you want to monitor. For example, to enable the profiler in the <code>testdb</code>, run this:</p>
 <div class="highlight"><pre><span></span><code><span class="err">use</span><span class="w"> </span><span class="kc">test</span><span class="err">db</span>
 <span class="err">db.se</span><span class="kc">t</span><span class="err">Pro</span><span class="kc">f</span><span class="err">ili</span><span class="kc">n</span><span class="err">gLevel(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="err">slowms</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">}</span><span class="err">)</span>
 </code></pre></div>
 <div class="admonition note alert alert-primary">
-<p>If you have already <a href="#add-service">added a service</a>, you should remove it and re-add it after changing the profiling level.</p>
+<p>If you have already <a href="#add-mongodb-service-to-pmm">added a service</a>, you should remove it and re-add it after changing the profiling level.</p>
 </div>
-<h2 id="add-service">Add service<a class="headerlink" href="#add-service" title="Permanent link">&para;</a></h2>
-<p>When you have configured your database server, you can add a MongoDB service with the user interface or on the command line.</p>
+</div>
+</div>
+</div>
+<h2 id="add-mongodb-service-to-pmm">Add MongoDB service to PMM<a class="headerlink" href="#add-mongodb-service-to-pmm" title="Permanent link">&para;</a></h2>
+<p>After configuring your database server, add a MongoDB service using either the user interface or the command line.</p>
 <div class="admonition caution alert alert-warning">
 <p class="admonition-title">Important</p>
-<p>To monitor MongoDB sharded clusters, PMM requires access to all cluster components. Make sure to add all config servers, shards, and mongos. Otherwise, PMM will not be able to correctly collect metrics and populate dashboards.</p>
+<p>To monitor MongoDB sharded clusters, PMM requires access to all cluster components. Make sure to add all config servers, shards, and at least one mongos router. Otherwise, PMM will not be able to correctly collect metrics and populate dashboards.</p>
 </div>
-<h3 id="with-the-user-interface">With the user interface<a class="headerlink" href="#with-the-user-interface" title="Permanent link">&para;</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Via CLI</label><label for="__tabbed_4_2">Via UI</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Use <code>pmm-admin</code> to add the database server as a service using one of these example commands:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:3"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><input id="__tabbed_5_3" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Basic MongoDB instance</label><label for="__tabbed_5_2">Sharded cluster component</label><label for="__tabbed_5_3">SSL/TLS secured MongoDB</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span><span class="se">\</span>
+--username<span class="o">=</span>pmm<span class="w"> </span><span class="se">\</span>
+--password<span class="o">=</span>your_secure_password
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span><span class="se">\</span>
+--username<span class="o">=</span>pmm<span class="w"> </span><span class="se">\</span>
+--password<span class="o">=</span>your_secure_password<span class="w"> </span><span class="se">\</span>
+--cluster<span class="o">=</span>my_cluster_name<span class="w"> </span><span class="se">\</span>
+--replication-set<span class="o">=</span>rs1<span class="w">  </span><span class="c1"># Optional: specify replication set name</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span><span class="se">\</span>
+--username<span class="o">=</span>pmm<span class="w"> </span><span class="se">\</span>
+--password<span class="o">=</span>your_secure_password<span class="w"> </span><span class="se">\</span>
+--tls<span class="w"> </span><span class="se">\</span>
+--tls-certificate-key-file<span class="o">=</span>/path/to/client.pem<span class="w"> </span><span class="se">\</span>
+--tls-certificate-key-file-password<span class="o">=</span>cert_password<span class="w"> </span><span class="se">\ </span><span class="w"> </span><span class="c1"># If certificate has password</span>
+--tls-ca-file<span class="o">=</span>/path/to/ca.pem<span class="w"> </span><span class="se">\</span>
+--authentication-mechanism<span class="o">=</span>MONGODB-X509<span class="w"> </span><span class="se">\ </span><span class="w"> </span><span class="c1"># For X.509 authentication</span>
+--authentication-database<span class="o">=</span><span class="nv">$external</span><span class="w">      </span><span class="c1"># For X.509 authentication</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>When successful, PMM Client will print <code>MongoDB Service added</code> with the service&rsquo;s ID and name. Use the <code>--environment</code> and <code>--custom-labels</code> options to set tags for the service to help identify them.</p>
+<div class="admonition hint alert alert-success">
+<p class="admonition-title">Tips</p>
+<ul>
+<li>When adding nodes to a sharded cluster, ensure to add each node separately using the <code>--cluster mycluster</code> option. This allows the <a href="../../../reference/dashboards/dashboard-mongodb-cluster-summary.html">MongoDB Cluster Summary</a> dashboard to populate correctly. </li>
+<li>You can also use the <code>--replication-set</code> option to specify a replication set. For instance, you can use <code>--replication-set config</code> for your config servers; <code>--replication-set rs1</code> for your servers in the first replica set, <code>--replication-set rs2</code> for your servers in the second replica set, and so on.</li>
+<li>When running mongos routers in containers, specify the <code>diagnosticDataCollectionDirectoryPath</code> to ensure that pmm-agent can properly capture mongos metrics. For example: <code>mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/</code></li>
+</ul>
+</div>
+</div>
+<div class="tabbed-block">
 <p class="power-number">To add a service with the UI:</p>
 <ol>
 <li>
 <p>Select <strong>PMM Configuration &gt; Add Service &gt; MongoDB</strong>.</p>
 </li>
 <li>
-<p>Enter or select values for the fields.</p>
+<p>Fill in the required fields.</p>
 </li>
 <li>
 <p>Click <strong>Add service</strong>.</p>
 </li>
 </ol>
 <p><img alt="!" src="../../../images/PMM_Add_Instance_MongoDB.jpg" /></p>
-<h3 id="on-the-command-line">On the command line<a class="headerlink" href="#on-the-command-line" title="Permanent link">&para;</a></h3>
-<p>Use <code>pmm-admin</code> to add the database server as a service using one of these example commands.</p>
-<p>When successful, PMM Client will print <code>MongoDB Service added</code> with the service&rsquo;s ID and name. Use the <code>--environment</code> and <code>-custom-labels</code> options to set tags for the service to help identify them.</p>
-<div class="admonition hint alert alert-success">
-<p class="admonition-title">Tips</p>
+</div>
+</div>
+</div>
+<h2 id="verify-mongodb-service-configuration">Verify MongoDB Service Configuration<a class="headerlink" href="#verify-mongodb-service-configuration" title="Permanent link">&para;</a></h2>
+<p class="power-number">After adding MongoDB service to PMM, verify that it&rsquo;s properly configured and collecting data. This ensures your monitoring setup is working correctly.</p>
+<ol>
+<li>
+<p>Check service registration:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Via CLI</label><label for="__tabbed_6_2">Via UI</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Look for your service in the output of this command:</p>
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>list
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>To check the service from the UI:</p>
 <ul>
-<li>When adding nodes to a sharded cluster, ensure to add each node separately using the <code>--cluster mycluster</code> option. This allows the <a href="../../../reference/dashboards/dashboard-mongodb-cluster-summary.html">MongoDB Cluster Summary</a> dashboard to populate correctly. </li>
-<li>You can also use the <code>--replication-set</code> option to specify a replication set, altough they are automatically detected. For instance, you can use <code>--replication-set config</code> for your config servers; <code>--replication-set rs1</code> for your servers in the first replica set, <code>--replication-set rs2</code> for your servers in the second replica set, and so on.</li>
-<li>When running mongos routers in containers, specify the <code>diagnosticDataCollectionDirectoryPath</code> to ensure that pmm-agent can properly capture mongos metrics. For example: <code>mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/</code></li>
+<li>Select <strong>PMM Configuration &gt; Inventory &gt; Services</strong>. </li>
+<li>Find your MongoDB service in the list and verify it shows <strong>Active</strong> status.</li>
+<li>Verify the <strong>Service name</strong>, <strong>Addresses</strong>, and other connection details are correct.</li>
+<li>In the <strong>Options</strong> column, expand the <strong>Details</strong> section to check that agents are properly connected.</li>
 </ul>
 </div>
-<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
-<p>Add basic data collection:</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span><span class="se">\</span>
---username<span class="o">=</span>pmm_mongodb<span class="w"> </span>--password<span class="o">=</span>password<span class="w"> </span><span class="se">\</span>
---query-source<span class="o">=</span>profiler<span class="w"> </span>--cluster<span class="o">=</span>mycluster
-</code></pre></div>
-<p>Add complete data collection with a custom service name:</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span><span class="se">\</span>
---username<span class="o">=</span>pmm_mongodb<span class="w"> </span>--password<span class="o">=</span>password<span class="w"> </span><span class="se">\</span>
-mongo<span class="w"> </span><span class="m">127</span>.0.0.1:27017
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span><span class="se">\</span>
---username<span class="o">=</span>pmm_mongodb<span class="w"> </span>--password<span class="o">=</span>password<span class="w"> </span><span class="se">\</span>
---service-name<span class="o">=</span>mymongosvc<span class="w"> </span>--host<span class="o">=</span><span class="m">127</span>.0.0.1<span class="w"> </span>--port<span class="o">=</span><span class="m">27017</span>
-</code></pre></div>
-<h4 id="connect-via-unix-socket">Connect via UNIX socket<a class="headerlink" href="#connect-via-unix-socket" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span>--socket<span class="o">=</span>/tmp/mongodb-27017.sock
-</code></pre></div>
-<h4 id="connecting-via-ssltls">Connecting via SSL/TLS<a class="headerlink" href="#connecting-via-ssltls" title="Permanent link">&para;</a></h4>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mongodb<span class="w"> </span>--tls<span class="w"> </span><span class="se">\</span>
---tls-certificate-key-file<span class="o">=</span>PATHTOCER<span class="w"> </span><span class="se">\</span>
---tls-certificate-key-file-password<span class="o">=</span>IFPASSWORDTOCERTISSET<span class="w"> </span><span class="se">\</span>
---tls-ca-file<span class="o">=</span>PATHTOCACERT
---authentication-mechanism<span class="o">=</span>AUTHENTICATION-MECHANISM
---authentication-database<span class="o">=</span>AUTHENTICATION-DATABASE
-</code></pre></div>
-<p>where:</p>
+</div>
+</div>
+</li>
+<li>
+<p>Verify data collection:</p>
 <ul>
-<li><code>PATHTOCERT</code>: Path to TLS certificate file.</li>
-<li><code>IFPASSWORDTOCERTISSET</code>: Password for TLS certificate file.</li>
-<li><code>PATHTOCACERT</code>: Path to certificate authority file.</li>
-<li><code>AUTHENTICATION-MECHANISM</code>: Authentication mechanism. Default is empty. Use <code>MONGODB-X509</code> for SSL certificates.</li>
-<li><code>AUTHENTICATION-DATABASE</code>: Authentication database. Default is empty. Use <code>$external</code> for SSL certificates.</li>
-</ul>
-<h2 id="check-the-service">Check the service<a class="headerlink" href="#check-the-service" title="Permanent link">&para;</a></h2>
-<h3 id="from-the-user-interface">From the user interface<a class="headerlink" href="#from-the-user-interface" title="Permanent link">&para;</a></h3>
-<p class="power-number">To check the service from the UI:</p>
-<ol>
-<li>
-<p>Select  <strong>PMM Configuration &gt; Inventory &gt; MongoDB</strong>.</p>
-</li>
-<li>
-<p>Enter or select values for the fields.</p>
-</li>
-<li>
-<p>Click <strong>Add service</strong>.</p>
-</li>
-</ol>
-<p><img alt="!" src="../../../images/PMM_Add_Instance_MongoDB_TLS.jpg" /></p>
-<h3 id="on-the-command-line_1">On the command line<a class="headerlink" href="#on-the-command-line_1" title="Permanent link">&para;</a></h3>
-<p>Look for your service in the output of this command.</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>inventory<span class="w"> </span>list<span class="w"> </span>services<span class="w"> </span>--service-type<span class="o">=</span>mongodb
-</code></pre></div>
-<h3 id="check-data">Check data<a class="headerlink" href="#check-data" title="Permanent link">&para;</a></h3>
-<p class="power-number">To check the data:</p>
-<ol>
 <li>Open the <strong>MongoDB Instances Overview</strong> dashboard.</li>
 <li>Set the <strong>Service Name</strong> to the newly-added service.</li>
-</ol>
-<h4 id="query-analytics">Query Analytics<a class="headerlink" href="#query-analytics" title="Permanent link">&para;</a></h4>
-<p class="power-number">To see the query analytics for the service:</p>
-<ol>
-<li>Open <strong>PMM Query Analytics</strong>.</li>
-<li>In the <strong>Filters</strong> panel:<ol>
-<li>Under <strong>Service Name</strong>, select your service.</li>
-<li>Under <strong>Service Type</strong> select <code>mongodb</code>.</li>
-</ol>
+<li>Confirm that metrics are being displayed in the dashboard.</li>
+</ul>
 </li>
-</ol>
-<h2 id="remove-service">Remove service<a class="headerlink" href="#remove-service" title="Permanent link">&para;</a></h2>
-<h3 id="with-the-user-interface_1">With the user interface<a class="headerlink" href="#with-the-user-interface_1" title="Permanent link">&para;</a></h3>
-<p class="power-number">To remove the service from the UI:</p>
-<ol>
-<li>Select <strong>PMM Configuration &gt; Inventory</strong>.</li>
-<li>In the <strong>Services</strong> tab, verify the <strong>Service name</strong>, <strong>Addresses</strong>, and any other relevant values used when adding the service.</li>
-<li>In the <strong>Options</strong> column, expand the <strong>Details</strong> section and check that the Agents are using the desired data source.</li>
 <li>
-<p>If your MongoDB instance is configured to use TLS, click on the <strong>Use TLS for database connection</strong> check box and fill in TLS certificates and keys.
-If you use TLS, the authentication mechanism is automatically set to <code>MONGODB-X509</code>.</p>
-<p><img alt="!" src="../../../images/PMM_Add_Instance_MongoDB_TLS.jpg" /></p>
+<p>Verify Query Analytics for the service:</p>
+<ul>
+<li>Open <strong>PMM Query Analytics</strong> dashboard and use the filters to select your MongoDB service. </li>
+<li>Check that query data is visible (it may take a few minutes for data to appear after initial setup).</li>
+</ul>
 </li>
 </ol>
-<h3 id="on-the-command-line_2">On the command line<a class="headerlink" href="#on-the-command-line_2" title="Permanent link">&para;</a></h3>
+<h2 id="remove-mongodb-service">Remove MongoDB Service<a class="headerlink" href="#remove-mongodb-service" title="Permanent link">&para;</a></h2>
+<p>If you need to remove MongoDB service from PMM, follow these steps:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="7:2"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">Via CLI</label><label for="__tabbed_7_2">Via UI</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Replace <code>SERVICE_NAME</code> with the name you used when adding the service. You can list all services with <code>pmm-admin</code>:</p>
 <div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>remove<span class="w"> </span>mongodb<span class="w"> </span>SERVICE_NAME
 </code></pre></div>
-<ul>
-<li><code>SERVICE_NAME</code>: The name the service was added as. (Find it with <code>pmm-admin list</code>.)</li>
-</ul>
+</div>
+<div class="tabbed-block">
+<p class="power-number">To remove the services through the PMM interface:</p>
+<ol>
+<li>Go to <strong>PMM Configuration &gt; Inventory &gt; Services</strong>.</li>
+<li>In the <strong>Status</strong> column, check the box for the service you want to remove and click <strong>Delete</strong>.</li>
+<li>On the confirmation pop-up, click <strong>Delete service</strong> and select <strong>Force mode</strong> if you want to also delete associated Clients.</li>
+</ol>
+</div>
+</div>
+</div>
 <div class="admonition seealso alert alert-info">
 <p class="admonition-title">See also</p>
 <ul>
@@ -9569,7 +9258,7 @@ If you use TLS, the authentication mechanism is automatically set to <code>MONGO
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-02-04
+    2025-03-26
   </span>
 
     
