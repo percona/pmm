@@ -151,13 +151,13 @@ Choose one of the following methods to enable profiling:
         slowOpThresholdMs: 200
         rateLimit: 100        
         ```
-        These settings control the following:
+      These settings control the following:
         
-            - `mode: all` - Collects data for all operations.
-            - `slowOpThresholdMs: 200` - Marks operations exceeding 200ms as "slow."
-            - `rateLimit: 100` -  Limits profiling sampling rate (Percona Server for MongoDB only).
+        - `mode: all` - Collects data for all operations.
+        - `slowOpThresholdMs: 200` - Marks operations exceeding 200ms as "slow."
+        - `rateLimit: 100` -  Limits profiling sampling rate (Percona Server for MongoDB only).
             
-        For more information about profiling configuration options, see the [MongoDB documentation][MONGODB_CONFIG_OP_PROF] and the [Percona Server for MongoDB documentation][PSMDB_RATELIMIT].
+      For more information about profiling configuration options, see the [MongoDB documentation][MONGODB_CONFIG_OP_PROF] and the [Percona Server for MongoDB documentation][PSMDB_RATELIMIT].
 
     3. Restart the `mongod` service using the appropriate command for your system. For example, for `systemd`:
 
