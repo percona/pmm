@@ -132,6 +132,7 @@ extra:
 # Common navigation for percona.com, render.com and PDF
 nav:
   - Welcome: index.md
+  - get-help.md 
   - Quickstart guide: quickstart/index.md
   - Setting up:
       - setting-up/index.md
@@ -333,7 +334,9 @@ nav:
   - faq.md
   - Release notes:
       - release-notes/index.md
+      - "PMM 2.44.0-1": release-notes/2.44.0.1.md
       - "PMM 2.44.0": release-notes/2.44.0.md
+      - "PMM 2.43.2-1": release-notes/2.43.2-1.md
       - "PMM 2.43.2": release-notes/2.43.2.md
       - "PMM 2.43.1": release-notes/2.43.1.md
       - "PMM 2.43.0": release-notes/2.43.0.md

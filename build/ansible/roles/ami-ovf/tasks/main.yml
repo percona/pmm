@@ -68,3 +68,37 @@
 
 - name: PMM                        | Delete Azure user
   shell: cd /tmp; nohup sh -c "trap '/usr/sbin/waagent -force -deprovision+user && sync' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+
+- name: Lock vagrant user
+  ansible.builtin.user:
+    name: vagrant
+    password_lock: true
+  when: ansible_virtualization_type == "virtualbox"
+
+- name: Configure systemd service to remove vagrant user
+  block:
+    - name: Create systemd service file
+      copy:
+        dest: /etc/systemd/system/remove-vagrant.service
+        content: |
+          [Unit]
+          Description=Remove vagrant user on first boot
+          After=multi-user.target
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/sbin/userdel -r vagrant
+          ExecStartPost=/usr/bin/touch /etc/remove-vagrant-done
+
+          [Install]
+          WantedBy=multi-user.target
+          ConditionPathExists=!/etc/remove-vagrant-done
+
+    - name: Reload systemd to recognize the new service
+      command: systemctl daemon-reload
+
+    - name: Enable the remove-vagrant service
+      systemd:
+        name: remove-vagrant
+        enabled: true
+  when: ansible_virtualization_type == "virtualbox"

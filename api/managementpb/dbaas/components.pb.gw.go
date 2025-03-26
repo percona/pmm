@@ -10,6 +10,7 @@ package dbaasv1beta1
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -28,151 +29,152 @@ var (
 	_ codes.Code
 	_ io.Reader
 	_ status.Status
+	_ = errors.New
 	_ = runtime.String
 	_ = utilities.NewDoubleArray
 	_ = metadata.Join
 )
 
 func request_Components_GetPSMDBComponents_0(ctx context.Context, marshaler runtime.Marshaler, client ComponentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetPSMDBComponentsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq GetPSMDBComponentsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.GetPSMDBComponents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_Components_GetPSMDBComponents_0(ctx context.Context, marshaler runtime.Marshaler, server ComponentsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetPSMDBComponentsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq GetPSMDBComponentsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.GetPSMDBComponents(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_Components_GetPXCComponents_0(ctx context.Context, marshaler runtime.Marshaler, client ComponentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetPXCComponentsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq GetPXCComponentsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.GetPXCComponents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_Components_GetPXCComponents_0(ctx context.Context, marshaler runtime.Marshaler, server ComponentsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetPXCComponentsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq GetPXCComponentsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.GetPXCComponents(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_Components_ChangePSMDBComponents_0(ctx context.Context, marshaler runtime.Marshaler, client ComponentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ChangePSMDBComponentsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq ChangePSMDBComponentsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.ChangePSMDBComponents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_Components_ChangePSMDBComponents_0(ctx context.Context, marshaler runtime.Marshaler, server ComponentsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ChangePSMDBComponentsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq ChangePSMDBComponentsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ChangePSMDBComponents(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_Components_ChangePXCComponents_0(ctx context.Context, marshaler runtime.Marshaler, client ComponentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ChangePXCComponentsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq ChangePXCComponentsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.ChangePXCComponents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_Components_ChangePXCComponents_0(ctx context.Context, marshaler runtime.Marshaler, server ComponentsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ChangePXCComponentsRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq ChangePXCComponentsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ChangePXCComponents(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_Components_InstallOperator_0(ctx context.Context, marshaler runtime.Marshaler, client ComponentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq InstallOperatorRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq InstallOperatorRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.InstallOperator(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_Components_InstallOperator_0(ctx context.Context, marshaler runtime.Marshaler, server ComponentsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq InstallOperatorRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq InstallOperatorRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.InstallOperator(ctx, &protoReq)
 	return msg, metadata, err
 }
 
 func request_Components_CheckForOperatorUpdate_0(ctx context.Context, marshaler runtime.Marshaler, client ComponentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CheckForOperatorUpdateRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CheckForOperatorUpdateRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.CheckForOperatorUpdate(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
 func local_request_Components_CheckForOperatorUpdate_0(ctx context.Context, marshaler runtime.Marshaler, server ComponentsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CheckForOperatorUpdateRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CheckForOperatorUpdateRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.CheckForOperatorUpdate(ctx, &protoReq)
 	return msg, metadata, err
 }
@@ -183,15 +185,13 @@ func local_request_Components_CheckForOperatorUpdate_0(ctx context.Context, mars
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterComponentsHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ComponentsServer) error {
-	mux.Handle("POST", pattern_Components_GetPSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Components_GetPSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Components/GetPSMDBComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/GetPSMDB"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Components/GetPSMDBComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/GetPSMDB"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -203,19 +203,15 @@ func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Components_GetPSMDBComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_Components_GetPXCComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Components_GetPXCComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Components/GetPXCComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/GetPXC"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Components/GetPXCComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/GetPXC"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -227,19 +223,15 @@ func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Components_GetPXCComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_Components_ChangePSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Components_ChangePSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Components/ChangePSMDBComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/ChangePSMDB"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Components/ChangePSMDBComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/ChangePSMDB"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -251,19 +243,15 @@ func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Components_ChangePSMDBComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_Components_ChangePXCComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Components_ChangePXCComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Components/ChangePXCComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/ChangePXC"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Components/ChangePXCComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/ChangePXC"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -275,19 +263,15 @@ func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Components_ChangePXCComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_Components_InstallOperator_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Components_InstallOperator_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Components/InstallOperator", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/InstallOperator"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Components/InstallOperator", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/InstallOperator"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -299,19 +283,15 @@ func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Components_InstallOperator_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_Components_CheckForOperatorUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Components_CheckForOperatorUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Components/CheckForOperatorUpdate", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/CheckForOperatorUpdate"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.Components/CheckForOperatorUpdate", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/CheckForOperatorUpdate"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -323,7 +303,6 @@ func RegisterComponentsHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Components_CheckForOperatorUpdate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
@@ -351,7 +330,6 @@ func RegisterComponentsHandlerFromEndpoint(ctx context.Context, mux *runtime.Ser
 			}
 		}()
 	}()
-
 	return RegisterComponentsHandler(ctx, mux, conn)
 }
 
@@ -367,13 +345,11 @@ func RegisterComponentsHandler(ctx context.Context, mux *runtime.ServeMux, conn 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ComponentsClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ComponentsClient) error {
-	mux.Handle("POST", pattern_Components_GetPSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Components_GetPSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Components/GetPSMDBComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/GetPSMDB"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Components/GetPSMDBComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/GetPSMDB"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -384,17 +360,13 @@ func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Components_GetPSMDBComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_Components_GetPXCComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Components_GetPXCComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Components/GetPXCComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/GetPXC"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Components/GetPXCComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/GetPXC"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -405,17 +377,13 @@ func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Components_GetPXCComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_Components_ChangePSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Components_ChangePSMDBComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Components/ChangePSMDBComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/ChangePSMDB"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Components/ChangePSMDBComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/ChangePSMDB"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -426,17 +394,13 @@ func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Components_ChangePSMDBComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_Components_ChangePXCComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Components_ChangePXCComponents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Components/ChangePXCComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/ChangePXC"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Components/ChangePXCComponents", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/ChangePXC"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -447,17 +411,13 @@ func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Components_ChangePXCComponents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_Components_InstallOperator_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Components_InstallOperator_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Components/InstallOperator", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/InstallOperator"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Components/InstallOperator", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/InstallOperator"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -468,17 +428,13 @@ func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Components_InstallOperator_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
-	mux.Handle("POST", pattern_Components_CheckForOperatorUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_Components_CheckForOperatorUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Components/CheckForOperatorUpdate", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/CheckForOperatorUpdate"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.Components/CheckForOperatorUpdate", runtime.WithHTTPPathPattern("/v1/management/DBaaS/Components/CheckForOperatorUpdate"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -489,37 +445,25 @@ func RegisterComponentsHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_Components_CheckForOperatorUpdate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-
 	return nil
 }
 
 var (
-	pattern_Components_GetPSMDBComponents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Components", "GetPSMDB"}, ""))
-
-	pattern_Components_GetPXCComponents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Components", "GetPXC"}, ""))
-
-	pattern_Components_ChangePSMDBComponents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Components", "ChangePSMDB"}, ""))
-
-	pattern_Components_ChangePXCComponents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Components", "ChangePXC"}, ""))
-
-	pattern_Components_InstallOperator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Components", "InstallOperator"}, ""))
-
+	pattern_Components_GetPSMDBComponents_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Components", "GetPSMDB"}, ""))
+	pattern_Components_GetPXCComponents_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Components", "GetPXC"}, ""))
+	pattern_Components_ChangePSMDBComponents_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Components", "ChangePSMDB"}, ""))
+	pattern_Components_ChangePXCComponents_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Components", "ChangePXC"}, ""))
+	pattern_Components_InstallOperator_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Components", "InstallOperator"}, ""))
 	pattern_Components_CheckForOperatorUpdate_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "Components", "CheckForOperatorUpdate"}, ""))
 )
 
 var (
-	forward_Components_GetPSMDBComponents_0 = runtime.ForwardResponseMessage
-
-	forward_Components_GetPXCComponents_0 = runtime.ForwardResponseMessage
-
-	forward_Components_ChangePSMDBComponents_0 = runtime.ForwardResponseMessage
-
-	forward_Components_ChangePXCComponents_0 = runtime.ForwardResponseMessage
-
-	forward_Components_InstallOperator_0 = runtime.ForwardResponseMessage
-
+	forward_Components_GetPSMDBComponents_0     = runtime.ForwardResponseMessage
+	forward_Components_GetPXCComponents_0       = runtime.ForwardResponseMessage
+	forward_Components_ChangePSMDBComponents_0  = runtime.ForwardResponseMessage
+	forward_Components_ChangePXCComponents_0    = runtime.ForwardResponseMessage
+	forward_Components_InstallOperator_0        = runtime.ForwardResponseMessage
 	forward_Components_CheckForOperatorUpdate_0 = runtime.ForwardResponseMessage
 )

@@ -36,13 +36,13 @@ See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-m
 
 Please check our [Documentation](https://docs.percona.com/percona-monitoring-and-management/details/architecture.html) for the actual architecture.
 
-![Overal Architecture](https://docs.percona.com/percona-monitoring-and-management/_images/C_S_Architecture.jpg "Client Server Architecture")
+![Overall Architecture](https://docs.percona.com/percona-monitoring-and-management/3/images/C_S_Architecture.jpg "Client Server Architecture")
 
 
-![PMM Server](https://docs.percona.com/percona-monitoring-and-management/_images/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
+![PMM Server](https://docs.percona.com/percona-monitoring-and-management/3/images/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
 
 
-![PMM Client](https://docs.percona.com/percona-monitoring-and-management/_images/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
+![PMM Client](https://docs.percona.com/percona-monitoring-and-management/3/images/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
 
 ## Installation
 
@@ -67,7 +67,7 @@ percona/pmm-server:2
 ```
 4. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
 
-<img src="https://docs.percona.com/percona-monitoring-and-management/_images/PMM_Login.jpg" width="280">
+<img src="documentation/docs/images/PMM_Login.png" width="280" alt="PMM Login page">
 
 Enter the username and password. The defaults are username: **admin** and password: **admin**
 
