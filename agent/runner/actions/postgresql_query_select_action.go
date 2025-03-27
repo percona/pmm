@@ -23,6 +23,7 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -88,7 +89,7 @@ func (a *postgresqlQuerySelectAction) DSN() string {
 
 // Run runs an Action and returns output and error.
 func (a *postgresqlQuerySelectAction) Run(ctx context.Context) ([]byte, error) {
-	defer templates.CleanupTempDir(a.tmpDir, nil)
+	defer templates.CleanupTempDir(a.tmpDir, logrus.WithField("component", postgreSQLQuerySelectActionType))
 
 	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {

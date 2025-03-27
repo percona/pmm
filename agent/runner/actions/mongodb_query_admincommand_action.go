@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -88,7 +89,7 @@ func (a *mongodbQueryAdmincommandAction) DSN() string {
 
 // Run runs an action and returns output and error.
 func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error) {
-	defer templates.CleanupTempDir(a.tmpDir, nil)
+	defer templates.CleanupTempDir(a.tmpDir, logrus.WithField("component", mongoDBQueryAdminCommandActionType))
 	opts, err := mongo_fix.ClientOptionsForDSN(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
