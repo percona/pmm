@@ -44,20 +44,9 @@ func Get() *NodeInfo {
 }
 
 func checkContainer() bool {
-	_, err := os.Stat("/.dockerenv")
-	if err == nil {
-		return true
-	}
-	_, err = os.Stat("/run/.containerenv") // Podman-specific
-	if err == nil {
-		return true
-	}
 	// https://stackoverflow.com/a/20012536
-	b, err := os.ReadFile("/proc/1/cgroup")
-	if err == nil {
-		return strings.Contains(string(b), "/docker/") || strings.Contains(string(b), "/lxc/") || strings.Contains(string(b), "/podman/")
-	}
-	return false
+	b, _ := os.ReadFile("/proc/1/cgroup")
+	return strings.Contains(string(b), "/docker/") || strings.Contains(string(b), "/lxc/")
 }
 
 func readDistro() string {
