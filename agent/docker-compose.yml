@@ -48,37 +48,51 @@ services:
       - ./testdata/mysql:/mysql
 
   mongo:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
+    image: ${MONGO_IMAGE:-mongo:5.0}
     container_name: pmm-agent_mongo
     command:
-      - --profile=2
-      - --logpath=/var/log/mongodb/mongo.log
-      - --logAppend
+      - bash
+      - -c
+      - |
+        mkdir -p /var/log/mongodb
+        touch /var/log/mongodb/mongo.log
+        chown -R mongodb:mongodb /var/log/mongodb
+        exec mongod \
+          --profile=2 \
+          --logpath=/var/log/mongodb/mongo.log \
+          --logappend
     ports:
       - "127.0.0.1:27017:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root-password
     volumes:
-      - mongo_logs:/var/log/mongodb
+      - ./mongo_logs:/var/log/mongodb
 
-  mongo_with_ssl:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
-    container_name: pmm-agent_mongo_with_ssl
+  mongo_with_tls:
+    image: ${MONGO_IMAGE:-mongo:5.0}
+    container_name: pmm-agent_mongo_with_tls
     command:
-      - --profile=2
-      - --sslMode=requireSSL
-      - --sslPEMKeyFile=/etc/ssl/certificates/server.pem
-      - --sslCAFile=/etc/ssl/certificates/ca.crt
-      - --sslWeakCertificateValidation
-      - --bind_ip=0.0.0.0
-      - --logpath=/var/log/mongodb/mongo.log
-      - --logAppend
+      - bash
+      - -c
+      - |
+        mkdir -p /var/log/mongodb
+        touch /var/log/mongodb/mongo.log
+        chown -R mongodb:mongodb /var/log/mongodb
+        exec mongod \
+          --profile=2 \
+          --tlsMode=requireTLS \
+          --tlsPEMKeyFile=/etc/tls/certificates/server.pem \
+          --tlsCAFile=/etc/tls/certificates/ca.crt \
+          --tlsWeakCertificateValidation \
+          --bind_ip=0.0.0.0 \
+          --logpath=/var/log/mongodb/mongo.log \
+          --logappend
     ports:
       - "127.0.0.1:27018:27017"
     volumes:
-      - ${PWD}/utils/tests/testdata/mongodb:/etc/ssl/certificates
-      - mongo_logs:/var/log/mongodb
+      - ${PWD}/utils/tests/testdata/mongodb:/etc/tls/certificates
+      - ./mongo_logs:/var/log/mongodb
 
   mongonoauth:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
@@ -99,10 +113,10 @@ services:
       - "127.0.0.1:27020:27020"
       - "127.0.0.1:27021:27021"
 
-  mongo_repl_with_ssl:
+  mongo_repl_with_tls:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
-    container_name: pmm-agent_mongorepl_with_ssl
-    command: /scripts/mongo_repl_with_ssl.sh
+    container_name: pmm-agent_mongorepl_with_tls
+    command: /scripts/mongo_repl_with_tls.sh
     environment:
       - MONGO_IMAGE=${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     ports:
@@ -110,7 +124,7 @@ services:
       - "127.0.0.1:27023:27023"
     volumes:
       - ./testscripts/:/scripts
-      - ${PWD}/utils/tests/testdata/mongodb:/etc/ssl/certificates
+      - ${PWD}/utils/tests/testdata/mongodb:/etc/tls/certificates
 
   postgres:
     image: ${POSTGRES_IMAGE:-postgres:11}
@@ -138,4 +152,3 @@ services:
 volumes:
   test_db_mysql:
   test_db_postgres:
-  mongo_logs:
