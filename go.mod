@@ -53,7 +53,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.55
 	github.com/percona/exporter_shared v0.7.5
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
-	github.com/percona/percona-toolkit v0.0.0-20250306213812-9ad6dc01250f
+	github.com/percona/percona-toolkit v3.2.1+incompatible
 	github.com/percona/promconfig v0.2.5
 	github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e
 	github.com/pganalyze/pg_query_go/v5 v5.1.0
@@ -122,7 +122,6 @@ require (
 	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
 	golang.org/x/time v0.7.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
-	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22 // indirect
 )
 
 require (
