@@ -29,7 +29,7 @@ The PMM Client Docker image is available for both x86_64 and ARM64 architectures
       -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
       -e PMM_AGENT_SETUP=1 \
       -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
-      -v pmm-client-data:/srv \
+      -v pmm-client-data:/usr/local/percona/pmm \
       percona/pmm-client:3
     ```
     !!! hint alert-success "Important"
