@@ -16,7 +16,6 @@ package fingerprinter
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -46,12 +45,11 @@ func (pf *ProfilerFingerprinter) Fingerprint(doc proto.SystemProfile) (fingerpri
 	}
 
 	// Parse the namespace to separate database and collection names
-	parts := strings.Split(doc.Ns, ".")
-	if len(parts) < 2 {
-		return fp, errors.New("invalid namespace format")
-	}
+	parts := strings.SplitN(doc.Ns, ".", 2)
 	fp.Database = parts[0]
-	fp.Collection = parts[1]
+	if len(parts) > 1 {
+		fp.Collection = parts[1]
+	}
 
 	// Select operation type and build command with optional fields
 	switch doc.Op {
@@ -117,8 +115,8 @@ func (pf *ProfilerFingerprinter) fingerprintInsert(fp fingerprinter.Fingerprint)
 // Helper for update operations
 func (pf *ProfilerFingerprinter) fingerprintUpdate(fp fingerprinter.Fingerprint, doc proto.SystemProfile) (fingerprinter.Fingerprint, error) {
 	command := doc.Command.Map()
-	filterJSON, _ := json.Marshal(maskValues(command["q"].(bson.D), make(map[string]maskOption)))
-	updateJSON, _ := json.Marshal(maskValues(command["u"].(bson.D), make(map[string]maskOption)))
+	filterJSON, _ := json.Marshal(maskValues(command["q"], make(map[string]maskOption)))
+	updateJSON, _ := json.Marshal(maskValues(command["u"], make(map[string]maskOption)))
 
 	fp.Fingerprint = fmt.Sprintf(`db.%s.update(%s, %s`, fp.Collection, filterJSON, updateJSON)
 	fp.Keys = string(filterJSON)
