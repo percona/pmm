@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="PMM 3 introduces significant architectural changes that require gradual transition from PMM 2.">
+        <meta name="description" content="PMM 3 introduces significant architectural changes that require a gradual transition from PMM 2.">
       
       
         <meta name="author" content="Percona LLC">
@@ -3260,24 +3260,6 @@
   
     <nav class="md-nav" aria-label="Step 4: Migrate your API keys to service accounts">
       <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#from-the-ui" class="md-nav__link">
-    <span class="md-ellipsis">
-      From the UI
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#from-cli" class="md-nav__link">
-    <span class="md-ellipsis">
-      From CLI
-    </span>
-  </a>
-  
-</li>
         
           <li class="md-nav__item">
   <a href="#verify-the-conversion" class="md-nav__link">
@@ -8932,24 +8914,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#from-the-ui" class="md-nav__link">
-    <span class="md-ellipsis">
-      From the UI
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#from-cli" class="md-nav__link">
-    <span class="md-ellipsis">
-      From CLI
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#verify-the-conversion" class="md-nav__link">
     <span class="md-ellipsis">
       Verify the conversion
@@ -9107,24 +9071,30 @@
 
 
 <h1 id="migrate-pmm-2-to-pmm-3">Migrate PMM 2 to PMM 3<a class="headerlink" href="#migrate-pmm-2-to-pmm-3" title="Permanent link">&para;</a></h1>
-<p>PMM 3 introduces significant architectural changes that require gradual transition from PMM 2.</p>
-<p>You can migrate to PMM 3 either automatically using the automated migration script (recommended), or manually by following step-by-step instructions.</p>
-<p>To graduallly migrate to PMM 3:</p>
+<p>PMM 3 introduces significant architectural changes that require a gradual transition from PMM 2.</p>
+<p>You can migrate to PMM 3 either automatically using the automated migration script (recommended) or manually by following step-by-step instructions.</p>
+<p>To gradually migrate to PMM 3:</p>
 <h2 id="step-1-upgrade-pmm-2-server-to-the-latest-version">Step 1: Upgrade PMM 2 Server to the latest version<a class="headerlink" href="#step-1-upgrade-pmm-2-server-to-the-latest-version" title="Permanent link">&para;</a></h2>
 <p class="power-number">Before migrating PMM 2 to PMM 3, ensure your PMM 2 Server is running the latest version:</p>
 <ol>
-<li>From the <strong>Home</strong> page, scroll to the <strong>PMM Upgrade</strong> panel and click the Refresh button to manually check for updates.</li>
+<li>From the <strong>Home</strong> page, scroll to the <strong>PMM Upgrade</strong> panel and click the Refresh button to check for updates manually.</li>
 <li>If an update is available, click the <strong>Update</strong> button to install the latest PMM 2 version.</li>
-<li>Verify the update was successful by checking the version number after the update completes.</li>
+<li>Verify that the update was successful by checking the version number after the update completes.</li>
 </ol>
 <h2 id="step-2-migrate-pmm-2-server-to-pmm-3">Step 2: Migrate PMM 2 Server to PMM 3<a class="headerlink" href="#step-2-migrate-pmm-2-server-to-pmm-3" title="Permanent link">&para;</a></h2>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Automated Docker migration (Recommended)</label><label for="__tabbed_1_2">Manual migration (Docker/Kubernetes/Podman/AMI/OVF)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<p class="power-number">Use this upgrade script for a simplified migration process:</p>
+<p class="power-number">Use this upgrade script for a simplified migration process.</p>
 <ol>
+<li>Download and prepare the automated migration script: <br />
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-o<span class="w"> </span>get-pmm.sh<span class="w"> </span>https://www.percona.com/get/pmm
+</code></pre></div></li>
+<li>Make the script executable: 
+    <div class="highlight"><pre><span></span><code>chmod<span class="w"> </span>+x<span class="w"> </span>get-pmm.sh
+</code></pre></div></li>
 <li>
-<p>Download and run the <a href="https://www.percona.com/get/pmm">automated migration script</a> to start the migration. The <code>-b</code> flag creates a backup of your PMM2 instance to ensure that your data is backed up before the migration.</p>
+<p>Run the migration script with the <code>-b</code> flag to create a backup of your PMM2 instance before the migration:</p>
 <div class="highlight"><pre><span></span><code>./get-pmm.sh<span class="w"> </span>-n<span class="w"> </span>&lt;container-name&gt;<span class="w"> </span>-b
 </code></pre></div>
 </li>
@@ -9187,7 +9157,7 @@
 </code></pre></div>
 </li>
 <li>
-<p>Run new new version of PMM Server with the existing volume:</p>
+<p>Run the new version of PMM Server with the existing volume:</p>
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-v<span class="w"> </span>pmm-server-data:/srv<span class="w"> </span>-p<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span>--name<span class="w"> </span>pmm-server<span class="w"> </span>--restart<span class="w"> </span>always<span class="w"> </span>percona/pmm-server:3
 </code></pre></div>
 </li>
@@ -9367,15 +9337,14 @@
 For detailed instructions, see the <a href="upgrade_client.html">Upgrade PMM Client topic</a>.</p>
 <h2 id="step-4-migrate-your-api-keys-to-service-accounts">Step 4: Migrate your API keys to service accounts<a class="headerlink" href="#step-4-migrate-your-api-keys-to-service-accounts" title="Permanent link">&para;</a></h2>
 <p>PMM 3 replaces API keys with service accounts to enhance security and simplify access management. You can trigger this API key conversion from the UI or from the CLI.</p>
-<h3 id="from-the-ui">From the UI<a class="headerlink" href="#from-the-ui" title="Permanent link">&para;</a></h3>
-<p>PMM automatically migrates existing API keys to service accounts when you first log in as an Admin user. The migration results are displayed in a popup dialog box. </p>
-<p>If no popup appears, it likely means there are no API keys to migrate—this is typical for PMM Servers without connected services.</p>
-<h3 id="from-cli">From CLI<a class="headerlink" href="#from-cli" title="Permanent link">&para;</a></h3>
-<p>You can also initiate the conversion using the following command. 
-Be sure to replace <code>admin:admin</code> with your credentials and update the server address (<code>localhost</code> or <code>127.0.0.1</code>) and port number (<code>3000</code>) if they differ from the defaults:</p>
-<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/api/serviceaccounts/migrate<span class="w"> </span><span class="se">\</span>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">From CLI</label><label for="__tabbed_3_2">From the UI</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>You can also initiate the conversion using the following command. </p>
+<p>Be sure to replace <code>admin:admin</code> with your credentials and update the server address to match your PMM Server address (the same URL you use to access the PMM web interface):</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-k<span class="w"> </span>https://YOUR<span class="w"> </span>PMM<span class="w"> </span>SERVER<span class="w"> </span>ADDRESS/graph/api/serviceaccounts/migrate<span class="w"> </span><span class="se">\</span>
 -u<span class="w"> </span>admin:admin<span class="w"> </span><span class="se">\</span>
--H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json</span>
+-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span>
 </code></pre></div>
 <p>The response will display the migration details:</p>
 <div class="admonition example">
@@ -9383,8 +9352,15 @@ Be sure to replace <code>admin:admin</code> with your credentials and update the
 <div class="highlight"><pre><span></span><code>{&quot;total&quot;:3,&quot;migrated&quot;:3,&quot;failed&quot;:0,&quot;failedApikeyIDs&quot;:[],&quot;failedDetails&quot;:[]}
 </code></pre></div>
 </div>
+</div>
+<div class="tabbed-block">
+<p>PMM automatically migrates existing API keys to service accounts when you first log in as an Admin user. The migration results are displayed in a popup dialog box.
+If no popup appears, it likely means there are no API keys to migrate—this is typical for PMM Servers without connected services.</p>
+</div>
+</div>
+</div>
 <h3 id="verify-the-conversion">Verify the conversion<a class="headerlink" href="#verify-the-conversion" title="Permanent link">&para;</a></h3>
-<p>To verify the that API keys were successfully migrated, go to <strong>Administration &gt; Users and Access &gt; Service Accounts</strong> where you can check the list of service accounts available and confirm that the <strong>API Keys</strong> menu is no longer displayed.</p>
+<p>To verify that API keys were successfully migrated, go to <strong>Administration &gt; Users and Access &gt; Service Accounts</strong>, where you can check the list of service accounts available and confirm that the <strong>API Keys</strong> menu is no longer displayed.</p>
 <p>If any API keys fail to migrate, you can either: </p>
 <ul>
 <li>delete the problematic API keys and create new service accounts</li>
@@ -9412,7 +9388,7 @@ Be sure to replace <code>admin:admin</code> with your credentials and update the
 -e<span class="w"> </span><span class="nv">PMM_ENABLE_UPDATES</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_DATA_RETENTION</span><span class="o">=</span>720h
 </code></pre></div>
 <h4 id="migration-reference-table">Migration reference table<a class="headerlink" href="#migration-reference-table" title="Permanent link">&para;</a></h4>
-<p>The following table lists all the environment variable changes between PMM v2 and PMM v3. Make sure to review this table when updating your deployment configurations.</p>
+<p>The following table lists all the environment variable changes between PMM v2 and PMM v3. Review this table when updating your deployment configurations.</p>
 <details class="note">
 <summary>Click to expand migration reference table</summary>
 <h4 id="configuration-variables">Configuration variables<a class="headerlink" href="#configuration-variables" title="Permanent link">&para;</a></h4>
@@ -9699,7 +9675,7 @@ Be sure to replace <code>admin:admin</code> with your credentials and update the
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-02-17
+    2025-03-27
   </span>
 
     
