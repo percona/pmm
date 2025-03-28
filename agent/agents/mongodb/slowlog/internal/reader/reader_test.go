@@ -1,18 +1,21 @@
 package reader
 
 import (
+	"bufio"
 	"fmt"
 	"log"
+	"os"
 	"testing"
 	"time"
 )
 
 func TestReader(t *testing.T) {
 	// Specify the path to your MongoDB log file
-	// filePath := getLogFilePath("mongodb://root:root-password@127.0.0.1:27017/admin")
-	filePath := "/Users/jiri.ctvrtka/go/src/github.com/percona/pmm/agent/logs/mongod.log"
+	filePath := "../../../../../testdata/mongo/var/log/mongodb/mongo.log"
 	// Create a new FileReader
 	fr := NewFileReader(filePath)
+
+	linesInLogFile := countLinesInFile(t, filePath)
 
 	// Create a channel to receive new lines
 	lineChannel := make(chan string)
@@ -32,10 +35,35 @@ func TestReader(t *testing.T) {
 		case line := <-lineChannel:
 			s = append(s, line)
 		case <-ticker.C:
-			fmt.Println("One minute passed, checking for new lines...")
-			fmt.Println(s)
-			s = nil
+			fmt.Println("tick")
+			if len(s) == linesInLogFile {
+				return
+			}
 		}
 	}
-	// require.Error(t, nil)
+}
+
+func countLinesInFile(t *testing.T, filePath string) int {
+	// Open the file
+	file, err := os.Open(filePath)
+	if err != nil {
+		t.Fatalf("Error opening file %s: %v", filePath, err)
+	}
+	defer file.Close()
+
+	// Create a scanner to read through the file line by line
+	scanner := bufio.NewScanner(file)
+	lineCount := 0
+
+	// Loop through each line and increment the count
+	for scanner.Scan() {
+		lineCount++
+	}
+
+	// Check for errors in scanning
+	if err := scanner.Err(); err != nil {
+		t.Fatalf("Error reading file %s: %v", filePath, err)
+	}
+
+	return lineCount
 }
