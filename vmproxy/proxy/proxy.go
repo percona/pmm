@@ -80,45 +80,55 @@ func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName s
 
 func director(target *url.URL, headerName string) func(*http.Request) {
 	return func(req *http.Request) {
-		now := time.Now()
+		prepareRequest(req, target, headerName)
+	}
+}
 
-		req.URL.Scheme = target.Scheme
-		req.URL.Host = target.Host
+func prepareRequest(req *http.Request, target *url.URL, headerName string) {
+	now := time.Now()
 
-		rp, err := target.Parse(strings.TrimPrefix(req.URL.Path, "/"))
+	req.URL.Scheme = target.Scheme
+	req.URL.Host = target.Host
+
+	hostHeader := target.Host
+	if hostHeader != "" {
+		req.Host = hostHeader
+		req.Header.Set("Host", hostHeader)
+	}
+
+	rp, err := target.Parse(strings.TrimPrefix(req.URL.Path, "/"))
+	if err != nil {
+		logrus.Error(err)
+	}
+	req.URL.Path = rp.Path
+
+	// Replace extra filters if present
+	if filters := req.Header.Get(headerName); filters != "" {
+		q := req.URL.Query()
+		q.Del("extra_filters[]")
+
+		parsed, err := parseFilters(filters)
 		if err != nil {
 			logrus.Error(err)
 		}
-		req.URL.Path = rp.Path
 
-		// Replace extra filters if present
-		if filters := req.Header.Get(headerName); filters != "" {
-			q := req.URL.Query()
-			q.Del("extra_filters[]")
-
-			parsed, err := parseFilters(filters)
-			if err != nil {
-				logrus.Error(err)
-			}
-
-			for _, f := range parsed {
-				q.Add("extra_filters[]", f)
-			}
-
-			req.URL.RawQuery = q.Encode()
-
-			logrus.Debugf(
-				"Received filters: %s, Parsed filters: %#v, Query: %s, Target URL: %s, Time spent: %s",
-				filters, parsed, req.URL.RawQuery, req.URL, time.Since(now))
+		for _, f := range parsed {
+			q.Add("extra_filters[]", f)
 		}
 
-		// Do not trust the client
-		req.Header.Del("X-Forwarded-For")
+		req.URL.RawQuery = q.Encode()
 
-		if _, ok := req.Header["User-Agent"]; !ok {
-			// explicitly disable User-Agent so it's not set to default value
-			req.Header.Set("User-Agent", "")
-		}
+		logrus.Debugf(
+			"Received filters: %s, Parsed filters: %#v, Query: %s, Target URL: %s, Time spent: %s",
+			filters, parsed, req.URL.RawQuery, req.URL, time.Since(now))
+	}
+
+	// Do not trust the client
+	req.Header.Del("X-Forwarded-For")
+
+	if _, ok := req.Header["User-Agent"]; !ok {
+		// explicitly disable User-Agent so it's not set to default value
+		req.Header.Set("User-Agent", "")
 	}
 }
 

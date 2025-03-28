@@ -154,7 +154,7 @@ func TestVictoriaMetrics(t *testing.T) {
 				ServiceID:      pointer.ToString("acds89846-3cd2-47f8-a5f9-ac789513cde4"),
 				CustomLabels:   []byte(`{"_agent_label": "mongodb-baz"}`),
 				ListenPort:     pointer.ToUint16(12346),
-				MongoDBOptions: &models.MongoDBOptions{EnableAllCollectors: true},
+				MongoDBOptions: models.MongoDBOptions{EnableAllCollectors: true},
 			},
 
 			&models.Agent{
@@ -229,8 +229,8 @@ func TestVictoriaMetrics(t *testing.T) {
 				ServiceID:      pointer.ToString("1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf"),
 				CustomLabels:   []byte(`{"_agent_label": "mongodb-baz-push"}`),
 				ListenPort:     pointer.ToUint16(12346),
-				MongoDBOptions: &models.MongoDBOptions{EnableAllCollectors: true},
-				ExporterOptions: &models.ExporterOptions{
+				MongoDBOptions: models.MongoDBOptions{EnableAllCollectors: true},
+				ExporterOptions: models.ExporterOptions{
 					PushMetrics: true,
 				},
 			},
@@ -243,8 +243,8 @@ func TestVictoriaMetrics(t *testing.T) {
 				ServiceID:      pointer.ToString("1eae647b-f1e2-4e15-bc58-dfdbc3c37cbf"),
 				CustomLabels:   []byte(`{"_agent_label": "mongodb-baz-pull"}`),
 				ListenPort:     pointer.ToUint16(12346),
-				MongoDBOptions: &models.MongoDBOptions{EnableAllCollectors: true},
-				ExporterOptions: &models.ExporterOptions{
+				MongoDBOptions: models.MongoDBOptions{EnableAllCollectors: true},
+				ExporterOptions: models.ExporterOptions{
 					PushMetrics: false,
 				},
 			},
@@ -287,7 +287,7 @@ scrape_configs:
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
-      metrics_path: /metrics
+      metrics_path: /graph/metrics
       static_configs:
         - targets:
             - 127.0.0.1:3000
@@ -843,7 +843,7 @@ scrape_configs:
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
-      metrics_path: /metrics
+      metrics_path: /graph/metrics
       static_configs:
         - targets:
             - 127.0.0.1:3000

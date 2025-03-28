@@ -63,6 +63,7 @@ var rules = map[string]role{
 	"/v1/alerting":                    viewer,
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
+	"/v1/advisors/failedServices":     editor,
 	"/v1/actions/":                    viewer,
 	"/v1/actions:":                    viewer,
 	"/v1/backups":                     admin,
@@ -77,6 +78,7 @@ var rules = map[string]role{
 	"/v1/server/updates:start":        admin,
 	"/v1/server/updates:getStatus":    none, // special token-based auth
 	"/v1/server/settings":             admin,
+	"/v1/server/settings/readonly":    viewer,
 	"/v1/platform:":                   admin,
 	"/v1/platform/":                   viewer,
 	"/v1/users":                       viewer,
@@ -142,7 +144,7 @@ type cacheItem struct {
 
 // clientInterface exist only to make fuzzing simpler.
 type clientInterface interface {
-	getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error)
+	getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error)
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
@@ -544,7 +546,7 @@ func (s *AuthServer) authHeaders(req *http.Request) http.Header {
 }
 
 func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
-	authUser, err := s.c.getAuthUser(ctx, authHeaders)
+	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
 	if err != nil {
 		l.Warnf("%s", err)
 		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint

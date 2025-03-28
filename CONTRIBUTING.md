@@ -3,14 +3,14 @@
 We'd be glad to welcome you to Percona community which tries to keep the open source open. [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is an open source database monitoring solution. It allows you to monitor your databases, different services (HAProxy, ProxySQL and etc) as well as Nodes, Kubernetes clusters and containers. Please check our [Documentation](https://docs.percona.com/percona-monitoring-and-management/details/architecture.html) for the actual architecture.
 
 ## Table of contents
-1. [Project repos structure](#Project-repos-structure)
-2. [API documentation](#API-Reference-Documentation)
-3. [Prerequisites](#Prerequisites)
-4. [Submitting a bug](#Submitting-a-Bug)
-5. [Setup your local development environment](#Setup-your-local-development-environment)
-6. [Tests](#Tests)
-7. [Feature Build](#Feature-Build)
-8. [Code Reviews](#Code-Reviews)
+1. [Project repos structure](#project-repos-structure)
+2. [API documentation](#api-reference-documentation)
+3. [Prerequisites](#prerequisites)
+4. [Submitting a bug](#submitting-a-bug)
+5. [Setup your local development environment](#setup-your-local-development-environment)
+6. [Tests](#tests)
+7. [Feature build](#feature-build)
+8. [Code Reviews](#code-reviews)
 
 ## Project repos structure
 This project is built from several repositories:
@@ -105,7 +105,7 @@ Please make sure to read and agree to our [Code of Conduct](https://github.com/p
 
 ## Submitting a Bug
 
-See [Submitting Bug Reports](README.md#Submitting-Bug-Reports) in [README.md](README.md).
+See [Submitting Bug Reports](README.md#submitting-bug-reports) in [README.md](README.md).
 
 
 ## Setup your local development environment
@@ -133,7 +133,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 
 ### Exporters
 
-Exporters by themselves are independent applications, so each of them contains its own README files explaining how to set up a local environment [see PMM Client](#PMM-Client).
+Exporters by themselves are independent applications, so each of them contains its own README files explaining how to set up a local environment [see PMM Client](#pmm-client).
 
 ### UI
 
@@ -190,7 +190,7 @@ Please see: [How to create a feature build](https://github.com/Percona-Lab/pmm-s
 ### The Rules
 
 1. Create a Feature Build for every feature/improvement/bugfix you are working on.
-2. Create a draft Pull Request in https://percona-lab/pmm-submodules.
+2. Create a draft Pull Request in https://github.com/Percona-Lab/pmm-submodules.
 3. Change the status of the Pull Request from Draft to Open ONLY if you are contributing code changes to pmm-submodules (very rare).
 4. Provide a short explanation in the Description field of you feature build PR and checkboxes to all related Pull Requests. If you need examples, check out [PRs](https://github.com/Percona-Lab/pmm-submodules/pulls) made by others.
 5. After all related PRs in feature build are merged you should:
@@ -211,15 +211,15 @@ To make the review process effective, we use a mixed approach:
 * for repos that don't have CODEOWNERS
   * add reviewers as follows:
       * add `pmm-review-fe` for UI/UX reviews
-      * add `pmm-review-exporters` for exporter reviews [see PMM Client](#PMM-Client)
+      * add `pmm-review-exporters` for exporter reviews [see PMM Client](#pmm-client)
       * add `pmm-review-be` for backend reviews
 * if you know exactly who should review your code, add them to the review
 
 
 | Team                 | Description                                                    | Members |
 | -------------------- | -------------------------------------------------------------- | ------- |
-| pmm-review-fe        | UI reviewers of PRs to [FrontEnd repos](#FrontEnd)             | [FE team](https://github.com/orgs/percona/teams/pmm-review-fe/members)        |
-| pmm-review-exporters | exporter reviewers of PRs to [PMM Client](#PMM-Client)         | [Exporters team](https://github.com/orgs/percona/teams/pmm-review-exporters/members) |
+| pmm-review-fe        | UI reviewers of PRs to [FrontEnd repos](#frontends)             | [FE team](https://github.com/orgs/percona/teams/pmm-review-fe/members)        |
+| pmm-review-exporters | exporter reviewers of PRs to [PMM Client](#pmm-client)         | [Exporters team](https://github.com/orgs/percona/teams/pmm-review-exporters/members) |
 | pmm-review-be        | reviewers of backend (Go) PRs                                  | [BE team](https://github.com/orgs/percona/teams/pmm-review-be/members)        |
 | PMM Admins           | reviewers that could use admins rights to force merge or change repo settings | [PMM Admin team](https://github.com/orgs/percona/teams/pmm-admins/members)           |
 

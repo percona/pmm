@@ -43,6 +43,7 @@ import (
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
@@ -301,6 +302,10 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 func (s *Server) ListChangeLogs(ctx context.Context, req *serverv1.ListChangeLogsRequest) (*serverv1.ListChangeLogsResponse, error) {
 	versions, err := s.updater.ListUpdates(ctx)
 	if err != nil {
+		// if we got a grpc error, return as it is.
+		if _, ok := status.FromError(err); ok {
+			return nil, err
+		}
 		return nil, status.Error(codes.Unavailable, "failed to list available updates")
 	}
 
@@ -335,6 +340,9 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 	if newImage == "" {
 		_, latest, err := s.updater.latest(ctx)
 		if err != nil {
+			if errors.Is(err, services.ErrPMMUpdatesDisabled) {
+				return nil, status.Error(codes.FailedPrecondition, "PMM updates are disabled")
+			}
 			s.l.WithError(err).Error("Failed to get latest version")
 			return nil, status.Error(codes.Unavailable, "Failed to get latest version")
 		} else if latest == nil {
@@ -486,6 +494,22 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 	return res
 }
 
+// convertReadOnlySettings creates a subset of database settings for non-admin roles.
+func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.ReadOnlySettings {
+	res := &serverv1.ReadOnlySettings{
+		UpdatesEnabled:          settings.IsUpdatesEnabled(),
+		TelemetryEnabled:        settings.IsTelemetryEnabled(),
+		AdvisorEnabled:          settings.IsAdvisorsEnabled(),
+		AlertingEnabled:         settings.IsAlertingEnabled(),
+		PmmPublicAddress:        settings.PMMPublicAddress,
+		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
+		AzurediscoverEnabled:    settings.IsAzureDiscoverEnabled(),
+		EnableAccessControl:     settings.IsAccessControlEnabled(),
+	}
+
+	return res
+}
+
 // GetSettings returns current PMM Server settings.
 func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsRequest) (*serverv1.GetSettingsResponse, error) { //nolint:revive
 	s.envRW.RLock()
@@ -500,6 +524,21 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 
 	return &serverv1.GetSettingsResponse{
 		Settings: s.convertSettings(settings, err == nil),
+	}, nil
+}
+
+// GetReadOnlySettings returns current PMM Server settings .
+func (s *Server) GetReadOnlySettings(ctx context.Context, req *serverv1.GetReadOnlySettingsRequest) (*serverv1.GetReadOnlySettingsResponse, error) { //nolint:revive
+	s.envRW.RLock()
+	defer s.envRW.RUnlock()
+
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serverv1.GetReadOnlySettingsResponse{
+		Settings: s.convertReadOnlySettings(settings),
 	}, nil
 }
 

@@ -1,5 +1,5 @@
 # MkDocs configuration for PDF output
-# Usage: ENABLE_PDF_EXPORT=1 mkdocs build -f mkdocs-pdf.yml
+# Usage: mkdocs build -f mkdocs-pdf.yml
 INHERIT: mkdocs-base.yml
 
 plugins:
@@ -7,10 +7,9 @@ plugins:
     version_selector: false
   # https://github.com/orzih/mkdocs-with-pdf
   with-pdf:
-    output_path: "pdf/PerconaMonitoringAndManagement-3.0.0-beta.pdf"
+    output_path: "pdf/PerconaMonitoringAndManagement-3.0.0.pdf"
     cover_title: "Percona Monitoring and Management Documentation"
-    cover_subtitle: 3.0.0 (December 11, 2024)
+    cover_subtitle: 3.0.0 (January 30, 2025)
     author: "Percona Technical Documentation Team"
     cover_logo: docs/images/Percona_Logo_Color.png
     custom_template_path: resources/templates
-    enabled_if_env: ENABLE_PDF_EXPORT

@@ -25,7 +25,7 @@ jobs:
             Makefile.include
 
       - name: Setup Python
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
         with:
           python-version: '3.x'
           cache: 'pip'
@@ -55,6 +55,5 @@ jobs:
         working-directory: documentation
         run: |
           mike deploy 3 -b publish -p
-          # Note: enable the next line after v3 GA
-          # mike set-default 3 -b publish -p
-          mike retitle 3 "3.x (BETA)" -b publish -p
+          mike set-default 3 -b publish -p
+          mike retitle 3 "3.x (LATEST)" -b publish -p

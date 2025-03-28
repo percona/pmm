@@ -275,7 +275,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 			CustomLabels:  p.CustomLabels,
 			TLS:           p.Tls,
 			TLSSkipVerify: p.TlsSkipVerify,
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				PushMetrics:        p.PushMetrics,
 				DisabledCollectors: p.DisableCollectors,
 			},
@@ -363,7 +363,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 			TLS:            p.Tls,
 			TLSSkipVerify:  p.TlsSkipVerify,
 			MongoDBOptions: models.MongoDBOptionsFromRequest(p),
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				PushMetrics:        p.PushMetrics,
 				DisabledCollectors: p.DisableCollectors,
 			},
@@ -447,7 +447,7 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 			CustomLabels:  p.CustomLabels,
 			TLS:           p.Tls,
 			TLSSkipVerify: p.TlsSkipVerify,
-			QANOptions: &models.QANOptions{
+			QANOptions: models.QANOptions{
 				MaxQueryLength:          p.MaxQueryLength,
 				QueryExamplesDisabled:   p.DisableQueryExamples,
 				CommentsParsingDisabled: p.DisableCommentsParsing,
@@ -533,7 +533,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 			CustomLabels:  p.CustomLabels,
 			TLS:           p.Tls,
 			TLSSkipVerify: p.TlsSkipVerify,
-			QANOptions: &models.QANOptions{
+			QANOptions: models.QANOptions{
 				MaxQueryLength:          p.MaxQueryLength,
 				QueryExamplesDisabled:   p.DisableQueryExamples,
 				CommentsParsingDisabled: p.DisableCommentsParsing,
@@ -615,7 +615,7 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 			CustomLabels:  p.CustomLabels,
 			TLS:           p.Tls,
 			TLSSkipVerify: p.TlsSkipVerify,
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				PushMetrics:        p.PushMetrics,
 				DisabledCollectors: p.DisableCollectors,
 			},
@@ -700,7 +700,7 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 			CustomLabels:  p.CustomLabels,
 			TLS:           p.Tls,
 			TLSSkipVerify: p.TlsSkipVerify,
-			QANOptions: &models.QANOptions{
+			QANOptions: models.QANOptions{
 				MaxQueryLength: p.MaxQueryLength,
 				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650 - done, but not included in params.
 			},
@@ -782,7 +782,7 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 			CustomLabels:  p.CustomLabels,
 			TLS:           p.Tls,
 			TLSSkipVerify: p.TlsSkipVerify,
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				PushMetrics:        p.PushMetrics,
 				DisabledCollectors: p.DisableCollectors,
 			},
@@ -865,7 +865,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 			CustomLabels:  p.CustomLabels,
 			TLS:           p.Tls,
 			TLSSkipVerify: p.TlsSkipVerify,
-			QANOptions: &models.QANOptions{
+			QANOptions: models.QANOptions{
 				MaxQueryLength:          p.MaxQueryLength,
 				CommentsParsingDisabled: p.DisableCommentsParsing,
 			},
@@ -944,7 +944,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context,
 			CustomLabels:  p.CustomLabels,
 			TLS:           p.Tls,
 			TLSSkipVerify: p.TlsSkipVerify,
-			QANOptions: &models.QANOptions{
+			QANOptions: models.QANOptions{
 				MaxQueryLength:          p.MaxQueryLength,
 				QueryExamplesDisabled:   p.DisableQueryExamples,
 				CommentsParsingDisabled: p.DisableCommentsParsing,
@@ -1020,10 +1020,10 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 			PMMAgentID:   p.PmmAgentId,
 			NodeID:       p.NodeId,
 			CustomLabels: p.CustomLabels,
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				PushMetrics: p.PushMetrics,
 			},
-			AWSOptions: &models.AWSOptions{
+			AWSOptions: models.AWSOptions{
 				AWSAccessKey:               p.AwsAccessKey,
 				AWSSecretKey:               p.AwsSecretKey,
 				RDSBasicMetricsDisabled:    p.DisableBasicMetrics,
@@ -1173,7 +1173,7 @@ func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *invent
 			PMMAgentID:   p.PmmAgentId,
 			NodeID:       p.NodeId,
 			CustomLabels: p.CustomLabels,
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				PushMetrics: p.PushMetrics,
 			},
 			AzureOptions: models.AzureOptionsFromRequest(p),

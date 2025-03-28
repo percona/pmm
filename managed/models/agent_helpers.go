@@ -44,15 +44,12 @@ type MySQLOptionsParams interface {
 }
 
 // MySQLOptionsFromRequest creates MySQLOptions object from request.
-func MySQLOptionsFromRequest(params MySQLOptionsParams) *MySQLOptions {
-	if params.GetTlsCa() != "" || params.GetTlsCert() != "" || params.GetTlsKey() != "" {
-		return &MySQLOptions{
-			TLSCa:   params.GetTlsCa(),
-			TLSCert: params.GetTlsCert(),
-			TLSKey:  params.GetTlsKey(),
-		}
+func MySQLOptionsFromRequest(params MySQLOptionsParams) MySQLOptions {
+	return MySQLOptions{
+		TLSCa:   params.GetTlsCa(),
+		TLSCert: params.GetTlsCert(),
+		TLSKey:  params.GetTlsKey(),
 	}
-	return &MySQLOptions{}
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
@@ -69,13 +66,11 @@ type PostgreSQLExtendedOptionsParams interface {
 }
 
 // PostgreSQLOptionsFromRequest creates PostgreSQLOptions object from request.
-func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) *PostgreSQLOptions {
-	res := &PostgreSQLOptions{}
-	if params.GetTlsCa() != "" || params.GetTlsCert() != "" || params.GetTlsKey() != "" {
-		res.SSLCa = params.GetTlsCa()
-		res.SSLCert = params.GetTlsCert()
-		res.SSLKey = params.GetTlsKey()
-	}
+func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) PostgreSQLOptions {
+	res := PostgreSQLOptions{}
+	res.SSLCa = params.GetTlsCa()
+	res.SSLCert = params.GetTlsCert()
+	res.SSLKey = params.GetTlsKey()
 
 	// PostgreSQL exporter has these parameters but they are not needed for QAN agent.
 	if extendedOptions, ok := params.(PostgreSQLExtendedOptionsParams); ok && extendedOptions != nil {
@@ -103,20 +98,15 @@ type MongoDBExtendedOptionsParams interface {
 }
 
 // MongoDBOptionsFromRequest creates MongoDBOptionsParams object from request.
-func MongoDBOptionsFromRequest(params MongoDBOptionsParams) *MongoDBOptions {
-	mdbOptions := &MongoDBOptions{}
+func MongoDBOptionsFromRequest(params MongoDBOptionsParams) MongoDBOptions {
+	mdbOptions := MongoDBOptions{}
 
-	if params.GetTlsCertificateKey() != "" || params.GetTlsCertificateKeyFilePassword() != "" || params.GetTlsCa() != "" {
-		mdbOptions = &MongoDBOptions{}
-		mdbOptions.TLSCertificateKey = params.GetTlsCertificateKey()
-		mdbOptions.TLSCertificateKeyFilePassword = params.GetTlsCertificateKeyFilePassword()
-		mdbOptions.TLSCa = params.GetTlsCa()
-	}
+	mdbOptions.TLSCertificateKey = params.GetTlsCertificateKey()
+	mdbOptions.TLSCertificateKeyFilePassword = params.GetTlsCertificateKeyFilePassword()
+	mdbOptions.TLSCa = params.GetTlsCa()
 
-	if params.GetAuthenticationMechanism() != "" || params.GetAuthenticationDatabase() != "" {
-		mdbOptions.AuthenticationMechanism = params.GetAuthenticationMechanism()
-		mdbOptions.AuthenticationDatabase = params.GetAuthenticationDatabase()
-	}
+	mdbOptions.AuthenticationMechanism = params.GetAuthenticationMechanism()
+	mdbOptions.AuthenticationDatabase = params.GetAuthenticationDatabase()
 
 	// MongoDB exporter has these parameters but they are not needed for QAN agent.
 	if extendedOptions, ok := params.(MongoDBExtendedOptionsParams); ok {
@@ -140,10 +130,10 @@ type AzureOptionsParams interface {
 }
 
 // AzureOptionsFromRequest creates AzureOptions object from request.
-func AzureOptionsFromRequest(params AzureOptionsParams) *AzureOptions {
+func AzureOptionsFromRequest(params AzureOptionsParams) AzureOptions {
 	if params.GetAzureSubscriptionId() != "" || params.GetAzureClientId() != "" || params.GetAzureClientSecret() != "" ||
 		params.GetAzureTenantId() != "" || params.GetAzureResourceGroup() != "" {
-		return &AzureOptions{
+		return AzureOptions{
 			SubscriptionID: params.GetAzureSubscriptionId(),
 			ClientID:       params.GetAzureClientId(),
 			ClientSecret:   params.GetAzureClientSecret(),
@@ -151,7 +141,7 @@ func AzureOptionsFromRequest(params AzureOptionsParams) *AzureOptions {
 			ResourceGroup:  params.GetAzureResourceGroup(),
 		}
 	}
-	return nil
+	return AzureOptions{}
 }
 
 func checkUniqueAgentID(q *reform.Querier, id string) error {
@@ -644,7 +634,7 @@ func CreateNodeExporter(q *reform.Querier,
 		PMMAgentID:    &pmmAgentID,
 		NodeID:        pmmAgent.RunsOnNodeID,
 		AgentPassword: agentPassword,
-		ExporterOptions: &ExporterOptions{
+		ExporterOptions: ExporterOptions{
 			ExposeExporter:     exposeExporter,
 			PushMetrics:        pushMetrics,
 			DisabledCollectors: disableCollectors,
@@ -734,7 +724,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		Username:     pointer.ToStringOrNil(params.Username),
 		Password:     pointer.ToStringOrNil(params.Password),
 		ListenPort:   pointer.ToUint16(uint16(params.ListenPort)),
-		ExporterOptions: &ExporterOptions{
+		ExporterOptions: ExporterOptions{
 			PushMetrics:   params.PushMetrics,
 			MetricsPath:   metricsPath,
 			MetricsScheme: scheme,
@@ -765,13 +755,13 @@ type CreateAgentParams struct {
 	TLS               bool
 	TLSSkipVerify     bool
 	LogLevel          string
-	ExporterOptions   *ExporterOptions
-	QANOptions        *QANOptions
-	AWSOptions        *AWSOptions
-	AzureOptions      *AzureOptions
-	MongoDBOptions    *MongoDBOptions
-	MySQLOptions      *MySQLOptions
-	PostgreSQLOptions *PostgreSQLOptions
+	ExporterOptions   ExporterOptions
+	QANOptions        QANOptions
+	AWSOptions        AWSOptions
+	AzureOptions      AzureOptions
+	MongoDBOptions    MongoDBOptions
+	MySQLOptions      MySQLOptions
+	PostgreSQLOptions PostgreSQLOptions
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -852,40 +842,12 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 	return false
 }
 
-func prepareOptionsParams(params *CreateAgentParams) *CreateAgentParams {
-	if params.ExporterOptions == nil {
-		params.ExporterOptions = &ExporterOptions{}
-	}
-	if params.QANOptions == nil {
-		params.QANOptions = &QANOptions{}
-	}
-	if params.AWSOptions == nil {
-		params.AWSOptions = &AWSOptions{}
-	}
-	if params.AzureOptions == nil {
-		params.AzureOptions = &AzureOptions{}
-	}
-	if params.MongoDBOptions == nil {
-		params.MongoDBOptions = &MongoDBOptions{}
-	}
-	if params.MySQLOptions == nil {
-		params.MySQLOptions = &MySQLOptions{}
-	}
-	if params.PostgreSQLOptions == nil {
-		params.PostgreSQLOptions = &PostgreSQLOptions{}
-	}
-
-	return params
-}
-
 // CreateAgent creates Agent with given type.
 func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) { //nolint:unparam
 	id := uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
-
-	params = prepareOptionsParams(params)
 
 	pmmAgent, err := FindAgentByID(q, params.PMMAgentID)
 	if err != nil {
@@ -946,13 +908,31 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		return nil, err
 	}
 
-	encryptedAgent := EncryptAgent(*row)
+	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
 	if err := q.Insert(&encryptedAgent); err != nil {
 		return nil, errors.WithStack(err)
 	}
 	agent := DecryptAgent(encryptedAgent)
 
 	return &agent, nil
+}
+
+func trimUnicodeNilsInCertFiles(agent Agent) Agent {
+	const unicodeNil = "\u0000"
+
+	agent.MongoDBOptions.TLSCa = strings.ReplaceAll(agent.MongoDBOptions.TLSCa, unicodeNil, "")
+	agent.MongoDBOptions.TLSCertificateKey = strings.ReplaceAll(agent.MongoDBOptions.TLSCertificateKey, unicodeNil, "")
+	agent.MongoDBOptions.TLSCertificateKeyFilePassword = strings.ReplaceAll(agent.MongoDBOptions.TLSCertificateKeyFilePassword, unicodeNil, "")
+
+	agent.MySQLOptions.TLSCa = strings.ReplaceAll(agent.MySQLOptions.TLSCa, unicodeNil, "")
+	agent.MySQLOptions.TLSCert = strings.ReplaceAll(agent.MySQLOptions.TLSCert, unicodeNil, "")
+	agent.MySQLOptions.TLSKey = strings.ReplaceAll(agent.MySQLOptions.TLSKey, unicodeNil, "")
+
+	agent.PostgreSQLOptions.SSLCa = strings.ReplaceAll(agent.PostgreSQLOptions.SSLCa, unicodeNil, "")
+	agent.PostgreSQLOptions.SSLCert = strings.ReplaceAll(agent.PostgreSQLOptions.SSLCert, unicodeNil, "")
+	agent.PostgreSQLOptions.SSLKey = strings.ReplaceAll(agent.PostgreSQLOptions.SSLKey, unicodeNil, "")
+
+	return agent
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.

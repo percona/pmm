@@ -323,7 +323,7 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 		if _, err := models.CreateAgent(q, models.VMAgentType, &models.CreateAgentParams{
 			PMMAgentID: pmmAgentID,
 			NodeID:     runsOnNodeID,
-			ExporterOptions: &models.ExporterOptions{
+			ExporterOptions: models.ExporterOptions{
 				PushMetrics: true,
 			},
 		}); err != nil {

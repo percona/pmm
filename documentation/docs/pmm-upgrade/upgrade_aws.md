@@ -5,15 +5,15 @@
 To assign a public IP address for an Amazon EC2 instance, follow these steps:
 {.power-number}
 
-1. Allocate Elastic IP address
+1. Allocate Elastic IP address:
 
-    ![!image](../../images/aws-marketplace.pmm.ec2.ip.allocate.png)
+    ![Allocate Elastic IP address](../images/aws-marketplace.pmm.ec2.ip.allocate.png)
 
-2. Associate Elastic IP address with a Network interface ID of your EC2 instance
+2. Associate Elastic IP address with a Network interface ID of your EC2 instance.
 
     If you associate an Elastic IP address to an instance that already has an Elastic IP address associated, this previously associated Elastic IP address will be disassociated but still allocated to your account.
 
-    ![!image](../../images/aws-marketplace.pmm.ec2.ip.associate.png)
+    ![!image](../images/aws-marketplace.pmm.ec2.ip.associate.png)
 
 ## Upgrade EC2 instance class
 
@@ -28,7 +28,7 @@ Upgrading to a larger EC2 instance class is supported by PMM provided you follow
 
 4. In the Change instance type dialog box, select the instance type that you want.
 
-    ![!image](../../images/aws-marketplace.pmm.ec2.instance.upgrade.png)
+    ![Change instance](../images/aws-marketplace.pmm.ec2.instance.upgrade.png)
 
 5. Choose Apply to accept the new settings and start the stopped instance.
 
