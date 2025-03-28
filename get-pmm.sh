@@ -6,7 +6,7 @@
 # if PMM 2 is running, it will be stopped and data will be migrated to PMM 3.
 #
 # Usage example:
-# curl -fsSL https://raw.githubusercontent.com/percona/pmm/main/get-pmm.sh -o get-pmm.sh; chmod +x get-pmm.sh; ./get-pmm.sh -b
+# curl -fsSL https://raw.githubusercontent.com/percona/pmm/v3/get-pmm.sh -o get-pmm.sh; chmod +x get-pmm.sh; ./get-pmm.sh -b
 #
 #################################
 
