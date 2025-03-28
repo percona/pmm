@@ -51,16 +51,9 @@ services:
     image: ${MONGO_IMAGE:-mongo:5.0}
     container_name: pmm-agent_mongo
     command:
-      - bash
-      - -c
-      - |
-        mkdir -p /var/log/mongodb
-        touch /var/log/mongodb/mongo.log
-        chown -R mongodb:mongodb /var/log/mongodb
-        exec mongod \
-          --profile=2 \
-          --logpath=/var/log/mongodb/mongo.log \
-          --logappend
+          - --profile=2
+          - --logpath=/var/log/mongodb/mongo.log
+          - --logappend
     ports:
       - "127.0.0.1:27017:27017"
     environment:
@@ -73,26 +66,19 @@ services:
     image: ${MONGO_IMAGE:-mongo:5.0}
     container_name: pmm-agent_mongo_with_tls
     command:
-      - bash
-      - -c
-      - |
-        mkdir -p /var/log/mongodb
-        touch /var/log/mongodb/mongo.log
-        chown -R mongodb:mongodb /var/log/mongodb
-        exec mongod \
-          --profile=2 \
-          --tlsMode=requireTLS \
-          --tlsPEMKeyFile=/etc/tls/certificates/server.pem \
-          --tlsCAFile=/etc/tls/certificates/ca.crt \
-          --tlsWeakCertificateValidation \
-          --bind_ip=0.0.0.0 \
-          --logpath=/var/log/mongodb/mongo.log \
-          --logappend
+          - --profile=2
+          - --tlsMode=requireTLS
+          - --tlsCertificateKeyFile=/etc/tls/certificates/server.pem
+          - --tlsCAFile=/etc/tls/certificates/ca.crt
+          - --tlsAllowInvalidCertificates
+          - --bind_ip=0.0.0.0
+          - --logpath=/var/log/mongodb/mongo_tls.log
+          - --logappend
     ports:
       - "127.0.0.1:27018:27017"
     volumes:
       - ${PWD}/utils/tests/testdata/mongodb:/etc/tls/certificates
-      - ./mongo_logs:/var/log/mongodb
+      #- ./mongo_logs:/var/log/mongodb
 
   mongonoauth:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}

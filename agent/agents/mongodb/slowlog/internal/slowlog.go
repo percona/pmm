@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"path/filepath"
 	"runtime/pprof"
 	"sync"
 	"time"
@@ -37,13 +38,14 @@ const (
 )
 
 // New creates new slowlog
-func New(mongoDSN string, logger *logrus.Entry, changes chan agents.Change, agentID string, maxQueryLength int32) *slowlog {
+func New(mongoDSN string, logger *logrus.Entry, changes chan agents.Change, agentID string, slowLogFilePrefix string, maxQueryLength int32) *slowlog {
 	return &slowlog{
-		mongoDSN:       mongoDSN,
-		maxQueryLength: maxQueryLength,
-		logger:         logger,
-		changes:        changes,
-		agentID:        agentID,
+		mongoDSN:          mongoDSN,
+		slowLogFilePrefix: slowLogFilePrefix,
+		maxQueryLength:    maxQueryLength,
+		logger:            logger,
+		changes:           changes,
+		agentID:           agentID,
 	}
 }
 
@@ -64,7 +66,8 @@ type slowlog struct {
 	wg       *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
 
 	// others
-	maxQueryLength int32
+	slowLogFilePrefix string
+	maxQueryLength    int32
 }
 
 // Start starts analyzer but doesn't wait until it exits
@@ -74,17 +77,6 @@ func (s *slowlog) Start() error {
 	if s.running {
 		return nil
 	}
-
-	// create new session
-	client, err := createSession(s.mongoDSN, s.agentID)
-	if err != nil {
-		return err
-	}
-	logsPath, err := reader.GetLogFilePath(client)
-	if err != nil {
-		return err
-	}
-	client.Disconnect(context.TODO())
 
 	// create new channel over which
 	// we will tell goroutine it should close
@@ -102,8 +94,20 @@ func (s *slowlog) Start() error {
 
 	ctx := context.Background()
 	labels := pprof.Labels("component", "mongodb.slowlog")
+
+	// create new session
+	client, err := createSession(s.mongoDSN, s.agentID)
+	if err != nil {
+		return err
+	}
+	logsPath, err := reader.GetLogFilePath(client)
+	if err != nil {
+		return err
+	}
+	client.Disconnect(ctx)
+
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
-		start(ctx, s.wg, s.changes, s.doneChan, ready, logsPath, s.logger)
+		start(ctx, s.wg, s.changes, s.doneChan, ready, filepath.Join(s.slowLogFilePrefix, logsPath), s.logger)
 	})
 
 	// wait until we actually fetch data from db
