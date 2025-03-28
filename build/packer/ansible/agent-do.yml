@@ -6,7 +6,7 @@
     docker_compose_version: "2.26.1"
     kubectl_version: "1.29.2"
     doctl_version: "1.105.0"
-    node_version: "18.x"
+    node_version: "22.x"
 
   tasks:
     - name: Detect vm architecture
