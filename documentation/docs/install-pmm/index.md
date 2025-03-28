@@ -1,37 +1,41 @@
 # About PMM installation
 
-??? info "Summary"
+Installing PMM involves setting up a PMM Server, installing PMM Clients on your database hosts, and configuring the services you want to monitor:
+{.power-number}
 
-    !!! summary alert alert-info ""
-        1. [Install PMM Server](#install-pmm-server).
-        2. [Install PMM Client(s)](#install-pmm-client).
-        3. [Add services](#add-services).
+1. **Deploy PMM Server** - centralized platform that collects, analyzes, and visualizes your monitoring data
+2. **Install PMM Clients** - lightweight agents on each database host that collect metrics without impacting performance
+3. **Configure Monitoring Services** - Select exactly which database instances and metrics to track based on your specific needs
+
+
+## Prerequisites
+
+Before starting the installation, check the [hardware and software requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) and the [network and firewall requirements](../install-pmm/plan-pmm-installation/network_and_firewall.md).
 
 ## Install PMM Server
 
 Install and run at least one PMM Server. Choose from the following options:
 
-!!! summary alert alert-info "ARM support"
-     PMM Server is not currently available as a native ARM64 build. For ARM-based systems, consider using the Docker or Podman installation methods, which can run x86_64 images via emulation on ARM platforms.
+### ARM compatibility
 
+PMM Server is not currently available as a native ARM64 build. For ARM-based systems, consider using the Docker or Podman installation methods, which can run x86_64 images via emulation on ARM platforms.
 
-| Use | :material-thumb-up: **Benefits** | :material-thumb-down: **Drawbacks**|
-|---|---|---
-| [Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md) | 1. Quick<br>2. Simple<br> 3. Rootless |  Additional network configuration required.
-| [Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) | 1. Quick<br>2. Simple<br>3. Rootless | Podman installation required.
-| [Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md) (Technical Preview) | 1. Quick<br>2. Simple<br>3. Cloud-compatible <br> 4. Rootless| Requires running a Kubernetes cluster.
-| [Virtual appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)  | 1. Easily import into Hypervisor of your choice <br> 2. Rootless| More system resources compared to Docker footprint.
-| [Amazon AWS](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | 1. Wizard-driven install. <br>  2. Rootless| Paid, incurs infrastructure costs.
+### Deployment options
+
+| Method | Best for | Advantages | Considerations |
+|--------|----------|------------|----------------|
+| [Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md) | Development and testing environments | Quick setup, simple upgrades, minimal system requirements | Requires Docker knowledge, additional network configuration for production |
+| [Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md)| Security-focused environments | Rootless containers, enhanced security, OCI-compatible | Requires Podman installation and knowledge |
+| [Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md) | Cloud-native environments | Scalability, high availability, cloud-compatible | Requires existing Kubernetes cluster, more complex setup |
+| [Virtual appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md) | Traditional environments | Pre-configured with all dependencies, dedicated resources | Larger resource footprint, hypervisor requirement |
+<!--| [Amazon AWS](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | AWS-based environments | Seamless AWS integration, easy provisioning | Monthly subscription costs, AWS infrastructure costs |-->
 
 ## Install PMM Client
 
-Install and run PMM Client on every node where there is a service you want to monitor. PMM Client now supports both x86_64 and ARM64 architectures.
+Install and run PMM Client on every node where there is a service you want to monitor. PMM Client supports both x86_64 and ARM64 architectures.
 
-The installation choices are:
+## Client installation options
 
-=== "With Docker"
-
-    [Running PMM Client as a Docker container](../install-pmm/install-pmm-client/docker.md) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).
 
 === "With package manager"
 
@@ -41,24 +45,39 @@ The installation choices are:
 
     [Binary package](../install-pmm/install-pmm-client/binary_package.md): Download the appropriate `.tar.gz` file for your architecture (x86_64 or ARM64).
 
+=== "With Docker"
 
-!!! hint alert "Tips"
-    Both binary installation and Docker containers can be run without root permissions. When installing on ARM-based systems, ensure you're using ARM64-compatible versions. Performance may vary between architectures.
+    [Running PMM Client as a Docker container](../install-pmm/install-pmm-client/docker.md) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).
 
-## Add services
+## Compatibility 
+
+Both binary installation and Docker containers can be run without root permissions. 
+
+When installing on ARM-based systems, ensure you're using ARM64-compatible versions. Performance may vary between architectures.
+
+## Add services for monitoring
 
 On each PMM Client instance, configure the nodes and services you want to monitor. 
 
-??? info "Which services you can monitor?"
+??? info "Which services can you monitor?"
 
-    - [MySQL](../install-pmm/install-pmm-client/connect-database/mysql.md) and variants: Percona Server for MySQL, Percona XtraDB Cluster, MariaDB
-    - [MongoDB](../install-pmm/install-pmm-client/connect-database/mongodb.md)
-    - [PostgreSQL](../install-pmm/install-pmm-client/connect-database/postgresql.md)
-    - [ProxySQL](../install-pmm/install-pmm-client/connect-database/proxysql.md)
-    - [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md)
-    - [Microsoft Azure](../install-pmm/install-pmm-client/connect-database/azure.md)
-    - [Google Cloud Platform](../install-pmm/install-pmm-client/connect-database/google.md)
-    - [Linux](../install-pmm/install-pmm-client/connect-database/linux.md)
-    - [External services](../install-pmm/install-pmm-client/connect-database/external.md)
-    - [HAProxy](../install-pmm/install-pmm-client/connect-database/haproxy.md)
-    - [Remote instances](../install-pmm/install-pmm-client/connect-database/remote.md)
+=== "Databases"
+- [MySQL](../install-pmm/install-pmm-client/connect-database/mysql.md) (including Percona Server for MySQL, Percona XtraDB Cluster, and MariaDB)
+- [MongoDB](../install-pmm/install-pmm-client/connect-database/mongodb.md)
+- [PostgreSQL](../install-pmm/install-pmm-client/connect-database/postgresql.md)
+
+=== "Cloud services"
+- [Amazon RDS & Aurora](../install-pmm/install-pmm-client/connect-database/aws.md)
+- [Microsoft Azure](../install-pmm/install-pmm-client/connect-database/azure.md)
+- [Google Cloud SQL](../install-pmm/install-pmm-client/connect-database/google.md)
+
+=== "Proxy services"
+- [ProxySQL](../install-pmm/install-pmm-client/connect-database/proxysql.md)
+- [HAProxy](../install-pmm/install-pmm-client/connect-database/haproxy.md)
+
+=== "System monitoring"
+- [Linux system metrics](../install-pmm/install-pmm-client/connect-database/linux.md)
+- [External services](../install-pmm/install-pmm-client/connect-database/external.md) (via exporters)
+
+=== "Remote services"
+- [Remote instances](../install-pmm/install-pmm-client/connect-database/remote.md) (for monitoring across network segments)
