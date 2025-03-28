@@ -21,7 +21,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
+	"github.com/percona/pmm/agent/agents/mongodb/profiler/internal/report"
 )
 
 func New(reportChan <-chan *report.Report, w Writer, logger *logrus.Entry) *Sender {
@@ -94,6 +94,7 @@ func (s *Sender) Name() string {
 }
 
 func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Report, w Writer, logger *logrus.Entry, doneChan <-chan struct{}) {
+	// TODO no context done check???
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 

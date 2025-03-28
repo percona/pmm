@@ -8196,6 +8196,9 @@ type AddServiceParamsBodyMongodb struct {
 	// If true, adds qan-mongodb-profiler-agent for provided service.
 	QANMongodbProfiler bool `json:"qan_mongodb_profiler,omitempty"`
 
+	// If true, adds qan-mongodb-slowlog-agent for provided service.
+	QANMongodbSlowlog bool `json:"qan_mongodb_slowlog,omitempty"`
+
 	// Custom user-assigned labels for Service.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
