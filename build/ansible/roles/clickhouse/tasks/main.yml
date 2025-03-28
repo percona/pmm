@@ -38,8 +38,6 @@
   copy:
     src: config.xml
     dest: /etc/clickhouse-server/config.xml
-    owner: pmm
-    group: pmm
     mode: 0664
 
 # We need to remove capabilities because we run PMM in an unprivileged container

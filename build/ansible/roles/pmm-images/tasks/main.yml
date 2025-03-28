@@ -59,22 +59,9 @@
   file: 
     path: "{{ item }}"
     state: directory
-    owner: pmm
-    group: pmm
+    mode: 0755
   loop:
-    - /srv # otherwise it's owned by root
-    - /srv/prometheus/rules
     - /etc/grafana
-    - /srv/clickhouse
-
-# Note a special mode required mainly by nginx
-- name: Create a directory for logs
-  file:
-    path: /srv/logs
-    state: directory
-    owner: pmm
-    group: pmm
-    mode: 0775
 
 - name: Create dirs
   file: 
@@ -121,54 +108,16 @@
   include_role:
     name: pmm-client
 
-- name: Create a backup directory
-  file:
-    path: /srv/backup
-    state: directory
-    owner: pmm
-    group: pmm
-    mode: 0775
-
-- name: Create a working directory for VictoriaMetrics
-  file:
-    path: /srv/victoriametrics/data
-    state: directory
-    owner: pmm
-    group: pmm
-
-- name: Create an empty configuration file for VictoriaMetrics
-  file:
-    path: /etc/victoriametrics-promscrape.yml
-    state: touch
-    owner: pmm
-    group: pmm
-
 # Launch pmm-managed-init first as it may update supervisord configuration on start
 - name: Generate new supervisor config
   command: pmm-managed-init
   register: managed_init_result
   changed_when: True
 
-- name: Disable pmm-init
-  ini_file:
-    path: /etc/supervisord.d/pmm.ini
-    section: program:pmm-init
-    option: autostart
-    value: "false"
-
-# During build time, this will be the first start of supervisord.
-- name: Start supervisord
-  shell: supervisord -c /etc/supervisord.conf &
-  become: true
-  become_user: pmm
-  become_method: su
-
-- name: Run initialization playbook
-  include_role:
-    name: initialization
-
 - name: Check supervisord logs
   shell: sleep 10 && tail -n 200 /srv/logs/supervisord.log
+  ignore_errors: True
 
 - name: Check grafana logs
   shell: cat /srv/logs/grafana.log
+  ignore_errors: True
