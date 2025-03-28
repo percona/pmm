@@ -19,6 +19,7 @@ import (
 	"database/sql/driver"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 )
 
@@ -85,6 +86,10 @@ type Settings struct {
 	} `json:"victoria_metrics"`
 
 	SaaS Advisors `json:"sass"` // sic :(
+
+	Nomad struct {
+		Enabled *bool `json:"enabled"`
+	}
 
 	Alerting struct {
 		Enabled *bool `json:"enabled"`
@@ -153,6 +158,11 @@ func (s *Settings) IsAdvisorsEnabled() bool {
 	}
 
 	return AdvisorsEnabledDefault
+}
+
+// IsNomadEnabled returns true if Nomad is enabled.
+func (s *Settings) IsNomadEnabled() bool {
+	return pointer.GetBool(s.Nomad.Enabled) && s.PMMPublicAddress != ""
 }
 
 // IsAzureDiscoverEnabled returns true if Azure discovery is enabled.

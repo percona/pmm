@@ -69,12 +69,19 @@ func (tr *TemplateRenderer) RenderFiles(templateParams map[string]interface{}) (
 	}
 
 	textFiles := make(map[string]string, len(tr.TextFiles)) // template name => full file path
-	for name, text := range tr.TextFiles {
+
+	for name := range tr.TextFiles {
 		// avoid /, .., ., \, and other special symbols
 		if !textFileRE.MatchString(name) {
 			return nil, errors.Errorf("invalid text file name %q", name)
 		}
 
+		path := filepath.Join(tr.TempDir, name)
+		textFiles[name] = path
+	}
+	templateParams["TextFiles"] = textFiles
+
+	for name, text := range tr.TextFiles {
 		b, err := tr.RenderTemplate(name, text, templateParams)
 		if err != nil {
 			return nil, err
@@ -84,9 +91,7 @@ func (tr *TemplateRenderer) RenderFiles(templateParams map[string]interface{}) (
 		if err = os.WriteFile(path, b, 0o600); err != nil {
 			return nil, errors.WithStack(err)
 		}
-		textFiles[name] = path
 	}
-	templateParams["TextFiles"] = textFiles
 	return templateParams, nil
 }
 
