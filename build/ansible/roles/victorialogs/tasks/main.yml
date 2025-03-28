@@ -101,30 +101,12 @@
     owner: pmm
     group: pmm
 
-- name: Add victoriametrics-logs-datasource to unsigned plugins
+- name: Add VictoriaLogs datasource to unsigned plugins :(
   lineinfile:
     dest: /etc/grafana/grafana.ini
     regexp: '^allow_loading_unsigned_plugins'
     line: 'allow_loading_unsigned_plugins = grafana-polystat-panel,pmm-app,pmm-check-panel-home,pmm-update,pmm-qan-app-panel,pmm-pt-summary-panel,pmm-pt-summary-datasource,victoriametrics-logs-datasource'
     state: present
-
-- name: Remove the end of log_format line in nginx.conf
-  command: sed -i 's/^\([[:space:]]*log_format  main\).*/\1/' /etc/nginx/nginx.conf
-
-- name: Remove the log_format in nginx.conf
-  command: sed -i '/log_format/{n;N;d;}' /etc/nginx/nginx.conf
-
-- name: Replace the original log_format with a json one
-  blockinfile:
-    path: /etc/nginx/nginx.conf
-    marker: "{mark}"
-    marker_begin: "#LOG_FORMAT_BEGIN"
-    marker_end: "#LOG_FORMAT_END"
-    insertafter: "log_format"
-    block: "{{ lookup('ansible.builtin.file', '/opt/ansible/roles/victorialogs/files/json_log_format.conf') }}"
-
-- name: Remove ansible markers from nginx.conf
-  command: sed -i '/^#LOG_FORMAT_.*/d' /etc/nginx/nginx.conf
 
 - name: Add VictoriaLogs location to pmm.conf
   blockinfile:
