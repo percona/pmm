@@ -133,6 +133,7 @@
       yum:
         name: https://github.com/goreleaser/goreleaser/releases/download/v{{ goreleaser_version }}/goreleaser-{{ goreleaser_version }}-1.{{ ansible_architecture }}.rpm
         state: present
+        disable_gpg_check: yes
 
     - name: install latest YQ (YAML processor) 
       get_url:

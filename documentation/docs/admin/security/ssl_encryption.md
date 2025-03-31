@@ -1,14 +1,15 @@
 # SSL encryption
 
 Valid and trusted SSL certificates are needed to encrypt traffic between the client and server.  Certificates can be purchased online from various sources, or some organizations generate their own trusted certificates.  Regardless of which path you choose for enabling maximum security, the process to secure PMM consists of the following components:
+{.power-number}
 
 1. Staging the files in the proper locations:
 
     - You can [directly mount](#mounting-certificates) to a local directory containing the required certificates or
     - You can [copy the files](#copying-certificates) to the appropriate directory in your Container|AMI|OVF
 
-2. Restarting PMM
-3. Ensuring the client(s) trust the certificate issuer ([Ubuntu](https://ubuntu.com/server/docs/security-trust-store) | [RedHat](https://www.redhat.com/sysadmin/configure-ca-trust-list) can get you started but this is somewhat OS specific)
+2. Restarting PMM.
+3. Ensuring the Clients trust the certificate issuer ([Ubuntu](https://ubuntu.com/server/docs/install-a-root-ca-certificate-in-the-trust-store) | [RedHat](https://www.redhat.com/sysadmin/configure-ca-trust-list) can get you started but this is somewhat OS specific)
 
 
 With our Docker, OVF and AMI images, certificates are stored in `/srv/nginx` and our self-signed certificates are staged there by default.
@@ -37,7 +38,7 @@ docker cp certificate.crt pmm-server:/srv/nginx/certificate.crt
 docker cp certificate.key pmm-server:/srv/nginx/certificate.key
 docker cp ca-certs.pem pmm-server:/srv/nginx/ca-certs.pem
 docker cp dhparam.pem pmm-server:/srv/nginx/dhparam.pem
-docker exec -it pmm-server chown root.root /srv/nginx/*
+docker exec -it pmm-server chown pmm:pmm /srv/nginx/*
 ```
 
 ### Use trusted SSL when connecting PMM Client to PMM Server
@@ -65,7 +66,6 @@ docker run \
 -e PMM_AGENT_SETUP=1 \
 -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
 -v /your_directory_with/certs:/etc/pki/tls/certs \
---volumes-from pmm-client-data \
 percona/pmm-client:3
 ```
 
