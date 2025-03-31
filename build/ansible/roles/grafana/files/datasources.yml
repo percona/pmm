@@ -45,7 +45,7 @@ datasources:
   version: 2
   type: grafana-clickhouse-datasource
   jsonData:
-    username: ${PMM_CLICKHOUSE_USERNAME}
+    username: ${PMM_CLICKHOUSE_USER}
     port: ${PMM_CLICKHOUSE_PORT}
     host: ${PMM_CLICKHOUSE_HOST}
     tlsSkipVerify: false
