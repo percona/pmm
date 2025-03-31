@@ -31,7 +31,7 @@ While PMM Server itself is provided at no cost, be aware that you will incur AWS
 
 The disk space required by PMM Server depends on the number of monitored hosts and the retention period for the data.
 
-As a reference, the [PMM2 Demo](https://pmmdemo.percona.com/) site consumes approximately 230 MB per host per day, which totals around 6.9 GB per host over a 30-day retention period.
+As a reference, the [PMM Demo](https://pmmdemo.percona.com/) site consumes approximately 230 MB per host per day, which totals around 6.9 GB per host over a 30-day retention period.
 Tip: You can estimate your disk space needs based on the number of hosts and the desired retention period.
 
 For more information, see our blog post [How much disk space should I allocate for Percona Monitoring and Management](https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/).
