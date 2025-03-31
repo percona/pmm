@@ -24,13 +24,13 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Go release
-        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
+        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
         with:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
 
       - name: Enable Go build cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -39,7 +39,7 @@ jobs:
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
@@ -102,7 +102,7 @@ jobs:
           echo "$out" | bin/reviewdog -f=buf -reporter=github-pr-review -fail-level=error
 
       - name: Run code linters
-        uses: reviewdog/action-golangci-lint@dd3fda91790ca90e75049e5c767509dc0ec7d99b # v2.7.0
+        uses: reviewdog/action-golangci-lint@f9bba13753278f6a73b27a56a3ffb1bfda90ed71 # v2.8.0
         with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version_file: ${{ github.workspace }}/go.mod
@@ -147,7 +147,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Check spelling of md files
-        uses: crate-ci/typos@7bc041cbb7ca9167c9e0e4ccbb26f48eb0f9d4e0 # v1.30.2
+        uses: crate-ci/typos@d08e4083f112e684fb88f6babd9ae60a1f1cd84f # v1.30.3
         with:
           files: "**/*.md ./documentation/**/*.md"
 
