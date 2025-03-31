@@ -46,7 +46,6 @@
     - users.xml
 
 # We need to remove capabilities because we run PMM in an unprivileged container
-# But we run clickhouse as root user
 - name: Remove cap_ipc_lock from clickhouse binary
   capabilities:
     path: /usr/bin/clickhouse
