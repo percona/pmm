@@ -229,12 +229,12 @@ func TestUnexpectedActionType(t *testing.T) {
 			expectedCode codes.Code
 		}{
 			{
-				name: "invlalid action type",
+				name: "invalid action type",
 				id:   4242,
 				payload: &agentv1.ServerMessage_StartAction{
 					StartAction: &agentv1.StartActionRequest{},
 				},
-				expectedCode: codes.InvalidArgument,
+				expectedCode: codes.Unimplemented,
 			},
 			{
 				name: "mongodb restart invalid system service",
