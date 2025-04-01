@@ -46,13 +46,10 @@ jobs:
           cache-dependency-path: ui
 
       - name: Run lint
-        run: |
-          make lint
+        run: make lint
 
       - name: Run unit tests
-        run: |
-          make test
+        run: make test
 
       - name: Build application
-        run: |
-          make build
+        run: make build
