@@ -60,22 +60,22 @@ When installing on ARM-based systems, ensure you're using ARM64-compatible versi
 After installing PMM Client, configure the nodes and services you want to monitor. PMM supports monitoring across the following database technologies, cloud services, proxy services, and system metrics:
 
 === "Databases"
-- [MySQL](../install-pmm/install-pmm-client/connect-database/mysql.md) (including Percona Server for MySQL, Percona XtraDB Cluster, and MariaDB)
-- [MongoDB](../install-pmm/install-pmm-client/connect-database/mongodb.md)
-- [PostgreSQL](../install-pmm/install-pmm-client/connect-database/postgresql.md)
+    - [MySQL](../install-pmm/install-pmm-client/connect-database/mysql.md) (including Percona Server for MySQL, Percona XtraDB Cluster, and MariaDB)  
+    - [MongoDB](../install-pmm/install-pmm-client/connect-database/mongodb.md)  
+    - [PostgreSQL](../install-pmm/install-pmm-client/connect-database/postgresql.md)  
 
 === "Cloud services"
-- [Amazon RDS & Aurora](../install-pmm/install-pmm-client/connect-database/aws.md)
-- [Microsoft Azure](../install-pmm/install-pmm-client/connect-database/azure.md)
-- [Google Cloud SQL](../install-pmm/install-pmm-client/connect-database/google.md)
+    - [Amazon RDS & Aurora](../install-pmm/install-pmm-client/connect-database/aws.md)  
+    - [Microsoft Azure](../install-pmm/install-pmm-client/connect-database/azure.md)  
+    - [Google Cloud SQL](../install-pmm/install-pmm-client/connect-database/google.md)  
 
 === "Proxy services"
-- [ProxySQL](../install-pmm/install-pmm-client/connect-database/proxysql.md)
-- [HAProxy](../install-pmm/install-pmm-client/connect-database/haproxy.md)
+    - [ProxySQL](../install-pmm/install-pmm-client/connect-database/proxysql.md)  
+    - [HAProxy](../install-pmm/install-pmm-client/connect-database/haproxy.md)  
 
 === "System monitoring"
-- [Linux system metrics](../install-pmm/install-pmm-client/connect-database/linux.md)
-- [External services](../install-pmm/install-pmm-client/connect-database/external.md) (via exporters)
+    - [Linux system metrics](../install-pmm/install-pmm-client/connect-database/linux.md)  
+    - [External services](../install-pmm/install-pmm-client/connect-database/external.md) (via exporters)  
 
 === "Remote services"
-- [Remote instances](../install-pmm/install-pmm-client/connect-database/remote.md) (for monitoring across network segments)
+    - [Remote instances](../install-pmm/install-pmm-client/connect-database/remote.md) (for monitoring across network segments)  

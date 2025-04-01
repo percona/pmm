@@ -151,16 +151,20 @@ nav:
           - Install on Docker:
             - install-pmm/install-pmm-server/deployment-options/docker/index.md
             - install-pmm/install-pmm-server/deployment-options/docker/easy-install.md
-            - Setup and configuration:
-              - install-pmm/install-pmm-server/deployment-options/docker/run_with_vol.md
-              - install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.md
-              - install-pmm/install-pmm-server/deployment-options/docker/env_var.md
-              - install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.md
-              - install-pmm/install-pmm-server/deployment-options/docker/isolated_hosts.md
-              - install-pmm/install-pmm-server/deployment-options/docker/backup_container.md
-              - install-pmm/install-pmm-server/deployment-options/docker/restore_container.md
-              - install-pmm/install-pmm-server/deployment-options/docker/remove_container.md
-              - install-pmm/install-pmm-server/deployment-options/docker/upgrade_container.md
+            - Storage setup:
+              - Recommended storage setup:
+                - install-pmm/install-pmm-server/deployment-options/docker/run_with_vol.md
+              - Alternative storage methods (Not recommended):
+                - install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.md
+              - Configuration:
+                - install-pmm/install-pmm-server/deployment-options/docker/env_var.md
+                - install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.md
+                - install-pmm/install-pmm-server/deployment-options/docker/isolated_hosts.md
+              - Container management:
+                - install-pmm/install-pmm-server/deployment-options/docker/backup_container.md
+                - install-pmm/install-pmm-server/deployment-options/docker/restore_container.md
+                - install-pmm/install-pmm-server/deployment-options/docker/remove_container.md
+                - install-pmm/install-pmm-server/deployment-options/docker/upgrade_container.md
           - Install on Podman:
             - install-pmm/install-pmm-server/deployment-options/podman/index.md
             - Setup and configuration:
@@ -304,10 +308,6 @@ nav:
         - backup/mysql-backup/restore_mysql_backup.md
       - backup/edit_scheduled.md
       - backup/delete_a_backup.md
-    - PMM commands:
-      - use/commands/index.md
-      - use/commands/pmm-admin.md
-      - use/commands/pmm-agent.md
   - Configure:
     - configure-pmm/configure.md
     - configure-pmm/metrics_res.md
@@ -369,7 +369,10 @@ nav:
       - PMM API:
         - api/index.md
         - api/authentication.md
-
+      - PMM commands:
+        - use/commands/index.md
+        - use/commands/pmm-admin.md
+        - use/commands/pmm-agent.md
     - PMM dashboards:
       - Insight:
         - reference/dashboards/dashboard-home.md

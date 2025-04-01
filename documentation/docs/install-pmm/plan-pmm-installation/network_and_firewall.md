@@ -29,10 +29,19 @@ These ports are used for communication between PMM components:
 
 ## Port range configuration
 
-!!! caution alert alert-warning "Important"
-    Depending on your architecture other ports may also need to be exposed.
+The default port range for `pmm-agent` is intentionally wide to accommodate various deployment sizes. You can adjust this range to fit your environment:
 
-    - The default port range for `pmm-agent` is large by default to accommodate any architecture size but it can be modified using the `--ports-min` and `--ports-max` flags, or by changing the configuration file. In network constraint environments, the range can be reduced to a minimum by allocating at least one port per agent monitored. Learn more about available settings for `pmm-agent` in [Percona PMM-Agent documentation](../../use/commands/pmm-agent.md).
+- Small deployments: For monitoring fewer than 20 services, you can reduce the range significantly
+- Custom range: Configure with `--ports-min` and `--ports-max` flags when starting `pmm-agent`
+- Minimum allocation: Allow at least one port per monitored service/exporter
+
+??? info "Example"
+    To set a custom port range for 50 services:
+    ```sh
+    pmm-agent --ports-min=9001 --ports-max=9050
+    ```
+
+Learn more about available settings for `pmm-agent` in [Percona PMM-Agent documentation](../../use/commands/pmm-agent.md).
 
 ## Network configuration for locked-down environments
 For computers in a locked-down corporate environment without direct access to the Internet, make sure to enable access to Percona Platform services following the instructions in the [Percona Platform documentation](https://docs.percona.com/percona-platform/network.html).
