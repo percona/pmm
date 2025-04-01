@@ -126,6 +126,7 @@ For a more detailed comparison of extensions, follow [pg_stat monitor User Guide
 #### Configure
 
 To configure the extension:
+{.power-number}
 
 1. Add these lines to your `postgresql.conf` file:
 
@@ -373,7 +374,7 @@ The `pmm-admin` flag limits Auto-discovery:
 To check the service from the PMM UI:
 {.power-number}
 
-1. Select <i class="uil uil-cog"></i> **Configuration** → {{icon.inventory}} **Inventory**.
+1. Select :material-cog: **Configuration** → :material-clipboard-list-outline: **Inventory**.
 2. In the **Services** tab, verify the **Service name**, **Address** and any other relevant details.
 3. In the **Options** column, expand the **Details** section and check that the Agents are using the desired data source.
 

@@ -62,6 +62,10 @@ func TestProxy(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+		url, err := url.Parse(targetURL)
+		require.NoError(t, err)
+
+		prepareRequest(req, url, headerName)
 
 		handler.ServeHTTP(rec, req)
 		resp := rec.Result()
@@ -125,15 +129,19 @@ func TestProxy(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 
-				url := targetURL
+				testTargetURL := targetURL
 				if tc.targetURL != "" {
-					url = tc.targetURL
+					testTargetURL = tc.targetURL
 				}
 
 				handler := setup(t, tc.expectedFilters)
 
 				rec := httptest.NewRecorder()
-				req := httptest.NewRequest(http.MethodGet, url, nil)
+				req := httptest.NewRequest(http.MethodGet, testTargetURL, nil)
+
+				url, err := url.Parse(testTargetURL)
+				require.NoError(t, err)
+				prepareRequest(req, url, headerName)
 				req.Header.Set(headerName, tc.headerContent)
 
 				handler.ServeHTTP(rec, req)
@@ -141,6 +149,45 @@ func TestProxy(t *testing.T) {
 				defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 				require.Equal(t, tc.expectedStatus, resp.StatusCode)
+			})
+		}
+	})
+
+	t.Run("prepareRequest: set targetURL host as Host header value", func(t *testing.T) {
+		t.Parallel()
+
+		headerName := "Host"
+
+		type testParams struct {
+			name      string
+			targetURL string
+		}
+
+		testCases := []testParams{
+			{
+				name:      "targetURL for external VM",
+				targetURL: "https://my-external-vm.example.org:8443/",
+			},
+			{
+				name:      "targetURL for local VM by IP",
+				targetURL: "http://127.0.0.1:8430/",
+			},
+		}
+
+		for _, tc := range testCases {
+			tc := tc
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				url, err := url.Parse(tc.targetURL)
+				require.NoError(t, err)
+				expectedHost := url.Host
+				req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+
+				prepareRequest(req, url, headerName)
+
+				require.NotNil(t, req.Header[headerName])
+				require.Equal(t, expectedHost, req.Header[headerName][0])
 			})
 		}
 	})
