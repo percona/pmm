@@ -26,7 +26,7 @@ RUN yum install -y gcc gcc-c++ \
     krb5-devel \
     wget && \
     yum install -y --enablerepo=ol9_codeready_builder glibc-static && \
-    yum clean all && rm -rf /var/cache/yum
+    yum clean all && rm -rf /var/cache/yum /var/cache/dnf
 
 # keep that format for easier search
 ENV GO_VERSION=1.23.4
