@@ -261,6 +261,33 @@ func TestProfilerFingerprinter(t *testing.T) {
 			},
 		},
 		{
+			name: "update 8.0",
+			doc: proto.SystemProfile{
+				Op: "update",
+				Ns: "config.system.sessions",
+				Command: bson.D{
+					{Key: "q", Value: bson.D{
+						{Key: "_id", Value: bson.D{
+							{Key: "id", Value: primitive.NewObjectID()},
+							{Key: "uid", Value: primitive.Binary{Subtype: 0, Data: []byte{0x47, 0xDE, 0x50, 0x98, 0xFC, 0x1, 0x14, 0x9A, 0xFB, 0xF4, 0xC8, 0x99, 0x6F, 0xB9, 0x24, 0x27, 0xAE, 0x41, 0xE4, 0x64, 0x9B, 0x93, 0x4C, 0xA4, 0x95, 0x99, 0x1B, 0x78, 0x52, 0xB8, 0x55}}},
+						}},
+					}},
+					{Key: "u", Value: bson.A{
+						bson.D{{Key: "$set", Value: bson.D{{Key: "lastUse", Value: "$$NOW"}}}},
+					}},
+					{Key: "multi", Value: false},
+					{Key: "upsert", Value: true},
+				},
+			},
+			want: fingerprinter.Fingerprint{
+				Fingerprint: `db.system.sessions.update({"_id":{"id":"?","uid":"?"}}, [{"$set":{"lastUse":"?"}}], {"upsert":true})`,
+				Namespace:   "config.system.sessions",
+				Database:    "config",
+				Collection:  "system.sessions",
+				Operation:   "update",
+			},
+		},
+		{
 			name: "delete",
 			doc: proto.SystemProfile{
 				Ns:      "test.delete_collection",

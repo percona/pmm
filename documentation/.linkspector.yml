@@ -1,3 +1,13 @@
-# https://github.com/UmbrellaDocs/linkspector
 dirs:
   - documentation/docs
+
+ignorePatterns:
+  - pattern: "^https://www.reddit.com/r/VictoriaMetrics/"
+  - pattern: "^https://linux.die.net/man/8/logrotate"
+  - pattern: "#os_alerts$"
+  - pattern: "#pmm_alerts$"
+  - pattern: "#mongodb_alerts$"
+  - pattern: "#pbm_alerts$"
+  - pattern: "#mysql_alerts$"
+  - pattern: "#postgresql_alerts$"
+  - pattern: "#proxysql_alerts$"
