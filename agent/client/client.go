@@ -378,7 +378,6 @@ LOOP:
 			case *agentv1.StartActionRequest:
 				responsePayload = &agentv1.StartActionResponse{}
 				if err := c.handleStartActionRequest(p); err != nil {
-					responsePayload = nil
 					status = convertAgentErrorToGrpcStatus(err)
 					break
 				}
@@ -563,7 +562,7 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 		action = actions.NewProcessAction(p.ActionId, timeout, "systemctl", []string{"restart", service})
 
 	default:
-		return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid action type request: %T", params)
+		return errors.Wrapf(agenterrors.ErrActionUnimplemented, "invalid action type request: %T", params)
 	}
 
 	if err != nil {
@@ -995,8 +994,10 @@ func convertAgentErrorToGrpcStatus(agentErr error) *grpcstatus.Status {
 		status = grpcstatus.New(codes.InvalidArgument, agentErr.Error())
 	case errors.Is(agentErr, agenterrors.ErrActionQueueOverflow):
 		status = grpcstatus.New(codes.ResourceExhausted, agentErr.Error())
-	default:
+	case errors.Is(agentErr, agenterrors.ErrActionUnimplemented):
 		status = grpcstatus.New(codes.Unimplemented, agentErr.Error())
+	default:
+		status = grpcstatus.New(codes.Internal, agentErr.Error())
 	}
 	return status
 }
