@@ -1,19 +1,22 @@
 # Network and firewall requirements
 
-## Ports
+Before installing PMM, ensure your network configuration allows the necessary connections between PMM components. Here are the required ports and connectivity settings.
 
-This is a list of ports used by the various components of PMM.
 
-For PMM to work correctly, your system's firewall should allow TCP traffic on these ports (UDP is not needed).
+## Required ports
 
-Ports to expose:
+This is a list of ports used by the various components of PMM. For PMM to work correctly, your system's firewall should allow TCP traffic on these ports (UDP is not needed).
+
+### Essential ports
+These ports must be accessible for basic PMM functionality:
 
 | PMM component | TCP port      | Direction     | Description
 |---------------|---------------|---------------|------------------------------------------------------------------------------------------
 | PMM Server    |   80          | both          | HTTP server, used for gRPC over HTTP and web interface (**insecure**, use with caution).
 | PMM Server    |  443          | both          | HTTPS server, used for gRPC over HTTPS and web interface (secure, use of SSL certificates is highly encouraged).
 
-Other ports:
+### Internal component ports 
+These ports are used for communication between PMM components:
 
 | PMM component | TCP port      | Direction     | Description
 |---------------|---------------|---------------|-----------------------------------------------------------------
@@ -24,10 +27,11 @@ Other ports:
 | `vm-agent`    | 8428          | both          | VictoriaMetrics port.
 | `pmm-agent`   | 42000 - 51999 | in            | Default range for `pmm-agent` connected agents.
 
+## Port range configuration
+
 !!! caution alert alert-warning "Important"
     Depending on your architecture other ports may also need to be exposed.
 
-    - For `pmm-agent`, the default listen port is 7777.
     - The default port range for `pmm-agent` is large by default to accommodate any architecture size but it can be modified using the `--ports-min` and `--ports-max` flags, or by changing the configuration file. In network constraint environments, the range can be reduced to a minimum by allocating at least one port per agent monitored. Learn more about available settings for `pmm-agent` in [Percona PMM-Agent documentation](../../use/commands/pmm-agent.md).
 
 ## Network configuration for locked-down environments

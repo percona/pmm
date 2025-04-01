@@ -57,9 +57,7 @@ When installing on ARM-based systems, ensure you're using ARM64-compatible versi
 
 ## Add services for monitoring
 
-On each PMM Client instance, configure the nodes and services you want to monitor. 
-
-??? info "Which services can you monitor?"
+After installing PMM Client, configure the nodes and services you want to monitor. PMM supports monitoring across the following database technologies, cloud services, proxy services, and system metrics:
 
 === "Databases"
 - [MySQL](../install-pmm/install-pmm-client/connect-database/mysql.md) (including Percona Server for MySQL, Percona XtraDB Cluster, and MariaDB)
