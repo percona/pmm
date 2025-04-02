@@ -117,7 +117,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 			},
 		}
 		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
-		require.Len(t, actual, 0)
+		require.Empty(t, actual)
 	})
 
 	t.Run("Truncate", func(t *testing.T) {
@@ -131,7 +131,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 		}
 		current := make(map[string]*eventsStatementsSummaryByDigest)
 		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
-		require.Len(t, actual, 0)
+		require.Empty(t, actual)
 	})
 
 	t.Run("TruncateAndNew", func(t *testing.T) {
@@ -195,7 +195,7 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 
 	p, err := newPerfSchema(newParams)
 	require.NoError(t, err)
-	require.NoError(t, p.refreshHistoryCache())
+	require.NoError(t, p.refreshHistoryCache(context.Background()))
 	return p
 }
 
@@ -344,7 +344,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err := db.Exec("SELECT /* Sleep controller='test' */ sleep(0.1)")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(context.Background()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
@@ -391,7 +391,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err := db.Exec("SELECT /* AllCities controller='test' */ * FROM city")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(context.Background()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
@@ -450,7 +450,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err = db.Exec("SELECT /* t1 controller='test' */ * FROM t1 where col1='Bu\xf1rk'")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(context.Background()))
 		var example string
 		switch {
 		// Perf schema truncates queries with non-utf8 characters.
@@ -517,7 +517,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err = db.Exec("SELECT 1, 2, 3, 4, id FROM city WHERE id = 1")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(context.Background()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)

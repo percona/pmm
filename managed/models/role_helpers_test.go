@@ -140,7 +140,7 @@ func TestRoleHelpers(t *testing.T) {
 
 			roles, err := models.GetUserRoles(tx.Querier, userID)
 			require.NoError(t, err)
-			require.Equal(t, len(roles), 0)
+			require.Empty(t, roles)
 		})
 
 		//nolint:paralleltest
@@ -158,7 +158,7 @@ func TestRoleHelpers(t *testing.T) {
 
 			roles, err := models.GetUserRoles(tx.Querier, userID)
 			require.NoError(t, err)
-			require.Equal(t, len(roles), 1)
+			require.Len(t, roles, 1)
 			require.Equal(t, roles[0].ID, roleB.ID)
 		})
 	})
@@ -180,7 +180,7 @@ func TestRoleHelpers(t *testing.T) {
 
 			roles, err := models.GetUserRoles(tx.Querier, userID)
 			require.NoError(t, err)
-			require.Equal(t, len(roles), 1)
+			require.Len(t, roles, 1)
 			require.Equal(t, roles[0].ID, roleB.ID)
 		})
 
@@ -199,7 +199,7 @@ func TestRoleHelpers(t *testing.T) {
 
 			roles, err := models.GetUserRoles(tx.Querier, userID)
 			require.NoError(t, err)
-			require.Equal(t, len(roles), 1)
+			require.Len(t, roles, 1)
 			require.Equal(t, roles[0].ID, roleB.ID)
 		})
 	})
@@ -233,7 +233,7 @@ func TestRoleHelpers(t *testing.T) {
 
 		roles, err := models.GetUserRoles(tx.Querier, userID)
 		require.NoError(t, err)
-		require.Equal(t, len(roles), 2)
+		require.Len(t, roles, 2)
 		require.Equal(t, roles[0].ID, roleA.ID)
 		require.Equal(t, roles[1].ID, roleB.ID)
 	})

@@ -80,8 +80,8 @@ func TestCollect(t *testing.T) {
 		require.NoError(t, err)
 		svc.userTemplatesPath = testBadTemplates
 		templates, err := svc.loadTemplatesFromUserFiles(ctx)
-		assert.NoError(t, err)
 		assert.Empty(t, templates)
+		require.NoError(t, err)
 	})
 
 	t.Run("valid template paths", func(t *testing.T) {

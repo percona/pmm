@@ -36,6 +36,8 @@ var (
 )
 
 // pgStatMonitor represents a row in pg_stat_monitor view.
+//
+//nolint:recvcheck
 type pgStatMonitor struct {
 	// PGSM < 0.6.0
 	DBID   int64
@@ -281,8 +283,7 @@ func (v *pgStatMonitorAllViewType) Columns() []string {
 
 // NewStruct makes a new struct for that view or table.
 func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct { //nolint:ireturn
-	str, _ := newPgStatMonitorStructs(v.vPGSM, v.vPG)
-	return str
+	return &pgStatMonitor{}
 }
 
 // String returns a string representation of this struct or record.

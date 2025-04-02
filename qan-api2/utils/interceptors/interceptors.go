@@ -118,7 +118,7 @@ func Stream(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, 
 
 	err := logRequest(l, "Stream "+info.FullMethod, func() error {
 		wrapped := grpc_middleware.WrapServerStream(ss)
-		wrapped.WrappedContext = ctx
+		wrapped.WrappedContext = ctx //nolint:fatcontext
 		return grpc_prometheus.StreamServerInterceptor(srv, wrapped, info, handler)
 	})
 	return err

@@ -262,7 +262,7 @@ func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
 	defer t.Stop()
 
 	for {
-		if err := m.refreshHistoryCache(); err != nil {
+		if err := m.refreshHistoryCache(ctx); err != nil {
 			m.l.Error(err)
 		}
 
@@ -275,9 +275,9 @@ func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
 	}
 }
 
-func (m *PerfSchema) refreshHistoryCache() error {
+func (m *PerfSchema) refreshHistoryCache(ctx context.Context) error {
 	if m.useLong == nil {
-		sqlVersion, vendor, err := version.GetMySQLVersion(context.Background(), m.q)
+		sqlVersion, vendor, err := version.GetMySQLVersion(ctx, m.q)
 		if err != nil {
 			return errors.Wrap(err, "cannot get MySQL version")
 		}

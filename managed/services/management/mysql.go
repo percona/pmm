@@ -67,7 +67,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 			Cluster:        req.Cluster,
 			ReplicationSet: req.ReplicationSet,
 			Address:        pointer.ToStringOrNil(req.Address),
-			Port:           pointer.ToUint16OrNil(uint16(req.Port)),
+			Port:           pointer.ToUint16OrNil(uint16(req.Port)), //nolint:gosec // port is a uint16
 			Socket:         pointer.ToStringOrNil(req.Socket),
 			CustomLabels:   req.CustomLabels,
 		})

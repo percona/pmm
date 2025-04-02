@@ -49,8 +49,6 @@ func TestAuth(t *testing.T) {
 			nil:                              401,
 			url.UserPassword("bad", "wrong"): 401,
 		} {
-			user := user
-			code := code
 			t.Run(fmt.Sprintf("%s/%d", user, code), func(t *testing.T) {
 				t.Parallel()
 
@@ -82,8 +80,6 @@ func TestAuth(t *testing.T) {
 			codes.Unauthenticated:  401,
 			codes.PermissionDenied: 403,
 		} {
-			grpcCode := grpcCode
-			httpCode := httpCode
 			t.Run(fmt.Sprintf("%s/%d", grpcCode, httpCode), func(t *testing.T) {
 				t.Parallel()
 
@@ -106,8 +102,6 @@ func TestSwagger(t *testing.T) {
 		"swagger.json",
 		"swagger/swagger.json",
 	} {
-		path := path
-
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
 			t.Run("NoAuth", func(t *testing.T) {
@@ -218,11 +212,9 @@ func TestBasicAuthPermissions(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		test := test
 		t.Run(test.name, func(t *testing.T) {
 			for _, user := range test.userCase {
-				user := user
-				t.Run(fmt.Sprintf("Basic auth %s", user.userType), func(t *testing.T) {
+				t.Run(fmt.Sprintf("Basic auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
@@ -239,7 +231,7 @@ func TestBasicAuthPermissions(t *testing.T) {
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
 
-				t.Run(fmt.Sprintf("API Key auth %s", user.userType), func(t *testing.T) {
+				t.Run(fmt.Sprintf("API Key auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
 					if user.apiKey == "" {
 						t.Skip("API Key does not exist")
 					}
@@ -261,7 +253,7 @@ func TestBasicAuthPermissions(t *testing.T) {
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
 
-				t.Run(fmt.Sprintf("API Key Basic auth %s", user.userType), func(t *testing.T) {
+				t.Run(fmt.Sprintf("API Key Basic auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
 					if user.apiKey == "" {
 						t.Skip("API Key does not exist")
 					}
@@ -413,7 +405,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			for _, user := range test.userCase {
-				t.Run(fmt.Sprintf("Service Token auth %s", user.userType), func(t *testing.T) {
+				t.Run(fmt.Sprintf("Service Token auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
@@ -432,7 +424,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
 
-				t.Run(fmt.Sprintf("Basic auth with Service Token %s", user.userType), func(t *testing.T) {
+				t.Run(fmt.Sprintf("Basic auth with Service Token %s", user.userType), func(t *testing.T) { //nolint:perfsprint
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
 					u.User = url.UserPassword("service_token", user.serviceToken)

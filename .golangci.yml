@@ -159,3 +159,6 @@ issues:
         - nonamedreturns   # not critical for tests, albeit desirable
         - testpackage      # senseless
         - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
+    - path: managed/models/
+      linters:
+        - recvcheck

@@ -24,7 +24,7 @@ import (
 )
 
 // WithMetrics returns http.RoundTripper instrumented with returned Prometheus metrics.
-func WithMetrics(t http.RoundTripper, subsystem string) (http.RoundTripper, prom.Collector) { //nolint:ireturn
+func WithMetrics(t http.RoundTripper, subsystem string) (http.RoundTripper, prom.Collector) {
 	m := &metrics{
 		inflight: prom.NewGauge(prom.GaugeOpts{
 			Namespace: "promhttp",
