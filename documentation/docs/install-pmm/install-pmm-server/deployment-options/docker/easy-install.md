@@ -1,8 +1,11 @@
-## Run Docker via the Easy-install script
-!!! caution alert alert-warning "Caution"
-    You can download and check the installation script before running it from our [Github](https://www.percona.com/get/pmm):
+# Run Docker via the Easy-install script
 
-## Linux or macOS
+## Security best practice
+You can download and check the [installation script](https://www.percona.com/get/pmm) before running it.
+
+## Installation instructions
+
+### Linux or macOS
 Download and install PMM Server using `cURL` or `wget`:
 === "cURL"
     ```sh
@@ -23,6 +26,18 @@ Download and install PMM Server using `cURL` or `wget`:
         chmod +x pmm
         ./pmm --interactive
         ```
+
+## Docker installation issues
+
+If you encounter Docker installation issues with the Easy-install script (such as `ERROR: Unsupported distribution 'rocky' on Rocky Linux`):
+{.power-number}
+
+ 1. [Install Docker manually](https://docs.docker.com/engine/install/).
+ 2. Run the Easy-install script above again.
+
+This two-step approach resolves most installation issues, especially on Rocky Linux where automatic installation may fail.
+
 ### Next steps
 Start by installing PMM Client:
+
 [Install PMM Client :material-arrow-right:](../../../install-pmm-client/index.md){.md-button}
