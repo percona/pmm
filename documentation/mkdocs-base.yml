@@ -204,16 +204,15 @@ nav:
           - Install on Docker: install-pmm/install-pmm-client/docker.md
         - Configuration:
           - Register Client node: install-pmm/register-client-node/index.md
-          - Configure monitoring:
+          - Connect databases:
             - install-pmm/install-pmm-client/connect-database/index.md
-            - Databases:
-              - MySQL: install-pmm/install-pmm-client/connect-database/mysql/mysql.md
-                    - MySQL optimization:
-                      - install-pmm/install-pmm-client/connect-database/mysql/improve_perf.md
-                      - install-pmm/install-pmm-client/connect-database/mysql/disable_table_stats.md
-                      - install-pmm/install-pmm-client/connect-database/mysql/change_number_tables.md
-              - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
-              - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
+            - MySQL: 
+              - install-pmm/install-pmm-client/connect-database/mysql/mysql.md
+              - MySQL optimization:
+                - Improve performance: install-pmm/install-pmm-client/connect-database/mysql/improve_perf.md
+                - Disable table statistics: install-pmm/install-pmm-client/connect-database/mysql/disable_table_stats.md
+                - Change number of tables: install-pmm/install-pmm-client/connect-database/mysql/change_number_tables.md
+            - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
             - Cloud services:
               - AWS: install-pmm/install-pmm-client/connect-database/aws.md
               - Azure: install-pmm/install-pmm-client/connect-database/azure.md
@@ -263,10 +262,6 @@ nav:
       - PMM metrics:
         - use/metrics/index.md
         - use/metrics/extend_metrics.md
-      - Optimize:
-        - optimize/improve_perf.md
-        - optimize/disable_table_stats.md
-        - optimize/change_number_tables.md
       - Dashboards:
         - use/dashboards-panels/index.md
         - Manage dashboards:
@@ -453,4 +448,4 @@ nav:
     -  reference/faq.md
     -  reference/trademark-policy.md
     -  reference/copyright.md
-    - test.md
+    -  test.md
