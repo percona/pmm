@@ -419,8 +419,8 @@ github.com/percona-lab/crypto v0.0.0-20231108144114-756dfb24eaf2 h1:FaO5loTAkRzV
 github.com/percona-lab/crypto v0.0.0-20231108144114-756dfb24eaf2/go.mod h1:aSyBXtGhRzSMdne9jbl3+PPMVS0IgOWF6Llc+HB5uUU=
 github.com/percona/exporter_shared v0.7.5 h1:sIhdDtKOfH0jsqtTAi41C7wm1R42yXYeAkK0QWhgN7k=
 github.com/percona/exporter_shared v0.7.5/go.mod h1:P8ZHDzveyJRGD4ZIRNiEMuAdDexBpQWf2mAVwtyVcYU=
-github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c h1:1SZ7nS+kSaO63IpaKspf/gf8602QcgP2eXNPMNOIc0M=
-github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c/go.mod h1:/SGLf9OMxlnK6jq4mkFiImBcJXXk5jwD+lDrwDaGXcw=
+github.com/percona/go-mysql v0.0.0-20250402095632-a74727b12b16 h1:SaNLvEu6fki3y9yGSQ5TgKvPcmPf+KIR9lpGDdodjXs=
+github.com/percona/go-mysql v0.0.0-20250402095632-a74727b12b16/go.mod h1:/SGLf9OMxlnK6jq4mkFiImBcJXXk5jwD+lDrwDaGXcw=
 github.com/percona/percona-toolkit v0.0.0-20250306213812-9ad6dc01250f h1:Er+ppsr2eqqyurdMCV8eCwjrGE9LOdDCblfWElnxouA=
 github.com/percona/percona-toolkit v0.0.0-20250306213812-9ad6dc01250f/go.mod h1:lyxl7V4jaZk/VyG/QSnhqNLSVVASdQqEY5u1p7SQTgE=
 github.com/percona/promconfig v0.2.5 h1:f/HN/CbECQs7d9RIB6MKVkuXstsrsqEDxRvf6yigquc=
