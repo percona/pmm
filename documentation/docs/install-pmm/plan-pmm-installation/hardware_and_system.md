@@ -4,28 +4,30 @@ To ensure optimal performance for your monitoring environment, check the appropr
 ## PMM Server requirements
 Resource requirements scale with the number of nodes and services monitored. Here are our recommendations for different deployment scales:
 
-
 === "Typical deployment (1-30 nodes)"
-This is the most common deployment scenario, suitable for small to medium-sized environments:
 
-- **CPU**: 4 cores
-- **Memory**: 8 GB  
-- **Storage**: 100 GB
+    This is the most common deployment scenario, suitable for small to medium-sized environments:
+
+    - **CPU**: 4 cores
+    - **Memory**: 8 GB  
+    - **Storage**: 100 GB
 
 === "Medium deployment (31-200 nodes)"
-Recommended for environments monitoring MySQL, PostgreSQL, or MongoDB at scale:
 
-- **CPU**: 8-16 cores
-- **Memory**: 16-32 GB
-- **Storage**: 200 GB
-- **CPU usage**: Expect 20-70% utilization
+    Recommended for environments monitoring MySQL, PostgreSQL, or MongoDB at scale:
+
+    - **CPU**: 8-16 cores
+    - **Memory**: 16-32 GB
+    - **Storage**: 200 GB
+    - **CPU usage**: Expect 20-70% utilization
 
 === "Large deployment (200+ nodes)"
-Designed for extensive monitoring environments with high node counts:
 
-- **CPU**: 16+ cores
-- **Memory**: 32+ GB
-- **Storage**: 500+ GB
+    Designed for extensive monitoring environments with high node counts:
+
+    - **CPU**: 16+ cores
+    - **Memory**: 32+ GB
+    - **Storage**: 500+ GB
 
 ## Storage planning
 Adjust storage calculations based on your data retention period and the number of metrics collected. To estimate storage requirements:
