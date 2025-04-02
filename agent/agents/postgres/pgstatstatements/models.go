@@ -19,7 +19,7 @@ package pgstatstatements
 // pgStatDatabase represents a row in pg_stat_database view.
 //
 //reform:pg_catalog.pg_stat_database
-type pgStatDatabase struct {
+type pgStatDatabase struct { //nolint:recvcheck
 	DatID   int64   `reform:"datid"`
 	DatName *string `reform:"datname"`
 }
@@ -27,7 +27,7 @@ type pgStatDatabase struct {
 // pgUser represents a row in pg_user view.
 //
 //reform:pg_catalog.pg_user
-type pgUser struct {
+type pgUser struct { //nolint:recvcheck
 	UserID   int64   `reform:"usesysid"`
 	UserName *string `reform:"usename"`
 }

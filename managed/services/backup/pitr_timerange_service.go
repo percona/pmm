@@ -54,8 +54,8 @@ type oplogChunk struct {
 	RS          string              `bson:"rs"`
 	FName       string              `bson:"fname"`
 	Compression compressionType     `bson:"compression"`
-	StartTS     primitive.Timestamp `bson:"start_ts"`
-	EndTS       primitive.Timestamp `bson:"end_ts"`
+	StartTS     primitive.Timestamp `bson:"start_ts"` //nolint:tagliatelle
+	EndTS       primitive.Timestamp `bson:"end_ts"`   //nolint:tagliatelle
 	size        int64               `bson:"-"`
 }
 

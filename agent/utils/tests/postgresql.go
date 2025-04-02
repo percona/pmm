@@ -27,6 +27,11 @@ import (
 	"github.com/percona/pmm/agent/utils/version"
 )
 
+const (
+	defaultPostgresPort = 5432
+	pgMaxIdleConns      = 10
+)
+
 // GetTestPostgreSQLDSN returns DNS for PostgreSQL test database.
 func GetTestPostgreSQLDSN(tb testing.TB) string {
 	tb.Helper()
@@ -39,7 +44,7 @@ func GetTestPostgreSQLDSN(tb testing.TB) string {
 
 	u := &url.URL{
 		Scheme:   "postgres",
-		Host:     net.JoinHostPort("localhost", strconv.Itoa(5432)),
+		Host:     net.JoinHostPort("localhost", strconv.Itoa(defaultPostgresPort)),
 		Path:     "pmm-agent",
 		User:     url.UserPassword("pmm-agent", "pmm-agent-password"),
 		RawQuery: q.Encode(),
@@ -55,7 +60,7 @@ func OpenTestPostgreSQL(tb testing.TB) *sql.DB {
 	db, err := sql.Open("postgres", GetTestPostgreSQLDSN(tb))
 	require.NoError(tb, err)
 
-	db.SetMaxIdleConns(10)
+	db.SetMaxIdleConns(pgMaxIdleConns)
 	db.SetMaxOpenConns(10)
 	db.SetConnMaxLifetime(0)
 

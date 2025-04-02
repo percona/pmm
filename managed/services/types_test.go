@@ -68,5 +68,5 @@ func TestTarget_Copy(t1 *testing.T) {
 	assert.Equal(t1, map[string]string{"file": "test"}, target.Files)
 	assert.Equal(t1, "[", target.TDP.Left)
 	assert.Equal(t1, "]", target.TDP.Right)
-	assert.Equal(t1, true, target.TLSSkipVerify)
+	assert.True(t1, target.TLSSkipVerify)
 }

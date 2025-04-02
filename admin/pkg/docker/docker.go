@@ -286,7 +286,7 @@ func (b *Base) ContainerWait(ctx context.Context, containerID string, condition 
 
 // ContainerExecPrintOutput runs a command in a container and prints output to stdout/stderr.
 func (b *Base) ContainerExecPrintOutput(ctx context.Context, containerID string, cmd []string) (int, error) {
-	cresp, err := b.Cli.ContainerExecCreate(ctx, containerID, types.ExecConfig{
+	cresp, err := b.Cli.ContainerExecCreate(ctx, containerID, container.ExecOptions{
 		Cmd:          cmd,
 		AttachStderr: true,
 		AttachStdout: true,
@@ -298,7 +298,7 @@ func (b *Base) ContainerExecPrintOutput(ctx context.Context, containerID string,
 	execID := cresp.ID
 
 	// run it, with stdout/stderr attached
-	aresp, err := b.Cli.ContainerExecAttach(ctx, execID, types.ExecStartCheck{})
+	aresp, err := b.Cli.ContainerExecAttach(ctx, execID, container.ExecStartOptions{})
 	if err != nil {
 		return 0, err
 	}

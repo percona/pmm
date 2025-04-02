@@ -287,7 +287,7 @@ func (e *Encryption) DecryptItems(tx *reform.TX, tables []Table) error {
 	return nil
 }
 
-func (e *Encryption) getPrimitive() (tink.AEAD, error) { //nolint:ireturn
+func (e *Encryption) getPrimitive() (tink.AEAD, error) {
 	serializedKeyset, err := base64.StdEncoding.DecodeString(e.Key)
 	if err != nil {
 		return nil, err

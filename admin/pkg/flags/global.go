@@ -39,7 +39,7 @@ type GlobalFlags struct {
 type versionFlag bool
 
 // BeforeApply is run before the version flag is applied.
-func (v versionFlag) BeforeApply() error { //nolint:unparam
+func (v versionFlag) BeforeApply() error {
 	// For backwards compatibility we scan for "--json" flag.
 	// Kong parses the flags from left to right which breaks compatibility
 	// if the --json flag is after --version flag.

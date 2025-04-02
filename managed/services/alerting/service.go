@@ -24,6 +24,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"text/template"
@@ -269,7 +270,6 @@ func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]*models.Tem
 		}
 
 		for _, t := range templates {
-			t := t
 			if err = validateUserTemplate(&t); err != nil {
 				s.l.Warnf("%s %s", path, err)
 				continue
@@ -336,7 +336,6 @@ func (s *Service) downloadTemplates(ctx context.Context) ([]*models.Template, er
 
 	res := make([]*models.Template, 0, len(templates))
 	for _, t := range templates {
-		t := t
 		tm, err := models.ConvertTemplate(&t, models.SAASSource)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to convert alert rule template")
@@ -505,14 +504,13 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 			return nil, status.Errorf(codes.InvalidArgument, "Template with name '%s' declared more that once.", t.Name)
 		}
 		uniqueNames[t.Name] = struct{}{}
-		if err = validateUserTemplate(&t); err != nil { //nolint:gosec
+		if err = validateUserTemplate(&t); err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
 		}
 	}
 
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
 		for _, t := range templates {
-			t := t
 			if _, err = models.CreateTemplate(tx.Querier, &models.CreateTemplateParams{
 				Template: &t,
 				Source:   models.UserAPISource,
@@ -948,7 +946,7 @@ func (p AlertExprParamsValues) AsStringMap() map[string]string {
 		case models.Float:
 			value = fmt.Sprint(rp.FloatValue)
 		case models.Bool:
-			value = fmt.Sprint(rp.BoolValue)
+			value = strconv.FormatBool(rp.BoolValue)
 		case models.String:
 			value = rp.StringValue
 		}

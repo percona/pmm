@@ -21,7 +21,7 @@ import "gopkg.in/reform.v1/parse"
 // eventsStatementsSummaryByDigest represents a row in performance_schema.events_statements_summary_by_digest table.
 //
 //reform:performance_schema.events_statements_summary_by_digest
-type eventsStatementsSummaryByDigest struct {
+type eventsStatementsSummaryByDigest struct { //nolint:recvcheck
 	SchemaName              *string `reform:"SCHEMA_NAME"`
 	Digest                  *string `reform:"DIGEST"`      // MD5 of DigestText
 	DigestText              *string `reform:"DIGEST_TEXT"` // query without values
@@ -57,7 +57,7 @@ type eventsStatementsSummaryByDigest struct {
 // performance_schema.events_statements_summary_by_digest table for MySQL 8.0 examples.
 //
 //reform:performance_schema.events_statements_summary_by_digest
-type eventsStatementsSummaryByDigestExamples struct {
+type eventsStatementsSummaryByDigestExamples struct { //nolint:recvcheck
 	SQLText       *string `reform:"QUERY_SAMPLE_TEXT"`
 	Digest        *string `reform:"DIGEST"`
 	CurrentSchema *string `reform:"SCHEMA_NAME"`
@@ -66,7 +66,7 @@ type eventsStatementsSummaryByDigestExamples struct {
 // eventsStatementsHistory represents a row in performance_schema.events_statements_history table.
 //
 //reform:performance_schema.events_statements_history
-type eventsStatementsHistory struct {
+type eventsStatementsHistory struct { //nolint:recvcheck
 	// ThreadID   int64   `reform:"THREAD_ID"`
 	// EventID    int64   `reform:"EVENT_ID"`
 	// EndEventID *int64  `reform:"END_EVENT_ID"`
@@ -110,7 +110,7 @@ type eventsStatementsHistory struct {
 // setupConsumers represents a row in performance_schema.setup_consumers table.
 //
 //reform:performance_schema.setup_consumers
-type setupConsumers struct {
+type setupConsumers struct { //nolint:recvcheck
 	Name    string `reform:"NAME"`
 	Enabled string `reform:"ENABLED"`
 }
@@ -118,7 +118,7 @@ type setupConsumers struct {
 // setupInstruments represents a row in performance_schema.setup_instruments table.
 //
 //reform:performance_schema.setup_instruments
-type setupInstruments struct {
+type setupInstruments struct { //nolint:recvcheck
 	Name    string  `reform:"NAME"`
 	Enabled string  `reform:"ENABLED"`
 	Timed   *string `reform:"TIMED"` // nullable in 8.0

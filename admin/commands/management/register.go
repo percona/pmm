@@ -46,8 +46,6 @@ func (res *registerResult) String() string {
 }
 
 // RegisterCommand is used by Kong for CLI flags and commands.
-//
-//nolint:lll
 type RegisterCommand struct {
 	Address           string            `name:"node-address" arg:"" default:"${nodeIp}" help:"Node address (autodetected, default: ${nodeIp})"`
 	NodeType          string            `arg:"" enum:"generic,container" default:"generic" help:"Node type. One of: [${enum}]. Default: ${default}"`

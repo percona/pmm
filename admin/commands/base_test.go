@@ -133,7 +133,6 @@ func TestParseCustomLabel(t *testing.T) {
 		{"trim spaces", map[string]string{"foo": " bar "}, map[string]string{"foo": "bar"}},
 		{"PMM-4078 hyphen", map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, map[string]string{"region": "us-east1", "mylabel": "mylab-22"}},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

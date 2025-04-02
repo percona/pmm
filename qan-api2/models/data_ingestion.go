@@ -34,6 +34,14 @@ const (
 	requestsCap     = 100
 	batchTimeout    = 500 * time.Millisecond
 	batchErrorDelay = time.Second
+
+	// Prometheus summary objectives.
+	p50Percentile = 0.5
+	p90Percentile = 0.9
+	p99Percentile = 0.99
+	p50Error      = 0.05
+	p90Error      = 0.01
+	p99Error      = 0.001
 )
 
 //nolint:lll
@@ -612,14 +620,14 @@ func NewMetricsBucket(db *sqlx.DB) *MetricsBucket {
 			Subsystem:  prometheusSubsystem,
 			Name:       "buckets_per_batch",
 			Help:       "Number of metric buckets per ClickHouse batch.",
-			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+			Objectives: map[float64]float64{p50Percentile: p50Error, p90Percentile: p90Error, p99Percentile: p99Error},
 		}, []string{"error"}),
 		mBatchSaveSeconds: prometheus.NewSummaryVec(prometheus.SummaryOpts{
 			Namespace:  prometheusNamespace,
 			Subsystem:  prometheusSubsystem,
 			Name:       "batch_save_seconds",
 			Help:       "Batch save duration.",
-			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+			Objectives: map[float64]float64{p50Percentile: p50Error, p90Percentile: p90Error, p99Percentile: p99Error},
 		}, []string{"error"}),
 		mRequestsLen: prometheus.NewGaugeFunc(prometheus.GaugeOpts{
 			Namespace: prometheusNamespace,

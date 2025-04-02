@@ -180,8 +180,8 @@ func execPBMCommand(ctx context.Context, dsn string, to interface{}, args ...str
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
 
-	args = append(args, "--out=json", "--mongodb-uri="+dsn) //nolint:goconst
-	cmd := exec.CommandContext(nCtx, pbmBin, args...)       // #nosec G204
+	args = append(args, "--out=json", "--mongodb-uri="+dsn)
+	cmd := exec.CommandContext(nCtx, pbmBin, args...)
 
 	b, err := cmd.Output()
 	if err != nil {

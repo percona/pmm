@@ -188,7 +188,7 @@ func (cmd *AddExternalServerlessCommand) processURLFlags() (string, string, stri
 			if err != nil {
 				return "", "", "", 0, err
 			}
-			port = uint16(portI)
+			port = uint16(portI) //nolint:gosec // port is a uint16
 		}
 		metricsPath = uri.Path
 	case cmd.Address != "":
@@ -201,7 +201,7 @@ func (cmd *AddExternalServerlessCommand) processURLFlags() (string, string, stri
 		if err != nil {
 			return "", "", "", 0, err
 		}
-		port = uint16(portI)
+		port = uint16(portI) //nolint:gosec // port is a uint16
 	}
 
 	return scheme, metricsPath, address, port, nil

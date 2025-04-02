@@ -71,7 +71,7 @@ func TestClientOptionsForDSN(t *testing.T) {
 			if tt.error != "" {
 				assert.Equal(t, err.Error(), tt.error)
 			} else {
-				assert.Empty(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedUser, got.Auth.Username)
 				assert.Equal(t, tt.expectedPassword, got.Auth.Password)
 			}

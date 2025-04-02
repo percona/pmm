@@ -219,7 +219,7 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 	return servicesList
 }
 
-func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent { //nolint:cyclop
+func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent { //nolint:cyclop,maintidx
 	getStatus := func(s *string) string {
 		res, _ := strings.CutPrefix(pointer.GetString(s), "AGENT_STATUS_")
 		if res == "" {

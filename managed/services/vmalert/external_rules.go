@@ -44,7 +44,7 @@ func NewExternalRules() *ExternalRules {
 func (s *ExternalRules) ValidateRules(ctx context.Context, rules string) error {
 	err := validators.ValidateAlertingRules(ctx, rules)
 	if e, ok := err.(*validators.InvalidAlertingRuleError); ok { //nolint:errorlint
-		return status.Errorf(codes.InvalidArgument, e.Msg)
+		return status.Error(codes.InvalidArgument, e.Msg)
 	}
 	return err
 }

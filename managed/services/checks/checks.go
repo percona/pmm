@@ -687,7 +687,6 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 	resData := make([]any, len(queries))
 
 	for i, query := range queries {
-		i, query := i, query
 		switch query.Type {
 		case check.MySQLShow:
 			eg.Go(func() error {

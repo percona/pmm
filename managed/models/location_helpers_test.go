@@ -550,8 +550,6 @@ func TestCreateBackupLocationValidation(t *testing.T) {
 	}
 
 	for _, test := range tableTests {
-		test := test
-
 		t.Run(test.name, func(t *testing.T) {
 			tx, err := db.Begin()
 			require.NoError(t, err)

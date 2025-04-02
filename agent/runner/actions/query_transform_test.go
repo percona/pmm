@@ -158,7 +158,6 @@ func Test_dmlToSelect(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		tc := tc
 		t.Run(fmt.Sprintf("TestDMLToSelect %d. %s", i, tc.Query), func(t *testing.T) {
 			t.Parallel()
 			q, c := dmlToSelect(tc.Query)

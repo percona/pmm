@@ -28,9 +28,12 @@ import (
 type DumpStatus string
 
 const (
-	DumpStatusInProgress = DumpStatus("in_progress") //nolint:revive
-	DumpStatusSuccess    = DumpStatus("success")     //nolint:revive
-	DumpStatusError      = DumpStatus("error")       //nolint:revive
+	// DumpStatusInProgress represents a dump in progress.
+	DumpStatusInProgress = DumpStatus("in_progress")
+	// DumpStatusSuccess represents a successful dump.
+	DumpStatusSuccess = DumpStatus("success")
+	// DumpStatusError represents an error during dump.
+	DumpStatusError = DumpStatus("error")
 )
 
 // Validate validates Dumps status.

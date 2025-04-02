@@ -22,7 +22,7 @@ import (
 	qanpb "github.com/percona/pmm/api/qan/v1"
 )
 
-// Get implements rpc to get list of available labels.
+// GetFilteredMetricsNames implements rpc to get list of available metrics names.
 //
 //nolint:goconst
 func (s *Service) GetFilteredMetricsNames(ctx context.Context, in *qanpb.GetFilteredMetricsNamesRequest) (*qanpb.GetFilteredMetricsNamesResponse, error) {

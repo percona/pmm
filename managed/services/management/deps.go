@@ -65,7 +65,7 @@ type checksService interface {
 // grafanaClient is a subset of methods of grafana.Client used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type grafanaClient interface {
-	CreateAnnotation(context.Context, []string, time.Time, string, string) (string, error)
+	CreateAnnotation(ctx context.Context, tags []string, time time.Time, text string, user string) (string, error)
 	CreateServiceAccount(ctx context.Context, noneName string, reregister bool) (int, string, error)
 	DeleteServiceAccount(ctx context.Context, noneName string, force bool) (string, error)
 }

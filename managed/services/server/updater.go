@@ -347,7 +347,7 @@ func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*ve
 
 	if len(metadataResponse.Versions) != 0 {
 		up.l.Debugf("Found %d versions", len(metadataResponse.Versions))
-		updates, next := up.next(*up.currentVersion(), metadataResponse.Versions)
+		updates, next := up.next(ctx, *up.currentVersion(), metadataResponse.Versions)
 		return updates, next, err
 	}
 	up.l.Debug("No new PMM version available")
@@ -370,7 +370,7 @@ func (up *Updater) parseDockerTag(tag string) ([]*version.DockerVersionInfo, *ve
 	}, nil
 }
 
-func (up *Updater) next(currentVersion version.Parsed, results []result) ([]*version.DockerVersionInfo, *version.DockerVersionInfo) {
+func (up *Updater) next(ctx context.Context, currentVersion version.Parsed, results []result) ([]*version.DockerVersionInfo, *version.DockerVersionInfo) {
 	repo := os.Getenv("PMM_DEV_UPDATE_DOCKER_REPO")
 	if repo == "" {
 		repo = "percona/pmm-server"
@@ -390,7 +390,7 @@ func (up *Updater) next(currentVersion version.Parsed, results []result) ([]*ver
 			continue
 		}
 		releaseNotesURL := "https://per.co.na/pmm/" + v.String()
-		releaseNote, err := up.getReleaseNotesText(context.Background(), *v)
+		releaseNote, err := up.getReleaseNotesText(ctx, *v)
 		if err != nil {
 			up.l.Errorf("Failed to get release notes for version: %s, %s", v.String(), err.Error())
 		}
@@ -537,7 +537,7 @@ func (up *Updater) updatePodmanEnvironmentVariables(filename string, key string,
 	if len(strings.Split(imageName, "/")) < 3 {
 		imageName = "docker.io/" + imageName
 	}
-	file, err := os.ReadFile(filename)
+	file, err := os.ReadFile(filename) //nolint:gosec
 	if err != nil {
 		return errors.Wrap(err, "failed to read file")
 	}
@@ -547,7 +547,7 @@ func (up *Updater) updatePodmanEnvironmentVariables(filename string, key string,
 			lines[i] = fmt.Sprintf(key+"=%s", imageName)
 		}
 	}
-	err = os.WriteFile(filename, []byte(strings.Join(lines, "\n")), 0o644)
+	err = os.WriteFile(filename, []byte(strings.Join(lines, "\n")), 0o644) //nolint:gosec
 	if err != nil {
 		return errors.Wrap(err, "failed to write file")
 	}

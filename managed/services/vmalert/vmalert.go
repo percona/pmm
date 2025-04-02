@@ -33,8 +33,13 @@ import (
 )
 
 const (
-	updateBatchDelay           = time.Second
-	configurationUpdateTimeout = 3 * time.Second
+	updateBatchDelay             = time.Second
+	configurationUpdateTimeout   = 3 * time.Second
+	defaultDialTimeout           = 3 * time.Second
+	defaultKeepAliveTimeout      = 30 * time.Second
+	defaultIdleConnTimeout       = 90 * time.Second
+	defaultExpectContinueTimeout = 1 * time.Second
+	defaultMaxIdleConns          = 1
 )
 
 // Service is responsible for interactions with victoria metrics.
@@ -57,12 +62,12 @@ func NewVMAlert(externalRules *ExternalRules, baseURL string) (*Service, error) 
 
 	var t http.RoundTripper = &http.Transport{
 		DialContext: (&net.Dialer{
-			Timeout:   3 * time.Second,
-			KeepAlive: 30 * time.Second,
+			Timeout:   defaultDialTimeout,
+			KeepAlive: defaultKeepAliveTimeout,
 		}).DialContext,
-		MaxIdleConns:          1,
-		IdleConnTimeout:       90 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
+		MaxIdleConns:          defaultMaxIdleConns,
+		IdleConnTimeout:       defaultIdleConnTimeout,
+		ExpectContinueTimeout: defaultExpectContinueTimeout,
 	}
 	if logrus.GetLevel() >= logrus.TraceLevel {
 		t = irt.WithLogger(t, logrus.WithField("component", "vmalert/client").Tracef)

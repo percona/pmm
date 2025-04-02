@@ -22,6 +22,7 @@ import (
 	pmmv1 "github.com/percona/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
 )
@@ -115,7 +116,6 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -124,7 +124,7 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 			tmpDistributionFilePath := f.Name()
 			tmpOsInfoFilePath := ""
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			if tt.dockerVersion != "" {
 				f2, err := writeToTmpFile(t, "", tt.dockerVersion)
 				assert.NoError(t, err)
@@ -224,7 +224,6 @@ func Test_distributionUtilServiceImpl_getLinuxDistribution(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

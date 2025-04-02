@@ -84,7 +84,7 @@ type mySQLBackupTask struct {
 }
 
 // NewMySQLBackupTask create new task for mysql backup.
-func NewMySQLBackupTask(params *BackupTaskParams) (Task, error) { //nolint:ireturn
+func NewMySQLBackupTask(params *BackupTaskParams) (Task, error) { //nolint:ireturn,nolintlint
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ type mongoDBBackupTask struct {
 }
 
 // NewMongoDBBackupTask create new task for mongo backup.
-func NewMongoDBBackupTask(params *BackupTaskParams) (Task, error) { //nolint:ireturn
+func NewMongoDBBackupTask(params *BackupTaskParams) (Task, error) { //nolint:ireturn,nolintlint
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}

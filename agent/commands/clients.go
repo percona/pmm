@@ -117,7 +117,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	transport.Context = context.Background()
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
+	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ interface{}) error {
 		b, _ := io.ReadAll(reader)
 		return nginxError(string(b))
 	})

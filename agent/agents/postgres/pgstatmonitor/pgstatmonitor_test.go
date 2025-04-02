@@ -200,6 +200,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		insertCMDType = commandTypeInsert
 		mPlansCallsCnt = 1
 		mPlansTimeCnt = 1
+	default:
+		t.Fatalf("unhandled version %v", pgsmVersion)
 	}
 
 	t.Run("AllCountries", func(t *testing.T) {
@@ -222,7 +224,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		actual := buckets[0]
 		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.Equal(t, float32(5), actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum)
+		assert.InEpsilon(t, float32(5), actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		example := ""
 
@@ -486,10 +488,10 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			active boolean
 		)`, tableName))
 		require.NoError(t, err)
-		defer func() {
+		t.Cleanup(func() {
 			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
 			require.NoError(t, err)
-		}()
+		})
 		m := setup(t, db, false, false)
 
 		var waitGroup sync.WaitGroup

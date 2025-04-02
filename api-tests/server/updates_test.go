@@ -299,9 +299,9 @@ func TestUpdate(t *testing.T) {
 		}
 
 		retries = 0
-		assert.True(t, statusRes.Payload.LogOffset > logOffset,
-			"expected statusRes.Payload.LogOffset (%d) > logOffset (%d)",
-			statusRes.Payload.LogOffset, logOffset)
+		assert.Greaterf(t, statusRes.Payload.LogOffset, logOffset,
+			"expected log offset to be greater than %d, got %d",
+			logOffset, statusRes.Payload.LogOffset)
 		require.NotEmpty(t, statusRes.Payload.LogLines, "pmm-managed should delay response until some lines are available")
 		logOffset = statusRes.Payload.LogOffset
 		lastLine = statusRes.Payload.LogLines[len(statusRes.Payload.LogLines)-1]
@@ -332,7 +332,7 @@ func TestUpdate(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.True(t, statusRes.Payload.Done, "should be done")
-	assert.Equal(t, int(logOffset), len(strings.Join(statusRes.Payload.LogLines, "\n")+"\n"))
+	assert.Len(t, strings.Join(statusRes.Payload.LogLines, "\n")+"\n", int(logOffset))
 	assert.Equal(t, logOffset, statusRes.Payload.LogOffset)
 	lastLine = statusRes.Payload.LogLines[len(statusRes.Payload.LogLines)-1]
 	t.Logf("lastLine = %q", lastLine)

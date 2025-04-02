@@ -33,7 +33,7 @@ const (
 )
 
 // GRPCMetricsExtension for extra labels in /debug/metrics.
-type GRPCMetricsExtension struct {
+type GRPCMetricsExtension struct { //nolint:recvcheck
 	grpc_prometheus.DefaultExtension
 }
 

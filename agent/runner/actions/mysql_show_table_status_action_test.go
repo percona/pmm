@@ -74,9 +74,9 @@ func TestShowTableStatus(t *testing.T) {
 		assert.Contains(t, actual[0], "Comment")
 
 		// Checks some stable values
-		assert.Equal(t, "city", actual[1][0])   // Name
-		assert.Equal(t, "InnoDB", actual[1][1]) // Engine
-		assert.Equal(t, 10.0, actual[1][2])     // Version
+		assert.Equal(t, "city", actual[1][0])           // Name
+		assert.Equal(t, "InnoDB", actual[1][1])         // Engine
+		assert.InEpsilon(t, 10.0, actual[1][2], 0.0001) // Version
 	})
 
 	t.Run("Error", func(t *testing.T) {

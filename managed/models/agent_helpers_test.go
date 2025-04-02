@@ -527,12 +527,12 @@ func TestAgentHelpers(t *testing.T) {
 
 		// find with empty response.
 		agents, err = models.FindAgentsForScrapeConfig(q, pointer.ToString("A1"), true)
-		assert.Equal(t, 0, len(agents))
+		assert.Empty(t, agents)
 		require.NoError(t, err)
 
 		// find all agents without push_metrics
 		agents, err = models.FindAgentsForScrapeConfig(q, nil, false)
-		assert.Equal(t, 5, len(agents))
+		assert.Len(t, agents, 5)
 		assert.Equal(t, "A10", agents[0].AgentID)
 		assert.Equal(t, "A8", agents[1].AgentID)
 		assert.Equal(t, "A9", agents[2].AgentID)
@@ -549,7 +549,7 @@ func TestAgentHelpers(t *testing.T) {
 		agents, err := models.FindPMMAgentsIDsWithPushMetrics(q)
 		require.NoError(t, err)
 		assert.Equal(t, "A4", agents[0])
-		assert.Equal(t, 1, len(agents))
+		assert.Len(t, agents, 1)
 	})
 }
 

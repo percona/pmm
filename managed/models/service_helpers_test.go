@@ -153,11 +153,11 @@ func TestServiceHelpers(t *testing.T) {
 
 		services, err := models.FindServices(q, models.ServiceFilters{})
 		assert.NoError(t, err)
-		assert.Equal(t, 8, len(services))
+		assert.Len(t, services, 8)
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1"})
 		assert.NoError(t, err)
-		assert.Equal(t, 3, len(services))
+		assert.Len(t, services, 3)
 		assert.Equal(t, services, []*models.Service{{
 			ServiceID:   "S1",
 			ServiceType: models.MongoDBServiceType,
@@ -189,7 +189,7 @@ func TestServiceHelpers(t *testing.T) {
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1", ServiceType: pointerToServiceType(models.MySQLServiceType)})
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(services))
+		assert.Len(t, services, 1)
 		assert.Equal(t, services, []*models.Service{{
 			ServiceID:   "S2",
 			ServiceType: models.MySQLServiceType,
@@ -203,7 +203,7 @@ func TestServiceHelpers(t *testing.T) {
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.ExternalServiceType)})
 		assert.NoError(t, err)
-		assert.Equal(t, 2, len(services))
+		assert.Len(t, services, 2)
 		assert.Equal(t, services, []*models.Service{
 			{
 				ServiceID:     "S4",
@@ -229,7 +229,7 @@ func TestServiceHelpers(t *testing.T) {
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.ProxySQLServiceType)})
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(services))
+		assert.Len(t, services, 1)
 		assert.Equal(t, services, []*models.Service{{
 			ServiceID:   "S6",
 			ServiceType: models.ProxySQLServiceType,
@@ -242,7 +242,7 @@ func TestServiceHelpers(t *testing.T) {
 
 		services, err = models.FindServices(q, models.ServiceFilters{ExternalGroup: "redis"})
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(services))
+		assert.Len(t, services, 1)
 		assert.Equal(t, services, []*models.Service{{
 			ServiceID:     "S7",
 			ServiceType:   models.ExternalServiceType,
@@ -257,7 +257,7 @@ func TestServiceHelpers(t *testing.T) {
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.HAProxyServiceType)})
 		assert.NoError(t, err)
-		assert.Equal(t, 1, len(services))
+		assert.Len(t, services, 1)
 		assert.Equal(t, services, []*models.Service{{
 			ServiceID:   "S8",
 			ServiceType: models.HAProxyServiceType,
@@ -274,7 +274,7 @@ func TestServiceHelpers(t *testing.T) {
 
 		types, err := models.FindActiveServiceTypes(q)
 		assert.NoError(t, err)
-		assert.Equal(t, len(types), 5)
+		assert.Len(t, types, 5)
 	})
 
 	t.Run("RemoveService", func(t *testing.T) {

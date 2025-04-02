@@ -140,7 +140,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 			CronExpression: "a * * * *",
 			Type:           models.ScheduledMySQLBackupTask,
 		})
-		require.NotNil(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "Invalid cron expression")
 
 		// Cannot create with the existing name.

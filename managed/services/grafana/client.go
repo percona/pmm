@@ -47,8 +47,13 @@ import (
 var ErrFailedToGetToken = errors.New("failed to get the user token")
 
 const (
-	pmmServiceTokenName   = "pmm-agent-st" //nolint:gosec
-	pmmServiceAccountName = "pmm-agent-sa" //nolint:gosec
+	pmmServiceTokenName          = "pmm-agent-st" //nolint:gosec
+	pmmServiceAccountName        = "pmm-agent-sa" //nolint:gosec
+	defaultDialTimeout           = 3 * time.Second
+	defaultKeepAliveTimeout      = 30 * time.Second
+	defaultIdleConnTimeout       = 90 * time.Second
+	defaultExpectContinueTimeout = 1 * time.Second
+	defaultMaxIdleConns          = 50
 )
 
 // Client represents a client for Grafana API.
@@ -62,12 +67,12 @@ type Client struct {
 func NewClient(addr string) *Client {
 	var t http.RoundTripper = &http.Transport{
 		DialContext: (&net.Dialer{
-			Timeout:   3 * time.Second,
-			KeepAlive: 30 * time.Second,
+			Timeout:   defaultDialTimeout,
+			KeepAlive: defaultKeepAliveTimeout,
 		}).DialContext,
-		MaxIdleConns:          50,
-		IdleConnTimeout:       90 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
+		MaxIdleConns:          defaultMaxIdleConns,
+		IdleConnTimeout:       defaultIdleConnTimeout,
+		ExpectContinueTimeout: defaultExpectContinueTimeout,
 	}
 
 	if logrus.GetLevel() >= logrus.TraceLevel {
@@ -95,7 +100,7 @@ func (c *Client) Collect(ch chan<- prom.Metric) {
 }
 
 // clientError contains error response details.
-type clientError struct { //nolint:musttag
+type clientError struct {
 	Method       string
 	URL          string
 	Code         int

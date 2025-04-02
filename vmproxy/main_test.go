@@ -28,7 +28,7 @@ func TestProxy(t *testing.T) {
 
 	t.Run("shall run proxy with no error", func(t *testing.T) {
 		t.Parallel()
-		err := runProxy(flags{}, func(cfg proxy.Config) error {
+		err := runProxy(flags{}, func(_ proxy.Config) error {
 			return nil
 		})
 

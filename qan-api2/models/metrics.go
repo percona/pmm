@@ -40,6 +40,7 @@ const (
 	cannotPrepare        = "cannot prepare query"
 	cannotPopulate       = "cannot populate query arguments"
 	cannotExecute        = "cannot execute metrics query"
+	secondsPerMinute     = 60
 )
 
 // Metrics represents methods to work with metrics.
@@ -488,8 +489,8 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	filter, group string, dimensions, labels map[string][]string,
 ) ([]*qanv1.Point, error) {
 	// Align to minutes
-	periodStartToSec = periodStartToSec / 60 * 60
-	periodStartFromSec = periodStartFromSec / 60 * 60
+	periodStartToSec = periodStartToSec / secondsPerMinute * secondsPerMinute
+	periodStartFromSec = periodStartFromSec / secondsPerMinute * secondsPerMinute
 
 	// If time range is bigger then two hour - amount of sparklines points = 120 to avoid huge data in response.
 	// Otherwise amount of sparklines points is equal to minutes in time range to not mess up calculation.
@@ -498,15 +499,15 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	// reduce amount of point if period less then 2h.
 	if timePeriod < int64((minFullTimeFrame).Seconds()) {
 		// minimum point is 1 minute
-		amountOfPoints = timePeriod / 60
+		amountOfPoints = timePeriod / secondsPerMinute
 	}
 
 	// how many full minutes we can fit into given amount of points.
-	minutesInPoint := (periodStartToSec - periodStartFromSec) / 60 / amountOfPoints
+	minutesInPoint := (periodStartToSec - periodStartFromSec) / secondsPerMinute / amountOfPoints
 	// we need aditional point to show this minutes
-	remainder := ((periodStartToSec - periodStartFromSec) / 60) % amountOfPoints
+	remainder := ((periodStartToSec - periodStartFromSec) / secondsPerMinute) % amountOfPoints
 	amountOfPoints += remainder / minutesInPoint
-	timeFrame := minutesInPoint * 60
+	timeFrame := minutesInPoint * secondsPerMinute
 
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,

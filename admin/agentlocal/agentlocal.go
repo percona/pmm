@@ -51,10 +51,14 @@ func SetTransport(ctx context.Context, debug bool, port uint32) {
 type NetworkInfo bool
 
 const (
-	RequestNetworkInfo        NetworkInfo = true        //nolint:revive
-	DoNotRequestNetworkInfo   NetworkInfo = false       //nolint:revive
-	Localhost                             = "127.0.0.1" //nolint:revive
-	DefaultPMMAgentListenPort             = 7777        //nolint:revive
+	// RequestNetworkInfo requests network info from pmm-agent.
+	RequestNetworkInfo NetworkInfo = true
+	// DoNotRequestNetworkInfo does not request network info from pmm-agent.
+	DoNotRequestNetworkInfo NetworkInfo = false
+	// Localhost is the local hostname.
+	Localhost = "127.0.0.1"
+	// DefaultPMMAgentListenPort is the default port for pmm-agent.
+	DefaultPMMAgentListenPort = 7777
 )
 
 // ErrNotSetUp is returned by GetStatus when pmm-agent is running, but not set up.

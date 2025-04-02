@@ -78,7 +78,7 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 	for _, agentType := range agentTypes {
 		fexp, err := FindAgents(q, AgentFilters{
 			ServiceID:  serviceID,
-			AgentType:  &agentType, //nolint:gosec
+			AgentType:  &agentType,
 			PMMAgentID: pmmAgentID,
 		})
 		if err != nil {

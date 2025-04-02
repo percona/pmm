@@ -139,7 +139,7 @@ func TestGetPITROplogs(t *testing.T) {
 		service := NewPBMPITRService()
 		timelines, err := service.getPITROplogs(ctx, mockedStorage, location, &models.Artifact{})
 		assert.NoError(t, err)
-		assert.Len(t, timelines, 0)
+		assert.Empty(t, timelines)
 	})
 
 	mockedStorage.AssertExpectations(t)

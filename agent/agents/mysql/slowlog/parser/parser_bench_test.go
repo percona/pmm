@@ -48,7 +48,7 @@ func benchmarkFile(b *testing.B, name string) {
 			b.StopTimer()
 
 			r, err := NewSimpleFileReader(name)
-			assert.NoError(b, err)
+			require.NoError(b, err)
 			p := NewSlowLogParser(r, log.Options{})
 
 			b.StartTimer()

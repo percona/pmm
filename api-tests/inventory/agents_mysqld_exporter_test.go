@@ -185,7 +185,7 @@ func TestMySQLdExporter(t *testing.T) {
 		res, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
 		require.NotNil(t, res)
-		require.NotZerof(t, len(res.Payload.PMMAgent), "There should be at least one service")
+		require.NotEmpty(t, res.Payload.PMMAgent, "There should be at least one service")
 
 		pmmAgentID := ""
 		for _, agent := range res.Payload.PMMAgent {
@@ -211,7 +211,7 @@ func TestMySQLdExporter(t *testing.T) {
 				TablestatsGroupTableLimit: 2000,
 			},
 		})
-		assert.Greater(t, mySqldExporter.MysqldExporter.TableCount, int32(0))
+		assert.Positive(t, mySqldExporter.MysqldExporter.TableCount)
 		assert.EqualValues(t, 2000, mySqldExporter.MysqldExporter.TablestatsGroupTableLimit)
 		agentID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)

@@ -35,7 +35,6 @@ func TestExtractTables(t *testing.T) {
 	require.NoError(t, err)
 
 	for _, file := range files {
-		file := file
 		t.Run(filepath.Base(file), func(t *testing.T) {
 			d, err := os.ReadFile(file) //nolint:gosec
 			require.NoError(t, err)
@@ -51,7 +50,6 @@ func TestExtractTables(t *testing.T) {
 			for name, f := range map[string]func(string) ([]string, error){
 				"ExtractTables": ExtractTables,
 			} {
-				name, f := name, f
 				t.Run(name, func(t *testing.T) {
 					t.Parallel()
 
@@ -75,7 +73,6 @@ func BenchmarkExtractTables(b *testing.B) {
 	require.NoError(b, err)
 
 	for _, file := range files {
-		file := file
 		goldenFile := strings.TrimSuffix(file, ".sql") + ".json"
 		name := strings.TrimSuffix(filepath.Base(file), ".log")
 		b.Run(name, func(b *testing.B) {

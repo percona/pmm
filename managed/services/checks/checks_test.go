@@ -594,7 +594,7 @@ func TestFindTargets(t *testing.T) {
 
 		targets, err := s.findTargets(models.PostgreSQLServiceType, nil)
 		require.NoError(t, err)
-		assert.Len(t, targets, 0)
+		assert.Empty(t, targets)
 	})
 
 	t.Run("different pmm agent versions", func(t *testing.T) {

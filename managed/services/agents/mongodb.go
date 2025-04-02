@@ -123,7 +123,7 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 			}
 		}
 
-		collstatsLimit := int32(200)
+		collstatsLimit := int32(200) //nolint:gomnd // default limit
 		if exporter.MongoDBOptions.CollectionsLimit != -1 {
 			collstatsLimit = exporter.MongoDBOptions.CollectionsLimit
 		}
@@ -139,7 +139,7 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 			"--collect.topmetrics",
 			"--no-collect.connpoolstats",
 			"--no-collect.indexusage",
-			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right, //nolint:goconst
+			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 		}
 
 		args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)

@@ -262,12 +262,12 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 
 	settings, err := m.getSettings()
 	if err != nil {
-		m.l.Error(err)
+		m.l.WithError(err).Error("failed to get pg_stat_monitor settings")
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 	}
 	normalizedQuery, err := settings.getNormalizedQueryValue()
 	if err != nil {
-		m.l.Error(err)
+		m.l.WithError(err).Error("failed to get pg_stat_monitor settings normalizedQuery value")
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 	}
 
@@ -280,13 +280,13 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 		running = true
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 	} else {
-		m.l.Error(errors.Wrap(err, "failed to get extended monitor status"))
+		m.l.WithError(err).Error("failed to get extended monitor status")
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 	}
 
 	waitTime, err := settings.getWaitTime()
 	if err != nil {
-		m.l.Warning(err)
+		m.l.WithError(err).Warn("failed to get pg_stat_monitor settings waitTime value")
 	}
 	running = running && m.checkDefaultWaitTime(waitTime)
 
@@ -310,7 +310,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 
 			settings, err := m.getSettings()
 			if err != nil {
-				m.l.Errorf(err.Error())
+				m.l.WithError(err).Errorf("failed to get pg_stat_monitor settings")
 				running = false
 				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 				m.resetWaitTime(t, waitTime)
@@ -318,7 +318,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			}
 			normalizedQuery, err := settings.getNormalizedQueryValue()
 			if err != nil {
-				m.l.Errorf(err.Error())
+				m.l.WithError(err).Errorf("failed to get pg_stat_monitor settings normalizedQuery value")
 				running = false
 				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 				m.resetWaitTime(t, waitTime)
@@ -327,7 +327,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 
 			waitTime, err := settings.getWaitTime()
 			if err != nil {
-				m.l.Warning(err)
+				m.l.WithError(err).Warn("failed to get pg_stat_monitor settings waitTime value")
 			}
 			running = m.checkDefaultWaitTime(waitTime)
 			if !running {
@@ -450,7 +450,7 @@ func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 			name := setting.Name
 			result[name] = &pgStatMonitorSettingsTextValue{
 				Name:  name,
-				Value: fmt.Sprintf("%d", setting.Value),
+				Value: strconv.FormatInt(setting.Value, 10),
 			}
 		}
 	}
@@ -564,7 +564,8 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				},
 				Postgresql: &agentv1.MetricsBucket_PostgreSQL{},
 			}
-			if currentPSM.pgStatMonitor.CmdType >= 0 && currentPSM.pgStatMonitor.CmdType < int32(len(commandTypeToText)) {
+			if currentPSM.pgStatMonitor.CmdType >= 0 &&
+				currentPSM.pgStatMonitor.CmdType < int32(len(commandTypeToText)) { //nolint:gosec // len(commandTypeToText) is not expected to overflow int32
 				mb.Postgresql.CmdType = commandTypeToText[currentPSM.pgStatMonitor.CmdType]
 			} else {
 				mb.Postgresql.CmdType = commandTextNotAvailable
@@ -579,7 +580,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 
 			histogram, err := parseHistogramFromRespCalls(currentPSM.RespCalls, prevPSM.RespCalls, vPGSM)
 			if err != nil {
-				m.l.Warnf(err.Error())
+				m.l.WithError(err).Warnf("failed to parse histogram from resp calls")
 			} else {
 				mb.Postgresql.HistogramItems = histogram
 			}
@@ -599,7 +600,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			if !m.disableCommentsParsing && currentPSM.Comments != nil {
 				comments, err := queryparser.PostgreSQLComments(*currentPSM.Comments)
 				if err != nil {
-					m.l.Errorf("failed to parse comments from: %s", *currentPSM.Comments)
+					m.l.WithError(err).Errorf("failed to parse comments from: %s", *currentPSM.Comments)
 				}
 				mb.Common.Comments = comments
 			}

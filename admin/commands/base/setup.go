@@ -101,7 +101,7 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 	transport.Context = ctx
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
+	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ interface{}) error {
 		b, _ := io.ReadAll(reader)
 		return nginxError(string(b))
 	})
