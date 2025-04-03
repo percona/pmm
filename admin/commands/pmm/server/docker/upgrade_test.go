@@ -43,8 +43,8 @@ func TestUpgradeCmd(t *testing.T) {
 
 		oldContainerID := "containerID"
 		m.Mock.On("HaveDockerAccess", mock.Anything).Return(true)
-		m.Mock.On("ContainerInspect", mock.Anything, mock.Anything).Return(types.ContainerJSON{
-			ContainerJSONBase: &types.ContainerJSONBase{
+		m.Mock.On("ContainerInspect", mock.Anything, mock.Anything).Return(container.InspectResponse{
+			ContainerJSONBase: &container.ContainerJSONBase{
 				ID:         oldContainerID,
 				Name:       "container-name",
 				HostConfig: &container.HostConfig{},
@@ -59,7 +59,7 @@ func TestUpgradeCmd(t *testing.T) {
 		m.Mock.On("RunContainer", mock.Anything, mock.MatchedBy(func(cfg *container.Config) bool {
 			return cfg.Image == c.DockerImage
 		}), mock.Anything, mock.Anything).Return("new-container-id", nil)
-		m.Mock.On("ContainerUpdate", mock.Anything, oldContainerID, mock.Anything).Return(container.ContainerUpdateOKBody{}, nil)
+		m.Mock.On("ContainerUpdate", mock.Anything, oldContainerID, mock.Anything).Return(container.UpdateResponse{}, nil)
 
 		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{})
 
@@ -74,7 +74,7 @@ func TestUpgradeCmd(t *testing.T) {
 		c := UpgradeCommand{dockerFn: m}
 
 		m.Mock.On("HaveDockerAccess", mock.Anything).Return(true)
-		m.Mock.On("ContainerInspect", mock.Anything, mock.Anything).Return(types.ContainerJSON{
+		m.Mock.On("ContainerInspect", mock.Anything, mock.Anything).Return(container.InspectResponse{
 			Config: &container.Config{},
 		}, nil)
 
@@ -93,8 +93,8 @@ func TestUpgradeCmd(t *testing.T) {
 
 		oldContainerID := "containerID"
 		m.Mock.On("HaveDockerAccess", mock.Anything).Return(true)
-		m.Mock.On("ContainerInspect", mock.Anything, mock.Anything).Return(types.ContainerJSON{
-			ContainerJSONBase: &types.ContainerJSONBase{
+		m.Mock.On("ContainerInspect", mock.Anything, mock.Anything).Return(container.InspectResponse{
+			ContainerJSONBase: &container.ContainerJSONBase{
 				ID:         oldContainerID,
 				Name:       "container-name",
 				HostConfig: &container.HostConfig{},
@@ -125,7 +125,7 @@ func TestUpgradeCmd(t *testing.T) {
 		m.Mock.On("RunContainer", mock.Anything, mock.MatchedBy(func(cfg *container.Config) bool {
 			return cfg.Image == c.DockerImage
 		}), mock.Anything, mock.Anything).Return("new-container-id", nil)
-		m.Mock.On("ContainerUpdate", mock.Anything, oldContainerID, mock.Anything).Return(container.ContainerUpdateOKBody{}, nil)
+		m.Mock.On("ContainerUpdate", mock.Anything, oldContainerID, mock.Anything).Return(container.UpdateResponse{}, nil)
 
 		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{})
 
