@@ -12,11 +12,11 @@ The PMM installation consists of three main steps that need to be completed in s
 2. **Install PMM Clients** - lightweight agents on each database host that collect metrics without impacting performance
 3. **Configure monitoring services** - connect PMM to your database instances, select which metrics to collect, and customize monitoring parameters
 
-## Architecture support and compatibility
+## Architecture support
 PMM provides flexible deployment options across different architectures:
 
-- **PMM Server**: currently available as native x86_64 build only (not available as a native ARM64 build)
-- **PMM Client**: available for both x86_64 and ARM64 architectures
+- **PMM Server compatibility**: currently available as native x86_64 build only (not available as a native ARM64 build)
+- **PMM Client compatibility**: available for both x86_64 and ARM64 architectures
 - **ARM compatibility**: for ARM-based systems, use Docker or Podman to run PMM Server x86_64 images via emulation. When installing on ARM-based systems, performance may vary between architectures
 - **Permissions**: both binary installation and Docker containers can be run without `root` permissions
 
@@ -54,7 +54,7 @@ Install and run PMM Client on every node where there is a service you want to mo
 === ":material-package-variant: With package manager"
 
     [Linux package](../install-pmm/install-pmm-client/package_manager.md): Use `apt`, `apt-get`, `dnf`, `yum`. 
-    The package manager automatically selects the correct version for your architecture.
+    |The package manager automatically selects the correct version for your architecture.
 
 === ":material-archive: With binary package"
 
@@ -64,108 +64,53 @@ Install and run PMM Client on every node where there is a service you want to mo
 
     [Running PMM Client as a Docker container](../install-pmm/install-pmm-client/docker.md) simplifies deployment across different architectures and automatically selects the appropriate image for your architecture (x86_64 or ARM64).
 
-## 3. Add services for monitoring
+### 3. Add services for monitoring
 
-After installing PMM Client, configure the nodes and services you want to monitor. PMM supports monitoring across the following database technologies, cloud services, proxy services, and system metrics:
+After installing PMM Client, configure the nodes and services you want to monitor. 
 
-=== ":material-dolphin: MySQL"
-    To set up PMM Client for MySQL, check the type of host that you have for your database and follow the instructions:
+PMM supports monitoring across the following database technologies, cloud services, proxy services, and system metrics:
 
-    | <small>*Host*</small> | <small>*Recommended setup*</small> | <small>*Other advanced options*</small> |
-    | --------------------- | ----------------------------------- | ------------------------------ |
-    | **Self-hosted / AWS EC2** | [**Install PMM Client using Percona Repositories** :material-arrow-right:](./install-pmm-client/percona-repositories.md) | [Using a PMM Client Docker image](./install-pmm/install-pmm-client/docker.md)<br><br>[Download and install PMM Client files](./install-pmm/install-pmm-client/binary_package.md) |
-    | **AWS RDS / AWS Aurora** | [**Configure AWS settings** :material-arrow-right:](./install-pmm-client/connect-database/aws.md) | |
-    | **Azure Database for MySQL** | [**Configure Azure Settings** :material-arrow-right:](./install-pmm/install-pmm-client/connect-database/azure.md) | |
-    | **Google Cloud SQL for MySQL** | [**Configure Google Cloud Settings** :material-arrow-right:](./install-pmm/install-pmm-client/connect-database/google.md) | |
-    | **Other hosts / No access to the node** | [**Remote monitoring** :material-arrow-right:](./install-pmm/install-pmm-client/connect-database/remote.md) | |
+=== ":material-database: Databases"
+    Choose the database technology you want to monitor:
+    
+    | <small>*Database*</small> | <small>*Description*</small> | <small>*Setup guide*</small> |
+    | ------------------------- | ---------------------------- | ---------------------------- |
+    | :material-dolphin: **MySQL** | MySQL, Percona Server for MySQL, MariaDB | [**Connect to MySQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/mysql.md) |
+    | :material-elephant: **PostgreSQL** | PostgreSQL database servers | [**Connect to PostgreSQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/postgresql.md) |
+    | :material-leaf: **MongoDB** | MongoDB, Percona Server for MongoDB | [**Connect to MongoDB** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/mongodb.md) |
 
-=== ":material-elephant: PostgreSQL"
-    For PostgreSQL databases:
+=== ":material-cloud: Cloud services"
+    Configure monitoring for cloud-hosted database services:
+    
+    | <small>*Cloud provider*</small> | <small>*Supported services*</small> | <small>*Setup guide*</small> |
+    | ------------------------------- | ----------------------------------- | ---------------------------- |
+    | :material-aws: **Amazon Web Services** | Amazon RDS for MySQL/PostgreSQL, Aurora | [**Configure AWS monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/aws.md) |
+    | :material-microsoft-azure: **Microsoft Azure** | Azure Database for MySQL/PostgreSQL, Cosmos DB | [**Configure Azure monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/azure.md) |
+    | :material-google-cloud: **Google Cloud** | Cloud SQL for MySQL/PostgreSQL | [**Configure Google Cloud monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/google.md) |
 
-    | <small>*Host*</small> | <small>*Recommended setup*</small> | <small>*Other advanced options*</small> |
-    | --------------------- | ----------------------------------- | ------------------------------ |
-    | **Self-hosted / AWS EC2** | [**Install PMM Client using Percona Repositories** :material-arrow-right:](../install-pmm/install-pmm-client/package_manager.md) | [Using a PMM Client Docker image](../install-pmm/install-pmm-client/docker.md)<br><br>[Download and install PMM Client files](../install-pmm/install-pmm-client/binary_package.md) |
-    | **AWS RDS / Aurora for PostgreSQL** | [**Configure AWS settings** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/aws.md) | |
-    | **Azure Database for PostgreSQL** | [**Configure Azure Settings** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/azure.md) | |
-    | **Google Cloud SQL for PostgreSQL** | [**Configure Google Cloud Settings** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/google.md) | |
-    | **Other hosts / No access to the node** | [**Remote monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md) | |
+=== ":material-server: System monitoring"
+    Monitor operating system and remote services:
+    
+    | <small>*Monitoring type*</small> | <small>*Description*</small> | <small>*Setup guide*</small> |
+    | -------------------------------- | ---------------------------- | ---------------------------- |
+    | :simple-linux: **Linux systems** | CPU, memory, disk, network metrics | [**Configure Linux monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/linux.md) |
+    | :material-network: **Remote MySQL** | Monitor MySQL across network segments | [**Configure remote MySQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md#mysql-remote) |
+    | :material-network: **Remote PostgreSQL** | Monitor PostgreSQL across network segments | [**Configure remote PostgreSQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md#postgresql-remote) |
+    | :material-network: **Remote MongoDB** | Monitor MongoDB across network segments | [**Configure remote MongoDB** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md#mongodb-remote) |
 
-=== ":material-leaf: MongoDB"
-    For MongoDB databases:
-
-    | <small>*Host*</small> | <small>*Recommended setup*</small> | <small>*Other advanced options*</small> |
-    | --------------------- | ----------------------------------- | ------------------------------ |
-    | **Self-hosted / AWS EC2** | [**Install PMM Client using Percona Repositories** :material-arrow-right:](../install-pmm/install-pmm-client/package_manager.md) | [Using a PMM Client Docker image](../install-pmm/install-pmm-client/docker.md)<br><br>[Download and install PMM Client files](../install-pmm/install-pmm-client/binary_package.md) |
-    | **MongoDB Atlas / DocumentDB** | [**Configure MongoDB cloud monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/mongodb.md) | |
-    | **Azure Cosmos DB (MongoDB API)** | [**Configure Azure Settings** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/azure.md) | |
-    | **Other hosts / No access to the node** | [**Remote monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md) | |
-
-=== ":material-database: ProxySQL"
-    For ProxySQL:
-
-    | <small>*Host*</small> | <small>*Recommended setup*</small> | <small>*Other advanced options*</small> |
-    | --------------------- | ----------------------------------- | ------------------------------ |
-    | **Self-hosted / AWS EC2** | [**Install PMM Client using Percona Repositories** :material-arrow-right:](../install-pmm/install-pmm-client/package_manager.md) | [Using a PMM Client Docker image](../install-pmm/install-pmm-client/docker.md)<br><br>[Download and install PMM Client files](../install-pmm/install-pmm-client/binary_package.md) |
-    | **ProxySQL with MySQL backend** | [**Configure ProxySQL monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/proxysql.md) | |
-    | **Other hosts / No access to the node** | [**Remote monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md) | |
-
-=== ":material-database: HAProxy"
-    For HAProxy:
-
-    | <small>*Host*</small> | <small>*Recommended setup*</small> | <small>*Other advanced options*</small> |
-    | --------------------- | ----------------------------------- | ------------------------------ |
-    | **Self-hosted / AWS EC2** | [**Install PMM Client using Percona Repositories** :material-arrow-right:](../install-pmm/install-pmm-client/package_manager.md) | [Using a PMM Client Docker image](../install-pmm/install-pmm-client/docker.md)<br><br>[Download and install PMM Client files](../install-pmm/install-pmm-client/binary_package.md) |
-    | **HAProxy with database backend** | [**Configure HAProxy monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/haproxy.md) | |
-    | **Other hosts / No access to the node** | [**Remote monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md) | |
-
-=== ":simple-linux: Linux"
-    For Linux system monitoring:
-
-    | <small>*Host*</small> | <small>*Recommended setup*</small> | <small>*Other advanced options*</small> |
-    | --------------------- | ----------------------------------- | ------------------------------ |
-    | **Physical/VM Linux servers** | [**Install PMM Client using Percona Repositories** :material-arrow-right:](../install-pmm/install-pmm-client/package_manager.md) | [Using a PMM Client Docker image](../install-pmm/install-pmm-client/docker.md)<br><br>[Download and install PMM Client files](../install-pmm/install-pmm-client/binary_package.md) |
-    | **Linux with containerized applications** | [**Configure Linux monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/linux.md) | |
-    | **Other hosts / No access to the node** | [**Remote monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md) | |
-
-=== ":material-cloud: Remote services"
-    For remote monitoring scenarios:
-
-    | <small>*Host*</small> | <small>*Recommended setup*</small> | <small>*Other advanced options*</small> |
-    | --------------------- | ----------------------------------- | ------------------------------ |
-    | **Network segments without direct access** | [**Configure remote monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md) | |
-    | **Cross-network database instances** | [**Remote MySQL monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md#mysql-remote) | |
-    | **Databases behind firewalls** | [**Remote PostgreSQL monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md#postgresql-remote) | |
-    | **Cloud services without direct agent access** | [**Remote MongoDB monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md#mongodb-remote) | |
+=== ":material-transit-connection-variant: Proxy services"
+    Monitor database proxy and load balancing solutions:
+    
+    | <small>*Proxy service*</small> | <small>*Description*</small> | <small>*Setup guide*</small> |
+    | ------------------------------ | ---------------------------- | ---------------------------- |
+    | :material-database-cog: **ProxySQL** | MySQL database proxy | [**Configure ProxySQL monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/proxysql.md) |
+    | :material-scale-balance: **HAProxy** | High-availability load balancer | [**Configure HAProxy monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/haproxy.md) |
 
 === ":material-gauge: External services"
-    For external services and custom exporters:
-
-    | <small>*Service type*</small> | <small>*Recommended setup*</small> | <small>*Other advanced options*</small> |
-    | --------------------- | ----------------------------------- | ------------------------------ |
-    | **Custom Prometheus exporters** | [**Configure external services** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md) | |
-    | **Third-party metrics sources** | [**Add external exporters** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md#adding-exporters) | |
-    | **Additional database features** | [**Extend monitoring capabilities** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md#extended-monitoring) | |
-
-
-<!--
-=== "Databases"
-    - [MySQL](../install-pmm/install-pmm-client/connect-database/mysql.md) (including Percona Server for MySQL, Percona XtraDB Cluster, and MariaDB)  
-    - [MongoDB](../install-pmm/install-pmm-client/connect-database/mongodb.md)  
-    - [PostgreSQL](../install-pmm/install-pmm-client/connect-database/postgresql.md)  
-
-=== "Cloud services"
-    - [Amazon RDS & Aurora](../install-pmm/install-pmm-client/connect-database/aws.md)  
-    - [Microsoft Azure](../install-pmm/install-pmm-client/connect-database/azure.md)  
-    - [Google Cloud SQL](../install-pmm/install-pmm-client/connect-database/google.md)  
-
-=== "Proxy services"
-    - [ProxySQL](../install-pmm/install-pmm-client/connect-database/proxysql.md)  
-    - [HAProxy](../install-pmm/install-pmm-client/connect-database/haproxy.md)  
-
-=== "System monitoring"
-    - [Linux system metrics](../install-pmm/install-pmm-client/connect-database/linux.md)  
-    - [External services](../install-pmm/install-pmm-client/connect-database/external.md) (via exporters)  
-
-=== "Remote services"
-    - [Remote instances](../install-pmm/install-pmm-client/connect-database/remote.md) (for monitoring across network segments) |-->
-
+    Extend PMM with external exporters and third-party metrics:
+    
+    | <small>*Service type*</small> | <small>*Description*</small> | <small>*Setup guide*</small> |
+    | ----------------------------- | ---------------------------- | ---------------------------- |
+    | :material-chart-line: **Custom exporters** | Add custom Prometheus exporters | [**Configure external exporters** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md#adding-exporters) |
+    | :material-api: **Third-party sources** | Connect external metrics sources | [**Extend monitoring capabilities** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md#extended-monitoring) |
+    | :material-application-cog: **General external services** | Generic external service monitoring | [**Configure external services** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md) |

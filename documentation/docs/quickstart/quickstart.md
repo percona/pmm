@@ -130,7 +130,7 @@ Once PMM is set up, choose the database or the application that you want it to m
 
         The PMM Client installation also comes with options: in addition to the installation via Package Manager described above, you can also install it as a Docker container or as a binary package. Explore [alternative PMM Client installation options](../install-pmm/install-pmm-client/connect-database/index.md) for more information.
 
-        Additionally, if direct access to the database node isn't available, opt to [Add remote instance via User Interface](../install-pmm/install-pmm-client/connect-database/mysql.md#check-the-service) instead. 
+        Additionally, if direct access to the database node isn't available, opt to [Add remote instance via User Interface](../install-pmm/install-pmm-client/connect-database/mysql/mysql.md#check-the-service) instead. 
 
 === ":simple-postgresql: PostgreSQL"
 
