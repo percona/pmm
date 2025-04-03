@@ -8,9 +8,9 @@ PMM Server provides the web interface with dashboards and analytics, while PMM C
 The PMM installation consists of three main steps that need to be completed in sequence: 
 {.power-number}
 
-1. **Deploy PMM Server** - centralized platform that collects, analyzes, and visualizes your monitoring data
-2. **Install PMM Clients** - lightweight agents on each database host that collect metrics without impacting performance
-3. **Configure monitoring services** - connect PMM to your database instances, select which metrics to collect, and customize monitoring parameters
+1. **Deploy PMM Server**: centralized platform that collects, analyzes, and visualizes your monitoring data
+2. **Install PMM Clients**: lightweight agents on each database host that collect metrics without impacting performance
+3. **Configure monitoring services**: connect PMM to your database instances, select which metrics to collect, and customize monitoring parameters
 
 ## Architecture support
 PMM provides flexible deployment options across different architectures:
@@ -22,7 +22,7 @@ PMM provides flexible deployment options across different architectures:
 
 ## Prerequisites
 
-Before starting the installation, review PMM's:
+Before starting the installation, make sure to check PMM's:
 
 - [hardware and software requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md)
 - [network and firewall requirements](../install-pmm/plan-pmm-installation/network_and_firewall.md)
