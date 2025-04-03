@@ -24,7 +24,6 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/volume"
@@ -148,7 +147,7 @@ func (b *Base) GetDockerClient() *client.Client {
 }
 
 // FindServerContainers finds all containers running PMM Server.
-func (b *Base) FindServerContainers(ctx context.Context) ([]types.Container, error) {
+func (b *Base) FindServerContainers(ctx context.Context) ([]container.Summary, error) {
 	return b.Cli.ContainerList(ctx, container.ListOptions{ //nolint:exhaustruct
 		All: true,
 		Filters: filters.NewArgs(filters.KeyValuePair{
@@ -265,7 +264,7 @@ func (b *Base) CreateVolume(ctx context.Context, volumeName string, labels map[s
 }
 
 // ContainerInspect returns information about a container.
-func (b *Base) ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error) {
+func (b *Base) ContainerInspect(ctx context.Context, containerID string) (container.InspectResponse, error) {
 	return b.Cli.ContainerInspect(ctx, containerID)
 }
 
@@ -275,7 +274,7 @@ func (b *Base) ContainerStop(ctx context.Context, containerID string, timeout *i
 }
 
 // ContainerUpdate updates container configuration.
-func (b *Base) ContainerUpdate(ctx context.Context, containerID string, updateConfig container.UpdateConfig) (container.ContainerUpdateOKBody, error) {
+func (b *Base) ContainerUpdate(ctx context.Context, containerID string, updateConfig container.UpdateConfig) (container.UpdateResponse, error) {
 	return b.Cli.ContainerUpdate(ctx, containerID, updateConfig)
 }
 
@@ -286,7 +285,7 @@ func (b *Base) ContainerWait(ctx context.Context, containerID string, condition 
 
 // ContainerExecPrintOutput runs a command in a container and prints output to stdout/stderr.
 func (b *Base) ContainerExecPrintOutput(ctx context.Context, containerID string, cmd []string) (int, error) {
-	cresp, err := b.Cli.ContainerExecCreate(ctx, containerID, types.ExecConfig{
+	cresp, err := b.Cli.ContainerExecCreate(ctx, containerID, container.ExecOptions{
 		Cmd:          cmd,
 		AttachStderr: true,
 		AttachStdout: true,
@@ -298,7 +297,7 @@ func (b *Base) ContainerExecPrintOutput(ctx context.Context, containerID string,
 	execID := cresp.ID
 
 	// run it, with stdout/stderr attached
-	aresp, err := b.Cli.ContainerExecAttach(ctx, execID, types.ExecStartCheck{})
+	aresp, err := b.Cli.ContainerExecAttach(ctx, execID, container.ExecAttachOptions{})
 	if err != nil {
 		return 0, err
 	}
