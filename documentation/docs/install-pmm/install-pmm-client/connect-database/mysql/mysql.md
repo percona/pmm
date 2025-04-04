@@ -1,7 +1,7 @@
 # Connect a self-hosted or an AWS EC2 MySQL database to PMM
 
 
-PMM Client collects metrics from [MySQL][ORACLE_MYSQL], [Percona Server for MySQL][PERCONA_SERVER_MYSQL], [Percona XtraDB Cluster][PERCONA_XTRADB_CLUSTER], and [MariaDB][MARIADB]. (Amazon RDS is also supported and explained in a [separate section](aws.md).)
+PMM Client collects metrics from [MySQL][ORACLE_MYSQL], [Percona Server for MySQL][PERCONA_SERVER_MYSQL], [Percona XtraDB Cluster][PERCONA_XTRADB_CLUSTER], and [MariaDB][MARIADB]. (Amazon RDS is also supported and explained in a [separate section](../aws.md).)
 
 ??? info "Summary"
 
@@ -21,8 +21,8 @@ PMM Client collects metrics from [MySQL][ORACLE_MYSQL], [Percona Server for MySQ
 
 Check that:
 
-- [PMM Server is installed](../../install-pmm-server/index.md) and running with a known IP address accessible from the client node.
-- [PMM Client is installed](../../install-pmm-client/index.md) and the [nodes are registered with PMM Server](../../register-client-node/index.md).
+- [PMM Server is installed](../../../install-pmm-server/index.md) and running with a known IP address accessible from the client node.
+- [PMM Client is installed](../../../install-pmm-client/index.md) and the [nodes are registered with PMM Server](../../../register-client-node/index.md).
 - You have superuser (root) access on the client host.
 
 ## Create a database account for PMM
@@ -176,7 +176,7 @@ Some MySQL-based database servers support extended slow query log variables.
 
 Slow query log files can grow quickly and must be managed.
 
-When adding a service with the command line use the  `pmm-admin` option `--size-slow-logs` to set at what size the slow query log file is rotated. (The size is specified as a number with a suffix. See [`pmm-admin add mysql`](../../../use/commands/pmm-admin.md#mysql).)
+When adding a service with the command line use the  `pmm-admin` option `--size-slow-logs` to set at what size the slow query log file is rotated. (The size is specified as a number with a suffix. See [`pmm-admin add mysql`](../../../../use/commands/pmm-admin.md#mysql).)
 
 When the limit is reached, PMM Client will:
 
@@ -200,7 +200,7 @@ This section covers how to configure a MySQL-based database server to use *Perfo
 | Percona XtraDB Cluster   | 5.6, 5.7, 8.0
 | MariaDB                  | [10.3+][mariadb_perfschema_instr_table]
 
-PMM's [*MySQL Performance Schema Details* dashboard](../../../reference/dashboards/dashboard-mysql-performance-schema-details.md) charts the various [`performance_schema`][performance-schema-startup-configuration] metrics.
+PMM's [*MySQL Performance Schema Details* dashboard](../../../../reference/dashboards/dashboard-mysql-performance-schema-details.md) charts the various [`performance_schema`][performance-schema-startup-configuration] metrics.
 
 To use **Performance Schema**, set these variables:
 
@@ -261,7 +261,7 @@ There is no **Explain** or **Example** data shown by default in Query Analytics 
 
 ## Query response time
 
-**Query time distribution** is a chart in the [**Details** tab of Query Analytics](../../../use/qan/panels/details.md#details-tab) showing the proportion of query time spent on various activities. It is enabled with the `query_response_time_stats` variable and associated plugins.
+**Query time distribution** is a chart in the [**Details** tab of Query Analytics](../../../../use/qan/panels/details.md#details-tab) showing the proportion of query time spent on various activities. It is enabled with the `query_response_time_stats` variable and associated plugins.
 
 ### Applicable versions
 
@@ -367,11 +367,11 @@ Upon successful addition, PMM Client will display "MySQL Service added" along wi
 
 3. Click **Add service**.
 
-    ![!](../../../images/PMM_Add_Instance_MySQL.jpg)
+    ![!](../../../../images/PMM_Add_Instance_MySQL.jpg)
 
-If your MySQL instance is configured to use TLS, click on the **Use TLS for database connections*** check box and fill in your TLS certificates and key:
+If your MySQL instance is configured to use TLS, click on the **Use TLS for database connections** check box and fill in your TLS certificates and key:
 
-![!](../../../images/PMM_Add_Instance_MySQL_TLS.jpg)
+![!](../../../../images/PMM_Add_Instance_MySQL_TLS.jpg)
 
 ### On the command line
 
@@ -396,7 +396,7 @@ If you need to monitor a MySQL instance from a different server where PMM Client
 
 4. Click **Add service**.
 
-    ![!](../../../images/PMM_Add_Instance_MySQL.png)
+    ![!](../../../../images/PMM_Add_Instance_MySQL.png)
 
 #### For MySQL instances using TLS
 
@@ -406,7 +406,7 @@ If your MySQL instance is configured to use TLS:
 1. Click on the **Use TLS for database connections** check box.
 2. Fill in your TLS certificates and key.
 
-    ![!](../../../images/PMM_Add_Instance_MySQL_TLS.png)
+    ![!](../../../../images/PMM_Add_Instance_MySQL_TLS.png)
 
 ## Check the service
 
@@ -457,8 +457,8 @@ Open the [*PXC/Galera Cluster Summary* dashboard][DASH_PXCGALERACLUSTER].
         - [Percona Blog -- Impact of logging on MySQL's performance][BLOG_LOGGING]
         - [Percona Blog -- Running Custom MySQL Queries in Percona Monitoring and Management][BLOG_CUSTOM_QUERIES_MYSQL]
 
-[DASH_MYSQLUSERDETAILS]: ../../../reference/dashboards/dashboard-mysql-user-details.md
-[DASH_PXCGALERACLUSTER]: ../../../reference/dashboards/dashboard-pxc-galera-cluster-summary.md
+[DASH_MYSQLUSERDETAILS]: ../../../../reference//dashboards/dashboard-mysql-user-details.md
+[DASH_PXCGALERACLUSTER]: ../../../../reference/dashboards/dashboard-pxc-galera-cluster-summary.md
 [LOGROTATE]: https://linux.die.net/man/8/logrotate
 [PERCONA_SERVER_MYSQL]: https://www.percona.com/software/mysql-database/percona-server
 [PERCONA_XTRADB_CLUSTER]: https://www.percona.com/software/mysql-database/percona-xtradb-cluster

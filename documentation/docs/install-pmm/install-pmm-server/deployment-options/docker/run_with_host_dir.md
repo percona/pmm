@@ -1,6 +1,16 @@
 
 # Run Docker with the host directory
 
+!!! danger alert alert-danger "Not recommended for production environments"
+    Using a host directory for PMM data persistence is not recommended for production environments. This approach may lead to permission issues, inconsistent backup behavior, and potential data corruption during upgrades. For production deployments, we strongly recommend using [Docker volumes](./run_with_vol.md) instead, which provide better isolation, portability, and compatibility with Docker's ecosystem.
+
+To run Docker with the host directory: 
+{.power-number}
+
+1. Pull the image:
+   ```sh
+   docker pull percona/pmm-server:3
+
 To run Docker with the host directory:
 {.power-number}
 

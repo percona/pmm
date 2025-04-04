@@ -55,7 +55,7 @@ SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD
 ```
 
 !!! seealso alert alert-info "See also"
-    [Setting Up/Client/MySQL](../install-pmm/install-pmm-client/connect-database/mysql.md#create-a-database-account-for-pmm).
+    [Setting Up/Client/MySQL](../install-pmm/install-pmm-client/connect-database/mysql/mysql.md#create-a-database-account-for-pmm).
 
 ## Can I monitor multiple service instances?
 
