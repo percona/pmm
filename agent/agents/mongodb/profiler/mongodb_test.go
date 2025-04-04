@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package mongodb
+package profiler
 
 import (
 	"context"
@@ -29,7 +29,7 @@ import (
 )
 
 func TestMongoRun(t *testing.T) {
-	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../")
+	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../../")
 	tempDir := t.TempDir()
 	sslDSN, err := templates.RenderDSN(sslDSNTemplate, files, tempDir)
 	require.NoError(t, err)

@@ -219,6 +219,9 @@ type AddAgentBody struct {
 	// qan mongodb profiler agent
 	QANMongodbProfilerAgent *AddAgentParamsBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent,omitempty"`
 
+	// qan mongodb slowlog agent
+	QANMongodbSlowlogAgent *AddAgentParamsBodyQANMongodbSlowlogAgent `json:"qan_mongodb_slowlog_agent,omitempty"`
+
 	// qan mysql perfschema agent
 	QANMysqlPerfschemaAgent *AddAgentParamsBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
 
@@ -272,6 +275,10 @@ func (o *AddAgentBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateQANMongodbProfilerAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANMongodbSlowlogAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -472,6 +479,25 @@ func (o *AddAgentBody) validateQANMongodbProfilerAgent(formats strfmt.Registry) 
 	return nil
 }
 
+func (o *AddAgentBody) validateQANMongodbSlowlogAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.QANMongodbSlowlogAgent) { // not required
+		return nil
+	}
+
+	if o.QANMongodbSlowlogAgent != nil {
+		if err := o.QANMongodbSlowlogAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_slowlog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_slowlog_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddAgentBody) validateQANMysqlPerfschemaAgent(formats strfmt.Registry) error {
 	if swag.IsZero(o.QANMysqlPerfschemaAgent) { // not required
 		return nil
@@ -604,6 +630,10 @@ func (o *AddAgentBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 	}
 
 	if err := o.contextValidateQANMongodbProfilerAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANMongodbSlowlogAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -805,6 +835,26 @@ func (o *AddAgentBody) contextValidateQANMongodbProfilerAgent(ctx context.Contex
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddAgentBody) contextValidateQANMongodbSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.QANMongodbSlowlogAgent != nil {
+
+		if swag.IsZero(o.QANMongodbSlowlogAgent) { // not required
+			return nil
+		}
+
+		if err := o.QANMongodbSlowlogAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_slowlog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_slowlog_agent")
 			}
 			return err
 		}
@@ -1183,6 +1233,9 @@ type AddAgentOKBody struct {
 	// qan mongodb profiler agent
 	QANMongodbProfilerAgent *AddAgentOKBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent,omitempty"`
 
+	// qan mongodb slowlog agent
+	QANMongodbSlowlogAgent *AddAgentOKBodyQANMongodbSlowlogAgent `json:"qan_mongodb_slowlog_agent,omitempty"`
+
 	// qan mysql perfschema agent
 	QANMysqlPerfschemaAgent *AddAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
 
@@ -1236,6 +1289,10 @@ func (o *AddAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateQANMongodbProfilerAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANMongodbSlowlogAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1436,6 +1493,25 @@ func (o *AddAgentOKBody) validateQANMongodbProfilerAgent(formats strfmt.Registry
 	return nil
 }
 
+func (o *AddAgentOKBody) validateQANMongodbSlowlogAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.QANMongodbSlowlogAgent) { // not required
+		return nil
+	}
+
+	if o.QANMongodbSlowlogAgent != nil {
+		if err := o.QANMongodbSlowlogAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addAgentOk" + "." + "qan_mongodb_slowlog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addAgentOk" + "." + "qan_mongodb_slowlog_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddAgentOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Registry) error {
 	if swag.IsZero(o.QANMysqlPerfschemaAgent) { // not required
 		return nil
@@ -1568,6 +1644,10 @@ func (o *AddAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := o.contextValidateQANMongodbProfilerAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANMongodbSlowlogAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1769,6 +1849,26 @@ func (o *AddAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Cont
 				return ve.ValidateName("addAgentOk" + "." + "qan_mongodb_profiler_agent")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addAgentOk" + "." + "qan_mongodb_profiler_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddAgentOKBody) contextValidateQANMongodbSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.QANMongodbSlowlogAgent != nil {
+
+		if swag.IsZero(o.QANMongodbSlowlogAgent) { // not required
+			return nil
+		}
+
+		if err := o.QANMongodbSlowlogAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addAgentOk" + "." + "qan_mongodb_slowlog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addAgentOk" + "." + "qan_mongodb_slowlog_agent")
 			}
 			return err
 		}
@@ -4235,6 +4335,215 @@ func (o *AddAgentOKBodyQANMongodbProfilerAgent) UnmarshalBinary(b []byte) error 
 }
 
 /*
+AddAgentOKBodyQANMongodbSlowlogAgent QANMongoDBSlowlogAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+swagger:model AddAgentOKBodyQANMongodbSlowlogAgent
+*/
+type AddAgentOKBodyQANMongodbSlowlogAgent struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for getting profiler data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+}
+
+// Validate validates this add agent OK body QAN mongodb slowlog agent
+func (o *AddAgentOKBodyQANMongodbSlowlogAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addAgentOkBodyQanMongodbSlowlogAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentOkBodyQanMongodbSlowlogAgentTypeStatusPropEnum = append(addAgentOkBodyQanMongodbSlowlogAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddAgentOKBodyQANMongodbSlowlogAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyQanMongodbSlowlogAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentOKBodyQANMongodbSlowlogAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addAgentOk"+"."+"qan_mongodb_slowlog_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addAgentOkBodyQanMongodbSlowlogAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentOkBodyQanMongodbSlowlogAgentTypeLogLevelPropEnum = append(addAgentOkBodyQanMongodbSlowlogAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddAgentOKBodyQANMongodbSlowlogAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyQanMongodbSlowlogAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentOKBodyQANMongodbSlowlogAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addAgentOk"+"."+"qan_mongodb_slowlog_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this add agent OK body QAN mongodb slowlog agent based on context it is used
+func (o *AddAgentOKBodyQANMongodbSlowlogAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentOKBodyQANMongodbSlowlogAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentOKBodyQANMongodbSlowlogAgent) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyQANMongodbSlowlogAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 AddAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model AddAgentOKBodyQANMysqlPerfschemaAgent
 */
@@ -6529,6 +6838,153 @@ func (o *AddAgentParamsBodyQANMongodbProfilerAgent) MarshalBinary() ([]byte, err
 // UnmarshalBinary interface implementation
 func (o *AddAgentParamsBodyQANMongodbProfilerAgent) UnmarshalBinary(b []byte) error {
 	var res AddAgentParamsBodyQANMongodbProfilerAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentParamsBodyQANMongodbSlowlogAgent add agent params body QAN mongodb slowlog agent
+swagger:model AddAgentParamsBodyQANMongodbSlowlogAgent
+*/
+type AddAgentParamsBodyQANMongodbSlowlogAgent struct {
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for getting profile data.
+	Username string `json:"username,omitempty"`
+
+	// MongoDB password for getting profile data.
+	Password string `json:"password,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Client certificate and key.
+	TLSCertificateKey string `json:"tls_certificate_key,omitempty"`
+
+	// Password for decrypting tls_certificate_key.
+	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
+
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Authentication mechanism.
+	// See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
+	// for details.
+	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
+
+	// Authentication database.
+	AuthenticationDatabase string `json:"authentication_database,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+}
+
+// Validate validates this add agent params body QAN mongodb slowlog agent
+func (o *AddAgentParamsBodyQANMongodbSlowlogAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addAgentParamsBodyQanMongodbSlowlogAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentParamsBodyQanMongodbSlowlogAgentTypeLogLevelPropEnum = append(addAgentParamsBodyQanMongodbSlowlogAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentParamsBodyQANMongodbSlowlogAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentParamsBodyQANMongodbSlowlogAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddAgentParamsBodyQANMongodbSlowlogAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentParamsBodyQANMongodbSlowlogAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddAgentParamsBodyQANMongodbSlowlogAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentParamsBodyQANMongodbSlowlogAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddAgentParamsBodyQANMongodbSlowlogAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentParamsBodyQANMongodbSlowlogAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddAgentParamsBodyQANMongodbSlowlogAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentParamsBodyQANMongodbSlowlogAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddAgentParamsBodyQANMongodbSlowlogAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentParamsBodyQANMongodbSlowlogAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddAgentParamsBodyQANMongodbSlowlogAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentParamsBodyQanMongodbSlowlogAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentParamsBodyQANMongodbSlowlogAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"qan_mongodb_slowlog_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this add agent params body QAN mongodb slowlog agent based on context it is used
+func (o *AddAgentParamsBodyQANMongodbSlowlogAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentParamsBodyQANMongodbSlowlogAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentParamsBodyQANMongodbSlowlogAgent) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyQANMongodbSlowlogAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
