@@ -83,6 +83,13 @@ linters-settings:
   unparam:
     check-exported: true
 
+  recvcheck:
+    exclusions:
+      - "*.pb.go"
+      - "*_test.go"
+      - "mock_*.go"
+      - "*_reform.go"
+
 linters:
   enable-all: true
   disable:

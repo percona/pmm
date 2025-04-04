@@ -44,15 +44,17 @@ type StateUpdater struct {
 	r        *Registry
 	vmdb     prometheusService
 	vmParams victoriaMetricsParams
+	nomad    nomad
 }
 
 // NewStateUpdater creates new agent state updater.
-func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParams victoriaMetricsParams) *StateUpdater {
+func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParams victoriaMetricsParams, nomad nomad) *StateUpdater {
 	return &StateUpdater{
 		db:       db,
 		r:        r,
 		vmdb:     vmdb,
 		vmParams: vmParams,
+		nomad:    nomad,
 	}
 }
 
@@ -75,7 +77,7 @@ func (u *StateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string
 
 // UpdateAgentsState sends SetStateRequest to all pmm-agents with push metrics agents.
 func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
-	pmmAgents, err := models.FindPMMAgentsIDsWithPushMetrics(u.db.Querier)
+	pmmAgents, err := models.FindAllPMMAgentsIDs(u.db.Querier)
 	if err != nil {
 		return errors.Wrap(err, "cannot find pmmAgentsIDs for AgentsState update")
 	}
@@ -160,6 +162,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		return errors.Wrap(err, "failed to collect agents")
 	}
 
+	settings, err := models.GetSettings(u.db.Querier)
+	if err != nil {
+		return errors.Wrap(err, "failed to get settings")
+	}
+
 	redactMode := redactSecrets
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		redactMode = exposeSecrets
@@ -183,6 +190,19 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
 			}
 			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
+		case models.NomadClientType:
+			if !settings.IsNomadEnabled() {
+				continue
+			}
+			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+			if err != nil {
+				return err
+			}
+			params, err := nomadClientConfig(u.nomad, node, row)
+			if err != nil {
+				return err
+			}
+			agentProcesses[row.AgentID] = params
 
 		case models.NodeExporterType:
 			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))

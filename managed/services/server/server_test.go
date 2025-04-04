@@ -72,6 +72,10 @@ func TestServer(t *testing.T) {
 		ts.Test(t)
 		ts.On("GetSummaries").Return(nil)
 
+		var nomad mockNomadService
+		nomad.Test(t)
+		nomad.On("UpdateConfiguration", mock.Anything).Return(nil)
+
 		s, err := NewServer(&Params{
 			DB:                   reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
 			VMDB:                 &mvmdb,
@@ -82,6 +86,7 @@ func TestServer(t *testing.T) {
 			Supervisord:          &r,
 			VMAlertExternalRules: &par,
 			TelemetryService:     &ts,
+			Nomad:                &nomad,
 		})
 		require.NoError(t, err)
 		return s
@@ -90,7 +95,7 @@ func TestServer(t *testing.T) {
 	t.Run("UpdateSettingsFromEnv", func(t *testing.T) {
 		t.Run("Typical", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv([]string{
+			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_ENABLE_UPDATES=true",
 				"PMM_ENABLE_TELEMETRY=1",
 				"PMM_METRICS_RESOLUTION_HR=1s",
@@ -111,7 +116,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("Untypical", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv([]string{
+			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_ENABLE_TELEMETRY=TrUe",
 				"PMM_METRICS_RESOLUTION=3S",
 				"PMM_DATA_RETENTION=360H",
@@ -124,7 +129,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("NoValue", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv([]string{
+			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_ENABLE_TELEMETRY",
 			})
 			require.Len(t, errs, 1)
@@ -134,7 +139,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("InvalidValue", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv([]string{
+			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_ENABLE_TELEMETRY=",
 			})
 			require.Len(t, errs, 1)
@@ -144,7 +149,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("MetricsLessThenMin", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv([]string{
+			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_METRICS_RESOLUTION=5ns",
 			})
 			require.Len(t, errs, 1)
@@ -156,7 +161,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("DataRetentionLessThenMin", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv([]string{
+			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_DATA_RETENTION=12h",
 			})
 			require.Len(t, errs, 1)
@@ -168,7 +173,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("Data retention is not a natural number of days", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv([]string{
+			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_DATA_RETENTION=30h",
 			})
 			require.Len(t, errs, 1)
@@ -180,7 +185,7 @@ func TestServer(t *testing.T) {
 
 		t.Run("Data retention without suffix", func(t *testing.T) {
 			s := newServer(t)
-			errs := s.UpdateSettingsFromEnv([]string{
+			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_DATA_RETENTION=30",
 			})
 			require.Len(t, errs, 1)
@@ -223,7 +228,7 @@ func TestServer(t *testing.T) {
 	t.Run("ChangeSettings", func(t *testing.T) {
 		server := newServer(t)
 
-		server.UpdateSettingsFromEnv([]string{
+		server.UpdateSettingsFromEnv(context.TODO(), []string{
 			"ENABLE_ALERTING=1",
 			"PMM_ENABLE_AZURE_DISCOVER=1",
 		})
@@ -245,7 +250,7 @@ func TestServer(t *testing.T) {
 
 	t.Run("ChangeSettings Alerting", func(t *testing.T) {
 		server := newServer(t)
-		server.UpdateSettingsFromEnv([]string{})
+		server.UpdateSettingsFromEnv(context.TODO(), []string{})
 
 		ctx := context.TODO()
 		s, err := server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
