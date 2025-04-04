@@ -17,7 +17,7 @@
     dest: /etc/supervisord.conf
     section: include
     option: files
-    value: supervisord.d/*.ini
+    value: /srv/supervisord.d/*.ini
 
 - name: Modify supervisord.conf
   ini_file:
@@ -44,24 +44,18 @@
   file:
     path: /run/supervisor
     state: directory
-    owner: pmm
-    group: pmm
-    mode: 0770
+    mode: 0777
 
-- name: Create /etc/supervisord.d dir
+- name: Create /srv/supervisord.d dir
   file:
-    path: /etc/supervisord.d
+    path: /srv/supervisord.d
     state: directory
-    owner: pmm
-    group: pmm
     mode: 0755
 
 - name: Copy *.ini files for PMM components
   copy:
     src: "{{ item }}"
-    dest: "/etc/supervisord.d/{{ item }}"
-    owner: pmm
-    group: pmm
+    dest: "/srv/supervisord.d/{{ item }}"
     mode: 0644
   loop:
     - supervisord.ini
