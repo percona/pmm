@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -37,6 +38,7 @@ type mongodbQueryAdmincommandAction struct {
 	files   *agentv1.TextFiles //nolint:unused
 	command string
 	arg     interface{}
+	tmpDir  string
 }
 
 // NewMongoDBQueryAdmincommandAction creates a MongoDB adminCommand query action.
@@ -49,7 +51,8 @@ func NewMongoDBQueryAdmincommandAction(
 	arg interface{},
 	tempDir string,
 ) (Action, error) {
-	dsn, err := templates.RenderDSN(dsn, files, filepath.Join(tempDir, mongoDBQueryAdminCommandActionType, id))
+	tmpDir := filepath.Join(tempDir, mongoDBQueryAdminCommandActionType, id)
+	dsn, err := templates.RenderDSN(dsn, files, tmpDir)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -60,6 +63,7 @@ func NewMongoDBQueryAdmincommandAction(
 		dsn:     dsn,
 		command: command,
 		arg:     arg,
+		tmpDir:  tmpDir,
 	}, nil
 }
 
@@ -85,6 +89,7 @@ func (a *mongodbQueryAdmincommandAction) DSN() string {
 
 // Run runs an action and returns output and error.
 func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error) {
+	defer templates.CleanupTempDir(a.tmpDir, logrus.WithField("component", mongoDBQueryAdminCommandActionType))
 	opts, err := mongo_fix.ClientOptionsForDSN(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
