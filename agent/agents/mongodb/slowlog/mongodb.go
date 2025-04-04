@@ -63,7 +63,7 @@ func newMongo(mongoDSN string, l *logrus.Entry, params *Params) *MongoDB {
 		agentID:           params.AgentID,
 		mongoDSN:          mongoDSN,
 		slowLogFilePrefix: params.SlowLogFilePrefix,
-		maxQueryLength:    params.MaxQueryLength,
+		maxQueryLength:    params.MaxQueryLength, // TODO not needed?
 		l:                 l,
 		changes:           make(chan agents.Change, 10),
 	}
@@ -82,7 +82,7 @@ func (m *MongoDB) Run(ctx context.Context) {
 
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
-	slog = slowlog.New(m.mongoDSN, m.l, m.changes, m.agentID, m.slowLogFilePrefix, m.maxQueryLength)
+	slog = slowlog.New(m.mongoDSN, m.l, m, m.agentID, m.slowLogFilePrefix, m.maxQueryLength)
 	if err := slog.Start(); err != nil {
 		m.l.Errorf("can't run slowlog, reason: %v", err)
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}

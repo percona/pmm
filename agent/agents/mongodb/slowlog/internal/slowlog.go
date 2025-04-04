@@ -16,35 +16,38 @@ package slowlog
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"log"
-	"path/filepath"
 	"runtime/pprof"
 	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/percona/pmm/agent/agents"
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/reader"
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
+	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/aggregator"
+	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/collector"
+	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/sender"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 )
 
 const (
+	slowQuery               = "Slow query"
 	MgoTimeoutDialInfo      = 5 * time.Second
 	MgoTimeoutSessionSocket = 5 * time.Second
 )
 
 // New creates new slowlog
-func New(mongoDSN string, logger *logrus.Entry, changes chan agents.Change, agentID string, slowLogFilePrefix string, maxQueryLength int32) *slowlog {
+func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, slowLogFilePrefix string, maxQueryLength int32) *slowlog {
 	return &slowlog{
 		mongoDSN:          mongoDSN,
 		slowLogFilePrefix: slowLogFilePrefix,
 		maxQueryLength:    maxQueryLength,
 		logger:            logger,
-		changes:           changes,
+		w:                 w,
 		agentID:           agentID,
 	}
 }
@@ -52,12 +55,15 @@ func New(mongoDSN string, logger *logrus.Entry, changes chan agents.Change, agen
 type slowlog struct {
 	// dependencies
 	mongoDSN string
-	changes  chan agents.Change
+	w        sender.Writer
 	logger   *logrus.Entry
 	agentID  string
 
 	// internal deps
-	client *mongo.Client
+	monitor    *monitor
+	client     *mongo.Client
+	aggregator *aggregator.Aggregator
+	sender     *sender.Sender
 
 	// state
 	m        sync.Mutex      // Lock() to protect internal consistency of the service
@@ -87,11 +93,6 @@ func (s *slowlog) Start() error {
 	s.wg = &sync.WaitGroup{}
 	s.wg.Add(1)
 
-	// create ready sync.Cond so we could know when goroutine actually started getting data from db
-	ready := sync.NewCond(&sync.Mutex{})
-	ready.L.Lock()
-	defer ready.L.Unlock()
-
 	ctx := context.Background()
 	labels := pprof.Labels("component", "mongodb.slowlog")
 
@@ -100,14 +101,42 @@ func (s *slowlog) Start() error {
 	if err != nil {
 		return err
 	}
-	logsPath, err := reader.GetLogFilePath(client)
+	logsPath, err := collector.GetLogFilePath(client)
 	if err != nil {
 		return err
 	}
 	client.Disconnect(ctx)
 
+	// create aggregator which collects documents and aggregates them into qan report
+	s.aggregator = aggregator.New(time.Now(), s.agentID, s.logger, s.maxQueryLength)
+	reportChan := s.aggregator.Start()
+
+	// create sender which sends qan reports and start it
+	s.sender = sender.New(reportChan, s.w, s.logger)
+	err = s.sender.Start()
+	if err != nil {
+		return err
+	}
+
+	// create new channel over which
+	// we will tell goroutine it should close
+	s.doneChan = make(chan struct{})
+
+	// start a goroutine and Add() it to WaitGroup
+	// so we could later Wait() for it to finish
+	s.wg = &sync.WaitGroup{}
+	s.wg.Add(1)
+
+	// create ready sync.Cond so we could know when goroutine actually started getting data from db
+	ready := sync.NewCond(&sync.Mutex{})
+	ready.L.Lock()
+	defer ready.L.Unlock()
+
+	// create monitors service which we use to periodically scan server for new/removed databases
+	s.monitor = NewMonitor(client, logsPath, s.aggregator, s.logger)
+
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
-		start(ctx, s.wg, s.changes, s.doneChan, ready, filepath.Join(s.slowLogFilePrefix, logsPath), s.logger)
+		start(ctx, s.monitor, s.wg, s.doneChan, ready, s.logger)
 	})
 
 	// wait until we actually fetch data from db
@@ -136,38 +165,46 @@ func (s *slowlog) Stop() error {
 	return nil
 }
 
-func start(ctx context.Context, wg *sync.WaitGroup, changes chan agents.Change, doneChan <-chan struct{}, ready *sync.Cond, logsPath string, logger *logrus.Entry) {
+type SlowQuery struct {
+	//Ctx  string `bson:"ctx"`
+	Msg  string `bson:"msg"`
+	Attr json.RawMessage
+}
+
+type systemProfile struct {
+	proto.SystemProfile
+	//Command bson.Raw `bson:"command,omitempty"`
+	Command bson.M `bson:"command"`
+}
+
+func start(ctx context.Context, monitor *monitor, wg *sync.WaitGroup, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry) {
 	// TODO context usage
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
+	// monitor log file
+	err := monitor.Start(ctx)
+	if err != nil {
+		logger.Debugf("couldn't monitor log file (%s), reason: %v", monitor.logPath, err)
+	}
+
 	// signal we started monitoring
 	signalReady(ready)
 
-	fr := reader.NewFileReader(logsPath)
-	lineChannel := make(chan string)
-	ticker := time.NewTicker(1 * time.Minute)
-	var s []string
-
-	go func() {
-		err := fr.ReadFile(lineChannel)
-		if err != nil {
-			log.Fatalf("Error: %v", err)
-		}
-	}()
-
+	// loop to periodically refresh
 	for {
+		// check if we should shutdown
 		select {
-		case line := <-lineChannel:
-			s = append(s, line)
 		case <-doneChan:
-			ticker.Stop()
 			return
-		case <-ticker.C:
-			// TODO convert to metrics buckets
-			fmt.Println(s)
-			changes <- agents.Change{MetricsBucket: nil}
-			s = nil
+		case <-time.After(1 * time.Minute):
+			// just continue after delay if not
+		}
+
+		// update monitors
+		err = monitor.Start(ctx)
+		if err != nil {
+			logger.Debugf("couldn't monitor log file (%s), reason: %v", monitor.logPath, err)
 		}
 	}
 }
