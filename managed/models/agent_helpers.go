@@ -483,22 +483,17 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 	return res, nil
 }
 
-// FindPMMAgentsIDsWithPushMetrics returns pmm-agents-ids with agent, that use push_metrics mode.
-func FindPMMAgentsIDsWithPushMetrics(q *reform.Querier) ([]string, error) {
-	structs, err := q.SelectAllFrom(AgentTable, fmt.Sprintf("WHERE NOT disabled AND pmm_agent_id IS NOT NULL AND %s ORDER BY agent_id", pushMetricsTrue))
+// FindAllPMMAgentsIDs returns pmm-agents-ids with agents.
+func FindAllPMMAgentsIDs(q *reform.Querier) ([]string, error) {
+	structs, err := q.SelectAllFrom(AgentTable, "WHERE agent_type = $1 ORDER BY agent_id", PMMAgentType)
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "Couldn't get agents")
 	}
 
-	uniqAgents := make(map[string]struct{})
 	res := make([]string, 0, len(structs))
 	for _, str := range structs {
-		row := pointer.GetString(str.(*Agent).PMMAgentID) //nolint:forcetypeassert
-		if _, ok := uniqAgents[row]; ok {
-			continue
-		}
+		row := str.(*Agent).AgentID //nolint:forcetypeassert
 		res = append(res, row)
-		uniqAgents[row] = struct{}{}
 	}
 
 	return res, nil

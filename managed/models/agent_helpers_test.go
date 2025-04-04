@@ -542,14 +542,15 @@ func TestAgentHelpers(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("FindPMMAgentsIDsWithPushMetrics", func(t *testing.T) {
+	t.Run("FindAllPMMAgentsIDs", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.FindPMMAgentsIDsWithPushMetrics(q)
+		agents, err := models.FindAllPMMAgentsIDs(q)
 		require.NoError(t, err)
-		assert.Equal(t, "A4", agents[0])
-		assert.Equal(t, 1, len(agents))
+		assert.Equal(t, "A1", agents[0])
+		assert.Equal(t, "A4", agents[1])
+		assert.Equal(t, 2, len(agents))
 	})
 }
 

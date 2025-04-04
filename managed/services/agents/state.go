@@ -77,7 +77,7 @@ func (u *StateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string
 
 // UpdateAgentsState sends SetStateRequest to all pmm-agents with push metrics agents.
 func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
-	pmmAgents, err := models.FindPMMAgentsIDsWithPushMetrics(u.db.Querier)
+	pmmAgents, err := models.FindAllPMMAgentsIDs(u.db.Querier)
 	if err != nil {
 		return errors.Wrap(err, "cannot find pmmAgentsIDs for AgentsState update")
 	}
