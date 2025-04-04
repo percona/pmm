@@ -18,7 +18,6 @@ package analytics
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"os"
 	"testing"
 	"time"
@@ -57,7 +56,7 @@ func TestService_GetFilters(t *testing.T) {
 	}
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
-		log.Fatal("Connection: ", err)
+		t.Fatal("Connection: ", err)
 	}
 
 	rm := models.NewReporter(db)
