@@ -5,6 +5,7 @@
 - [Percona Monitoring and Management 2.43.2](2.43.2.md)
 - [Percona Monitoring and Management 2.43.1](2.43.1.md)
 - [Percona Monitoring and Management 2.43.0](2.43.0.md)
+- [Percona Monitoring and Management 2.42.0-1](2.42.0-1.md)
 - [Percona Monitoring and Management 2.42.0](2.42.0.md)
 - [Percona Monitoring and Management 2.41.2](2.41.2.md)
 - [Percona Monitoring and Management 2.41.1](2.41.1.md)
