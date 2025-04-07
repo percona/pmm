@@ -23,7 +23,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
@@ -127,7 +126,7 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	return &upgradeResult{}, nil
 }
 
-func (c *UpgradeCommand) isInstalledViaCli(container types.ContainerJSON) bool {
+func (c *UpgradeCommand) isInstalledViaCli(container container.InspectResponse) bool {
 	for k, v := range container.Config.Labels {
 		if k == "percona.pmm" && v == "server" {
 			return true
@@ -165,7 +164,7 @@ The container %[1]q will NOT be removed. You can remove it manually later, if ne
 	return strings.ToLower(input) == "y"
 }
 
-func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *types.ContainerJSON) error {
+func (c *UpgradeCommand) backupVolumes(ctx context.Context, container *container.InspectResponse) error {
 	logrus.Info("Starting backup of volumes")
 
 	logrus.Infof("Downloading %q", volumeCopyImage)
@@ -255,7 +254,7 @@ func (c *UpgradeCommand) backupVolumeViaContainer(ctx context.Context, srcVolume
 	return nil
 }
 
-func (c *UpgradeCommand) runPMMServer(ctx context.Context, currentContainer types.ContainerJSON) error {
+func (c *UpgradeCommand) runPMMServer(ctx context.Context, currentContainer container.InspectResponse) error {
 	logrus.Info("Starting PMM Server")
 
 	containerName := fmt.Sprintf("%s-%s", c.NewContainerNamePrefix, time.Now().Format(dateSuffixFormat))
