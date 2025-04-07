@@ -548,9 +548,8 @@ func TestAgentHelpers(t *testing.T) {
 
 		agents, err := models.FindAllPMMAgentsIDs(q)
 		require.NoError(t, err)
-		assert.Equal(t, "A1", agents[0])
-		assert.Equal(t, "A4", agents[1])
-		assert.Equal(t, 2, len(agents))
+		require.Len(t, agents, 3, agents)
+		assert.Equal(t, []string{"A1", "A4", models.PMMServerAgentID}, agents)
 	})
 }
 
