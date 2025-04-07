@@ -699,6 +699,8 @@ func main() { //nolint:maintidx,cyclop
 
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
+	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
+	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
 
 	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
@@ -751,7 +753,7 @@ func main() { //nolint:maintidx,cyclop
 	pmmdb := ds.PmmDBSelect
 	pmmdb.Credentials.Username = *postgresDBUsernameF
 	pmmdb.Credentials.Password = *postgresDBPasswordF
-	pmmdb.DSN.Scheme = "postgres" // TODO: should be configurable
+	pmmdb.DSN.Scheme = "postgres"
 	pmmdb.DSN.Host = *postgresAddrF
 	pmmdb.DSN.DB = *postgresDBNameF
 	q := make(url.Values)
@@ -769,10 +771,15 @@ func main() { //nolint:maintidx,cyclop
 	grafanadb.DSN.DB = "grafana"
 	grafanadb.DSN.Params = q.Encode()
 
-	clickhouseDSN := "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
+	chURI := url.URL{
+		Scheme: "tcp",
+		User:   url.UserPassword(*clickhouseUsernameF, *clickhousePasswordF),
+		Host:   *clickhouseAddrF,
+		Path:   *clickHouseDatabaseF,
+	}
 
 	qanDB := ds.QanDBSelect
-	qanDB.DSN = clickhouseDSN
+	qanDB.DSN = chURI.String()
 
 	ds.VM.Address = *victoriaMetricsURLF
 
@@ -923,7 +930,7 @@ func main() { //nolint:maintidx,cyclop
 		l.Fatalf("Could not create Victoria Metrics client: %s", err)
 	}
 
-	clickhouseClient, err := newClickhouseDB(clickhouseDSN, clickhouseMaxIdleConns, clickhouseMaxOpenConns)
+	clickhouseClient, err := newClickhouseDB(qanDB.DSN, clickhouseMaxIdleConns, clickhouseMaxOpenConns)
 	if err != nil {
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}

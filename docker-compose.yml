@@ -38,12 +38,14 @@ services:
       # - PMM_DEV_TELEMETRY_RETRY_BACKOFF=10s
       # - PMM_CLICKHOUSE_ADDR=127.0.0.1:9000
       # - PMM_CLICKHOUSE_DATABASE=pmm
+      # - PMM_CLICKHOUSE_USER=default
+      # - PMM_CLICKHOUSE_PASSWORD=<password>
       # - PMM_DEBUG=1
       # - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/local-checks.yml
       # - PMM_POSTGRES_ADDR=pg
       # - PMM_POSTGRES_DBNAME=pmm-managed
       # - PMM_POSTGRES_USERNAME=pmm-managed
-      # - PMM_POSTGRES_DBPASSWORD=pmm-managed
+      # - PMM_POSTGRES_DBPASSWORD=<password>
       # - PMM_POSTGRES_SSL_MODE=verify-full
       # - PMM_POSTGRES_SSL_CA_PATH=/tmp/certs/root.crt
       # - PMM_POSTGRES_SSL_KEY_PATH=/tmp/certs/pmm-managed.key

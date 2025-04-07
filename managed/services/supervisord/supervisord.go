@@ -46,7 +46,8 @@ import (
 const (
 	defaultClickhouseDatabase           = "pmm"
 	defaultClickhouseAddr               = "127.0.0.1:9000"
-	defaultClickhouseDataSourceAddr     = "127.0.0.1:8123"
+	defaultClickhouseUser               = "default"
+	defaultClickhousePassword           = "clickhouse"
 	defaultVMSearchMaxQueryLen          = "1MB"
 	defaultVMSearchLatencyOffset        = "5s"
 	defaultVMSearchMaxUniqueTimeseries  = "100000000"
@@ -267,8 +268,9 @@ func (s *Service) reload(name string) error {
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
 	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
 	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-	clickhouseDataSourceAddr := envvars.GetEnv("PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
+	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
+	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
 	vmSearchDisableCache := envvars.GetEnv("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
 	vmSearchMaxQueryLen := envvars.GetEnv("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
 	vmSearchLatencyOffset := envvars.GetEnv("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
@@ -296,10 +298,11 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
 		"ClickhouseAddr":               clickhouseAddr,
-		"ClickhouseDataSourceAddr":     clickhouseDataSourceAddr,
 		"ClickhouseDatabase":           clickhouseDatabase,
 		"ClickhouseHost":               clickhouseAddrPair[0],
 		"ClickhousePort":               clickhouseAddrPair[1],
+		"ClickhouseUser":               clickhouseUser,
+		"ClickhousePassword":           clickhousePassword,
 	}
 
 	s.addPostgresParams(templateParams)
@@ -309,7 +312,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	if settings.PMMPublicAddress != "" {
 		pmmPublicAddress := settings.PMMPublicAddress
 		if !strings.HasPrefix(pmmPublicAddress, "https://") && !strings.HasPrefix(pmmPublicAddress, "http://") {
-			pmmPublicAddress = fmt.Sprintf("https://%s", pmmPublicAddress)
+			pmmPublicAddress = "https://" + pmmPublicAddress
 		}
 		publicURL, err := url.Parse(pmmPublicAddress)
 		if err != nil {
@@ -572,6 +575,8 @@ command =
 environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
 	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
+	PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
+	PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
 
 
 user = pmm
@@ -618,9 +623,10 @@ environment =
     PMM_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
     PMM_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
     PMM_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
-    PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
     PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
+    PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
+    PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
     {{- if .PerconaSSODetails}}
     GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
     {{- end}}
