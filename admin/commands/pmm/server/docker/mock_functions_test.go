@@ -7,7 +7,6 @@ import (
 	io "io"
 
 	tea "github.com/charmbracelet/bubbletea"
-	types "github.com/docker/docker/api/types"
 	container "github.com/docker/docker/api/types/container"
 	image "github.com/docker/docker/api/types/image"
 	volume "github.com/docker/docker/api/types/volume"
@@ -41,22 +40,22 @@ func (_m *MockFunctions) ChangeServerPassword(ctx context.Context, containerID s
 }
 
 // ContainerInspect provides a mock function with given fields: ctx, containerID
-func (_m *MockFunctions) ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error) {
+func (_m *MockFunctions) ContainerInspect(ctx context.Context, containerID string) (container.InspectResponse, error) {
 	ret := _m.Called(ctx, containerID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ContainerInspect")
 	}
 
-	var r0 types.ContainerJSON
+	var r0 container.InspectResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (types.ContainerJSON, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (container.InspectResponse, error)); ok {
 		return rf(ctx, containerID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) types.ContainerJSON); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) container.InspectResponse); ok {
 		r0 = rf(ctx, containerID)
 	} else {
-		r0 = ret.Get(0).(types.ContainerJSON)
+		r0 = ret.Get(0).(container.InspectResponse)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -87,22 +86,22 @@ func (_m *MockFunctions) ContainerStop(ctx context.Context, containerID string, 
 }
 
 // ContainerUpdate provides a mock function with given fields: ctx, containerID, updateConfig
-func (_m *MockFunctions) ContainerUpdate(ctx context.Context, containerID string, updateConfig container.UpdateConfig) (container.ContainerUpdateOKBody, error) {
+func (_m *MockFunctions) ContainerUpdate(ctx context.Context, containerID string, updateConfig container.UpdateConfig) (container.UpdateResponse, error) {
 	ret := _m.Called(ctx, containerID, updateConfig)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ContainerUpdate")
 	}
 
-	var r0 container.ContainerUpdateOKBody
+	var r0 container.UpdateResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, container.UpdateConfig) (container.ContainerUpdateOKBody, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, container.UpdateConfig) (container.UpdateResponse, error)); ok {
 		return rf(ctx, containerID, updateConfig)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, container.UpdateConfig) container.ContainerUpdateOKBody); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, container.UpdateConfig) container.UpdateResponse); ok {
 		r0 = rf(ctx, containerID, updateConfig)
 	} else {
-		r0 = ret.Get(0).(container.ContainerUpdateOKBody)
+		r0 = ret.Get(0).(container.UpdateResponse)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string, container.UpdateConfig) error); ok {
@@ -177,23 +176,23 @@ func (_m *MockFunctions) CreateVolume(ctx context.Context, volumeName string, la
 }
 
 // FindServerContainers provides a mock function with given fields: ctx
-func (_m *MockFunctions) FindServerContainers(ctx context.Context) ([]types.Container, error) {
+func (_m *MockFunctions) FindServerContainers(ctx context.Context) ([]container.Summary, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FindServerContainers")
 	}
 
-	var r0 []types.Container
+	var r0 []container.Summary
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]types.Container, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) ([]container.Summary, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []types.Container); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) []container.Summary); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]types.Container)
+			r0 = ret.Get(0).([]container.Summary)
 		}
 	}
 
