@@ -8,18 +8,22 @@ PMM Server provides the web interface with dashboards and analytics, while PMM C
 The PMM installation consists of three main steps that need to be completed in sequence: 
 {.power-number}
 
-1. **Deploy PMM Server**: centralized platform that collects, analyzes, and visualizes your monitoring data
-2. **Install PMM Clients**: lightweight agents on each database host that collect metrics without impacting performance
-3. **Configure monitoring services**: connect PMM to your database instances, select which metrics to collect, and customize monitoring parameters
+1. **[Deploy PMM Server](#1-install-pmm-server)**: centralized platform that collects, analyzes, and visualizes your monitoring data
+2. **[Install PMM Clients](#2-install-pmm-client)**: lightweight agents on each database host that collect metrics without impacting performance
+3. **[Configure monitoring services](#3-add-services-for-monitoring)**: connect PMM to your database instances, select which metrics to collect, and customize monitoring parameters
 
 ## Architecture support
+
 PMM provides flexible deployment options across different architectures:
 
-- **PMM Server compatibility**: currently available as native x86_64 build only (not available as a native ARM64 build)
-- **PMM Client compatibility**: available for both x86_64 and ARM64 architectures
-- **ARM compatibility**: for ARM-based systems, use Docker or Podman to run PMM Server x86_64 images via emulation. When installing on ARM-based systems, performance may vary between architectures
-- **Permissions**: both binary installation and Docker containers can be run without `root` permissions
+| **Component** | **Architecture support** | **Notes** |
+|---------------|--------------------------|-----------|
+| **PMM Server** | x86_64 only | Not available as a native ARM64 build |
+| **PMM Client** | x86_64 and ARM64 | Full compatibility with both architectures |
+| **ARM deployments** | Emulation support | Use Docker or Podman to run PMM Server x86_64 images via emulation on ARM-based systems |
+| **Permissions** | No root required | Both binary installation and Docker containers can run without `root` privileges |
 
+Performance may vary when running on ARM-based systems through emulation. For a complete overview of the monitoring architecture, see [PMM architecture](../reference/index.md).
 ## Prerequisites
 
 Before starting the installation, make sure to check PMM's:
@@ -73,7 +77,7 @@ PMM supports monitoring across the following database technologies, cloud servic
 === ":material-database: Databases"
     Choose the database technology you want to monitor:
     
-    | <small>*Database*</small> | <small>*Description*</small> | <small>*Setup guide*</small> |
+    | **Database** | **Description** | **Setup guide** |
     | ------------------------- | ---------------------------- | ---------------------------- |
     | :material-dolphin: **MySQL** | MySQL, Percona Server for MySQL, MariaDB | [**Connect to MySQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/mysql.md) |
     | :material-elephant: **PostgreSQL** | PostgreSQL database servers | [**Connect to PostgreSQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/postgresql.md) |
@@ -82,7 +86,7 @@ PMM supports monitoring across the following database technologies, cloud servic
 === ":material-cloud: Cloud services"
     Configure monitoring for cloud-hosted database services:
     
-    | <small>*Cloud provider*</small> | <small>*Supported services*</small> | <small>*Setup guide*</small> |
+    | **Cloud provider** | **Supported services** | **Setup guide** |
     | ------------------------------- | ----------------------------------- | ---------------------------- |
     | :material-aws: **Amazon Web Services** | Amazon RDS for MySQL/PostgreSQL, Aurora | [**Configure AWS monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/aws.md) |
     | :material-microsoft-azure: **Microsoft Azure** | Azure Database for MySQL/PostgreSQL, Cosmos DB | [**Configure Azure monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/azure.md) |
@@ -91,7 +95,7 @@ PMM supports monitoring across the following database technologies, cloud servic
 === ":material-server: System monitoring"
     Monitor operating system and remote services:
     
-    | <small>*Monitoring type*</small> | <small>*Description*</small> | <small>*Setup guide*</small> |
+    | **Monitoring type**| **Description**|**Setup guide** |
     | -------------------------------- | ---------------------------- | ---------------------------- |
     | :simple-linux: **Linux systems** | CPU, memory, disk, network metrics | [**Configure Linux monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/linux.md) |
     | :material-network: **Remote MySQL** | Monitor MySQL across network segments | [**Configure remote MySQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md#mysql-remote) |
@@ -101,7 +105,7 @@ PMM supports monitoring across the following database technologies, cloud servic
 === ":material-transit-connection-variant: Proxy services"
     Monitor database proxy and load balancing solutions:
     
-    | <small>*Proxy service*</small> | <small>*Description*</small> | <small>*Setup guide*</small> |
+    | **Proxy service** | **Description**| **Setup guide** |
     | ------------------------------ | ---------------------------- | ---------------------------- |
     | :material-database-cog: **ProxySQL** | MySQL database proxy | [**Configure ProxySQL monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/proxysql.md) |
     | :material-scale-balance: **HAProxy** | High-availability load balancer | [**Configure HAProxy monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/haproxy.md) |
@@ -109,7 +113,7 @@ PMM supports monitoring across the following database technologies, cloud servic
 === ":material-gauge: External services"
     Extend PMM with external exporters and third-party metrics:
     
-    | <small>*Service type*</small> | <small>*Description*</small> | <small>*Setup guide*</small> |
+    | **Service type** | **Description** | **Setup guide** |
     | ----------------------------- | ---------------------------- | ---------------------------- |
     | :material-chart-line: **Custom exporters** | Add custom Prometheus exporters | [**Configure external exporters** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md#adding-exporters) |
     | :material-api: **Third-party sources** | Connect external metrics sources | [**Extend monitoring capabilities** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md#extended-monitoring) |
