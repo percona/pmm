@@ -174,6 +174,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 			envSettings.EnableBackupManagement = &b
 
+		case "PMM_ENABLE_NOMAD":
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
+			}
+			envSettings.EnableNomad = &b
+
 		case "PMM_PUBLIC_ADDRESS":
 			envSettings.PMMPublicAddress = pointer.ToString(v)
 

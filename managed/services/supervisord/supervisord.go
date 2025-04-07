@@ -264,30 +264,22 @@ func (s *Service) reload(name string) error {
 	return err
 }
 
-func getValueFromENV(envName string, defaultValue string) string {
-	value, ok := os.LookupEnv(envName)
-	if !ok {
-		value = defaultValue
-	}
-	return value
-}
-
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
-	clickhouseDatabase := getValueFromENV("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
-	clickhouseAddr := getValueFromENV("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
+	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
+	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
-	clickhouseUser := getValueFromENV("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
-	clickhousePassword := getValueFromENV("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
-	vmSearchDisableCache := getValueFromENV("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
-	vmSearchMaxQueryLen := getValueFromENV("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
-	vmSearchLatencyOffset := getValueFromENV("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
-	vmSearchMaxUniqueTimeseries := getValueFromENV("VM_search_maxUniqueTimeseries", defaultVMSearchMaxUniqueTimeseries)
-	vmSearchMaxSamplesPerQuery := getValueFromENV("VM_search_maxSamplesPerQuery", defaultVMSearchMaxSamplesPerQuery)
-	vmSearchMaxQueueDuration := getValueFromENV("VM_search_maxQueueDuration", defaultVMSearchMaxQueueDuration)
-	vmSearchMaxQueryDuration := getValueFromENV("VM_search_maxQueryDuration", defaultVMSearchMaxQueryDuration)
-	vmSearchLogSlowQueryDuration := getValueFromENV("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
-	vmPromscrapeStreamParse := getValueFromENV("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
+	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
+	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
+	vmSearchDisableCache := envvars.GetEnv("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
+	vmSearchMaxQueryLen := envvars.GetEnv("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
+	vmSearchLatencyOffset := envvars.GetEnv("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
+	vmSearchMaxUniqueTimeseries := envvars.GetEnv("VM_search_maxUniqueTimeseries", defaultVMSearchMaxUniqueTimeseries)
+	vmSearchMaxSamplesPerQuery := envvars.GetEnv("VM_search_maxSamplesPerQuery", defaultVMSearchMaxSamplesPerQuery)
+	vmSearchMaxQueueDuration := envvars.GetEnv("VM_search_maxQueueDuration", defaultVMSearchMaxQueueDuration)
+	vmSearchMaxQueryDuration := envvars.GetEnv("VM_search_maxQueryDuration", defaultVMSearchMaxQueryDuration)
+	vmSearchLogSlowQueryDuration := envvars.GetEnv("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
+	vmPromscrapeStreamParse := envvars.GetEnv("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
 
 	templateParams := map[string]interface{}{
 		"DataRetentionHours":           int(settings.DataRetention.Hours()),
@@ -339,6 +331,12 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		templateParams["IssuerDomain"] = u.Host
 	} else {
 		templateParams["PerconaSSODetails"] = nil
+	}
+
+	if settings.IsNomadEnabled() {
+		templateParams["NomadEnabled"] = "true"
+	} else {
+		templateParams["NomadEnabled"] = "false"
 	}
 
 	var buf bytes.Buffer
@@ -648,6 +646,23 @@ stopwaitsecs = 300
 stdout_logfile = /srv/logs/grafana.log
 stdout_logfile_maxbytes = 50MB
 stdout_logfile_backups = 2
+redirect_stderr = true
+{{end}}
+
+{{define "nomad-server"}}
+[program:nomad-server]
+priority = 5
+command = /usr/local/percona/pmm/tools/nomad agent -config /srv/nomad/nomad-server-{{ .PMMServerHost }}.hcl
+user = pmm
+autorestart = {{ .NomadEnabled }}
+autostart = {{ .NomadEnabled }}
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 300
+stdout_logfile = /srv/logs/nomad-server.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
 redirect_stderr = true
 {{end}}
 `))
