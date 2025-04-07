@@ -1,5 +1,4 @@
 # Important: too much scraping during init process can overload the system.
-# https://github.com/grafana/loki/issues/11398
 
 server:
   http_listen_port: 9080

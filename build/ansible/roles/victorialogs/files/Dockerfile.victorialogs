@@ -1,8 +1,5 @@
 FROM percona/pmm-server:3
 
-ENV GF_ANALYTICS_CHECK_FOR_UPDATES=false
-ENV GF_ANALYTICS_REPORTING_ENABLED=false
-
 USER root
 
 COPY build/ansible /opt/ansible

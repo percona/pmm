@@ -12,13 +12,13 @@ git checkout PMM-13391-integrate-victorialogs
 2. Build the image with the following command (mind the dot!):
 
 ```bash
-docker buildx build --platform=linux/amd64 --progress=plain -t local/pmm-server:victorialogs-1.17.0 -f ./build/ansible/roles/victorialogs/files/Dockerfile.victorialogs .
+docker buildx build --platform=linux/amd64 --progress=plain -t local/pmm-server:victorialogs -f ./build/ansible/roles/victorialogs/files/Dockerfile.victorialogs .
 ```
 
 3. Launch PMM server:
 
 ```bash
-docker run -d --name pmm-server -p 443:8443 local/pmm-server:victorialogs-1.17.0
+docker run -d --name pmm-server --restart=always -p 443:8443 -v pmm-data:/srv local/pmm-server:victorialogs
 ```
 
 4. Access PMM server at https://localhost:443.
