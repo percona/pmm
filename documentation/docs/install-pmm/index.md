@@ -58,7 +58,7 @@ Install and run PMM Client on every node where there is a service you want to mo
 === ":material-package-variant: With package manager"
 
     [Linux package](../install-pmm/install-pmm-client/package_manager.md): Use `apt`, `apt-get`, `dnf`, `yum`. 
-    |The package manager automatically selects the correct version for your architecture.
+    The package manager automatically selects the correct version for your architecture.
 
 === ":material-archive: With binary package"
 
