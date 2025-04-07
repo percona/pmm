@@ -9219,32 +9219,42 @@
 <h1 id="clickhouse">ClickHouse<a class="headerlink" href="#clickhouse" title="Permanent link">&para;</a></h1>
 <p>You can use an external ClickHouse database instance outside the PMM Server container running on other hosts.</p>
 <h2 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
-<p>PMM predefines certain flags that allow you to use ClickHouse parameters as environment variables:</p>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Warning</p>
-<p>The <code>PERCONA_TEST_*</code> environment variables are experimental and subject to change. It is recommended that you use these variables for testing purposes only and not on production.</p>
-</div>
-<p>To use ClickHouse as an external database instance, use the following environment variables: </p>
+<p>PMM predefines certain flags that allow you to use ClickHouse parameters as environment variables.</p>
+<p>To use ClickHouse as an external database instance, provide the following environment variables: </p>
 <dl>
-<dt><code>PERCONA_TEST_PMM_CLICKHOUSE_ADDR</code> -&gt; hostname:port</dt>
-<dd>Name of the host and port of the external ClickHouse database instance. </dd>
+<dt><code>PMM_CLICKHOUSE_ADDR</code> -&gt; hostname:port</dt>
+<dd>Hostname and port of the external ClickHouse database.</dd>
+<dt><code>PMM_CLICKHOUSE_HOST</code> -&gt; hostname</dt>
+<dd>Hostname of the external ClickHouse database.</dd>
+<dt><code>PMM_CLICKHOUSE_PORT</code> -&gt; port</dt>
+<dd>Port of the external ClickHouse database.</dd>
+<dt><code>PMM_CLICKHOUSE_USER</code> -&gt; username</dt>
+<dd>Username to connect to the external ClickHouse database.</dd>
+<dt><code>PMM_CLICKHOUSE_PASSWORD</code> -&gt; password</dt>
+<dd>User password to connect to the external ClickHouse database.</dd>
+<dt><code>PMM_DISABLE_BUILTIN_CLICKHOUSE</code> -&gt; 1</dt>
+<dd>Disables the built-in ClickHouse database instance.</dd>
 </dl>
 <p><strong>Optional environment variables</strong></p>
 <dl>
-<dt><code>PERCONA_TEST_PMM_CLICKHOUSE_DATABASE</code> -&gt; database name</dt>
+<dt><code>PMM_CLICKHOUSE_DATABASE</code> -&gt; database name</dt>
 <dd>Database name of the external ClickHouse database instance.</dd>
-<dt><code>​​PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE</code> -&gt; <a href="https://github.com/ClickHouse/ClickHouse/blob/ba26b3cf4c982f681f7f9782bba2662f97620835/programs/server/config.xml#L288">pool size</a></dt>
-<dd>The maximum number of threads in the current connection thread pool. This value cannot be bigger than max_thread_pool_size.</dd>
-<dt><code>PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE</code> -&gt; <a href="https://clickhouse.com/docs/en/operations/settings/settings/#setting-max_block_size">max block size</a></dt>
-<dd>The number of rows to load from tables in one block for this connection.</dd>
 </dl>
 <p><strong>Example</strong></p>
-<p>To use ClickHouse as an external database instance, start the PMM docker with the specified variables for external ClickHouse:
-​​</p>
-<div class="highlight"><pre><span></span><code>-e<span class="w"> </span><span class="nv">PERCONA_TEST_PMM_CLICKHOUSE_ADDR</span><span class="o">=</span><span class="nv">$ADDRESS</span>:<span class="nv">$PORT</span>
--e<span class="w"> </span><span class="nv">PERCONA_TEST_PMM_CLICKHOUSE_DATABASE</span><span class="o">=</span><span class="nv">$DB</span>
--e<span class="w"> </span><span class="nv">PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>
--e<span class="w"> </span><span class="nv">PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE</span><span class="o">=</span><span class="m">65000</span>
+<p>To use ClickHouse as an external database instance, run PMM in docker or podman with the specified variables for external ClickHouse:</p>
+<div class="highlight"><pre><span></span><code>-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_ADDR</span><span class="o">=</span><span class="nv">$CH_HOST</span>:<span class="nv">$CH_PORT</span>
+-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATABASE</span><span class="o">=</span><span class="nv">$CH_DATABASE</span>
+-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_USER</span><span class="o">=</span><span class="nv">$CH_USER</span>
+-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_PASSWORD</span><span class="o">=</span><span class="nv">$CH_PASSWORD</span>
+-e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_CLICKHOUSE</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div>
+<p>Alternatively, you can use the <code>PMM_CLICKHOUSE_HOST</code> and <code>PMM_CLICKHOUSE_PORT</code> variables instead of <code>PMM_CLICKHOUSE_ADDR</code>.</p>
+<div class="highlight"><pre><span></span><code>-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_HOST</span><span class="o">=</span><span class="nv">$CH_HOST</span>
+-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_PORT</span><span class="o">=</span><span class="nv">$CH_PORT</span>
+-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATABASE</span><span class="o">=</span><span class="nv">$CH_DATABASE</span>
+-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_USER</span><span class="o">=</span><span class="nv">$CH_USER</span>
+-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_PASSWORD</span><span class="o">=</span><span class="nv">$CH_PASSWORD</span>
+-e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_CLICKHOUSE</span><span class="o">=</span><span class="m">1</span>
 </code></pre></div>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <p>To troubleshoot issues, see the ClickHouse <a href="https://clickhouse.com/docs/guides/troubleshooting">troubleshooting documentation</a>.</p>
@@ -9268,7 +9278,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-02-25
+    2025-04-07
   </span>
 
     
