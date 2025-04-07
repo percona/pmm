@@ -52,14 +52,13 @@ func TestCollector(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		i := 0
-		for profile := range docsChan {
+		for log := range docsChan {
 			select {
 			case <-ctx.Done():
 				return
 			default:
 			}
-			// fmt.Println(profile)
-			profiles = append(profiles, profile)
+			logs = append(logs, log)
 			i++
 			if i >= linesInLogFile {
 				return
