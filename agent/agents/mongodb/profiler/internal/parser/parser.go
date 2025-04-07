@@ -19,9 +19,9 @@ import (
 	"runtime/pprof"
 	"sync"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/percona/pmm/agent/agents/mongodb/profiler/internal/aggregator"
 )
 

@@ -21,7 +21,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/report"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/report"
 )
 
 func New(reportChan <-chan *report.Report, w Writer, logger *logrus.Entry) *Sender {

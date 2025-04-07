@@ -22,12 +22,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	mongostats "github.com/percona/percona-toolkit/src/go/mongolib/stats"
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/fingerprinter"
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/report"
+	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/fingerprinter"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"

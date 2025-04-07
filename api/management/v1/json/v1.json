@@ -2326,8 +2326,8 @@
                       "type": "boolean",
                       "x-order": 13
                     },
-                    "qan_mongodb_slowlog": {
-                      "description": "If true, adds qan-mongodb-slowlog-agent for provided service.",
+                    "qan_mongodb_mongolog": {
+                      "description": "If true, adds qan-mongodb-mongolog-agent for provided service.",
                       "type": "boolean",
                       "x-order": 14
                     },

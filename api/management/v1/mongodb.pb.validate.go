@@ -134,7 +134,7 @@ func (m *AddMongoDBServiceParams) validate(all bool) error {
 
 	// no validation rules for QanMongodbProfiler
 
-	// no validation rules for QanMongodbSlowlog
+	// no validation rules for QanMongodbMongolog
 
 	// no validation rules for CustomLabels
 

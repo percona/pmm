@@ -21,7 +21,7 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
-var addAgentQANMongoDBSlowlogAgentResultT = commands.ParseTemplate(`
+var addAgentQANMongoDBMongologAgentResultT = commands.ParseTemplate(`
 QAN MongoDB profiler agent added.
 Agent ID              : {{ .Agent.AgentID }}
 PMM-Agent ID          : {{ .Agent.PMMAgentID }}
@@ -35,20 +35,20 @@ Disabled              : {{ .Agent.Disabled }}
 Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
-type addAgentQANMongoDBSlowlogAgentResult struct {
+type addAgentQANMongoDBMongologAgentResult struct {
 	Agent *agents.AddAgentOKBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent"`
 }
 
-func (res *addAgentQANMongoDBSlowlogAgentResult) Result() {}
+func (res *addAgentQANMongoDBMongologAgentResult) Result() {}
 
-func (res *addAgentQANMongoDBSlowlogAgentResult) String() string {
-	return commands.RenderTemplate(addAgentQANMongoDBSlowlogAgentResultT, res)
+func (res *addAgentQANMongoDBMongologAgentResult) String() string {
+	return commands.RenderTemplate(addAgentQANMongoDBMongologAgentResultT, res)
 }
 
-// addAgentQANMongoDBSlowlogAgentCommand is used by Kong for CLI flags and commands.
+// addAgentQANMongoDBMongologAgentCommand is used by Kong for CLI flags and commands.
 //
 //nolint:lll
-type AddAgentQANMongoDBSlowlogAgentCommand struct {
+type AddAgentQANMongoDBMongologAgentCommand struct {
 	PMMAgentID                    string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                     string            `arg:"" help:"Service identifier"`
 	Username                      string            `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
@@ -67,8 +67,8 @@ type AddAgentQANMongoDBSlowlogAgentCommand struct {
 	flags.LogLevelFatalFlags
 }
 
-// RunCmd executes the AddAgentQANMongoDBSlowlogAgentCommand and returns the result.
-func (cmd *AddAgentQANMongoDBSlowlogAgentCommand) RunCmd() (commands.Result, error) {
+// RunCmd executes the AddAgentQANMongoDBMongologAgentCommand and returns the result.
+func (cmd *AddAgentQANMongoDBMongologAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
@@ -82,7 +82,7 @@ func (cmd *AddAgentQANMongoDBSlowlogAgentCommand) RunCmd() (commands.Result, err
 
 	params := &agents.AddAgentParams{
 		Body: agents.AddAgentBody{
-			QANMongodbSlowlogAgent: &agents.AddAgentParamsBodyQANMongodbSlowlogAgent{
+			QANMongodbMongologAgent: &agents.AddAgentParamsBodyQANMongodbMongologAgent{
 				PMMAgentID:                    cmd.PMMAgentID,
 				ServiceID:                     cmd.ServiceID,
 				Username:                      cmd.Username,

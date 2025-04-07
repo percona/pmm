@@ -31,6 +31,7 @@ const (
 	AgentTypeQANMySQLPerfSchemaAgent         = "AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT"
 	AgentTypeQANMySQLSlowlogAgent            = "AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT"
 	AgentTypeQANMongoDBProfilerAgent         = "AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT"
+	AgentTypeQANMongoDBMongologAgent         = "AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT"
 	AgentTypeQANPostgreSQLPgStatementsAgent  = "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
 	AgentTypeQANPostgreSQLPgStatMonitorAgent = "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
 	AgentTypeRDSExporter                     = "AGENT_TYPE_RDS_EXPORTER"

@@ -20,14 +20,14 @@ import (
 	"testing"
 	"time"
 
+	pm "github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 
-	pm "github.com/percona/percona-toolkit/src/go/mongolib/proto"
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/aggregator"
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/report"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/aggregator"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"
 )
 

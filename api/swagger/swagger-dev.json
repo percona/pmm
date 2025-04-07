@@ -5181,7 +5181,7 @@
               "AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT",
               "AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT",
               "AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT",
-              "AGENT_TYPE_QAN_MONGODB_SLOWLOG_AGENT",
+              "AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT",
               "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
               "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
               "AGENT_TYPE_EXTERNAL_EXPORTER",
@@ -6346,10 +6346,10 @@
                   },
                   "x-order": 9
                 },
-                "qan_mongodb_slowlog_agent": {
+                "qan_mongodb_mongolog_agent": {
                   "type": "array",
                   "items": {
-                    "description": "QANMongoDBSlowlogAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                    "description": "QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
@@ -8033,7 +8033,7 @@
                   },
                   "x-order": 11
                 },
-                "qan_mongodb_slowlog_agent": {
+                "qan_mongodb_mongolog_agent": {
                   "type": "object",
                   "properties": {
                     "pmm_agent_id": {
@@ -9720,8 +9720,8 @@
                   },
                   "x-order": 11
                 },
-                "qan_mongodb_slowlog_agent": {
-                  "description": "QANMongoDBSlowlogAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                "qan_mongodb_mongolog_agent": {
+                  "description": "QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -11185,8 +11185,8 @@
                   },
                   "x-order": 9
                 },
-                "qan_mongodb_slowlog_agent": {
-                  "description": "QANMongoDBSlowlogAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                "qan_mongodb_mongolog_agent": {
+                  "description": "QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -12465,7 +12465,7 @@
                   },
                   "x-order": 10
                 },
-                "qan_mongodb_slowlog_agent": {
+                "qan_mongodb_mongolog_agent": {
                   "type": "object",
                   "properties": {
                     "enable": {
@@ -14002,8 +14002,8 @@
                   },
                   "x-order": 10
                 },
-                "qan_mongodb_slowlog_agent": {
-                  "description": "QANMongoDBSlowlogAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                "qan_mongodb_mongolog_agent": {
+                  "description": "QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -20269,8 +20269,8 @@
                       "type": "boolean",
                       "x-order": 13
                     },
-                    "qan_mongodb_slowlog": {
-                      "description": "If true, adds qan-mongodb-slowlog-agent for provided service.",
+                    "qan_mongodb_mongolog": {
+                      "description": "If true, adds qan-mongodb-mongolog-agent for provided service.",
                       "type": "boolean",
                       "x-order": 14
                     },

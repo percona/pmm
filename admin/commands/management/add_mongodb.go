@@ -27,8 +27,8 @@ import (
 const (
 	// MongodbQuerySourceProfiler defines available source name for profiler.
 	MongodbQuerySourceProfiler = "profiler"
-	// MongodbQuerySourceSlowlog defines available source name for profiler.
-	MongodbQuerySourceSlowlog = "slowlog"
+	// MongodbQuerySourceMongolog defines available source name for profiler.
+	MongodbQuerySourceMongolog = "mongolog"
 	// MongodbQuerySourceNone defines available source name for profiler.
 	MongodbQuerySourceNone = "none"
 )
@@ -177,7 +177,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				AgentPassword:  cmd.AgentPassword,
 
 				QANMongodbProfiler: cmd.QuerySource == MongodbQuerySourceProfiler,
-				QANMongodbSlowlog:  cmd.QuerySource == MongodbQuerySourceSlowlog,
+				QANMongodbMongolog: cmd.QuerySource == MongodbQuerySourceMongolog,
 
 				CustomLabels:                  customLabels,
 				SkipConnectionCheck:           cmd.SkipConnectionCheck,

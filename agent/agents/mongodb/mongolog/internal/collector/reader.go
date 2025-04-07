@@ -11,11 +11,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 )
 
 type FileReader struct {
@@ -59,14 +58,14 @@ func GetLogFilePath(client *mongo.Client) (string, error) {
 const slowQuery = "Slow query"
 
 type SlowQuery struct {
-	//Ctx  string `bson:"ctx"`
+	// Ctx  string `bson:"ctx"`
 	Msg  string `bson:"msg"`
 	Attr json.RawMessage
 }
 
 type systemProfile struct {
 	proto.SystemProfile
-	//Command bson.Raw `bson:"command,omitempty"`
+	// Command bson.Raw `bson:"command,omitempty"`
 	Command            bson.M `bson:"command"`
 	OriginatingCommand bson.M `bson:"originatingCommand"`
 }
@@ -92,13 +91,13 @@ func (fr *FileReader) ReadFile(ctx context.Context, docsChan chan<- proto.System
 					return // fmt.Errorf("File does not exist: %s\n", fr.filePath)
 				} else {
 					fr.fileMutex.Unlock()
-					return //fmt.Errorf("error opening file: %v", err)
+					return // fmt.Errorf("error opening file: %v", err)
 				}
 			} else {
 				info, err := file.Stat()
 				if err != nil {
 					fr.fileMutex.Unlock()
-					return //fmt.Errorf("error getting file info: %v", err)
+					return // fmt.Errorf("error getting file info: %v", err)
 				}
 
 				// Check if file has been truncated
@@ -156,7 +155,7 @@ func (fr *FileReader) ReadFile(ctx context.Context, docsChan chan<- proto.System
 				// Handle any errors from the scanner
 				if err := scanner.Err(); err != nil {
 					fr.fileMutex.Unlock()
-					return //fmt.Errorf("error reading file: %v", err)
+					return // fmt.Errorf("error reading file: %v", err)
 				}
 
 				// Update the file size to track truncations

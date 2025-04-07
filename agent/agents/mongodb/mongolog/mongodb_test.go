@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package slowlog
+package mongolog
 
 import (
 	"context"
@@ -37,14 +37,14 @@ func TestMongoRun(t *testing.T) {
 	require.NoError(t, err)
 	for _, params := range []*Params{
 		{
-			DSN:               "mongodb://root:root-password@127.0.0.1:27017/admin",
-			AgentID:           "test",
-			SlowLogFilePrefix: testdata,
+			DSN:           "mongodb://root:root-password@127.0.0.1:27017/admin",
+			AgentID:       "test",
+			LogFilePrefix: testdata,
 		},
 		{
-			DSN:               sslDSN,
-			AgentID:           "test",
-			SlowLogFilePrefix: testdata,
+			DSN:           sslDSN,
+			AgentID:       "test",
+			LogFilePrefix: testdata,
 		},
 	} {
 		m, err := New(params, logrus.WithField("test", t.Name()))

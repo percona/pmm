@@ -33,6 +33,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog"
 	mongoprofiler "github.com/percona/pmm/agent/agents/mongodb/profiler"
 	"github.com/percona/pmm/agent/agents/mysql/perfschema"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog"
@@ -562,13 +563,13 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		}
 		agent, err = mongoprofiler.New(params, l)
 
-	case inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_SLOWLOG_AGENT:
-		params := &mongoprofiler.Params{
+	case inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT:
+		params := &mongolog.Params{
 			DSN:            dsn,
 			AgentID:        agentID,
 			MaxQueryLength: builtinAgent.MaxQueryLength,
 		}
-		agent, err = mongoprofiler.New(params, l)
+		agent, err = mongolog.New(params, l)
 
 	case inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:
 		params := &slowlog.Params{

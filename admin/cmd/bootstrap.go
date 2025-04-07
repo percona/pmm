@@ -142,7 +142,7 @@ func getDefaultKongOptions(appName string) []kong.Option {
 
 	mongoDBQuerySources := []string{
 		management.MongodbQuerySourceProfiler,
-		management.MongodbQuerySourceSlowlog,
+		management.MongodbQuerySourceMongolog,
 		management.MongodbQuerySourceNone,
 	}
 

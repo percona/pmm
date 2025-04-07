@@ -22,10 +22,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	mongostats "github.com/percona/percona-toolkit/src/go/mongolib/stats"
+	"github.com/sirupsen/logrus"
+
 	"github.com/percona/pmm/agent/agents/mongodb/profiler/internal/fingerprinter"
 	"github.com/percona/pmm/agent/agents/mongodb/profiler/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"

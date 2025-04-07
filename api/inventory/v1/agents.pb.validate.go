@@ -1448,22 +1448,22 @@ var _ interface {
 	ErrorName() string
 } = QANMongoDBProfilerAgentValidationError{}
 
-// Validate checks the field values on QANMongoDBSlowlogAgent with the rules
+// Validate checks the field values on QANMongoDBMongologAgent with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *QANMongoDBSlowlogAgent) Validate() error {
+func (m *QANMongoDBMongologAgent) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on QANMongoDBSlowlogAgent with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on QANMongoDBMongologAgent with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// QANMongoDBSlowlogAgentMultiError, or nil if none found.
-func (m *QANMongoDBSlowlogAgent) ValidateAll() error {
+// QANMongoDBMongologAgentMultiError, or nil if none found.
+func (m *QANMongoDBMongologAgent) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *QANMongoDBSlowlogAgent) validate(all bool) error {
+func (m *QANMongoDBMongologAgent) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1495,19 +1495,19 @@ func (m *QANMongoDBSlowlogAgent) validate(all bool) error {
 	// no validation rules for LogLevel
 
 	if len(errors) > 0 {
-		return QANMongoDBSlowlogAgentMultiError(errors)
+		return QANMongoDBMongologAgentMultiError(errors)
 	}
 
 	return nil
 }
 
-// QANMongoDBSlowlogAgentMultiError is an error wrapping multiple validation
-// errors returned by QANMongoDBSlowlogAgent.ValidateAll() if the designated
+// QANMongoDBMongologAgentMultiError is an error wrapping multiple validation
+// errors returned by QANMongoDBMongologAgent.ValidateAll() if the designated
 // constraints aren't met.
-type QANMongoDBSlowlogAgentMultiError []error
+type QANMongoDBMongologAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m QANMongoDBSlowlogAgentMultiError) Error() string {
+func (m QANMongoDBMongologAgentMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1516,11 +1516,11 @@ func (m QANMongoDBSlowlogAgentMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m QANMongoDBSlowlogAgentMultiError) AllErrors() []error { return m }
+func (m QANMongoDBMongologAgentMultiError) AllErrors() []error { return m }
 
-// QANMongoDBSlowlogAgentValidationError is the validation error returned by
-// QANMongoDBSlowlogAgent.Validate if the designated constraints aren't met.
-type QANMongoDBSlowlogAgentValidationError struct {
+// QANMongoDBMongologAgentValidationError is the validation error returned by
+// QANMongoDBMongologAgent.Validate if the designated constraints aren't met.
+type QANMongoDBMongologAgentValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1528,24 +1528,24 @@ type QANMongoDBSlowlogAgentValidationError struct {
 }
 
 // Field function returns field value.
-func (e QANMongoDBSlowlogAgentValidationError) Field() string { return e.field }
+func (e QANMongoDBMongologAgentValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e QANMongoDBSlowlogAgentValidationError) Reason() string { return e.reason }
+func (e QANMongoDBMongologAgentValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e QANMongoDBSlowlogAgentValidationError) Cause() error { return e.cause }
+func (e QANMongoDBMongologAgentValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e QANMongoDBSlowlogAgentValidationError) Key() bool { return e.key }
+func (e QANMongoDBMongologAgentValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e QANMongoDBSlowlogAgentValidationError) ErrorName() string {
-	return "QANMongoDBSlowlogAgentValidationError"
+func (e QANMongoDBMongologAgentValidationError) ErrorName() string {
+	return "QANMongoDBMongologAgentValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e QANMongoDBSlowlogAgentValidationError) Error() string {
+func (e QANMongoDBMongologAgentValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1557,14 +1557,14 @@ func (e QANMongoDBSlowlogAgentValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sQANMongoDBSlowlogAgent.%s: %s%s",
+		"invalid %sQANMongoDBMongologAgent.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = QANMongoDBSlowlogAgentValidationError{}
+var _ error = QANMongoDBMongologAgentValidationError{}
 
 var _ interface {
 	Field() string
@@ -1572,7 +1572,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = QANMongoDBSlowlogAgentValidationError{}
+} = QANMongoDBMongologAgentValidationError{}
 
 // Validate checks the field values on QANPostgreSQLPgStatementsAgent with the
 // rules defined in the proto definition for this message. If any rules are
@@ -2938,7 +2938,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 
 	}
 
-	for idx, item := range m.GetQanMongodbSlowlogAgent() {
+	for idx, item := range m.GetQanMongodbMongologAgent() {
 		_, _ = idx, item
 
 		if all {
@@ -2946,7 +2946,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
-						field:  fmt.Sprintf("QanMongodbSlowlogAgent[%v]", idx),
+						field:  fmt.Sprintf("QanMongodbMongologAgent[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -2954,7 +2954,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
-						field:  fmt.Sprintf("QanMongodbSlowlogAgent[%v]", idx),
+						field:  fmt.Sprintf("QanMongodbMongologAgent[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -2963,7 +2963,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
-					field:  fmt.Sprintf("QanMongodbSlowlogAgent[%v]", idx),
+					field:  fmt.Sprintf("QanMongodbMongologAgent[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -3766,7 +3766,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 			}
 		}
 
-	case *GetAgentResponse_QanMongodbSlowlogAgent:
+	case *GetAgentResponse_QanMongodbMongologAgent:
 		if v == nil {
 			err := GetAgentResponseValidationError{
 				field:  "Agent",
@@ -3779,11 +3779,11 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetQanMongodbSlowlogAgent()).(type) {
+			switch v := interface{}(m.GetQanMongodbMongologAgent()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
-						field:  "QanMongodbSlowlogAgent",
+						field:  "QanMongodbMongologAgent",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -3791,16 +3791,16 @@ func (m *GetAgentResponse) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
-						field:  "QanMongodbSlowlogAgent",
+						field:  "QanMongodbMongologAgent",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetQanMongodbSlowlogAgent()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetQanMongodbMongologAgent()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
-					field:  "QanMongodbSlowlogAgent",
+					field:  "QanMongodbMongologAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -4828,7 +4828,7 @@ func (m *AddAgentRequest) validate(all bool) error {
 			}
 		}
 
-	case *AddAgentRequest_QanMongodbSlowlogAgent:
+	case *AddAgentRequest_QanMongodbMongologAgent:
 		if v == nil {
 			err := AddAgentRequestValidationError{
 				field:  "Agent",
@@ -4841,11 +4841,11 @@ func (m *AddAgentRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetQanMongodbSlowlogAgent()).(type) {
+			switch v := interface{}(m.GetQanMongodbMongologAgent()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AddAgentRequestValidationError{
-						field:  "QanMongodbSlowlogAgent",
+						field:  "QanMongodbMongologAgent",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -4853,16 +4853,16 @@ func (m *AddAgentRequest) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, AddAgentRequestValidationError{
-						field:  "QanMongodbSlowlogAgent",
+						field:  "QanMongodbMongologAgent",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetQanMongodbSlowlogAgent()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetQanMongodbMongologAgent()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AddAgentRequestValidationError{
-					field:  "QanMongodbSlowlogAgent",
+					field:  "QanMongodbMongologAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -5548,7 +5548,7 @@ func (m *AddAgentResponse) validate(all bool) error {
 			}
 		}
 
-	case *AddAgentResponse_QanMongodbSlowlogAgent:
+	case *AddAgentResponse_QanMongodbMongologAgent:
 		if v == nil {
 			err := AddAgentResponseValidationError{
 				field:  "Agent",
@@ -5561,11 +5561,11 @@ func (m *AddAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetQanMongodbSlowlogAgent()).(type) {
+			switch v := interface{}(m.GetQanMongodbMongologAgent()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AddAgentResponseValidationError{
-						field:  "QanMongodbSlowlogAgent",
+						field:  "QanMongodbMongologAgent",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -5573,16 +5573,16 @@ func (m *AddAgentResponse) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, AddAgentResponseValidationError{
-						field:  "QanMongodbSlowlogAgent",
+						field:  "QanMongodbMongologAgent",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetQanMongodbSlowlogAgent()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetQanMongodbMongologAgent()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AddAgentResponseValidationError{
-					field:  "QanMongodbSlowlogAgent",
+					field:  "QanMongodbMongologAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -6238,7 +6238,7 @@ func (m *ChangeAgentRequest) validate(all bool) error {
 			}
 		}
 
-	case *ChangeAgentRequest_QanMongodbSlowlogAgent:
+	case *ChangeAgentRequest_QanMongodbMongologAgent:
 		if v == nil {
 			err := ChangeAgentRequestValidationError{
 				field:  "Agent",
@@ -6251,11 +6251,11 @@ func (m *ChangeAgentRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetQanMongodbSlowlogAgent()).(type) {
+			switch v := interface{}(m.GetQanMongodbMongologAgent()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ChangeAgentRequestValidationError{
-						field:  "QanMongodbSlowlogAgent",
+						field:  "QanMongodbMongologAgent",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -6263,16 +6263,16 @@ func (m *ChangeAgentRequest) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, ChangeAgentRequestValidationError{
-						field:  "QanMongodbSlowlogAgent",
+						field:  "QanMongodbMongologAgent",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetQanMongodbSlowlogAgent()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetQanMongodbMongologAgent()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ChangeAgentRequestValidationError{
-					field:  "QanMongodbSlowlogAgent",
+					field:  "QanMongodbMongologAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -6919,7 +6919,7 @@ func (m *ChangeAgentResponse) validate(all bool) error {
 			}
 		}
 
-	case *ChangeAgentResponse_QanMongodbSlowlogAgent:
+	case *ChangeAgentResponse_QanMongodbMongologAgent:
 		if v == nil {
 			err := ChangeAgentResponseValidationError{
 				field:  "Agent",
@@ -6932,11 +6932,11 @@ func (m *ChangeAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetQanMongodbSlowlogAgent()).(type) {
+			switch v := interface{}(m.GetQanMongodbMongologAgent()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ChangeAgentResponseValidationError{
-						field:  "QanMongodbSlowlogAgent",
+						field:  "QanMongodbMongologAgent",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -6944,16 +6944,16 @@ func (m *ChangeAgentResponse) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, ChangeAgentResponseValidationError{
-						field:  "QanMongodbSlowlogAgent",
+						field:  "QanMongodbMongologAgent",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetQanMongodbSlowlogAgent()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetQanMongodbMongologAgent()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ChangeAgentResponseValidationError{
-					field:  "QanMongodbSlowlogAgent",
+					field:  "QanMongodbMongologAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -9844,22 +9844,23 @@ var _ interface {
 	ErrorName() string
 } = ChangeQANMongoDBProfilerAgentParamsValidationError{}
 
-// Validate checks the field values on AddQANMongoDBSlowlogAgentParams with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddQANMongoDBSlowlogAgentParams) Validate() error {
+// Validate checks the field values on AddQANMongoDBMongologAgentParams with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *AddQANMongoDBMongologAgentParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddQANMongoDBSlowlogAgentParams with
+// ValidateAll checks the field values on AddQANMongoDBMongologAgentParams with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the result is a list of violation errors wrapped in
-// AddQANMongoDBSlowlogAgentParamsMultiError, or nil if none found.
-func (m *AddQANMongoDBSlowlogAgentParams) ValidateAll() error {
+// AddQANMongoDBMongologAgentParamsMultiError, or nil if none found.
+func (m *AddQANMongoDBMongologAgentParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddQANMongoDBSlowlogAgentParams) validate(all bool) error {
+func (m *AddQANMongoDBMongologAgentParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -9867,7 +9868,7 @@ func (m *AddQANMongoDBSlowlogAgentParams) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
-		err := AddQANMongoDBSlowlogAgentParamsValidationError{
+		err := AddQANMongoDBMongologAgentParamsValidationError{
 			field:  "PmmAgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -9878,7 +9879,7 @@ func (m *AddQANMongoDBSlowlogAgentParams) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddQANMongoDBSlowlogAgentParamsValidationError{
+		err := AddQANMongoDBMongologAgentParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -9915,19 +9916,20 @@ func (m *AddQANMongoDBSlowlogAgentParams) validate(all bool) error {
 	// no validation rules for LogLevel
 
 	if len(errors) > 0 {
-		return AddQANMongoDBSlowlogAgentParamsMultiError(errors)
+		return AddQANMongoDBMongologAgentParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddQANMongoDBSlowlogAgentParamsMultiError is an error wrapping multiple
-// validation errors returned by AddQANMongoDBSlowlogAgentParams.ValidateAll()
-// if the designated constraints aren't met.
-type AddQANMongoDBSlowlogAgentParamsMultiError []error
+// AddQANMongoDBMongologAgentParamsMultiError is an error wrapping multiple
+// validation errors returned by
+// AddQANMongoDBMongologAgentParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddQANMongoDBMongologAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddQANMongoDBSlowlogAgentParamsMultiError) Error() string {
+func (m AddQANMongoDBMongologAgentParamsMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -9936,12 +9938,12 @@ func (m AddQANMongoDBSlowlogAgentParamsMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddQANMongoDBSlowlogAgentParamsMultiError) AllErrors() []error { return m }
+func (m AddQANMongoDBMongologAgentParamsMultiError) AllErrors() []error { return m }
 
-// AddQANMongoDBSlowlogAgentParamsValidationError is the validation error
-// returned by AddQANMongoDBSlowlogAgentParams.Validate if the designated
+// AddQANMongoDBMongologAgentParamsValidationError is the validation error
+// returned by AddQANMongoDBMongologAgentParams.Validate if the designated
 // constraints aren't met.
-type AddQANMongoDBSlowlogAgentParamsValidationError struct {
+type AddQANMongoDBMongologAgentParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -9949,24 +9951,24 @@ type AddQANMongoDBSlowlogAgentParamsValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddQANMongoDBSlowlogAgentParamsValidationError) Field() string { return e.field }
+func (e AddQANMongoDBMongologAgentParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddQANMongoDBSlowlogAgentParamsValidationError) Reason() string { return e.reason }
+func (e AddQANMongoDBMongologAgentParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddQANMongoDBSlowlogAgentParamsValidationError) Cause() error { return e.cause }
+func (e AddQANMongoDBMongologAgentParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddQANMongoDBSlowlogAgentParamsValidationError) Key() bool { return e.key }
+func (e AddQANMongoDBMongologAgentParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddQANMongoDBSlowlogAgentParamsValidationError) ErrorName() string {
-	return "AddQANMongoDBSlowlogAgentParamsValidationError"
+func (e AddQANMongoDBMongologAgentParamsValidationError) ErrorName() string {
+	return "AddQANMongoDBMongologAgentParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddQANMongoDBSlowlogAgentParamsValidationError) Error() string {
+func (e AddQANMongoDBMongologAgentParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -9978,14 +9980,14 @@ func (e AddQANMongoDBSlowlogAgentParamsValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddQANMongoDBSlowlogAgentParams.%s: %s%s",
+		"invalid %sAddQANMongoDBMongologAgentParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddQANMongoDBSlowlogAgentParamsValidationError{}
+var _ error = AddQANMongoDBMongologAgentParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -9993,25 +9995,25 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddQANMongoDBSlowlogAgentParamsValidationError{}
+} = AddQANMongoDBMongologAgentParamsValidationError{}
 
-// Validate checks the field values on ChangeQANMongoDBSlowlogAgentParams with
+// Validate checks the field values on ChangeQANMongoDBMongologAgentParams with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the first error encountered is returned, or nil if there are
 // no violations.
-func (m *ChangeQANMongoDBSlowlogAgentParams) Validate() error {
+func (m *ChangeQANMongoDBMongologAgentParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ChangeQANMongoDBSlowlogAgentParams
+// ValidateAll checks the field values on ChangeQANMongoDBMongologAgentParams
 // with the rules defined in the proto definition for this message. If any
 // rules are violated, the result is a list of violation errors wrapped in
-// ChangeQANMongoDBSlowlogAgentParamsMultiError, or nil if none found.
-func (m *ChangeQANMongoDBSlowlogAgentParams) ValidateAll() error {
+// ChangeQANMongoDBMongologAgentParamsMultiError, or nil if none found.
+func (m *ChangeQANMongoDBMongologAgentParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ChangeQANMongoDBSlowlogAgentParams) validate(all bool) error {
+func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -10022,7 +10024,7 @@ func (m *ChangeQANMongoDBSlowlogAgentParams) validate(all bool) error {
 		switch v := interface{}(m.GetMetricsResolutions()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeQANMongoDBSlowlogAgentParamsValidationError{
+				errors = append(errors, ChangeQANMongoDBMongologAgentParamsValidationError{
 					field:  "MetricsResolutions",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -10030,7 +10032,7 @@ func (m *ChangeQANMongoDBSlowlogAgentParams) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeQANMongoDBSlowlogAgentParamsValidationError{
+				errors = append(errors, ChangeQANMongoDBMongologAgentParamsValidationError{
 					field:  "MetricsResolutions",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -10039,7 +10041,7 @@ func (m *ChangeQANMongoDBSlowlogAgentParams) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ChangeQANMongoDBSlowlogAgentParamsValidationError{
+			return ChangeQANMongoDBMongologAgentParamsValidationError{
 				field:  "MetricsResolutions",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -10056,7 +10058,7 @@ func (m *ChangeQANMongoDBSlowlogAgentParams) validate(all bool) error {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ChangeQANMongoDBSlowlogAgentParamsValidationError{
+					errors = append(errors, ChangeQANMongoDBMongologAgentParamsValidationError{
 						field:  "CustomLabels",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -10064,7 +10066,7 @@ func (m *ChangeQANMongoDBSlowlogAgentParams) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, ChangeQANMongoDBSlowlogAgentParamsValidationError{
+					errors = append(errors, ChangeQANMongoDBMongologAgentParamsValidationError{
 						field:  "CustomLabels",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -10073,7 +10075,7 @@ func (m *ChangeQANMongoDBSlowlogAgentParams) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return ChangeQANMongoDBSlowlogAgentParamsValidationError{
+				return ChangeQANMongoDBMongologAgentParamsValidationError{
 					field:  "CustomLabels",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -10087,20 +10089,20 @@ func (m *ChangeQANMongoDBSlowlogAgentParams) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ChangeQANMongoDBSlowlogAgentParamsMultiError(errors)
+		return ChangeQANMongoDBMongologAgentParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// ChangeQANMongoDBSlowlogAgentParamsMultiError is an error wrapping multiple
+// ChangeQANMongoDBMongologAgentParamsMultiError is an error wrapping multiple
 // validation errors returned by
-// ChangeQANMongoDBSlowlogAgentParams.ValidateAll() if the designated
+// ChangeQANMongoDBMongologAgentParams.ValidateAll() if the designated
 // constraints aren't met.
-type ChangeQANMongoDBSlowlogAgentParamsMultiError []error
+type ChangeQANMongoDBMongologAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ChangeQANMongoDBSlowlogAgentParamsMultiError) Error() string {
+func (m ChangeQANMongoDBMongologAgentParamsMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -10109,12 +10111,12 @@ func (m ChangeQANMongoDBSlowlogAgentParamsMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ChangeQANMongoDBSlowlogAgentParamsMultiError) AllErrors() []error { return m }
+func (m ChangeQANMongoDBMongologAgentParamsMultiError) AllErrors() []error { return m }
 
-// ChangeQANMongoDBSlowlogAgentParamsValidationError is the validation error
-// returned by ChangeQANMongoDBSlowlogAgentParams.Validate if the designated
+// ChangeQANMongoDBMongologAgentParamsValidationError is the validation error
+// returned by ChangeQANMongoDBMongologAgentParams.Validate if the designated
 // constraints aren't met.
-type ChangeQANMongoDBSlowlogAgentParamsValidationError struct {
+type ChangeQANMongoDBMongologAgentParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -10122,24 +10124,24 @@ type ChangeQANMongoDBSlowlogAgentParamsValidationError struct {
 }
 
 // Field function returns field value.
-func (e ChangeQANMongoDBSlowlogAgentParamsValidationError) Field() string { return e.field }
+func (e ChangeQANMongoDBMongologAgentParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ChangeQANMongoDBSlowlogAgentParamsValidationError) Reason() string { return e.reason }
+func (e ChangeQANMongoDBMongologAgentParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ChangeQANMongoDBSlowlogAgentParamsValidationError) Cause() error { return e.cause }
+func (e ChangeQANMongoDBMongologAgentParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ChangeQANMongoDBSlowlogAgentParamsValidationError) Key() bool { return e.key }
+func (e ChangeQANMongoDBMongologAgentParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ChangeQANMongoDBSlowlogAgentParamsValidationError) ErrorName() string {
-	return "ChangeQANMongoDBSlowlogAgentParamsValidationError"
+func (e ChangeQANMongoDBMongologAgentParamsValidationError) ErrorName() string {
+	return "ChangeQANMongoDBMongologAgentParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ChangeQANMongoDBSlowlogAgentParamsValidationError) Error() string {
+func (e ChangeQANMongoDBMongologAgentParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -10151,14 +10153,14 @@ func (e ChangeQANMongoDBSlowlogAgentParamsValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sChangeQANMongoDBSlowlogAgentParams.%s: %s%s",
+		"invalid %sChangeQANMongoDBMongologAgentParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ChangeQANMongoDBSlowlogAgentParamsValidationError{}
+var _ error = ChangeQANMongoDBMongologAgentParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -10166,7 +10168,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ChangeQANMongoDBSlowlogAgentParamsValidationError{}
+} = ChangeQANMongoDBMongologAgentParamsValidationError{}
 
 // Validate checks the field values on AddQANPostgreSQLPgStatementsAgentParams
 // with the rules defined in the proto definition for this message. If any

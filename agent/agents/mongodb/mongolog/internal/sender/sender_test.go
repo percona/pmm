@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/report"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/report"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 

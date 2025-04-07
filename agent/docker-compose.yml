@@ -48,12 +48,11 @@ services:
       - ./testdata/mysql:/mysql
 
   mongo:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
+    image: ${MONGO_IMAGE:-mongo:5.0}
     container_name: pmm-agent_mongo
     command:
       - --profile=2
       - --logpath=/var/log/mongodb/mongo.log
-      - --logappend
     ports:
       - "127.0.0.1:27017:27017"
     environment:
@@ -63,7 +62,7 @@ services:
       - ./mongo_logs:/var/log/mongodb
 
   mongo_with_tls:
-    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
+    image: ${MONGO_IMAGE:-mongo:5.0}
     container_name: pmm-agent_mongo_with_tls
     command:
       - --profile=2
@@ -73,12 +72,11 @@ services:
       - --tlsAllowInvalidCertificates
       - --bind_ip=0.0.0.0
       - --logpath=/var/log/mongodb/mongo_tls.log
-      - --logappend
     ports:
       - "127.0.0.1:27018:27017"
     volumes:
       - ${PWD}/utils/tests/testdata/mongodb:/etc/tls/certificates
-      #- ./mongo_logs:/var/log/mongodb
+      - ./mongo_logs:/var/log/mongodb
 
   mongonoauth:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}

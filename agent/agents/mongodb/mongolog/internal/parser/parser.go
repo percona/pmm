@@ -19,10 +19,10 @@ import (
 	"runtime/pprof"
 	"sync"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/aggregator"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/aggregator"
 )
 
 func New(docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, logger *logrus.Entry) *Parser {

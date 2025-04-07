@@ -49,8 +49,8 @@ message AddMongoDBServiceParams {
   string password = 14;
   // If true, adds qan-mongodb-profiler-agent for provided service.
   bool qan_mongodb_profiler = 15;
-  // If true, adds qan-mongodb-slowlog-agent for provided service.
-  bool qan_mongodb_slowlog = 35;
+  // If true, adds qan-mongodb-mongolog-agent for provided service.
+  bool qan_mongodb_mongolog = 35;
   // Custom user-assigned labels for Service.
   map<string, string> custom_labels = 16;
   // Skip connection check.

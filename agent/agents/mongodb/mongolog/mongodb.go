@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package slowlog runs built-in QAN Agent for MongoDB Slowlog.
-package slowlog
+// Package mongolog runs built-in QAN Agent for MongoDB Mongolog.
+package mongolog
 
 import (
 	"context"
@@ -23,8 +23,8 @@ import (
 	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
 
 	"github.com/percona/pmm/agent/agents"
-	slowlog "github.com/percona/pmm/agent/agents/mongodb/slowlog/internal"
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/report"
+	mongolog "github.com/percona/pmm/agent/agents/mongodb/mongolog/internal"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/report"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -34,17 +34,17 @@ type MongoDB struct {
 	l       *logrus.Entry
 	changes chan agents.Change
 
-	mongoDSN          string
-	slowLogFilePrefix string
-	maxQueryLength    int32
+	mongoDSN       string
+	logFilePrefix  string
+	maxQueryLength int32
 }
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN               string
-	AgentID           string
-	SlowLogFilePrefix string // for development and testing
-	MaxQueryLength    int32
+	DSN            string
+	AgentID        string
+	LogFilePrefix  string // for development and testing
+	MaxQueryLength int32
 }
 
 // New creates new MongoDB QAN service.
@@ -60,31 +60,31 @@ func New(params *Params, l *logrus.Entry) (*MongoDB, error) {
 
 func newMongo(mongoDSN string, l *logrus.Entry, params *Params) *MongoDB {
 	return &MongoDB{
-		agentID:           params.AgentID,
-		mongoDSN:          mongoDSN,
-		slowLogFilePrefix: params.SlowLogFilePrefix,
-		maxQueryLength:    params.MaxQueryLength, // TODO not needed?
-		l:                 l,
-		changes:           make(chan agents.Change, 10),
+		agentID:        params.AgentID,
+		mongoDSN:       mongoDSN,
+		logFilePrefix:  params.LogFilePrefix,
+		maxQueryLength: params.MaxQueryLength, // TODO not needed?
+		l:              l,
+		changes:        make(chan agents.Change, 10),
 	}
 }
 
 // Run extracts performance data and sends it to the channel until ctx is canceled.
 func (m *MongoDB) Run(ctx context.Context) {
-	var slog Slowlog
+	var log Mongolog
 
 	defer func() {
-		slog.Stop() //nolint:errcheck
-		slog = nil
+		log.Stop() //nolint:errcheck
+		log = nil
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
 
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
-	slog = slowlog.New(m.mongoDSN, m.l, m, m.agentID, m.slowLogFilePrefix, m.maxQueryLength)
-	if err := slog.Start(); err != nil {
-		m.l.Errorf("can't run slowlog, reason: %v", err)
+	log = mongolog.New(m.mongoDSN, m.l, m, m.agentID, m.logFilePrefix, m.maxQueryLength)
+	if err := log.Start(); err != nil {
+		m.l.Errorf("can't run mongolog, reason: %v", err)
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
 		return
 	}
@@ -106,7 +106,7 @@ func (m *MongoDB) Write(r *report.Report) error {
 	return nil
 }
 
-type Slowlog interface { //nolint:revive
+type Mongolog interface { //nolint:revive
 	Start() error
 	Stop() error
 }

@@ -213,11 +213,11 @@ type ChangeAgentBody struct {
 	// proxysql exporter
 	ProxysqlExporter *ChangeAgentParamsBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
 
+	// qan mongodb mongolog agent
+	QANMongodbMongologAgent *ChangeAgentParamsBodyQANMongodbMongologAgent `json:"qan_mongodb_mongolog_agent,omitempty"`
+
 	// qan mongodb profiler agent
 	QANMongodbProfilerAgent *ChangeAgentParamsBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent,omitempty"`
-
-	// qan mongodb slowlog agent
-	QANMongodbSlowlogAgent *ChangeAgentParamsBodyQANMongodbSlowlogAgent `json:"qan_mongodb_slowlog_agent,omitempty"`
 
 	// qan mysql perfschema agent
 	QANMysqlPerfschemaAgent *ChangeAgentParamsBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
@@ -267,11 +267,11 @@ func (o *ChangeAgentBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateQANMongodbProfilerAgent(formats); err != nil {
+	if err := o.validateQANMongodbMongologAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateQANMongodbSlowlogAgent(formats); err != nil {
+	if err := o.validateQANMongodbProfilerAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -434,6 +434,25 @@ func (o *ChangeAgentBody) validateProxysqlExporter(formats strfmt.Registry) erro
 	return nil
 }
 
+func (o *ChangeAgentBody) validateQANMongodbMongologAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.QANMongodbMongologAgent) { // not required
+		return nil
+	}
+
+	if o.QANMongodbMongologAgent != nil {
+		if err := o.QANMongodbMongologAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *ChangeAgentBody) validateQANMongodbProfilerAgent(formats strfmt.Registry) error {
 	if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
 		return nil
@@ -445,25 +464,6 @@ func (o *ChangeAgentBody) validateQANMongodbProfilerAgent(formats strfmt.Registr
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ChangeAgentBody) validateQANMongodbSlowlogAgent(formats strfmt.Registry) error {
-	if swag.IsZero(o.QANMongodbSlowlogAgent) { // not required
-		return nil
-	}
-
-	if o.QANMongodbSlowlogAgent != nil {
-		if err := o.QANMongodbSlowlogAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "qan_mongodb_slowlog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "qan_mongodb_slowlog_agent")
 			}
 			return err
 		}
@@ -599,11 +599,11 @@ func (o *ChangeAgentBody) ContextValidate(ctx context.Context, formats strfmt.Re
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateQANMongodbProfilerAgent(ctx, formats); err != nil {
+	if err := o.contextValidateQANMongodbMongologAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateQANMongodbSlowlogAgent(ctx, formats); err != nil {
+	if err := o.contextValidateQANMongodbProfilerAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -773,6 +773,26 @@ func (o *ChangeAgentBody) contextValidateProxysqlExporter(ctx context.Context, f
 	return nil
 }
 
+func (o *ChangeAgentBody) contextValidateQANMongodbMongologAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.QANMongodbMongologAgent != nil {
+
+		if swag.IsZero(o.QANMongodbMongologAgent) { // not required
+			return nil
+		}
+
+		if err := o.QANMongodbMongologAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *ChangeAgentBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANMongodbProfilerAgent != nil {
 
@@ -785,26 +805,6 @@ func (o *ChangeAgentBody) contextValidateQANMongodbProfilerAgent(ctx context.Con
 				return ve.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "qan_mongodb_profiler_agent")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ChangeAgentBody) contextValidateQANMongodbSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
-	if o.QANMongodbSlowlogAgent != nil {
-
-		if swag.IsZero(o.QANMongodbSlowlogAgent) { // not required
-			return nil
-		}
-
-		if err := o.QANMongodbSlowlogAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "qan_mongodb_slowlog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "qan_mongodb_slowlog_agent")
 			}
 			return err
 		}
@@ -1177,11 +1177,11 @@ type ChangeAgentOKBody struct {
 	// proxysql exporter
 	ProxysqlExporter *ChangeAgentOKBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
 
+	// qan mongodb mongolog agent
+	QANMongodbMongologAgent *ChangeAgentOKBodyQANMongodbMongologAgent `json:"qan_mongodb_mongolog_agent,omitempty"`
+
 	// qan mongodb profiler agent
 	QANMongodbProfilerAgent *ChangeAgentOKBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent,omitempty"`
-
-	// qan mongodb slowlog agent
-	QANMongodbSlowlogAgent *ChangeAgentOKBodyQANMongodbSlowlogAgent `json:"qan_mongodb_slowlog_agent,omitempty"`
 
 	// qan mysql perfschema agent
 	QANMysqlPerfschemaAgent *ChangeAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
@@ -1231,11 +1231,11 @@ func (o *ChangeAgentOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateQANMongodbProfilerAgent(formats); err != nil {
+	if err := o.validateQANMongodbMongologAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateQANMongodbSlowlogAgent(formats); err != nil {
+	if err := o.validateQANMongodbProfilerAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1398,6 +1398,25 @@ func (o *ChangeAgentOKBody) validateProxysqlExporter(formats strfmt.Registry) er
 	return nil
 }
 
+func (o *ChangeAgentOKBody) validateQANMongodbMongologAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.QANMongodbMongologAgent) { // not required
+		return nil
+	}
+
+	if o.QANMongodbMongologAgent != nil {
+		if err := o.QANMongodbMongologAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "qan_mongodb_mongolog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "qan_mongodb_mongolog_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *ChangeAgentOKBody) validateQANMongodbProfilerAgent(formats strfmt.Registry) error {
 	if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
 		return nil
@@ -1409,25 +1428,6 @@ func (o *ChangeAgentOKBody) validateQANMongodbProfilerAgent(formats strfmt.Regis
 				return ve.ValidateName("changeAgentOk" + "." + "qan_mongodb_profiler_agent")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_mongodb_profiler_agent")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ChangeAgentOKBody) validateQANMongodbSlowlogAgent(formats strfmt.Registry) error {
-	if swag.IsZero(o.QANMongodbSlowlogAgent) { // not required
-		return nil
-	}
-
-	if o.QANMongodbSlowlogAgent != nil {
-		if err := o.QANMongodbSlowlogAgent.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeAgentOk" + "." + "qan_mongodb_slowlog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("changeAgentOk" + "." + "qan_mongodb_slowlog_agent")
 			}
 			return err
 		}
@@ -1563,11 +1563,11 @@ func (o *ChangeAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateQANMongodbProfilerAgent(ctx, formats); err != nil {
+	if err := o.contextValidateQANMongodbMongologAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateQANMongodbSlowlogAgent(ctx, formats); err != nil {
+	if err := o.contextValidateQANMongodbProfilerAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1737,6 +1737,26 @@ func (o *ChangeAgentOKBody) contextValidateProxysqlExporter(ctx context.Context,
 	return nil
 }
 
+func (o *ChangeAgentOKBody) contextValidateQANMongodbMongologAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.QANMongodbMongologAgent != nil {
+
+		if swag.IsZero(o.QANMongodbMongologAgent) { // not required
+			return nil
+		}
+
+		if err := o.QANMongodbMongologAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "qan_mongodb_mongolog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "qan_mongodb_mongolog_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *ChangeAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
 	if o.QANMongodbProfilerAgent != nil {
 
@@ -1749,26 +1769,6 @@ func (o *ChangeAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.C
 				return ve.ValidateName("changeAgentOk" + "." + "qan_mongodb_profiler_agent")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("changeAgentOk" + "." + "qan_mongodb_profiler_agent")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ChangeAgentOKBody) contextValidateQANMongodbSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
-	if o.QANMongodbSlowlogAgent != nil {
-
-		if swag.IsZero(o.QANMongodbSlowlogAgent) { // not required
-			return nil
-		}
-
-		if err := o.QANMongodbSlowlogAgent.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeAgentOk" + "." + "qan_mongodb_slowlog_agent")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("changeAgentOk" + "." + "qan_mongodb_slowlog_agent")
 			}
 			return err
 		}
@@ -3977,6 +3977,215 @@ func (o *ChangeAgentOKBodyProxysqlExporterMetricsResolutions) UnmarshalBinary(b 
 }
 
 /*
+ChangeAgentOKBodyQANMongodbMongologAgent QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+swagger:model ChangeAgentOKBodyQANMongodbMongologAgent
+*/
+type ChangeAgentOKBodyQANMongodbMongologAgent struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for getting profiler data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+}
+
+// Validate validates this change agent OK body QAN mongodb mongolog agent
+func (o *ChangeAgentOKBodyQANMongodbMongologAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var changeAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum = append(changeAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ChangeAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *ChangeAgentOKBodyQANMongodbMongologAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyQANMongodbMongologAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("changeAgentOk"+"."+"qan_mongodb_mongolog_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var changeAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum = append(changeAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ChangeAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ChangeAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ChangeAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ChangeAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ChangeAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// ChangeAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ChangeAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *ChangeAgentOKBodyQANMongodbMongologAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyQANMongodbMongologAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("changeAgentOk"+"."+"qan_mongodb_mongolog_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this change agent OK body QAN mongodb mongolog agent based on context it is used
+func (o *ChangeAgentOKBodyQANMongodbMongologAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyQANMongodbMongologAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyQANMongodbMongologAgent) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyQANMongodbMongologAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 ChangeAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 swagger:model ChangeAgentOKBodyQANMongodbProfilerAgent
 */
@@ -4178,215 +4387,6 @@ func (o *ChangeAgentOKBodyQANMongodbProfilerAgent) MarshalBinary() ([]byte, erro
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentOKBodyQANMongodbProfilerAgent) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentOKBodyQANMongodbProfilerAgent
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-ChangeAgentOKBodyQANMongodbSlowlogAgent QANMongoDBSlowlogAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
-swagger:model ChangeAgentOKBodyQANMongodbSlowlogAgent
-*/
-type ChangeAgentOKBodyQANMongodbSlowlogAgent struct {
-	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
-	// Desired Agent status: enabled (false) or disabled (true).
-	Disabled bool `json:"disabled,omitempty"`
-
-	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// MongoDB username for getting profiler data.
-	Username string `json:"username,omitempty"`
-
-	// Use TLS for database connections.
-	TLS bool `json:"tls,omitempty"`
-
-	// Skip TLS certificate and hostname validation.
-	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
-
-	// Limit query length in QAN (default: server-defined; -1: no limit).
-	MaxQueryLength int32 `json:"max_query_length,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// AgentStatus represents actual Agent status.
-	//
-	//  - AGENT_STATUS_STARTING: Agent is starting.
-	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
-	//  - AGENT_STATUS_RUNNING: Agent is running.
-	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - AGENT_STATUS_STOPPING: Agent is stopping.
-	//  - AGENT_STATUS_DONE: Agent finished.
-	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
-	Status *string `json:"status,omitempty"`
-
-	// Path to exec process.
-	ProcessExecPath string `json:"process_exec_path,omitempty"`
-
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-}
-
-// Validate validates this change agent OK body QAN mongodb slowlog agent
-func (o *ChangeAgentOKBodyQANMongodbSlowlogAgent) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateLogLevel(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var changeAgentOkBodyQanMongodbSlowlogAgentTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		changeAgentOkBodyQanMongodbSlowlogAgentTypeStatusPropEnum = append(changeAgentOkBodyQanMongodbSlowlogAgentTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
-)
-
-// prop value enum
-func (o *ChangeAgentOKBodyQANMongodbSlowlogAgent) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, changeAgentOkBodyQanMongodbSlowlogAgentTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ChangeAgentOKBodyQANMongodbSlowlogAgent) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("changeAgentOk"+"."+"qan_mongodb_slowlog_agent"+"."+"status", "body", *o.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var changeAgentOkBodyQanMongodbSlowlogAgentTypeLogLevelPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		changeAgentOkBodyQanMongodbSlowlogAgentTypeLogLevelPropEnum = append(changeAgentOkBodyQanMongodbSlowlogAgentTypeLogLevelPropEnum, v)
-	}
-}
-
-const (
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
-
-	// ChangeAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	ChangeAgentOKBodyQANMongodbSlowlogAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
-)
-
-// prop value enum
-func (o *ChangeAgentOKBodyQANMongodbSlowlogAgent) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, changeAgentOkBodyQanMongodbSlowlogAgentTypeLogLevelPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ChangeAgentOKBodyQANMongodbSlowlogAgent) validateLogLevel(formats strfmt.Registry) error {
-	if swag.IsZero(o.LogLevel) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateLogLevelEnum("changeAgentOk"+"."+"qan_mongodb_slowlog_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validates this change agent OK body QAN mongodb slowlog agent based on context it is used
-func (o *ChangeAgentOKBodyQANMongodbSlowlogAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeAgentOKBodyQANMongodbSlowlogAgent) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeAgentOKBodyQANMongodbSlowlogAgent) UnmarshalBinary(b []byte) error {
-	var res ChangeAgentOKBodyQANMongodbSlowlogAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -7196,6 +7196,236 @@ func (o *ChangeAgentParamsBodyProxysqlExporterMetricsResolutions) UnmarshalBinar
 }
 
 /*
+ChangeAgentParamsBodyQANMongodbMongologAgent change agent params body QAN mongodb mongolog agent
+swagger:model ChangeAgentParamsBodyQANMongodbMongologAgent
+*/
+type ChangeAgentParamsBodyQANMongodbMongologAgent struct {
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
+
+	// Enables push metrics with vmagent.
+	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels `json:"custom_labels,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAgentParamsBodyQANMongodbMongologAgentMetricsResolutions `json:"metrics_resolutions,omitempty"`
+}
+
+// Validate validates this change agent params body QAN mongodb mongolog agent
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgent) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgent) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body QAN mongodb mongolog agent based on the context it is used
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgent) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "custom_labels")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "custom_labels")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgent) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgent) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyQANMongodbMongologAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels
+*/
+type ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body QAN mongodb mongolog agent custom labels
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body QAN mongodb mongolog agent custom labels based on context it is used
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyQANMongodbMongologAgentMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAgentParamsBodyQANMongodbMongologAgentMetricsResolutions
+*/
+type ChangeAgentParamsBodyQANMongodbMongologAgentMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change agent params body QAN mongodb mongolog agent metrics resolutions
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgentMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body QAN mongodb mongolog agent metrics resolutions based on context it is used
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgentMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgentMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyQANMongodbMongologAgentMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyQANMongodbMongologAgentMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 ChangeAgentParamsBodyQANMongodbProfilerAgent change agent params body QAN mongodb profiler agent
 swagger:model ChangeAgentParamsBodyQANMongodbProfilerAgent
 */
@@ -7418,236 +7648,6 @@ func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentMetricsResolutions) Marshal
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyQANMongodbProfilerAgentMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyQANMongodbProfilerAgentMetricsResolutions
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-ChangeAgentParamsBodyQANMongodbSlowlogAgent change agent params body QAN mongodb slowlog agent
-swagger:model ChangeAgentParamsBodyQANMongodbSlowlogAgent
-*/
-type ChangeAgentParamsBodyQANMongodbSlowlogAgent struct {
-	// Enable this Agent. Agents are enabled by default when they get added.
-	Enable *bool `json:"enable,omitempty"`
-
-	// Enables push metrics with vmagent.
-	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
-
-	// custom labels
-	CustomLabels *ChangeAgentParamsBodyQANMongodbSlowlogAgentCustomLabels `json:"custom_labels,omitempty"`
-
-	// metrics resolutions
-	MetricsResolutions *ChangeAgentParamsBodyQANMongodbSlowlogAgentMetricsResolutions `json:"metrics_resolutions,omitempty"`
-}
-
-// Validate validates this change agent params body QAN mongodb slowlog agent
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgent) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateCustomLabels(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateMetricsResolutions(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgent) validateCustomLabels(formats strfmt.Registry) error {
-	if swag.IsZero(o.CustomLabels) { // not required
-		return nil
-	}
-
-	if o.CustomLabels != nil {
-		if err := o.CustomLabels.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "qan_mongodb_slowlog_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "qan_mongodb_slowlog_agent" + "." + "custom_labels")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgent) validateMetricsResolutions(formats strfmt.Registry) error {
-	if swag.IsZero(o.MetricsResolutions) { // not required
-		return nil
-	}
-
-	if o.MetricsResolutions != nil {
-		if err := o.MetricsResolutions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "qan_mongodb_slowlog_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "qan_mongodb_slowlog_agent" + "." + "metrics_resolutions")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this change agent params body QAN mongodb slowlog agent based on the context it is used
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgent) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
-	if o.CustomLabels != nil {
-
-		if swag.IsZero(o.CustomLabels) { // not required
-			return nil
-		}
-
-		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "qan_mongodb_slowlog_agent" + "." + "custom_labels")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "qan_mongodb_slowlog_agent" + "." + "custom_labels")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgent) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
-	if o.MetricsResolutions != nil {
-
-		if swag.IsZero(o.MetricsResolutions) { // not required
-			return nil
-		}
-
-		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "qan_mongodb_slowlog_agent" + "." + "metrics_resolutions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "qan_mongodb_slowlog_agent" + "." + "metrics_resolutions")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgent) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgent) UnmarshalBinary(b []byte) error {
-	var res ChangeAgentParamsBodyQANMongodbSlowlogAgent
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-ChangeAgentParamsBodyQANMongodbSlowlogAgentCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
-swagger:model ChangeAgentParamsBodyQANMongodbSlowlogAgentCustomLabels
-*/
-type ChangeAgentParamsBodyQANMongodbSlowlogAgentCustomLabels struct {
-	// values
-	Values map[string]string `json:"values,omitempty"`
-}
-
-// Validate validates this change agent params body QAN mongodb slowlog agent custom labels
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgentCustomLabels) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this change agent params body QAN mongodb slowlog agent custom labels based on context it is used
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgentCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgentCustomLabels) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgentCustomLabels) UnmarshalBinary(b []byte) error {
-	var res ChangeAgentParamsBodyQANMongodbSlowlogAgentCustomLabels
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-ChangeAgentParamsBodyQANMongodbSlowlogAgentMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
-swagger:model ChangeAgentParamsBodyQANMongodbSlowlogAgentMetricsResolutions
-*/
-type ChangeAgentParamsBodyQANMongodbSlowlogAgentMetricsResolutions struct {
-	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
-	Hr string `json:"hr,omitempty"`
-
-	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
-	Mr string `json:"mr,omitempty"`
-
-	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
-	Lr string `json:"lr,omitempty"`
-}
-
-// Validate validates this change agent params body QAN mongodb slowlog agent metrics resolutions
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgentMetricsResolutions) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this change agent params body QAN mongodb slowlog agent metrics resolutions based on context it is used
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgentMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgentMetricsResolutions) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeAgentParamsBodyQANMongodbSlowlogAgentMetricsResolutions) UnmarshalBinary(b []byte) error {
-	var res ChangeAgentParamsBodyQANMongodbSlowlogAgentMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

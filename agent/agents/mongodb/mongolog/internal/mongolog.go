@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package slowlog
+package mongolog
 
 import (
 	"context"
@@ -22,15 +22,15 @@ import (
 	"sync"
 	"time"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/aggregator"
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/collector"
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/sender"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/aggregator"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/collector"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/sender"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 )
 
@@ -40,19 +40,19 @@ const (
 	MgoTimeoutSessionSocket = 5 * time.Second
 )
 
-// New creates new slowlog
-func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, slowLogFilePrefix string, maxQueryLength int32) *slowlog {
-	return &slowlog{
-		mongoDSN:          mongoDSN,
-		slowLogFilePrefix: slowLogFilePrefix,
-		maxQueryLength:    maxQueryLength,
-		logger:            logger,
-		w:                 w,
-		agentID:           agentID,
+// New creates new mongolog
+func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, logFilePrefix string, maxQueryLength int32) *mongolog {
+	return &mongolog{
+		mongoDSN:       mongoDSN,
+		logFilePrefix:  logFilePrefix,
+		maxQueryLength: maxQueryLength,
+		logger:         logger,
+		w:              w,
+		agentID:        agentID,
 	}
 }
 
-type slowlog struct {
+type mongolog struct {
 	// dependencies
 	mongoDSN string
 	w        sender.Writer
@@ -72,12 +72,12 @@ type slowlog struct {
 	wg       *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
 
 	// others
-	slowLogFilePrefix string
-	maxQueryLength    int32
+	logFilePrefix  string
+	maxQueryLength int32
 }
 
 // Start starts analyzer but doesn't wait until it exits
-func (s *slowlog) Start() error {
+func (s *mongolog) Start() error {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.running {
@@ -94,7 +94,7 @@ func (s *slowlog) Start() error {
 	s.wg.Add(1)
 
 	ctx := context.Background()
-	labels := pprof.Labels("component", "mongodb.slowlog")
+	labels := pprof.Labels("component", "mongodb.mongolog")
 
 	// create new session
 	client, err := createSession(s.mongoDSN, s.agentID)
@@ -147,7 +147,7 @@ func (s *slowlog) Start() error {
 }
 
 // Stop stops running analyzer, waits until it stops
-func (s *slowlog) Stop() error {
+func (s *mongolog) Stop() error {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if !s.running {
@@ -166,14 +166,14 @@ func (s *slowlog) Stop() error {
 }
 
 type SlowQuery struct {
-	//Ctx  string `bson:"ctx"`
+	// Ctx  string `bson:"ctx"`
 	Msg  string `bson:"msg"`
 	Attr json.RawMessage
 }
 
 type systemProfile struct {
 	proto.SystemProfile
-	//Command bson.Raw `bson:"command,omitempty"`
+	// Command bson.Raw `bson:"command,omitempty"`
 	Command bson.M `bson:"command"`
 }
 
@@ -228,7 +228,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 		SetDirect(true).
 		SetReadPreference(readpref.Nearest()).
 		SetSocketTimeout(MgoTimeoutSessionSocket).
-		SetAppName(fmt.Sprintf("QAN-mongodb-slowlog-%s", agentID))
+		SetAppName(fmt.Sprintf("QAN-mongodb-mongolog-%s", agentID))
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package slowlog
+package mongolog
 
 import (
 	"context"
@@ -21,9 +21,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/aggregator"
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/collector"
-	"github.com/percona/pmm/agent/agents/mongodb/slowlog/internal/parser"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/aggregator"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/collector"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/parser"
 )
 
 // NewMonitor creates new monitor.

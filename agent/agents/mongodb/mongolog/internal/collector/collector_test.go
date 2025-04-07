@@ -22,10 +22,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
-
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 )
 
 func TestCollector(t *testing.T) {
@@ -59,7 +58,7 @@ func TestCollector(t *testing.T) {
 				return
 			default:
 			}
-			//fmt.Println(profile)
+			// fmt.Println(profile)
 			profiles = append(profiles, profile)
 			i++
 			if i >= linesInLogFile {
