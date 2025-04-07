@@ -17,13 +17,13 @@ package victoriametrics
 
 import (
 	"github.com/AlekSi/pointer"
-	config "github.com/percona/promconfig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
+	config "github.com/percona/promconfig"
 )
 
 // AddScrapeConfigs - adds agents scrape configuration to given scrape config,
@@ -171,7 +171,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 
 		case models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType:
 			continue
-		case models.QANMongoDBProfilerAgentType:
+		case models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType:
 			continue
 		case models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
 			continue

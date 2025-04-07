@@ -82,6 +82,7 @@ func (m *MongoDB) Run(ctx context.Context) {
 
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
+	m.logFilePrefix = "testdata/mongo" // TODO remove
 	log = mongolog.New(m.mongoDSN, m.l, m, m.agentID, m.logFilePrefix, m.maxQueryLength)
 	if err := log.Start(); err != nil {
 		m.l.Errorf("can't run mongolog, reason: %v", err)

@@ -11,10 +11,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 )
 
 type FileReader struct {
@@ -76,6 +77,91 @@ func (fr *FileReader) ReadFile(ctx context.Context, docsChan chan<- proto.System
 	var err error
 
 	for {
+		fr.fileMutex.Lock()
+		file, err = os.Open(fr.filePath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				fmt.Printf("File does not exist: %s\n", fr.filePath)
+				fr.fileMutex.Unlock()
+				continue // fmt.Errorf("File does not exist: %s\n", fr.filePath)
+			} else {
+				fr.fileMutex.Unlock()
+				fmt.Printf("error opening file: %v", err)
+				continue // fmt.Errorf("error opening file: %v", err)
+			}
+		} else {
+			info, err := file.Stat()
+			if err != nil {
+				fr.fileMutex.Unlock()
+				fmt.Printf("error getting file info: %v", err)
+				continue // fmt.Errorf("error getting file info: %v", err)
+			}
+
+			// Check if file has been truncated
+			if info.Size() < fr.fileSize {
+				// File has been truncated, reset reading position
+				fmt.Println("File truncated, seeking to the end")
+				file.Seek(0, io.SeekEnd)
+			} else {
+				// Continue reading from where we left off
+				file.Seek(fr.fileSize, io.SeekCurrent)
+			}
+
+			fr.fileMutex.Unlock()
+
+			// Create a new scanner to read the file line by line
+			scanner := bufio.NewScanner(file)
+			for scanner.Scan() {
+				// Send each new line to the channel
+				// TODO logs could be formated, so one json != one line
+
+				line := scanner.Text()
+				var l SlowQuery
+				var doc proto.SystemProfile
+				if line == "" || !json.Valid([]byte(line)) {
+					docsChan <- doc // TODO remove, test purpose
+					continue
+				}
+				err := json.Unmarshal([]byte(line), &l)
+				if err != nil {
+					log.Print(err.Error())
+					docsChan <- doc
+					continue
+				}
+				if l.Msg != slowQuery {
+					docsChan <- doc
+					continue
+				}
+				var stats systemProfile
+				err = json.Unmarshal(l.Attr, &stats)
+				if err != nil {
+					log.Print(err.Error())
+					docsChan <- doc
+					continue
+				}
+
+				doc = stats.SystemProfile
+
+				var command bson.D
+				for key, value := range stats.Command {
+					command = append(command, bson.E{Key: key, Value: value})
+				}
+
+				doc.Command = command
+				docsChan <- doc
+			}
+
+			// Handle any errors from the scanner
+			if err := scanner.Err(); err != nil {
+				fmt.Printf("error reading file: %v", err)
+				continue // fmt.Errorf("error reading file: %v", err)
+			}
+
+			// Update the file size to track truncations
+			fr.fileSize = info.Size()
+
+			file.Close()
+		}
 		select {
 		// check if we should shutdown
 		case <-ctx.Done():
@@ -83,87 +169,6 @@ func (fr *FileReader) ReadFile(ctx context.Context, docsChan chan<- proto.System
 		case <-doneChan:
 			return
 		case <-time.After(1 * time.Second):
-			fr.fileMutex.Lock()
-			file, err = os.Open(fr.filePath)
-			if err != nil {
-				if os.IsNotExist(err) {
-					fr.fileMutex.Unlock()
-					return // fmt.Errorf("File does not exist: %s\n", fr.filePath)
-				} else {
-					fr.fileMutex.Unlock()
-					return // fmt.Errorf("error opening file: %v", err)
-				}
-			} else {
-				info, err := file.Stat()
-				if err != nil {
-					fr.fileMutex.Unlock()
-					return // fmt.Errorf("error getting file info: %v", err)
-				}
-
-				// Check if file has been truncated
-				if info.Size() < fr.fileSize {
-					// File has been truncated, reset reading position
-					fmt.Println("File truncated, seeking to the end")
-					file.Seek(0, io.SeekEnd)
-				} else {
-					// Continue reading from where we left off
-					file.Seek(fr.fileSize, io.SeekCurrent)
-				}
-
-				// Create a new scanner to read the file line by line
-				scanner := bufio.NewScanner(file)
-				for scanner.Scan() {
-					// Send each new line to the channel
-					// TODO logs could be formated, so one json != one line
-
-					line := scanner.Text()
-					var l SlowQuery
-					var doc proto.SystemProfile
-					if line == "" || !json.Valid([]byte(line)) {
-						docsChan <- doc
-						continue
-					}
-					err := json.Unmarshal([]byte(line), &l)
-					if err != nil {
-						log.Print(err.Error())
-						docsChan <- doc
-						continue
-					}
-					if l.Msg != slowQuery {
-						docsChan <- doc
-						continue
-					}
-					var stats systemProfile
-					err = json.Unmarshal(l.Attr, &stats)
-					if err != nil {
-						log.Print(err.Error())
-						docsChan <- doc
-						continue
-					}
-
-					doc = stats.SystemProfile
-
-					var command bson.D
-					for key, value := range stats.Command {
-						command = append(command, bson.E{Key: key, Value: value})
-					}
-
-					doc.Command = command
-					docsChan <- doc
-				}
-
-				// Handle any errors from the scanner
-				if err := scanner.Err(); err != nil {
-					fr.fileMutex.Unlock()
-					return // fmt.Errorf("error reading file: %v", err)
-				}
-
-				// Update the file size to track truncations
-				fr.fileSize = info.Size()
-
-				file.Close()
-			}
-			fr.fileMutex.Unlock()
 		}
 	}
 }

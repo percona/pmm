@@ -52,6 +52,7 @@ var agentTypeNames = map[string]string{
 	AgentTypeQANMySQLPerfSchemaAgent:         "mysql_perfschema_agent",
 	AgentTypeQANMySQLSlowlogAgent:            "mysql_slowlog_agent",
 	AgentTypeQANMongoDBProfilerAgent:         "mongodb_profiler_agent",
+	AgentTypeQANMongoDBMongologAgent:         "mongodb_mongolog_agent",
 	AgentTypeQANPostgreSQLPgStatementsAgent:  "postgresql_pgstatements_agent",
 	AgentTypeQANPostgreSQLPgStatMonitorAgent: "postgresql_pgstatmonitor_agent",
 	AgentTypeRDSExporter:                     "rds_exporter",

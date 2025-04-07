@@ -558,6 +558,7 @@ func ExtractPmmAgentID(agent *Agent) (string, error) {
 		QANMySQLPerfSchemaAgentType,
 		QANMySQLSlowlogAgentType,
 		QANMongoDBProfilerAgentType,
+		QANMongoDBMongologAgentType,
 		QANPostgreSQLPgStatementsAgentType,
 		QANPostgreSQLPgStatMonitorAgentType,
 		ExternalExporterType,
@@ -801,6 +802,9 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 			MongoDBServiceType,
 		},
 		QANMongoDBProfilerAgentType: {
+			MongoDBServiceType,
+		},
+		QANMongoDBMongologAgentType: {
 			MongoDBServiceType,
 		},
 		PostgresExporterType: {

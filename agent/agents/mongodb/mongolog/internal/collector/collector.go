@@ -20,9 +20,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 )
 
 // New creates new Collector.

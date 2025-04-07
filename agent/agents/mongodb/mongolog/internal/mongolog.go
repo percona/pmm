@@ -18,16 +18,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"path"
 	"runtime/pprof"
 	"sync"
 	"time"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/collector"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/sender"
@@ -77,27 +78,27 @@ type mongolog struct {
 }
 
 // Start starts analyzer but doesn't wait until it exits
-func (s *mongolog) Start() error {
-	s.m.Lock()
-	defer s.m.Unlock()
-	if s.running {
+func (l *mongolog) Start() error {
+	l.m.Lock()
+	defer l.m.Unlock()
+	if l.running {
 		return nil
 	}
 
 	// create new channel over which
 	// we will tell goroutine it should close
-	s.doneChan = make(chan struct{})
+	l.doneChan = make(chan struct{})
 
 	// start a goroutine and Add() it to WaitGroup
 	// so we could later Wait() for it to finish
-	s.wg = &sync.WaitGroup{}
-	s.wg.Add(1)
+	l.wg = &sync.WaitGroup{}
+	l.wg.Add(1)
 
 	ctx := context.Background()
 	labels := pprof.Labels("component", "mongodb.mongolog")
 
 	// create new session
-	client, err := createSession(s.mongoDSN, s.agentID)
+	client, err := createSession(l.mongoDSN, l.agentID)
 	if err != nil {
 		return err
 	}
@@ -108,41 +109,42 @@ func (s *mongolog) Start() error {
 	client.Disconnect(ctx)
 
 	// create aggregator which collects documents and aggregates them into qan report
-	s.aggregator = aggregator.New(time.Now(), s.agentID, s.logger, s.maxQueryLength)
-	reportChan := s.aggregator.Start()
+	l.aggregator = aggregator.New(time.Now(), l.agentID, l.logger, l.maxQueryLength)
+	reportChan := l.aggregator.Start()
 
 	// create sender which sends qan reports and start it
-	s.sender = sender.New(reportChan, s.w, s.logger)
-	err = s.sender.Start()
+	l.sender = sender.New(reportChan, l.w, l.logger)
+	err = l.sender.Start()
 	if err != nil {
 		return err
 	}
 
 	// create new channel over which
 	// we will tell goroutine it should close
-	s.doneChan = make(chan struct{})
+	l.doneChan = make(chan struct{})
 
 	// start a goroutine and Add() it to WaitGroup
 	// so we could later Wait() for it to finish
-	s.wg = &sync.WaitGroup{}
-	s.wg.Add(1)
+	l.wg = &sync.WaitGroup{}
+	l.wg.Add(1)
 
 	// create ready sync.Cond so we could know when goroutine actually started getting data from db
 	ready := sync.NewCond(&sync.Mutex{})
 	ready.L.Lock()
 	defer ready.L.Unlock()
 
+	logsPathWithPrefix := path.Join(l.logFilePrefix, logsPath)
 	// create monitors service which we use to periodically scan server for new/removed databases
-	s.monitor = NewMonitor(client, logsPath, s.aggregator, s.logger)
+	l.monitor = NewMonitor(client, logsPathWithPrefix, l.aggregator, l.logger)
 
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
-		start(ctx, s.monitor, s.wg, s.doneChan, ready, s.logger)
+		start(ctx, l.monitor, l.wg, l.doneChan, ready, l.logger)
 	})
 
 	// wait until we actually fetch data from db
 	ready.Wait()
 
-	s.running = true
+	l.running = true
 	return nil
 }
 
