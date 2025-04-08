@@ -12,53 +12,41 @@ The PMM installation consists of three main steps that need to be completed in s
 2. **[Install PMM Clients](#2-install-pmm-client)**: lightweight agents on each database host that collect metrics without impacting performance
 3. **[Configure monitoring services](#3-add-services-for-monitoring)**: connect PMM to your database instances, select which metrics to collect, and customize monitoring parameters
 
-## Architecture support
-
-PMM provides flexible deployment options across different architectures:
-
-| **Component** | **Architecture support** | **Notes** |
-|---------------|--------------------------|-----------|
-| **PMM Server** | x86_64 only | Not available as a native ARM64 build |
-| **PMM Client** | x86_64 and ARM64 | Full compatibility with both architectures |
-| **ARM deployments** | Emulation support | Use Docker or Podman to run PMM Server x86_64 images via emulation on ARM-based systems |
-| **Permissions** | No root required | Both binary installation and Docker containers can run without `root` privileges |
-
-Performance may vary when running on ARM-based systems through emulation. For a complete overview of the monitoring architecture, see [PMM architecture](../reference/index.md).
 ## Prerequisites
 
-Before starting the installation, make sure to check PMM's:
+Before you begin the installation, make sure to:
 
-- [hardware and software requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md)
-- [network and firewall requirements](../install-pmm/plan-pmm-installation/network_and_firewall.md)
+- Review the [deployment strategy options](../install-pmm/plan-pmm-installation/choose-deployment.md) to determine the best fit for your environment.  
+- Confirm that your system meets the [hardware and software requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md).  
+- Ensure your environment satisfies the [network and firewall requirements](../install-pmm/plan-pmm-installation/network_and_firewall.md) for proper connectivity.
+
 
 ## Installation steps 
 
 ### 1. Install PMM Server
 
-Install and run at least one PMM Server. Choose the deployment option that best fits your environment: 
+Install and run at least one PMM Server using one of the following deployment methods:
 
-#### Server deployment options
+| **Deployment method** | **Quick summary** |
+|---------------|-------------|
+| [**:material-docker: Docker**](../install-pmm/install-pmm-server/deployment-options/docker/index.md) | Run PMM Server as a Docker container |
+| [**:material-shield-lock: Podman**](../install-pmm/install-pmm-server/deployment-options/podman/index.md) | Run PMM Server as a rootless Podman container |
+| [**:material-kubernetes: Helm**](../install-pmm/install-pmm-server/deployment-options/helm/index.md) | Deploy PMM Server on a Kubernetes cluster |
+| [**:material-server: Virtual Appliance**](../install-pmm/install-pmm-server/deployment-options/virtual/index.md) | Run PMM Server as a pre-configured virtual machine |
+| [**:material-aws: AWS Marketplace**](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | Deploy PMM Server from AWS Marketplace |
 
-| **Method** | **Best for** | **Advantages** | **Considerations** |
-|-----------|------------|---------------|--------------------|
-| [**:material-docker: Docker**](../install-pmm/install-pmm-server/deployment-options/docker/index.md) | Development, testing & production | ✔  Quick setup<br>✔  Simple upgrades<br>✔  Works in various environments | ⚠ Requires Docker knowledge<br>⚠ May need additional configuration for production |
-| [**:material-shield-lock: Podman**](../install-pmm/install-pmm-server/deployment-options/podman/index.md) | Security-focused setups | ✔ Rootless containers<br> ✔  Enhanced security<br> ✔  OCI-compatible | ⚠ Requires Podman installation & knowledge |
-| [**:material-kubernetes: Helm**](../install-pmm/install-pmm-server/deployment-options/helm/index.md) | Cloud-native environments | ✔  Scalable & high availability<br> ✔  Kubernetes-native | ⚠ Requires existing Kubernetes cluster<br>⚠ More complex setup |
-| [**:material-server: Virtual Appliance**](../install-pmm/install-pmm-server/deployment-options/virtual/index.md) | Traditional environments | ✔  Pre-configured with all dependencies<br>✔  Dedicated resources | ⚠ Larger resource footprint<br>⚠ Requires a hypervisor |
-
-
-<!--| [Amazon AWS](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | AWS-based environments | Seamless AWS integration, easy provisioning | Monthly subscription costs, AWS infrastructure costs |-->
+Not sure which deployment method is best for your environment? See our [detailed deployment strategy guide](../install-pmm/plan-pmm-installation/choose-deployment.md) for a comparison of these options.
 
 ### 2. Install PMM Client
 
-Install and run PMM Client on every node where there is a service you want to monitor. PMM Client supports both x86_64 and ARM64 architectures.
+Install and run PMM Client on every node where there is a service you want to monitor. Choose the installation method that best fits your environment:
 
 #### Client installation options
 
 === ":material-package-variant: With package manager"
 
     [Linux package](../install-pmm/install-pmm-client/package_manager.md): Use `apt`, `apt-get`, `dnf`, `yum`. 
-    The package manager automatically selects the correct version for your architecture.
+    |The package manager automatically selects the correct version for your architecture.
 
 === ":material-archive: With binary package"
 
@@ -118,3 +106,12 @@ PMM supports monitoring across the following database technologies, cloud servic
     | :material-chart-line: **Custom exporters** | Add custom Prometheus exporters | [**Configure external exporters** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md#adding-exporters) |
     | :material-api: **Third-party sources** | Connect external metrics sources | [**Extend monitoring capabilities** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md#extended-monitoring) |
     | :material-application-cog: **General external services** | Generic external service monitoring | [**Configure external services** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md) |
+
+## What's Next
+
+After completing the installation, you can:
+
+- [Configure alerts](../../admin/alerts/index.md) to notify you of critical events
+- [Set up backup management](../../admin/backup-management/index.md) to protect your data
+- [Explore dashboards](../../use/dashboards/index.md) to monitor your database performance
+- [Analyze query performance](../../use/qan/index.md) to identify and optimize slow queries
