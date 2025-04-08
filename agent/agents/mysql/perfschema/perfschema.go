@@ -32,6 +32,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/cache"
+	"github.com/percona/pmm/agent/agents/mysql"
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/truncate"
@@ -408,10 +409,11 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 
 		count := inc(currentESS.CountStar, prevESS.CountStar)
 		fingerprint, isTruncated := truncate.Query(*currentESS.DigestText, maxQueryLength, truncate.GetDefaultMaxQueryLength())
+		schema := pointer.GetString(currentESS.SchemaName)
 		mb := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
-				Schema:                 pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?
-				Queryid:                *currentESS.Digest,
+				Schema:                 schema, // TODO can it be NULL?
+				Queryid:                mysql.QueryIDWithSchema(schema, *currentESS.Digest),
 				Fingerprint:            fingerprint,
 				IsTruncated:            isTruncated,
 				NumQueries:             count,

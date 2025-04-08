@@ -37,6 +37,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/agents/mysql"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog/parser"
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
@@ -434,7 +435,7 @@ func makeBuckets(
 		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength, truncate.GetDefaultMaxQueryLength())
 		mb := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
-				Queryid:              v.Id,
+				Queryid:              mysql.QueryIDWithSchema(v.Db, v.Id),
 				Fingerprint:          fingerprint,
 				IsTruncated:          isTruncated,
 				Database:             "",
