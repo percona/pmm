@@ -97,7 +97,10 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
-		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR":
+		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR",
+			"PMM_CLICKHOUSE_USER", "PMM_CLICKHOUSE_PASSWORD",
+			"PMM_CLICKHOUSE_HOST", "PMM_CLICKHOUSE_PORT",
+			"PMM_DISABLE_BUILTIN_CLICKHOUSE":
 			// skip env variables for external clickhouse
 			continue
 		case "PMM_WATCHTOWER_TOKEN", "PMM_WATCHTOWER_HOST":
@@ -170,6 +173,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 			envSettings.EnableBackupManagement = &b
+
+		case "PMM_ENABLE_NOMAD":
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
+			}
+			envSettings.EnableNomad = &b
 
 		case "PMM_PUBLIC_ADDRESS":
 			envSettings.PMMPublicAddress = pointer.ToString(v)
