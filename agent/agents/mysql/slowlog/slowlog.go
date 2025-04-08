@@ -29,19 +29,19 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql" // register SQL driver
-	"github.com/percona/go-mysql/event"
-	"github.com/percona/go-mysql/log"
-	"github.com/percona/go-mysql/query"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/go-mysql/event"
+	"github.com/percona/go-mysql/log"
+	"github.com/percona/go-mysql/query"
 	"github.com/percona/pmm/agent/agents"
-	"github.com/percona/pmm/agent/agents/mysql/shared"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog/parser"
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/backoff"
+	"github.com/percona/pmm/agent/utils/mysql"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -435,7 +435,7 @@ func makeBuckets(
 		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength, truncate.GetDefaultMaxQueryLength())
 		mb := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
-				Queryid:              shared.QueryIDWithSchema(v.Db, v.Id),
+				Queryid:              mysql.QueryIDWithSchema(v.Db, v.Id),
 				Fingerprint:          fingerprint,
 				IsTruncated:          isTruncated,
 				Database:             "",
