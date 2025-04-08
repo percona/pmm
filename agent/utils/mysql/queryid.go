@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package mysql contains shared and helpers functions for mysql agent.
 package mysql
 
 import "fmt"
