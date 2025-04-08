@@ -33,7 +33,7 @@ disable_update_check = true
 data_dir = "{{ .DataDir }}" # it shall be persistent
 region = "global"
 datacenter = "PMM Deployment"
-name = "PMM Agent {{ .NodeName }}"
+name = "{{ .NodeName }}"
 
 ui {
   enabled = false
