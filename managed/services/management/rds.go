@@ -266,7 +266,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 		}
 		rds.Node = invNode.(*inventoryv1.RemoteRDSNode) //nolint:forcetypeassert
 
-		metricsMode, err := supportedMetricsMode(tx.Querier, req.MetricsMode, pmmAgentID)
+		metricsMode, err := supportedMetricsMode(req.MetricsMode, pmmAgentID)
 		if err != nil {
 			return err
 		}
