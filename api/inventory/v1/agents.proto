@@ -71,6 +71,28 @@ message VMAgent {
   uint32 listen_port = 12;
 }
 
+message NomadAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Custom user-assigned labels.
+  reserved 4;
+
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 10;
+  // Path to exec process.
+  string process_exec_path = 11;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 12;
+}
+
 // NodeExporter runs on Generic or Container Node and exposes its metrics.
 message NodeExporter {
   // Unique randomly generated instance identifier.
@@ -745,6 +767,8 @@ message ChangeAgentRequest {
     ChangeQANMongoDBProfilerAgentParams qan_mongodb_profiler_agent = 12;
     ChangeQANPostgreSQLPgStatementsAgentParams qan_postgresql_pgstatements_agent = 13;
     ChangeQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
+
+    ChangeNomadAgentParams nomad_agent = 15;
   }
 }
 
@@ -765,6 +789,8 @@ message ChangeAgentResponse {
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 12;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
+
+    NomadAgent nomad_agent = 15;
   }
 }
 
@@ -1354,6 +1380,11 @@ message ChangeAzureDatabaseExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+}
+
+message ChangeNomadAgentParams {
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
 }
 
 // Remove

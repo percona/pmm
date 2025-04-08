@@ -110,7 +110,7 @@ func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*age
 
 	tdp := models.TemplateDelimsPair()
 
-	config, err := generateNomadClientConfig(node, exporter, tdp)
+	config, err := generateNomadAgentConfig(node, exporter, tdp)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +143,7 @@ func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*age
 	return params, nil
 }
 
-func generateNomadClientConfig(node *models.Node, exporter *models.Agent, tdp models.DelimiterPair) (string, error) {
+func generateNomadAgentConfig(node *models.Node, exporter *models.Agent, tdp models.DelimiterPair) (string, error) {
 	logLevel := "info"
 	if exporter.LogLevel != nil {
 		logLevel = *exporter.LogLevel

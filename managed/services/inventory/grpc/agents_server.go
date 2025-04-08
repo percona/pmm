@@ -52,6 +52,7 @@ var agentTypes = map[inventoryv1.AgentType]models.AgentType{
 	inventoryv1.AgentType_AGENT_TYPE_EXTERNAL_EXPORTER:                  models.ExternalExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:            models.AzureDatabaseExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_VM_AGENT:                           models.VMAgentType,
+	inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT:                        models.NomadAgentType,
 }
 
 func agentType(req *inventoryv1.ListAgentsRequest) *models.AgentType {
@@ -240,6 +241,8 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 		return s.s.ChangeQANPostgreSQLPgStatementsAgent(ctx, agentID, req.GetQanPostgresqlPgstatementsAgent())
 	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatmonitorAgent:
 		return s.s.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, agentID, req.GetQanPostgresqlPgstatmonitorAgent())
+	case *inventoryv1.ChangeAgentRequest_NomadAgent:
+		return s.s.ChangeNomadAgent(ctx, agentID, req.GetNomadAgent())
 	default:
 		return nil, fmt.Errorf("invalid request %v", req.Agent)
 	}
