@@ -24,7 +24,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/agent/agents/cache"
-	"github.com/percona/pmm/agent/agents/mysql"
+	"github.com/percona/pmm/agent/agents/mysql/shared"
 )
 
 // historyCache is a wrapper for cache.Cache to use only with historyMap type.
@@ -67,7 +67,7 @@ func getHistoryRows(rows *sql.Rows, q *reform.Querier) (historyMap, error) {
 		if err = q.NextRow(&esh, rows); err != nil {
 			break
 		}
-		res[mysql.QueryIDWithSchema(pointer.GetString(esh.CurrentSchema), *esh.Digest)] = &esh
+		res[shared.QueryIDWithSchema(pointer.GetString(esh.CurrentSchema), *esh.Digest)] = &esh
 	}
 	if !errors.Is(err, reform.ErrNoRows) {
 		return nil, errors.Wrap(err, "failed to fetch events_statements_history")

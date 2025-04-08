@@ -18,11 +18,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/agent/agents/cache"
+	"github.com/percona/pmm/agent/agents/mysql/shared"
 )
 
 // summaryCache is a wrapper for cache.Cache to use only with summaryMap type.
@@ -60,8 +62,8 @@ func getSummaries(q *reform.Querier) (summaryMap, error) {
 		// From https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-11.html:
 		// > The Performance Schema could produce DIGEST_TEXT values with a trailing space. […] (Bug #26908015)
 		*ess.DigestText = strings.TrimSpace(*ess.DigestText)
-
-		res[*ess.Digest] = &ess
+		queryID := shared.QueryIDWithSchema(pointer.GetString(ess.SchemaName), *ess.Digest)
+		res[queryID] = &ess
 	}
 	if !errors.Is(err, reform.ErrNoRows) {
 		return nil, errors.Wrap(err, "failed to fetch events_statements_summary_by_digest")

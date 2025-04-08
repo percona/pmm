@@ -32,7 +32,6 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/cache"
-	"github.com/percona/pmm/agent/agents/mysql"
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/truncate"
@@ -384,8 +383,8 @@ func inc(current, prev uint64) float32 {
 func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32) []*agentv1.MetricsBucket {
 	res := make([]*agentv1.MetricsBucket, 0, len(current))
 
-	for digest, currentESS := range current {
-		prevESS := prev[digest]
+	for queryID, currentESS := range current {
+		prevESS := prev[queryID]
 		if prevESS == nil {
 			prevESS = &eventsStatementsSummaryByDigest{}
 		}
@@ -409,11 +408,10 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 
 		count := inc(currentESS.CountStar, prevESS.CountStar)
 		fingerprint, isTruncated := truncate.Query(*currentESS.DigestText, maxQueryLength, truncate.GetDefaultMaxQueryLength())
-		schema := pointer.GetString(currentESS.SchemaName)
 		mb := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
-				Schema:                 schema, // TODO can it be NULL?
-				Queryid:                mysql.QueryIDWithSchema(schema, *currentESS.Digest),
+				Schema:                 pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?
+				Queryid:                queryID,
 				Fingerprint:            fingerprint,
 				IsTruncated:            isTruncated,
 				NumQueries:             count,
