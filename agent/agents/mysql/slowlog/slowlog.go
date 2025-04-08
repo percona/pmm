@@ -29,13 +29,13 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql" // register SQL driver
+	"github.com/percona/go-mysql/event"
+	"github.com/percona/go-mysql/log"
+	"github.com/percona/go-mysql/query"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/go-mysql/event"
-	"github.com/percona/go-mysql/log"
-	"github.com/percona/go-mysql/query"
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog/parser"
 	"github.com/percona/pmm/agent/queryparser"
