@@ -37,11 +37,9 @@ import (
 
 func TestPerfSchemaMakeBuckets(t *testing.T) {
 	defaultMaxQueryLength := truncate.GetDefaultMaxQueryLength()
-	schema := "test"
 	t.Run("Normal", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Normal": {
-				SchemaName:      pointer.ToString(schema),
 				Digest:          pointer.ToString("Normal"),
 				DigestText:      pointer.ToString("SELECT 'Normal'"),
 				CountStar:       10,
@@ -50,7 +48,6 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 		}
 		current := map[string]*eventsStatementsSummaryByDigest{
 			"Normal": {
-				SchemaName:      pointer.ToString(schema),
 				Digest:          pointer.ToString("Normal"),
 				DigestText:      pointer.ToString("SELECT 'Normal'"),
 				CountStar:       15, // +5
@@ -61,8 +58,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 		require.Len(t, actual, 1)
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
-				Schema:      schema,
-				Queryid:     fmt.Sprintf("%s-Normal", schema),
+				Queryid:     "Normal",
 				Fingerprint: "SELECT 'Normal'",
 				AgentType:   inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				NumQueries:  5,
@@ -79,7 +75,6 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 		prev := make(map[string]*eventsStatementsSummaryByDigest)
 		current := map[string]*eventsStatementsSummaryByDigest{
 			"New": {
-				SchemaName:      pointer.ToString(schema),
 				Digest:          pointer.ToString("New"),
 				DigestText:      pointer.ToString("SELECT 'New'"),
 				CountStar:       10,
@@ -90,8 +85,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 		require.Len(t, actual, 1)
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
-				Schema:      schema,
-				Queryid:     fmt.Sprintf("%s-New", schema),
+				Queryid:     "New",
 				Fingerprint: "SELECT 'New'",
 				AgentType:   inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				NumQueries:  10,
