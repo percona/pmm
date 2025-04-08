@@ -306,11 +306,13 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 
 	t.Run("shall properly evaluate adding filters", func(t *testing.T) {
 		for uri, shallAdd := range map[string]bool{
-			"/":                        false,
-			"/dummy":                   false,
-			"/prometheus/api/":         false,
-			"/prometheus/api/v1/":      true,
-			"/prometheus/api/v1/query": true,
+			"/":                          false,
+			"/dummy":                     false,
+			"/prometheus/api/":           false,
+			"/prometheus/api/v1/":        true,
+			"/prometheus/api/v1/query":   true,
+			"/v1/qan/metrics:getFilters": true,
+			"/v1/qan/query:exists":       true,
 		} {
 			uri := uri
 			shallAdd := shallAdd
@@ -326,10 +328,10 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 						req.SetBasicAuth("admin", "admin")
 					}
 
-					err = s.maybeAddVMProxyFilters(ctx, rw, req, userID, logrus.WithField("test", t.Name()))
+					err = s.maybeAddLBACFilters(ctx, rw, req, userID, logrus.WithField("test", t.Name()))
 					require.NoError(t, err)
 
-					headerString := rw.Header().Get(vmProxyHeaderName)
+					headerString := rw.Header().Get(lbacHeaderName)
 
 					if shallAdd {
 						require.True(t, len(headerString) > 0)
@@ -347,10 +349,10 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
 		require.NoError(t, err)
 
-		err = s.maybeAddVMProxyFilters(ctx, rw, req, 1338, logrus.WithField("test", t.Name()))
+		err = s.maybeAddLBACFilters(ctx, rw, req, 1338, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		headerString := rw.Header().Get(vmProxyHeaderName)
+		headerString := rw.Header().Get(lbacHeaderName)
 		require.True(t, len(headerString) > 0)
 
 		filters, err := base64.StdEncoding.DecodeString(headerString)
@@ -370,15 +372,15 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
 		require.NoError(t, err)
 
-		err = s.maybeAddVMProxyFilters(ctx, rw, req, 1339, logrus.WithField("test", t.Name()))
+		err = s.maybeAddLBACFilters(ctx, rw, req, 1339, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		headerString := rw.Header().Get(vmProxyHeaderName)
+		headerString := rw.Header().Get(lbacHeaderName)
 		require.Equal(t, len(headerString), 0)
 	})
 }
 
-func Test_cleanPath(t *testing.T) {
+func TestCleanPath(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		path     string

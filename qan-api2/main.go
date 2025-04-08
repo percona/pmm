@@ -46,13 +46,14 @@ import (
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
 
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
-	aservice "github.com/percona/pmm/qan-api2/services/analytics"
-	rservice "github.com/percona/pmm/qan-api2/services/receiver"
+	asvc "github.com/percona/pmm/qan-api2/services/analytics"
+	rsvc "github.com/percona/pmm/qan-api2/services/receiver"
 	"github.com/percona/pmm/qan-api2/utils/interceptors"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
@@ -92,8 +93,8 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 			grpc_validator.StreamServerInterceptor())),
 	)
 
-	aserv := aservice.NewService(rm, mm)
-	qanpb.RegisterCollectorServiceServer(grpcServer, rservice.NewService(mbm))
+	aserv := asvc.NewService(rm, mm)
+	qanpb.RegisterCollectorServiceServer(grpcServer, rsvc.NewService(mbm))
 	qanpb.RegisterQANServiceServer(grpcServer, aserv)
 	reflection.Register(grpcServer)
 
@@ -148,6 +149,8 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	}
 
 	proxyMux := grpc_gateway.NewServeMux(
+		grpc_gateway.WithIncomingHeaderMatcher(customMatcher),
+		grpc_gateway.WithMetadata(gatewayAnnotator),
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
 		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler))
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
@@ -356,4 +359,24 @@ func main() {
 	}()
 
 	wg.Wait()
+}
+
+// customMatcher allows to pass custom headers to the backend gRPC server.
+func customMatcher(key string) (string, bool) {
+	switch key {
+	case asvc.LBACHeaderName:
+		return key, true
+	default:
+		return grpc_gateway.DefaultHeaderMatcher(key)
+	}
+}
+
+// gatewayAnnotator is used to annotate the gRPC request with metadata from the HTTP request.
+func gatewayAnnotator(ctx context.Context, req *http.Request) metadata.MD {
+	md := metadata.MD{}
+	if filter := req.Header.Get(asvc.LBACHeaderName); filter != "" {
+		md.Set(strings.ToLower(asvc.LBACHeaderName), filter)
+		return md
+	}
+	return nil
 }
