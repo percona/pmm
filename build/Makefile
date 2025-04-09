@@ -22,7 +22,7 @@ fetch:
 	# test -f ${PACKER_CACHE_DIR}/box/box.ovf \
 	# 	|| cp -rp ${PACKER_CACHE_DIR}/box/boxes/bento-VAGRANTSLASH-oraclelinux-9/${BOX_VERSION}/amd64/virtualbox/* ${PACKER_CACHE_DIR}/box
 
-	# Add the box using Vagrant
+	# Add the box using vagrant
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
 		|| VAGRANT_HOME=${PACKER_CACHE_DIR}/box vagrant box add bento/oraclelinux-9 --box-version ${BOX_VERSION} --provider virtualbox
 
