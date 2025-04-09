@@ -34,6 +34,7 @@ import (
 	"github.com/percona/pmm/agent/agents/cache"
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
+	"github.com/percona/pmm/agent/utils/mysql"
 	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/agent/utils/version"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -321,7 +322,9 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 	if err = m.historyCache.Get(history); err != nil {
 		return nil, err
 	}
-	for i, b := range buckets {
+
+	var res []*agentv1.MetricsBucket
+	for _, b := range buckets {
 		b.Common.AgentId = m.agentID
 		b.Common.PeriodStartUnixSecs = startS
 		b.Common.PeriodLengthSecs = periodLengthSecs
@@ -363,10 +366,11 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 			}
 		}
 
-		buckets[i] = b
+		b.Common.Queryid = mysql.QueryIDWithoutSchema(b.Common.Queryid)
+		res = append(res, b)
 	}
 
-	return buckets, nil
+	return res, nil
 }
 
 // inc returns increment from prev to current, or 0, if there was a wrap-around.

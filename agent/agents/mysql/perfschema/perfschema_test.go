@@ -263,67 +263,67 @@ func TestPerfSchema(t *testing.T) {
 	switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
 	case "5.6-oracle":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "world-192ad18c482d389f36ebb0aa58311236",
-			"SELECT * FROM `city`": "world-cf5d7abca54943b1aa9e126c85a7d020",
+			"SELECT `sleep` (?)":   "192ad18c482d389f36ebb0aa58311236",
+			"SELECT * FROM `city`": "cf5d7abca54943b1aa9e126c85a7d020",
 		}
 	case "5.7-oracle":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "world-52f680b0d3b57c2fa381f52038754db4",
-			"SELECT * FROM `city`": "world-05292e6e5fb868ce2864918d5e934cb3",
+			"SELECT `sleep` (?)":   "52f680b0d3b57c2fa381f52038754db4",
+			"SELECT * FROM `city`": "05292e6e5fb868ce2864918d5e934cb3",
 		}
 
 	case "5.6-percona":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "world-d8dc769e3126abd5578679f520bad1a5",
-			"SELECT * FROM `city`": "world-6d3c8e264bfdd0ce5d3c81d481148a9c",
+			"SELECT `sleep` (?)":   "d8dc769e3126abd5578679f520bad1a5",
+			"SELECT * FROM `city`": "6d3c8e264bfdd0ce5d3c81d481148a9c",
 		}
 	case "5.7-percona":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "world-049a1b20acee144f86b9a1e4aca398d6",
-			"SELECT * FROM `city`": "world-9c799bdb2460f79b3423b77cd10403da",
+			"SELECT `sleep` (?)":   "049a1b20acee144f86b9a1e4aca398d6",
+			"SELECT * FROM `city`": "9c799bdb2460f79b3423b77cd10403da",
 		}
 
 	case "8.0-oracle", "8.0-percona", "8.4-oracle", "9.0-oracle", "9.1-oracle", "9.2-oracle":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "world-0b1b1c39d4ee2dda7df2a532d0a23406d86bd34e2cd7f22e3f7e9dedadff9b69",
-			"SELECT * FROM `city`": "world-950bdc225cf73c9096ba499351ed4376f4526abad3d8ceabc168b6b28cfc9eab",
+			"SELECT `sleep` (?)":   "0b1b1c39d4ee2dda7df2a532d0a23406d86bd34e2cd7f22e3f7e9dedadff9b69",
+			"SELECT * FROM `city`": "950bdc225cf73c9096ba499351ed4376f4526abad3d8ceabc168b6b28cfc9eab",
 		}
 		rowsExamined = 1
 
 	case "10.2-mariadb":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "world-fe8d67e28d171893e1b33b179394e592",
-			"SELECT * FROM `city`": "world-7e30fa1763d6d9aa88f359236cedaa78",
+			"SELECT `sleep` (?)":   "fe8d67e28d171893e1b33b179394e592",
+			"SELECT * FROM `city`": "7e30fa1763d6d9aa88f359236cedaa78",
 		}
 
 	case "10.3-mariadb":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "world-b0062e3bc75dd6e57cdc90696ba47688",
-			"SELECT * FROM `city`": "world-f4c92872bdf2de2331aae63a94b51a83",
+			"SELECT `sleep` (?)":   "b0062e3bc75dd6e57cdc90696ba47688",
+			"SELECT * FROM `city`": "f4c92872bdf2de2331aae63a94b51a83",
 		}
 
 	case "10.4-mariadb":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "world-0a01e0e8325cdd1db9a0746270ab8ce9",
-			"SELECT * FROM `city`": "world-a65e76b1643273fa3206b11c4f4d8739",
+			"SELECT `sleep` (?)":   "0a01e0e8325cdd1db9a0746270ab8ce9",
+			"SELECT * FROM `city`": "a65e76b1643273fa3206b11c4f4d8739",
 		}
 
 	case "11.2-mariadb":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "world-ffbde6c4dfda8dff9a4fefd7e8ed648f",
-			"SELECT * FROM `city`": "world-d0f2ac0577a44d383c5c0480a420caeb",
+			"SELECT `sleep` (?)":   "ffbde6c4dfda8dff9a4fefd7e8ed648f",
+			"SELECT * FROM `city`": "d0f2ac0577a44d383c5c0480a420caeb",
 		}
 
 	case "11.4-mariadb":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "world-860792b8f3d058489b287e30ccf3beae",
-			"SELECT * FROM `city`": "world-457a868ea48e4571327914f2831d62f5",
+			"SELECT `sleep` (?)":   "860792b8f3d058489b287e30ccf3beae",
+			"SELECT * FROM `city`": "457a868ea48e4571327914f2831d62f5",
 		}
 
 	case "11.5-mariadb":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "world-860792b8f3d058489b287e30ccf3beae",
-			"SELECT * FROM `city`": "world-457a868ea48e4571327914f2831d62f5",
+			"SELECT `sleep` (?)":   "860792b8f3d058489b287e30ccf3beae",
+			"SELECT * FROM `city`": "457a868ea48e4571327914f2831d62f5",
 		}
 
 	default:

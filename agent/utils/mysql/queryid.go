@@ -15,7 +15,10 @@
 // Package mysql contains shared and helpers functions for mysql agent.
 package mysql
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // QueryIDWithSchema returns query ID with schema in format schema-queryID.
 // It is used to fix: https://perconadev.atlassian.net/browse/PMM-12413.
@@ -25,4 +28,15 @@ func QueryIDWithSchema(schema, queryID string) string {
 	}
 
 	return fmt.Sprintf("%s-%s", schema, queryID)
+}
+
+// QueryIDWithSchema returns plan query ID without schema.
+// It is used to fix: https://perconadev.atlassian.net/browse/PMM-12413.
+func QueryIDWithoutSchema(queryID string) string {
+	res := strings.Split(queryID, "-")
+	if len(res) < 2 {
+		return queryID
+	}
+
+	return res[1]
 }

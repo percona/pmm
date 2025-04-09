@@ -389,6 +389,10 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 			s.l.Debugf("Scheduling next aggregation in %s at %s.", wait, start.Add(wait).Format("15:04:05"))
 			t.Reset(wait)
 
+			for i, b := range buckets {
+				buckets[i].Common.Queryid = mysql.QueryIDWithoutSchema(b.Common.Queryid)
+			}
+
 			s.changes <- agents.Change{MetricsBucket: buckets}
 		}
 	}
