@@ -85,7 +85,7 @@ client {
   # optional labels assigned to Nomad Client, can be the same as PMM Agent's.
   meta {
     pmm-agent = "1"
-    agent_type = "nomad-client"
+    agent_type = "nomad-agent"
     node_id = "node-id"
     node_name = "node-name"
   }

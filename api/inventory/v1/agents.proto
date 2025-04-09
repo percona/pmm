@@ -663,6 +663,7 @@ message ListAgentsResponse {
   repeated ExternalExporter external_exporter = 13;
   repeated RDSExporter rds_exporter = 14;
   repeated AzureDatabaseExporter azure_database_exporter = 15;
+  repeated NomadAgent nomad_agent = 16;
 }
 
 // Get
@@ -689,6 +690,7 @@ message GetAgentResponse {
     ExternalExporter external_exporter = 13;
     RDSExporter rds_exporter = 14;
     AzureDatabaseExporter azure_database_exporter = 15;
+    NomadAgent nomad_agent = 16;
   }
 }
 

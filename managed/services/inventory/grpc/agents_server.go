@@ -109,6 +109,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 			res.AzureDatabaseExporter = append(res.AzureDatabaseExporter, agent)
 		case *inventoryv1.VMAgent:
 			res.VmAgent = append(res.VmAgent, agent)
+		case *inventoryv1.NomadAgent:
+			res.NomadAgent = append(res.NomadAgent, agent)
 		default:
 			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 		}
@@ -155,6 +157,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		res.Agent = &inventoryv1.GetAgentResponse_AzureDatabaseExporter{AzureDatabaseExporter: agent}
 	case *inventoryv1.VMAgent:
 		// skip it, fix later if needed.
+	case *inventoryv1.NomadAgent:
+		res.Agent = &inventoryv1.GetAgentResponse_NomadAgent{NomadAgent: agent}
 	default:
 		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 	}
