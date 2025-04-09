@@ -26,12 +26,12 @@ Below is a list of affected variables and their new names.
 | `PERCONA_TEST_CHECKS_PUBLIC_KEY`              |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY` |
 | `PERCONA_TEST_NICER_API`                      |                                            | Removed in PMM v3                                            |
 | `PERCONA_TEST_PMM_CLICKHOUSE_ADDR`            | `PMM_CLICKHOUSE_ADDR`                      |                                                              |
-| `PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE`      |                                            | Removed in PMM v3, because of new clickhouse version.        |
 | `PERCONA_TEST_PMM_CLICKHOUSE_DATABASE`        | `PMM_CLICKHOUSE_DATABASE`                  |                                                              |
 | `PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE`      | `PMM_CLICKHOUSE_DATASOURCE`                |                                                              |
 | `PERCONA_TEST_PMM_CLICKHOUSE_HOST`            | `PMM_CLICKHOUSE_HOST`                      |                                                              |
-| `PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE`       |                                            | Removed in PMM v3, because of new clickhouse version.        |
 | `PERCONA_TEST_PMM_CLICKHOUSE_PORT`            | `PMM_CLICKHOUSE_PORT`                      |                                                              |
+| `PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE`       |                                            | Removed in PMM v3, because of new clickhouse version.        |
+| `PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE`      |                                            | Removed in PMM v3, because of new clickhouse version.        |
 | `PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE` | `PMM_DISABLE_BUILTIN_CLICKHOUSE`           |                                                              |
 | `PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES`   | `PMM_DISABLE_BUILTIN_POSTGRES`             |                                                              |
 | `PERCONA_TEST_INTERFACE_TO_BIND`              | `PMM_INTERFACE_TO_BIND`                    |                                                              |
@@ -53,5 +53,13 @@ Below is a list of affected variables and their new names.
 | `PMM_TEST_TELEMETRY_FILE`                     | `PMM_DEV_TELEMETRY_FILE`                   |                                                              |
 | `PERCONA_TEST_TELEMETRY_HOST`                 | `PMM_DEV_TELEMETRY_HOST`                   |                                                              |
 | `PERCONA_TEST_TELEMETRY_INTERVAL`             | `PMM_DEV_TELEMETRY_INTERVAL`               |                                                              |
-| `PERCONA_TEST_TELEMETRY_RETRY_BACKOFF`        | `PMM_DEV_TELEMETRY_RETRY_BACKOFF`          |                                                              |                 
+| `PERCONA_TEST_TELEMETRY_RETRY_BACKOFF`        | `PMM_DEV_TELEMETRY_RETRY_BACKOFF`          |                                                              |
 | `PERCONA_TEST_VERSION_SERVICE_URL`            |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS`    |
+
+
+## Changes to environment variables in v3+
+
+| PMM 3                                      | Comments                                                     |
+|--------------------------------------------|--------------------------------------------------------------|
+| `PMM_CLICKHOUSE_USER`                      | Added in v3.1.0                                              |
+| `PMM_CLICKHOUSE_PASSWORD`                  | Added in v3.1.0                                              |

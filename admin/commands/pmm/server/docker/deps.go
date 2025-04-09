@@ -34,7 +34,7 @@ type Functions interface { //nolint:interfacebloat
 	Installer
 
 	ChangeServerPassword(ctx context.Context, containerID, newPassword string) error
-	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
+	ContainerInspect(ctx context.Context, containerID string) (container.InspectResponse, error)
 	ContainerStop(ctx context.Context, containerID string, timeout *int) error
 	ContainerUpdate(ctx context.Context, containerID string, updateConfig container.UpdateConfig) (container.ContainerUpdateOKBody, error)
 	ContainerWait(ctx context.Context, containerID string, condition container.WaitCondition) (<-chan container.WaitResponse, <-chan error)
