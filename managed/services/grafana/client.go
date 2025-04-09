@@ -501,7 +501,14 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 	}
 
 	var group AlertRuleGroup
-	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderUID, groupName), "", authHeaders, nil, &group); err != nil {
+	err = c.do(ctx, http.MethodGet, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderUID, groupName), "", authHeaders, nil, &group)
+	var clientErr = &clientError{}
+
+	// Initialize rule group if not present
+	if errors.As(err, &clientErr); clientErr.Code == 404 {
+		group.Name = groupName
+		group.Rules = []json.RawMessage{}
+	} else if err != nil {
 		return err
 	}
 
