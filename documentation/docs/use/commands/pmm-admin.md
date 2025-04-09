@@ -446,7 +446,7 @@ Enable all collectors and limit monitoring for `dbstats`, `indexstats`, `collsta
 
 ##### Resolutions
 
-PMM collects metrics in two [resolutions](../../how-to/configure.md#metrics-resolution) to decrease CPU and Memory usage: high and low resolutions.
+PMM collects metrics in two [resolutions](../../configure-pmm/metrics_res.md) to decrease CPU and Memory usage: high and low resolutions.
 
 In high resolution we collect metrics from collectors which work fast:
 - `diagnosticdata`
@@ -944,8 +944,3 @@ For other collectors that you can disable with the `--disable-collectors` option
 - [`mongodb_exporter`](https://github.com/percona/mongodb_exporter)
 - [`postgres_exporter`](https://github.com/percona/postgres_exporter)
 - [`proxysql_exporter`](https://github.com/percona/proxysql_exporter)
-
-[inventory]: ../dashboards/dashboard-inventory.md
-
-
-[inventory]: ../dashboards/dashboard-inventory.md

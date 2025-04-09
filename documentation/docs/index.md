@@ -1,22 +1,20 @@
 # About PMM
 
-!!! info ""
+<i info>:material-information: Info:</i> This is the documentation for the latest PMM 3 release. For details, see the [PMM {{release}} release notes](release-notes/3.1.0.md).
 
-    This is the documentation for the latest release, **PMM {{release}}** Beta. See the [Release Notes](release-notes/3.0.0_Beta.md) for details.
+Percona Monitoring and Management (PMM) is an open source database observability, monitoring, and management platform that gives you a single view of performance metrics - from entire database clusters down to individual queries.
 
-Percona Monitoring and Management (PMM) is an open source database observability, monitoring, and management tool for use with MySQL, PostgreSQL, MongoDB, and the servers on which they run. It enables you to view node- to single-query performance metrics for all of your databases in a single place. 
+Key features:
 
-- PMM is designed to facilitate seamless access to comprehensive performance metrics for all the nodes and queries associated with your databases via a user-friendly interface.
-- PMM is highly versatile and can be deployed behind a firewall, on the cloud, or across hybrid platforms. 
-- It is a complete package comprising in-house and third-party components and tools for all your monitoring requirements.
-- To set up basic PMM, you just need to install a [server](reference/index.md#server) and a [client](reference/index.md#client) on each system you intend to monitor.
+- Complete visibility of MySQL, PostgreSQL, and MongoDB performance
+- Unified dashboard for all your database metrics and query analytics
+- Flexible deployment options: on-premises, cloud, or hybrid environments
+- Easy setup with just two components: Server and Client
 
+## Try PMM Demo
+Want to see PMM in action before installing? Visit our live demo at https://pmmdemo.percona.com/ to explore PMM's features and interface with sample data.
 
-!!! quote ""
-
-    Would you like to see a preview of our Home page? Take a look at our free, live [demo](https://pmmdemo.percona.com/).
-
-<div class="no-pdf" data-grid markdown><div data-banner markdown>
+<div data-grid markdown><div data-banner markdown>
 
 ## :material-telescope: Discover { .title }
 
@@ -24,14 +22,13 @@ Discover how PMM can help you monitor your systems and make informed decisions.
 
 [Discover PMM :material-arrow-right:](discover-pmm/features.md){ .md-button .md-button--primary }
 
-
 </div><div data-banner markdown>
 
 ## :material-progress-download: Install { .title }
 
 Ready to dive into PMM? Follow our simple, step-by-step installation instructions to get started in no time!
 
-[Quickstart guide :material-arrow-right:](quickstart.md){ .md-button .md-button--primary }
+[Quickstart guide :material-arrow-right:](quickstart/quickstart.md){ .md-button .md-button--primary }
 
 </div><div data-banner markdown>
 

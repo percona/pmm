@@ -504,6 +504,58 @@ func fillMongoDB(mb *qanv1.MetricsBucket, bm *agentv1.MetricsBucket_MongoDB) {
 	mb.MDocsScannedMin = bm.MDocsScannedMin
 	mb.MDocsScannedMax = bm.MDocsScannedMax
 	mb.MDocsScannedP99 = bm.MDocsScannedP99
+
+	mb.MFullScanCnt = bm.MFullScanCnt
+	mb.MFullScanSum = bm.MFullScanSum
+
+	mb.PlanSummary = bm.PlanSummary
+
+	mb.ApplicationName = bm.ApplicationName
+
+	mb.MDocsExaminedCnt = bm.MDocsExaminedCnt
+	mb.MDocsExaminedSum = bm.MDocsExaminedSum
+	mb.MDocsExaminedMin = bm.MDocsExaminedMin
+	mb.MDocsExaminedMax = bm.MDocsExaminedMax
+	mb.MDocsExaminedP99 = bm.MDocsExaminedP99
+
+	mb.MKeysExaminedCnt = bm.MKeysExaminedCnt
+	mb.MKeysExaminedSum = bm.MKeysExaminedSum
+	mb.MKeysExaminedMin = bm.MKeysExaminedMin
+	mb.MKeysExaminedMax = bm.MKeysExaminedMax
+	mb.MKeysExaminedP99 = bm.MKeysExaminedP99
+
+	mb.MLocksGlobalAcquireCountReadSharedCnt = bm.MLocksGlobalAcquireCountReadSharedCnt
+	mb.MLocksGlobalAcquireCountReadSharedSum = bm.MLocksGlobalAcquireCountReadSharedSum
+
+	mb.MLocksGlobalAcquireCountWriteSharedCnt = bm.MLocksGlobalAcquireCountWriteSharedCnt
+	mb.MLocksGlobalAcquireCountWriteSharedSum = bm.MLocksGlobalAcquireCountWriteSharedSum
+
+	mb.MLocksDatabaseAcquireCountReadSharedCnt = bm.MLocksDatabaseAcquireCountReadSharedCnt
+	mb.MLocksDatabaseAcquireCountReadSharedSum = bm.MLocksDatabaseAcquireCountReadSharedSum
+
+	mb.MLocksDatabaseAcquireWaitCountReadSharedCnt = bm.MLocksDatabaseAcquireWaitCountReadSharedCnt
+	mb.MLocksDatabaseAcquireWaitCountReadSharedSum = bm.MLocksDatabaseAcquireWaitCountReadSharedSum
+
+	mb.MLocksDatabaseTimeAcquiringMicrosReadSharedCnt = bm.MLocksDatabaseTimeAcquiringMicrosReadSharedCnt
+	mb.MLocksDatabaseTimeAcquiringMicrosReadSharedSum = bm.MLocksDatabaseTimeAcquiringMicrosReadSharedSum
+	mb.MLocksDatabaseTimeAcquiringMicrosReadSharedMin = bm.MLocksDatabaseTimeAcquiringMicrosReadSharedMin
+	mb.MLocksDatabaseTimeAcquiringMicrosReadSharedMax = bm.MLocksDatabaseTimeAcquiringMicrosReadSharedMax
+	mb.MLocksDatabaseTimeAcquiringMicrosReadSharedP99 = bm.MLocksDatabaseTimeAcquiringMicrosReadSharedP99
+
+	mb.MLocksCollectionAcquireCountReadSharedCnt = bm.MLocksCollectionAcquireCountReadSharedCnt
+	mb.MLocksCollectionAcquireCountReadSharedSum = bm.MLocksCollectionAcquireCountReadSharedSum
+
+	mb.MStorageBytesReadCnt = bm.MStorageBytesReadCnt
+	mb.MStorageBytesReadSum = bm.MStorageBytesReadSum
+	mb.MStorageBytesReadMin = bm.MStorageBytesReadMin
+	mb.MStorageBytesReadMax = bm.MStorageBytesReadMax
+	mb.MStorageBytesReadP99 = bm.MStorageBytesReadP99
+
+	mb.MStorageTimeReadingMicrosCnt = bm.MStorageTimeReadingMicrosCnt
+	mb.MStorageTimeReadingMicrosSum = bm.MStorageTimeReadingMicrosSum
+	mb.MStorageTimeReadingMicrosMin = bm.MStorageTimeReadingMicrosMin
+	mb.MStorageTimeReadingMicrosMax = bm.MStorageTimeReadingMicrosMax
+	mb.MStorageTimeReadingMicrosP99 = bm.MStorageTimeReadingMicrosP99
 }
 
 func fillPostgreSQL(mb *qanv1.MetricsBucket, bp *agentv1.MetricsBucket_PostgreSQL) {

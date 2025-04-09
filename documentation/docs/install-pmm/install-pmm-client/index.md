@@ -1,4 +1,4 @@
-# About PMM client installation
+# About PMM Client installation
 
 There are different ways to install PMM Client on a node and register it with PMM Server. Choose from:
 
@@ -16,7 +16,7 @@ When you have installed PMM Client, you must:
 - [Register the node with PMM Server](../register-client-node/index.md).
 - [Configure and add services according to type](connect-database/index.md).
 
-If you need to, you can [unregister](../../uninstall-pmm/unregister_client.md), [remove services](..//..//uninstall-pmm/remove_services.md) or [remove PMM Client](..//..//uninstall-pmm/uninstall_docker.md).
+If you need to, you can [unregister](../../uninstall-pmm/unregister_client.md), [remove services](../install-pmm-client/connect-database/remove-services/index.md) or [remove PMM Client](../../uninstall-pmm/uninstall_docker.md).
 
 ---
 
@@ -30,7 +30,7 @@ Before installing the PMM client, check [Prerequisites to install PMM client](./
 
 ## Connect services
 
-You must configure and adding services according to the service type.
+Each database service requires specific configuration parameters. Configure your service according to its service type:
 
 - [MySQL](connect-database/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
 - [MongoDB](connect-database/mongodb.md)

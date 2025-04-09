@@ -6,7 +6,7 @@
 # if PMM 2 is running, it will be stopped and data will be migrated to PMM 3.
 #
 # Usage example:
-# curl -fsSL https://raw.githubusercontent.com/percona/pmm/main/get-pmm.sh -o get-pmm.sh; chmod +x get-pmm.sh; ./get-pmm.sh -b
+# curl -fsSL https://raw.githubusercontent.com/percona/pmm/v3/get-pmm.sh -o get-pmm.sh; chmod +x get-pmm.sh; ./get-pmm.sh -b
 #
 #################################
 
@@ -15,8 +15,8 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 
 # Set defaults.
 network_name=${NETWORK_NAME:-pmm-net}
-tag=${PMM_TAG:-3.0.0-beta}
-repo=${PMM_REPO:-perconalab/pmm-server}
+tag=${PMM_TAG:-3}
+repo=${PMM_REPO:-percona/pmm-server}
 port=${PMM_PORT:-443}
 container_name=${CONTAINER_NAME:-pmm-server}
 docker_socket_path=${DOCKER_SOCKET_PATH:-/var/run/docker.sock}
@@ -230,7 +230,7 @@ install_docker() {
     printf " - not installed. Installing...\n\n"
     curl -fsSL get.docker.com -o /tmp/get-docker.sh ||
       wget -qO /tmp/get-docker.sh get.docker.com
-    sh /tmp/get-docker.sh
+    sh /tmp/get-docker.sh || die "${RED}ERROR: cannot install Docker, please install Docker manually and try to run this script again${NOFORMAT}"
     run_root 'service docker start' || :
   else
     printf " - installed.\n\n"
@@ -300,7 +300,7 @@ create_pmm_network() {
 #######################################
 start_watchtower() {
   if ! run_docker "inspect watchtower 1> /dev/null 2> /dev/null"; then
-    run_docker "run -d --name watchtower --restart always --network $network_name -e WATCHTOWER_HTTP_API_TOKEN=$watchtower_token -e WATCHTOWER_HTTP_LISTEN_PORT=8080 -e WATCHTOWER_HTTP_API_UPDATE=1 -v $docker_socket_path:/var/run/docker.sock perconalab/watchtower --cleanup"
+    run_docker "run -d --name watchtower --restart always --network $network_name -e WATCHTOWER_HTTP_API_TOKEN=$watchtower_token -e WATCHTOWER_HTTP_LISTEN_PORT=8080 -e WATCHTOWER_HTTP_API_UPDATE=1 -v $docker_socket_path:/var/run/docker.sock percona/watchtower --cleanup"
     msg "Created Watchtower container"
   fi
 }

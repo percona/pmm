@@ -142,6 +142,26 @@ func (m *Point) validate(all bool) error {
 
 	// no validation rules for MDocsScannedSumPerSec
 
+	// no validation rules for MDocsExaminedSumPerSec
+
+	// no validation rules for MKeysExaminedSumPerSec
+
+	// no validation rules for MLocksGlobalAcquireCountReadSharedSumPerSec
+
+	// no validation rules for MLocksGlobalAcquireCountWriteSharedSumPerSec
+
+	// no validation rules for MLocksDatabaseAcquireCountReadSharedSumPerSec
+
+	// no validation rules for MLocksDatabaseAcquireWaitCountReadSharedSumPerSec
+
+	// no validation rules for MLocksDatabaseTimeAcquiringMicrosReadSharedSumPerSec
+
+	// no validation rules for MLocksCollectionAcquireCountReadSharedSumPerSec
+
+	// no validation rules for MStorageBytesReadSumPerSec
+
+	// no validation rules for MStorageTimeReadingMicrosSumPerSec
+
 	// no validation rules for MSharedBlksHitSumPerSec
 
 	// no validation rules for MSharedBlksReadSumPerSec
@@ -201,7 +221,7 @@ type PointMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PointMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -303,7 +323,7 @@ type MapFieldEntryMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MapFieldEntryMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

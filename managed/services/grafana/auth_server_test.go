@@ -115,12 +115,14 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/actions:startServiceAction":    viewer,
 		"/v1/advisors":                      editor,
 		"/v1/advisors/checks:start":         editor,
+		"/v1/advisors/failedServices":       editor,
 		"/v1/management/services":           admin,
 		"/v1/management/agents":             admin,
 		"/v1/server/updates":                viewer,
 		"/v1/server/updates:start":          admin,
 		"/v1/server/updates:getStatus":      none,
 		"/v1/server/settings":               admin,
+		"/v1/server/settings/readonly":      viewer,
 		"/v1/server/AWSInstance":            none,
 		"/v1/backups":                       admin,
 		"/v1/accesscontrol":                 admin,
@@ -143,6 +145,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/qan:getMetrics":       viewer,
 
 		"/prometheus/":        admin,
+		"/nomad/":             admin,
 		"/v1/server/logs.zip": admin,
 	} {
 		for _, role := range []role{viewer, editor, admin} {

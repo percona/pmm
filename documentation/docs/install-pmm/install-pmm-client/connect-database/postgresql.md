@@ -88,7 +88,7 @@ Here are the benefits and drawbacks of each.
 | `pg_stat_statements` | 1. Part of official `postgresql-contrib` package. | 1. No aggregated statistics or histograms.<br>2. No Query Examples.
 | `pg_stat_monitor`    | 1. Builds on `pg_stat_monitor` features.<br>2. Bucket-based aggregation. | 
 
-For a more detailed comparison of extensions, follow [pg_stat monitor User Guide](https://github.com/percona/pg_stat_monitor/blob/master/docs/USER_GUIDE.md#usage)
+For a more detailed comparison of extensions, follow [pg_stat monitor User Guide](https://docs.percona.com/pg-stat-monitor/user_guide.html)
 
 !!! note alert alert-primary "Bucket-based data aggregation"
     `pg_stat_monitor` collects statistics and aggregates data in a data collection unit called a *bucket*. These are linked together to form a *bucket chain*.
@@ -126,6 +126,7 @@ For a more detailed comparison of extensions, follow [pg_stat monitor User Guide
 #### Configure
 
 To configure the extension:
+{.power-number}
 
 1. Add these lines to your `postgresql.conf` file:
 
@@ -373,7 +374,7 @@ The `pmm-admin` flag limits Auto-discovery:
 To check the service from the PMM UI:
 {.power-number}
 
-1. Select <i class="uil uil-cog"></i> **Configuration** → {{icon.inventory}} **Inventory**.
+1. Select :material-cog: **Configuration** → :material-clipboard-list-outline: **Inventory**.
 2. In the **Services** tab, verify the **Service name**, **Address** and any other relevant details.
 3. In the **Options** column, expand the **Details** section and check that the Agents are using the desired data source.
 

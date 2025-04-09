@@ -109,7 +109,7 @@ type CollectRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CollectRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -539,6 +539,78 @@ func (m *MetricsBucket) validate(all bool) error {
 
 	// no validation rules for MDocsScannedP99
 
+	// no validation rules for PlanSummary
+
+	// no validation rules for MDocsExaminedCnt
+
+	// no validation rules for MDocsExaminedSum
+
+	// no validation rules for MDocsExaminedMin
+
+	// no validation rules for MDocsExaminedMax
+
+	// no validation rules for MDocsExaminedP99
+
+	// no validation rules for MKeysExaminedCnt
+
+	// no validation rules for MKeysExaminedSum
+
+	// no validation rules for MKeysExaminedMin
+
+	// no validation rules for MKeysExaminedMax
+
+	// no validation rules for MKeysExaminedP99
+
+	// no validation rules for MLocksGlobalAcquireCountReadSharedCnt
+
+	// no validation rules for MLocksGlobalAcquireCountReadSharedSum
+
+	// no validation rules for MLocksGlobalAcquireCountWriteSharedCnt
+
+	// no validation rules for MLocksGlobalAcquireCountWriteSharedSum
+
+	// no validation rules for MLocksDatabaseAcquireCountReadSharedCnt
+
+	// no validation rules for MLocksDatabaseAcquireCountReadSharedSum
+
+	// no validation rules for MLocksDatabaseAcquireWaitCountReadSharedCnt
+
+	// no validation rules for MLocksDatabaseAcquireWaitCountReadSharedSum
+
+	// no validation rules for MLocksDatabaseTimeAcquiringMicrosReadSharedCnt
+
+	// no validation rules for MLocksDatabaseTimeAcquiringMicrosReadSharedSum
+
+	// no validation rules for MLocksDatabaseTimeAcquiringMicrosReadSharedMin
+
+	// no validation rules for MLocksDatabaseTimeAcquiringMicrosReadSharedMax
+
+	// no validation rules for MLocksDatabaseTimeAcquiringMicrosReadSharedP99
+
+	// no validation rules for MLocksCollectionAcquireCountReadSharedCnt
+
+	// no validation rules for MLocksCollectionAcquireCountReadSharedSum
+
+	// no validation rules for MStorageBytesReadCnt
+
+	// no validation rules for MStorageBytesReadSum
+
+	// no validation rules for MStorageBytesReadMin
+
+	// no validation rules for MStorageBytesReadMax
+
+	// no validation rules for MStorageBytesReadP99
+
+	// no validation rules for MStorageTimeReadingMicrosCnt
+
+	// no validation rules for MStorageTimeReadingMicrosSum
+
+	// no validation rules for MStorageTimeReadingMicrosMin
+
+	// no validation rules for MStorageTimeReadingMicrosMax
+
+	// no validation rules for MStorageTimeReadingMicrosP99
+
 	// no validation rules for MSharedBlksHitCnt
 
 	// no validation rules for MSharedBlksHitSum
@@ -661,7 +733,7 @@ type MetricsBucketMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricsBucketMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -761,7 +833,7 @@ type CollectResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CollectResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
