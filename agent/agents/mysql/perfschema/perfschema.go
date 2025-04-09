@@ -323,7 +323,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 		return nil, err
 	}
 
-	var res []*agentv1.MetricsBucket
+	var res []*agentv1.MetricsBucket //nolint:prealloc
 	for _, b := range buckets {
 		b.Common.AgentId = m.agentID
 		b.Common.PeriodStartUnixSecs = startS
