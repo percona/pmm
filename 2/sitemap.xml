@@ -2,906 +2,906 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/copyright.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/faq.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-help.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/trademark-policy.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/dbaas/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/dbaas/DBaaS_template.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/dbaas/architecture.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/dbaas/backup_restore.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/dbaas/databases.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/dbaas/get-started.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/dbaas/setting-up.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/dbaas/troubleshoot-kubernetes.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/api.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/architecture.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/clickhouse%202.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/clickhouse.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/glossary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/interface.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/personal_data_handling.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/pmm_components_and_versions.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/postgresql.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/query-analytics.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/victoria-metrics.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/commands/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/commands/pmm-admin.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/commands/pmm-agent.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-advanced-data-exploration.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-cluster-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-cpu-utilization-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-disk-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-env-overview.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-environent-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-haproxy-instance-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-home.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-inventory.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-manage-dashboards.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-memory-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mongodb-cluster-summary-old.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mongodb-experimental_collection_details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mongodb-inmemory-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mongodb-instance-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mongodb-instances-compare.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mongodb-instances-overview.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mongodb-mmapv1-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mongodb-replset-summary-old.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mongodb-router-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mongodb-wiredtiger-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mongodb_collection_overview.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mongodb_oplog.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-amazon-aurora-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-command-handler-counters-compare.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-group-replication-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-innodb-compression-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-innodb-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-instance-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-instances-compare.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-instances-overview.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-myisam-aria-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-myrocks-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-performance-schema-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-query-response-time-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-replication-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-table-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-tokudb-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-user-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-mysql-wait-event-analyses-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-network-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-node-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-node-temperature-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-nodes-compare.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-nodes-overview.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-numa-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-postgresql-instance-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-postgresql-instances-compare.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-postgresql-instances-overview.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-processes-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-prometheus-exporter-status.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-prometheus-exporters-overview.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-proxysql-instance-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-pxc-galera-cluster-summary-experimental.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-pxc-galera-cluster-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-pxc-galera-node-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-pxc-galera-nodes-compare.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-replsetsummary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-sharded-cluster-summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-victoriametrics-agents-overview.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/dashboard-victoriametrics.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/kubernetes_cluster_summary.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/kubernetes_monitor_db_clusters_managed.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/kubernetes_monitor_operators.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/kubernetes_pods_status.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/dashboards/kubernetes_volume.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/details/develop-checks/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/advisors-details.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/advisors.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/alert-templates.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/alerting.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/interface.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/query-analytics.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/backup_mongo.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/backup_mysql.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/create_PITR_mongo.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/create_mongo_on_demand.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/create_mysql_backup.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/delete_a_backup.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/edit_scheduled.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/mongo-prerequisites.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/mongodb_limitations.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/mysql_prerequisites.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/prepare_storage_location.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/restore_MongoDB_backups.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/backup/restore_mysql_backup.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/roles-and-permissions/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/roles-and-permissions/access_roles.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/roles-and-permissions/assign_roles.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/roles-and-permissions/configure_access_roles.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/roles-and-permissions/lbac.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/roles-and-permissions/manage_roles.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/get-started/roles-and-permissions/use_case.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/HA.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/PMM_dump.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/account-info.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/annotate.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/configure.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/extend-metrics.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/integrate-platform.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/manage-users.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/optimize.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/secure.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/share-dashboard.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/troubleshoot.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/how-to/upgrade.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/quickstart/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.0.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.0.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.1.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.10.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.10.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.11.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.11.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.12.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.13.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.14.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.15.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.15.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.16.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.17.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.18.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.19.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.2.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.2.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.2.2.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.20.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.21.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.22.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.23.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.24.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.25.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.26.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.27.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.28.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.29.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.29.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.3.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.30.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.31.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.32.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.33.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.34.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.35.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.36.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.37.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.37.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.38.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.38.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.39.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.4.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.40.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.40.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.41.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.41.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.41.2.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.42.0-1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.42.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.43.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.43.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.43.2-1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.43.2.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.44.0.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.44.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.5.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.6.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.6.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.7.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.8.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.9.0.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/release-notes/2.9.1.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/client/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/client/aws.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/client/azure.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/client/external.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/client/google.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/client/haproxy.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/client/linux.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/client/mongodb.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/client/mysql.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/client/postgresql.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/client/proxysql.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/client/remote.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/server/index.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/server/aws.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/server/docker.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/server/easy-install.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/server/helm.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/server/network.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/server/podman.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/2/setting-up/server/virtual-appliance.html</loc>
-         <lastmod>2025-04-08</lastmod>
+         <lastmod>2025-04-10</lastmod>
     </url>
 </urlset>
