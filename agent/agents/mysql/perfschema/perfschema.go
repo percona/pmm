@@ -321,7 +321,6 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 	if err = m.historyCache.Get(history); err != nil {
 		return nil, err
 	}
-
 	for i, b := range buckets {
 		b.Common.AgentId = m.agentID
 		b.Common.PeriodStartUnixSecs = startS

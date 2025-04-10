@@ -37,6 +37,7 @@ import (
 
 func TestPerfSchemaMakeBuckets(t *testing.T) {
 	defaultMaxQueryLength := truncate.GetDefaultMaxQueryLength()
+
 	t.Run("Normal", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Normal": {
