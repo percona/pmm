@@ -1,10 +1,11 @@
-# About PMM installation
+# PMM installation overview
 
 Installing Percona Monitoring and Management (PMM) involves setting up a central PMM Server and distributed PMM Clients that work together to monitor your database environment. 
 
 PMM Server provides the web interface with dashboards and analytics, while PMM Clients collect data from your databases with minimal performance impact and send it back to PMM Server for analysis and visualization.
 
-## Installation overview
+## What the installation involves
+
 The PMM installation consists of three main steps that need to be completed in sequence: 
 {.power-number}
 
@@ -12,14 +13,13 @@ The PMM installation consists of three main steps that need to be completed in s
 2. **[Install PMM Clients](#2-install-pmm-client)**: lightweight agents on each database host that collect metrics without impacting performance
 3. **[Configure monitoring services](#3-add-services-for-monitoring)**: connect PMM to your database instances, select which metrics to collect, and customize monitoring parameters
 
-## Prerequisites
+## Planning the installation
 
 Before you begin the installation, make sure to:
 
 - Review the [deployment strategy options](../install-pmm/plan-pmm-installation/choose-deployment.md) to determine the best fit for your environment.  
 - Confirm that your system meets the [hardware and software requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md).  
 - Ensure your environment satisfies the [network and firewall requirements](../install-pmm/plan-pmm-installation/network_and_firewall.md) for proper connectivity.
-
 
 ## Installation steps 
 

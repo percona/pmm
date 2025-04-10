@@ -54,7 +54,7 @@ To reduce storage usage, consider [disabling table statistics](../../install-pmm
 - **Docker deployment**: PMM Server Docker images use Oracle Linux as the base operating system.
 - **ARM limitations**: PMM Server is not currently available as a native ARM64 build. For ARM-based systems, use Docker or Podman to run x86_64 images via emulation.
 
-## PMM Client 
+### PMM Client 
 
 - **Installation storage**: Requires 100 MB of storage for installation
 - **Cache storage**: 

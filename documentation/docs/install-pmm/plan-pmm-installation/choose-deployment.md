@@ -1,21 +1,27 @@
 # Choose a PMM deployment strategy
 
-Whether you're monitoring a single database or managing hundreds across your organization, it's important to choose the right deployment approach for both PMM Server and PMM Client components.
+Whether you're monitoring a single database or managing hundreds across your organization, it's important to select the appropriate deployment approach for both PMM Server and PMM Client components.
 
-Explore the available deployment options, plan your complete PMM architecture, and choose the approach that best aligns with your infrastructure, scalability needs, and operational requirements.
+Plan your PMM architecture to align with your infrastructure, growth expectations, and operational needs.
 
-## PMM architecture components
+## PMM architecture overview
+
 PMM components can be deployed in various combinations depending on your needs: 
 {.power-number}
 
 1. [PMM Server](../install-pmm-server/index.md): The central component that stores, analyzes, and visualizes monitoring data
 2. [PMM Client](../install-pmm-client/index.md): The distributed component installed on database hosts to collect metrics
 
-## Hardware and network requirements
+## Planning considerations
 
-For detailed hardware and network specifications, see [hardware and system requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) and [network and firewall requirements](../../install-pmm/plan-pmm-installation/network_and_firewall.md).
+### Hardware and network requirements
 
-### Security architecture
+For detailed hardware and network specifications, see:
+
+- [hardware and system requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) 
+- [network and firewall requirements](../../install-pmm/plan-pmm-installation/network_and_firewall.md)
+
+### Architecture considerations
 
 - Consider network segmentation and access controls
 - Plan user authentication and authorization strategy
@@ -25,7 +31,7 @@ For detailed hardware and network specifications, see [hardware and system requi
 
 For information on PMM's architecture, see [PMM architecture](../../reference/index.md). 
 
-## Server deployment options
+## PMM Server deployment options
 
 | **Method** | **Best for** | **Advantages** | **Considerations** |
 |-----------|------------|---------------|--------------------|
@@ -35,7 +41,7 @@ For information on PMM's architecture, see [PMM architecture](../../reference/in
 | [**:material-server: Virtual Appliance**](../install-pmm-server/deployment-options/virtual/index.md) | Traditional environments | ✔  Pre-configured with all dependencies<br>✔  Dedicated resources | ⚠ Larger resource footprint<br>⚠ Requires a hypervisor |
 <!--| [Amazon AWS](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | AWS-based environments | Seamless AWS integration, easy provisioning | Monthly subscription costs, AWS infrastructure costs |-->
 
-### PMM Client deployment options
+## PMM Client deployment options
 
 | Deployment method | Best for | Advantages | Considerations |
 |-------------------|----------|------------|----------------|
@@ -43,9 +49,9 @@ For information on PMM's architecture, see [PMM architecture](../../reference/in
 | [**Binary Package**](../install-pmm-client/binary_package.md) | Custom/isolated environments | • Portable<br>• Minimal dependencies | • Manual install & updates |
 | [**Docker**](../install-pmm-client/docker.md) | Containerized hosts | • Consistent environment<br>• Easy to manage | • Requires Docker<br>• Needs access to host metrics |
 
-## Common deployment patterns
+## Recommended deployment patterns
 
-Based on the scale of your monitoring needs, different deployment patterns are recommended. Choose the tab that best represents your environment:
+Based on the scale and environment of your monitoring needs, we recommend different deployment patterns:
 
 === "Small-scale (1-30 database instances)"
 
@@ -88,7 +94,7 @@ Based on the scale of your monitoring needs, different deployment patterns are r
         - consider network costs when planning your architecture
     - **Ideal for**: Cloud-native companies, hybrid cloud environments
 
-### Making your decision
+## Decision factors
 
 When selecting your deployment strategy, consider the following:
 {.power-number}
@@ -99,16 +105,16 @@ When selecting your deployment strategy, consider the following:
 4. **Security policies** to match the deployment to your organization’s security practices.
 5. **Maintenance strategy**  choose what support easy upgrades and backups.
 
-### Deployment planning checklist
+## Deployment planning checklist
 
-- [ ] Inventory of systems and environments to monitor  
-- [ ] Estimate monitoring scope (instances, metric volume)  
-- [ ] Size the PMM Server based on expected load  
-- [ ] Choose a PMM Server deployment method  
-- [ ] Select the best PMM Client install method per system type  
-- [ ] Verify network and firewall access  
-- [ ] Plan for data backups and disaster recovery  
-- [ ] Define upgrade and patching process for all PMM components  
+✓ Inventory of systems and environments to monitor  
+✓ Estimate monitoring scope (instances, metric volume)  
+✓ Size the PMM Server based on expected load  
+✓ Choose a PMM Server deployment method  
+✓ Select the best PMM Client install method per system type  
+✓ Verify network and firewall access  
+✓ Plan for data backups and disaster recovery  
+✓ Define upgrade and patching process for all PMM components
 
 This deployment planning ensures that your PMM environment is efficient, secure, and scalable from day one.
 
