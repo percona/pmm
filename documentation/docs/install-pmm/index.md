@@ -27,14 +27,30 @@ Before you begin the installation, make sure to:
 
 Install and run at least one PMM Server using one of the following deployment methods. If you're sure which deployment method is best for your environment, check out this [Choose a PMM deployment strategy](../install-pmm/plan-pmm-installation/choose-deployment.md) topic for a comparison of your options:
 
-| **Deployment method** | **Quick summary** |
-|---------------|-------------|
-| [**:material-docker: Docker**](../install-pmm/install-pmm-server/deployment-options/docker/index.md) | Run PMM Server as a Docker container |
-| [**:material-shield-lock: Podman**](../install-pmm/install-pmm-server/deployment-options/podman/index.md) | Run PMM Server as a rootless Podman container |
-| [**:material-kubernetes: Helm**](../install-pmm/install-pmm-server/deployment-options/helm/index.md) | Deploy PMM Server on a Kubernetes cluster |
-| [**:material-server: Virtual Appliance**](../install-pmm/install-pmm-server/deployment-options/virtual/index.md) | Run PMM Server as a pre-configured virtual machine |
-| [**:material-aws: AWS Marketplace**](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | Deploy PMM Server from AWS Marketplace |
+=== ":material-docker: Docker"
+    Run PMM Server as a Docker container
+    
+    [**Get started with Docker deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/docker/index.md)
 
+=== ":material-shield-lock: Podman"
+    Run PMM Server as a rootless Podman container
+    
+    [**Get started with Podman deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/podman/index.md)
+
+=== ":material-kubernetes: Helm"
+    Deploy PMM Server on a Kubernetes cluster
+    
+    [**Get started with Kubernetes deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/helm/index.md)
+
+=== ":material-server: Virtual Appliance"
+    Run PMM Server as a pre-configured virtual machine
+    
+    [**Get started with Virtual Appliance** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)
+
+=== ":material-aws: AWS Marketplace"
+    Deploy PMM Server from AWS Marketplace
+    
+    [**Get started with AWS deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/aws/aws.md)
 
 ### 2. Install PMM Client
 

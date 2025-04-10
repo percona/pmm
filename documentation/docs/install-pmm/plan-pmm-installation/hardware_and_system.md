@@ -1,7 +1,7 @@
 # Hardware and system requirements
 To ensure optimal performance for your monitoring environment, check the appropriate hardware specifications before installing PMM.
 
-For guidance on selecting the best deployment method based on these requirements, see the [choosing your PMM deployment strategy](../install-pmm/plan-pmm-installation/choose-deployment.md).
+For guidance on selecting the best deployment method based on these requirements, see the [choose your PMM deployment strategy](../plan-pmm-installation/choose-deployment.md) topic.
 
 ## PMM Server resource requirements
 Resource requirements scale with the number of nodes and services monitored. Here are our recommendations for different deployment scales:
@@ -58,8 +58,8 @@ To reduce storage usage, consider [disabling table statistics](../../install-pmm
 
 - **Installation storage**: Requires 100 MB of storage for installation
 - **Cache storage**: 
-  - VM Agent reserves 1 GB of disk space for caching during network outages
-  - Query Analytics (QAN) uses RAM instead of disk storage for its cache
+    - VM Agent reserves 1 GB of disk space for caching during network outages
+    - Query Analytics (QAN) uses RAM instead of disk storage for its cache
 - **Architecture support**: Compatible with both x86_64 and ARM64 architectures
 - **Operating systems**: Compatible with modern 64-bit Linux distributions including Debian, Ubuntu, Oracle Linux, and "Red Hat" derivatives
 
@@ -74,5 +74,5 @@ For specific version support details, see [Percona software support life cycle](
 
 ## Next step
 
-[Network and firewall requirements](../install-pmm/plan-pmm-installation/network_and_firewall.md){.md-button}
+[Network and firewall requirements](../plan-pmm-installation/network_and_firewall.md){.md-button}
  
