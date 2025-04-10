@@ -424,17 +424,20 @@ func TestPerfSchema(t *testing.T) {
 		buckets = filter(buckets)
 		require.Len(t, buckets, 2, "%s", tests.FormatBuckets(buckets))
 
-		expectedSchema := []string{"world2", "world"}
-		for i, b := range buckets {
+		expectedSchemas := map[string]bool{"world": true, "world2": true}
+		actualSchemas := map[string]bool{}
+		for _, b := range buckets {
 			assert.InDelta(t, 0, b.Common.MQueryTimeSum, 0.09)
 			assert.InDelta(t, 0, b.Mysql.MLockTimeSum, 0.09)
+
+			actualSchemas[b.Common.Schema] = true
 
 			expected := &agentv1.MetricsBucket{
 				Common: &agentv1.MetricsBucket_Common{
 					ExplainFingerprint:  "SELECT * FROM `city`",
 					Fingerprint:         "SELECT * FROM `city`",
 					Comments:            map[string]string{"controller": "test"},
-					Schema:              expectedSchema[i],
+					Schema:              b.Common.Schema,
 					AgentId:             "agent_id",
 					PeriodStartUnixSecs: 1554116340,
 					PeriodLengthSecs:    60,
@@ -461,6 +464,8 @@ func TestPerfSchema(t *testing.T) {
 			expected.Common.Queryid = digests[expected.Common.Fingerprint]
 			tests.AssertBucketsEqual(t, expected, b)
 		}
+
+		require.Equal(t, expectedSchemas, actualSchemas)
 	})
 
 	t.Run("Invalid UTF-8", func(t *testing.T) {
