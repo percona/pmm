@@ -427,7 +427,7 @@ func TestPerfSchema(t *testing.T) {
 		require.Len(t, buckets, 2, "%s", tests.FormatBuckets(buckets))
 
 		expectedSchemas := map[string]bool{"world": true, "world2": true}
-		actualSchemas := map[string]bool{}
+		actualSchemas := make(map[string]bool)
 		for _, b := range buckets {
 			assert.InDelta(t, 0, b.Common.MQueryTimeSum, 0.09)
 			assert.InDelta(t, 0, b.Mysql.MLockTimeSum, 0.09)
