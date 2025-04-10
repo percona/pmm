@@ -18,13 +18,11 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/agent/agents/cache"
-	"github.com/percona/pmm/agent/utils/mysql"
 )
 
 // historyCache is a wrapper for cache.Cache to use only with historyMap type.
@@ -67,8 +65,7 @@ func getHistoryRows(rows *sql.Rows, q *reform.Querier) (historyMap, error) {
 		if err = q.NextRow(&esh, rows); err != nil {
 			break
 		}
-		queryID := mysql.QueryIDWithSchema(pointer.GetString(esh.CurrentSchema), *esh.Digest)
-		res[queryID] = &esh
+		res[*esh.Digest] = &esh
 	}
 	if !errors.Is(err, reform.ErrNoRows) {
 		return nil, errors.Wrap(err, "failed to fetch events_statements_history")

@@ -387,8 +387,8 @@ func inc(current, prev uint64) float32 {
 func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32) []*agentv1.MetricsBucket {
 	res := make([]*agentv1.MetricsBucket, 0, len(current))
 
-	for queryID, currentESS := range current {
-		prevESS := prev[queryID]
+	for digest, currentESS := range current {
+		prevESS := prev[digest]
 		if prevESS == nil {
 			prevESS = &eventsStatementsSummaryByDigest{}
 		}
@@ -415,7 +415,7 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 		mb := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
 				Schema:                 pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?
-				Queryid:                queryID,
+				Queryid:                *currentESS.Digest,
 				Fingerprint:            fingerprint,
 				IsTruncated:            isTruncated,
 				NumQueries:             count,

@@ -413,6 +413,58 @@ func TestPerfSchema(t *testing.T) {
 			disableQueryExamples: false,
 		})
 
+		_, err := db.Exec("SELECT /* AllCities controller='test' */ * FROM city")
+		require.NoError(t, err)
+
+		require.NoError(t, m.refreshHistoryCache())
+
+		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
+		require.NoError(t, err)
+		buckets = filter(buckets)
+		require.Len(t, buckets, 1, "%s", tests.FormatBuckets(buckets))
+
+		actual := buckets[0]
+		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
+		assert.InDelta(t, 0, actual.Mysql.MLockTimeSum, 0.09)
+		expected := &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
+				ExplainFingerprint:  "SELECT * FROM `city`",
+				Fingerprint:         "SELECT * FROM `city`",
+				Comments:            map[string]string{"controller": "test"},
+				Schema:              "world",
+				AgentId:             "agent_id",
+				PeriodStartUnixSecs: 1554116340,
+				PeriodLengthSecs:    60,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
+				Example:             "SELECT /* AllCities controller='test' */ * FROM city",
+				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
+				NumQueries:          1,
+				MQueryTimeCnt:       1,
+				MQueryTimeSum:       actual.Common.MQueryTimeSum,
+			},
+			Mysql: &agentv1.MetricsBucket_MySQL{
+				MLockTimeCnt:     1,
+				MLockTimeSum:     actual.Mysql.MLockTimeSum,
+				MRowsSentCnt:     1,
+				MRowsSentSum:     4079,
+				MRowsExaminedCnt: 1,
+				MRowsExaminedSum: 4079,
+				MFullScanCnt:     1,
+				MFullScanSum:     1,
+				MNoIndexUsedCnt:  1,
+				MNoIndexUsedSum:  1,
+			},
+		}
+		expected.Common.Queryid = digests[expected.Common.Fingerprint]
+		tests.AssertBucketsEqual(t, expected, actual)
+	})
+
+	t.Run("Same queries in different DBs", func(t *testing.T) {
+		m := setup(t, &setupParams{
+			db:                   db,
+			disableQueryExamples: false,
+		})
+
 		prepareDBCopy(t, db)
 		defer func() {
 			_, err := db.Exec("DROP DATABASE IF EXISTS world2")
