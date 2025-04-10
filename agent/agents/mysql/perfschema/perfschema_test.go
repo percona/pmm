@@ -246,6 +246,8 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 }
 
 func prepareDBCopy(t *testing.T, db *reform.DB) {
+	t.Helper()
+
 	_, err := db.Exec("CREATE DATABASE IF NOT EXISTS world2")
 	require.NoError(t, err)
 
