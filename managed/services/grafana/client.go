@@ -513,13 +513,6 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 		return err
 	}
 
-	if errors.As(err, &clientErr); clientErr.Code == 404 {
-		group.Name = groupName
-		group.Rules = []json.RawMessage{}
-	} else if err != nil {
-		return err
-	}
-
 	b, err := json.Marshal(rule)
 	if err != nil {
 		return err
