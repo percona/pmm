@@ -1,5 +1,6 @@
 # Release Notes
 
+- [Percona Monitoring and Management 2.44.1](2.44.1.md)
 - [Percona Monitoring and Management 2.44.0-1](2.44.0.1.md)
 - [Percona Monitoring and Management 2.43.2-1](2.43.2-1.md)
 - [Percona Monitoring and Management 2.43.2](2.43.2.md)
