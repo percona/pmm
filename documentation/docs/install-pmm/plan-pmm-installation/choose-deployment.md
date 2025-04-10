@@ -1,4 +1,4 @@
-# Choosing a PMM deployment strategy
+# Choose a PMM deployment strategy
 
 Whether you're monitoring a single database or managing hundreds across your organization, it's important to choose the right deployment approach for both PMM Server and PMM Client components.
 

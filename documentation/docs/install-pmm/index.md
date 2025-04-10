@@ -25,7 +25,7 @@ Before you begin the installation, make sure to:
 
 ### 1. Install PMM Server
 
-Install and run at least one PMM Server using one of the following deployment methods:
+Install and run at least one PMM Server using one of the following deployment methods. If you're sure which deployment method is best for your environment, check out this [Choose a PMM deployment strategy](../install-pmm/plan-pmm-installation/choose-deployment.md) topic for a comparison of your options:
 
 | **Deployment method** | **Quick summary** |
 |---------------|-------------|
@@ -35,7 +35,6 @@ Install and run at least one PMM Server using one of the following deployment me
 | [**:material-server: Virtual Appliance**](../install-pmm/install-pmm-server/deployment-options/virtual/index.md) | Run PMM Server as a pre-configured virtual machine |
 | [**:material-aws: AWS Marketplace**](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | Deploy PMM Server from AWS Marketplace |
 
-Not sure which deployment method is best for your environment? See our [detailed deployment strategy guide](../install-pmm/plan-pmm-installation/choose-deployment.md) for a comparison of these options.
 
 ### 2. Install PMM Client
 
@@ -107,11 +106,11 @@ PMM supports monitoring across the following database technologies, cloud servic
     | :material-api: **Third-party sources** | Connect external metrics sources | [**Extend monitoring capabilities** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md#extended-monitoring) |
     | :material-application-cog: **General external services** | Generic external service monitoring | [**Configure external services** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md) |
 
-## What's Next
+## What's next
 
 After completing the installation, you can:
 
-- [Configure alerts](../../admin/alerts/index.md) to notify you of critical events
-- [Set up backup management](../../admin/backup-management/index.md) to protect your data
-- [Explore dashboards](../../use/dashboards/index.md) to monitor your database performance
-- [Analyze query performance](../../use/qan/index.md) to identify and optimize slow queries
+- [Configure alerts](../alert/index.md) to notify you of critical events
+- [Set up backup management](../backup/index.mdd) to protect your data
+- [Explore dashboards](../use/dashboards-panels/index.md) to monitor your database performance
+- [Analyze query performance](../use/qan/index.md) to identify and optimize slow queries
