@@ -208,6 +208,12 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 		"SELECT ID FROM `city` LIMIT ?":                   {}, // waitForFixtures for MariaDB
 		"SELECT COUNT ( * ) FROM `city`":                  {}, // actions tests
 		"CREATE TABLE IF NOT EXISTS `t1` ( `col1` CHARACTER (?) ) CHARACTER SET `utf8mb4` COLLATE `utf8mb4_general_ci`": {}, // tests for invalid characters
+
+		// to test same query in different DBs (https://perconadev.atlassian.net/browse/PMM-12413).
+		"USE `world`":                          {}, // switching DBs
+		"USE `world2`":                         {}, // switching DBs
+		"CREATE SCHEMA IF NOT EXISTS `world2`": {}, // new DB
+		"CREATE TABLE IF NOT EXISTS `world2` . `city` AS SELECT * FROM `world` . `city`": {}, // copying of data
 	}
 	res := make([]*agentv1.MetricsBucket, 0, len(mb))
 	for _, b := range mb {
@@ -237,6 +243,24 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 		res = append(res, b)
 	}
 	return res
+}
+
+func prepareDBCopy(t *testing.T, db *reform.DB) {
+	_, err := db.Exec("CREATE DATABASE IF NOT EXISTS world2")
+	require.NoError(t, err)
+
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS world2.city AS SELECT * FROM world.city")
+	require.NoError(t, err)
+
+	query := "SELECT /* AllCities controller='test' */ * FROM city"
+	_, err = db.Exec(query)
+	require.NoError(t, err)
+	_, err = db.Exec("USE world2")
+	require.NoError(t, err)
+	_, err = db.Exec(query)
+	require.NoError(t, err)
+	_, err = db.Exec("USE world")
+	require.NoError(t, err)
 }
 
 func TestPerfSchema(t *testing.T) {
@@ -387,50 +411,56 @@ func TestPerfSchema(t *testing.T) {
 			disableQueryExamples: false,
 		})
 
-		_, err := db.Exec("SELECT /* AllCities controller='test' */ * FROM city")
-		require.NoError(t, err)
+		prepareDBCopy(t, db)
+		defer func() {
+			_, err := db.Exec("DROP DATABASE IF EXISTS world2")
+			require.NoError(t, err)
+		}()
 
 		require.NoError(t, m.refreshHistoryCache())
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
 		buckets = filter(buckets)
-		require.Len(t, buckets, 1, "%s", tests.FormatBuckets(buckets))
+		require.Len(t, buckets, 2, "%s", tests.FormatBuckets(buckets))
 
-		actual := buckets[0]
-		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.InDelta(t, 0, actual.Mysql.MLockTimeSum, 0.09)
-		expected := &agentv1.MetricsBucket{
-			Common: &agentv1.MetricsBucket_Common{
-				ExplainFingerprint:  "SELECT * FROM `city`",
-				Fingerprint:         "SELECT * FROM `city`",
-				Comments:            map[string]string{"controller": "test"},
-				Schema:              "world",
-				AgentId:             "agent_id",
-				PeriodStartUnixSecs: 1554116340,
-				PeriodLengthSecs:    60,
-				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
-				Example:             "SELECT /* AllCities controller='test' */ * FROM city",
-				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
-				NumQueries:          1,
-				MQueryTimeCnt:       1,
-				MQueryTimeSum:       actual.Common.MQueryTimeSum,
-			},
-			Mysql: &agentv1.MetricsBucket_MySQL{
-				MLockTimeCnt:     1,
-				MLockTimeSum:     actual.Mysql.MLockTimeSum,
-				MRowsSentCnt:     1,
-				MRowsSentSum:     4079,
-				MRowsExaminedCnt: 1,
-				MRowsExaminedSum: 4079,
-				MFullScanCnt:     1,
-				MFullScanSum:     1,
-				MNoIndexUsedCnt:  1,
-				MNoIndexUsedSum:  1,
-			},
+		expectedSchema := []string{"world2", "world"}
+		for i, b := range buckets {
+			assert.InDelta(t, 0, b.Common.MQueryTimeSum, 0.09)
+			assert.InDelta(t, 0, b.Mysql.MLockTimeSum, 0.09)
+
+			expected := &agentv1.MetricsBucket{
+				Common: &agentv1.MetricsBucket_Common{
+					ExplainFingerprint:  "SELECT * FROM `city`",
+					Fingerprint:         "SELECT * FROM `city`",
+					Comments:            map[string]string{"controller": "test"},
+					Schema:              expectedSchema[i],
+					AgentId:             "agent_id",
+					PeriodStartUnixSecs: 1554116340,
+					PeriodLengthSecs:    60,
+					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
+					Example:             "SELECT /* AllCities controller='test' */ * FROM city",
+					ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
+					NumQueries:          1,
+					MQueryTimeCnt:       1,
+					MQueryTimeSum:       b.Common.MQueryTimeSum,
+				},
+				Mysql: &agentv1.MetricsBucket_MySQL{
+					MLockTimeCnt:     1,
+					MLockTimeSum:     b.Mysql.MLockTimeSum,
+					MRowsSentCnt:     1,
+					MRowsSentSum:     4079,
+					MRowsExaminedCnt: 1,
+					MRowsExaminedSum: 4079,
+					MFullScanCnt:     1,
+					MFullScanSum:     1,
+					MNoIndexUsedCnt:  1,
+					MNoIndexUsedSum:  1,
+				},
+			}
+			expected.Common.Queryid = digests[expected.Common.Fingerprint]
+			tests.AssertBucketsEqual(t, expected, b)
 		}
-		expected.Common.Queryid = digests[expected.Common.Fingerprint]
-		tests.AssertBucketsEqual(t, expected, actual)
 	})
 
 	t.Run("Invalid UTF-8", func(t *testing.T) {
