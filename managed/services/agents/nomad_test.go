@@ -46,7 +46,7 @@ disable_update_check = true
 data_dir = "{{ .nomad_data_dir }}" # it shall be persistent
 region = "global"
 datacenter = "PMM Deployment"
-name = "PMM Agent node-name"
+name = "node-name"
 
 ui {
   enabled = false

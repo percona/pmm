@@ -1233,6 +1233,7 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 	return res, nil
 }
 
+// ChangeNomadAgent updates Nomad Agent with given parameters.
 func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, params *inventoryv1.ChangeNomadAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
 	common := &commonAgentParams{
 		Enable: params.Enable,
