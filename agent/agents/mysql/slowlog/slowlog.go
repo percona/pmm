@@ -41,7 +41,6 @@ import (
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/backoff"
-	"github.com/percona/pmm/agent/utils/mysql"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -389,10 +388,6 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 			s.l.Debugf("Scheduling next aggregation in %s at %s.", wait, start.Add(wait).Format("15:04:05"))
 			t.Reset(wait)
 
-			for i, b := range buckets {
-				buckets[i].Common.Queryid = mysql.QueryIDWithoutSchema(b.Common.Queryid)
-			}
-
 			s.changes <- agents.Change{MetricsBucket: buckets}
 		}
 	}
@@ -439,7 +434,7 @@ func makeBuckets(
 		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength, truncate.GetDefaultMaxQueryLength())
 		mb := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
-				Queryid:              mysql.QueryIDWithSchema(v.Db, v.Id),
+				Queryid:              v.Id,
 				Fingerprint:          fingerprint,
 				IsTruncated:          isTruncated,
 				Database:             "",

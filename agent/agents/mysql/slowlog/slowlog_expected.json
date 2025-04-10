@@ -45,7 +45,7 @@
 	},
 	{
 		"common": {
-			"queryid": "sbtest-FA521F3C42DC5272",
+			"queryid": "FA521F3C42DC5272",
 			"explain_fingerprint": "select pad from sbtest1 where id=:1",
 			"placeholders_count": 1,
 			"fingerprint": "select pad from sbtest1 where id=?",
