@@ -3,6 +3,7 @@
 Deploy PMM Server as a Docker container for a fast, flexible and isolated setup. 
 
 While PMM Server runs independently, we highly recommend that you streamline [upgrades via the PMM user interface](../../../../pmm-upgrade/ui_upgrade.md) by installing [Watchtower](https://containrrr.dev/watchtower/) alongside PMM Server. 
+
 With Watchtower installed, you can easily update PMM Server directly from the **Upgrade** page or by clicking the **Upgrade Now** button on the **Home** dashboard.
 
 ## Prerequisites
@@ -25,12 +26,11 @@ To ensure a secure setup when using Watchtower:
 ### Container setup summary
 
 !!! info "Container setup at a glance"
-    !!! summary alert alert-info ""
-        - **Pull the Docker image**: `docker pull percona/pmm-server:3`
-        - **Choose storage**: Docker volumes (recommended) or host directory
-        - **Run the container**: Using the appropriate `docker run` command
-        - **Access the UI**: Navigate to `https://SERVER_IP_ADDRESS` in your browser
-        - **Log in**: Default credentials `admin` / `admin`
+    - **Pull the Docker image**: `docker pull percona/pmm-server:3`
+    - **Choose storage**: Docker volumes (recommended) or host directory
+    - **Run the container**: Using the appropriate `docker run` command
+    - **Access the UI**: Navigate to `https://SERVER_IP_ADDRESS` in your browser
+    - **Log in**: Default credentials `admin` / `admin`
 
 ### Install PMM Server + Watchtower
 
