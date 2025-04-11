@@ -18,7 +18,7 @@ PMM components can be deployed in various combinations depending on your needs:
 
 For detailed hardware and network specifications, see:
 
-- [hardware and system requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) 
+- [hardware and system requirements](../plan-pmm-installation/hardware_and_system.md) 
 - [network and firewall requirements](../../install-pmm/plan-pmm-installation/network_and_firewall.md)
 
 ### Architecture considerations
@@ -107,16 +107,23 @@ When selecting your deployment strategy, consider the following:
 
 ## Deployment planning checklist
 
-✓ Inventory of systems and environments to monitor  
-✓ Estimate monitoring scope (instances, metric volume)  
-✓ Size the PMM Server based on expected load  
-✓ Choose a PMM Server deployment method  
-✓ Select the best PMM Client install method per system type  
-✓ Verify network and firewall access  
-✓ Plan for data backups and disaster recovery  
-✓ Define upgrade and patching process for all PMM components
+Review this checklist to help you plan and size your monitoring environment and ensure your PMM environment is efficient, secure, and scalable from day one:
 
-This deployment planning ensures that your PMM environment is efficient, secure, and scalable from day one.
+✓ Inventory of systems - Document all database instances that need monitoring 
+
+✓ [Estimate monitoring scope](../plan-pmm-installation/hardware_and_system.md/#storage-planning) - Calculate number of instances and expected metric volume 
+
+✓ Size the PMM Server - Determine hardware requirements based on monitoring load 
+
+✓ [Choose Server deployment method](../install-pmm-server/index.md) - Select the appropriate PMM Server installation option 
+
+✓ [Select Client install methods](../install-pmm-client/index.md) - Identify the best PMM Client setup for each system type 
+
+✓ [Verify network access](../plan-pmm-installation/network_and_firewall.md) - Ensure proper connectivity and firewall rules are in place 
+
+✓ [Plan data retention](../../backup/index.md) - Establish backup and disaster recovery processes 
+
+✓ [Define maintenance](../../pmm-upgrade/index.md) - Create upgrade and patching procedures for PMM components
 
 ## Next step
 

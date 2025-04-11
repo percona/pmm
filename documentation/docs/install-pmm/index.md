@@ -9,17 +9,18 @@ PMM Server provides the web interface with dashboards and analytics, while PMM C
 The PMM installation consists of three main steps that need to be completed in sequence: 
 {.power-number}
 
-1. **[Deploy PMM Server](#1-install-pmm-server)**: centralized platform that collects, analyzes, and visualizes your monitoring data
-2. **[Install PMM Clients](#2-install-pmm-client)**: lightweight agents on each database host that collect metrics without impacting performance
-3. **[Configure monitoring services](#3-add-services-for-monitoring)**: connect PMM to your database instances, select which metrics to collect, and customize monitoring parameters
+1. [Deploy PMM Server](#1-install-pmm-server): centralized platform that collects, analyzes, and visualizes your monitoring data
+2. [Install PMM Clients](#2-install-pmm-client): lightweight agents on each database host that collect metrics without impacting performance
+3. [Configure monitoring services](#3-add-services-for-monitoring): connect PMM to your database instances, select which metrics to collect, and customize monitoring parameters
 
 ## Planning the installation
 
-Before you begin the installation, make sure to:
+Before installing PMM, make sure to first:
+{.power-number}
 
-- Review the [deployment strategy options](../install-pmm/plan-pmm-installation/choose-deployment.md) to determine the best fit for your environment.  
-- Confirm that your system meets the [hardware and software requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md).  
-- Ensure your environment satisfies the [network and firewall requirements](../install-pmm/plan-pmm-installation/network_and_firewall.md) for proper connectivity.
+- [Choose a deployment strategy](../install-pmm/plan-pmm-installation/choose-deployment.md) based on your environment needs.
+- [Verify hardware requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) to ensure your system meets the necessary specifications.
+- [Configure your network](../install-pmm/plan-pmm-installation/network_and_firewall.md) for the required connections.
 
 ## Installation steps 
 
@@ -82,7 +83,7 @@ PMM supports monitoring across the following database technologies, cloud servic
     
     | **Database** | **Description** | **Setup guide** |
     | ------------------------- | ---------------------------- | ---------------------------- |
-    | :material-dolphin: **MySQL** | MySQL, Percona Server for MySQL, MariaDB | [**Connect to MySQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/mysql.md) |
+    | :material-dolphin: **MySQL** | MySQL, Percona Server for MySQL, MariaDB | [**Connect to MySQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/mysql/mysql.md) |
     | :material-elephant: **PostgreSQL** | PostgreSQL database servers | [**Connect to PostgreSQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/postgresql.md) |
     | :material-leaf: **MongoDB** | MongoDB, Percona Server for MongoDB | [**Connect to MongoDB** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/mongodb.md) |
 
@@ -127,6 +128,6 @@ PMM supports monitoring across the following database technologies, cloud servic
 After completing the installation, you can:
 
 - [Configure alerts](../alert/index.md) to notify you of critical events
-- [Set up backup management](../backup/index.mdd) to protect your data
+- [Set up backup management](../backup/index.md) to protect your data
 - [Explore dashboards](../use/dashboards-panels/index.md) to monitor your database performance
 - [Analyze query performance](../use/qan/index.md) to identify and optimize slow queries
