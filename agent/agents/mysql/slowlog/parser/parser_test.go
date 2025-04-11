@@ -29,6 +29,8 @@ import (
 	"github.com/percona/go-mysql/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/agent/utils/filereader"
 )
 
 var updateF = flag.Bool("update", false, "update golden .json files")
@@ -36,7 +38,7 @@ var updateF = flag.Bool("update", false, "update golden .json files")
 func parseSlowLog(t *testing.T, filepath string, opts log.Options) []log.Event {
 	t.Helper()
 
-	r, err := NewSimpleFileReader(filepath)
+	r, err := filereader.NewSimpleFileReader(filepath)
 	require.NoError(t, err)
 	defer func() {
 		assert.NoError(t, r.Close())
@@ -332,7 +334,7 @@ func TestParserSpecial(t *testing.T) {
 	t.Run("slow023", func(t *testing.T) {
 		t.Parallel()
 
-		r, err := NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
+		r, err := filereader.NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
 		require.NoError(t, err)
 		defer func() {
 			assert.NoError(t, r.Close())

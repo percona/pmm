@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package parser
+package filereader
 
 // Logger defines the interface for a MySQL slow log parser logger.
 type Logger interface {

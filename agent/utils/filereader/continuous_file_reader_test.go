@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package parser
+package filereader
 
 import (
 	"io"
@@ -41,7 +41,7 @@ func TestContinuousFileReader(t *testing.T) {
 			cleanup(t, files)
 		}()
 
-		f, err := os.CreateTemp("", "pmm-agent-test-slowlog-reader-normal")
+		f, err := os.CreateTemp("", "pmm-agent-test-reader-normal")
 		require.NoError(t, err)
 		files = append(files, f.Name())
 
@@ -122,11 +122,11 @@ func TestContinuousFileReader(t *testing.T) {
 			cleanup(t, files)
 		}()
 
-		f, err := os.CreateTemp("", "pmm-agent-test-slowlog-reader-symlink-file1")
+		f, err := os.CreateTemp("", "pmm-agent-test-reader-symlink-file1")
 		require.NoError(t, err)
 		files = append(files, f.Name())
 
-		symlink, err := os.CreateTemp("", "pmm-agent-test-slowlog-reader-symlink")
+		symlink, err := os.CreateTemp("", "pmm-agent-test-reader-symlink")
 		require.NoError(t, err)
 		require.NoError(t, symlink.Close())
 		symlinkName := symlink.Name()
@@ -195,7 +195,7 @@ func TestContinuousFileReader(t *testing.T) {
 		assert.Equal(t, &ReaderMetrics{InputSize: 3, InputPos: 3}, r.Metrics())
 
 		// test symlink change
-		f, err = os.CreateTemp("", "pmm-agent-test-slowlog-reader-symlink-file2")
+		f, err = os.CreateTemp("", "pmm-agent-test-reader-symlink-file2")
 		require.NoError(t, err)
 		files = append(files, f.Name())
 		require.NoError(t, os.Remove(symlinkName))

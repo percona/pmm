@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package parser
+package filereader
 
 import (
 	"bufio"
@@ -130,7 +130,7 @@ func (r *ContinuousFileReader) needsReopen() bool {
 	return false
 }
 
-// reopen reopens slowlog file.
+// reopen reopens log file.
 func (r *ContinuousFileReader) reopen() {
 	if err := r.f.Close(); err != nil {
 		r.l.Warnf("Failed to close file %s: %s.", r.f.Name(), err)

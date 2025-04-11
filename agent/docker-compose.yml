@@ -2,28 +2,11 @@
 version: '3.7'
 
 services:
-  pmm-server:
-    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
-    container_name: pmm-agent_pmm-server
-    ports:
-      - "127.0.0.1:80:8080"
-      - "127.0.0.1:443:8443"
-    environment:
-      - PMM_DEBUG=1
-      # for local development
-      - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/custom-checks.yml
-      # for check-dev
-      # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=check-dev.percona.com:443
-      # - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
-    volumes:
-      - ./testdata/checks:/srv/checks
-
   test_db:
     image: aleksi/test_db:1.1.0
     container_name: pmm-agent_test_db
     volumes:
       - test_db_mysql:/test_db/mysql/world:ro
-      - test_db_postgres:/test_db/postgresql/world:ro
 
   # It is essential to have an extra directory `/slowlogs/` between host and container;
   # and to not have a trailing slash at `./testdata/mysql`.
@@ -135,4 +118,3 @@ services:
 
 volumes:
   test_db_mysql:
-  test_db_postgres:
