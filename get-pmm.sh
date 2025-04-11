@@ -6,7 +6,7 @@
 # if PMM 2 is running, it will be stopped and data will be migrated to PMM 3.
 #
 # Usage example:
-# curl -fsSL https://raw.githubusercontent.com/percona/pmm/main/get-pmm.sh -o get-pmm.sh; chmod +x get-pmm.sh; ./get-pmm.sh -b
+# curl -fsSL https://raw.githubusercontent.com/percona/pmm/v3/get-pmm.sh -o get-pmm.sh; chmod +x get-pmm.sh; ./get-pmm.sh -b
 #
 #################################
 
@@ -15,7 +15,7 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 
 # Set defaults.
 network_name=${NETWORK_NAME:-pmm-net}
-tag=${PMM_TAG:-3.0.0}
+tag=${PMM_TAG:-3}
 repo=${PMM_REPO:-percona/pmm-server}
 port=${PMM_PORT:-443}
 container_name=${CONTAINER_NAME:-pmm-server}

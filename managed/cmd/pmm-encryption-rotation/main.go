@@ -45,10 +45,12 @@ func main() {
 		os.Exit(codeDBConnectionFailed)
 	}
 
-	statusCode := encryptionService.RotateEncryptionKey(sqlDB, "pmm-managed")
+	statusCode, err := encryptionService.RotateEncryptionKey(sqlDB, "pmm-managed")
 	sqlDB.Close() //nolint:errcheck
-
-	os.Exit(statusCode)
+	if err != nil {
+		logrus.Error(err)
+		os.Exit(statusCode)
+	}
 }
 
 type flags struct {

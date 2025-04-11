@@ -138,7 +138,7 @@
     <!-- Compatibility with MySQL protocol.
          ClickHouse will pretend to be MySQL for applications connecting to this port.
     -->
-    <mysql_port>9004</mysql_port>
+    <!-- <mysql_port>9004</mysql_port> -->
 
     <!-- Compatibility with PostgreSQL protocol.
          ClickHouse will pretend to be PostgreSQL for applications connecting to this port.
@@ -484,9 +484,9 @@
     <tmp_path>/srv/clickhouse/tmp/</tmp_path>
 
     <!-- Disable AuthType plaintext_password and no_password for ACL. -->
-    <allow_plaintext_password>1</allow_plaintext_password>
-    <allow_no_password>1</allow_no_password>
-    <allow_implicit_no_password>1</allow_implicit_no_password>
+    <allow_plaintext_password>0</allow_plaintext_password>
+    <allow_no_password>0</allow_no_password>
+    <allow_implicit_no_password>0</allow_implicit_no_password>
 
     <!-- When a user does not specify a password type in the CREATE USER query, the default password type is used.
          Accepted values are: 'plaintext_password', 'sha256_password', 'double_sha1_password', 'bcrypt_password'.
