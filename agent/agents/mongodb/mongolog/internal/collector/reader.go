@@ -11,11 +11,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 )
 
 type FileReader struct {

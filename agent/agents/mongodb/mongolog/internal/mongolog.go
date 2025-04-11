@@ -23,12 +23,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/collector"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/sender"

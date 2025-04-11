@@ -40,7 +40,7 @@ func TestCollector(t *testing.T) {
 	ctr := New(filePath, logrus.WithField("component", "collector-test"))
 
 	// Start the collector
-	var profiles []proto.SystemProfile
+	var logs []proto.SystemProfile
 	docsChan, err := ctr.Start(ctx)
 	require.NoError(t, err)
 	wg := &sync.WaitGroup{}
