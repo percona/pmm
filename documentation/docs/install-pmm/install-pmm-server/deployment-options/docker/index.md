@@ -24,13 +24,13 @@ To ensure a secure setup when using Watchtower:
 
 ### Container setup summary
 
-??? info "Container setup at a glance"
+!!! info "Container setup at a glance"
     !!! summary alert alert-info ""
         - **Pull the Docker image**: `docker pull percona/pmm-server:3`
         - **Choose storage**: Docker volumes (recommended) or host directory
         - **Run the container**: Using the appropriate `docker run` command
         - **Access the UI**: Navigate to `https://SERVER_IP_ADDRESS` in your browser
-        - **Log in**: Default credentials - `admin` / `admin`
+        - **Log in**: Default credentials `admin` / `admin`
 
 ### Install PMM Server + Watchtower
 
@@ -89,7 +89,7 @@ You can choose PMM Server offers two storage options:
 
 | Option | Suitable for | Command |
 |--------|-------------|---------|
-| [Docker volumes](../docker/run_with_vol.md)(Recommended) | Production environments | `--volume pmm-data:/srv` |
+| [Docker volumes](../docker/run_with_vol.md) (Recommended) | Production environments | `--volume pmm-data:/srv` |
 | [Docker volumes](../docker/run_with_vol.md) | Development/testing | `--volume /path/on/host:/srv` |
 
 
@@ -127,19 +127,18 @@ After installation:
 After basic installation, you may want to customize your PMM Server setup:
 
 ### Security options
-- Configure a [trusted SSL certificate](../../../../admin/security/ssl_encryption.md) to remove browser warnings
+- Configure a [trusted SSL certificate](../../../../admin/security/ssl_encryption.md) to remove browser warnings.
+- Disable the upgrade panel if needed:
+
+    - **via Docker**:  add `-e PMM_ENABLE_UPDATES=false` to the `docker run` command (for the life of the container)
+    - **via UI**: go to **PMM Configuration > Settings > Advanced Settings** and disable **Check for Updates** (can be turned back on by any admin in the UI)
 
 - Enable HTTP (insecure, NOT recommended): add `--publish 80:8080` to the `docker run` command.
 
 !!! info "Warning"
     PMM Client **requires** TLS to communicate with PMM Server, only working on a secure port.
 
-- Disable the upgrade panel if needed:
-
-  - via Docker:  add `-e PMM_ENABLE_UPDATES=false` to the `docker run` command (for the life of the container)
-  - via UI: go to **PMM Configuration > Settings > Advanced Settings** and disable **Check for Updates** (can be turned back on by any admin in the UI)
-
 ## Next steps
 - [Install PMM Client on hosts you want to monitor](../../../install-pmm-client/index.md)
-- [Register Client nodes with your PMM Server](../../../register-client-node/)
+- [Register Client nodes with your PMM Server](../../../register-client-node/index.md)
 - [Connect databases for monitoring](../../../install-pmm-client/connect-database/index.md)
