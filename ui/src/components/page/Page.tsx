@@ -19,9 +19,11 @@ export const Page: FC<PageProps> = ({ title, footer, children }) => {
   return (
     <Stack
       sx={{
+        '@media (min-width:1000px)': {
+          width: 1000,
+        },
         width: {
-          sm: 1000,
-          xs: 'auto',
+          md: 'auto',
         },
         p: {
           xs: 2,
