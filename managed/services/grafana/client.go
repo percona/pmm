@@ -502,7 +502,7 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 
 	var group AlertRuleGroup
 	err = c.do(ctx, http.MethodGet, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderUID, groupName), "", authHeaders, nil, &group)
-	var clientErr = &clientError{}
+	clientErr := &clientError{}
 
 	switch {
 	// Initialize rule group if not present
