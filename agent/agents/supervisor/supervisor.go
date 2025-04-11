@@ -489,19 +489,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		close(done)
 	}()
 
-	t := time.NewTimer(start_Process_Waiting)
-	defer t.Stop()
-	select {
-	case isInitialized := <-process.IsInitialized():
-		if !isInitialized {
-			defer cancel()
-			return process.GetError()
-		}
-	case <-t.C:
-	}
-
-	//nolint:forcetypeassert
-	s.agentProcesses[agentID] = &agentProcessInfo{
+	processInfo := &agentProcessInfo{ //nolint:forcetypeassert
 		cancel:          cancel,
 		done:            done,
 		requestedState:  proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess),
@@ -509,7 +497,44 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		processExecPath: processParams.Path,
 		logStore:        logStore,
 	}
+
+	t := time.NewTimer(start_Process_Waiting)
+	defer t.Stop()
+	select {
+	case isInitialized := <-process.IsInitialized():
+		if !isInitialized {
+			// TODO: handle initialization error for nomad agent
+			if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT {
+				s.handleNomadAgent(agentID, processInfo, l)
+				return nil
+			}
+			defer cancel()
+			return process.GetError()
+		}
+	case <-t.C:
+	}
+
+	//nolint:forcetypeassert
+	s.agentProcesses[agentID] = processInfo
 	return nil
+}
+
+func (s *Supervisor) handleNomadAgent(agentID string, processInfo *agentProcessInfo, l *logrus.Entry) { //nolint:lll
+	done := make(chan struct{})
+	s.agentProcesses[agentID] = processInfo
+
+	status := inventoryv1.AgentStatus_AGENT_STATUS_DONE
+	s.storeLastStatus(agentID, status)
+	l.Warn("Cannot start Nomad Agent: cgroups are not writable.")
+	l.Infof("Sending status: %s (port %d).", status, processInfo.listenPort)
+	s.changes <- &agentv1.StateChangedRequest{
+		AgentId:         agentID,
+		Status:          status,
+		ListenPort:      uint32(processInfo.listenPort),
+		ProcessExecPath: processInfo.processExecPath,
+	}
+
+	close(done)
 }
 
 // startBuiltin starts built-in Agent.
@@ -705,9 +730,10 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		templateParams["tmp_dir"] = cfg.Paths.TempDir
 		processParams.Path = cfg.Paths.VMAgent
 	case inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT:
-		templateParams["server_host"] = cfg.Server.URL().Host
+		templateParams["server_host"] = cfg.Server.URL().Hostname()
 		templateParams["nomad_data_dir"] = cfg.Paths.NomadDataDir
 		processParams.Path = cfg.Paths.Nomad
+		processParams.Env = append(processParams.Env, os.Environ()...)
 	default:
 		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
 	}
@@ -740,14 +766,15 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		processParams.Args[i] = string(b)
 	}
 
-	processParams.Env = make([]string, len(agentProcess.Env))
+	env := make([]string, len(agentProcess.Env))
 	for i, e := range agentProcess.Env {
 		b, err := tr.RenderTemplate("env", e, templateParams)
 		if err != nil {
 			return nil, err
 		}
-		processParams.Env[i] = string(b)
+		env[i] = string(b)
 	}
+	processParams.Env = append(processParams.Env, env...)
 
 	return &processParams, nil
 }

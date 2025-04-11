@@ -72,6 +72,7 @@ const (
 	QANPostgreSQLPgStatMonitorAgentType AgentType = "qan-postgresql-pgstatmonitor-agent"
 	ExternalExporterType                AgentType = "external-exporter"
 	VMAgentType                         AgentType = "vmagent"
+	NomadClientType                     AgentType = "nomad-client"
 )
 
 var v2_42 = version.MustParse("2.42.0-0")

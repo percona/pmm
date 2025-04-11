@@ -75,7 +75,7 @@ func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.A
 			case err != nil || len(agentIDs) != 1:
 				req.MetricsMode = managementv1.MetricsMode_METRICS_MODE_PULL
 			default:
-				req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, agentIDs[0].AgentID)
+				req.MetricsMode, err = supportedMetricsMode(req.MetricsMode, agentIDs[0].AgentID)
 				if err != nil {
 					return err
 				}
