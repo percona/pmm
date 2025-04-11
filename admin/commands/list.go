@@ -360,6 +360,17 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	for _, a := range agentsRes.Payload.QANMongodbMongologAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType: types.AgentTypeQANMongoDBMongologAgent,
+				AgentID:   a.AgentID,
+				ServiceID: a.ServiceID,
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
+			})
+		}
+	}
 	for _, a := range agentsRes.Payload.QANPostgresqlPgstatementsAgent {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
