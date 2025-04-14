@@ -294,7 +294,7 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 		return ErrInvalidUserID
 	}
 
-	filters, err := s.getFiltersForVMProxy(ctx, userID)
+	filters, err := s.getLBACFilters(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -324,7 +324,8 @@ func (s *AuthServer) shallAddLBACFilters(req *http.Request) bool {
 	return false
 }
 
-func (s *AuthServer) getFiltersForVMProxy(ctx context.Context, userID int) ([]string, error) {
+// getLBACFilters retrieves LBAC filters for the user.
+func (s *AuthServer) getLBACFilters(ctx context.Context, userID int) ([]string, error) {
 	roles, err := models.GetUserRoles(s.db.Querier, userID)
 	if err != nil {
 		return nil, err
