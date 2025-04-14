@@ -114,7 +114,7 @@ var lbacPrefixes = []string{
 	"/graph/api/datasources/uid",
 	"/graph/api/ds/query",
 	// "/graph/api/v1/labels",
-	// "/prometheus/api/v1/",
+	"/prometheus/api/v1/",
 	// QAN related
 	"/v1/qan/",
 	// "/qan.v1.QANService/",
