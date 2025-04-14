@@ -46,7 +46,7 @@ You can install PMM Server with Watchtower using one of two methods:
       ```
 
 === "Manual installation (For customization)"
-    For a more customizable setup, follow these steps:ßßßßßß
+    For a more customizable setup, follow these steps:
     {.power-number}
     
     1.  Create a Docker network for PMM and Watchtower:
