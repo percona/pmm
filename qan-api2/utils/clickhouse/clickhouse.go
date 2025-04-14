@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package filters contains utility functions for manipulating filters.
+// Package clickhouse contains utility functions for manipulating filters.
 package clickhouse
 
 import (
@@ -23,8 +23,9 @@ import (
 	"github.com/prometheus/prometheus/model/labels"
 )
 
+// MatchersToClickHouse converts Prometheus matchers to ClickHouse SQL conditions.
 func MatchersToClickHouse(matchers []*labels.Matcher) (string, error) {
-	var conditions []string
+	conditions := make([]string, len(matchers))
 
 	for _, m := range matchers {
 		var condition string
@@ -63,6 +64,7 @@ func MatchersToClickHouse(matchers []*labels.Matcher) (string, error) {
 	return strings.Join(conditions, " AND "), nil
 }
 
+// escapeValue escapes special characters in a string for use in SQL queries.
 func escapeValue(value string) string {
 	// Escape single quotes to counter SQL injection
 	escaped := strings.ReplaceAll(value, "'", "''")
@@ -75,6 +77,7 @@ func escapeValue(value string) string {
 	return escaped
 }
 
+// clickhouseRegex optimizes the regular expressions for ClickHouse.
 func clickhouseRegex(regex string) string {
 	// Make quantifiers non-greedy
 	return strings.ReplaceAll(regex, ".*", ".*?")
