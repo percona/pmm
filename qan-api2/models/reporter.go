@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"text/template"
 	"time"
@@ -29,8 +30,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/prometheus/prometheus/promql/parser"
 	"google.golang.org/grpc/metadata"
-
-	"slices"
 
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/utils/clickhouse"
@@ -688,7 +687,7 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 
 	labelKeysValues, err := r.queryLabels(ctx, periodStartFromSec, periodStartToSec)
 	if err != nil {
-		logger.Get(ctx).Errorf("Failed to query labels: %s", err)
+		// logger.Get(ctx).Errorf("Failed to query labels: %s", err)
 		return groupLabels
 	}
 
@@ -759,7 +758,6 @@ func filtersToWhere(ctx context.Context) (string, error) {
 	var err error
 	if filters := headers.Get(LBACHeaderName); len(filters) > 0 {
 		selector, err = parseFilters(filters)
-
 		if err != nil {
 			return "", fmt.Errorf("failed to parse filters: %v", err)
 		}
