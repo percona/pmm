@@ -2,11 +2,13 @@ apiVersion: 1
 deleteDatasources:
   - name: ClickHouse
     orgId: 1
+
 datasources:
 - name: Metrics
   version: 2
   orgId: 1
   type: prometheus
+  uid: prometheus
   access: proxy
   url: http://127.0.0.1:8430/
   isDefault: true
@@ -14,10 +16,12 @@ datasources:
     httpMethod: POST
     keepCookies: []
     timeInterval: 1s
+
 - name: PostgreSQL
   version: 2
   orgId: 1
   type: postgres
+  uid: postgres
   access: proxy
   url: ${PMM_POSTGRES_ADDR}
   user: ${PMM_POSTGRES_USERNAME}
@@ -30,11 +34,13 @@ datasources:
     sslmode: ${PMM_POSTGRES_SSL_MODE}
   secureJsonData:
     password: ${PMM_POSTGRES_DBPASSWORD}
+
 - name: PTSummary
   version: 2
   orgId: 1
   type: pmm-pt-summary-datasource
   access: proxy
+
 - name: ClickHouse
   orgId: 1
   version: 2
