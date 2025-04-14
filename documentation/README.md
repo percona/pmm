@@ -38,7 +38,7 @@ If you'd like to have a local copy of PMM documentation, or are thinking about c
 
 2. Clone this repository.
 
-3. Change directory to `pmm-doc`.
+3. Change directory to `pmm/documentation`.
 
 4. Use our [PMM documentation Docker image] to *build the documentation*:
 
