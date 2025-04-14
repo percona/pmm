@@ -18,15 +18,23 @@ package models
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"text/template"
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
+	"github.com/prometheus/prometheus/promql/parser"
+	"google.golang.org/grpc/metadata"
+
+	"slices"
 
 	qanpb "github.com/percona/pmm/api/qan/v1"
+	"github.com/percona/pmm/qan-api2/utils/clickhouse"
+	"github.com/percona/pmm/qan-api2/utils/logger"
 )
 
 // Reporter implements models to select metrics bucket by params.
@@ -45,7 +53,9 @@ var funcMap = template.FuncMap{
 }
 
 // M is map for interfaces.
-type M map[string]interface{}
+type M map[string]any
+
+const LBACHeaderName = "X-Proxy-Filter"
 
 const queryReportTmpl = `
 SELECT
@@ -97,6 +107,9 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
         {{ if gt $i 1}} AND {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
     {{ end }})
 {{ end }}
+{{ if .Where }}
+		AND	{{ .Where }}
+{{ end }}
 GROUP BY {{ .Group }}
         WITH TOTALS
 ORDER BY {{ .Order }}
@@ -104,15 +117,6 @@ LIMIT :offset, :limit
 `
 
 var tmplQueryReport = template.Must(template.New("queryReportTmpl").Funcs(funcMap).Parse(queryReportTmpl))
-
-func inSlice(slice []string, val string) bool {
-	for _, v := range slice {
-		if v == val {
-			return true
-		}
-	}
-	return false
-}
 
 // workaround to issues in closed PR https://github.com/jmoiron/sqlx/pull/579
 func escapeColons(in string) string {
@@ -139,7 +143,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 ) ([]M, error) {
 	search = strings.TrimSpace(search)
 
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
 		"group":             group,
@@ -147,6 +151,11 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		"search":            "%" + strings.ToLower(search) + "%",
 		"offset":            offset,
 		"limit":             limit,
+	}
+
+	where, err := filtersToWhere(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	tmplArgs := struct {
@@ -164,6 +173,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		CommonColumns       []string
 		SumColumns          []string
 		IsQueryTimeInSelect bool
+		Where               string
 	}{
 		PeriodStartFrom:     periodStartFromSec,
 		PeriodStartTo:       periodStartToSec,
@@ -178,23 +188,24 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		SpecialColumns:      specialColumns,
 		CommonColumns:       commonColumns,
 		SumColumns:          sumColumns,
-		IsQueryTimeInSelect: inSlice(commonColumns, "query_time"),
+		IsQueryTimeInSelect: slices.Contains(commonColumns, "query_time"),
+		Where:               where,
 	}
 
 	var queryBuffer bytes.Buffer
 
 	if err := tmplQueryReport.Execute(&queryBuffer, tmplArgs); err != nil {
-		return nil, errors.Wrap(err, "cannot execute tmplQueryReport")
+		return nil, fmt.Errorf("cannot execute tmplQueryReport: %w", err)
 	}
 
 	var results []M
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return nil, errors.Wrap(err, "prepare named tmplQueryReport")
+		return nil, fmt.Errorf("prepare named tmplQueryReport: %w", err)
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "populate arguments in IN clause")
+		return nil, fmt.Errorf("populate arguments in IN clause: %w", err)
 	}
 	query = r.db.Rebind(query)
 
@@ -203,7 +214,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 
 	rows, err := r.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "QueryxContext error")
+		return nil, fmt.Errorf("QueryxContext error: %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -211,7 +222,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		result := make(M)
 		err = rows.MapScan(result)
 		if err != nil {
-			return nil, errors.Wrap(err, "DimensionReport Scan error")
+			return nil, fmt.Errorf("DimensionReport Scan error: %w", err)
 		}
 		results = append(results, result)
 	}
@@ -220,7 +231,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 	for rows.Next() {
 		err = rows.MapScan(total)
 		if err != nil {
-			return nil, errors.Wrap(err, "DimensionReport Scan TOTALS error")
+			return nil, fmt.Errorf("DimensionReport Scan TOTALS error: %w", err)
 		}
 		results = append([]M{total}, results...)
 	}
@@ -234,20 +245,20 @@ SELECT
     {{ .TimeFrame }} AS time_frame,
     {{ if .IsCommon }}
         if(SUM(m_{{ .Column }}_cnt) == 0, NaN, SUM(m_{{ .Column }}_sum) / time_frame) AS m_{{ .Column }}_sum_per_sec
-	{{ else }}
-		{{ if eq .Column "num_queries" }}
-			SUM(num_queries) / time_frame AS num_queries_per_sec
+		{{ else }}
+			{{ if eq .Column "num_queries" }}
+				SUM(num_queries) / time_frame AS num_queries_per_sec
+			{{ end }}
+			{{ if eq .Column "num_queries_with_errors" }}
+				SUM(num_queries_with_errors) / time_frame AS num_queries_with_errors_per_sec
+			{{ end }}
+			{{ if eq .Column "num_queries_with_warnings" }}
+				SUM(num_queries_with_warnings) / time_frame AS num_queries_with_warnings_per_sec
+			{{ end }}
+			{{ if eq .Column "load" }}
+				SUM(m_query_time_sum) / time_frame AS load
+			{{ end }}
 		{{ end }}
-		{{ if eq .Column "num_queries_with_errors" }}
-			SUM(num_queries_with_errors) / time_frame AS num_queries_with_errors_per_sec
-		{{ end }}
-		{{ if eq .Column "num_queries_with_warnings" }}
-			SUM(num_queries_with_warnings) / time_frame AS num_queries_with_warnings_per_sec
-		{{ end }}
-		{{ if eq .Column "load" }}
-			SUM(m_query_time_sum) / time_frame AS load
-		{{ end }}
-	{{ end }}
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if not .IsTotal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
@@ -256,6 +267,9 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
     AND ({{range $key, $val := .Labels }} {{ $i = inc $i}}
         {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $val "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
     {{ end }})
+{{ end }}
+{{ if .Where }}
+		AND	{{ .Where }}
 {{ end }}
 GROUP BY point
 ORDER BY point ASC;
@@ -290,13 +304,18 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	amountOfPoints += remainder / minutesInPoint
 	timeFrame := minutesInPoint * 60
 
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"dimension_val":     dimensionVal,
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
 		"group":             group,
 		"column":            column,
 		"time_frame":        timeFrame,
+	}
+
+	where, err := filtersToWhere(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	tmplArgs := struct {
@@ -311,6 +330,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		IsCommon        bool
 		TimeFrame       int64
 		IsTotal         bool
+		Where           string
 	}{
 		DimensionVal:    escapeColons(dimensionVal),
 		PeriodStartFrom: periodStartFromSec,
@@ -320,24 +340,25 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		Labels:          escapeColonsInMap(labels),
 		Group:           group,
 		Column:          column,
-		IsCommon:        !inSlice([]string{"load", "num_queries", "num_queries_with_errors", "num_queries_with_warnings"}, column),
+		IsCommon:        !slices.Contains([]string{"load", "num_queries", "num_queries_with_errors", "num_queries_with_warnings"}, column),
 		TimeFrame:       timeFrame,
 		IsTotal:         isTotal,
+		Where:           where,
 	}
 
 	var results []*qanpb.Point
 	var queryBuffer bytes.Buffer
 
 	if err := tmplQueryReportSparklines.Execute(&queryBuffer, tmplArgs); err != nil {
-		return nil, errors.Wrap(err, "cannot execute tmplQueryReportSparklines")
+		return nil, fmt.Errorf("cannot execute tmplQueryReportSparklines: %w", err)
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return nil, errors.Wrap(err, "prepare named")
+		return nil, fmt.Errorf("cannot prepare named: %w", err)
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "populate arguments in IN clause")
+		return nil, fmt.Errorf("populate arguments in IN clause: %w", err)
 	}
 	query = r.db.Rebind(query)
 
@@ -346,7 +367,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 
 	rows, err := r.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "report query")
+		return nil, fmt.Errorf("report query: %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 	resultsWithGaps := make(map[uint32]*qanpb.Point)
@@ -379,7 +400,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		res := getPointFieldsList(&p, sparklinePointFieldsToQuery)
 		err = rows.Scan(res...)
 		if err != nil {
-			return nil, errors.Wrap(err, "SelectSparklines scan errors")
+			return nil, fmt.Errorf("SelectSparklines scan errors: %w", err)
 		}
 		resultsWithGaps[p.Point] = &p
 	}
@@ -415,6 +436,9 @@ FROM
     FROM metrics
     WHERE (period_start >= ?) AND (period_start <= ?)
     {{range $key, $vals := .Dimensions }} AND ({{ $key }} IN ('{{ StringsJoin $vals "', '" }}')){{ end }}
+		{{ if .Where }}
+			AND	{{ .Where }}
+		{{ end }}
     GROUP BY {{ .DimensionName }}
     UNION ALL
     SELECT
@@ -423,6 +447,9 @@ FROM
         0 AS main_metric_sum
     FROM metrics
     WHERE (period_start >= ?) AND (period_start <= ?)
+		{{ if .Where }}
+			AND	{{ .Where }}
+		{{ end }}
     GROUP BY {{ .DimensionName }}
 )
 GROUP BY
@@ -490,7 +517,7 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 		}
 		values, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, dimensionName, mainMetricName, dimensionQuery, subDimensions, labels)
 		if err != nil {
-			return nil, errors.Wrapf(err, "cannot select %s dimension", dimensionName)
+			return nil, fmt.Errorf("cannot select %s dimension: %w", dimensionName, err)
 		}
 
 		totals := make(map[string]float32)
@@ -527,42 +554,53 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 ) ([]*customLabel, float32, error) {
 	durationSec := periodStartToSec - periodStartFromSec
 	var labels []*customLabel
+	l := logger.Get(ctx)
+
+	where, err := filtersToWhere(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
 
 	tmplArgs := struct {
 		MainMetric    string
 		DimensionName string
 		Dimensions    map[string][]string
 		Labels        map[string][]string
+		Where         string
 	}{
 		mainMetricName,
 		dimensionName,
 		queryDimensions,
 		queryLabels,
+		where,
 	}
 
 	var queryBuffer bytes.Buffer
 
 	if err := tmplQueryFilter.Execute(&queryBuffer, tmplArgs); err != nil {
-		return nil, 0, errors.Wrapf(err, "cannot execute tmplQueryFilter %s", queryBuffer.String())
+		return nil, 0, fmt.Errorf("cannot execute tmplQueryFilter %s: %w", queryBuffer.String(), err)
 	}
 
 	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec, periodStartFromSec, periodStartToSec)
 	if err != nil {
-		return nil, 0, errors.Wrapf(err, "failed to select for QueryFilter %s", queryBuffer.String())
+		return nil, 0, fmt.Errorf("failed to select for QueryFilter %s: %w", queryBuffer.String(), err)
 	}
 	defer rows.Close() //nolint:errcheck
+	if strings.Contains(queryBuffer.String(), "service_type AS value") {
+		l.Infof("QueryFilter: %s, startFrom: %d, startTo: %d", queryBuffer.String(), periodStartFromSec, periodStartToSec)
+	}
 
 	for rows.Next() {
 		var label customLabel
 		err = rows.Scan(&label.key, &label.value, &label.mainMetricPerSec)
 		if err != nil {
-			return nil, 0, errors.Wrapf(err, "failed to scan for QueryFilter %s", queryBuffer.String())
+			return nil, 0, fmt.Errorf("failed to scan for QueryFilter %s: %w", queryBuffer.String(), err)
 		}
 		label.mainMetricPerSec /= float32(durationSec)
 		labels = append(labels, &label)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, 0, errors.Wrapf(err, "failed to select for QueryFilter %s", queryBuffer.String())
+		return nil, 0, fmt.Errorf("failed to select for QueryFilter %s: %w", queryBuffer.String(), err)
 	}
 
 	totalMainMetricPerSec := float32(0)
@@ -572,12 +610,12 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 		for rows.Next() {
 			err = rows.Scan(&labelTotal.key, &labelTotal.value, &labelTotal.mainMetricPerSec)
 			if err != nil {
-				return nil, 0, errors.Wrapf(err, "failed to scan total for QueryFilter %s", queryBuffer.String())
+				return nil, 0, fmt.Errorf("failed to scan total for QueryFilter %s: %w", queryBuffer.String(), err)
 			}
 			totalMainMetricPerSec = labelTotal.mainMetricPerSec / float32(durationSec)
 		}
 		if err = rows.Err(); err != nil {
-			return nil, 0, errors.Wrapf(err, "failed to select total for QueryFilter %s", queryBuffer.String())
+			return nil, 0, fmt.Errorf("failed to select total for QueryFilter %s: %w", queryBuffer.String(), err)
 		}
 	}
 
@@ -585,11 +623,14 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 }
 
 const queryLabels = `
-SELECT
+SELECT DISTINCT
 	labels.key,
 	labels.value
 FROM metrics
 WHERE (period_start >= ?) AND (period_start <= ?)
+{{ if .Where }}
+	AND	{{ .Where }}
+{{ end }}
 ORDER BY
 	labels.value ASC
 `
@@ -599,27 +640,43 @@ type customLabelArray struct {
 	values []string
 }
 
-func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec,
-	periodStartToSec int64,
-) ([]*customLabelArray, error) {
-	var labels []*customLabelArray
+var queryLabelsTmpl = template.Must(template.New("queryLabels").Parse(queryLabels))
 
-	rows, err := r.db.QueryContext(ctx, queryLabels, periodStartFromSec, periodStartToSec)
+// queryLabels retrieves all labels and their values for the given time range.
+func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64) ([]*customLabelArray, error) {
+	where, err := filtersToWhere(ctx)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to select for QueryFilter %s", queryLabels)
+		return nil, err
+	}
+
+	var queryBuffer bytes.Buffer
+	tmplArgs := struct {
+		Where string
+	}{
+		Where: where,
+	}
+
+	if err := queryLabelsTmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+		return nil, fmt.Errorf("cannot execute queryLabelsTmpl: %w", err)
+	}
+
+	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec)
+	if err != nil {
+		return nil, fmt.Errorf("failed to select for QueryFilter %s: %w", queryLabels, err)
 	}
 	defer rows.Close() //nolint:errcheck
 
+	var labels []*customLabelArray
 	for rows.Next() {
 		var label customLabelArray
 		err = rows.Scan(&label.keys, &label.values)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to scan for QueryFilter %s", queryLabels)
+			return nil, fmt.Errorf("failed to scan for QueryFilter %s: %w", queryLabels, err)
 		}
 		labels = append(labels, &label)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, errors.Wrapf(err, "failed to select for QueryFilter %s", queryLabels)
+		return nil, fmt.Errorf("failed to select for QueryFilter %s: %w", queryLabels, err)
 	}
 
 	return labels, nil
@@ -631,6 +688,7 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 
 	labelKeysValues, err := r.queryLabels(ctx, periodStartFromSec, periodStartToSec)
 	if err != nil {
+		logger.Get(ctx).Errorf("Failed to query labels: %s", err)
 		return groupLabels
 	}
 
@@ -663,4 +721,64 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 	}
 
 	return groupLabels
+}
+
+// parseFilters decodes and unmarshals the filters.
+func parseFilters(filters []string) (string, error) {
+	switch len(filters) {
+	case 0:
+		return "", nil
+	case 2:
+		// There should be only one filter, otherwise it's an error.
+	default:
+		return "", errors.New("multiple filters are not supported")
+	}
+
+	decoded, err := base64.StdEncoding.DecodeString(filters[0])
+	if err != nil {
+		return "", fmt.Errorf("failed to decode filters %s: %w", filters[0], err)
+	}
+
+	var parsed []string
+	if err := json.Unmarshal(decoded, &parsed); err != nil {
+		return "", fmt.Errorf("failed to parse JSON: %w", err)
+	}
+
+	return string(parsed[0]), nil
+}
+
+// filtersToWhere extracts filters from the context and converts them to an SQL WHERE clause.
+func filtersToWhere(ctx context.Context) (string, error) {
+	headers, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", errors.New("failed to extract metadata from context")
+	}
+
+	l := logger.Get(ctx)
+	var selector, where string
+	var err error
+	if filters := headers.Get(LBACHeaderName); len(filters) > 0 {
+		selector, err = parseFilters(filters)
+
+		if err != nil {
+			return "", fmt.Errorf("failed to parse filters: %v", err)
+		}
+		l.Infof("Parsed: %s", selector)
+	}
+
+	if selector != "" {
+		// Example with four selector types: `{service_type=~"mysql|mongodb", environment!~"prod", environment="dev", az!="us-east-1"}`)
+		matchers, err := parser.ParseMetricSelector(selector)
+		if err != nil {
+			l.Errorf("Failed to parse metric selector: %v", err)
+		}
+
+		where, err = clickhouse.MatchersToClickHouse(matchers)
+		if err != nil {
+			l.Errorf("Failed to convert label matchers to WHERE condition: %s", err)
+		}
+		l.Infof("WHERE: %s", where)
+	}
+
+	return where, nil
 }

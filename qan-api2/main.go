@@ -364,7 +364,7 @@ func main() {
 // customMatcher allows to pass custom headers to the backend gRPC server.
 func customMatcher(key string) (string, bool) {
 	switch key {
-	case asvc.LBACHeaderName:
+	case models.LBACHeaderName:
 		return key, true
 	default:
 		return grpc_gateway.DefaultHeaderMatcher(key)
@@ -374,8 +374,8 @@ func customMatcher(key string) (string, bool) {
 // gatewayAnnotator is used to annotate the gRPC request with metadata from the HTTP request.
 func gatewayAnnotator(ctx context.Context, req *http.Request) metadata.MD {
 	md := metadata.MD{}
-	if filter := req.Header.Get(asvc.LBACHeaderName); filter != "" {
-		md.Set(strings.ToLower(asvc.LBACHeaderName), filter)
+	if filters := req.Header.Get(models.LBACHeaderName); filters != "" {
+		md.Set(strings.ToLower(models.LBACHeaderName), filters)
 		return md
 	}
 	return nil

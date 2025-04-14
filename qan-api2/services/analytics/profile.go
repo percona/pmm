@@ -61,7 +61,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 
 	var columns []string //nolint:prealloc
 	for _, col := range in.Columns {
-		// TODO: remove when UI will use num_queries instead.
+		// TODO: remove when UI starts using num_queries instead.
 		if col == "count" {
 			col = "num_queries"
 		}
