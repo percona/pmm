@@ -23,14 +23,14 @@ import (
 	"github.com/prometheus/prometheus/model/labels"
 )
 
-// MatchersToClickHouse converts Prometheus matchers to ClickHouse SQL conditions.
-func MatchersToClickHouse(matchers []*labels.Matcher) (string, error) {
+// MatchersToSQL converts Prometheus matchers to ClickHouse WHERE conditions.
+func MatchersToSQL(matchers []*labels.Matcher) (string, error) {
 	conditions := make([]string, len(matchers))
 
 	for i, m := range matchers {
 		var condition string
 
-		// TODO: implement processing for custom labels
+		// TODO: implement processing of custom labels
 		// if !analytics.IsDimension(m.Name) {
 		// 	switch m.Type {
 		// 	case labels.MatchEqual:
@@ -38,9 +38,9 @@ func MatchersToClickHouse(matchers []*labels.Matcher) (string, error) {
 		// 	case labels.MatchNotEqual:
 		// 		condition = fmt.Sprintf("label.key != '%s' AND label.value != '%s'", m.Name, escapeValue(m.Value))
 		// 	case labels.MatchRegexp:
-		// 		condition = fmt.Sprintf("match(%s, '%s')", m.Name, clickhouseRegex(m.Value))
+		// 		condition = fmt.Sprintf("match(%s, '%s')", label.key, clickhouseRegex(label.value))
 		// 	case labels.MatchNotRegexp:
-		// 		condition = fmt.Sprintf("NOT match(%s, '%s')", m.Name, clickhouseRegex(m.Value))
+		// 		condition = fmt.Sprintf("NOT match(%s, '%s')", label.key, clickhouseRegex(label.value))
 		// 	default:
 		// 		return "", fmt.Errorf("unsupported matcher type: %v", m.Type)
 		// 	}

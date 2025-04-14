@@ -31,7 +31,7 @@ import (
 	"github.com/prometheus/prometheus/promql/parser"
 	"google.golang.org/grpc/metadata"
 
-	qanpb "github.com/percona/pmm/api/qan/v1"
+	qanpbv1 "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/utils/clickhouse"
 	"github.com/percona/pmm/qan-api2/utils/logger"
 )
@@ -54,6 +54,7 @@ var funcMap = template.FuncMap{
 // M is map for interfaces.
 type M map[string]any
 
+// LBACHeaderName is an http header name used for LBAC.
 const LBACHeaderName = "X-Proxy-Filter"
 
 const queryReportTmpl = `
@@ -106,8 +107,8 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
         {{ if gt $i 1}} AND {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
     {{ end }})
 {{ end }}
-{{ if .Where }}
-		AND	{{ .Where }}
+{{ if .LbacFilter }}
+		AND	{{ .LbacFilter }}
 {{ end }}
 GROUP BY {{ .Group }}
         WITH TOTALS
@@ -152,7 +153,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		"limit":             limit,
 	}
 
-	where, err := filtersToWhere(ctx)
+	lbacFilter, err := headersToLbacFilter(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +173,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		CommonColumns       []string
 		SumColumns          []string
 		IsQueryTimeInSelect bool
-		Where               string
+		LbacFilter          string
 	}{
 		PeriodStartFrom:     periodStartFromSec,
 		PeriodStartTo:       periodStartToSec,
@@ -188,7 +189,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		CommonColumns:       commonColumns,
 		SumColumns:          sumColumns,
 		IsQueryTimeInSelect: slices.Contains(commonColumns, "query_time"),
-		Where:               where,
+		LbacFilter:          lbacFilter,
 	}
 
 	var queryBuffer bytes.Buffer
@@ -267,8 +268,8 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
         {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $val "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
     {{ end }})
 {{ end }}
-{{ if .Where }}
-		AND	{{ .Where }}
+{{ if .LbacFilter }}
+		AND	{{ .LbacFilter }}
 {{ end }}
 GROUP BY point
 ORDER BY point ASC;
@@ -281,7 +282,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	periodStartFromSec, periodStartToSec int64,
 	dimensions map[string][]string, labels map[string][]string,
 	group string, column string, isTotal bool,
-) ([]*qanpb.Point, error) {
+) ([]*qanpbv1.Point, error) {
 	// Align to minutes
 	periodStartToSec = periodStartToSec / 60 * 60
 	periodStartFromSec = periodStartFromSec / 60 * 60
@@ -312,7 +313,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		"time_frame":        timeFrame,
 	}
 
-	where, err := filtersToWhere(ctx)
+	lbacFilter, err := headersToLbacFilter(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -329,7 +330,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		IsCommon        bool
 		TimeFrame       int64
 		IsTotal         bool
-		Where           string
+		LbacFilter      string
 	}{
 		DimensionVal:    escapeColons(dimensionVal),
 		PeriodStartFrom: periodStartFromSec,
@@ -342,10 +343,10 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		IsCommon:        !slices.Contains([]string{"load", "num_queries", "num_queries_with_errors", "num_queries_with_warnings"}, column),
 		TimeFrame:       timeFrame,
 		IsTotal:         isTotal,
-		Where:           where,
+		LbacFilter:      lbacFilter,
 	}
 
-	var results []*qanpb.Point
+	var results []*qanpbv1.Point
 	var queryBuffer bytes.Buffer
 
 	if err := tmplQueryReportSparklines.Execute(&queryBuffer, tmplArgs); err != nil {
@@ -369,7 +370,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		return nil, fmt.Errorf("report query: %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
-	resultsWithGaps := make(map[uint32]*qanpb.Point)
+	resultsWithGaps := make(map[uint32]*qanpbv1.Point)
 
 	var mainMetricColumnName string
 	switch column {
@@ -395,7 +396,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	}
 
 	for rows.Next() {
-		p := qanpb.Point{}
+		p := qanpbv1.Point{}
 		res := getPointFieldsList(&p, sparklinePointFieldsToQuery)
 		err = rows.Scan(res...)
 		if err != nil {
@@ -408,7 +409,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	for pointN := uint32(0); int64(pointN) < amountOfPoints; pointN++ {
 		p, ok := resultsWithGaps[pointN]
 		if !ok {
-			p = &qanpb.Point{}
+			p = &qanpbv1.Point{}
 			p.Point = pointN
 			p.TimeFrame = uint32(timeFrame)
 			timeShift := timeFrame * int64(pointN)
@@ -435,8 +436,8 @@ FROM
     FROM metrics
     WHERE (period_start >= ?) AND (period_start <= ?)
     {{range $key, $vals := .Dimensions }} AND ({{ $key }} IN ('{{ StringsJoin $vals "', '" }}')){{ end }}
-		{{ if .Where }}
-			AND	{{ .Where }}
+		{{ if .LbacFilter }}
+			AND	{{ .LbacFilter }}
 		{{ end }}
     GROUP BY {{ .DimensionName }}
     UNION ALL
@@ -446,8 +447,8 @@ FROM
         0 AS main_metric_sum
     FROM metrics
     WHERE (period_start >= ?) AND (period_start <= ?)
-		{{ if .Where }}
-			AND	{{ .Where }}
+		{{ if .LbacFilter }}
+			AND	{{ .LbacFilter }}
 		{{ end }}
     GROUP BY {{ .DimensionName }}
 )
@@ -497,12 +498,12 @@ var (
 )
 
 // SelectFilters selects dimension and their values, and also keys and values of labels.
-func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpb.GetFilteredMetricsNamesResponse, error) { //nolint:lll
+func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpbv1.GetFilteredMetricsNamesResponse, error) { //nolint:lll
 	if !isValidMetricColumn(mainMetricName) {
 		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
 	}
 
-	result := qanpb.GetFilteredMetricsNamesResponse{
+	result := qanpbv1.GetFilteredMetricsNamesResponse{
 		Labels: r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec),
 	}
 
@@ -528,15 +529,15 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 
 		for _, label := range values {
 			if _, ok := result.Labels[label.key]; !ok {
-				result.Labels[label.key] = &qanpb.ListLabels{
-					Name: []*qanpb.Values{},
+				result.Labels[label.key] = &qanpbv1.ListLabels{
+					Name: []*qanpbv1.Values{},
 				}
 			}
 			total := mainMetricPerSec
 			if mainMetricPerSec == 0 {
 				total = totals[label.key]
 			}
-			val := qanpb.Values{
+			val := qanpbv1.Values{
 				Value:             label.value,
 				MainMetricPerSec:  label.mainMetricPerSec,
 				MainMetricPercent: label.mainMetricPerSec / total,
@@ -555,7 +556,7 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 	var labels []*customLabel
 	// l := logger.Get(ctx)
 
-	where, err := filtersToWhere(ctx)
+	lbacFilter, err := headersToLbacFilter(ctx)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -565,13 +566,13 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 		DimensionName string
 		Dimensions    map[string][]string
 		Labels        map[string][]string
-		Where         string
+		LbacFilter    string
 	}{
 		mainMetricName,
 		dimensionName,
 		queryDimensions,
 		queryLabels,
-		where,
+		lbacFilter,
 	}
 
 	var queryBuffer bytes.Buffer
@@ -627,8 +628,8 @@ SELECT DISTINCT
 	labels.value
 FROM metrics
 WHERE (period_start >= ?) AND (period_start <= ?)
-{{ if .Where }}
-	AND	{{ .Where }}
+{{ if .LbacFilter }}
+	AND	{{ .LbacFilter }}
 {{ end }}
 ORDER BY
 	labels.value ASC
@@ -643,16 +644,16 @@ var queryLabelsTmpl = template.Must(template.New("queryLabels").Parse(queryLabel
 
 // queryLabels retrieves all labels and their values for the given time range.
 func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64) ([]*customLabelArray, error) {
-	where, err := filtersToWhere(ctx)
+	lbacFilter, err := headersToLbacFilter(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	var queryBuffer bytes.Buffer
 	tmplArgs := struct {
-		Where string
+		LbacFilter string
 	}{
-		Where: where,
+		LbacFilter: lbacFilter,
 	}
 
 	if err := queryLabelsTmpl.Execute(&queryBuffer, tmplArgs); err != nil {
@@ -682,8 +683,8 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec, periodSt
 }
 
 // commentsIntoGroupLabels parse labels and comment labels into filter groups and values.
-func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64) map[string]*qanpb.ListLabels {
-	groupLabels := make(map[string]*qanpb.ListLabels)
+func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64) map[string]*qanpbv1.ListLabels {
+	groupLabels := make(map[string]*qanpbv1.ListLabels)
 
 	labelKeysValues, err := r.queryLabels(ctx, periodStartFromSec, periodStartToSec)
 	if err != nil {
@@ -705,13 +706,13 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 
 	for key, values := range res {
 		if _, ok := groupLabels[key]; !ok {
-			groupLabels[key] = &qanpb.ListLabels{
-				Name: []*qanpb.Values{},
+			groupLabels[key] = &qanpbv1.ListLabels{
+				Name: []*qanpbv1.Values{},
 			}
 		}
 
 		for k, v := range values {
-			val := qanpb.Values{
+			val := qanpbv1.Values{
 				Value:             k,
 				MainMetricPercent: v / float32(count),
 			}
@@ -746,22 +747,22 @@ func parseFilters(filters []string) (string, error) {
 	return parsed[0], nil
 }
 
-// filtersToWhere extracts filters from the context and converts them to an SQL WHERE clause.
-func filtersToWhere(ctx context.Context) (string, error) {
+// headersToLbacFilter extracts filters from the context and converts them to an SQL WHERE clause.
+func headersToLbacFilter(ctx context.Context) (string, error) {
 	headers, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return "", errors.New("failed to extract metadata from context")
 	}
 
 	l := logger.Get(ctx)
-	var selector, where string
+	var selector, lbacFilter string
 	var err error
 	if filters := headers.Get(LBACHeaderName); len(filters) > 0 {
 		selector, err = parseFilters(filters)
 		if err != nil {
 			return "", fmt.Errorf("failed to parse filters: %w", err)
 		}
-		l.Infof("Parsed: %s", selector)
+		fmt.Printf("Parsed: %s", selector)
 	}
 
 	if selector != "" {
@@ -771,12 +772,12 @@ func filtersToWhere(ctx context.Context) (string, error) {
 			l.Errorf("Failed to parse metric selector: %v", err)
 		}
 
-		where, err = clickhouse.MatchersToClickHouse(matchers)
+		lbacFilter, err = clickhouse.MatchersToSQL(matchers)
 		if err != nil {
 			l.Errorf("Failed to convert label matchers to WHERE condition: %s", err)
 		}
-		l.Infof("WHERE: %s", where)
+		l.Infof("WHERE: %s", lbacFilter)
 	}
 
-	return where, nil
+	return lbacFilter, nil
 }
