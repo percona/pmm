@@ -554,7 +554,7 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 ) ([]*customLabel, float32, error) {
 	durationSec := periodStartToSec - periodStartFromSec
 	var labels []*customLabel
-	l := logger.Get(ctx)
+	// l := logger.Get(ctx)
 
 	where, err := filtersToWhere(ctx)
 	if err != nil {
@@ -586,9 +586,9 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 		return nil, 0, fmt.Errorf("failed to select for QueryFilter %s: %w", queryBuffer.String(), err)
 	}
 	defer rows.Close() //nolint:errcheck
-	if strings.Contains(queryBuffer.String(), "service_type AS value") {
-		l.Infof("QueryFilter: %s, startFrom: %d, startTo: %d", queryBuffer.String(), periodStartFromSec, periodStartToSec)
-	}
+	// if strings.Contains(queryBuffer.String(), "service_type AS value") {
+	// 	l.Infof("QueryFilter: %s, startFrom: %d, startTo: %d", queryBuffer.String(), periodStartFromSec, periodStartToSec)
+	// }
 
 	for rows.Next() {
 		var label customLabel
