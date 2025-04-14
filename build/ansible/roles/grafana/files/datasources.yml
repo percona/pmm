@@ -39,13 +39,18 @@ datasources:
   version: 2
   orgId: 1
   type: pmm-pt-summary-datasource
+  uid: pt-summary
   access: proxy
 
+# https://github.com/grafana/clickhouse-datasource?tab=readme-ov-file#with-a-configuration-file
 - name: ClickHouse
   orgId: 1
   version: 2
   type: grafana-clickhouse-datasource
   jsonData:
+    username: ${PMM_CLICKHOUSE_USER}
     port: ${PMM_CLICKHOUSE_PORT}
-    server: ${PMM_CLICKHOUSE_HOST}
+    host: ${PMM_CLICKHOUSE_HOST}
     tlsSkipVerify: false
+  secureJsonData:
+    password: ${PMM_CLICKHOUSE_PASSWORD}
