@@ -759,7 +759,7 @@ func filtersToWhere(ctx context.Context) (string, error) {
 	if filters := headers.Get(LBACHeaderName); len(filters) > 0 {
 		selector, err = parseFilters(filters)
 		if err != nil {
-			return "", fmt.Errorf("failed to parse filters: %v", err)
+			return "", fmt.Errorf("failed to parse filters: %w", err)
 		}
 		l.Infof("Parsed: %s", selector)
 	}
