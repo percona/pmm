@@ -381,7 +381,7 @@ func customMatcher(key string) (string, bool) {
 }
 
 // gatewayAnnotator is used to annotate the gRPC request with metadata from the HTTP request.
-func gatewayAnnotator(ctx context.Context, req *http.Request) metadata.MD {
+func gatewayAnnotator(_ context.Context, req *http.Request) metadata.MD {
 	md := metadata.MD{}
 	if filters := req.Header.Get(models.LBACHeaderName); filters != "" {
 		md.Set(strings.ToLower(models.LBACHeaderName), filters)

@@ -727,7 +727,7 @@ func parseFilters(filters []string) (string, error) {
 	switch len(filters) {
 	case 0:
 		return "", nil
-	case 2:
+	case 2: //nolint:mnd
 		// There should be only one filter, otherwise it's an error.
 	default:
 		return "", errors.New("multiple filters are not supported")
@@ -743,7 +743,7 @@ func parseFilters(filters []string) (string, error) {
 		return "", fmt.Errorf("failed to parse JSON: %w", err)
 	}
 
-	return string(parsed[0]), nil
+	return parsed[0], nil
 }
 
 // filtersToWhere extracts filters from the context and converts them to an SQL WHERE clause.
