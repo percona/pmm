@@ -762,7 +762,7 @@ func headersToLbacFilter(ctx context.Context) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("failed to parse filters: %w", err)
 		}
-		fmt.Printf("Parsed: %s", selector)
+		l.Infof("Parsed: %s", selector)
 	}
 
 	if selector != "" {
