@@ -27,7 +27,7 @@ import (
 func MatchersToClickHouse(matchers []*labels.Matcher) (string, error) {
 	conditions := make([]string, len(matchers))
 
-	for _, m := range matchers {
+	for i, m := range matchers {
 		var condition string
 
 		// TODO: implement processing for custom labels
@@ -58,7 +58,7 @@ func MatchersToClickHouse(matchers []*labels.Matcher) (string, error) {
 			return "", fmt.Errorf("unsupported matcher type: %v", m.Type)
 		}
 
-		conditions = append(conditions, condition)
+		conditions[i] = condition
 	}
 
 	return strings.Join(conditions, " AND "), nil
