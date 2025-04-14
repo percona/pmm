@@ -331,10 +331,10 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 }
 
 func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string, pmmAgentVersion *version.Parsed) error {
-	if !pmmAgentVersion.IsFeatureSupported(version.NomadClientSupportVersion) {
+	if !pmmAgentVersion.IsFeatureSupported(version.NomadAgentSupportVersion) {
 		return nil
 	}
-	nomadClientType := models.NomadClientType
+	nomadClientType := models.NomadAgentType
 	nomadClient, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: &nomadClientType})
 	if err != nil {
 		return status.Errorf(codes.Internal, "Can't get 'nomadClient' for pmm-agent with ID %q", pmmAgentID)
