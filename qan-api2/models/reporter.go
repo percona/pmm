@@ -757,7 +757,7 @@ func headersToLbacFilter(ctx context.Context) (string, error) {
 	l := logger.Get(ctx)
 	var selector, lbacFilter string
 	var err error
-	if filters := headers.Get(LBACHeaderName); len(filters) > 0 {
+	if filters := headers.Get(LBACHeaderName); len(filters) != 0 {
 		selector, err = parseFilters(filters)
 		if err != nil {
 			return "", fmt.Errorf("failed to parse filters: %w", err)
