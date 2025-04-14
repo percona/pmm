@@ -45,7 +45,7 @@ If you'd like to have a local copy of PMM documentation, or are thinking about c
 4. Use our [PMM documentation Docker image] to *build the documentation*:
 
     ```sh
-    docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build
+    docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -f documentation/mkdocs.yml
     ```
 
 5. Find the `site` directory, open `index.html` in a browser to view the first page of documentation.
@@ -53,7 +53,7 @@ If you'd like to have a local copy of PMM documentation, or are thinking about c
 If you want to see how things look as you edit, MkDocs has a built-in server for live previewing. After (or instead of) building, run:
 
 ```sh
-docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve --dev-addr=0.0.0.0:8000
+docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve --dev-addr=0.0.0.0:8000  -f documentation/mkdocs.yml
 ```
 
 Wait until you see `INFO    -  Start detecting changes` then point your browser to `http://0.0.0.0:8000`
@@ -64,19 +64,23 @@ Wait until you see `INFO    -  Start detecting changes` then point your browser 
 
 1. Install [Python].
 
-2. Install MkDocs and required extensions:
+2. Clone this repository.
+
+3. Change directory to `pmm/documentation`.
+
+4. Install MkDocs and required extensions:
 
     ```sh
     pip install -r requirements.txt
     ```
 
-3. Build the site:
+5. Build the site:
 
     ```sh
     mkdocs build
     ```
 
-4. Open `site/index.html`
+6. Open `site/index.html`
 
 Or, to run the built-in web server:
 
@@ -100,7 +104,7 @@ View the site at `http://0.0.0.0:8000`
     - With Docker:
 
         ```sh
-        docker run --rm -v $(pwd):/docs -e ENABLE_PDF_EXPORT=1 perconalab/pmm-doc-md mkdocs build -f mkdocs-pdf.yml
+        docker run --rm -v $(pwd):/docs -e ENABLE_PDF_EXPORT=1 perconalab/pmm-doc-md mkdocs build -f documentation/mkdocs-pdf.yml
         ```
 
     - Without:
