@@ -53,8 +53,8 @@ import (
 
 	qanv1 "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
-	asvc "github.com/percona/pmm/qan-api2/services/analytics"
-	rsvc "github.com/percona/pmm/qan-api2/services/receiver"
+	aservice "github.com/percona/pmm/qan-api2/services/analytics"
+	rservice "github.com/percona/pmm/qan-api2/services/receiver"
 	"github.com/percona/pmm/qan-api2/utils/interceptors"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
