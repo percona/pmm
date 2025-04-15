@@ -783,7 +783,7 @@ func headersToLbacFilter(ctx context.Context) (string, error) {
 	switch len(lbacFilters) {
 	case 0:
 		return "", nil
-	case 1: //nolint:mnd
+	case 1:
 		l.Infof("WHERE: %s", strings.Join(lbacFilters, " OR "))
 		return strings.Join(lbacFilters, " OR "), nil
 	}
