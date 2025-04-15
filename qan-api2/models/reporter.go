@@ -729,7 +729,7 @@ func parseFilters(filters []string) ([]string, error) {
 	if len(filters) == 0 {
 		return nil, nil
 	}
-	logrus.Debugf("Recieved filters: %s", filters)
+	logrus.Debugf("Received filters: %s", filters)
 
 	decoded, err := base64.StdEncoding.DecodeString(filters[0])
 	if err != nil {
@@ -857,7 +857,7 @@ func clickhouseRegex(regex string) string {
 	return strings.ReplaceAll(regex, ".*", ".*?")
 }
 
-// TODO: duplicate, find a better place for this
+// TODO: duplicate, find a better place for this.
 func isDimension(name string) bool {
 	dimensionColumnNames := map[string]struct{}{
 		// Main dimensions
