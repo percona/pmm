@@ -765,25 +765,27 @@ func headersToLbacFilter(ctx context.Context) (string, error) {
 	}
 
 	lbacFilters := make([]string, 0, len(filters))
-	if selectors != nil {
-		// Ex: two selectors with 4 types: `[{service_type=~"mysql|mongodb", environment!~"prod"}, {environment="dev", az!="us-east-1"}]`
-		for _, selector := range selectors {
-			m, err := parser.ParseMetricSelector(selector)
-			if err != nil {
-				l.Errorf("Failed to parse metric selector: %v", err)
-			}
-
-			fl, err := matchersToSQL(m)
-			if err != nil {
-				l.Errorf("Failed to convert label matchers to WHERE condition: %s", err)
-				continue
-			}
-			lbacFilters = append(lbacFilters, fmt.Sprintf("(%s)", fl))
+	// Ex: two selectors with 4 types: `[{service_type=~"mysql|mongodb", environment!~"prod"}, {environment="dev", az!="us-east-1"}]`
+	for _, selector := range selectors {
+		m, err := parser.ParseMetricSelector(selector)
+		if err != nil {
+			l.Errorf("Failed to parse metric selector: %v", err)
 		}
+
+		fl, err := matchersToSQL(m)
+		if err != nil {
+			l.Errorf("Failed to convert label matchers to WHERE condition: %s", err)
+			continue
+		}
+		lbacFilters = append(lbacFilters, fmt.Sprintf("(%s)", fl))
 	}
 
-	if len(lbacFilters) == 0 {
+	switch len(lbacFilters) {
+	case 0:
 		return "", nil
+	case 1: //nolint:mnd
+		l.Infof("WHERE: %s", strings.Join(lbacFilters, " OR "))
+		return strings.Join(lbacFilters, " OR "), nil
 	}
 
 	l.Infof("WHERE: %s", "("+strings.Join(lbacFilters, " OR ")+")")
