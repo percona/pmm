@@ -1,125 +1,137 @@
-# VirtualBox - Import OVA file
+# Deploy PMM Server on VirtualBox
 
-=== "OVA file downloaded from UI"
-    To import downloaded file from UI:
+Import the PMM Server OVA file into Oracle VirtualBox to create a virtual machine for your monitoring environment.
+
+## Prerequisites
+
+- Downloaded [PMM Server OVA file](download_ova.md)
+- Oracle VirtualBox 6.0 or later installed
+- At least 8GB of free RAM and 100GB of free disk space
+
+## Import OVA file
+
+=== "Using VirtualBox UI"
+    To import the OVA file using the VirtualBox user interface:
     {.power-number}
 
-    1. Select **File** → **Import appliance...**.
-    2. In the **File** field, type the path to the downloaded `.ova` file, or click the folder icon to navigate and open it.
-    3. Click **Continue**.
-    4. On the **Appliance settings** page, review the settings and click *Import*.
-    5. Click **Start**.
-    6. When the guest has booted, note the IP address in the guest console.
+    1. Open Oracle VirtualBox.
+    2. Go to **File > Import Appliance**.
+    3. Click on the folder icon and browse to select the downloaded PMM Server OVA file, then click **Next**.
+    5. Review the appliance settings:
+        - You can customize the name of the VM
+        - Adjust CPU and memory settings if needed
+        - Review network settings
+    6. Click **Import**.
+    7. Wait for the import process to complete (this may take several minutes).
 
-=== "OVA file downloaded via CLI"
-    To import downloaded file from CLI:
+=== "Using VBoxManage CLI"
+    To import the OVA file using the command-line interface:
     {.power-number}
 
-    1. Open a terminal and change directory to where the downloaded `.ova` file is.
-
-    2. (Optional) Do a 'dry run' import to see what values will be used.
-
-        ```sh
-        VBoxManage import pmm-server-{{release}}.ova --dry-run
-        ```
-
-    3. Import the image.
-        
-        Choose one of:
-        
-        * With the default settings.
-
-            ```sh
-            VBoxManage import pmm-server-{{release}}.ova
-            ```
-
-        * With custom settings (in this example, Name: "PMM Server", CPUs: 2, RAM: 8192 MB).
-
-            ```sh
-            VBoxManage import --vsys 0 --vmname "PMM Server" \
-            --cpus 2 --memory 8192 pmm-server-{{release}}.ova
-            ```
-
-## Reconfigure interface
- 
-
-### Reconfigure with UI
-
-To reconfigure the interface with the UI:
-{.power-number}
-
-1. Click **Settings**.
-2. Click **Network**.
-3. In the **Adapter 1** field, click **Attached to** and change to **Bridged Adapter**.
-4. In the **Name** field, select your host's active network interface (e.g. `en0: Wi-Fi (Wireless)`).
-5. Click **OK**.
-
-### Reconfigure via CLI
-
-To reconfigure via the CLI:
-{.power-number}
-
-1. Show the list of available bridge interfaces.
-
-    ```sh
-    VBoxManage list bridgedifs
-    ```
-
-2. Find the name of the active interface you want to bridge to (one with *Status: Up* and a valid IP address). Example: `en0: Wi-Fi (Wireless)`
-
-3. Bridge the virtual machine's first interface (`nic1`) to the host's `en0` ethernet adapter.
-
-    ```sh
-    VBoxManage modifyvm 'PMM Server' \
-    --nic1 bridged --bridgeadapter1 'en0: Wi-Fi (Wireless)'
-    ```
-
-4. Redirect the console output into a host file.
-
-    ```sh
-    VBoxManage modifyvm 'PMM Server' \
-    --uart1 0x3F8 4 --uartmode1 file /tmp/pmm-server-console.log
-    ```
-
-### Start guest and get IP address from UI
-
-To start the guest and get the IP address from the UI:
-{.power-number}
-
-1. Select the **PMM Server** virtual machine in the list.
-2. Click **Start**.
-3. When the guest has booted, note the IP address in the guest console.
-
-### Start guest and get IP address from CLI
-
-To start the guest and get the IP address from the CLI:
-{.power-number}
-
-1. Start the guest.
-
-    ```sh
-    VBoxManage startvm --type headless 'PMM Server'
-    ```
-
-2. (Optional) Watch the log file.
-
-    ```sh
-    tail -f /tmp/pmm-server-console.log
-    ```
-
-3. Wait for one minute for the server to boot up.
-
-4. Choose one of:
-
-    - Read the IP address from the tailed log file.
-    - Extract the IP address from the log file.
+    1. Open a terminal or command prompt.
+    2. Use the VBoxManage command to import the OVA:
 
         ```sh
-        grep -e "^IP:" /tmp/pmm-server-console.log | cut -f2 -d' '
+        VBoxManage import pmm-server-{{release}}.ova --vsys 0 --vmname "PMM Server"
         ```
 
-5. (Optional) Stop the guest:
+    3. To customize VM settings during import (optional):
 
-    ```sh
-    VBoxManage controlvm "PMM Server" poweroff
-    ```
+        ```sh
+        VBoxManage import pmm-server-{{release}}.ova --vsys 0 --vmname "PMM Server" \
+          --cpus 4 --memory 8192 --unit 9 --disk pmm-data.vmdk
+        ```
+
+## Configure network settings
+
+For the VM to be accessible on your network, configure the network settings appropriately.
+
+=== "Using VirtualBox UI"
+    To configure network settings using the VirtualBox UI:
+    {.power-number}
+
+    1. Select the imported PMM Server VM.
+    2. Go to **Settings > Network**.
+    3. Ensure **Adapter 1** is enabled and attached to:
+        - **Bridged Adapter** for direct network access (recommended)
+        - **NAT** if you prefer to use port forwarding
+    4. If using **Bridged Adapter**, select the physical network interface to bridge to.
+    5. Click **OK**.
+
+=== "Using VBoxManage CLI"
+    To configure network settings using the command line:
+    {.power-number}
+
+    1. For bridged networking (recommended for production):
+
+        ```sh
+        VBoxManage modifyvm "PMM Server" --nic1 bridged --bridgeadapter1 eth0
+        ```
+        Replace `eth0` with your actual network interface name.
+
+    2. For NAT networking (easier for testing):
+
+        ```sh
+        VBoxManage modifyvm "PMM Server" --nic1 nat
+        ```
+
+    3. To set up port forwarding with NAT (optional):
+
+        ```sh
+        VBoxManage modifyvm "PMM Server" --nic1 nat
+        VBoxManage modifyvm "PMM Server" --natpf1 "https,tcp,,8443,,443"
+        VBoxManage modifyvm "PMM Server" --natpf1 "http,tcp,,8080,,80"
+        ```
+        This forwards host ports 8443 and 8080 to guest ports 443 and 80.
+
+## Start the VM and obtain IP address
+
+=== "Using VirtualBox UI"
+    To start the VM and get its IP address using the UI:
+    {.power-number}
+
+    1. Select the PMM Server VM in the VirtualBox Manager.
+    2. Click **Start**.
+    3. A console window will open showing the boot process.
+    4. Wait for the boot process to complete (2-5 minutes).
+    5. The console will display the IP address once booting is complete.
+
+=== "Using VBoxManage CLI"
+    To start the VM and get its IP address using the command line:
+    {.power-number}
+
+    1. Start the VM in headless mode (no UI):
+
+        ```sh
+        VBoxManage startvm "PMM Server" --type headless
+        ```
+
+    2. Wait for the VM to fully boot (approximately 2-5 minutes).
+
+    3. Get the VM's IP address (for bridged networking):
+
+        ```sh
+        VBoxManage guestproperty get "PMM Server" "/VirtualBox/GuestInfo/Net/0/V4/IP"
+        ```
+
+    4. If the above command doesn't show the IP address, you can check the VM's console:
+
+        ```sh
+        VBoxManage startvm "PMM Server" --type separate
+        ```
+        This opens just the console window.
+
+## Next steps
+
+After successfully importing and starting the PMM Server VM:
+
+- Open a web browser and navigate to `https://<vm-ip-address>`
+- [Complete initial login and setup](login_UI.md)
+- [Register PMM Clients](../../../register-client-node/index.md) to begin monitoring
+
+!!! tip "Troubleshooting network issues"
+    If you cannot connect to the VM:
+    
+    - For bridged networking, ensure your host's firewall allows traffic to the VM
+    - For NAT with port forwarding, connect to your host's IP address with the forwarded port (e.g., https://localhost:8443)
+    - Verify VirtualBox network settings are correctly configured
