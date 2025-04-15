@@ -1,28 +1,25 @@
 # Install PMM Server on the virtual machine
 
-How to run PMM Server as a virtual machine.
+Deploy PMM Server as a virtual appliance using the PMM OVA file. Compatible with VirtualBox, VMware, and other hypervisors.  
 
 ??? "Summary"
+    - Download and verify the [latest](https://www.percona.com/downloads) OVF file.
+    - Import the OVA into your hypervisor.
+    - Reconfigure network settings.
+    - Start the VM and get its IP address.
+    - Log into the PMM web interface.
+    - (Optional) Change VM root password.
+    - (Optional) Enable SSH access.
+     - (Optional) Set a static IP address
 
-    !!! summary alert alert-info ""
-        - Download and verify the [latest](https://www.percona.com/downloads) OVF file.
-        - Import it.
-        - Reconfigure network.
-        - Start the VM and get IP.
-        - Log into PMM UI.
-        - (Optional) Change VM root password.
-        - (Optional) Set up SSH.
-        - (Optional) Set up static IP.
-
-    ---
-
-Most steps can be done with either a user interface or on the command line, but some steps can only be done in one or the other. Sections are labelled **UI** for user interface or **CLI** for command line instructions.
+Most steps can be done from either the UI or on the command line, but some steps can only be done in one or the other. Sections are labelled **UI** for user interface or **CLI** for command line instructions.
 
 ## Terminology
 
-- *Host* is the desktop or server machine running the hypervisor.
-- *Hypervisor* is software (e.g. VirtualBox, VMware) that runs the guest OS as a virtual machine.
-- *Guest* is the CentOS virtual machine that runs PMM Server.
+- **Host** is the desktop or server machine running the hypervisor.
+- **Hypervisor**:  software (e.g. VirtualBox, VMware) that runs the guest OS as a virtual machine.
+- **Guest VM** - Virtual machine running PMM Server (Oracle Linux 9.3).  
+
 
 ## OVA file details
 
@@ -43,14 +40,12 @@ Most steps can be done with either a user interface or on the command line, but 
 | Disk 1 (`sda`)    | VMDK (SCSI, 40 GB)
 | Disk 2 (`sdb`)    | VMDK (SCSI, 400 GB)
 
-## Users
+## Default Users
 
-| Default Username | Default password
+| Default username | Default password
 |------------------|-----------------------
 | `root`           | `percona`
 | `admin`          | `admin`
-
-
 
 
 

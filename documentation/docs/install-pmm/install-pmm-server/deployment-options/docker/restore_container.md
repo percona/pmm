@@ -1,19 +1,25 @@
-# Restore Docker container
+# Restore PMM Server Docker container
 You can restore PMM Server either from a manual backup or from an automated backup volume that was created during migration to PMM v3.
 
-Before proceeding with restoration, ensure you have either a [manual backup](backup_container.md) or an [automated backup volume](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3) to restore from.
+## Before you begin
 
+Before proceeding with restoration, ensure you have one of the following:
+
+- a [manual backup](backup_container.md) you previously created 
+- an [automated backup volume](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3) created during migration from PMM V3
+
+# Restore methods
 === "Restore from manual backup"
     To restore the container from a manual backup:
     {.power-number}
 
-    1. Stop the container:
+    1. Stop the current PMM Server container:
 
         ```sh
         docker stop pmm-server
         ```
 
-    2. Remove the container:
+    2. Remove the container (preserving volumes):
 
         ```sh
         docker rm pmm-server
@@ -25,25 +31,25 @@ Before proceeding with restoration, ensure you have either a [manual backup](bac
         docker rename pmm-server-backup pmm-server
         ```
 
-    4. Change directory to the backup directory (e.g. `pmm-data-backup`):
+    4. Navigate to the backup directory (e.g. `pmm-data-backup`):
 
         ```shc
         cd pmm-data-backup
         ```
 
-    5. Copy the data:
+    5. Copy the backed-up data to the PMM data volume:
 
         ```sh
         docker run --rm -v $(pwd)/srv:/backup -v pmm-data:/srv -t percona/pmm-server:3 cp -r /backup/* /srv
         ```
 
-    6. Restore permissions:
+    6. Fix ownership of the restored files to ensure the PMM Server can access and manage the files correctly:
 
         ```sh
         docker run --rm -v pmm-data:/srv -t percona/pmm-server:3 chown -R pmm:pmm /srv
         ```
 
-    7. Start the image:
+    7. Start the restored PMM Server container:
 
         ```sh
         docker start pmm-server
@@ -62,7 +68,7 @@ Before proceeding with restoration, ensure you have either a [manual backup](bac
         ```sh
         docker rm pmm-server
         ```
-    3. Start a PMM v2 container using your backup volume, replacing   `<backup-volume-name>` with your PMM v2 backup volume name (e.g., `pmm-data-2025-01-16-165135`):
+    3. Start a PMM v2 container using your backup volume, replacing `<backup-volume-name>` with your PMM v2 backup volume name (e.g., `pmm-data-2025-01-16-165135`):
  
         ```sh
         docker run -d \
@@ -75,10 +81,19 @@ Before proceeding with restoration, ensure you have either a [manual backup](bac
 
     4. Verify that your PMM v2 instance is running correctly and all your data is accessible.
 
-    !!! note alert alert-primary "Finding your backup volume name"
-        - Your backup volume name was displayed during the [automated upgrade process](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3).
-        - To list all available Docker volumes, use the following command, and look for volumes with names like `pmm-data-YYYY-MM-DD-HHMMSS`:
+## Finding your backup volume name
 
-            ```sh
-            docker volume ls       
-            ```
+If you're restoring from an automated migration backup and don't know the volume name:
+
+- Your backup volume name was displayed during the [automated upgrade process](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3).
+- To list all available Docker volumes, use the following command and look for volumes with names like `pmm-data-YYYY-MM-DD-HHMMSS`:
+
+    ```sh
+    docker volume ls       
+    ```
+
+## Next steps
+
+- [Create a backup of your PMM Server](../docker/backup_container.md)
+- [Upgrade your PMM Server](../docker/upgrade_container.md) to a newer version
+- [Migrate from PMM v2 to v3](../../../../pmm-upgrade/migrating_from_pmm_2.md) if restoring to upgrade

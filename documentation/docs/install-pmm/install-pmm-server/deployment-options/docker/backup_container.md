@@ -6,12 +6,11 @@ Regular backups of your PMM Server are essential for protecting your monitoring 
 ## Backup overview
 ??? info "Summary"
 
-    !!! summary alert alert-info ""
-        - Stop and rename the `pmm-server` container.
-        - Take a local copy of the `pmm-server` container's `/srv` directory.
-        - Copy the dat`a directory (`/srv`) to your host
-        - Resume normal operations
-    ---
+    - Stop and rename the `pmm-server` container.
+    - Take a local copy of the `pmm-server` container's `/srv` directory.
+    - Copy the dat`a directory (`/srv`) to your host
+    - Resume normal operations
+    
 
 ## Backing up Grafana plugins 
 Grafana plugins have been moved to the `/srv` directory since PMM 2.23.0. So if you are upgrading PMM from a version before 2.23.0 and have installed additional plugins, you'll need to reinstall them after the upgrade.
