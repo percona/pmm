@@ -28,11 +28,12 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/promql/parser"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/metadata"
 
 	qanpbv1 "github.com/percona/pmm/api/qan/v1"
-	"github.com/percona/pmm/qan-api2/utils/clickhouse"
 	"github.com/percona/pmm/qan-api2/utils/logger"
 )
 
@@ -724,27 +725,24 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 }
 
 // parseFilters decodes and unmarshals the filters.
-func parseFilters(filters []string) (string, error) {
-	switch len(filters) {
-	case 0:
-		return "", nil
-	case 2: //nolint:mnd
-		// There should be only one filter, otherwise it's an error.
-	default:
-		return "", errors.New("multiple filters are not supported")
+func parseFilters(filters []string) ([]string, error) {
+	if len(filters) == 0 {
+		return nil, nil
 	}
+	logrus.Debugf("Recieved filters: %s", filters)
 
 	decoded, err := base64.StdEncoding.DecodeString(filters[0])
 	if err != nil {
-		return "", fmt.Errorf("failed to decode filters %s: %w", filters[0], err)
+		return nil, fmt.Errorf("failed to decode filters %s: %w", filters[0], err)
 	}
 
 	var parsed []string
 	if err := json.Unmarshal(decoded, &parsed); err != nil {
-		return "", fmt.Errorf("failed to parse JSON: %w", err)
+		return nil, fmt.Errorf("failed to parse JSON: %w", err)
 	}
+	logrus.Infof("Parsed filters: %s", parsed)
 
-	return parsed[0], nil
+	return parsed, nil
 }
 
 // headersToLbacFilter extracts filters from the context and converts them to an SQL WHERE clause.
@@ -754,30 +752,141 @@ func headersToLbacFilter(ctx context.Context) (string, error) {
 		return "", errors.New("failed to extract metadata from context")
 	}
 
+	filters := headers.Get(LBACHeaderName)
+	if len(filters) == 0 {
+		return "", nil
+	}
+
 	l := logger.Get(ctx)
-	var selector, lbacFilter string
-	var err error
-	if filters := headers.Get(LBACHeaderName); len(filters) != 0 {
-		selector, err = parseFilters(filters)
-		if err != nil {
-			return "", fmt.Errorf("failed to parse filters: %w", err)
-		}
-		l.Infof("Parsed: %s", selector)
+
+	selectors, err := parseFilters(filters)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse filters: %w", err)
 	}
 
-	if selector != "" {
-		// Example with four selector types: `{service_type=~"mysql|mongodb", environment!~"prod", environment="dev", az!="us-east-1"}`)
-		matchers, err := parser.ParseMetricSelector(selector)
-		if err != nil {
-			l.Errorf("Failed to parse metric selector: %v", err)
-		}
+	lbacFilters := make([]string, 0, len(filters))
+	if selectors != nil {
+		// Ex: two selectors with 4 types: `[{service_type=~"mysql|mongodb", environment!~"prod"}, {environment="dev", az!="us-east-1"}]`
+		for _, selector := range selectors {
+			m, err := parser.ParseMetricSelector(selector)
+			if err != nil {
+				l.Errorf("Failed to parse metric selector: %v", err)
+			}
 
-		lbacFilter, err = clickhouse.MatchersToSQL(matchers)
-		if err != nil {
-			l.Errorf("Failed to convert label matchers to WHERE condition: %s", err)
+			fl, err := matchersToSQL(m)
+			if err != nil {
+				l.Errorf("Failed to convert label matchers to WHERE condition: %s", err)
+				continue
+			}
+			lbacFilters = append(lbacFilters, fmt.Sprintf("(%s)", fl))
 		}
-		l.Infof("WHERE: %s", lbacFilter)
 	}
 
-	return lbacFilter, nil
+	if len(lbacFilters) == 0 {
+		return "", nil
+	}
+
+	l.Infof("WHERE: %s", "("+strings.Join(lbacFilters, " OR ")+")")
+	return "(" + strings.Join(lbacFilters, " OR ") + ")", nil
+}
+
+// matchersToSQL converts Prometheus matchers to ClickHouse WHERE conditions.
+func matchersToSQL(matchers []*labels.Matcher) (string, error) {
+	conditions := make([]string, len(matchers))
+
+	for i, m := range matchers {
+		var condition string
+
+		// Process custom label matchers
+		if !isDimension(m.Name) {
+			switch m.Type {
+			case labels.MatchEqual:
+				condition = fmt.Sprintf("(hasAny(labels.key, ['%s']) AND hasAny(labels.value, ['%s'])", m.Name, m.Value)
+			case labels.MatchNotEqual:
+				condition = fmt.Sprintf("(hasAny(labels.key, ['%s']) AND NOT hasAny(labels.value, ['%s'])", m.Name, m.Value)
+			case labels.MatchRegexp:
+				condition = fmt.Sprintf("(hasAny(labels.key, ['%s']) AND arrayExists(x -> match(x, '%s'), labels.value))", m.Name, clickhouseRegex(m.Value))
+			case labels.MatchNotRegexp:
+				condition = fmt.Sprintf("(hasAny(labels.key, ['%s']) AND NOT arrayExists(x -> match(x, '%s'), labels.value))", m.Name, clickhouseRegex(m.Value))
+			default:
+				return "", fmt.Errorf("unsupported matcher type: %v", m.Type)
+			}
+
+			conditions[i] = condition
+			continue
+		}
+
+		// Process standard label matchers
+		switch m.Type {
+		case labels.MatchEqual:
+			condition = fmt.Sprintf("%s = '%s'", m.Name, escapeValue(m.Value))
+		case labels.MatchNotEqual:
+			condition = fmt.Sprintf("%s != '%s'", m.Name, escapeValue(m.Value))
+		case labels.MatchRegexp:
+			condition = fmt.Sprintf("match(%s, '%s')", m.Name, clickhouseRegex(m.Value))
+		case labels.MatchNotRegexp:
+			condition = fmt.Sprintf("NOT match(%s, '%s')", m.Name, clickhouseRegex(m.Value))
+		default:
+			return "", fmt.Errorf("unsupported matcher type: %v", m.Type)
+		}
+
+		conditions[i] = condition
+	}
+
+	return strings.Join(conditions, " AND "), nil
+}
+
+// escapeValue escapes special characters in a string for use in SQL queries.
+func escapeValue(value string) string {
+	// Escape single quotes to counter SQL injection
+	escaped := strings.ReplaceAll(value, "'", "''")
+
+	// ClickHouse requires escaping these for LIKE/ILIKE:
+	escaped = strings.ReplaceAll(escaped, `\`, `\\`)
+	escaped = strings.ReplaceAll(escaped, "%", `\%`)
+	escaped = strings.ReplaceAll(escaped, "_", `\_`)
+
+	return escaped
+}
+
+// clickhouseRegex optimizes the regular expressions for ClickHouse.
+func clickhouseRegex(regex string) string {
+	// Make quantifiers non-greedy
+	return strings.ReplaceAll(regex, ".*", ".*?")
+}
+
+// TODO: duplicate, find a better place for this
+func isDimension(name string) bool {
+	dimensionColumnNames := map[string]struct{}{
+		// Main dimensions
+		"queryid":      {},
+		"service_name": {},
+		"database":     {},
+		"schema":       {},
+		"username":     {},
+		"client_host":  {},
+		// Standard labels
+		"replication_set":  {},
+		"cluster":          {},
+		"service_type":     {},
+		"service_id":       {},
+		"environment":      {},
+		"az":               {},
+		"region":           {},
+		"node_model":       {},
+		"node_id":          {},
+		"node_name":        {},
+		"node_type":        {},
+		"machine_id":       {},
+		"container_name":   {},
+		"container_id":     {},
+		"cmd_type":         {},
+		"application_name": {},
+		"top_queryid":      {},
+		"planid":           {},
+		"plan_summary":     {},
+	}
+
+	_, ok := dimensionColumnNames[name]
+	return ok
 }
