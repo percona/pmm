@@ -1233,6 +1233,25 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 	return res, nil
 }
 
+// ChangeNomadAgent updates Nomad Agent with given parameters.
+func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, params *inventoryv1.ChangeNomadAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
+	common := &commonAgentParams{
+		Enable: params.Enable,
+	}
+	ag, err := as.changeAgent(ctx, agentID, common)
+	if err != nil {
+		return nil, err
+	}
+	agent := ag.(*inventoryv1.NomadAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_NomadAgent{
+			NomadAgent: agent,
+		},
+	}
+	return res, nil
+}
+
 // Remove removes Agent, and sends state update to pmm-agent, or kicks it.
 func (as *AgentsService) Remove(ctx context.Context, id string, force bool) error {
 	var removedAgent *models.Agent
