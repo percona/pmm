@@ -23,26 +23,25 @@ Before installing PMM Server with Podman, ensure you have:
 
 - Install [Podman](https://podman.io/getting-started/installation).
 - Configure [rootless](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md) Podman.
-- Set up required system configurations:
-
-    ```sh
-    # Allow non-root users to bind to privileged ports (required for port 443)
-    sudo sysctl -w net.ipv4.ip_unprivileged_port_start=443
-    
-    # Make the setting persistent
-    echo "net.ipv4.ip_unprivileged_port_start=443" | sudo tee /etc/sysctl.d/99-pmm.conf
-    sudo sysctl -p /etc/sysctl.d/99-pmm.conf
-    ```
-
 - Create the Podman network for PMM:
   ```sh
     podman network create pmm_default
   ```
+- Set up required system configurations:
+
+   ```sh
+   # Allow non-root users to bind to privileged ports (required for port 443)
+   sudo sysctl -w net.ipv4.ip_unprivileged_port_start=443
+    
+   # Make the setting persistent
+   echo "net.ipv4.ip_unprivileged_port_start=443" | sudo tee /etc/sysctl.d/99-pmm.conf
+   sudo sysctl -p /etc/sysctl.d/99-pmm.conf
+   ```
 - Configure Watchtower (if using UI updates) with these security considerations:
-      - Ensure Watchtower is only accessible from within the Docker network or local host to prevent unauthorized access and enhance container security.
-      - Configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Docker network.
-      - Grant Watchtower access to the Docker socket to monitor and manage containers effectively, ensuring proper security measures are in place to protect the Docker socket.
-      - Verify that both Watchtower and PMM Server are on the same network, or ensure PMM Server can connect to Watchtower for communication. This network setup is essential for PMM Server to initiate updates through Watchtower.
+    - Ensure Watchtower is only accessible from within the Docker network or local host to prevent unauthorized access and enhance container security.
+    - Configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Docker network.
+    - Grant Watchtower access to the Docker socket to monitor and manage containers effectively, ensuring proper security measures are in place to protect the Docker socket.
+    - Verify that both Watchtower and PMM Server are on the same network, or ensure PMM Server can connect to Watchtower for communication. This network setup is essential for PMM Server to initiate updates through Watchtower.
 
 ## Update mechanism overview
 
@@ -223,6 +222,7 @@ On the other hand, the manual method offers a simpler setup with complete contro
 
 
  # Related topics
+ 
 - [Docker installation alternative](../docker/index.md) for standard deployments
 - [Available image tags](https://hub.docker.com/r/percona/pmm-server/tags)
 - [Upgrade PMM Server using Podman](../../../../pmm-upgrade/upgrade_podman.md) 
