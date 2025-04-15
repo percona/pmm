@@ -74,6 +74,8 @@ export const HelpCenter: FC = () => {
                     ? `solid 12px ${item.borderColor}`
                     : 'none',
                 }}
+                key={item.id}
+                data-testid={`help-card-${item.id}`}
               >
                 <CardContent style={{ paddingRight: 16, paddingLeft: 16 }}>
                   <div
@@ -97,6 +99,7 @@ export const HelpCenter: FC = () => {
                   <div style={{ display: 'flex', paddingTop: 16 }}>
                     {item.buttons.map((button) => (
                       <Button
+                        key={button.url}
                         variant="outlined"
                         size="small"
                         style={{ marginRight: 8 }}
