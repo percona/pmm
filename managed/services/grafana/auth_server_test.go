@@ -312,12 +312,11 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 			"/prometheus/api/":           false,
 			"/prometheus/api/v1/":        true,
 			"/prometheus/api/v1/query":   true,
+			"/graph/api/datasources/uid": true,
+			"/graph/api/ds/query":        true,
 			"/v1/qan/metrics:getFilters": true,
 			"/v1/qan/query:exists":       true,
 		} {
-			uri := uri
-			shallAdd := shallAdd
-
 			for _, userID := range []int{0, 1337, 1338} {
 				userID := userID
 				t.Run(fmt.Sprintf("uri=%s userID=%d", uri, userID), func(t *testing.T) {
