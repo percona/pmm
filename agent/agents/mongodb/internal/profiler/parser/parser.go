@@ -126,7 +126,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.System
 			// aggregate the doc
 			err := aggregator.Add(ctx, doc)
 			if err != nil {
-				logger.Warn("couldn't add document to aggregator")
+				logger.Warnf("couldn't add document to aggregator: %s", err)
 			}
 		case <-doneChan:
 			// doneChan needs to be repeated in this select as docsChan can block

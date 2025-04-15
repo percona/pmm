@@ -6,7 +6,7 @@
     docker_compose_version: "2.26.1"
     kubectl_version: "1.29.2"
     doctl_version: "1.105.0"
-    node_version: "18.x"
+    node_version: "22.x"
     goreleaser_version: "2.3.2" # https://github.com/goreleaser/goreleaser/releases
 
   tasks:
@@ -133,6 +133,7 @@
       yum:
         name: https://github.com/goreleaser/goreleaser/releases/download/v{{ goreleaser_version }}/goreleaser-{{ goreleaser_version }}-1.{{ ansible_architecture }}.rpm
         state: present
+        disable_gpg_check: yes
 
     - name: install latest YQ (YAML processor) 
       get_url:
