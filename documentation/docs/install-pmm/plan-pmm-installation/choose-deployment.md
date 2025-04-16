@@ -6,11 +6,11 @@ Plan your PMM architecture to align with your infrastructure, growth expectation
 
 ## PMM architecture overview
 
-PMM components can be deployed in various combinations depending on your needs: 
+PMM can be deployed in flexible ways depending on your infrastructure and monitoring needs. Its architecture consists of two main components:
 {.power-number}
 
-1. [PMM Server](../install-pmm-server/index.md): The central component that stores, analyzes, and visualizes monitoring data
-2. [PMM Client](../install-pmm-client/index.md): The distributed component installed on database hosts to collect metrics
+- [PMM Server](../install-pmm-server/index.md): The central component that stores, analyzes, and visualizes monitoring data
+- [PMM Client](../install-pmm-client/index.md): The distributed component installed on database hosts to collect metrics
 
 ## Planning considerations
 
@@ -18,8 +18,8 @@ PMM components can be deployed in various combinations depending on your needs:
 
 For detailed hardware and network specifications, see:
 
-- [hardware and system requirements](../plan-pmm-installation/hardware_and_system.md) 
-- [network and firewall requirements](../../install-pmm/plan-pmm-installation/network_and_firewall.md)
+- [Hardware and system requirements](../plan-pmm-installation/hardware_and_system.md) 
+- [Network and firewall requirements](../../install-pmm/plan-pmm-installation/network_and_firewall.md)
 
 ### Architecture considerations
 
@@ -93,17 +93,6 @@ Based on the scale and environment of your monitoring needs, we recommend differ
         - leverage auto-scaling groups for handling variable loads
         - consider network costs when planning your architecture
     - **Ideal for**: Cloud-native companies, hybrid cloud environments
-
-## Decision factors
-
-When selecting your deployment strategy, consider the following:
-{.power-number}
-
-1. **Existing infrastructure** to align with what your team already manages.
-2. **Team expertise** to use tools and platforms your team is comfortable with.
-3. **Scalability** to plan but for future growth, not just for today.
-4. **Security policies** to match the deployment to your organization’s security practices.
-5. **Maintenance strategy**  choose what support easy upgrades and backups.
 
 ## Deployment planning checklist
 
