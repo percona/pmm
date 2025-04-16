@@ -585,7 +585,7 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 }
 
 const queryLabels = `
-SELECT
+SELECT DISTINCT
 	labels.key,
 	labels.value
 FROM metrics
