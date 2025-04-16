@@ -1,6 +1,6 @@
 # Percona Monitoring and Management release notes index
 
-- [Percona Monitoring and Management 2.44.1](2025-04-24)(2.44.1.md)
+- [Percona Monitoring and Management 2.44.1 (2025-04-24)](2.44.1.md)
 - [Percona Monitoring and Management 2.44.0-1 (2025-02-10)](2.44.0.1.md)
 - [Percona Monitoring and Management 2.44.0 (2024-12-13)](2.44.0.md)
 - [Percona Monitoring and Management 2.43.2-1 (2025-03-12)](2.43.2-1.md)
