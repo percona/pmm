@@ -852,15 +852,3 @@ func clickhouseRegex(regex string) string {
 	// Make quantifiers non-greedy
 	return strings.ReplaceAll(regex, ".*", ".*?")
 }
-
-// parenthesize joins the array of strings and wraps it in parentheses if it has more than one element.
-func parenthesize(arr []string, join string) string {
-	switch len(arr) {
-	case 0:
-		return ""
-	case 1:
-		return strings.Join(arr, join)
-	default:
-		return "(" + strings.Join(arr, join) + ")"
-	}
-}
