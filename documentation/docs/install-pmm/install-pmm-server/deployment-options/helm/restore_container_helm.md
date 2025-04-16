@@ -75,7 +75,7 @@ After restoration, you'll have multiple PVCs in your cluster:
     kubectl get pvc
     ```
 
-    !!! example "Expected output"
+    ??? example "Expected output"
         ```sh
         NAME                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
         pmm-restored-pmm-0      Bound    pvc-70e5d2eb-570f-4087-9515-edf2f051666d   10Gi       RWO            csi-hostpath-sc   3s

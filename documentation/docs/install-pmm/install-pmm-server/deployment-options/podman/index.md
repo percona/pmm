@@ -1,4 +1,4 @@
-# Install PMM Server with Podman on Docker image
+# Install PMM Server with Podman 
 
 Run PMM Server with Podman based on our [Docker image](https://hub.docker.com/r/percona/pmm-server) when you need enhanced security, rootless container execution, or are working in environments where Docker daemon is not preferred. Podman provides improved security isolation while maintaining compatibility with Docker commands and workflows.
 
