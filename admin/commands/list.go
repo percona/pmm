@@ -406,6 +406,17 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	for _, a := range agentsRes.Payload.NomadAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType: types.AgentTypeNomadAgent,
+				AgentID:   a.AgentID,
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
+				Port:      a.ListenPort,
+			})
+		}
+	}
 
 	return agentsList
 }
