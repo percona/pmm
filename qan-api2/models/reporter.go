@@ -84,7 +84,7 @@ SUM(num_queries) AS num_queries,
         {{ else }}
             SUM(m_query_time_sum) / {{ $.PeriodDuration }} AS load,
         {{ end }}
-    {{ else }}
+    {{ else if ne $col "num_queries" }}
         SUM({{ $col }}) AS {{ $col }},
     {{ end }}
 {{ end }}
@@ -109,10 +109,10 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
     {{ end }})
 {{ end }}
 {{ if .LbacFilter }}
-		AND	{{ .LbacFilter }}
+    AND	{{ .LbacFilter }}
 {{ end }}
 GROUP BY {{ .Group }}
-        WITH TOTALS
+WITH TOTALS
 ORDER BY {{ .Order }}
 LIMIT :offset, :limit
 `
@@ -214,6 +214,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 	defer cancel()
 
 	rows, err := r.db.QueryxContext(queryCtx, query, args...)
+	logger.Get(ctx).Infof("QuerySelect: %s, args: %v", query, args)
 	if err != nil {
 		return nil, fmt.Errorf("QueryxContext error: %w", err)
 	}
@@ -800,16 +801,16 @@ func matchersToSQL(matchers []*labels.Matcher) (string, error) {
 		var condition string
 
 		// Process custom label matchers
-		if !isDimension(m.Name) {
+		if !IsDimension(m.Name) {
 			switch m.Type {
 			case labels.MatchEqual:
 				condition = fmt.Sprintf("(hasAny(labels.key, ['%s']) AND hasAny(labels.value, ['%s'])", m.Name, m.Value)
 			case labels.MatchNotEqual:
-				condition = fmt.Sprintf("(hasAny(labels.key, ['%s']) AND NOT hasAny(labels.value, ['%s'])", m.Name, m.Value)
+				condition = fmt.Sprintf("NOT (hasAny(labels.key, ['%s']) AND hasAny(labels.value, ['%s'])", m.Name, m.Value)
 			case labels.MatchRegexp:
 				condition = fmt.Sprintf("(hasAny(labels.key, ['%s']) AND arrayExists(x -> match(x, '%s'), labels.value))", m.Name, clickhouseRegex(m.Value))
 			case labels.MatchNotRegexp:
-				condition = fmt.Sprintf("(hasAny(labels.key, ['%s']) AND NOT arrayExists(x -> match(x, '%s'), labels.value))", m.Name, clickhouseRegex(m.Value))
+				condition = fmt.Sprintf("NOT (hasAny(labels.key, ['%s']) AND arrayExists(x -> match(x, '%s'), labels.value))", m.Name, clickhouseRegex(m.Value))
 			default:
 				return "", fmt.Errorf("unsupported matcher type: %v", m.Type)
 			}
@@ -855,40 +856,4 @@ func escapeValue(value string) string {
 func clickhouseRegex(regex string) string {
 	// Make quantifiers non-greedy
 	return strings.ReplaceAll(regex, ".*", ".*?")
-}
-
-// TODO: duplicate, find a better place for this.
-func isDimension(name string) bool {
-	dimensionColumnNames := map[string]struct{}{
-		// Main dimensions
-		"queryid":      {},
-		"service_name": {},
-		"database":     {},
-		"schema":       {},
-		"username":     {},
-		"client_host":  {},
-		// Standard labels
-		"replication_set":  {},
-		"cluster":          {},
-		"service_type":     {},
-		"service_id":       {},
-		"environment":      {},
-		"az":               {},
-		"region":           {},
-		"node_model":       {},
-		"node_id":          {},
-		"node_name":        {},
-		"node_type":        {},
-		"machine_id":       {},
-		"container_name":   {},
-		"container_id":     {},
-		"cmd_type":         {},
-		"application_name": {},
-		"top_queryid":      {},
-		"planid":           {},
-		"plan_summary":     {},
-	}
-
-	_, ok := dimensionColumnNames[name]
-	return ok
 }
