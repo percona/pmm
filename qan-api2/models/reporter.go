@@ -799,9 +799,9 @@ func matchersToSQL(matchers []*labels.Matcher) (string, error) {
 		if !IsDimension(m.Name) {
 			switch m.Type {
 			case labels.MatchEqual:
-				condition = fmt.Sprintf("(hasAny(labels.key, ['%s']) AND hasAny(labels.value, ['%s'])", m.Name, m.Value)
+				condition = fmt.Sprintf("(hasAny(labels.key, ['%s']) AND hasAny(labels.value, ['%s']))", m.Name, m.Value)
 			case labels.MatchNotEqual:
-				condition = fmt.Sprintf("NOT (hasAny(labels.key, ['%s']) AND hasAny(labels.value, ['%s'])", m.Name, m.Value)
+				condition = fmt.Sprintf("NOT (hasAny(labels.key, ['%s']) AND hasAny(labels.value, ['%s']))", m.Name, m.Value)
 			case labels.MatchRegexp:
 				condition = fmt.Sprintf("(hasAny(labels.key, ['%s']) AND arrayExists(x -> match(x, '%s'), labels.value))", m.Name, clickhouseRegex(m.Value))
 			case labels.MatchNotRegexp:
