@@ -52,7 +52,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
-		if isDimension(label.Key) {
+		if models.IsDimension(label.Key) {
 			dimensions[label.Key] = label.Value
 			continue
 		}

@@ -166,41 +166,6 @@ func interfaceToString(unk any) string {
 	}
 }
 
-func isDimension(name string) bool {
-	dimensionColumnNames := map[string]struct{}{
-		// Main dimensions
-		"queryid":      {},
-		"service_name": {},
-		"database":     {},
-		"schema":       {},
-		"username":     {},
-		"client_host":  {},
-		// Standard labels
-		"replication_set":  {},
-		"cluster":          {},
-		"service_type":     {},
-		"service_id":       {},
-		"environment":      {},
-		"az":               {},
-		"region":           {},
-		"node_model":       {},
-		"node_id":          {},
-		"node_name":        {},
-		"node_type":        {},
-		"machine_id":       {},
-		"container_name":   {},
-		"container_id":     {},
-		"cmd_type":         {},
-		"application_name": {},
-		"top_queryid":      {},
-		"planid":           {},
-		"plan_summary":     {},
-	}
-
-	_, ok := dimensionColumnNames[name]
-	return ok
-}
-
 // isTimeMetric checks if a metric in the time metrics group.
 func isTimeMetric(name string) bool {
 	timeColumnNames := map[string]struct{}{

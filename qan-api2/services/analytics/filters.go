@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	qanpb "github.com/percona/pmm/api/qan/v1"
+	"github.com/percona/pmm/qan-api2/models"
 )
 
 // Get implements rpc to get list of available labels.
@@ -40,7 +41,7 @@ func (s *Service) GetFilteredMetricsNames(ctx context.Context, in *qanpb.GetFilt
 	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
-		if isDimension(label.Key) {
+		if models.IsDimension(label.Key) {
 			dimensions[label.Key] = label.Value
 			continue
 		}
