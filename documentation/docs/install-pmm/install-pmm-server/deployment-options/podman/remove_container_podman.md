@@ -13,6 +13,7 @@ To completely remove your container and data:
     ```sh
     systemctl --user stop pmm-server
     ```
+
 2. If you're using Watchtower for UI upgrades, stop it too:
 
     ```sh

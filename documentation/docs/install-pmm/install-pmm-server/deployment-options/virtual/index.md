@@ -78,7 +78,7 @@ Ensure your network environment allows:
 - Access from client browsers to the PMM Server web interface
 - Standard ports: 443 (HTTPS), 80 (HTTP, redirects to HTTPS)
 
-See [Network and firewall requirements](../plan-pmm-installation/network_and_firewall.md) for full details.
+See [Network and firewall requirements](../../../plan-pmm-installation/network_and_firewall.md) for full details.
 
 ## Default users
 

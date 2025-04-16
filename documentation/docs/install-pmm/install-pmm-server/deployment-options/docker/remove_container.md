@@ -2,7 +2,8 @@
 
 Completely remove PMM Server from your Docker environment when you want to uninstall PMM Server, free up resources, or prepare for a clean installation.
 
-!!! caution "Warning: Data loss"
+
+!!! danger alert alert-danger "Warning: Data loss"
     These steps will permanently delete your PMM Server container, all stored metrics data, and configuration. This action cannot be undone unless you have a backup.
 
     Consider [creating a backup](backup_container.md) before proceeding if you might need the data in the future.

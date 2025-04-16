@@ -5,7 +5,7 @@ The Easy-install script provides the simplest way to deploy PMM Server with Dock
 ## Security best practice
 Before running the script:
 
-- Download the installation script from the official Percona domain: [https://www.percona.com/get/pmm](https://www.percona.com/get/pmm)
+- Download the installation script from the [official Percona domain](https://www.percona.com/get/pmm).
 
 - Review the script content to understand its actions.
 

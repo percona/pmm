@@ -121,6 +121,14 @@ For the VM to be accessible on your network, configure the network settings appr
         ```
         This opens just the console window.
 
+
+## Troubleshooting network issues
+If you cannot connect to the VM:
+    
+- For bridged networking, ensure your host's firewall allows traffic to the VM
+- For NAT with port forwarding, connect to your host's IP address with the forwarded port (e.g., https://localhost:8443)
+- Verify VirtualBox network settings are correctly configured
+
 ## Next steps
 
 After successfully importing and starting the PMM Server VM:
@@ -128,10 +136,3 @@ After successfully importing and starting the PMM Server VM:
 - Open a web browser and navigate to `https://<vm-ip-address>`
 - [Complete initial login and setup](login_UI.md)
 - [Register PMM Clients](../../../register-client-node/index.md) to begin monitoring
-
-!!! tip "Troubleshooting network issues"
-    If you cannot connect to the VM:
-    
-    - For bridged networking, ensure your host's firewall allows traffic to the VM
-    - For NAT with port forwarding, connect to your host's IP address with the forwarded port (e.g., https://localhost:8443)
-    - Verify VirtualBox network settings are correctly configured

@@ -13,23 +13,24 @@ Choose Podman deployment when:
 - Security is a priority and you need rootless container execution
 - Your organization has security policies restricting the use of Docker daemon
 - You're running in environments where fine-grained permission control is required
-- You need SystemD integration for better service management
+- You need systemD integration for better service management
 
 
 !!! tip "Recommended setup for best performance"
-    Percona recommends running PMM with Podman as a non-privileged user and as part of the provided SystemD service. SystemD helps ensure that the service is actively running and offers logging and management functions, such as start, stop, and restart.
+    Percona recommends running PMM with Podman as a non-privileged user and as part of the provided systemd service. Systemd helps ensure that the service is actively running and offers logging and management functions, such as start, stop, and restart.
 
 ## Before you start
 
 Before installing PMM Server with Podman, ensure you have:
+{.power-number}
 
-- Install [Podman](https://podman.io/getting-started/installation).
+1.  Install [Podman](https://podman.io/getting-started/installation).
 - Configure [rootless](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md) Podman.
-- Create the Podman network for PMM:
+2.  Create the Podman network for PMM:
   ```sh
   podman network create pmm_default
   ```
-- Set up required system configurations:
+3.  Set up required system configurations:
     ```sh
     # Allow non-root users to bind to privileged ports (required for port 443)
     sudo sysctl -w net.ipv4.ip_unprivileged_port_start=443
@@ -38,10 +39,14 @@ Before installing PMM Server with Podman, ensure you have:
     echo "net.ipv4.ip_unprivileged_port_start=443" | sudo tee /etc/sysctl.d/99-pmm.conf
     sudo sysctl -p /etc/sysctl.d/99-pmm.conf
     ```
-- Configure Watchtower (if using UI updates) with these security considerations:
+4. Create the Podman network for PMM:
+    ```sh
+    podman network create pmm_default
+    ```
+5. Configure Watchtower (if using UI updates) with these security considerations:
 
-    - ensure Watchtower is only accessible from within the Docker network or local host to prevent unauthorized access and enhance container security.
-    - configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Docker network.
+    - ensure Watchtower is only accessible from within the Podman network or local host to prevent unauthorized access and enhance container security.
+    - configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Podman network.
     - grant Watchtower access to the Docker socket to monitor and manage containers effectively, ensuring proper security measures are in place to protect the Docker socket.
     - verify that both Watchtower and PMM Server are on the same network, or ensure PMM Server can connect to Watchtower for communication. This network setup is essential for PMM Server to initiate updates through Watchtower.
 
@@ -50,13 +55,13 @@ Before installing PMM Server with Podman, ensure you have:
 PMM Server updates work differently in Podman compared to Docker due to security policies:
 
 - Docker updates: use a simpler flow where PMM Server directly instructs Watchtower to replace the Docker container in one step.
-- Podman updates: require SystemD integration and follow a multi-step process with environment file changes for better security isolation.
+- Podman updates: require systemd integration and follow a multi-step process with environment file changes for better security isolation.
 
 When you initiate an update in the UI with Podman:
 
 - PMM Server updates its image reference in the environment file
 - Watchtower detects the change and pulls the new image
-- SystemD handles container replacement automatically
+- Systemd handles container replacement automatically
 
 
 ## Installation options
@@ -69,9 +74,9 @@ On the other hand, the manual method offers a simpler setup with complete contro
 
 === "Installation with UI updates"
 
-    This method enables updates through the PMM web interface using Watchtower and SystemD services. When you initiate an update in the UI, PMM Server updates its image reference, prompting Watchtower to pull the new image. 
+    This method enables updates through the PMM web interface using Watchtower and systemd services. When you initiate an update in the UI, PMM Server updates its image reference, prompting Watchtower to pull the new image. 
     
-    Watchtower then stops the existing container, and SystemD automatically restarts it with the updated image.
+    Watchtower then stops the existing container, and systemd automatically restarts it with the updated image.
     {.power-number}
 
 

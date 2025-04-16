@@ -11,8 +11,7 @@ To remove a PMM Server virtual machine from VMware:
 2. With the VM selected, choose **Remove > Delete all files** and confirm the deletion when prompted.
 
 !!! caution "Data loss warning"
-
-This action permanently deletes all monitoring data, dashboards, and configurations. If you need to preserve your PMM data, create a backup before removing the virtual machine.
+    This action permanently deletes all monitoring data, dashboards, and configurations. If you need to preserve your PMM data, create a backup before removing the virtual machine.
 
 
 ## Remove virtual machine from VirtualBox
@@ -24,7 +23,9 @@ To remove a PMM Server virtual machine from VirtualBox:
 3. Choose **Delete all files** to remove the VM and its disk images, then click **Remove** to confirm.
 
 ## Verify removal
+
 After removing the virtual machine, verify that all associated files have been deleted:
+{.power-number}
 
 1. Check that the VM no longer appears in your virtualization software's inventory. 
 2. Verify that disk space has been reclaimed on your host system.
@@ -33,6 +34,7 @@ After removing the virtual machine, verify that all associated files have been d
 ## Next steps
 
 After removing the virtual machine, you can:
+
 - [Download the latest PMM Server OVA](download_ova.md) to install a newer version
 - [Deploy PMM Server using an alternative method](../../index.md), such as Docker or Kubernetes
 - [Set up a new PMM Server virtual appliance](vmware.md) with a fresh configuration
