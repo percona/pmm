@@ -69,13 +69,13 @@ SUM(num_queries) AS num_queries,
     SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
     MIN(m_{{ $col }}_min) AS m_{{ $col }}_min,
     MAX(m_{{ $col }}_max) AS m_{{ $col }}_max,
-	AVG(m_{{ $col }}_p99) AS m_{{ $col }}_p99,
-	m_{{ $col }}_sum/num_queries AS m_{{ $col }}_avg,
+    AVG(m_{{ $col }}_p99) AS m_{{ $col }}_p99,
+    m_{{ $col }}_sum/num_queries AS m_{{ $col }}_avg,
 {{ end }}
 {{range $j, $col := .SumColumns}}
     SUM(m_{{ $col }}_cnt) AS m_{{ $col }}_cnt,
-	SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
-	m_{{ $col }}_sum/num_queries AS m_{{ $col }}_avg,
+    SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
+    m_{{ $col }}_sum/num_queries AS m_{{ $col }}_avg,
 {{ end }}
 {{range $j, $col := .SpecialColumns}}
     {{ if eq $col "load" }}
@@ -92,11 +92,11 @@ count(DISTINCT dimension) AS total_rows
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if .Search }}
-	{{ if eq .Group "queryid" }}
-		AND ( lowerUTF8(queryid) LIKE :search OR lowerUTF8(metrics.fingerprint) LIKE :search )
-	{{ else }}
-		AND lowerUTF8({{ .Group }}) LIKE :search
-	{{ end }}
+  {{ if eq .Group "queryid" }}
+    AND ( lowerUTF8(queryid) LIKE :search OR lowerUTF8(metrics.fingerprint) LIKE :search )
+  {{ else }}
+    AND lowerUTF8({{ .Group }}) LIKE :search
+  {{ end }}
 {{ end }}
 {{ if .Dimensions }}
     {{range $key, $vals := .Dimensions }}
@@ -109,7 +109,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
     {{ end }})
 {{ end }}
 {{ if .LbacFilter }}
-    AND	{{ .LbacFilter }}
+    AND ({{ .LbacFilter }})
 {{ end }}
 GROUP BY {{ .Group }}
 WITH TOTALS
@@ -271,7 +271,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
     {{ end }})
 {{ end }}
 {{ if .LbacFilter }}
-		AND	{{ .LbacFilter }}
+    AND ({{ .LbacFilter }})
 {{ end }}
 GROUP BY point
 ORDER BY point ASC;
@@ -438,9 +438,9 @@ FROM
     FROM metrics
     WHERE (period_start >= ?) AND (period_start <= ?)
     {{range $key, $vals := .Dimensions }} AND ({{ $key }} IN ('{{ StringsJoin $vals "', '" }}')){{ end }}
-		{{ if .LbacFilter }}
-			AND	{{ .LbacFilter }}
-		{{ end }}
+    {{ if .LbacFilter }}
+      AND ({{ .LbacFilter }})
+    {{ end }}
     GROUP BY {{ .DimensionName }}
     UNION ALL
     SELECT
@@ -449,9 +449,9 @@ FROM
         0 AS main_metric_sum
     FROM metrics
     WHERE (period_start >= ?) AND (period_start <= ?)
-		{{ if .LbacFilter }}
-			AND	{{ .LbacFilter }}
-		{{ end }}
+    {{ if .LbacFilter }}
+      AND ({{ .LbacFilter }})
+    {{ end }}
     GROUP BY {{ .DimensionName }}
 )
 GROUP BY
@@ -631,7 +631,7 @@ SELECT DISTINCT
 FROM metrics
 WHERE (period_start >= ?) AND (period_start <= ?)
 {{ if .LbacFilter }}
-	AND	{{ .LbacFilter }}
+	AND	({{ .LbacFilter }})
 {{ end }}
 ORDER BY
 	labels.value ASC
@@ -766,7 +766,7 @@ func headersToLbacFilter(ctx context.Context) (string, error) {
 	}
 
 	lbacFilters := make([]string, 0, len(filters))
-	// Ex: two selectors with 4 types: `[{service_type=~"mysql|mongodb", environment!~"prod"}, {environment="dev", az!="us-east-1"}]`
+	// Selector example: `[{service_type=~"mysql|mongodb", environment!~"prod"}, {environment="dev", az!="us-east-1"}]`
 	for _, selector := range selectors {
 		m, err := parser.ParseMetricSelector(selector)
 		if err != nil {
@@ -778,19 +778,14 @@ func headersToLbacFilter(ctx context.Context) (string, error) {
 			l.Errorf("Failed to convert label matchers to WHERE condition: %s", err)
 			continue
 		}
-		lbacFilters = append(lbacFilters, fmt.Sprintf("(%s)", fl))
+		if len(m) > 1 {
+			lbacFilters = append(lbacFilters, "("+fl+")")
+		} else {
+			lbacFilters = append(lbacFilters, fl)
+		}
 	}
 
-	switch len(lbacFilters) {
-	case 0:
-		return "", nil
-	case 1:
-		l.Infof("WHERE: %s", strings.Join(lbacFilters, " OR "))
-		return strings.Join(lbacFilters, " OR "), nil
-	}
-
-	l.Infof("WHERE: %s", "("+strings.Join(lbacFilters, " OR ")+")")
-	return "(" + strings.Join(lbacFilters, " OR ") + ")", nil
+	return strings.Join(lbacFilters, " OR "), nil
 }
 
 // matchersToSQL converts Prometheus matchers to ClickHouse WHERE conditions.
@@ -856,4 +851,16 @@ func escapeValue(value string) string {
 func clickhouseRegex(regex string) string {
 	// Make quantifiers non-greedy
 	return strings.ReplaceAll(regex, ".*", ".*?")
+}
+
+// parenthesize joins the array of strings and wraps it in parentheses if it has more than one element.
+func parenthesize(arr []string, join string) string {
+	switch len(arr) {
+	case 0:
+		return ""
+	case 1:
+		return strings.Join(arr, join)
+	default:
+		return "(" + strings.Join(arr, join) + ")"
+	}
 }
