@@ -334,7 +334,7 @@ nav:
   - faq.md
   - Release notes:
       - Release notes index: release-notes/index.md
-      - "PMM 2.44.1 (2025-04-20)" : release-notes/2.44.1.md
+      - "PMM 2.44.1 (2025-04-24)" : release-notes/2.44.1.md
       - "PMM 2.44.0-1 (2025-02-10)": release-notes/2.44.0.1.md
       - "PMM 2.44.0 (2024-12-13)": release-notes/2.44.0.md
       - "PMM 2.43.2-1 (2025-03-12)": release-notes/2.43.2-1.md

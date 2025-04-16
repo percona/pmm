@@ -11,7 +11,7 @@ plugins:
   with-pdf:
     output_path: "pdf/PerconaMonitoringAndManagement-2.44.1.pdf"
     cover_title: "Percona Monitoring and Management Documentation"
-    cover_subtitle: 2.44.1 (April 13, 2025)
+    cover_subtitle: 2.44.1 (April 24, 2025)
     author: "Percona Technical Documentation Team"
     cover_logo: docs/images/pmm_pdf_logo.png
     custom_template_path: resources/templates
