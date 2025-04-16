@@ -190,7 +190,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
 			}
 			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
-		case models.NomadClientType:
+		case models.NomadAgentType:
 			if !settings.IsNomadEnabled() {
 				continue
 			}

@@ -25,7 +25,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-func TestGenerateNomadClientConfig(t *testing.T) {
+func TestGenerateNomadAgentConfig(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		node := &models.Node{
 			NodeName: "node-name",
@@ -34,11 +34,11 @@ func TestGenerateNomadClientConfig(t *testing.T) {
 		}
 		agent := &models.Agent{
 			PMMAgentID: pointer.ToString("agent-id"),
-			AgentType:  models.NomadClientType,
+			AgentType:  models.NomadAgentType,
 			LogLevel:   pointer.To("debug"),
 		}
 		tdp := models.TemplateDelimsPair()
-		config, err := generateNomadClientConfig(node, agent, tdp)
+		config, err := generateNomadAgentConfig(node, agent, tdp)
 		require.NoError(t, err)
 		expected := `log_level = "DEBUG"
 
@@ -46,7 +46,7 @@ disable_update_check = true
 data_dir = "{{ .nomad_data_dir }}" # it shall be persistent
 region = "global"
 datacenter = "PMM Deployment"
-name = "PMM Agent node-name"
+name = "node-name"
 
 ui {
   enabled = false
@@ -85,7 +85,7 @@ client {
   # optional labels assigned to Nomad Client, can be the same as PMM Agent's.
   meta {
     pmm-agent = "1"
-    agent_type = "nomad-client"
+    agent_type = "nomad-agent"
     node_id = "node-id"
     node_name = "node-name"
   }
