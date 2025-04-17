@@ -231,7 +231,17 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 			return err
 		}
 
-		agents, err = models.FindAgents(s.db.Querier, models.AgentFilters{})
+		agentFilters := models.AgentFilters{}
+
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		if !settings.IsNomadEnabled() {
+			agentFilters.IgnoreNomad = true
+		}
+
+		agents, err = models.FindAgents(tx.Querier, agentFilters)
 		if err != nil {
 			return err
 		}

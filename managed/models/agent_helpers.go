@@ -173,6 +173,8 @@ type AgentFilters struct {
 	AgentType *AgentType
 	// Return only Agents that provide insights for that AWSAccessKey.
 	AWSAccessKey string
+	// IgnoreNomad is used to ignore Nomad agents.
+	IgnoreNomad bool
 }
 
 // FindAgents returns Agents by filters.
@@ -212,6 +214,11 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	if filters.AWSAccessKey != "" {
 		conditions = append(conditions, fmt.Sprintf("(aws_options ? 'aws_access_key' AND aws_options->>'aws_access_key' = %s)", q.Placeholder(idx)))
 		args = append(args, filters.AWSAccessKey)
+		idx++
+	}
+	if filters.IgnoreNomad {
+		conditions = append(conditions, "agent_type != %s", q.Placeholder(idx))
+		args = append(args, NomadAgentType)
 	}
 
 	var whereClause string

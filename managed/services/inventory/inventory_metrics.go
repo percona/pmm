@@ -102,7 +102,15 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 	metrics := []Metric{}
 
 	errTx := i.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		dbAgents, err := models.FindAgents(tx.Querier, models.AgentFilters{})
+		filters := models.AgentFilters{}
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		if !settings.IsNomadEnabled() {
+			filters.IgnoreNomad = true
+		}
+		dbAgents, err := models.FindAgents(tx.Querier, filters)
 		if err != nil {
 			return err
 		}

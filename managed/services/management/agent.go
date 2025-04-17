@@ -45,7 +45,7 @@ func (s *ManagementService) ListAgents(ctx context.Context, req *managementv1.Li
 	if req.ServiceId != "" {
 		agents, err = s.listAgentsByServiceID(ctx, req.ServiceId)
 	} else {
-		agents, err = s.listAgentsByNodeID(req.NodeId)
+		agents, err = s.listAgentsByNodeID(ctx, req.NodeId)
 	}
 	if err != nil {
 		return nil, err
@@ -61,8 +61,17 @@ func (s *ManagementService) listAgentsByServiceID(ctx context.Context, serviceID
 
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
+		filters := models.AgentFilters{}
 
-		agents, err = models.FindAgents(tx.Querier, models.AgentFilters{})
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		if !settings.IsNomadEnabled() {
+			filters.IgnoreNomad = true
+		}
+
+		agents, err = models.FindAgents(tx.Querier, filters)
 		if err != nil {
 			return err
 		}
@@ -95,10 +104,30 @@ func (s *ManagementService) listAgentsByServiceID(ctx context.Context, serviceID
 }
 
 // listAgentsByNodeID returns a list of Agents filtered by NodeID.
-func (s *ManagementService) listAgentsByNodeID(nodeID string) ([]*managementv1.UniversalAgent, error) {
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
-	if err != nil {
-		return nil, err
+func (s *ManagementService) listAgentsByNodeID(ctx context.Context, nodeID string) ([]*managementv1.UniversalAgent, error) {
+	var agents []*models.Agent
+
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		var err error
+		filters := models.AgentFilters{}
+
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		if !settings.IsNomadEnabled() {
+			filters.IgnoreNomad = true
+		}
+
+		agents, err = models.FindAgents(s.db.Querier, filters)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	if errTX != nil {
+		return nil, errTX
 	}
 
 	var res []*managementv1.UniversalAgent
