@@ -7,7 +7,7 @@ order: 2
 
 In order to get a Database (or Service in PMM terminology) monitored you need:
 
-- [Install PMM](https://docs.percona.com/percona-monitoring-and-management/setting-up/server/index.html)
+- [Install PMM](https://per.co.na/pmm/quickstart)
 - [PMM Server Configuration](ref:pmm-server-configuration)
 - [Register Node](ref:registernode)
-- [Add Service to Monitoring](ref:add-service-to-monitoring)
+- [Add Service to Monitoring](ref:add-service)

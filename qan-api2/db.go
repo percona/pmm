@@ -105,7 +105,7 @@ func runMigrations(dsn string) error {
 	if err != nil {
 		return err
 	}
-	log.Println("dsn: ", dsn)
+
 	m, err := migrate.NewWithSourceInstance("iofs", d, dsn)
 	if err != nil {
 		return err

@@ -155,7 +155,7 @@ func TestRun(t *testing.T) {
 		_, err := cmd.RunCmd()
 
 		if assert.Error(t, err) {
-			expected := "Unrecognized option. To create a user, see 'https://docs.percona.com/percona-monitoring-and-management/setting-up/client/mysql.html#create-a-database-account-for-pmm'"
+			expected := "Unrecognized option. To create a user, see 'https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql.html#create-a-database-account-for-pmm'"
 			assert.Equal(t, expected, err.Error())
 		}
 	})

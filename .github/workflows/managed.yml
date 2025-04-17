@@ -134,5 +134,5 @@ jobs:
           services=(`echo ${services}`)
           for service in "${services[@]}"; do
             echo "Logs for $service:"
-            docker exec pmm-server supervisorctl tail $service
+            docker exec pmm-server supervisorctl tail $service || true
           done

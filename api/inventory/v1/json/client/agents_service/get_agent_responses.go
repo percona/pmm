@@ -427,6 +427,9 @@ type GetAgentOKBody struct {
 	// node exporter
 	NodeExporter *GetAgentOKBodyNodeExporter `json:"node_exporter,omitempty"`
 
+	// nomad agent
+	NomadAgent *GetAgentOKBodyNomadAgent `json:"nomad_agent,omitempty"`
+
 	// pmm agent
 	PMMAgent *GetAgentOKBodyPMMAgent `json:"pmm_agent,omitempty"`
 
@@ -479,6 +482,10 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateNodeExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateNomadAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -615,6 +622,25 @@ func (o *GetAgentOKBody) validateNodeExporter(formats strfmt.Registry) error {
 				return ve.ValidateName("getAgentOk" + "." + "node_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("getAgentOk" + "." + "node_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) validateNomadAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.NomadAgent) { // not required
+		return nil
+	}
+
+	if o.NomadAgent != nil {
+		if err := o.NomadAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "nomad_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "nomad_agent")
 			}
 			return err
 		}
@@ -837,6 +863,10 @@ func (o *GetAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateNomadAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidatePMMAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -975,6 +1005,26 @@ func (o *GetAgentOKBody) contextValidateNodeExporter(ctx context.Context, format
 				return ve.ValidateName("getAgentOk" + "." + "node_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("getAgentOk" + "." + "node_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateNomadAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.NomadAgent != nil {
+
+		if swag.IsZero(o.NomadAgent) { // not required
+			return nil
+		}
+
+		if err := o.NomadAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "nomad_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "nomad_agent")
 			}
 			return err
 		}
@@ -2637,6 +2687,136 @@ func (o *GetAgentOKBodyNodeExporterMetricsResolutions) MarshalBinary() ([]byte, 
 // UnmarshalBinary interface implementation
 func (o *GetAgentOKBodyNodeExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res GetAgentOKBodyNodeExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetAgentOKBodyNomadAgent get agent OK body nomad agent
+swagger:model GetAgentOKBodyNomadAgent
+*/
+type GetAgentOKBodyNomadAgent struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+}
+
+// Validate validates this get agent OK body nomad agent
+func (o *GetAgentOKBodyNomadAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOkBodyNomadAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyNomadAgentTypeStatusPropEnum = append(getAgentOkBodyNomadAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyNomadAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	GetAgentOKBodyNomadAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// GetAgentOKBodyNomadAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyNomadAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// GetAgentOKBodyNomadAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	GetAgentOKBodyNomadAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// GetAgentOKBodyNomadAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyNomadAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// GetAgentOKBodyNomadAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyNomadAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// GetAgentOKBodyNomadAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyNomadAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// GetAgentOKBodyNomadAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyNomadAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// GetAgentOKBodyNomadAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyNomadAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyNomadAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyNomadAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyNomadAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOk"+"."+"nomad_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this get agent OK body nomad agent based on context it is used
+func (o *GetAgentOKBodyNomadAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyNomadAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyNomadAgent) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyNomadAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
