@@ -1,4 +1,4 @@
-export const cardIds = {
+export const CARD_IDS = {
   pmmDocs: 'pmm-docs',
   support: 'support',
   forum: 'forum',
@@ -7,100 +7,106 @@ export const cardIds = {
   tips: 'tips',
 };
 
-export const startIcon = {
+export const START_ICON = {
   download: 'download',
   map: 'map',
 };
 
 export const CardsData = [
   {
-    id: cardIds.pmmDocs,
+    id: CARD_IDS.pmmDocs,
     title: 'PMM Documentation',
     description:
       'From setup to troubleshooting, you’ll find step-by-step instructions, tips, and best practices to get the most out of PMM.',
     buttons: [
       {
-        buttonText: 'View docs',
+        text: 'View docs',
         target: '_blank',
         url: 'https://per.co.na/pmm_documentation',
         startIconName: '',
       },
     ],
+    adminOnly: false,
     borderColor: '#1486FF',
   },
   {
-    id: cardIds.support,
+    id: CARD_IDS.support,
     title: 'Get Percona Support',
     description:
       'From 24/7 technical support to fully managed services, Percona’s trusted experts are ready to help you optimize, troubleshoot, and scale.',
     buttons: [
       {
-        buttonText: 'Contact Support',
+        text: 'Contact Support',
         target: '_blank',
         url: 'https://per.co.na/pmm_support',
         startIconName: '',
       },
     ],
+    adminOnly: false,
     borderColor: '#F24500',
   },
   {
-    id: cardIds.forum,
+    id: CARD_IDS.forum,
     title: 'Percona Forum',
     description:
       'A friendly space to connect with other users, share insights, and get answers from the community and from the Percona experts.',
     buttons: [
       {
-        buttonText: 'View forum',
+        text: 'View forum',
         target: '_blank',
         url: 'https://per.co.na/PMM3_forum',
         startIconName: '',
       },
     ],
+    adminOnly: false,
     borderColor: '#30D1B2',
   },
   {
-    id: cardIds.pmmDump,
+    id: CARD_IDS.pmmDump,
     title: 'PMM Dump',
     description:
       'Generate datasets to securely share your data with Percona Support. This helps our experts quickly diagnose and replicate issues.',
     buttons: [
       {
-        buttonText: 'Manage datasets',
+        text: 'Manage datasets',
         target: '',
         url: '/graph/pmm-dump',
         startIconName: '',
       },
     ],
+    adminOnly: true,
     borderColor: '#F0B336',
   },
   {
-    id: cardIds.pmmLogs,
+    id: CARD_IDS.pmmLogs,
     title: 'PMM Logs',
     description:
       'Download your PMM logs as a ZIP file for easy sharing and faster issue diagnosis.',
     buttons: [
       {
-        buttonText: 'Export logs',
+        text: 'Export logs',
         target: '_blank',
         url: '/logs.zip',
-        startIconName: startIcon.download,
+        startIconName: START_ICON.download,
       },
     ],
+    adminOnly: true,
   },
   {
-    id: cardIds.tips,
+    id: CARD_IDS.tips,
     title: 'Useful Tips',
     description:
       'Need a refresher? Access the onboarding tour tips or the keyboard shortcuts.',
+    adminOnly: false,
     buttons: [
       {
-        buttonText: 'Start PMM tour',
-        startIconName: startIcon.map,
+        text: 'Start PMM tour',
+        startIconName: START_ICON.map,
         target: '',
         url: '',
       },
       {
-        buttonText: 'Shortcuts',
+        text: 'Shortcuts',
         startIconName: '',
         target: '',
         url: 'https://per.co.na/pmm_documentation',

@@ -18,8 +18,8 @@ export const Page: FC<PageProps> = ({ title, footer, children }) => {
 
   return (
     <Stack
-      sx={{
-        '@media (min-width:1000px)': {
+      sx={(theme) => ({
+        [theme.breakpoints.up('lg')]: {
           width: 1000,
         },
         width: {
@@ -31,7 +31,7 @@ export const Page: FC<PageProps> = ({ title, footer, children }) => {
         mx: 'auto',
         gap: 3,
         mt: 1,
-      }}
+      })}
     >
       {!!title && <Typography variant="h2">{title}</Typography>}
       {user?.isAuthorized ? (

@@ -1,54 +1,16 @@
-import { Button, CardContent, Typography, Box, Card } from '@mui/material';
-import {
-  Support,
-  ForumOutlined,
-  DatasetOutlined,
-  NorthEast,
-  SaveAlt,
-  MapOutlined,
-} from '@mui/icons-material';
-import { KnowledgeBaseIcon } from 'icons';
+import { Box } from '@mui/material';
 import { Page } from 'components/page';
-import { FC, ReactNode, useCallback } from 'react';
+import { FC, useCallback } from 'react';
 import { Messages } from './HelpCenter.messages';
-import { CardsData, cardIds, startIcon } from './HelpCenter.constants';
+import { CardsData } from './HelpCenter.constants';
 import { useUser } from 'contexts/user';
+import { HelpCenterCard } from './help-center-card/HelpCenterCard';
 
 export const HelpCenter: FC = () => {
   const { user } = useUser();
 
-  const getIcon = useCallback((cardId: string): ReactNode => {
-    switch (cardId) {
-      case cardIds.pmmDocs:
-        return <KnowledgeBaseIcon />;
-      case cardIds.support:
-        return <Support />;
-      case cardIds.forum:
-        return <ForumOutlined />;
-      case cardIds.pmmDump:
-        return <DatasetOutlined />;
-      default:
-        return null;
-    }
-  }, []);
-
-  const getButtonStartIcon = useCallback((iconName: string): ReactNode => {
-    switch (iconName) {
-      case startIcon.download:
-        return <SaveAlt />;
-      case startIcon.map:
-        return <MapOutlined />;
-      default:
-        return null;
-    }
-  }, []);
-
   const shouldDisplayCard = useCallback(
-    (itemId: string): boolean =>
-      !(
-        !user?.isPMMAdmin &&
-        (itemId === cardIds.pmmDump || itemId === cardIds.pmmLogs)
-      ),
+    (adminOnly: boolean): boolean => !(!user?.isPMMAdmin && adminOnly),
     [user]
   );
 
@@ -65,66 +27,9 @@ export const HelpCenter: FC = () => {
           gap: 4,
         }}
       >
-        {CardsData.map(
-          (item) =>
-            shouldDisplayCard(item.id) && (
-              <Card
-                style={{
-                  borderTop: item.borderColor
-                    ? `solid 12px ${item.borderColor}`
-                    : 'none',
-                }}
-                key={item.id}
-                data-testid={`help-card-${item.id}`}
-              >
-                <CardContent style={{ paddingRight: 16, paddingLeft: 16 }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'flex-start',
-                      alignItems: 'center',
-                      marginBottom: 8,
-                    }}
-                  >
-                    {getIcon(item.id)}
-                    <Typography
-                      variant="h6"
-                      style={{ marginLeft: getIcon(item.id) ? 8 : 0 }}
-                    >
-                      {item.title}
-                    </Typography>
-                  </div>
-
-                  <Typography>{item.description}</Typography>
-                  <div style={{ display: 'flex', paddingTop: 16 }}>
-                    {item.buttons.map((button) => (
-                      <Button
-                        key={button.url}
-                        variant="outlined"
-                        size="small"
-                        style={{ marginRight: 8 }}
-                        startIcon={getButtonStartIcon(button.startIconName)}
-                        endIcon={button.target && <NorthEast />}
-                        onClick={() => {
-                          if (button.target !== '') {
-                            window.open(
-                              button.url,
-                              button.target,
-                              'noopener,noreferrer'
-                            );
-                          } else {
-                            window.location.assign(button.url);
-                          }
-                        }}
-                      >
-                        {button.buttonText}
-                      </Button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )
-        )}
+        {CardsData.map((item) => (
+          <HelpCenterCard card={item} shouldDisplayCard={shouldDisplayCard} />
+        ))}
       </Box>
     </Page>
   );
