@@ -106,6 +106,7 @@ func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, file
 
 	tempdir := filepath.Join(sib.cfg.Get().Paths.TempDir, strings.ToLower("get-mysql-info"), strconv.Itoa(int(id)))
 	_, err = templates.RenderDSN(dsn, files, tempdir)
+	defer templates.CleanupTempDir(tempdir, sib.l)
 	if err != nil {
 		sib.l.Debugf("getMySQLInfo: failed to Render DSN: %s", err)
 		res.Error = err.Error()
@@ -148,6 +149,7 @@ func (sib *ServiceInfoBroker) getMongoDBInfo(ctx context.Context, dsn string, fi
 
 	tempdir := filepath.Join(sib.cfg.Get().Paths.TempDir, strings.ToLower("get-mongodb-info"), strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	defer templates.CleanupTempDir(tempdir, sib.l)
 	if err != nil {
 		sib.l.Debugf("getMongoDBInfo: failed to Render DSN: %s", err)
 		res.Error = err.Error()
@@ -192,6 +194,7 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 
 	tempdir := filepath.Join(sib.cfg.Get().Paths.TempDir, strings.ToLower("get-postgresql-info"), strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	defer templates.CleanupTempDir(tempdir, sib.l)
 	if err != nil {
 		sib.l.Debugf("getPostgreSQLInfo: failed to Render DSN: %s", err)
 		res.Error = err.Error()
