@@ -214,7 +214,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 	defer cancel()
 
 	rows, err := r.db.QueryxContext(queryCtx, query, args...)
-	logger.Get(ctx).Infof("QuerySelect: %s, args: %v", query, args)
+	logger.Get(ctx).Debugf("QuerySelect: %s, args: %v", query, args)
 	if err != nil {
 		return nil, fmt.Errorf("QueryxContext error: %w", err)
 	}
@@ -556,7 +556,6 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 ) ([]*customLabel, float32, error) {
 	durationSec := periodStartToSec - periodStartFromSec
 	var labels []*customLabel
-	// l := logger.Get(ctx)
 
 	lbacFilter, err := headersToLbacFilter(ctx)
 	if err != nil {
@@ -588,9 +587,6 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 		return nil, 0, fmt.Errorf("failed to select for QueryFilter %s: %w", queryBuffer.String(), err)
 	}
 	defer rows.Close() //nolint:errcheck
-	// if strings.Contains(queryBuffer.String(), "service_type AS value") {
-	// 	l.Infof("QueryFilter: %s, startFrom: %d, startTo: %d", queryBuffer.String(), periodStartFromSec, periodStartToSec)
-	// }
 
 	for rows.Next() {
 		var label customLabel
@@ -671,7 +667,7 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec, periodSt
 	var labels []*customLabelArray
 	for rows.Next() {
 		var label customLabelArray
-		err = rows.Scan(&label.keys, &label.values)
+		err := rows.Scan(&label.keys, &label.values)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan for QueryFilter %s: %w", queryLabels, err)
 		}
@@ -690,7 +686,7 @@ func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromS
 
 	labelKeysValues, err := r.queryLabels(ctx, periodStartFromSec, periodStartToSec)
 	if err != nil {
-		// logger.Get(ctx).Errorf("Failed to query labels: %s", err)
+		logger.Get(ctx).Errorf("Failed to query labels: %s", err)
 		return groupLabels
 	}
 
@@ -741,7 +737,7 @@ func parseFilters(filters []string) ([]string, error) {
 	if err := json.Unmarshal(decoded, &parsed); err != nil {
 		return nil, fmt.Errorf("failed to parse JSON: %w", err)
 	}
-	logrus.Infof("Parsed filters: %s", parsed)
+	logrus.Debugf("Parsed filters: %s", parsed)
 
 	return parsed, nil
 }
@@ -803,9 +799,9 @@ func matchersToSQL(matchers []*labels.Matcher) (string, error) {
 			case labels.MatchNotEqual:
 				condition = fmt.Sprintf("NOT (hasAny(labels.key, ['%s']) AND hasAny(labels.value, ['%s']))", m.Name, m.Value)
 			case labels.MatchRegexp:
-				condition = fmt.Sprintf("(hasAny(labels.key, ['%s']) AND arrayExists(x -> match(x, '%s'), labels.value))", m.Name, clickhouseRegex(m.Value))
+				condition = fmt.Sprintf("(hasAny(labels.key, ['%s']) AND arrayExists(x -> match(x, '%s'), labels.value))", m.Name, m.Value)
 			case labels.MatchNotRegexp:
-				condition = fmt.Sprintf("NOT (hasAny(labels.key, ['%s']) AND arrayExists(x -> match(x, '%s'), labels.value))", m.Name, clickhouseRegex(m.Value))
+				condition = fmt.Sprintf("NOT (hasAny(labels.key, ['%s']) AND arrayExists(x -> match(x, '%s'), labels.value))", m.Name, m.Value)
 			default:
 				return "", fmt.Errorf("unsupported matcher type: %v", m.Type)
 			}
@@ -821,9 +817,9 @@ func matchersToSQL(matchers []*labels.Matcher) (string, error) {
 		case labels.MatchNotEqual:
 			condition = fmt.Sprintf("%s != '%s'", m.Name, escapeValue(m.Value))
 		case labels.MatchRegexp:
-			condition = fmt.Sprintf("match(%s, '%s')", m.Name, clickhouseRegex(m.Value))
+			condition = fmt.Sprintf("match(%s, '%s')", m.Name, m.Value)
 		case labels.MatchNotRegexp:
-			condition = fmt.Sprintf("NOT match(%s, '%s')", m.Name, clickhouseRegex(m.Value))
+			condition = fmt.Sprintf("NOT match(%s, '%s')", m.Name, m.Value)
 		default:
 			return "", fmt.Errorf("unsupported matcher type: %v", m.Type)
 		}
@@ -837,18 +833,5 @@ func matchersToSQL(matchers []*labels.Matcher) (string, error) {
 // escapeValue escapes special characters in a string for use in SQL queries.
 func escapeValue(value string) string {
 	// Escape single quotes to counter SQL injection
-	escaped := strings.ReplaceAll(value, "'", "''")
-
-	// ClickHouse requires escaping these for LIKE/ILIKE:
-	escaped = strings.ReplaceAll(escaped, `\`, `\\`)
-	escaped = strings.ReplaceAll(escaped, "%", `\%`)
-	escaped = strings.ReplaceAll(escaped, "_", `\_`)
-
-	return escaped
-}
-
-// clickhouseRegex optimizes the regular expressions for ClickHouse.
-func clickhouseRegex(regex string) string {
-	// Make quantifiers non-greedy
-	return strings.ReplaceAll(regex, ".*", ".*?")
+	return strings.ReplaceAll(value, "'", "''")
 }
