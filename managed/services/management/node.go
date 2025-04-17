@@ -237,9 +237,7 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 		if err != nil {
 			return err
 		}
-		if !settings.IsNomadEnabled() {
-			agentFilters.IgnoreNomad = true
-		}
+		agentFilters.IgnoreNomad = !settings.IsNomadEnabled()
 
 		agents, err = models.FindAgents(tx.Querier, agentFilters)
 		if err != nil {

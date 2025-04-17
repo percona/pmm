@@ -120,10 +120,7 @@ func (s *ManagementService) listAgentsByNodeID(ctx context.Context, nodeID strin
 		}
 
 		agents, err = models.FindAgents(s.db.Querier, filters)
-		if err != nil {
-			return err
-		}
-		return nil
+		return err
 	})
 
 	if errTX != nil {
