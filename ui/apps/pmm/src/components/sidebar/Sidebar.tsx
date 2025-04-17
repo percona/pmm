@@ -1,13 +1,17 @@
 import { List, ListItem, ListItemButton, Stack } from '@mui/material';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { PmmRoundedIcon } from 'icons';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useMatch } from 'react-router-dom';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 
 const items = [
   {
     name: 'Home page',
-    url: PMM_NEW_NAV_PATH + '/',
+    url: PMM_NEW_NAV_PATH + '/graph/d/pmm-home',
+  },
+  {
+    name: 'Alerts',
+    url: PMM_NEW_NAV_PATH + '/graph/alerting/alerts',
   },
   {
     name: 'Updates',
@@ -18,6 +22,27 @@ const items = [
     url: PMM_NEW_NAV_PATH + '/help',
   },
 ];
+
+export const NavItem: FC<{ item: (typeof items)[0] }> = ({ item }) => {
+  const match = useMatch({
+    path: item.url,
+    end: false,
+  });
+
+  return (
+    <ListItem key={item.url} disablePadding>
+      {/* @ts-ignore */}
+      <ListItemButton
+        disableGutters
+        sx={{ px: 4, fontWeight: !!match ? 'bold' : '' }}
+        LinkComponent={Link}
+        to={item.url}
+      >
+        {item.name}
+      </ListItemButton>
+    </ListItem>
+  );
+};
 
 export const Sidebar: FC = () => {
   return (
@@ -39,17 +64,7 @@ export const Sidebar: FC = () => {
       </Stack>
       <List disablePadding sx={{ width: '100%' }}>
         {items.map((item) => (
-          <ListItem disablePadding>
-            {/* @ts-ignore */}
-            <ListItemButton
-              disableGutters
-              sx={{ px: 4 }}
-              LinkComponent={Link}
-              to={item.url}
-            >
-              {item.name}
-            </ListItemButton>
-          </ListItem>
+          <NavItem key={item.url} item={item} />
         ))}
       </List>
     </Stack>

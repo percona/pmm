@@ -1,9 +1,15 @@
 import { Box, Stack } from '@mui/material';
 import { useGrafana } from 'contexts/grafana';
-import { FC } from 'react';
+import { PMM_BASE_PATH } from 'lib/constants';
+import { FC, useMemo } from 'react';
 
 export const GrafanaPage: FC = () => {
   const { isFrameLoaded, isOnGrafanaPage, frameRef } = useGrafana();
+  const src = useMemo(
+    // load specific grafana page as the first one
+    () => window.location.pathname.replace(PMM_BASE_PATH, ''),
+    [isFrameLoaded]
+  );
 
   if (!isFrameLoaded) {
     return null;
@@ -18,7 +24,7 @@ export const GrafanaPage: FC = () => {
     >
       <Box
         ref={frameRef}
-        src="/graph"
+        src={src}
         component="iframe"
         sx={(theme) => ({
           borderStyle: 'solid',

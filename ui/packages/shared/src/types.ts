@@ -1,4 +1,4 @@
-export type MessageType = 'MESSENGER_READY';
+export type MessageType = 'MESSENGER_READY' | 'LOCATION_CHANGE';
 
 export interface Message<T extends MessageType, V> {
   type: T;
@@ -11,3 +11,5 @@ export interface MessageListener<T extends MessageType, V> {
 }
 
 export type MessengerReadyMessage = Message<'MESSENGER_READY', undefined>;
+
+export type LocationChangeMessage = Message<'LOCATION_CHANGE', Location>;
