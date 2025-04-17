@@ -217,7 +217,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		idx++
 	}
 	if filters.IgnoreNomad {
-		conditions = append(conditions, "agent_type != %s", q.Placeholder(idx))
+		conditions = append(conditions, fmt.Sprintf("agent_type != %s", q.Placeholder(idx)))
 		args = append(args, NomadAgentType)
 	}
 
