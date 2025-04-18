@@ -162,6 +162,10 @@ func TestFindDSNByServiceID(t *testing.T) {
 				},
 			},
 		} {
+			if v, ok := str.(*models.Agent); ok {
+				encryptedAgent := models.EncryptAgent(*v)
+				str = &encryptedAgent
+			}
 			require.NoError(t, q.Insert(str))
 		}
 

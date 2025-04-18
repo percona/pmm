@@ -163,7 +163,15 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 			return err
 		}
 
-		agents, err = models.FindAgents(tx.Querier, models.AgentFilters{})
+		agentFilters := models.AgentFilters{}
+
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		agentFilters.IgnoreNomad = !settings.IsNomadEnabled()
+
+		agents, err = models.FindAgents(tx.Querier, agentFilters)
 		if err != nil {
 			return err
 		}

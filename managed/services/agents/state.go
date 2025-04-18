@@ -157,14 +157,18 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		return errors.Wrapf(err, "failed to parse PMM agent version %q", *pmmAgent.Version)
 	}
 
-	agents, err := models.FindAgents(u.db.Querier, models.AgentFilters{PMMAgentID: agent.id})
-	if err != nil {
-		return errors.Wrap(err, "failed to collect agents")
-	}
-
 	settings, err := models.GetSettings(u.db.Querier)
 	if err != nil {
 		return errors.Wrap(err, "failed to get settings")
+	}
+
+	filters := models.AgentFilters{
+		PMMAgentID:  agent.id,
+		IgnoreNomad: !settings.IsNomadEnabled(),
+	}
+	agents, err := models.FindAgents(u.db.Querier, filters)
+	if err != nil {
+		return errors.Wrap(err, "failed to collect agents")
 	}
 
 	redactMode := redactSecrets
@@ -191,9 +195,6 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			}
 			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
 		case models.NomadAgentType:
-			if !settings.IsNomadEnabled() {
-				continue
-			}
 			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
