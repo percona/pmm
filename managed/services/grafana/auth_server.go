@@ -67,7 +67,7 @@ var rules = map[string]role{
 	"/v1/actions/":                    viewer,
 	"/v1/actions:":                    viewer,
 	"/v1/backups":                     admin,
-	"/v1/dump":                        admin,
+	"/v1/dumps":                       admin,
 	"/v1/accesscontrol":               admin,
 	"/v1/inventory/":                  admin,
 	"/v1/inventory/services:getTypes": viewer,
@@ -84,13 +84,11 @@ var rules = map[string]role{
 	"/v1/users":                       viewer,
 
 	// must be available without authentication for health checking
-	"/v1/readyz":                   none, // TODO: remove before v3 GA
 	"/v1/server/readyz":            none,
 	"/v1/server/leaderHealthCheck": none,
 	"/ping":                        none, // PMM 1.x variant
 
 	// must not be available without authentication as it can leak data
-	"/v1/version":        viewer, // TODO: remove before v3 GA
 	"/v1/server/version": viewer,
 
 	"/v1/qan":  viewer,
@@ -103,6 +101,12 @@ var rules = map[string]role{
 	"/swagger":         none,
 
 	"/v1/server/logs.zip": admin,
+
+	// kept for backwards compatibility with PMM v2
+	"/v1/readyz":  none,   // redirects to /v1/server/readyz
+	"/v1/version": viewer, // redirects to /v1/server/version
+	"/logs.zip":   admin,  // redirects to /v1/server/logs.zip
+
 	// "/auth_request"  has auth_request disabled in nginx config
 
 	// "/" is a special case in this code
