@@ -1,5 +1,4 @@
 ---
-version: "3"
 services:
 
   pmm-server:
@@ -13,7 +12,7 @@ services:
     restart: always
 
   ch:
-    image: yandex/clickhouse-server
+    image: clickhouse/clickhouse-server
     platform: linux/amd64
     container_name: ch-server
     ulimits:
@@ -33,7 +32,7 @@ services:
       bash -c "
         yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm -y
         percona-release disable all
-        percona-release enable pmm2-client testing
+        percona-release enable pmm3-client testing
         yum update -y
         yum install pmm-client -y
         pmm-agent setup --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml --server-address=pmm-server:443 --server-insecure-tls --server-username=admin --server-password=admin
