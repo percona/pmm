@@ -185,8 +185,7 @@ func TestService_GetFilters(t *testing.T) {
 			}
 
 			ctx := metadata.NewIncomingContext(context.TODO(), metadata.Pairs("x-request-id", "test"))
-			l := logrus.WithField("test", tt.name)
-			ctx = logger.SetEntry(ctx, l)
+			ctx = logger.SetEntry(ctx, logrus.WithField("test", tt.name))
 
 			got, err := s.GetFilteredMetricsNames(ctx, tt.in)
 			if (err != nil) != tt.wantErr {

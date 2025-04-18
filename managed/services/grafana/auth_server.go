@@ -109,14 +109,12 @@ var rules = map[string]role{
 }
 
 var lbacPrefixes = []string{
-	// VMProxy related
-	"/graph/api/datasources/proxy/1/api/v1/", // https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
 	"/graph/api/datasources/uid",
 	"/graph/api/ds/query",
 	// "/graph/api/v1/labels",
 	"/prometheus/api/v1/",
-	// QAN related
 	"/v1/qan/",
+	"/graph/api/datasources/proxy/1/api/v1/", // https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
 }
 
 const lbacHeaderName = "X-Proxy-Filter"

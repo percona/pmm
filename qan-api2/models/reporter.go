@@ -30,7 +30,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/prometheus/prometheus/promql/parser"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/metadata"
 
 	qanpbv1 "github.com/percona/pmm/api/qan/v1"
@@ -667,7 +666,7 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec, periodSt
 	var labels []*customLabelArray
 	for rows.Next() {
 		var label customLabelArray
-		err := rows.Scan(&label.keys, &label.values)
+		err = rows.Scan(&label.keys, &label.values)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan for QueryFilter %s: %w", queryLabels, err)
 		}
@@ -726,7 +725,6 @@ func parseFilters(filters []string) ([]string, error) {
 	if len(filters) == 0 {
 		return nil, nil
 	}
-	logrus.Debugf("Received filters: %s", filters)
 
 	decoded, err := base64.StdEncoding.DecodeString(filters[0])
 	if err != nil {
@@ -737,7 +735,6 @@ func parseFilters(filters []string) ([]string, error) {
 	if err := json.Unmarshal(decoded, &parsed); err != nil {
 		return nil, fmt.Errorf("failed to parse JSON: %w", err)
 	}
-	logrus.Debugf("Parsed filters: %s", parsed)
 
 	return parsed, nil
 }
@@ -754,19 +751,18 @@ func headersToLbacFilter(ctx context.Context) (string, error) {
 		return "", nil
 	}
 
-	l := logger.Get(ctx)
-
 	selectors, err := parseFilters(filters)
 	if err != nil {
-		return "", fmt.Errorf("failed to parse filters: %w", err)
+		return "", err
 	}
 
+	l := logger.Get(ctx)
 	lbacFilters := make([]string, 0, len(filters))
-	// Selector example: `[{service_type=~"mysql|mongodb", environment!~"prod"}, {environment="dev", az!="us-east-1"}]`
 	for _, selector := range selectors {
 		m, err := parser.ParseMetricSelector(selector)
 		if err != nil {
 			l.Errorf("Failed to parse metric selector: %v", err)
+			continue
 		}
 
 		fl, err := matchersToSQL(m)
@@ -775,10 +771,10 @@ func headersToLbacFilter(ctx context.Context) (string, error) {
 			continue
 		}
 		if len(m) > 1 {
-			lbacFilters = append(lbacFilters, "("+fl+")")
-		} else {
-			lbacFilters = append(lbacFilters, fl)
+			fl = "(" + fl + ")"
 		}
+
+		lbacFilters = append(lbacFilters, fl)
 	}
 
 	return strings.Join(lbacFilters, " OR "), nil
