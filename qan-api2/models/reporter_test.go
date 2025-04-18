@@ -20,22 +20,20 @@ import (
 	"encoding/base64"
 	"testing"
 
-	"github.com/percona/pmm/qan-api2/utils/logger"
 	"github.com/prometheus/prometheus/model/labels"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
+
+	"github.com/percona/pmm/qan-api2/utils/logger"
 )
 
 func setup(t *testing.T, filter string) context.Context {
 	t.Helper()
 	encoded := base64.StdEncoding.EncodeToString([]byte(filter))
-	md := metadata.New(map[string]string{
-		LBACHeaderName: encoded,
-	})
+	md := metadata.Pairs(LBACHeaderName, encoded)
 	ctx := metadata.NewIncomingContext(context.TODO(), md)
-	l := logrus.WithField("test", t.Name())
-	return logger.SetEntry(ctx, l)
+	return logger.SetEntry(ctx, logrus.WithField("test", t.Name()))
 }
 
 func TestParseFilters(t *testing.T) {

@@ -52,8 +52,7 @@ func setup() *sqlx.DB {
 func makeContext(t *testing.T) context.Context {
 	t.Helper()
 	ctx := metadata.NewIncomingContext(context.TODO(), metadata.Pairs("x-request-id", "test"))
-	l := logrus.WithField("test", t.Name())
-	return logger.SetEntry(ctx, l)
+	return logger.SetEntry(ctx, logrus.WithField("test", t.Name()))
 }
 
 func getExpectedJSON(t *testing.T, got proto.Message, filename string) []byte {
@@ -151,8 +150,7 @@ func TestService_GetReport(t *testing.T) {
 				mm: tt.fields.mm,
 			}
 
-			ctx := makeContext(t)
-			got, err := s.GetReport(ctx, tt.in)
+			got, err := s.GetReport(makeContext(t), tt.in)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Service.GetReport() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -218,8 +216,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 			mm: test.fields.mm,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, test.in)
+		got, err := s.GetReport(makeContext(t), test.in)
 		if (err != nil) != test.wantErr {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
@@ -239,8 +236,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 			mm: test.fields.mm,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, test.in)
+		got, err := s.GetReport(makeContext(t), test.in)
 		if (err != nil) != test.wantErr {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
@@ -260,8 +256,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 			mm: test.fields.mm,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, test.in)
+		got, err := s.GetReport(makeContext(t), test.in)
 		if (err != nil) != test.wantErr {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
@@ -282,8 +277,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 		}
 
 		test.in.Limit = 0
-		ctx := makeContext(t)
-		_, err := s.GetReport(ctx, test.in)
+		_, err := s.GetReport(makeContext(t), test.in)
 		if err != nil {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
@@ -298,8 +292,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 
 		test.in.GroupBy = "unknown dimension"
 		expectedErr := fmt.Errorf("unknown group dimension: %s", "unknown dimension")
-		ctx := makeContext(t)
-		_, err := s.GetReport(ctx, test.in)
+		_, err := s.GetReport(makeContext(t), test.in)
 		if err.Error() != expectedErr.Error() {
 			t.Errorf("Service.GetReport() unexpected error = %v, wantErr %v", err, expectedErr)
 			return
@@ -340,8 +333,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			Limit:   10,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, &in)
+		got, err := s.GetReport(makeContext(t), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_queryid.json")
 
@@ -379,8 +371,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			Limit:   10,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, &in)
+		got, err := s.GetReport(makeContext(t), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_service_name.json")
 
@@ -418,8 +409,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			Limit:   10,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, &in)
+		got, err := s.GetReport(makeContext(t), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_database.json")
 
@@ -457,8 +447,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			Limit:   10,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, &in)
+		got, err := s.GetReport(makeContext(t), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_schema.json")
 
@@ -496,8 +485,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			Limit:   10,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, &in)
+		got, err := s.GetReport(makeContext(t), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_username.json")
 
@@ -535,8 +523,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			Limit:   10,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, &in)
+		got, err := s.GetReport(makeContext(t), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_client_host.json")
 
@@ -649,8 +636,8 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 			rm: test.fields.rm,
 			mm: test.fields.mm,
 		}
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, test.in)
+
+		got, err := s.GetReport(makeContext(t), test.in)
 		if (err != nil) != test.wantErr {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
@@ -697,8 +684,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 			Limit:   10,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, &in)
+		got, err := s.GetReport(makeContext(t), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_sparklines_60_points.json")
 
@@ -737,8 +723,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 			Limit:   10,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, &in)
+		got, err := s.GetReport(makeContext(t), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_sparklines_90_points.json")
 
@@ -777,8 +762,7 @@ func TestService_GetReport_Search(t *testing.T) {
 			Limit:   10,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, &in)
+		got, err := s.GetReport(makeContext(t), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Search_search_queryid.json")
 
@@ -809,8 +793,7 @@ func TestService_GetReport_Search(t *testing.T) {
 			Limit:   10,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, &in)
+		got, err := s.GetReport(makeContext(t), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Search_search_fingerprint.json")
 
@@ -841,8 +824,7 @@ func TestService_GetReport_Search(t *testing.T) {
 			Limit:   10,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, &in)
+		got, err := s.GetReport(makeContext(t), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Search_search_service_name.json")
 
@@ -880,8 +862,7 @@ func TestServiceGetReportSpecialMetrics(t *testing.T) {
 			Limit:   10,
 		}
 
-		ctx := makeContext(t)
-		got, err := s.GetReport(ctx, &in)
+		got, err := s.GetReport(makeContext(t), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestServiceGetReportSpecialMetrics_num_queries_with_errors.json")
 
