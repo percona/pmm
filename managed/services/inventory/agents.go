@@ -131,9 +131,7 @@ func (as *AgentsService) List(ctx context.Context, filters models.AgentFilters) 
 		if err != nil {
 			return err
 		}
-		if !settings.IsNomadEnabled() {
-			filters.IgnoreNomad = true
-		}
+		filters.IgnoreNomad = !settings.IsNomadEnabled()
 
 		agents, err := models.FindAgents(tx.Querier, filters)
 		if err != nil {

@@ -138,7 +138,7 @@ func RotateEncryptionKey() error {
 func RestoreOldEncryptionKey() error {
 	err := os.Rename(fmt.Sprintf("%s_old.key", strings.TrimSuffix(encryptionKeyPath(), ".key")), encryptionKeyPath())
 	if err != nil {
-		return err
+		return fmt.Errorf("could not restore old encryption key: %v", err)
 	}
 
 	return nil
@@ -147,7 +147,7 @@ func RestoreOldEncryptionKey() error {
 func backupOldEncryptionKey() error {
 	err := os.Rename(encryptionKeyPath(), fmt.Sprintf("%s_old.key", strings.TrimSuffix(encryptionKeyPath(), ".key")))
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to backup old encryption key: %w", err)
 	}
 
 	return nil
@@ -156,13 +156,13 @@ func backupOldEncryptionKey() error {
 func (e *Encryption) generateKey() error {
 	handle, err := keyset.NewHandle(aead.AES256GCMKeyTemplate())
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create keyset: %w", err)
 	}
 
 	buff := &bytes.Buffer{}
 	err = insecurecleartextkeyset.Write(handle, keyset.NewBinaryWriter(buff))
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to write encryption key: %w", err)
 	}
 	e.Key = base64.StdEncoding.EncodeToString(buff.Bytes())
 
@@ -188,7 +188,7 @@ func (e *Encryption) Encrypt(secret string) (string, error) {
 	}
 	cipherText, err := e.Primitive.Encrypt([]byte(secret), []byte(""))
 	if err != nil {
-		return secret, err
+		return secret, fmt.Errorf("encryption: %w", err)
 	}
 
 	return base64.StdEncoding.EncodeToString(cipherText), nil
@@ -208,7 +208,7 @@ func (e *Encryption) EncryptItems(tx *reform.TX, tables []Table) error {
 	for _, table := range tables {
 		res, err := table.read(tx)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to read table %s: %w", table.Name, err)
 		}
 
 		for k, v := range res.SetValues {
@@ -223,7 +223,7 @@ func (e *Encryption) EncryptItems(tx *reform.TX, tables []Table) error {
 				}
 
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to encrypt table %s: %w", table.Name, err)
 				}
 				res.SetValues[k][i] = encrypted
 			}
@@ -254,11 +254,11 @@ func (e *Encryption) Decrypt(cipherText string) (string, error) {
 	}
 	decoded, err := base64.StdEncoding.DecodeString(cipherText)
 	if err != nil {
-		return cipherText, err
+		return cipherText, fmt.Errorf("decryption: %w, %s", err, cipherText)
 	}
 	secret, err := e.Primitive.Decrypt(decoded, []byte(""))
 	if err != nil {
-		return cipherText, err
+		return cipherText, fmt.Errorf("decryption: %w", err)
 	}
 
 	return string(secret), nil
@@ -278,7 +278,7 @@ func (e *Encryption) DecryptItems(tx *reform.TX, tables []Table) error {
 	for _, table := range tables {
 		res, err := table.read(tx)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to read table %s: %w", table.Name, err)
 		}
 
 		for k, v := range res.SetValues {
@@ -293,7 +293,7 @@ func (e *Encryption) DecryptItems(tx *reform.TX, tables []Table) error {
 				}
 
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to decrypt table %s: %w", table.Name, err)
 				}
 				res.SetValues[k][i] = decrypted
 			}
@@ -312,14 +312,18 @@ func (e *Encryption) DecryptItems(tx *reform.TX, tables []Table) error {
 func (e *Encryption) getPrimitive() (tink.AEAD, error) { //nolint:ireturn
 	serializedKeyset, err := base64.StdEncoding.DecodeString(e.Key)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to decode keyset: %w", err)
 	}
 
 	binaryReader := keyset.NewBinaryReader(bytes.NewBuffer(serializedKeyset))
 	parsedHandle, err := insecurecleartextkeyset.Read(binaryReader)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse keyset: %w", err)
 	}
 
-	return aead.New(parsedHandle)
+	t, err := aead.New(parsedHandle)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create AEAD primitive: %w", err)
+	}
+	return t, err
 }

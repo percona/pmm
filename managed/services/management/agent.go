@@ -67,9 +67,7 @@ func (s *ManagementService) listAgentsByServiceID(ctx context.Context, serviceID
 		if err != nil {
 			return err
 		}
-		if !settings.IsNomadEnabled() {
-			filters.IgnoreNomad = true
-		}
+		filters.IgnoreNomad = !settings.IsNomadEnabled()
 
 		agents, err = models.FindAgents(tx.Querier, filters)
 		if err != nil {
@@ -115,9 +113,7 @@ func (s *ManagementService) listAgentsByNodeID(ctx context.Context, nodeID strin
 		if err != nil {
 			return err
 		}
-		if !settings.IsNomadEnabled() {
-			filters.IgnoreNomad = true
-		}
+		filters.IgnoreNomad = !settings.IsNomadEnabled()
 
 		agents, err = models.FindAgents(s.db.Querier, filters)
 		return err

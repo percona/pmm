@@ -162,10 +162,9 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		return errors.Wrap(err, "failed to get settings")
 	}
 
-	filters := models.AgentFilters{PMMAgentID: agent.id}
-
-	if !settings.IsNomadEnabled() {
-		filters.IgnoreNomad = true
+	filters := models.AgentFilters{
+		PMMAgentID:  agent.id,
+		IgnoreNomad: !settings.IsNomadEnabled(),
 	}
 	agents, err := models.FindAgents(u.db.Querier, filters)
 	if err != nil {

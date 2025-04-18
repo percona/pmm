@@ -107,9 +107,8 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 		if err != nil {
 			return err
 		}
-		if !settings.IsNomadEnabled() {
-			filters.IgnoreNomad = true
-		}
+		filters.IgnoreNomad = !settings.IsNomadEnabled()
+
 		dbAgents, err := models.FindAgents(tx.Querier, filters)
 		if err != nil {
 			return err
