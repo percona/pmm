@@ -57,7 +57,7 @@ docker_client_tarball=${root_dir}/results/docker/pmm-client-${pmm_version}.docke
 source_tarball=${root_dir}/results/source_tarball/pmm-client-${pmm_version}.tar.gz
 binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}.tar.gz
 
-# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.93.4
-vmagent_commit_hash=58ecb9066574f38f1d1c91ace467316e7f175b09
+# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.114.0
+vmagent_commit_hash=a5e3c6d4492db765800363dfae48a04b4d7888be
 # https://github.com/hashicorp/nomad/releases/tag/v1.9.0
 nomad_commit_hash=7ad36851ec02f875e0814775ecf1df0229f0a615
