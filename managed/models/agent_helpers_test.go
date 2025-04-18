@@ -587,7 +587,6 @@ func TestAgentHelpers(t *testing.T) {
 	})
 
 	t.Run("FindAllAgentsWithoutNomad", func(t *testing.T) {
-
 		q, teardown := setup(t)
 		defer teardown(t)
 		agents, err := models.FindAgents(q, models.AgentFilters{IgnoreNomad: true, PMMAgentID: "A12"})
@@ -597,5 +596,4 @@ func TestAgentHelpers(t *testing.T) {
 		assert.Equal(t, "A8", agents[1].AgentID)
 		assert.Equal(t, "A9", agents[2].AgentID)
 	})
-
 }
