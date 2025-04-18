@@ -32,7 +32,7 @@ Before installing the PMM client, check [Prerequisites to install PMM client](./
 
 Each database service requires specific configuration parameters. Configure your service according to its service type:
 
-- [MySQL](connect-database/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
+- [MySQL](connect-database/mysql/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
 - [MongoDB](connect-database/mongodb.md)
 - [PostgreSQL](connect-database/postgresql.md)
 - [ProxySQL](connect-database/proxysql.md)

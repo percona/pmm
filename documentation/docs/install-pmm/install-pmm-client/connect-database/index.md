@@ -2,11 +2,11 @@
 
 You must configure and add database/service according to the service type.
 
-- [MySQL](mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
+- [MySQL](../connect-database/mysql/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
 - [MongoDB](mongodb.md)
 - [PostgreSQL](postgresql.md)
 - [ProxySQL](proxysql.md)
-- [Amazon RDS](aws.md)
+- [Amazon RDS](../connect-database/aws.md)
 - [Microsoft Azure](azure.md)
 - [Google Cloud Platform](google.md) (MySQL and PostgreSQL)
 - [Linux](linux.md)
