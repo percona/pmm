@@ -138,7 +138,7 @@ func RotateEncryptionKey() error {
 func RestoreOldEncryptionKey() error {
 	err := os.Rename(fmt.Sprintf("%s_old.key", strings.TrimSuffix(encryptionKeyPath(), ".key")), encryptionKeyPath())
 	if err != nil {
-		return fmt.Errorf("could not restore old encryption key: %v", err)
+		return fmt.Errorf("could not restore old encryption key: %w", err)
 	}
 
 	return nil
