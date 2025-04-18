@@ -970,6 +970,7 @@ func main() { //nolint:maintidx,cyclop
 		VMAlertExternalRules: externalRules,
 		Updater:              updater,
 		Dus:                  dus,
+		HAService:            haService,
 		Nomad:                nomad,
 	}
 
