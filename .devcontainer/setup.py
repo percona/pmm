@@ -67,7 +67,7 @@ def make_init():
     """Runs make init."""
 
     run_commands([
-        "make init",
+        "make -C .. init",
     ])
 
 
