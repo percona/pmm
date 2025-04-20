@@ -79,7 +79,7 @@ func TestHeadersToLbacFilter(t *testing.T) {
 	})
 
 	t.Run("empty filter", func(t *testing.T) {
-		md := metadata.New(map[string]string{})
+		md := metadata.New(make(map[string]string))
 		ctx := metadata.NewIncomingContext(context.TODO(), md)
 		filter, err := headersToLbacFilter(ctx)
 		require.NoError(t, err)
