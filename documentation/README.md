@@ -12,7 +12,7 @@ This repo holds the source files for the official [PMM technical documentation].
 
 You can contribute to the documentation in two ways:
 
-- **report an issue**: open a [Jira] issue.
+- **report an issue**: [open a Jira] issue.
 
 - **fix a problem yourself**: Click <i class="uil uil-edit"></i> **Edit this page** icon at the top of the topic you want to change to access the Markdown source. Fork the repo, make changes, and submit a PR. For large changes, build the website locally to see how it looks in context. 
 
@@ -47,7 +47,7 @@ If you’d like to preview PMM docs locally—or plan to contribute, it helps to
 
 3. Change directory to `pmm`.
 
-4. Use our [PMM documentation Docker image] to *build the documentation*:
+4. Use our [PMM documentation Docker image] to build the documentation:
 
     ```sh
     docker run --rm -v $(pwd):/docs perconalab/pmm-doc-md mkdocs build -f documentation/mkdocs.yml
@@ -61,15 +61,15 @@ If you want to see how things look as you edit, MkDocs has a built-in server for
 
 1. After (or instead of) building, run:
 
-```sh
-docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve --dev-addr=0.0.0.0:8000  -f documentation/mkdocs.yml
-```
+    ```sh
+    docker run --rm -v $(pwd):/docs -p 8000:8000 perconalab/pmm-doc-md mkdocs serve --dev-addr=0.0.0.0:8000  -f documentation/mkdocs.yml
+    ```
 
-2. Wait until you see `INFO    -  Start detecting changes` then browse to `http://0.0.0.0:8000`
+2. Wait until you see `INFO    -  Start detecting changes` then browse to `http://0.0.0.0:8000`.
 
 ### Without Docker
 
-*If you don't use Docker, you must install MkDocs and all its dependencies.*
+If you don't use Docker, you must install MkDocs and all its dependencies.
 
 1. Install [Python].
 
@@ -178,32 +178,33 @@ The file`docs/using/interface.md` includes a screenshot of the PMM Home dashboar
 
 To update the visual:
 
-    1. Access <https://app.diagrams.net/>
+1. Access <https://app.diagrams.net/>
 
-    2. On first use, choose **Device** for saving diagrams.
+2. On first use, choose **Device** for saving diagrams.
 
-    3. Click **Open existing diagram**.
+3. Click **Open existing diagram**.
 
-    4. Navigate to `documentation/docs/images` and select `PMM_Home_Dashboard_Overlay.drawio`.
+4. Navigate to `documentation/docs/images` and select `PMM_Home_Dashboard_Overlay.drawio`.
 
-    5. If the dashboard layout has changed, replace the **Guide** layer with a new screenshot and adjust the elements on the **Overlay** layer as needed. 
-    6. Click **View > Layers** to toggle layers and disable the **Guide** layer before exporting.
+5. If the dashboard layout has changed, replace the **Guide** layer with a new screenshot and adjust the elements on the **Overlay** layer as needed. 
 
-    7. Click **File > Export as > PNG**.
+6. Click **View > Layers** to toggle layers and disable the **Guide** layer before exporting.
 
-    8. In the *Image settings* dialog, use these settings:
+7. Click **File > Export as > PNG**.
 
-        - **Zoom**: 100%
-        - **Border width**: 0
-        - **Size**: Page (The page dimensions in inches should be as close to the base image as possible, i.e. 1280x1280)
-        - **Transparent Background**: ON
-        - **Shadow**: OFF
-        - **Grid**: OFF
-        - **Include a copy of my diagram**: OFF
+8. In the *Image settings* dialog, use these settings:
 
-    9. Click **Export**.
-    10. Choose *Device* and save as `PMM_Home_Dashboard_Overlay.png`.
-    11. Click **Save** and overwrite the current file
+    - **Zoom**: 100%
+    - **Border width**: 0
+    - **Size**: Page (The page dimensions in inches should be as close to the base image as possible, i.e. 1280x1280)
+    - **Transparent Background**: ON
+    - **Shadow**: OFF
+    - **Grid**: OFF
+    - **Include a copy of my diagram**: OFF
+
+9. Click **Export**.
+10. Choose *Device* and save as `PMM_Home_Dashboard_Overlay.png`. 
+11. Click **Save** and overwrite the current file
 
 ### Merging overlays
 Use [ImageMagick]'s [composite] tool to merge the overlay with the base image:
@@ -222,20 +223,20 @@ By default, the GitHub Actions build job runs a basic spell check. A grammar che
 
 1. Install the markdown-spellcheck tool globally:
 
-```sh
-npm i markdown-spellcheck -g
-```
+    ```sh
+    npm i markdown-spellcheck -g
+    ```
 2. To check a specific file:
 
-```sh
-mdspell --report --en-us --ignore-acronyms --ignore-numbers docs/<path to file>.md
-```
+    ```sh
+    mdspell --report --en-us --ignore-acronyms --ignore-numbers docs/<path to file>.md
+    ```
 
 3. To check all Markdown files:
 
-```sh
-mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md"
-```
+    ```sh
+    mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md"
+    ```
 
 4. Add any project-specific or technical terms to the `.spelling` file to avoid false positives.
 
@@ -246,21 +247,21 @@ The GitHub job prints spell check results but does not fail the build based on s
 
 Grammar is checked using [`write-good`](https://github.com/btford/write-good).
 
-Install it globally: 
+1. Install `write-good` globally: 
 
-```sh
-npm i write-good -g
-```
+    ```sh
+    npm i write-good -g
+    ```
 
 2. To check a specific file:
-```sh
-write-good docs/<path to file>.md
-```
+    ```sh
+    write-good docs/<path to file>.md
+    ```
 3. To check all Markdown files:
 
-```sh
-write-good docs/**/*.md
-```
+    ```sh
+    write-good docs/**/*.md
+    ```
 
 ## Link checking
 
@@ -272,13 +273,13 @@ The plugin is already included in:
 
 To enable it for local builds:
 
-1. Open mkdocs.yml, 
+1. Open mkdocs.yml.
 2. Uncomment the line with `htmlproofer` in the `plugins` section of `mkdocs.yml` and parse the build output for warnings.
 3. Run a local build and check the terminal output for broken link warnings.
 
 [Percona Monitoring and Management]: https://www.percona.com/software/database-tools/percona-monitoring-and-management
 [PMM technical documentation]: https://docs.percona.com/percona-monitoring-and-management/
-[Jira]: https://perconadev.atlassian.net/browse/PMM
+[open a Jira]: https://perconadev.atlassian.net/browse/PMM
 [MkDocs]: https://www.mkdocs.org/
 [Markdown]: https://daringfireball.net/projects/markdown/
 [Git]: https://git-scm.com
