@@ -6,7 +6,7 @@ For guidance on selecting the best deployment method based on these requirements
 
 ## System requirements
 
-For detailed system specifications, see [Hardware and system requirements](../)
+For detailed system specifications, see [Hardware and system requirements](../plan-pmm-installation/hardware_and_system.md)
 Key requirements at a glance:
 
 Compatible with both x86_64 and ARM64 architectures

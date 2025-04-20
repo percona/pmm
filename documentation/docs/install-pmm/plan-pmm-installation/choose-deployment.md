@@ -7,7 +7,6 @@ Plan your PMM architecture to align with your infrastructure, growth expectation
 ## PMM architecture overview
 
 PMM can be deployed in flexible ways depending on your infrastructure and monitoring needs. Its architecture consists of two main components:
-{.power-number}
 
 - [PMM Server](../install-pmm-server/index.md): The central component that stores, analyzes, and visualizes monitoring data
 - [PMM Client](../install-pmm-client/index.md): The distributed component installed on database hosts to collect metrics

@@ -1,5 +1,5 @@
 # Install PMM Client with Percona repositories
-PMM Client can be installed using standard Linux package managers. This page covers both automated repository setup and manual package download options.
+Percona Monitoring and Management (PMM) Client can be installed using standard Linux package managers. You can choose between automated repository setup or manual package download options.
 
 ## Supported architectures and platforms
 PMM Client supports:
@@ -78,36 +78,41 @@ On Debian or Red Hat Linux, install `percona-release` and use a Linux package ma
         ```
     5. [Register the node](../register-client-node/index.md).
 
-## Package manager -- manual download
+## Manual package download
 
-To manually download package manager:
+If you prefer to download and install the packages manually without configuring repositories:
 {.power-number}
 
-1. Visit the [Percona Monitoring and Management 3 download](https://www.percona.com/downloads/) page.
-2. Under **Select Product Version** select the one you want (usually the latest).
-3. Under **Select Platform**, select the item matching your software platform and architecture (x86_64 or ARM64).
-4. Click to download the package file:
-    - For Debian, Ubuntu: `.deb`
-    - For Red Hat, CentOS, Oracle Linux: `.rpm`
-(Alternatively, copy the link and use `wget` to download it.)
+1. Visit the [PMM download page](https://www.percona.com/downloads/) page.
+2. Select PMM 3 and choose specific version (usually the latest), under **Select Platform**, select the item matching your software platform and architecture (x86_64 or ARM64).
+4. Click the link in the Package Download Option section and download the package file or copy the link and use `wget` to download it.
 
-=== "Debian-based"
-    ```sh
-    dpkg -i *.deb
-    ```
+    === "Debian-based"
+        ```sh
+        dpkg -i *.deb
+        ``` 
 
-=== "Red Hat-based"
-    ```sh
-    dnf localinstall *.rpm
-    ```
+    === "Red Hat-based"
+        ```sh
+        dnf localinstall *.rpm
+        ```
 
-??? info "Download page links"
-    Here are the download page links for each supported platform:
+## Download page links
+Here are the download page links for each supported platform:
 
-    - [Red Hat/CentOS/Oracle 8](https://www.percona.com/downloads/pmm3/{{release}}/binary/redhat/8/)
-    - [Red Hat/CentOS/Oracle 9](https://www.percona.com/downloads/pmm3/{{release}}/binary/redhat/9/)
-    - [Debian 11 (Bullseye)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/bullseye/)
+=== "Red Hat / CentOS / Oracle Linux"
+    - [Red Hat/CentOS/Oracle Linux 9](https://www.percona.com/downloads/pmm3/{{release}}/binary/redhat/9/)
+    - [Red Hat/CentOS/Oracle Linux 8](https://www.percona.com/downloads/pmm3/{{release}}/binary/redhat/8/)
+
+=== "Debian"
     - [Debian 12 (Bookworm)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/bookworm/)
-    - [Ubuntu 20.04 (Focal Fossa)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/focal/)
-    - [Ubuntu 22.04 (Jammy Jellyfish)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/jammy/)
+    - [Debian 11 (Bullseye)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/bullseye/)
+
+=== "Ubuntu"
     - [Ubuntu 24.04 (Noble Numbat)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/noble/)
+    - [Ubuntu 22.04 (Jammy Jellyfish)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/jammy/)
+    - [Ubuntu 20.04 (Focal Fossa)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/focal/)
+
+=== "Tarball (Generic)"
+    - [x86_64 (AMD64)](https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-x86_64.tar.gz)
+    - [ARM64 (aarch64)](https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz)
