@@ -1,49 +1,40 @@
-# About PMM Client installation
+# PMM Client deployment installation
 
-There are different ways to install PMM Client on a node and register it with PMM Server. Choose from:
+PMM Client is the component of Percona Monitoring and Management (PMM) that collects metrics from your database servers and sends them to PMM Server for analysis and visualization.
 
-- [Docker](docker.md): Run PMM Client as a Docker container.
+## Before you begin
 
-- [Package manager](package_manager.md):
-    - On Debian or Red Hat Linux, install `percona-release` and use a Linux package manager (`apt`/`dnf`) to install PMM Client.
-    - On Debian or Red Hat, download `.deb`/`.rpm` PMM Client packages and manually install them.
+Before installing PMM Client, make sure to first: 
+{.power-number}
 
-!!! hint alert "Binary is only way to install PMM client without root permissions"
-    - [Binary package](binary_package.md): For other Linux distributions, download and unpack generic PMM Client Linux binaries. Ensure you choose the correct package for your architecture (x86_64 or ARM64).
+- [Check the prerequisites](prerequisites.md) to ensure your system meets the necessary requirements.
+- [Install PMM Server](../install-pmm-server/index.md) and note its IP address or hostname.
+- [Configure your network](../plan-pmm-installation/network_and_firewall.md) for the required connections.
 
-When you have installed PMM Client, you must:
+## Deployment options
 
-- [Register the node with PMM Server](../register-client-node/index.md).
-- [Configure and add services according to type](connect-database/index.md).
+Install PMM Client using one of the following deployment methods:
 
-If you need to, you can [unregister](../../uninstall-pmm/unregister_client.md), [remove services](../install-pmm-client/connect-database/remove-services/index.md) or [remove PMM Client](../../uninstall-pmm/uninstall_docker.md).
+| **Your setup** | **Recommended deployment** |
+|----------------|----------------------------|
+| **Production** environments on supported Linux distributions | **[Package Manager →](package_manager.md)** |
+| Unsupported Linux distributions or **non-root** installation | **[Binary Package →](binary_package.md)** |
+| **Containerized** environments or testing | **[Docker →](docker.md)** |
 
----
+## Common installation process
 
-Here's an overview of the choices.
+While specific steps vary by deployment method, the general installation process includes: 
+{.power-number}
 
-![!image](../../images/PMM_Client_Setup.png)
+1. Install PMM Client using your preferred method.
+2. Register the Client node with your PMM Server.
+3. Add database services for monitoring.
+4. Verify monitoring data in the PMM web interface.
 
-## Before you start
+## Next steps
 
-Before installing the PMM client, check [Prerequisites to install PMM client](./prerequisites.md).
+After installing PMM Client:
 
-## Connect services
-
-Each database service requires specific configuration parameters. Configure your service according to its service type:
-
-- [MySQL](connect-database/mysql/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
-- [MongoDB](connect-database/mongodb.md)
-- [PostgreSQL](connect-database/postgresql.md)
-- [ProxySQL](connect-database/proxysql.md)
-- [Amazon RDS](connect-database/aws.md)
-- [Microsoft Azure](connect-database/azure.md)
-- [Google Cloud Platform](connect-database/google.md) (MySQL and PostgreSQL)
-- [Linux](connect-database/linux.md)
-- [External services](connect-database/external.md)
-- [HAProxy](connect-database/haproxy.md)
-- [Remote instances](connect-database/remote.md)
-
-!!! hint alert alert-success "Tip"
-    To change the parameters of a previously-added service, remove the service and re-add it with new parameters.
-
+- [Register your Client node](../register-client-node/index.md) with PMM Server
+- [Connect database services](connect-database/index.md) for monitoring
+- [Configure optimization settings](connect-database/mysql/improve_perf.md) for specific database types

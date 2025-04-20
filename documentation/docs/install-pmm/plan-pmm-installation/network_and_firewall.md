@@ -4,7 +4,15 @@ Before installing PMM, ensure your network configuration allows the necessary co
 
 For guidance on selecting the best deployment method based on these requirements, see the [choosing your PMM deployment strategy](../plan-pmm-installation/choose-deployment.md).
 
-## Required ports
+## System requirements
+
+For detailed system specifications, see [Hardware and system requirements](../)
+Key requirements at a glance:
+
+Compatible with both x86_64 and ARM64 architectures
+Requires 100 MB storage for installation plus caching space
+Supports modern 64-bit Linux distributions
+
 
 This is a list of ports used by the various components of PMM. For PMM to work correctly, your system's firewall should allow TCP traffic on these ports (UDP is not needed).
 
