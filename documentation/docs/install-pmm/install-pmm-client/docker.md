@@ -40,7 +40,7 @@ Follow these steps to deploy PMM Client using Docker:
     PMM_SERVER=X.X.X.X:443
     docker run \
      --rm \
-    --name pmm-client \
+     --name pmm-client \
      -e PMM_AGENT_SERVER_ADDRESS=${PMM_SERVER} \
      -e PMM_AGENT_SERVER_USERNAME=admin \
      -e PMM_AGENT_SERVER_PASSWORD=admin \
@@ -48,8 +48,8 @@ Follow these steps to deploy PMM Client using Docker:
      -e PMM_AGENT_SETUP=1 \
      -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
      -e PMM_AGENT_SETUP_FORCE=1 \
-    -v pmm-client-data:/usr/local/percona/pmm/tmp \
-    percona/pmm-client:3
+     -v pmm-client-data:/usr/local/percona/pmm/tmp \
+     percona/pmm-client:3
     ```
 
     !!! hint alert-success "Important"
