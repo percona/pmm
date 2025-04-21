@@ -3066,6 +3066,11 @@
                       "description": "Skip connection check.",
                       "type": "boolean",
                       "x-order": 15
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 16
                     }
                   },
                   "x-order": 4
@@ -3236,6 +3241,11 @@
                       "description": "Skip connection check.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 5
@@ -5009,6 +5019,11 @@
                             }
                           },
                           "x-order": 11
+                        },
+                        "tls_skip_verify": {
+                          "description": "Skip TLS certificate and hostname validation.",
+                          "type": "boolean",
+                          "x-order": 12
                         }
                       },
                       "x-order": 1
@@ -5153,6 +5168,11 @@
                             }
                           },
                           "x-order": 11
+                        },
+                        "tls_skip_verify": {
+                          "description": "Skip TLS certificate and hostname validation.",
+                          "type": "boolean",
+                          "x-order": 12
                         }
                       },
                       "x-order": 1

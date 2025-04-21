@@ -69,6 +69,7 @@ type AddExternalCommand struct {
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
+	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
 
 	flags.MetricsModeFlags
 }
@@ -138,6 +139,7 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
+				TLSSkipVerify:       cmd.TLSSkipVerify,
 			},
 		},
 		Context: commands.Ctx,

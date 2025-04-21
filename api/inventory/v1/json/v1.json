@@ -1510,6 +1510,11 @@
                           }
                         },
                         "x-order": 11
+                      },
+                      "tls_skip_verify": {
+                        "description": "Skip TLS certificate and hostname validation.",
+                        "type": "boolean",
+                        "x-order": 12
                       }
                     }
                   },
@@ -2419,6 +2424,11 @@
                       "description": "Enables push metrics mode for exporter.",
                       "type": "boolean",
                       "x-order": 8
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 6
@@ -3879,6 +3889,11 @@
                         }
                       },
                       "x-order": 11
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 12
                     }
                   },
                   "x-order": 6
@@ -6110,6 +6125,11 @@
                         }
                       },
                       "x-order": 11
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 12
                     }
                   },
                   "x-order": 12
@@ -7982,6 +8002,11 @@
                         }
                       },
                       "x-order": 11
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 12
                     }
                   },
                   "x-order": 5
