@@ -160,7 +160,7 @@ func TestService_GetFilters(t *testing.T) {
 			false,
 		},
 		{
-			"fail_one",
+			"fail if time range is inverted",
 			fields{rm: rm, mm: mm},
 			&qanpb.GetFilteredMetricsNamesRequest{
 				PeriodStartFrom: &timestamppb.Timestamp{Seconds: t2.Unix()},
