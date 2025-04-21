@@ -246,20 +246,20 @@ SELECT
     {{ .TimeFrame }} AS time_frame,
     {{ if .IsCommon }}
         if(SUM(m_{{ .Column }}_cnt) == 0, NaN, SUM(m_{{ .Column }}_sum) / time_frame) AS m_{{ .Column }}_sum_per_sec
-		{{ else }}
-			{{ if eq .Column "num_queries" }}
-				SUM(num_queries) / time_frame AS num_queries_per_sec
-			{{ end }}
-			{{ if eq .Column "num_queries_with_errors" }}
-				SUM(num_queries_with_errors) / time_frame AS num_queries_with_errors_per_sec
-			{{ end }}
-			{{ if eq .Column "num_queries_with_warnings" }}
-				SUM(num_queries_with_warnings) / time_frame AS num_queries_with_warnings_per_sec
-			{{ end }}
-			{{ if eq .Column "load" }}
-				SUM(m_query_time_sum) / time_frame AS load
-			{{ end }}
-		{{ end }}
+    {{ else }}
+        {{ if eq .Column "num_queries" }}
+            SUM(num_queries) / time_frame AS num_queries_per_sec
+        {{ end }}
+        {{ if eq .Column "num_queries_with_errors" }}
+            SUM(num_queries_with_errors) / time_frame AS num_queries_with_errors_per_sec
+        {{ end }}
+        {{ if eq .Column "num_queries_with_warnings" }}
+            SUM(num_queries_with_warnings) / time_frame AS num_queries_with_warnings_per_sec
+        {{ end }}
+        {{ if eq .Column "load" }}
+            SUM(m_query_time_sum) / time_frame AS load
+        {{ end }}
+    {{ end }}
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if not .IsTotal }} AND {{ .Group }} = '{{ .DimensionVal }}' {{ end }}
