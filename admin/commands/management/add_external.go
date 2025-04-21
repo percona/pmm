@@ -69,7 +69,7 @@ type AddExternalCommand struct {
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
-	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
 
 	flags.MetricsModeFlags
 }

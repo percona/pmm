@@ -58,7 +58,7 @@ type AddAgentExternalExporterCommand struct {
 	ListenPort    int64             `required:"" placeholder:"port" help:"Listen port for scraping metrics"`
 	CustomLabels  map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	PushMetrics   bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
-	TLSSkipVerify bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify bool              `help:"Skip TLS certificate verification"`
 }
 
 // RunCmd executes the AddAgentExternalExporterCommand and returns the result.

@@ -59,7 +59,7 @@ type AddHAProxyCommand struct {
 	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
-	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
 
 	flags.MetricsModeFlags
 }

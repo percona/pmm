@@ -71,7 +71,7 @@ type AddExternalServerlessCommand struct {
 	Region              string            `help:"Node region"`
 	Az                  string            `help:"Node availability zone"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
-	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
 }
 
 // Help returns cli usage help.
