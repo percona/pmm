@@ -170,7 +170,7 @@ func TestService_GetFilters(t *testing.T) {
 			true,
 		},
 		{
-			"fail_two",
+			"fail if no time range passed",
 			fields{rm: rm, mm: mm},
 			&qanpb.GetFilteredMetricsNamesRequest{},
 			nil,
