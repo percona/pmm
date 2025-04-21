@@ -312,9 +312,13 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 
 // shallAddLBACFilters decides if LBAC filters must be added to the outgoing request.
 func (s *AuthServer) shallAddLBACFilters(req *http.Request) bool {
+	if !s.accessControl.isEnabled() {
+		return false
+	}
+
 	for _, p := range lbacPrefixes {
 		if strings.HasPrefix(req.URL.Path, p) {
-			return s.accessControl.isEnabled()
+			return true
 		}
 	}
 
