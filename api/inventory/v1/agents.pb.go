@@ -2396,7 +2396,7 @@ type ExternalExporter struct {
 	ProcessExecPath string `protobuf:"bytes,11,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Metrics resolution for this agent.
 	MetricsResolutions *common.MetricsResolutions `protobuf:"bytes,12,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
-	// Skip TLS certificate and hostname validation.
+	// Skip TLS certificate and hostname verification.
 	TlsSkipVerify bool `protobuf:"varint,13,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -7251,7 +7251,7 @@ type AddExternalExporterParams struct {
 	CustomLabels map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `protobuf:"varint,11,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
-	// Skip TLS certificate and hostname validation.
+	// Skip TLS certificate and hostname verification.
 	TlsSkipVerify bool `protobuf:"varint,12,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

@@ -5021,7 +5021,7 @@
                           "x-order": 11
                         },
                         "tls_skip_verify": {
-                          "description": "Skip TLS certificate and hostname validation.",
+                          "description": "Skip TLS certificate and hostname verification.",
                           "type": "boolean",
                           "x-order": 12
                         }
@@ -5170,7 +5170,7 @@
                           "x-order": 11
                         },
                         "tls_skip_verify": {
-                          "description": "Skip TLS certificate and hostname validation.",
+                          "description": "Skip TLS certificate and hostname verification.",
                           "type": "boolean",
                           "x-order": 12
                         }
