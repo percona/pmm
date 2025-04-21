@@ -8,7 +8,6 @@ datasources:
   version: 2
   orgId: 1
   type: prometheus
-  uid: prometheus
   access: proxy
   url: http://127.0.0.1:8430/
   isDefault: true
@@ -21,7 +20,6 @@ datasources:
   version: 2
   orgId: 1
   type: postgres
-  uid: postgres
   access: proxy
   url: ${PMM_POSTGRES_ADDR}
   user: ${PMM_POSTGRES_USERNAME}
@@ -39,7 +37,6 @@ datasources:
   version: 2
   orgId: 1
   type: pmm-pt-summary-datasource
-  uid: pt-summary
   access: proxy
 
 # https://github.com/grafana/clickhouse-datasource?tab=readme-ov-file#with-a-configuration-file
