@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"sync"
 	"text/template"
 	"time"
 
@@ -45,6 +46,36 @@ type Reporter struct {
 func NewReporter(db *sqlx.DB) Reporter {
 	return Reporter{db: db}
 }
+
+// selectorCache is a thread-safe cache for selector to SQL conversions
+type selectorCache struct {
+	cache map[string]string
+	mu    sync.RWMutex
+}
+
+// newSelectorCache creates a new selector cache
+func newSelectorCache() *selectorCache {
+	return &selectorCache{
+		cache: make(map[string]string),
+	}
+}
+
+// get retrieves a cached SQL conversion for the given selector
+func (sc *selectorCache) get(selector string) (string, bool) {
+	sc.mu.RLock()
+	defer sc.mu.RUnlock()
+	val, ok := sc.cache[selector]
+	return val, ok
+}
+
+// set stores a SQL conversion for the given selector
+func (sc *selectorCache) set(selector, sql string) {
+	sc.mu.Lock()
+	defer sc.mu.Unlock()
+	sc.cache[selector] = sql
+}
+
+var sCache = newSelectorCache()
 
 var funcMap = template.FuncMap{
 	"inc":         func(i int) int { return i + 1 },
@@ -759,22 +790,32 @@ func headersToLbacFilter(ctx context.Context) (string, error) {
 	l := logger.Get(ctx)
 	lbacFilters := make([]string, 0, len(filters))
 	for _, selector := range selectors {
+		if selector == "" {
+			continue
+		}
+
+		if sql, ok := sCache.get(selector); ok {
+			lbacFilters = append(lbacFilters, sql)
+			continue
+		}
+
 		m, err := parser.ParseMetricSelector(selector)
 		if err != nil {
 			l.Errorf("Failed to parse metric selector: %v", err)
 			continue
 		}
 
-		fl, err := matchersToSQL(m)
+		sql, err := matchersToSQL(m)
 		if err != nil {
 			l.Errorf("Failed to convert label matchers to WHERE condition: %s", err)
 			continue
 		}
 		if len(m) > 1 {
-			fl = "(" + fl + ")"
+			sql = "(" + sql + ")"
 		}
 
-		lbacFilters = append(lbacFilters, fl)
+		sCache.set(selector, sql)
+		lbacFilters = append(lbacFilters, sql)
 	}
 
 	return strings.Join(lbacFilters, " OR "), nil
