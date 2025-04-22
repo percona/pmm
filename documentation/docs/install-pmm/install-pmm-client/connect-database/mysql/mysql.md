@@ -1,35 +1,39 @@
-# Connect a self-hosted or an AWS EC2 MySQL database to PMM
+# Connect MySQL databases to PMM
 
+This guide explains how to connect MySQL databases to Percona Monitoring and Management (PMM), whether your database is self-hosted or running on an AWS EC2 instance.
 
-PMM Client collects metrics from [MySQL][ORACLE_MYSQL], [Percona Server for MySQL][PERCONA_SERVER_MYSQL], [Percona XtraDB Cluster][PERCONA_XTRADB_CLUSTER], and [MariaDB][MARIADB]. (Amazon RDS is also supported and explained in a [separate section](../aws.md).)
+PMM Client supports collecting metrics from various MySQL-based database systems:
 
-??? info "Summary"
+ - [MySQL][ORACLE_MYSQL]
+ - [Percona Server for MySQL][PERCONA_SERVER_MYSQL]
+ - [Percona XtraDB Cluster][PERCONA_XTRADB_CLUSTER]
+ - [MariaDB][MARIADB]
 
-    !!! summary alert alert-info ""
-        - [Create PMM account and set permissions.](#create-a-database-account-for-pmm)
-        - [Choose a data source](#choose-and-configure-a-source):
-            - [Slow query log](#slow-query-log), or,
-            - [Performance Schema](#performance-schema).
-        - Configure:
-            - [Query response time](#query-response-time),
-            - [Tablestats](#tablestats),
-            - [User statistics](#user-statistics).
-        - [Add service](#add-service).
-        - [Check the service](#check-the-service).
+For monitoring Amazon RDS MySQL instances, see  [Connect Amazon RDS instance](../aws.md).
 
-## Before you start
+??? info "Summary: MySQL monitoring"
 
-Check that:
+    1. **[Prerequisites](#prerequisites)**: Ensure PMM Server is running and PMM Client is installed
+    2. **[Create PMM user](#creating-a-dedicated-pmm-user)**: `CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'StrongPassword'`  
+    3. **[Grant permissions](#creating-a-dedicated-pmm-user)**: `GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost'`
+    4. **[Configure data source](#configuring-data-sources)**: Enable Slow Query Log or Performance Schema 
+    5. **[Add service](#adding-mysql-services-to-pmm)**: Use PMM UI or command line to add the MySQL instance
+    6. **[Verify connection](#verifying-the-setup)**: Check PMM Inventory and dashboards for data
+
+## Prerequisites
+Before connecting your MySQL database to PMM, ensure:
 
 - [PMM Server is installed](../../../install-pmm-server/index.md) and running with a known IP address accessible from the client node.
-- [PMM Client is installed](../../../install-pmm-client/index.md) and the [nodes are registered with PMM Server](../../../register-client-node/index.md).
-- You have superuser (root) access on the client host.
+- [PMM Client is installed](../../../install-pmm-client/index.md) and the [nodes are registered with PMM Server](../../../register-client-node/index.md)
+- You have superuser (root) access on the client host
 
-## Create a database account for PMM
+## Security setup
 
-For security, connect PMM Client to your database using a dedicated monitoring user with limited permissions. This example creates a pmm user account that has just enough access to collect monitoring data without full administrative privileges.
+### Create a database account for PMM
 
-!!! warning "Password security"
+For security best practices, connect PMM Client to your database using a dedicated monitoring user with limited permissions. 
+
+??? warning "Password requirements"
     - Use a strong, unique password for the PMM database user
     - At least 12 characters long
     - Mix of uppercase and lowercase letters
@@ -37,8 +41,9 @@ For security, connect PMM Client to your database using a dedicated monitoring u
     - Avoid common words or patterns
     - Never use default, test, or example passwords in production
 
+This example creates a pmm user account that has just enough access to collect monitoring data without full administrative privileges:
 
-=== "On MySQL 5.7"
+=== "On MySQL 5.7/MariaDB 10.x"
 
     ```sql
     CREATE USER 'pmm'@'127.0.0.1' IDENTIFIED BY '<your_strong_password>' WITH MAX_USER_CONNECTIONS 10;
@@ -54,18 +59,22 @@ For security, connect PMM Client to your database using a dedicated monitoring u
 
 ## Choose and configure a source
 
-Decide which source of metrics to use, and configure your database server for it. The choices are [Slow query log](#slow-query-log) and [Performance Schema](#performance-schema).
+PMM can collect metrics from two primary sources: [Slow query log](#slow-query-log) and [Performance Schema](#performance-schema).
 
-While you can use both at the same time we recommend using only one--there is some overlap in the data reported, and each incurs a small performance penalty. The choice depends on the version and variant of your MySQL instance, and how much detail you want to see.
+While you can use both at the same time we recommend using only one--there is some overlap in the data reported, and each incurs a small performance penalty.
 
-Here are the benefits and drawbacks of *Slow query log* and *Performance Schema* metrics sources.
+The choice depends on the version and variant of your MySQL instance, and how much detail you want to see.
 
-| | <i class="uil uil-thumbs-up"></i> Benefits | <i class="uil uil-thumbs-down"></i> Drawbacks
-|---|---|-------------
-| **Slow query log** | 1. More detail.<br>2. Lower resource impact (with query sampling feature in Percona Server for MySQL). | 1. PMM Client must be on same host as database server or have access to slow query log.<br>2. Log files grow and must be actively managed.
-| **Performance Schema** | 1. Faster parsing.<br>2. Enabled by default on newer versions of MySQL. | 1. Less detail.
+### Data source comparaison
 
-### Data source recommendations
+Here are the benefits and drawbacks of Slow query log and Performance Schema metrics sources:
+
+| **Source** | **Best for** | **Advantages** | **Disadvantages** |
+|------------|--------------|----------------|-------------------|
+| **Slow Query Log** | - Percona Server<br>- When detailed query analysis is critical | ✔ More detailed query information<br>✔ Lower resource impact with query sampling | ⚠ Requires log file access<br>⚠ Log files need management<br>⚠ Higher disk I/O |
+| **Performance Schema** | - MySQL 5.6+<br>- MariaDB 10.0+<br>- Production environments with resource constraints | ✔ Lower overhead<br>✔ Faster parsing<br>✔ No file management needed | ⚠ Less detailed query information<br>⚠ Higher memory usage |
+
+### Version-specific recommendations
 
 | Database server          | Versions       | Recommended source |
 |--------------------------|----------------|--------------------|
@@ -75,96 +84,79 @@ Here are the benefits and drawbacks of *Slow query log* and *Performance Schema*
 | Percona Server for MySQL | 5.7, 8.0       | Slow query log     |
 | Percona XtraDB Cluster   | 5.6, 5.7, 8.0  | Slow query log     |
 
-### Slow query log
+## Slow query log configuration
 
-This section covers how to configure a MySQL-based database server to use the *slow query log* as a source of metrics.
+The *slow query log* records the details of queries that take more than a certain amount of time to complete. 
 
-### Applicable versions
-
-| Server                   | Versions         |
-|--------------------------|------------------|
-| MySQL                    | 5.1-5.5          |
-| MariaDB                  | 10.1.2+          |
-| Percona Server for MySQL | 5.7.10+, 8.0.12+ |
-| Percona XtraDB Cluster   | 5.6, 5.7, 8.0    |
-
-The *slow query log* records the details of queries that take more than a certain amount of time to complete. With the database server configured to write this information to a file rather than a table, PMM Client parses the file and sends aggregated data to PMM Server via the Query Analytics part of pmm-agent.
+With the database server configured to write this information to a file rather than a table, PMM Client parses the file and sends aggregated data to PMM Server via the Query Analytics part of pmm-agent.
 
 ### Settings
 
-| Variable                                                        | Value  |Description
-|-----------------------------------------------------------------|--------|----------------------------------------------------------
-| [`slow_query_log`][sysvar_slow_query_log]                       | ON     | Enables the slow query log.
-| [`log_output`][sysvar_log_output]                               |`'FILE'`| Ensures the log is sent to a file. (This is the default on MariaDB.)
-| [`long_query_time`][sysvar_long_query_time]                     | 0      | The slow query threshold in seconds. In heavily-loaded applications, many quick queries can affect performance more than a few slow ones. Setting this value to `0` ensures all queries are captured.
-| [`log_slow_admin_statements`][sysvar_log_slow_admin_statements] | ON     | Includes the logging of slow administrative statements.
-| [`log_slow_slave_statements`][sysvar_log_slow_slave_statements] | ON     | Enables logging for queries that have taken more than `long_query_time` seconds to execute on the replica.
+| Variable | Value | Description |
+|----------|-------|-------------|
+| [`slow_query_log`][sysvar_slow_query_log] | ON | Enables the slow query log. |
+| [`log_output`][sysvar_log_output] | `'FILE'` | Ensures the log is sent to a file. This is the default on MariaDB. |
+| [`long_query_time`][sysvar_long_query_time] | 0 | The slow query threshold in seconds. In heavily-loaded applications, many quick queries can affect performance more than a few slow ones. Setting this value to `0` ensures all queries are captured. |
+| [`log_slow_admin_statements`][sysvar_log_slow_admin_statements] | ON | Includes the logging of slow administrative statements. |
+| [`log_slow_slave_statements`][sysvar_log_slow_slave_statements] | ON | Enables logging for queries that have taken more than `long_query_time` seconds to execute on the replica. |
 
-??? info "Examples"
+=== "Basic configuration"
 
-    - Configuration file:
+    Add these settings to your MySQL configuration file (my.cnf/my.ini):
+    
+    ```ini
+    # Enable slow query logging
+    slow_query_log = ON
+    log_output = FILE
+    
+    # Log all queries (0 seconds threshold)
+    long_query_time = 0
+    
+    # Include administrative and replica statements
+    log_slow_admin_statements = ON
+    log_slow_slave_statements = ON
+    ```
+    
+    Alternatively, set these variables at runtime:
+    
+    ```sql
+    SET GLOBAL slow_query_log = 1;
+    SET GLOBAL log_output = 'FILE';
+    SET GLOBAL long_query_time = 0;
+    SET GLOBAL log_slow_admin_statements = 1;
+    SET GLOBAL log_slow_slave_statements = 1;
+    ```
 
+=== "Extended configuration (Percona Server/XtraDB)"
+
+    For Percona Server for MySQL (5.7+, 8.0+) and Percona XtraDB Cluster, add these additional settings:
+    
+    | Variable | Value | Description |
+    |----------|-------|-------------|
+    | [`log_slow_rate_limit`][log_slow_rate_limit] | 100 | Defines the rate of queries captured by the *slow query log*. A good rule of thumb is 100 queries logged per second. For example, if your Percona Server instance processes 10,000 queries per second, you should set `log_slow_rate_limit` to `100` and capture every 100th query for the *slow query log*. |
+    | [`log_slow_rate_type`][log_slow_rate_type] | `'query'` | Set so that it applies to queries, rather than sessions. |
+    | [`slow_query_log_always_write_time`][slow_query_log_always_write_time] | 1 | Specifies which queries should ignore sampling. With query sampling this ensures that queries with longer execution time will always be captured by the slow query log. |
+    | [`log_slow_verbosity`][log_slow_verbosity] | `'full'` | Ensures that all information about each captured query is stored in the slow query log. |
+    | [`slow_query_log_use_global_control`][slow_query_log_use_global_control] | `'all'` | Configure the slow query log during runtime and apply these settings to existing connections. |
+    
+    ??? example "Configuration file example"
         ```ini
-        slow_query_log=ON
-        log_output=FILE
-        long_query_time=0
-        log_slow_admin_statements=ON
-        log_slow_slave_statements=ON
+        # Sample 1% of queries (1 out of 100)
+        log_slow_rate_limit = 100
+        log_slow_rate_type = 'query'
+        
+        # Always log queries slower than 1 second regardless of sampling
+        slow_query_log_always_write_time = 1
+        
+        # Store comprehensive query information
+        log_slow_verbosity = 'full'
+        
+        # Apply settings to existing connections
+        slow_query_log_use_global_control = 'all'
         ```
-
-    - Session:
-
+    
+    ??? example "Session example"
         ```sql
-        SET GLOBAL slow_query_log = 1;
-        SET GLOBAL log_output = 'FILE';
-        SET GLOBAL long_query_time = 0;
-        SET GLOBAL log_slow_admin_statements = 1;
-        SET GLOBAL log_slow_slave_statements = 1;
-        ```
-
-#### Slow query log -- extended
-
-Some MySQL-based database servers support extended slow query log variables.
-
-##### Applicable versions
-
-| Server                   | Versions
-|--------------------------|-----------------
-| Percona Server for MySQL | 5.7.10+, 8.0.12+
-| Percona XtraDB Cluster   | 5.6, 5.7, 8.0
-| MariaDB                  | 10.0
-
-##### Settings
-
-| Variable                                                                 | Value | Description
-|--------------------------------------------------------------------------|-------|-----------------------------------------------------------------------------------
-| [`log_slow_rate_limit`][log_slow_rate_limit]                             | 100   | Defines the rate of queries captured by the *slow query log*. A good rule of thumb is 100 queries logged per second. For example, if your Percona Server instance processes 10,000 queries per second, you should set `log_slow_rate_limit` to `100` and capture every 100th query for the *slow query log*. Depending on the amount of traffic, logging could become aggressive and resource consuming. This variable throttles the level of intensity of the data capture without compromising information.
-| [`log_slow_rate_type`][log_slow_rate_type]                               |'query'| Set so that it applies to queries, rather than sessions.
-| [`slow_query_log_always_write_time`][slow_query_log_always_write_time]   | 1     | Specifies which queries should ignore sampling. With query sampling this ensures that queries with longer execution time will always be captured by the slow query log, avoiding the possibility that infrequent slow queries might not get captured at all.
-| [`log_slow_verbosity`][log_slow_verbosity]                               |'full' | Ensures that all information about each captured query is stored in the slow query log.
-| [`slow_query_log_use_global_control`][slow_query_log_use_global_control] |'all'  | Configure the slow query log during runtime and apply these settings to existing connections. (By default, slow query log settings apply only to new sessions.)
-
-??? info "Examples"
-
-    - Configuration file (Percona Server for MySQL, Percona XtraDB Cluster):
-
-        ```sh
-        log_slow_rate_limit=100
-        log_slow_rate_type='query'
-        slow_query_log_always_write_time=1
-        log_slow_verbosity='full'
-        slow_query_log_use_global_control='all'
-        ```
-
-    - Configuration file (MariaDB):
-
-        ```sh
-        log_slow_rate_limit=100
-        ```
-
-    - Session (Percona Server for MySQL, Percona XtraDB Cluster):
-
-        ```sh
         SET GLOBAL log_slow_rate_limit = 100;
         SET GLOBAL log_slow_rate_type = 'query';
         SET GLOBAL slow_query_log_always_write_time = 1;
@@ -174,33 +166,35 @@ Some MySQL-based database servers support extended slow query log variables.
 
 #### Slow query log rotation
 
-Slow query log files can grow quickly and must be managed.
+The slow query log can grow quickly in size, potentially affecting your system performance. To manage this, PMM Client can automatically rotate the log files to prevent them from becoming too large, or you can choose to manage log rotation yourself:
 
-When adding a service with the command line use the  `pmm-admin` option `--size-slow-logs` to set at what size the slow query log file is rotated. (The size is specified as a number with a suffix. See [`pmm-admin add mysql`](../../../../use/commands/pmm-admin.md#mysql).)
+=== "Automatic log rotation"
 
-When the limit is reached, PMM Client will:
+    To configure automatic rotation when adding a service, use the `--size-slow-logs` option with the `pmm-admin` command. This option sets the size threshold at which the slow query log file will be rotated. 
+    
+    The size is specified as a number followed by a suffix (e.g., `10M` for 10 megabytes). For detailed syntax, refer to [pmm-admin add mysql](../../../../use/commands/pmm-admin.md#mysql).
 
-- remove the previous `.old` slow log file,
-- rename the current file by adding the suffix `.old`,
-- execute the MySQL command `FLUSH LOGS`.
+    When the log reaches the specified size, PMM Client will:
 
-Only one `.old` file is kept. Older ones are deleted.
+    - Remove the previous `.old` slow query log file.
+    - Rename the current log file by appending the `.old` suffix.
+    - Execute the MySQL `FLUSH LOGS` command to finalize the rotation.
+    - Only one `.old` file is retained at a time, and older versions are automatically deleted.
 
-You can manage log rotation yourself, for example, with [`logrotate`][LOGROTATE]. If you do, you can disable PMM Client's log rotation by providing a negative value to `--size-slow-logs` option when adding a service with `pmm-admin add`.
+=== "Manual log rotation" 
+    If you prefer to handle log rotation manually, such as with [logrotate][LOGROTATE], you can disable PMM Client’s automatic log rotation. To do this, set a negative value for the `--size-slow-logs` option when adding a service with the `pmm-admin add` command.
 
-### Performance Schema
+### Performance schema configuration
 
-This section covers how to configure a MySQL-based database server to use *Performance Schema* as a source of metrics.
+To configure a MySQL-based database server to use Performance Schema as a source of metrics:
 
 #### Applicable versions
 
-| Server                   | Versions
-|--------------------------|-----------------------------------------
-| Percona Server for MySQL | 5.6, 5.7, 8.0
-| Percona XtraDB Cluster   | 5.6, 5.7, 8.0
-| MariaDB                  | [10.3+][mariadb_perfschema_instr_table]
+- **Percona Server for MySQL**: 5.6, 5.7, 8.0
+- **Percona XtraDB Cluster**: 5.6, 5.7, 8.0
+- **MariaDB**: [10.3+][mariadb_perfschema_instr_table]
 
-PMM's [*MySQL Performance Schema Details* dashboard](../../../../reference/dashboards/dashboard-mysql-performance-schema-details.md) charts the various [`performance_schema`][performance-schema-startup-configuration] metrics.
+PMM's [MySQL Performance Schema Details dashboard](../../../../reference/dashboards/dashboard-mysql-performance-schema-details.md) charts the various [`performance_schema`][performance-schema-startup-configuration] metrics.
 
 To use **Performance Schema**, set these variables:
 
@@ -211,7 +205,7 @@ To use **Performance Schema**, set these variables:
 | [`performance-schema-consumer-statements-digest`][perfschema-consumer-statements-digest]   | `ON`               | Configures the `statements-digest` consumer.
 | [`innodb_monitor_enable`][sysvar_innodb_monitor_enable]                                    | all                | Enables InnoDB metrics counters.
 
-??? info "Examples"
+??? info "MySQL Performance Schema configuration examples"
 
     - Configuration file:
 
@@ -240,24 +234,24 @@ There is no **Explain** or **Example** data shown by default in Query Analytics 
 |---------------------------------------------------------------------------|-----------------|-----------------------------
 | [`performance_schema.setup_instruments`][mariadb_perfschema_instr_table]  | `'statement/%'` | List of instrumented object classes.
 
-- **Session**
+##### Session
 
-    ```sql
-    UPDATE performance_schema.setup_instruments SET ENABLED = 'YES', TIMED = 'YES' WHERE NAME LIKE 'statement/%';
-    UPDATE performance_schema.setup_consumers SET ENABLED = 'YES' WHERE NAME LIKE '%statements%';
-    ```
+```sql
+UPDATE performance_schema.setup_instruments SET ENABLED = 'YES', TIMED = 'YES' WHERE NAME LIKE 'statement/%';
+UPDATE performance_schema.setup_consumers SET ENABLED = 'YES' WHERE NAME LIKE '%statements%';
+```
 
-- **Transactions**
+##### Transactions
 
-    MariaDB doesn't implement queries history for transactions. All queries executed within a transaction won't have query examples since PMM relies on the `performance_schema.events_statements_history` to grab the query example but that table won't have any query executed as part of a transaction.  
+MariaDB doesn't implement queries history for transactions. All queries executed within a transaction won't have query examples since PMM relies on the `performance_schema.events_statements_history` to grab the query example but that table won't have any query executed as part of a transaction.  
 
-    This behavior is because MariaDB doesn't implement these consumers:
+This behavior is because MariaDB doesn't implement these consumers:
 
-    ```
-    events_transactions_current
-    events_transactions_history
-    events_transactions_history_long
-    ```
+```
+events_transactions_current
+events_transactions_history
+events_transactions_history_long
+```
 
 ## Query response time
 
@@ -265,42 +259,31 @@ There is no **Explain** or **Example** data shown by default in Query Analytics 
 
 ### Applicable versions
 
-| Server                   | Versions
-|--------------------------|------------
-| Percona Server for MySQL | 5.7 (**not** [Percona Server for MySQL 8.0][PS_FEATURES_REMOVED].)
-| MariaDB                  | 10.0.4
+- **Percona Server for MySQL**: 5.7 (**not** [Percona Server for MySQL 8.0][PS_FEATURES_REMOVED].)
+- **MariaDB**: 10.0.4
 
-Set this variable to see query time distribution charts.
+### Required variable
 
-| Variable                                                    | Value | Description
-|-------------------------------------------------------------|-------|-----------------------------------------------------------------------------------
-| [`query_response_time_stats`][ps_query_response_time_stats] | ON    | Report *query response time distributions*. (Requires plugin installation. See below.)
+To enable query time distribution charts, set the `[query_response_time_stats][ps_query_response_time_stats] = ON` and install plugin.
 
-- Configuration file:
+### Plugin installation
 
-    ```ini
-    query_response_time_stats=ON
-    ```
+Before installing the plugins, ensure you have the necessary plugin files and run these commands in your MySQL session:
+{.power-number}
 
-You must also install the plugins.
+1. Check that `/usr/lib/mysql/plugin/query_response_time.so` exists.
+2. Install the plugins and activate:
 
-- **Session**
-    Before installing the plugins, ensure you have the necessary plugin files and run these commands in your MySQL session:
-    {.power-number}
-
-    1. Check that `/usr/lib/mysql/plugin/query_response_time.so` exists.
-    2. Install the plugins and activate.
-
-    === "For [MariaDB 10.3][mariadb_query_response_time]"
-
+    === "For MariaDB 10.3" 
+        For [MariaDB 10.3][mariadb_query_response_time], run:
         ```sql
         INSTALL PLUGIN QUERY_RESPONSE_TIME_AUDIT SONAME 'query_response_time.so';
         INSTALL PLUGIN QUERY_RESPONSE_TIME SONAME 'query_response_time.so';
         SET GLOBAL query_response_time_stats = ON;
         ```
 
-    ===  "For [Percona Server for MySQL 5.7][ps_query_response_time_stats]"
-
+    ===  "For Percona Server for MySQL 5.7"
+     For [Percona Server for MySQL 5.7][ps_query_response_time_stats], run: 
         ```sql
         INSTALL PLUGIN QUERY_RESPONSE_TIME_AUDIT SONAME 'query_response_time.so';
         INSTALL PLUGIN QUERY_RESPONSE_TIME SONAME 'query_response_time.so';
@@ -324,138 +307,249 @@ The limit can be changed [when adding a service on the command line](#command-li
 
 ### Applicable versions
 
-User activity, individual table and index access details are shown on the [MySQL User Details][DASH_MYSQLUSERDETAILS] dashboard when the `userstat` variable is set.
+User activity, individual table and index access details are shown on the [MySQL User Details][DASH_MYSQLUSERDETAILS] dashboard when the `userstat` variable is set:
 
-| Server                   | Versions
-|--------------------------|---------------
-| Percona Server for MySQL | 5.6, 5.7, 8.0
-| Percona XtraDB Cluster   | 5.6, 5.7, 8.0
-| MariaDB                  | 5.2.0+
+- Percona Server for MySQL: 5.6, 5.7, 8.0
+- Percona XtraDB Cluster: 5.6, 5.7, 8.0
+- MariaDB: 5.2.0+
 
-??? info "Examples"
+??? info "MySQL user statistics configuration examples"
 
-    - Configuration file.
+    - Configuration file: `userstat=ON`.
 
-        ```ini
-        userstat=ON
+    - Session: `SET GLOBAL userstat = ON;`
+
+
+## Adding MySQL Services to PMM
+
+You have two options for monitoring your MySQL database with PMM:
+
+=== "Local installations"
+    Instals PMM Client directly on your MySQL server provides the most comprehensive monitoring by collecting both database metrics and system metrics.
+
+    === "Via web UI"
+        To add a MySQL service through the web interface:
+        {.power-number}
+
+        1. Navigate to **PMM Configuration > PMM Inventory > Add Service > MySQL**
+        2. Enter the following details:
+           - **Service Name**: A descriptive name for your MySQL instance
+           - **Host/Socket**: The hostname or socket path 
+           - **Port**: MySQL port (default: 3306)
+           - **Username**: The PMM user created earlier
+           - **Password**: Your PMM user password
+           - **Query Source**: Choose between Slow Log or Performance Schema
+        3. Click **Add Service**
+        
+        ![MySQL Service Addition Screen](../../../../images/PMM_Add_Instance_MySQL.jpg)
+        
+        For TLS-enabled MySQL instances:
+        {.power-number}
+
+        1. Check **Use TLS for database connections**
+        2. Fill in your TLS certificates and key information
+        
+        ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.jpg)
+    
+    === "Via command line"
+        
+        **Basic syntax**
+        
+        ```bash
+        pmm-admin add mysql \
+          --username=pmm \
+          --password=StrongPassword \
+          --host=localhost \
+          --port=3306 \
+          --query-source=slowlog \
+          MySQL-Primary
+        ```
+        
+        **With additional options**
+        
+        ```bash
+        pmm-admin add mysql \
+          --username=pmm \
+          --password=StrongPassword \
+          --host=localhost \
+          --port=3306 \
+          --query-source=slowlog \
+          --environment=production \
+          --custom-labels="role=primary,datacenter=east" \
+          MySQL-Primary
+        ```
+        
+        **For TLS connections**
+        
+        ```bash
+        pmm-admin add mysql \
+          --username=pmm \
+          --password=StrongPassword \
+          --host=localhost \
+          --port=3306 \
+          --tls \
+          --tls-skip-verify \
+          --tls-ca=/path/to/ca.pem \
+          --tls-cert=/path/to/client-cert.pem \
+          --tls-key=/path/to/client-key.pem \
+          MySQL-TLS
+        ```-cert=/path/to/cert.pem \
+          --tls-key=/path/to/key.pem \
+          --query-source=slowlog \
+          --environment=production \
+          MySQL-TLS
         ```
 
-    - Session.
+=== "Remote Installation"
 
-        ```sql
-        SET GLOBAL userstat = ON;
+    Use this method when you cannot install software directly on the MySQL server. This approach will not provide operating system metrics. 
+    
+    === "Via web UI"
+        To add remote MySQL instance:
+        {.power-number}
+
+        1. Navigate to **PMM Configuration > PMM Inventory > Add Service**
+        2. Select **MySQL > Add a remote instance**
+        3. Complete the required fields:
+            - **Service Name**: A descriptive name for your MySQL instance
+            - **Host**: The hostname or IP address of your MySQL server
+            - **Port**: MySQL port (default: 3306)
+            - **Username**: The PMM user created earlier
+            - **Password**: Your PMM user password
+            - **Query Source**: Choose between Slow Log or Performance Schema
+        4. Click **Add Service**
+        
+        ![Remote MySQL Service Addition](../../../../images/PMM_Add_Instance_MySQL.png)
+        
+        For TLS-enabled remote MySQL instances:
+        {.power-number}
+
+        1. Check **Use TLS for database connections**
+        2. Fill in your TLS certificates and key information
+        
+        ![Remote TLS Configuration](../../../../images/PMM_Add_Instance_MySQL_TLS.png)
+    
+    === "Via command line"
+
+        ```bash
+        pmm-admin add mysql \
+          --username=pmm \
+          --password=StrongPassword \
+          --host=remote-mysql.example.com \
+          --port=3306 \
+          --query-source=perfschema \
+          --environment=production \
+          --custom-labels="region=eu-west,tier=application" \
+          Remote-MySQL
+        ```
+        
+        For TLS connections to remote instances:
+        
+        ```bash
+        pmm-admin add mysql \
+          --username=pmm \
+          --password=StrongPassword \
+          --host=remote-mysql.example.com \
+          --port=3306 \
+          --tls \
+          --tls-ca=/path/to/ca.pem \
+          --tls-cert=/path/to/cert.pem \
+          --tls-key=/path/to/key.pem \
+          --query-source=perfschema \
+          Remote-MySQL-TLS
         ```
 
-## Add service
+## After adding the service
 
-There are two ways to install  PMM Client  for monitoring your MySQL database:
-{.power-number}
-
-1. [Local installation](#install-pmm-client-locally): Installs PMM Client directly on the database node, collecting both database and OS/host metrics. This option enables more effective comparison and problem identification.
-2. [Remote instance](#install-pmm-client-as-a-remote-instance): Use when local installation isn't possible. This method doesn't provide OS/Node metrics in PMM.
-
-
-### Install PMM Client locally
-
-Add the MySQL server as a service using one of the following example commands. 
-Upon successful addition, PMM Client will display "MySQL Service added" along with the service's ID and name. 
-{.power-number}
-
-1. Select **PMM Configuration > PMM Inventory > Add Service > MySQL**.
-
-2. Enter or select values for the fields.
-
-3. Click **Add service**.
-
-    ![!](../../../../images/PMM_Add_Instance_MySQL.jpg)
-
-If your MySQL instance is configured to use TLS, click on the **Use TLS for database connections** check box and fill in your TLS certificates and key:
-
-![!](../../../../images/PMM_Add_Instance_MySQL_TLS.jpg)
-
-### On the command line
-
-Add the database server as a service using one of these example commands. If successful, PMM Client will print `MySQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.
-
-
-#### TLS connection
-
-```sh 
-pmm-admin add mysql --environment=test --custom-labels='source=slowlog' --username=root --password=password --tls --tls-skip-verify --tls-ca=pathtoca.pem --tls-cert=pathtocert.pem --tls-key=pathtocertkey.pem --query-source=slowlog MySQLSlowLog localhost:3306
-```
-
-### Install PMM Client as a remote instance
-If you need to monitor a MySQL instance from a different server where PMM Client is installed, follow these steps in the PMM web interface:
-{.power-number}
-
-1. Select :material-cog: **PMM Configuration > PMM Inventory > :material-plus-circle-outline: Add Service**.
-
-2. Choose **MySQL > Add a remote instance**.
-
-3. Complete the required fields.
-
-4. Click **Add service**.
-
-    ![!](../../../../images/PMM_Add_Instance_MySQL.png)
-
-#### For MySQL instances using TLS
-
-If your MySQL instance is configured to use TLS: 
-{.power-number}
-
-1. Click on the **Use TLS for database connections** check box.
-2. Fill in your TLS certificates and key.
-
-    ![!](../../../../images/PMM_Add_Instance_MySQL_TLS.png)
-
-## Check the service
-
-### PMM user interface
-
-To check the service with the UI:
-{.power-number}
-
-1. Select **PMM Configuration > PMM Inventory**.
-2. In the **Services** tab, verify the **Service name**, **Addresses**, and any other relevant information in the form.
-3. In the **Options** column, expand the **Details** section and check that the Agents are using the desired data source.
-
-### Command line
-
-Look for your service in the output of this command.
+Upon successful addition, PMM Client will display a confirmation message:
 
 ```sh
-pmm-admin inventory list services --service-type=mysql
+MySQL Service added
+Service ID  : /service_id/abcd1234-5678-efgh-ijkl-mnopqrstuvwx
+Service name: MySQL-Primary
 ```
 
-### Check data
+### Verify your MySQL service
+After adding your MySQL service to PMM, it's important to verify that it's properly connected and collecting data.
 
-To check the data:
-{.power-number}
+### Check service status
 
-1. Open the **MySQL Instance Summary** dashboard.
-2. Set the **Service Name** to the newly-added service.
+=== "Web Interface"
+    To verify your service in the web interface:
+    {.power-number}
 
-#### Percona Server for MySQL, MariaDB
+    1. Navigate to **PMM Configuration > PMM Inventory**.
+    2. In the **Services** tab, find your newly added MySQL service.
+    3. Verify the **Service Name** and **Address** match your configuration.
+    4. Check the **Status** column shows as *Active*.
+    5. In the **Options** column, expand the **Details** section to confirm:
+        - the correct agents are running
+        - your selected query source (Slow Log or Performance Schema) is active
 
-If query response time plugin was installed, check for data in the *MySQL Query Response Time Details* dashboard or select a query in *PMM Query Analytics* to see the *Query time distribution* bar.
+=== "Command Line"
 
-#### Percona XtraDB Cluster
+    Use the following command to list all MySQL services and their status:
+    
+    ```bash
+    pmm-admin inventory list services --service-type=mysql
+    ```
+    
+    For more detailed information about a specific service:
+    
+    ```bash
+    pmm-admin describe service --service-name="MySQL-Service-Name"
+    ```
+    
+    To check the overall PMM Client status:
+    
+    ```bash
+    pmm-admin status
+    ```
 
-Open the [*PXC/Galera Cluster Summary* dashboard][DASH_PXCGALERACLUSTER].
+### Verify data collection
 
-??? info "See also"
+Once the service is confirmed as active, verify that metrics are being properly collected:
 
-    !!! seealso alert alert-info ""
-        - [Percona Server for MySQL -- Slow Query Log Extended][ps_slow_query_ext]
-        - [Percona Server for MySQL -- User Statistics][ps_userstats]
-        - [MariaDB -- Slow Query Log Overview][mariadb_slow_query_log]
-        - [MariaDB -- Slow Query Log Extended Statistics][mariadb_slow_query_ext]
-        - [MariaDB -- User Statistics][mariadb_userstats]
-        - [Percona Blog -- PERFORMANCE_SCHEMA vs Slow Query Log][BLOG_PS_VS_SLOW]
-        - [Percona Blog -- MySQL's INNODB_METRICS table][BLOG_INNODB_METRICS]
-        - [Percona Blog -- Rotating MySQL Slow Logs Safely][BLOG_LOG_ROTATION]
-        - [Percona Blog -- Impact of logging on MySQL's performance][BLOG_LOGGING]
-        - [Percona Blog -- Running Custom MySQL Queries in Percona Monitoring and Management][BLOG_CUSTOM_QUERIES_MYSQL]
+=== "General MySQL metrics"
+    To verify basic MySQL metrics are being collected:
+    {.power-number}
+
+    1. Open the **MySQL Instance Summary** dashboard
+    2. Select your MySQL service from the **Service Name** dropdown
+    3. Confirm that metrics are appearing on the dashboard
+    4. Check that the graphs show recent data (within the last few minutes)
+
+=== "Database-specific metrics"
+
+    **For Percona Server for MySQL or MariaDB:**
+    
+    If you installed the Query Response Time plugin, verify it:
+    {.power-number}
+
+    1. Open the **MySQL Query Response Time Details** dashboard
+    2. Select your service from the dropdown
+    3. Alternatively, go to **Query Analytics**, select a query, and check for the **Query time distribution** bar
+    
+    **For Percona XtraDB Cluster:**
+    To verify XtraDB Cluster monitoring:
+    {.power-number}
+
+    1. Open the [**PXC/Galera Cluster Summary** dashboard][DASH_PXCGALERACLUSTER]
+    2. Select your cluster service from the dropdown
+    3. Verify that cluster-specific metrics are being displayed
+
+## Related topics
+
+- [Percona Server for MySQL -- Slow Query Log Extended][ps_slow_query_ext]
+- [Percona Server for MySQL -- User Statistics][ps_userstats]
+- [MariaDB -- Slow Query Log Overview][mariadb_slow_query_log]
+- [MariaDB -- Slow Query Log Extended Statistics][mariadb_slow_query_ext]
+- [MariaDB -- User Statistics][mariadb_userstats]
+- [PERFORMANCE_SCHEMA vs Slow Query Log: Performance Impact][BLOG_PS_VS_SLOW]
+- [Understanding MySQL's INNODB_METRICS Table][BLOG_INNODB_METRICS]
+- [Rotating MySQL Slow Logs Safely][BLOG_LOG_ROTATION]
+- [Impact of Logging on MySQL's Performance][BLOG_LOGGING]
+- [Running Custom MySQL Queries in PMM][BLOG_CUSTOM_QUERIES_MYSQL]
 
 [DASH_MYSQLUSERDETAILS]: ../../../../reference//dashboards/dashboard-mysql-user-details.md
 [DASH_PXCGALERACLUSTER]: ../../../../reference/dashboards/dashboard-pxc-galera-cluster-summary.md
