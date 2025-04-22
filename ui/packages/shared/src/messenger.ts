@@ -1,14 +1,21 @@
 import { Message, MessageListener, MessageType } from './types';
 
 export class CrossFrameMessenger {
+  private name?: string;
   private targetWindow?: Window;
+  private fallbackSelector?: string;
   private eventListener = (e: MessageEvent) => this.onMessageReceived(e);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private listeners: MessageListener<any, any>[] = [];
 
-  setWindow(window: Window) {
+  constructor(name?: string) {
+    this.name = name;
+  }
+
+  setWindow(window: Window, fallbackSelector?: string) {
     this.targetWindow = window;
+    this.fallbackSelector = fallbackSelector;
   }
 
   register() {
@@ -34,6 +41,8 @@ export class CrossFrameMessenger {
       return;
     }
 
+    console.log(this.name, 'received', message);
+
     this.listeners.forEach((listener) => {
       if (listener.type === message.type) {
         listener.onMessage(message);
@@ -42,6 +51,50 @@ export class CrossFrameMessenger {
   }
 
   sendMessage<T extends MessageType, V>(message: Message<T, V>) {
-    this.targetWindow?.postMessage(message);
+    if (!message.id) {
+      message.id = self.crypto.randomUUID();
+    }
+    console.log(this.name, 'sending', message);
+    this.getWindow()?.postMessage(message);
+  }
+
+  sendMessageWithResult<U, T extends MessageType, V>(
+    message: Message<T, V>,
+    timeout = 10_000
+  ): Promise<U> {
+    return new Promise((resolve, reject) => {
+      let resolved = false;
+      message.id = self.crypto.randomUUID();
+
+      const listener: MessageListener<T, U> = {
+        type: message.type,
+        onMessage: (received) => {
+          if (received.id === message.id) {
+            resolved = true;
+            this.removeListener(listener);
+            resolve(received.data!);
+          }
+        },
+      };
+
+      this.addListener(listener);
+
+      this.sendMessage(message);
+
+      setTimeout(() => {
+        reject();
+      }, timeout);
+    });
+  }
+
+  private getWindow() {
+    if (!this.targetWindow && this.fallbackSelector) {
+      const iframe = document.querySelector<HTMLIFrameElement>(
+        this.fallbackSelector
+      );
+      return this.targetWindow || iframe?.contentWindow;
+    }
+
+    return this.targetWindow;
   }
 }

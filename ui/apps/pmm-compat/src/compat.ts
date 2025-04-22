@@ -1,18 +1,20 @@
 import { locationService } from '@grafana/runtime';
-import { CrossFrameMessenger, LocationChangeMessage } from '@pmm/shared';
+import { CrossFrameMessenger, DashboardVariablesMessage, LocationChangeMessage } from '@pmm/shared';
 import { applyCustomStyles } from 'styles';
 import { isWithinIframe } from 'utils';
+import { getLinkWithVariables } from 'variables';
 
 export const initialize = () => {
   if (!isWithinIframe()) {
     console.log('pmm-compat', 'not within iframe');
 
-    window.location.replace(window.location.href.replace('/graph', '/pmm-ui/with-nav/graph'));
+    // redirect user to the new UI
+    window.location.replace(window.location.href.replace('/graph', '/pmm-ui/next/graph'));
 
     return;
   }
 
-  const messenger = new CrossFrameMessenger();
+  const messenger = new CrossFrameMessenger('GRAFANA');
 
   messenger.setWindow(window.top!);
   messenger.register();
@@ -33,11 +35,28 @@ export const initialize = () => {
   });
 
   locationService.getHistory().listen((location: Location) => {
-    console.log('location', location);
-
     messenger.sendMessage({
       type: 'LOCATION_CHANGE',
       data: location,
     });
+  });
+
+  messenger.addListener({
+    type: 'DASHBOARD_VARIABLES',
+    onMessage: (msg: DashboardVariablesMessage) => {
+      if (!msg.data || !msg.data.url) {
+        return;
+      }
+
+      const url = getLinkWithVariables(msg.data.url);
+
+      messenger.sendMessage({
+        id: msg.id,
+        type: msg.type,
+        data: {
+          url: url,
+        },
+      });
+    },
   });
 };

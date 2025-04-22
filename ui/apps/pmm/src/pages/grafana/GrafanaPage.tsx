@@ -23,6 +23,7 @@ export const GrafanaPage: FC = () => {
       }}
     >
       <Box
+        id="grafana-iframe"
         ref={frameRef}
         src={src}
         component="iframe"

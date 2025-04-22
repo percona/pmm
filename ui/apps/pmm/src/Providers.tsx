@@ -1,6 +1,7 @@
 import { GlobalStyles } from '@mui/material';
 import { AuthProvider } from 'contexts/auth';
 import { GrafanaProvider } from 'contexts/grafana';
+import { NavigationProvider } from 'contexts/navigation';
 import { UpdatesProvider } from 'contexts/updates';
 import { UserProvider } from 'contexts/user';
 import { FC, PropsWithChildren } from 'react';
@@ -11,17 +12,19 @@ const Providers: FC<PropsWithChildren> = () => (
     <UserProvider>
       <UpdatesProvider>
         <GrafanaProvider>
-          <GlobalStyles
-            styles={{
-              'html, body, div#root': {
-                minHeight: '100vh',
-              },
-              'div#root': {
-                display: 'flex',
-              },
-            }}
-          />
-          <Outlet />
+          <NavigationProvider>
+            <GlobalStyles
+              styles={{
+                'html, body, div#root': {
+                  minHeight: '100vh',
+                },
+                'div#root': {
+                  display: 'flex',
+                },
+              }}
+            />
+            <Outlet />
+          </NavigationProvider>
         </GrafanaProvider>
       </UpdatesProvider>
     </UserProvider>

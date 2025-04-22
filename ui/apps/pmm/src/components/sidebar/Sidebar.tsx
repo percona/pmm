@@ -1,50 +1,74 @@
-import { List, ListItem, ListItemButton, Stack } from '@mui/material';
-import { FC, useEffect } from 'react';
+import {
+  Collapse,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Stack,
+} from '@mui/material';
+import { FC, useState } from 'react';
 import { PmmRoundedIcon } from 'icons';
-import { Link, useLocation, useMatch } from 'react-router-dom';
-import { PMM_NEW_NAV_PATH } from 'lib/constants';
+import { Link, useLocation } from 'react-router-dom';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { useLinkWithVariables } from 'hooks/utils/useLinkWithVariables';
+import { useNavigation } from 'contexts/navigation';
+import { isActive } from 'lib/utils/navigation.utils';
+import { NavItem } from 'lib/types';
 
-const items = [
-  {
-    name: 'Home page',
-    url: PMM_NEW_NAV_PATH + '/graph/d/pmm-home',
-  },
-  {
-    name: 'Alerts',
-    url: PMM_NEW_NAV_PATH + '/graph/alerting/alerts',
-  },
-  {
-    name: 'Updates',
-    url: PMM_NEW_NAV_PATH + '/updates',
-  },
-  {
-    name: 'Help',
-    url: PMM_NEW_NAV_PATH + '/help',
-  },
-];
+export const SidebarItem: FC<{ item: NavItem }> = ({ item }) => {
+  const location = useLocation();
+  const active = isActive(item, location.pathname);
+  const [open, setIsOpen] = useState(active);
+  const to = useLinkWithVariables(item.url);
 
-export const NavItem: FC<{ item: (typeof items)[0] }> = ({ item }) => {
-  const match = useMatch({
-    path: item.url,
-    end: false,
-  });
+  if (item?.children) {
+    return (
+      <>
+        <ListItemButton
+          disableGutters
+          sx={{ pl: 4 }}
+          onClick={() => setIsOpen(!open)}
+        >
+          <ListItemText
+            primary={item.text}
+            primaryTypographyProps={{
+              fontWeight: active ? 'bold' : '',
+            }}
+          />
+          <Stack pl={2} pr={2}>
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </Stack>
+        </ListItemButton>
+        <Collapse in={open} timeout="auto">
+          <List component="div" disablePadding sx={{ ml: 2 }}>
+            {item.children.map((item) => (
+              <SidebarItem key={item.id} item={item} />
+            ))}
+          </List>
+        </Collapse>
+      </>
+    );
+  }
 
   return (
     <ListItem key={item.url} disablePadding>
       {/* @ts-ignore */}
       <ListItemButton
         disableGutters
-        sx={{ px: 4, fontWeight: !!match ? 'bold' : '' }}
+        sx={{ px: 4, fontWeight: active ? 'bold' : '' }}
         LinkComponent={Link}
-        to={item.url}
+        to={to}
       >
-        {item.name}
+        {item.text}
       </ListItemButton>
     </ListItem>
   );
 };
 
 export const Sidebar: FC = () => {
+  const { navTree } = useNavigation();
+
   return (
     <Stack
       direction="column"
@@ -63,8 +87,8 @@ export const Sidebar: FC = () => {
         <PmmRoundedIcon sx={{ height: 30, width: 'auto' }} />
       </Stack>
       <List disablePadding sx={{ width: '100%' }}>
-        {items.map((item) => (
-          <NavItem key={item.url} item={item} />
+        {navTree.map((item) => (
+          <SidebarItem key={item.url} item={item} />
         ))}
       </List>
     </Stack>

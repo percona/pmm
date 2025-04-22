@@ -6,6 +6,7 @@ import { MainWithNav } from 'components/main/MainWithNav';
 import { NotFoundPage } from 'pages/not-found';
 import { HelpPage } from 'pages/help';
 import Providers from 'Providers';
+import { PMM_NEW_NAV_PATH } from 'lib/constants';
 
 const router = createBrowserRouter(
   [
@@ -14,7 +15,7 @@ const router = createBrowserRouter(
       element: <Providers />,
       children: [
         {
-          path: '/with-nav',
+          path: PMM_NEW_NAV_PATH,
           element: <MainWithNav />,
           children: [
             {

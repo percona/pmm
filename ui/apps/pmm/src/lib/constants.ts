@@ -1,9 +1,10 @@
-export const PMM_BASE_PATH = '/pmm-ui/with-nav';
-export const PMM_NEW_NAV_PATH = '/with-nav';
-export const PMM_NEW_NAV_GRAFANA_PATH = '/with-nav/graph';
+export const PMM_NEW_NAV_PATH = '/next';
+export const PMM_BASE_PATH = `/pmm-ui${PMM_NEW_NAV_PATH}`;
+export const PMM_NEW_NAV_GRAFANA_PATH = `${PMM_NEW_NAV_PATH}/graph`;
 export const PMM_HOME_URL = '/graph/d/pmm-home';
 export const PMM_LOGIN_URL = '/graph/login';
 export const PMM_SETTINGS_URL = '/graph/settings/advanced-settings';
 export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';
 export const PMM_DOCS_UPDATES_URL = 'https://per.co.na/pmm-upgrade';
 export const PMM_DOCS_UPDATE_CLIENT_URL = 'https://per.co.na/pmm-upgrade-agent';
+export const GRAFANA_SUB_PATH = `${PMM_NEW_NAV_PATH}/graph`;
