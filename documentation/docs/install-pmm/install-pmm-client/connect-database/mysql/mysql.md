@@ -9,10 +9,12 @@ PMM Client supports collecting metrics from various MySQL-based database systems
  - [Percona XtraDB Cluster][PERCONA_XTRADB_CLUSTER]
  - [MariaDB][MARIADB]
 
-For monitoring Amazon RDS MySQL instances, see  [Connect Amazon RDS instance](../aws.md).
+For monitoring Amazon RDS MySQL instances, see [Connect Amazon RDS instance](../aws.md).
 
 ??? info "Summary: MySQL monitoring"
-
+    These are the high-level steps for configuring MySQL monitoring in PMM:
+    {.power-number}
+    
     1. **[Prerequisites](#prerequisites)**: Ensure PMM Server is running and PMM Client is installed
     2. **[Create PMM user](#creating-a-dedicated-pmm-user)**: `CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'StrongPassword'`  
     3. **[Grant permissions](#creating-a-dedicated-pmm-user)**: `GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost'`
@@ -264,7 +266,7 @@ events_transactions_history_long
 
 ### Required variable
 
-To enable query time distribution charts, set the `[query_response_time_stats][ps_query_response_time_stats] = ON` and install plugin.
+To enable query time distribution charts, set the `[query_response_time_stats][ps_query_response_time_stats] = ON` and install the plugin.
 
 ### Plugin installation
 
@@ -342,7 +344,6 @@ You have two options for monitoring your MySQL database with PMM:
         3. Click **Add Service**
         
         ![MySQL Service Addition Screen](../../../../images/PMM_Add_Instance_MySQL.jpg)
-        
         For TLS-enabled MySQL instances:
         {.power-number}
 
@@ -400,7 +401,7 @@ You have two options for monitoring your MySQL database with PMM:
           MySQL-TLS
         ```
 
-=== "Remote Installation"
+=== "Remote installation"
 
     Use this method when you cannot install software directly on the MySQL server. This approach will not provide operating system metrics. 
     
@@ -474,7 +475,7 @@ After adding your MySQL service to PMM, it's important to verify that it's prope
 
 ### Check service status
 
-=== "Web Interface"
+=== "Via web interface"
     To verify your service in the web interface:
     {.power-number}
 
@@ -486,21 +487,23 @@ After adding your MySQL service to PMM, it's important to verify that it's prope
         - the correct agents are running
         - your selected query source (Slow Log or Performance Schema) is active
 
-=== "Command Line"
+=== "Via command line"
+    Use these commands to manage and monitor your MySQL services:
+    {.power-number}
 
-    Use the following command to list all MySQL services and their status:
+    1. List all MySQL services and their status:
     
     ```bash
     pmm-admin inventory list services --service-type=mysql
     ```
     
-    For more detailed information about a specific service:
+    2. Find more detailed information about a specific service:
     
     ```bash
     pmm-admin describe service --service-name="MySQL-Service-Name"
     ```
     
-    To check the overall PMM Client status:
+    3. Check the overall PMM Client status:
     
     ```bash
     pmm-admin status
