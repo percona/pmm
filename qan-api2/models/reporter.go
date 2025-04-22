@@ -47,20 +47,20 @@ func NewReporter(db *sqlx.DB) Reporter {
 	return Reporter{db: db}
 }
 
-// selectorCache is a thread-safe cache for selector to SQL conversions
+// selectorCache is a thread-safe cache for selector to SQL conversions.
 type selectorCache struct {
 	cache map[string]string
 	mu    sync.RWMutex
 }
 
-// newSelectorCache creates a new selector cache
+// newSelectorCache creates a new selector cache.
 func newSelectorCache() *selectorCache {
 	return &selectorCache{
 		cache: make(map[string]string),
 	}
 }
 
-// get retrieves a cached SQL conversion for the given selector
+// get retrieves a cached SQL conversion for the given selector.
 func (sc *selectorCache) get(selector string) (string, bool) {
 	sc.mu.RLock()
 	defer sc.mu.RUnlock()
@@ -68,7 +68,7 @@ func (sc *selectorCache) get(selector string) (string, bool) {
 	return val, ok
 }
 
-// set stores a SQL conversion for the given selector
+// set stores a SQL conversion for the given selector.
 func (sc *selectorCache) set(selector, sql string) {
 	sc.mu.Lock()
 	defer sc.mu.Unlock()
