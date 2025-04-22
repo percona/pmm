@@ -57,13 +57,13 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = (props) => {
 
   return (
     <Card
-      style={{
+      sx={{
         borderTop: borderColor ? `solid 12px ${borderColor}` : 'none',
       }}
       key={id}
       data-testid={`help-card-${id}`}
     >
-      <CardContent style={{ paddingRight: 16, paddingLeft: 16 }}>
+      <CardContent sx={{ paddingRight: '16px', paddingLeft: '16px' }}>
         <Stack
           flexDirection={'row'}
           justifyContent={'flex-start'}
@@ -71,7 +71,7 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = (props) => {
           marginBottom={'8px'}
         >
           {getIcon(id)}
-          <Typography variant="h6" style={{ marginLeft: getIcon(id) ? 8 : 0 }}>
+          <Typography variant="h6" sx={{ marginLeft: getIcon(id) ? '8px' : '0px' }}>
             {title}
           </Typography>
         </Stack>
@@ -84,7 +84,7 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = (props) => {
               variant="outlined"
               component="a"
               size="small"
-              style={{ marginRight: 8 }}
+              sx={{ marginRight: '8px' }}
               startIcon={getButtonStartIcon(button.startIconName)}
               endIcon={button.target && <NorthEast />}
               onClick={() => onButtonClick(button)}
