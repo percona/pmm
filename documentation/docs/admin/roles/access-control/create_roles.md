@@ -1,15 +1,15 @@
 
 # Create access roles
 
-Roles are a vital part of Access control. Roles provide users with access to specific, role-based metrics.
+Roles are a vital part of Access control. Roles limit users' access only to a subset of metrics that they are entitled to.
 
 To create access roles in PMM, do the following:
 {.power-number}
 
-1. From the [main menu](../../../reference/ui/ui_components.md), go to **PMM Configuration > Settings > Advanced Settings** and enable the **Access Roles** option.
+1. From the [main menu](../../../reference/ui/ui_components.md), go to **PMM Configuration > Settings > Advanced Settings** and enable the **Access control** option.
 2. Go to **Administration > Users and access > Access Roles**.
 
-    ![!](../../../images/PMM_access_control_create_role.png)
+    ![PMM Access Control - Create role](../../../images/lbac/PMM_access_control_create_role.png)
 
 3. Click **Create**.
 4. On the **Create role** page, enter the Role name and Role description.
