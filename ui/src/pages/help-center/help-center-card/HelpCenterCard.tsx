@@ -10,12 +10,10 @@ import {
 import { KnowledgeBaseIcon } from 'icons';
 import { FC, ReactNode, useCallback } from 'react';
 import { CARD_IDS, START_ICON } from '../HelpCenter.constants';
-import { HelpCenterCardProps, CardButton } from './HelpCenterCard.types';
+import { HelpCenterCardProps, HelpCardButton } from './HelpCenterCard.types';
 
-export const HelpCenterCard: FC<HelpCenterCardProps> = (props) => {
-  const { shouldDisplayCard, card } = props;
-
-  const { id, title, borderColor, description, buttons, adminOnly } = card;
+export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
+  const { id, title, borderColor, description, buttons } = card;
 
   const getIcon = useCallback((cardId: string): ReactNode => {
     switch (cardId) {
@@ -32,7 +30,7 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = (props) => {
     }
   }, []);
 
-  const getButtonStartIcon = useCallback((iconName: string): ReactNode => {
+  const getButtonStartIcon = useCallback((iconName?: string): ReactNode => {
     switch (iconName) {
       case START_ICON.download:
         return <SaveAlt />;
@@ -43,17 +41,14 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = (props) => {
     }
   }, []);
 
-  const onButtonClick = useCallback((button: CardButton) => {
-    if (button.target !== '') {
+  const onButtonClick = useCallback((button: HelpCardButton) => {
+    if (button.target) {
       window.open(button.url, button.target, 'noopener,noreferrer');
     } else {
-      window.location.assign(button.url);
+      //TO DO: use react router once the grafana iframe is in place
+      button.url && window.location.assign(button.url);
     }
   }, []);
-
-  if (!shouldDisplayCard(adminOnly)) {
-    return null;
-  }
 
   return (
     <Card
@@ -63,28 +58,28 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = (props) => {
       key={id}
       data-testid={`help-card-${id}`}
     >
-      <CardContent sx={{ paddingRight: '16px', paddingLeft: '16px' }}>
+      <CardContent sx={{ px: 2 }}>
         <Stack
           flexDirection={'row'}
           justifyContent={'flex-start'}
           alignItems={'center'}
-          marginBottom={'8px'}
+          marginBottom={1}
         >
           {getIcon(id)}
-          <Typography variant="h6" sx={{ marginLeft: getIcon(id) ? '8px' : '0px' }}>
+          <Typography variant="h6" sx={{ ml: getIcon(id) ? 1 : 0 }}>
             {title}
           </Typography>
         </Stack>
 
         <Typography>{description}</Typography>
-        <Stack paddingTop={'16px'} flexDirection={'row'}>
+        <Stack paddingTop={2} flexDirection={'row'}>
           {buttons.map((button) => (
             <Button
               key={button.url}
               variant="outlined"
               component="a"
               size="small"
-              sx={{ marginRight: '8px' }}
+              sx={{ mr: 1 }}
               startIcon={getButtonStartIcon(button.startIconName)}
               endIcon={button.target && <NorthEast />}
               onClick={() => onButtonClick(button)}

@@ -1,17 +1,16 @@
 import { Box } from '@mui/material';
 import { Page } from 'components/page';
-import { FC, useCallback } from 'react';
+import { FC } from 'react';
 import { Messages } from './HelpCenter.messages';
-import { CardsData } from './HelpCenter.constants';
+import { CARDS_DATA } from './HelpCenter.constants';
 import { useUser } from 'contexts/user';
 import { HelpCenterCard } from './help-center-card/HelpCenterCard';
 
 export const HelpCenter: FC = () => {
   const { user } = useUser();
 
-  const shouldDisplayCard = useCallback(
-    (adminOnly: boolean): boolean => !(!user?.isPMMAdmin && adminOnly),
-    [user]
+  const cards = CARDS_DATA.filter(
+    (card) => !(!user?.isPMMAdmin && card.adminOnly)
   );
 
   return (
@@ -27,8 +26,8 @@ export const HelpCenter: FC = () => {
           gap: 4,
         }}
       >
-        {CardsData.map((item) => (
-          <HelpCenterCard card={item} shouldDisplayCard={shouldDisplayCard} />
+        {cards.map((item) => (
+          <HelpCenterCard card={item} />
         ))}
       </Box>
     </Page>

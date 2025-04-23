@@ -1,3 +1,5 @@
+import { HelpCardType } from './help-center-card/HelpCenterCard.types';
+
 export const CARD_IDS = {
   pmmDocs: 'pmm-docs',
   support: 'support',
@@ -12,7 +14,7 @@ export const START_ICON = {
   map: 'map',
 };
 
-export const CardsData = [
+export const CARDS_DATA: HelpCardType[] = [
   {
     id: CARD_IDS.pmmDocs,
     title: 'PMM Documentation',
@@ -23,7 +25,6 @@ export const CardsData = [
         text: 'View docs',
         target: '_blank',
         url: 'https://per.co.na/pmm_documentation',
-        startIconName: '',
       },
     ],
     adminOnly: false,
@@ -39,7 +40,6 @@ export const CardsData = [
         text: 'Contact Support',
         target: '_blank',
         url: 'https://per.co.na/pmm_support',
-        startIconName: '',
       },
     ],
     adminOnly: false,
@@ -55,7 +55,6 @@ export const CardsData = [
         text: 'View forum',
         target: '_blank',
         url: 'https://per.co.na/PMM3_forum',
-        startIconName: '',
       },
     ],
     adminOnly: false,
@@ -69,9 +68,7 @@ export const CardsData = [
     buttons: [
       {
         text: 'Manage datasets',
-        target: '',
         url: '/graph/pmm-dump',
-        startIconName: '',
       },
     ],
     adminOnly: true,
@@ -102,13 +99,9 @@ export const CardsData = [
       {
         text: 'Start PMM tour',
         startIconName: START_ICON.map,
-        target: '',
-        url: '',
       },
       {
         text: 'Shortcuts',
-        startIconName: '',
-        target: '',
         url: 'https://per.co.na/pmm_documentation',
       },
     ],

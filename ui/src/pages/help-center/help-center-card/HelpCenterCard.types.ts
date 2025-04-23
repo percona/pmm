@@ -1,20 +1,19 @@
-export interface CardButton {
+export interface HelpCardButton {
   text: string;
-  target: string;
-  url: string;
-  startIconName: string;
+  target?: string;
+  url?: string;
+  startIconName?: string;
 }
 
-export interface CardType {
+export interface HelpCardType {
   id: string;
   title: string;
   description: string;
-  buttons: Array<CardButton>;
+  buttons: HelpCardButton[];
   adminOnly: boolean;
   borderColor?: string;
 }
 
 export interface HelpCenterCardProps {
-  card: CardType;
-  shouldDisplayCard: (adminOnly: boolean) => boolean;
+  card: HelpCardType;
 }
