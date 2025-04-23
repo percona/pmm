@@ -8,20 +8,7 @@ An overview of the infrastructure can be seen in the diagram below. PMM monitors
 
 ## Use case 1 - Simple selectors
 
-This use case demonstrates the following scenario:
-
-**Roles**
-
-- Admin
-- DBA
-- QA
-
-**Labels**
-
-- environment: **prod**, **qa**
-- region: **us-east**, **emea**
-
-The diagram below shows several roles within a company structure that have access to data in PMM, with their access control enforced as follows:
+This use case demonstrates a scenario with three different roles within an organization that have access to data in PMM. The access control for each role is enforced as follows:
 
 - Admin role: access to all metrics, in both **prod** and **qa** environments and in both regions
 - DBA role: access to metrics within **prod** environment in both regions
@@ -42,7 +29,6 @@ The diagram below shows several roles within a company structure that have acces
 ## Use case 2 - Compound selectors
 
 This use case is a modification of the prior scenario, where the labels selectors are compound to provide a more granular access. In particular, both the **DBA** and **QA** roles now have access to one specific region each.
-
 
 - Admin role: access to all metrics, in both **prod** and **qa** environments and in both regions
 - DBA role: access to metrics within **prod** environment and in **emea** region only
