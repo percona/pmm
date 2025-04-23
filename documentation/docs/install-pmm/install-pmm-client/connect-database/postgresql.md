@@ -31,10 +31,6 @@ PMM follows [PostgreSQL's end-of-life policy][POSTGRESQL_VERSIONING]. For specif
 
 ## Create a database account for PMM
 
-PMM requires a dedicated database account with appropriate permissions to collect metrics effectively. 
-
-## Create a database account for PMM
-
 PMM requires a dedicated database account with appropriate permissions to collect metrics effectively. We recommend creating a PMM database account that can connect to the postgres database with the SUPERUSER role.
 
 === "Standard PostgreSQL"
@@ -149,7 +145,7 @@ To configure the extension:
 
 2. Restart the database server. After the restart, the extension starts capturing statistics from every database.
 
-3. Install the extension. 
+3. Install the extension:
 
     ```sh
     psql postgres postgres -c "CREATE EXTENSION pg_stat_statements SCHEMA public"
@@ -281,8 +277,8 @@ To add the service from the user interface:
 
 For TLS connection to work SSL needs to be configured in your PostgreSQL instance. Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. See PostgreSQL documentation on [Secure TCP/IP Connections with SSL].
 
-=== "Using Command Line"
-    === "Basic Setup"
+=== "Using the command line"
+    === "Basic setup"
 
         Add an instance with default node name:
         
@@ -296,7 +292,7 @@ For TLS connection to work SSL needs to be configured in your PostgreSQL instanc
         
         The service name will be automatically generated based on the node name.
 
-    === "Custom Service Name"
+    === "Custom service name"
 
         Add an instance with a specified service name:
         
@@ -309,7 +305,7 @@ For TLS connection to work SSL needs to be configured in your PostgreSQL instanc
         --service-name=SERVICE-NAME
         ```
 
-    === "UNIX Socket Connection"
+    === "UNIX socket connection"
 
         Add an instance using a UNIX socket:
         
@@ -320,7 +316,7 @@ For TLS connection to work SSL needs to be configured in your PostgreSQL instanc
         Where:
         - `/var/run/postgresql`: Directory containing the socket
 
-    === "TLS Connection"
+    === "TLS connection"
 
         Add an instance with TLS security:
         
@@ -344,7 +340,6 @@ For TLS connection to work SSL needs to be configured in your PostgreSQL instanc
         - `USER`: Database user allowed to connect via TLS (should match the CN in the client certificate)
         - `SERVICE-NAME`: Name to give to the service within PMM
 
-
 ### Auto-discovery configuration
 
 Auto-discovery dynamically identifies all databases in your PostgreSQL instance. This feature helps balance comprehensive monitoring with resource efficiency.
@@ -356,6 +351,7 @@ Auto-discovery dynamically identifies all databases in your PostgreSQL instance.
     - **Low limits** may result in missing metrics from non-primary databases
 
 === "UI configuration"
+
 By default, **Auto-discovery** is enabled with a server-defined limit of 10 databases.
 
 ![Auto-discovery Enabled](../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_enabled.png)
@@ -433,41 +429,14 @@ where:
 - `USER`: Database user allowed to connect via TLS. Should match the common name (CN) used in the client certificate.
 - `SERVICE`: Name to give to the service within PMM.
 
-#### Automatic discovery limit via CLI
-
-The `pmm-admin` flag limits Auto-discovery:
-
-`--auto-discovery-limit=XXX`
-
-- If number of databases > Auto-discovery limit, then auto discovery is **OFF**
-- If number of databases <= Auto-discovery limit, then auto discovery is **ON**
-- If the Auto-discovery limit is not defined, it takes the default value, which is 0 (server defined with limit 10), and Auto-discovery is **ON**(if you do not have more than 10 databases).
-- If Auto-discovery limit < 0 then auto discovery is **OFF**.
-
-??? info "Example"
-
-    If you set the limit to 10 and your PostgreSQL instance has 11 databases, automatic discovery will be disabled.
-
-    `pmm-admin add postgresql --username="pmm-agent" --password="pmm-agent-password" --auto-discovery-limit=10`
-
-
-## Check the service
-
-### Check service - PMM user interface
-
-To check the service from the PMM UI:
-{.power-number}
-
-1. Select :material-cog: **Configuration** → :material-clipboard-list-outline: **Inventory**.
-2. In the **Services** tab, verify the **Service name**, **Address** and any other relevant details.
-3. In the **Options** column, expand the **Details** section and check that the Agents are using the desired data source.
-
 ## Check the service
 After adding a PostgreSQL service, verify that it's properly connected and sending data to PMM.
 
 === "Using the PMM user interface"
+Use the UI to confirm that your service was added and is actively monitored:
+{.power-number}
 
-1. Select **Configuration → Inventory**
+1. Select **Configuration > Inventory**
 
 2. In the **Services** tab, verify:
    - **Service name** matches what you configured
@@ -490,6 +459,8 @@ pmm-admin inventory list services
 Look for your PostgreSQL service in the output and verify that its status is "RUNNING".
 
 === "Check the dashboard data"
+Ensure PostgreSQL metrics are flowing and visualized correctly.
+{.power-number}
 
 1. Open the **PostgreSQL Instance Summary** dashboard
 

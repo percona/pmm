@@ -1,6 +1,6 @@
 # Connect Azure instance
 
-!!! caution alert alert-warning "Caution"
+!!! caution alert alert-warning "Technical Preview"
     Microsoft Azure functionality is currently in [technical preview](../../../reference/glossary.md#technical-preview) and is subject to change.
 
 ## Activate Microsoft Azure
@@ -12,13 +12,15 @@ The Microsoft Azure feature is turned off by default. To turn it on:
 
 2. Click the <i class="uil uil-toggle-off"></i> toggle in the **Technical preview features** section of the page.
 
-## Required settings
+## Prerequisites
 
-It is possible to use PMM for monitoring [Azure](https://azure.microsoft.com) database instances like other remote instances. In this case, the PMM Client is not installed on the host where the database server is deployed. By using the PMM web interface, you connect to the Azure DB instance. Discovery is not yet implemented in PMM but it is possible to add known instances by providing the connection parameters.
+PMM can monitor [Azure](https://azure.microsoft.com) database instances similar to other remote instances. In this case, the PMM Client is not installed on the host where the database server is deployed. 
 
-First of all, ensure that there is the minimal latency between PMM Server and the Azure instance.
+By using the PMM web interface, you connect to the Azure DB instance. Discovery is not yet implemented in PMM but it is possible to add known instances by providing the connection parameters.
+{.power-number}
 
-Second, add a firewall rule to enable access from PMM Client like this:
+1. Minimize network latency between PMM Server and the Azure instance.
+2. Configure firewall rules to allow PMM Server access to your Azure database:
 
 ![!image](../../../images/azure-firewall.png)
 
