@@ -31,8 +31,9 @@ The diagram below shows several roles within a company structure that have acces
     ![PMM Access Control - Roles](../../../images/lbac/pmm-lbac-query-metrics-1.jpg)
 
 **Acess summary**
-| **Role**  | **Label selectors** | **Accessible metrics** |
-|-----------|------------------------------|-----------------------|
+
+| **Role**  | **Label selectors**  | **Accessible metrics** |
+|-----------|----------------------|-----------------------|
 | **Admin** | environment=~prod|qa | The metrics in "prod" and "qa" environments in all regions will be accessible.|
 | **DBA**   | environment=prod AND region=emea| The metrics in "prod" environment in all regions will be accessible.|
 | **QA**    | environment=qa, region=us-east | The metrics in "qa" environment in all regions will be accessible.|
@@ -52,8 +53,9 @@ This use case is a modification of the prior scenario, where the labels selector
 
 
 **Acess summary**
-| **Role**  | **Label selectors** | **Accessible metrics** |
-|-----------|------------------------------|-----------------------|
+
+| **Role**  | **Label selectors**  | **Accessible metrics** |
+|-----------|----------------------|-----------------------|
 | **Admin** | environment=~prod|qa | The metrics in "prod" and "qa" environments in all regions will be accessible.|
 | **DBA**   | environment=prod AND region=emea| The metrics for "emea" region in "prod" environment will be accessible.|
 | **QA**    | environment=qa, region=us-east | The metrics for "us-east" region in "qa" environment will be accessible.|
