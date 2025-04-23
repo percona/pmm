@@ -97,22 +97,11 @@ If you prefer to download and install the packages manually without configuring 
         dnf localinstall *.rpm
         ```
 
-## Download page links
-Here are the download page links for each supported platform:
+## Related topics
 
-=== "Red Hat / CentOS / Oracle Linux"
-    - [Red Hat/CentOS/Oracle Linux 9](https://www.percona.com/downloads/pmm3/{{release}}/binary/redhat/9/)
-    - [Red Hat/CentOS/Oracle Linux 8](https://www.percona.com/downloads/pmm3/{{release}}/binary/redhat/8/)
-
-=== "Debian"
-    - [Debian 12 (Bookworm)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/bookworm/)
-    - [Debian 11 (Bullseye)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/bullseye/)
-
-=== "Ubuntu"
-    - [Ubuntu 24.04 (Noble Numbat)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/noble/)
-    - [Ubuntu 22.04 (Jammy Jellyfish)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/jammy/)
-    - [Ubuntu 20.04 (Focal Fossa)](https://www.percona.com/downloads/pmm3/{{release}}/binary/debian/focal/)
-
-=== "Tarball (Generic)"
-    - [x86_64 (AMD64)](https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-x86_64.tar.gz)
-    - [ARM64 (aarch64)](https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz)
+- [Register a PMM Client](../register-client-node/index.md) 
+- [Install PMM Client using Docker](../install-pmm-client/docker.md) 
+- [Connect database services](../connect-database/index.md) 
+- [PMM Client command reference](../../use/commands/pmm-admin.md) 
+- [Upgrade PMM Client](../../upgrade/client.md) 
+- [Uninstall PMM Client](../../uninstall/client.md)

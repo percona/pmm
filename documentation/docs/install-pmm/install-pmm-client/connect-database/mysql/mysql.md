@@ -61,13 +61,13 @@ This example creates a pmm user account that has just enough access to collect m
 
 ## Choose and configure a source
 
-PMM can collect metrics from two primary sources: [Slow query log](#slow-query-log) and [Performance Schema](#performance-schema).
+PMM can collect metrics from two primary sources: [Slow query log](##slow-query-log-configuration) and [Performance Schema](#performance-schema-configuration).
 
 While you can use both at the same time we recommend using only one--there is some overlap in the data reported, and each incurs a small performance penalty.
 
 The choice depends on the version and variant of your MySQL instance, and how much detail you want to see.
 
-### Data source comparaison
+### Data source comparison
 
 Here are the benefits and drawbacks of Slow query log and Performance Schema metrics sources:
 
@@ -298,7 +298,7 @@ Before installing the plugins, ensure you have the necessary plugin files and ru
 
 Some table metrics are automatically disabled when the number of tables exceeds a default limit of 1000 tables. This prevents PMM Client from affecting the performance of your database server.
 
-The limit can be changed [when adding a service on the command line](#command-line) with the two `pmm-admin` options:
+The limit can be changed [when adding a service on the command line](#via-command-line) with the two `pmm-admin` options:
 
 | `pmm-admin` option             | Description
 |--------------------------------|--------------------------------------------------------------------------

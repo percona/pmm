@@ -126,7 +126,7 @@ For the VM to be accessible on your network, configure the network settings appr
 If you cannot connect to the VM:
     
 - For bridged networking, ensure your host's firewall allows traffic to the VM
-- For NAT with port forwarding, connect to your host's IP address with the forwarded port (e.g., https://localhost:8443)
+- For NAT with port forwarding, connect to your host's IP address with the forwarded port (e.g., `https://localhost:8443`)
 - Verify VirtualBox network settings are correctly configured
 
 ## Next steps

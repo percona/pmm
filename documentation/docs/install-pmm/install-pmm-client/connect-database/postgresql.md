@@ -15,8 +15,8 @@ These are the high-level steps for configuring PostgreSQL monitoring in PMM:
 
 1. **[Prerequisites](#before-you-start)**: Ensure PMM Server is running and PMM Client is installed
 2. **[Create PMM user](#create-a-database-account-for-pmm)**: `CREATE USER pmm WITH SUPERUSER ENCRYPTED PASSWORD 'StrongPassword'`
-3. **[Configure extension](#choose-and-configure-an-extension)**: Set up `pg_stat_statements` or `pg_stat_monitor`
-4. **[Add service](#add-service)**: Use PMM UI or command line to add the PostgreSQL instance
+3. **[Configure extension](#choose-a-monitoring-extension)**: Set up `pg_stat_statements` or `pg_stat_monitor`
+4. **[Add service](#add-service-to-pmm)**: Use PMM UI or command line to add the PostgreSQL instance
 5. **[Verify connection](#check-the-service)**: Check PMM Inventory and dashboards for data. 
 ## Before you start
 
@@ -97,8 +97,8 @@ psql postgres pmm -c "\conninfo"
 Decide which database extension to use, and configure your database server for it. 
 
 Choose:
-- [`pg_stat_statements`](#pg_stat_statements) when you need a lightweight, built-in solution with minimal overhead
-- [`pg_stat_monitor`](#pg_stat_monitor) when you need comprehensive monitoring capabilities with more detailed insights into query performance:
+- [`pg_stat_statements`](#configure-pg_stat_statements) when you need a lightweight, built-in solution with minimal overhead
+- [`pg_stat_monitor`](#configure-pg_stat_monitor) when you need comprehensive monitoring capabilities with more detailed insights into query performance:
 
 | Aspect | **pg_stat_statements** | **pg_stat_monitor** |
 |----------------|---------------------|------------------|

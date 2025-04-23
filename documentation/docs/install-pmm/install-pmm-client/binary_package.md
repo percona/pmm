@@ -203,5 +203,5 @@ Select the appropriate instructions based on your access level:
 - [Register client node](../register-client-node/index.md) 
 - [Connect databases for monitoring](connect-database/index.md)
 - [Uninstall PMM Client](../../uninstall-pmm/unregister_client.md)
-- [Docker installation option](docker.md) 
+- [Docker installation option](../install-pmm-client/docker.md) 
 - [Package manager installation](package_manager.md) 
