@@ -2,6 +2,7 @@
 
 An overview of the infrastructure can be seen in the diagram below. PMM monitors several services. The metrics that are stored in VictoriaMetrics have appropriate labels, for example, **environment** and **region**.
 
+  <!-- source: https://miro.com/app/board/uXjVPfHchvM=/ -->
   ![PMM Access Control - Metrics collection](../../../images/lbac/pmm-lbac-collect-metrics.jpg)
 
 
@@ -45,12 +46,8 @@ This use case is a modification of the prior one, it demonstrates the following 
 
 **Labels**
 
-- environment
-  - prod
-  - qa
-- region
-  - us-east
-  - emea
+- environment: **prod**, **qa**
+- region: **us-east**, **emea**
 
 The diagram below shows several roles within a company structure that have access to PMM, as well as the permissions they should be granted:
 
