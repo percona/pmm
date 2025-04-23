@@ -10,7 +10,7 @@ export const HelpCenter: FC = () => {
   const { user } = useUser();
 
   const cards = CARDS_DATA.filter(
-    (card) => !(!user?.isPMMAdmin && card.adminOnly)
+    (card) => user?.isPMMAdmin || !card.adminOnly
   );
 
   return (

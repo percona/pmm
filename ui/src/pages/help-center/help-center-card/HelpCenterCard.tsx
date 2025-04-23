@@ -60,9 +60,9 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
     >
       <CardContent sx={{ px: 2 }}>
         <Stack
-          flexDirection={'row'}
-          justifyContent={'flex-start'}
-          alignItems={'center'}
+          flexDirection="row"
+          justifyContent="flex-start"
+          alignItems="center"
           marginBottom={1}
         >
           {getIcon(id)}
@@ -72,7 +72,7 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
         </Stack>
 
         <Typography>{description}</Typography>
-        <Stack paddingTop={2} flexDirection={'row'}>
+        <Stack paddingTop={2} flexDirection="row">
           {buttons.map((button) => (
             <Button
               key={button.url}
