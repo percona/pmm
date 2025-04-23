@@ -22,17 +22,9 @@ Both standard and custom labels are persisted during the metrics collection proc
 | **Standard**  | Service   | service_type    | mysql, mongodb, postgresql etc.      |
 | **Custom**    | Node, Service, Agent | Any string matching the regular expression: <br /> [a-zA-Z_][a-zA-Z0-9_]*. <br /> Also, it cannot start with two underscores.| owner="joe"<br/> _rack="12345"|
 
-## Assigning labels
+## Adding labels
 
-You can assign standard or custom labels while adding a service to monitoring in PMM.
-
-## Modifying labels
-
-Currently, PMM does not support modifying standard labels. To modify a standard label, you first need to remove the service and re-add it with a new set of standard labels.
-
-However, you can modify custom labels of a service via an [API endpoint](https://percona-pmm.readme.io/reference/changeservice).
-
-```bash
+You can add standard or custom labels while adding a service to monitoring in PMM.
 
 ### Using PMM UI
 
@@ -53,4 +45,11 @@ To set the labels via the user interface:
 
 ### Using pmm-admin
 
-You can also assign standard and custom labels using [pmm-admin](../../../use/commands/pmm-admin.md).
+You can also add standard and custom labels using [pmm-admin](../../../use/commands/pmm-admin.md).
+
+
+## Modifying labels
+
+Currently, PMM does not support modifying standard labels. To modify a standard label, you first need to remove the service and re-add it with a new set of standard labels.
+
+However, you can modify custom labels of a service via an [API endpoint](https://percona-pmm.readme.io/reference/changeservice).
