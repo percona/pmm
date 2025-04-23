@@ -1,6 +1,8 @@
 # Optimize MySQL monitoring performance in PMM
 
-When monitoring MySQL instances with a large number of tables, PMM's data collection can impact both client and database performance. Here are a few optimization options to ensure efficient monitoring without overloading your systems.
+When monitoring MySQL instances with a large number of tables, PMM's data collection can impact both client and database performance. 
+
+Here are a few optimization options to ensure efficient monitoring without overloading your systems.
 
 ## Options for table statistics optimization
 
@@ -31,10 +33,9 @@ This command configures PMM to:
 - significantly reduce the monitoring load when you have more than 1000 tables
 
 ##  Set a custom table limit
-For more precise control, you can specify a custom limit for when table statistics should be disabled:
+For more precise control, you can specify a custom limit for when table statistics should be disabled.
 
-
-# Change the number of tables
+### Change the number of tables
 
 When adding an instance with `pmm-admin add`, the `--disable-tablestats-limit` option changes the number of tables (from the default of 1000) beyond which per-table statistics collection is disabled:
 
@@ -48,18 +49,18 @@ This command configures PMM to:
 - automatically disable table statistics when the number of tables exceeds 2000
 - continue collecting all other MySQL metrics normally
 
-## Best practices for performance optimization
+### Best practices for performance optimization
 
-To finding the right balance:
+To find the right balance between visibility and performance:
 
 - If you have more than 1000 tables, begin with `--disable-tablestats` to start conservative
-- Check CPU, memory, and network usage on the client to monitor PMM Client resource usage.
-- Watch for increased load during monitoring intervals to monitor MySQL load. 
-- If resources permit, you can try enabling table statistics with a higher limit and adjust incrementally.
+- Check CPU, memory, and network usage on the client to monitor PMM Client resource usage
+- Watch for increased load during monitoring intervals to monitor MySQL load
+- If resources permit, you can try enabling table statistics with a higher limit and adjust incrementally
 
 Additional performance considerations: 
 
-- For high-traffic MySQL servers, consider using query sampling with the slow log. For details, see  [MySQL data source configuration](../mysql/mysql.md#slow-query-log-configuration).
+- For high-traffic MySQL servers, consider using query sampling with the slow log. For details, see  [MySQL data source configuration](../mysql/mysql.md#slow-query-log-configuration)
 - Adjust metrics collection frequency for remote instances.  For details, see [Remote instances monitoring](../remote.md#recommended-settings)
 - Ensure PMM Client has adequate CPU and memory resources on busy database servers
 
@@ -88,7 +89,7 @@ pmm-admin add mysql --disable-tablestats-limit=3000 [OTHER_OPTIONS] SERVICE_NAME
 | Large MySQL (1000–5000 tables)| High impact                | Significant performance improvement      |
 | Very large MySQL (> 5000 tables)| Severe impact            | **Strongly recommended**                 |
 
-## Related Topics
+## Related topics
 
 - [MySQL connection options](../mysql/mysql.md)
 - [Performance Schema vs. Slow Query Log](../mysql/mysql.md#performance-schema-configuration)

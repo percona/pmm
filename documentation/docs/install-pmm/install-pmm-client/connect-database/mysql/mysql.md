@@ -1,6 +1,6 @@
 # Connect MySQL databases to PMM
 
-This guide explains how to connect MySQL databases to Percona Monitoring and Management (PMM), whether your database is self-hosted or running on an AWS EC2 instance.
+Easily connect your MySQL databases—whether self-hosted or running on AWS EC2—to Percona Monitoring and Management (PMM) for in-depth performance insights.
 
 PMM Client supports collecting metrics from various MySQL-based database systems:
 
@@ -11,10 +11,10 @@ PMM Client supports collecting metrics from various MySQL-based database systems
 
 For monitoring Amazon RDS MySQL instances, see [Connect Amazon RDS instance](../aws.md).
 
-??? info "Summary: MySQL monitoring"
+??? info "Setup process at a glance"
     These are the high-level steps for configuring MySQL monitoring in PMM:
     {.power-number}
-    
+
     1. **[Prerequisites](#prerequisites)**: Ensure PMM Server is running and PMM Client is installed
     2. **[Create PMM user](#creating-a-dedicated-pmm-user)**: `CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'StrongPassword'`  
     3. **[Grant permissions](#creating-a-dedicated-pmm-user)**: `GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost'`

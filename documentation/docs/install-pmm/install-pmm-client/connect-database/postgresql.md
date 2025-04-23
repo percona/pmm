@@ -1,18 +1,23 @@
-# Connect PostgreSQL instance
+# Connect PostgreSQL databases to PMM
 
-How to set up PMM to monitor a [PostgreSQL] or [Percona Distribution for PostgreSQL] database instance.
+Connect your PostgreSQL databases—whether self-hosted or running in the cloud—to Percona Monitoring and Management (PMM) for comprehensive performance monitoring and analysis.
 
+PMM Client supports collecting metrics from PostgreSQL-based database systems:
 
-??? info "Summary"
+- [PostgreSQL][PostgreSQL]
+- [Percona Distribution for PostgreSQL][Percona Distribution for PostgreSQL]
 
-    !!! summary alert alert-info ""
-        - [Create PMM account and set permissions.](#create-a-database-account-for-pmm)
-        - [Choose, install and configure an extension](#choose-and-configure-an-extension):
-            - [`pg_stat_statements`](#pg_stat_statements), or,
-            - [`pg_stat_monitor`](#pg_stat_monitor).
-        - [Add service.](#add-service)
-        - [Check the service](#check-the-service).
+For monitoring Amazon RDS PostgreSQL instances, see [Connect Amazon RDS instance](../connect-database/aws.md).
 
+??? info "Setup process at a glance"
+These are the high-level steps for configuring PostgreSQL monitoring in PMM:
+{.power-number}
+
+1. **[Prerequisites](#before-you-start)**: Ensure PMM Server is running and PMM Client is installed
+2. **[Create PMM user](#create-a-database-account-for-pmm)**: `CREATE USER pmm WITH SUPERUSER ENCRYPTED PASSWORD 'StrongPassword'`
+3. **[Configure extension](#choose-and-configure-an-extension)**: Set up `pg_stat_statements` or `pg_stat_monitor`
+4. **[Add service](#add-service)**: Use PMM UI or command line to add the PostgreSQL instance
+5. **[Verify connection](#check-the-service)**: Check PMM Inventory and dashboards for data. 
 ## Before you start
 
 Check that:
@@ -22,108 +27,113 @@ Check that:
 - You have superuser (root) access on the client host.
 - You have superuser access to any database servers that you want to monitor.
 
-(PMM follows [PostgreSQL's end-of-life policy][POSTGRESQL_VERSIONING]. For specific details on supported platforms and versions, see [Percona’s Software Platform Lifecycle page][PERCONA_LIFECYCLE].)
+PMM follows [PostgreSQL's end-of-life policy][POSTGRESQL_VERSIONING]. For specific details on supported platforms and versions, see [Percona's Software Platform Lifecycle page][PERCONA_LIFECYCLE].
 
 ## Create a database account for PMM
 
-We recommend creating a PMM database account that can connect to the `postgres` database with the `SUPERUSER` role.
+PMM requires a dedicated database account with appropriate permissions to collect metrics effectively. 
+
+## Create a database account for PMM
+
+PMM requires a dedicated database account with appropriate permissions to collect metrics effectively. We recommend creating a PMM database account that can connect to the postgres database with the SUPERUSER role.
+
+=== "Standard PostgreSQL"
+    To create a user with the SUPERUSER role:
+    {.power-number}
+    
+    1. Create a user with SUPERUSER role:
+    
+       ```sql
+       CREATE USER pmm WITH SUPERUSER ENCRYPTED PASSWORD 'strong_password';
+       ```
+    
+    2. Edit the `pg_hba.conf` file to enable local login:
+    
+       ```conf
+       local   all             pmm                                md5
+       # TYPE  DATABASE        USER        ADDRESS                METHOD
+       ```
+
+=== "Amazon RDS/Aurora PostgreSQL"
+    For RDS instances where SUPERUSER cannot be assigned directly:
+    {.power-number}
+    
+    1. Create the user:
+    
+       ```sql
+       CREATE USER pmm WITH ENCRYPTED PASSWORD 'strong_password';
+       ```
+    
+    2. Grant the `rds_superuser`role:
+    
+       ```sql
+       GRANT rds_superuser TO pmm;
+       ```
+    
+    3. Optionally, set a connection limit (only if the user is not a SUPERUSER):
+    
+       ```sql
+       ALTER USER pmm CONNECTION LIMIT 10;
+       ```
+
+### Configure authentication
+
+After creating the database user, complete the configuration:
 {.power-number}
 
-1. Create a user. This example uses `pmm`. (Replace `******` with a strong password of your choice.)
+1. Reload the PostgreSQL configuration:
 
-    ```sql
-    CREATE USER pmm WITH SUPERUSER ENCRYPTED PASSWORD '******';
-    ```
+```sh
+su - postgres
+psql -c "select pg_reload_conf()"
+```
 
-    If your database runs on Amazon RDS / Aurora PostgreSQL, The SUPERUSER cannot be assigned.  
-    So we have to create the user first and then grant the `rds_superuser` role to it.
+2. Verify the PMM user can connect locally:
+``` sh
+psql postgres pmm -c "\conninfo"
+```
 
-    ```sql
-    CREATE USER pmm WITH ENCRYPTED PASSWORD '******';
-    GRANT rds_superuser TO pmm;
-    ```
-    Optionally, you can also set up a connection limit (only if the user is not a SUPERUSER):
+3. Enter the password for the pmm user when prompted:
 
-    ```sql
-    ALTER USER pmm CONNECTION LIMIT 10;
-    ```
+## Choose a monitoring extension
 
-2. PMM must be able to log in locally as this user to the PostgreSQL instance. To enable this, edit the `pg_hba.conf` file. If not already enabled by an existing rule, add:
+### PostgreSQL monitoring extensions comparison
+Decide which database extension to use, and configure your database server for it. 
 
-    ```conf
-    local   all             pmm                                md5
-    # TYPE  DATABASE        USER        ADDRESS                METHOD
-    ```
+Choose:
+- [`pg_stat_statements`](#pg_stat_statements) when you need a lightweight, built-in solution with minimal overhead
+- [`pg_stat_monitor`](#pg_stat_monitor) when you need comprehensive monitoring capabilities with more detailed insights into query performance:
 
-    (Ignore the second line. It is a comment to show field alignment.)
+| Aspect | **pg_stat_statements** | **pg_stat_monitor** |
+|----------------|---------------------|------------------|
+| **Origin & packaging** | • Official PostgreSQL extension<br>• Part of `postgresql-contrib` package on Linux | • Developed by Percona<br>• Requires separate installation |
+| **Key features** | ✔ Basic query statistics<br>✔ Simple aggregation<br>✔ Minimal overhead<br>✔ Query timing and execution counts | ✔ Enhanced metrics collection<br>✔ Bucket-based aggregation<br>✔ Query examples<br>✔ Histogram data<br>✔ Includes all pg_stat_statements features |
+| **Best for** | ✔ Development environments<br>✔ Simple monitoring needs<br>✔ Resource-constrained servers | ✔ Production environments<br>✔ Detailed query analysis<br>✔ Performance tuning |
+| **Installation complexity** | ⚠ Low | ⚠ Medium |
+| **Benefits** | • Part of official PostgreSQL<br>• Minimal overhead<br>• Simple to set up and use | • Builds on pg_stat_statements features<br>• Bucket-based time-series analysis<br>• Query examples for troubleshooting<br>• More accurate performance data |
+| **Drawbacks** | • No aggregated statistics or histograms<br>• No Query Examples<br>• Limited metrics collection | • Slightly higher resource overhead<br>• Requires separate installation<br>• More complex configuration |
 
-3. Reload the configuration:
+For a more detailed comparison of extensions, see the [pg_stat_monitor documentation](https://docs.percona.com/pg-stat-monitor/user_guide.html).
 
-    ```sh
-    su - postgres
-    psql -c "select pg_reload_conf()"
-    ```
+### Configure `pg_stat_statements`
 
-4. Check local login.
+#### Installation
 
-    ```sh
-    psql postgres pmm -c "\conninfo"
-    ```
-
-5. Enter the password for the `pmm` user when prompted.
-
-## Choose and configure an extension
-
-Decide which database extension to use, and configure your database server for it. The choices are:
-{.power-number}
-
-1. [`pg_stat_statements`](#pg_stat_statements), the original extension created by PostgreSQL, part of the `postgresql-contrib` package available on Linux.
-
-2. [`pg_stat_monitor`](#pg_stat_monitor) is a new extension created by Percona. `pg_stat_monitor` has all the features of `pg_stat_statements` but adds *bucket-based data aggregation*, provides more accurate data, and can expose Query Examples.
-
-Here are the benefits and drawbacks of each.
-
-|                      | <i class="uil uil-thumbs-up"></i> Benefits     | <i class="uil uil-thumbs-down"></i> Drawbacks
-|----------------------|------------------------------------------------|---------------------------------------------------
-| `pg_stat_statements` | 1. Part of official `postgresql-contrib` package. | 1. No aggregated statistics or histograms.<br>2. No Query Examples.
-| `pg_stat_monitor`    | 1. Builds on `pg_stat_monitor` features.<br>2. Bucket-based aggregation. | 
-
-For a more detailed comparison of extensions, follow [pg_stat monitor User Guide](https://docs.percona.com/pg-stat-monitor/user_guide.html)
-
-!!! note alert alert-primary "Bucket-based data aggregation"
-    `pg_stat_monitor` collects statistics and aggregates data in a data collection unit called a *bucket*. These are linked together to form a *bucket chain*.
-
-    You can specify:
-
-    - the number of buckets (the length of the chain);
-    - how much space is available for all buckets;
-    - a time limit for each bucket's data collection (the *bucket expiry*).
-
-    When a bucket's expiration time is reached, accumulated statistics are reset and data is stored in the next available bucket in the chain.
-
-    When all buckets in the chain have been used, the first bucket is reused and its contents are overwritten.
-
-    If a bucket fills before its expiration time is reached, data is discarded.
-
-### `pg_stat_statements`
-
-#### Install
-
-- Debian/Ubuntu
+- For Debian/Ubuntu:
 
     !!! hint "Root permissions"
         ```sh
         apt install -y postgresql-contrib
         ```
 
-- Red Hat/CentOS
+- For Red Hat/CentOS:
 
     !!! hint "Root permissions"
         ```sh
         yum install -y postgresql-contrib
         ```
 
-#### Configure
+#### Configuration
 
 To configure the extension:
 {.power-number}
@@ -152,100 +162,112 @@ To configure the extension:
 
 You can now [add the service](#add-service).
 
-### `pg_stat_monitor`
+### Configure `pg_stat_monitor`
+
+#### Compatible versions 
 
 `pg_stat_monitor` has been tested with:
 
-- PostgreSQL versions 11, 12, 13, 14, 15.
-- Percona Distribution for PostgreSQL versions 11, 12, 13, 14, 15.
+- PostgreSQL versions 11, 12, 13, 14, 15
+- Percona Distribution for PostgreSQL versions 11, 12, 13, 14, 15
 
-#### Install
+#### Installation
 
-To install the extension:
+- With Percona Distribution for PostgreSQL: Install via your Linux package manager. See [Installing Percona Distribution for PostgreSQL][PERCONA_POSTGRESQL_INSTALL].
+- With standard PostgreSQL: Download and compile from source code. See [Installing `pg_stat_monitor`][PG_STAT_MONITOR_INSTALL].
+
+#### Configuration
+
+To configure `pg_stat_monitor`effectively:
 {.power-number}
 
-- If you use *Percona Distribution for PostgreSQL*, you can install the extension with your Linux package manager. See [Installing Percona Distribution for PostgreSQL][PERCONA_POSTGRESQL_INSTALL].
-
-- If you use *PostgreSQL* you can install by downloading and compiling the source code. See [Installing `pg_stat_monitor`][PG_STAT_MONITOR_INSTALL].
-
-#### Configure
-
-To configure the extension:
-{.power-number}
-
-1. Set or change the value for `shared_preload_library`.
-
-    In your `postgresql.conf` file:
+1. Add pg_stat_monitor to `shared_preload_library` in `postgresql.conf` file:
 
     ```ini
     shared_preload_libraries = 'pg_stat_monitor'
     ```
 
-    !!! caution alert alert-warning
-        If you use both `pg_stat_statements` and `pg_stat_monitor`, set ``pg_stat_monitor`` **after** `pg_stat_statements`:
+    If you use both `pg_stat_statements` and `pg_stat_monitor` list `pg_stat_statements` first:
 
         ```ini
         shared_preload_libraries = 'pg_stat_statements, pg_stat_monitor'
         ```
 
-2. Set configuration values.
-
-    In your `postgresql.conf` file:
+2. Configure query tracking parameters in your `postgresql.conf` file:
     ```ini
     pg_stat_monitor.pgsm_query_max_len = 2048
     ```
 
-    !!! caution alert alert-warning
+    !!! caution "Parameter effects"
         It is important to set maximal length of query to 2048 characters or more for PMM to work properly.
 
-    You can get a list of other available settings with `SELECT * FROM pg_stat_monitor_settings;`.
-
-    Other important parameters are:
+    You can configure additional parameters to enhance monitoring capabilities:
+    
     ```ini
-    pg_stat_monitor.pgsm_normalized_query
-    ```
-    and
-    ```ini
-    pg_stat_monitor.pgsm_enable_query_plan
+    # Replace query values with placeholders (recommended)
+    pg_stat_monitor.pgsm_normalized_query = 1
+    
+    # Enable query plan capture
+    pg_stat_monitor.pgsm_enable_query_plan = 1
     ```
 
     If the value for `pg_stat_monitor.pgsm_normalized_query` is set to 1, the actual query values are replaced by placeholders. If the value is 0, the examples are given in QAN. Examples can be found in QAN details tab example.
     
     If `pg_stat_monitor.pgsm_enable_query_plan` is enabled, the query plans are captured and will be available in the `Plan` tab on the Query Analytics dashboard.
 
-    !!! note alert alert-primary ""
-        See [`pg_stat_monitor` online documentation](https://docs.percona.com/pg-stat-monitor/configuration.html) for details about available parameters.
+    !!! tip "Additional settings"
+        View all available settings with:
+        ```sql
+        SELECT * FROM pg_stat_monitor_settings;
+        ```
+        
+    For complete parameter documentation, see the [`pg_stat_monitor` online documentation](https://docs.percona.com/pg-stat-monitor/configuration.html).
 
-3. Start or restart your PostgreSQL instance. The extension starts capturing statistics from every database.
+3. Restart your PostgreSQL instance to activate the extension.
 
-4. In a `psql` session:
+4. Create the extension in a psql session to create the necessary views that allow you to access the collected statistics:
 
     ```sql
-    CREATE EXTENSION pg_stat_monitor;
-    ```
-    
-    This command creates the view where you can access the collected statistics.
+    psql -d postgres -c "CREATE EXTENSION pg_stat_monitor;"
+     ```
 
-    !!! note alert alert-primary ""
-        We recommend that you create the extension for the `postgres` database. In this case, you receive the access to the statistics, collected from every database.
+    !!! note "Best practice"
+    Create the extension in the postgres database to access statistics collected from all databases in your instance. This provides comprehensive monitoring without needing to enable the extension in each individual database.
 
-
-5. Check the version.
+5. Verify the extension installation:
 
     ```sql
     SELECT pg_stat_monitor_version();
     ```
 
-## Add service
+### Bucket-based data aggregation in `pg_stat_monitor`
 
-When you have configured your database server, you can add a PostgreSQL service with the user interface or on the command line.
+`pg_stat_monitor` collects and aggregates PostgreSQL statistics using a data structure called a bucket. Multiple buckets are linked together to form a bucket chain.
 
-### With the user interface
+Each bucket:
 
-To add the service With the user interface:
+- collects data for a specific time period
+- has a defined memory allocation
+- stores aggregated statistics until expiration or overflow
+
+#### Bucket lifecycle
+
+When a bucket's expiration time is reached, accumulated statistics are reset and data is stored in the next available bucket in the chain.
+
+When all buckets in the chain have been used, the first bucket is reused and its contents are overwritten.
+
+If a bucket fills before its expiration time is reached, data is discarded.
+
+## Add service to PMM
+
+After configuring your database server with the appropriate extension, you need to add it as a service to PMM. You can do this either through the PMM user interface or via the command line.
+
+=== "Using the PMM user interface"
+
+To add the service from the user interface:
 {.power-number}
 
-1. Go to  **PMM Configuration  > Add Service > PostgreSQL**.
+1. Go to  **PMM Configuration > Add Service > PostgreSQL**.
 
 2. Enter or select values for the fields.
 
@@ -253,39 +275,101 @@ To add the service With the user interface:
 
 ![!](../../../images/PMM_Add_Instance_PostgreSQL.jpg)
 
-If your PostgreSQL instance is configured to use TLS, click on the *Use TLS for database connections* check box and fill in your TLS certificates and key.
+4. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.
 
 ![!](../../../images/PMM_Add_Instance_PostgreSQL_TLS.jpg)
 
-!!! hint alert alert-success "Note"
-    For TLS connection to work SSL needs to be configured in your PostgreSQL instance. Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. (See PostgreSQL documentation on [Secure TCP/IP Connections with SSL].)
+For TLS connection to work SSL needs to be configured in your PostgreSQL instance. Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. See PostgreSQL documentation on [Secure TCP/IP Connections with SSL].
 
-### Auto-discovery limit
+=== "Using Command Line"
+    === "Basic Setup"
 
-Limit for **Auto-discovery** in PostgreSQL is a feature that dynamically discovers all databases in your PostgreSQL instance. 
+        Add an instance with default node name:
+        
+        ```sh
+        pmm-admin add postgresql \
+        --username=pmm \
+        --password=password \
+        --server-url=https://admin:admin@X.X.X.X:443 \
+        --server-insecure-tls
+        ```
+        
+        The service name will be automatically generated based on the node name.
 
-Limiting **Auto-discovery** reduces connections and prevents high CPU and RAM usage caused by multiple databases.
+    === "Custom Service Name"
+
+        Add an instance with a specified service name:
+        
+        ```sh
+        pmm-admin add postgresql \
+        --username=pmm \
+        --password=password \
+        --server-url=https://admin:admin@X.X.X.X:443 \
+        --server-insecure-tls \
+        --service-name=SERVICE-NAME
+        ```
+
+    === "UNIX Socket Connection"
+
+        Add an instance using a UNIX socket:
+        
+        ```sh
+        pmm-admin add postgresql --socket=/var/run/postgresql
+        ```
+        
+        Where:
+        - `/var/run/postgresql`: Directory containing the socket
+
+    === "TLS Connection"
+
+        Add an instance with TLS security:
+        
+        ```sh
+        pmm-admin add postgresql --tls \
+        --tls-cert-file=PATHTOCERT \
+        --tls-ca-file=PATHTOCACERT \
+        --tls-key-file=PATHTOKEY \
+        --host=HOST \
+        --port=PORT \
+        --username=USER \
+        --service-name=SERVICE-NAME
+        ```
+        
+        Where:
+        - `PATHTOCERT`: Path to client certificate file
+        - `PATHTOCACERT`: Path to certificate authority file
+        - `PATHTOKEY`: Path to client key file
+        - `HOST`: Instance hostname or IP
+        - `PORT`: PostgreSQL service port number
+        - `USER`: Database user allowed to connect via TLS (should match the CN in the client certificate)
+        - `SERVICE-NAME`: Name to give to the service within PMM
+
+
+### Auto-discovery configuration
+
+Auto-discovery dynamically identifies all databases in your PostgreSQL instance. This feature helps balance comprehensive monitoring with resource efficiency.
 
 !!! caution alert alert-warning
     Limiting auto-discovery may result in fewer metrics being captured from the non-primary databases.  Ensure that you set the limit appropriately:
 
-    - Setting a high limit may impact performance adversely.
-    - Setting a low limit might result in some missing metrics due to Auto-discovery being disabled.
+    - **High limits** may impact performance by creating too many connections
+    - **Low limits** may result in missing metrics from non-primary databases
 
-By default, **Auto-discovery** is enabled (server defined with a limit 10). 
+=== "UI configuration"
+By default, **Auto-discovery** is enabled with a server-defined limit of 10 databases.
 
-![!](../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_enabled.png)
+![Auto-discovery Enabled](../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_enabled.png)
 
 When you select **Disabled**, the **Auto-discovery limit** will be set to `-1`.
 
-![!](../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_disabled.png)
+![Auto-discovery Disabled](../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_disabled.png)
 
-For a custom value, select **Custom** and enter or choose your preferred value from the **Auto-discovery limit** field.
+For a custom value, select **Custom** and enter your preferred limit.
 
-![!](../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_custom.png)
+![Auto-discovery Custom](../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_custom.png)
 
 
-### On the command line
+=== "Command line configuration"
 
 Add the database server as a service using one of these example commands. If successful, PMM Client will print `PostgreSQL Service added` with the service's ID and name. Use the `--environment` and `-custom-labels` options to set tags for the service to help identify them.
 
@@ -378,63 +462,98 @@ To check the service from the PMM UI:
 2. In the **Services** tab, verify the **Service name**, **Address** and any other relevant details.
 3. In the **Options** column, expand the **Details** section and check that the Agents are using the desired data source.
 
-### Check service - Command line
+## Check the service
+After adding a PostgreSQL service, verify that it's properly connected and sending data to PMM.
 
-Look for your service in the output of this command.
+=== "Using the PMM user interface"
+
+1. Select **Configuration → Inventory**
+
+2. In the **Services** tab, verify:
+   - **Service name** matches what you configured
+   - **Address** points to your PostgreSQL instance
+   - **Status** shows as "Active"
+
+3. In the **Options** column, expand the **Details** section to check that:
+   - Agents are properly registered
+   - The expected data source is being used
+
+=== "Using command line"
+Run this command to view all services:
 
 ```sh
 pmm-admin inventory list services
 ```
 
-!!! hint alert alert-success ""
-    If using Docker, use `docker exec pmm-client pmm-admin inventory list services`
+> **Note**: If using Docker, use `docker exec pmm-client pmm-admin inventory list services`
 
-### Check data
+Look for your PostgreSQL service in the output and verify that its status is "RUNNING".
 
-To check the data:
-{.power-number}
+=== "Check the dashboard data"
 
-1. Open the **PostgreSQL Instance Summary** dashboard.
+1. Open the **PostgreSQL Instance Summary** dashboard
 
-2. Set the **Service Name** to the newly-added service.
+2. Select your service name from the dropdown
+
+3. Verify that metrics are being displayed
+
+4. Check that the graphs are updating with current data
 
 ### Running custom queries
+The PostgreSQL exporter can execute custom queries to collect additional metrics beyond what PMM provides by default.
 
-The PostgreSQL exporter can run custom queries to add new metrics not provided by default.  
-Those custom queries must be defined in the `/usr/local/percona/pmm/collectors/custom-queries/postgresql` in the same host where the exporter is
-running. There are 3 directories inside it:
-    - high-resolution/   - every 5 seconds
-    - medium-resolution/ - every 10 seconds
-    - low-resolution/ - every 60 seconds
-
-Depending on the desired resolution for your custom queries, you can place a file with the queries definition.
-The file is a yaml where each query can have these fields:
-
-```yml
-query_name:
-   query: the query definition
-   master: boolean to specify if the query should be executed only in the master
-   metrics:
-     - metric name:
-         usage: GAUGE, LABEL, COUNTER, MAPPEDMETRIC or DURATION
-         description: a human readable description
+=== "Configuration basics"
+Custom queries must be defined in this directory on the host where the exporter is running:
+```
+/usr/local/percona/pmm/collectors/custom-queries/postgresql
 ```
 
-??? info "Example"
+Three resolution directories are available:
 
-    ```yml
-    pg_postmaster_uptime:
-    query: "select extract(epoch from current_timestamp - pg_postmaster_start_time()) as seconds"
-    master: true
-    metrics:
-        - seconds:
-            usage: "GAUGE"
-            description: "Service uptime"
-    ```
+| Directory | Execution Frequency |
+|-----------|---------------------|
+| `high-resolution/`   | Every 5 seconds  |
+| `medium-resolution/` | Every 10 seconds |
+| `low-resolution/`    | Every 60 seconds |
 
-Check the see also section for a more detailed description on MySQL custom queries with more examples about how to use custom queries in dashboards.
+Choose the appropriate directory based on how frequently you need the data.
 
-!!! seealso alert alert-info "See also"
+=== "Query definition format"
+Create YAML files in the appropriate resolution directory with this structure:
+
+```yaml
+query_name:
+  query: "SELECT statement goes here"
+  master: true|false  # Whether to run only on the master
+  metrics:
+    - metric_name:
+        usage: "GAUGE|COUNTER|LABEL|MAPPEDMETRIC|DURATION"
+        description: "Human-readable description of the metric"
+```
+
+**Example**:
+
+```yaml
+pg_postmaster_uptime:
+  query: "select extract(epoch from current_timestamp - pg_postmaster_start_time()) as seconds"
+  master: true
+  metrics:
+    - seconds:
+        usage: "GAUGE"
+        description: "PostgreSQL service uptime in seconds"
+```
+
+=== "Metric types"
+| Metric Type | Description | Use Case |
+|-------------|-------------|----------|
+| `GAUGE` | A value that can go up or down | Memory usage, connection count |
+| `COUNTER` | A cumulative value that only increases | Total queries, bytes transferred |
+| `LABEL` | A string value used for labeling | Database name, table name |
+| `MAPPEDMETRIC` | Maps a query result to a numeric value | State conversion (e.g., "on"=1, "off"=0) |
+| `DURATION` | A time duration | Query execution time, lock wait time |
+
+
+## Related topics
     - [`pmm-admin` man page for `pmm-admin add postgresql`](../../../use/commands/pmm-admin.md#postgresql)
     - [Configuring Percona Repositories with percona-release][PERCONA_RELEASE]
     - [Percona Blog -- Running Custom MySQL Queries in Percona Monitoring and Management][BLOG_CUSTOM_QUERIES_MYSQL]

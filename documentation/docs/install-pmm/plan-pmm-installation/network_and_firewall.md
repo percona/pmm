@@ -11,8 +11,7 @@ Key requirements at a glance:
 
 Compatible with both x86_64 and ARM64 architectures
 Requires 100 MB storage for installation plus caching space
-Supports modern 64-bit Linux distributions
-
+Supports modern 64-bit Linux distributions.
 
 This is a list of ports used by the various components of PMM. For PMM to work correctly, your system's firewall should allow TCP traffic on these ports (UDP is not needed).
 

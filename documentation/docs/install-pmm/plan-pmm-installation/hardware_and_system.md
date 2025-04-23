@@ -43,7 +43,7 @@ Adjust storage calculations based on your data retention period and the number o
 
 ### Storage optimization
 
-To reduce storage usage, consider [disabling table statistics](../../install-pmm/install-pmm-client/connect-database/mysql/disable_table_stats.md), which can significantly decrease the size of the VictoriaMetrics database.
+To reduce storage usage, consider [disable table statistics](../install-pmm-client/connect-database/mysql/improve_perf.md#disable-table-statistics), which can significantly decrease the size of the VictoriaMetrics database.
 
 ## Architecture requirements
 
