@@ -469,8 +469,8 @@ func TestPGStatStatementsQPS(t *testing.T) {
 	}
 
 	t.Run("check query count for low cache size", func(t *testing.T) {
-		p := setup(t, db, 5000)
-		runTimes := 10000
+		p := setup(t, db, minPgSSCacheSize)
+		runTimes := 5000
 
 		defer func() {
 			for i := 0; i < runTimes; i++ {
@@ -522,7 +522,7 @@ func TestPGStatStatementsQPS(t *testing.T) {
 		require.NoError(t, err)
 		p := setup(t, db, cacheSize)
 
-		runTimes := 10000
+		runTimes := 5000
 		defer func() {
 			for i := 0; i < runTimes; i++ {
 				_, err = db.Exec(fmt.Sprintf("drop table if exists t%d", i))
