@@ -43,9 +43,9 @@ import (
 )
 
 const (
-	retainStatStatements    = 25 * time.Hour // make it work for daily queries
-	statStatementsCacheSize = 5000           // cache size rows limit
-	queryStatStatements     = time.Minute
+	retainStatStatements = 25 * time.Hour // make it work for daily queries
+	minPgSSCacheSize     = 5000           // cache size rows limit
+	queryStatStatements  = time.Minute
 )
 
 var (
@@ -77,6 +77,7 @@ type Params struct {
 }
 
 const queryTag = "agent='pgstatstatements'"
+const pgssMaxQuery = "SELECT /* " + queryTag + " */ setting FROM pg_settings WHERE name = 'pg_stat_statements.max'"
 
 // New creates new PGStatStatementsQAN QAN service.
 func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
@@ -91,11 +92,20 @@ func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	reformL := sqlmetrics.NewReform("postgres", params.AgentID, l.Tracef)
 	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
 	q := reform.NewDB(sqlDB, postgresql.Dialect, reformL).WithTag(queryTag)
-	return newPgStatStatementsQAN(q, sqlDB, params.AgentID, params.MaxQueryLength, params.DisableCommentsParsing, l)
+	// read pg_stat_statements.max parameter
+	var cacheSize uint
+	err = q.QueryRow(pgssMaxQuery).Scan(&cacheSize)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get pg_stat_statements.max")
+	}
+	if cacheSize < minPgSSCacheSize {
+		cacheSize = minPgSSCacheSize
+	}
+	return newPgStatStatementsQAN(q, sqlDB, params.AgentID, cacheSize, params.MaxQueryLength, params.DisableCommentsParsing, l)
 }
 
-func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, disableCommentsParsing bool, l *logrus.Entry) (*PGStatStatementsQAN, error) { //nolint:lll
-	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, statStatementsCacheSize, l)
+func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, cacheSize uint, maxQueryLength int32, disableCommentsParsing bool, l *logrus.Entry) (*PGStatStatementsQAN, error) { //nolint:lll
+	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, cacheSize, l)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
