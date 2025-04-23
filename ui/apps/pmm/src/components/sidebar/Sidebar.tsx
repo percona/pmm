@@ -6,7 +6,7 @@ import {
   ListItemText,
   Stack,
 } from '@mui/material';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { PmmRoundedIcon } from 'icons';
 import { Link, useLocation } from 'react-router-dom';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -21,6 +21,12 @@ export const SidebarItem: FC<{ item: NavItem }> = ({ item }) => {
   const active = isActive(item, location.pathname);
   const [open, setIsOpen] = useState(active);
   const to = useLinkWithVariables(item.url);
+
+  useEffect(() => {
+    if (active) {
+      setIsOpen(true);
+    }
+  }, [active]);
 
   if (item?.children) {
     return (

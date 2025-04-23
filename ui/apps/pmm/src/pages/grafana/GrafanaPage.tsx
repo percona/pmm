@@ -1,13 +1,16 @@
 import { Box, Stack } from '@mui/material';
 import { useGrafana } from 'contexts/grafana';
-import { PMM_BASE_PATH } from 'lib/constants';
+import { PMM_BASE_PATH, PMM_HOME_URL } from 'lib/constants';
 import { FC, useMemo } from 'react';
 
 export const GrafanaPage: FC = () => {
   const { isFrameLoaded, isOnGrafanaPage, frameRef } = useGrafana();
   const src = useMemo(
     // load specific grafana page as the first one
-    () => window.location.pathname.replace(PMM_BASE_PATH, ''),
+    () =>
+      isFrameLoaded
+        ? window.location.pathname.replace(PMM_BASE_PATH, '')
+        : PMM_HOME_URL,
     [isFrameLoaded]
   );
 

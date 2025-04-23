@@ -2,7 +2,11 @@ import {
   DashboardVariablesMessage,
   DashboardVariablesResult,
 } from '@pmm/shared';
-import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
+import {
+  GRAFANA_SUB_PATH,
+  PMM_NEW_NAV_GRAFANA_PATH,
+  PMM_NEW_NAV_PATH,
+} from 'lib/constants';
 import messenger from 'lib/messenger';
 import { constructUrl } from 'lib/utils/link.utils';
 import { useEffect, useState } from 'react';
@@ -23,7 +27,9 @@ export const useLinkWithVariables = (url: string) => {
     try {
       const res: DashboardVariablesResult =
         await messenger.sendMessageWithResult(msg);
-      return PMM_NEW_NAV_PATH + res.url;
+      return res.url.startsWith(GRAFANA_SUB_PATH)
+        ? PMM_NEW_NAV_PATH + res.url
+        : PMM_NEW_NAV_GRAFANA_PATH + res.url;
     } catch {
       return url;
     }
@@ -40,7 +46,7 @@ export const useLinkWithVariables = (url: string) => {
     } else {
       enhanceWithVariables(url).then(setLink);
     }
-  }, [url, location.search]);
+  }, [url, location]);
 
   return link;
 };

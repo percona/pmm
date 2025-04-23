@@ -82,7 +82,9 @@ export class CrossFrameMessenger {
       this.sendMessage(message);
 
       setTimeout(() => {
-        reject();
+        if (!resolved) {
+          reject();
+        }
       }, timeout);
     });
   }

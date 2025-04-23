@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
 import { LocationChangeMessage } from '@pmm/shared';
 import messenger from 'lib/messenger';
+import { getLocationUrl } from './grafana.utils';
 
 export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const location = useLocation();
@@ -52,21 +53,12 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
           return;
         }
 
-        if (location.pathname.startsWith('/pmm-ui')) {
-        } else {
-          const url =
-            PMM_NEW_NAV_PATH +
-            '/graph' +
-            location.pathname +
-            location.search +
-            location.hash;
-          navigate(url, {
-            state: { fromGrafana: true },
-          });
-        }
+        navigate(getLocationUrl(location), {
+          state: { fromGrafana: true },
+        });
       },
     });
-  }, [isLoaded]);
+  }, [isLoaded, navigate]);
 
   return (
     <GrafanaContext.Provider
