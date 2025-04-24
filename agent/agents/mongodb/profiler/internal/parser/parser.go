@@ -108,7 +108,9 @@ func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.System
 	// update stats
 	for {
 		// check if we should shutdown
+		// TODO merge it with select below
 		select {
+		// PMM-13947
 		case <-doneChan:
 			return
 		default:
@@ -117,6 +119,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.System
 
 		// aggregate documents and create report
 		select {
+		// PMM-13947
 		case doc, ok := <-docsChan:
 			// if channel got closed we should exit as there is nothing we can listen to
 			if !ok {

@@ -16,16 +16,13 @@ package mongolog
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"path"
 	"runtime/pprof"
 	"sync"
 	"time"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
@@ -36,7 +33,6 @@ import (
 )
 
 const (
-	slowQuery               = "Slow query"
 	MgoTimeoutDialInfo      = 5 * time.Second
 	MgoTimeoutSessionSocket = 5 * time.Second
 )
@@ -62,7 +58,6 @@ type mongolog struct {
 
 	// internal deps
 	monitor    *monitor
-	client     *mongo.Client
 	aggregator *aggregator.Aggregator
 	sender     *sender.Sender
 
@@ -135,7 +130,7 @@ func (l *mongolog) Start() error {
 
 	logsPathWithPrefix := path.Join(l.logFilePrefix, logsPath)
 	// create monitors service which we use to periodically scan server for new/removed databases
-	l.monitor = NewMonitor(client, logsPathWithPrefix, l.aggregator, l.logger)
+	l.monitor = NewMonitor(logsPathWithPrefix, l.aggregator, l.logger)
 
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
 		start(ctx, l.monitor, l.wg, l.doneChan, ready, l.logger)
@@ -167,22 +162,10 @@ func (s *mongolog) Stop() error {
 	return nil
 }
 
-type SlowQuery struct {
-	// Ctx  string `bson:"ctx"`
-	Msg  string `bson:"msg"`
-	Attr json.RawMessage
-}
-
-type systemProfile struct {
-	proto.SystemProfile
-	// Command bson.Raw `bson:"command,omitempty"`
-	Command bson.M `bson:"command"`
-}
-
 func start(ctx context.Context, monitor *monitor, wg *sync.WaitGroup, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry) {
-	// TODO context usage
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
+	defer monitor.Stop()
 
 	// monitor log file
 	err := monitor.Start(ctx)
@@ -193,21 +176,9 @@ func start(ctx context.Context, monitor *monitor, wg *sync.WaitGroup, doneChan <
 	// signal we started monitoring
 	signalReady(ready)
 
-	// loop to periodically refresh
-	for {
-		// check if we should shutdown
-		select {
-		case <-doneChan:
-			return
-		case <-time.After(1 * time.Minute):
-			// just continue after delay if not
-		}
-
-		// update monitors
-		err = monitor.Start(ctx)
-		if err != nil {
-			logger.Debugf("couldn't monitor log file (%s), reason: %v", monitor.logPath, err)
-		}
+	select {
+	case <-doneChan:
+	case <-ctx.Done():
 	}
 }
 

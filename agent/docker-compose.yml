@@ -42,7 +42,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root-password
     volumes:
-      - ./mongo_logs:/var/log/mongodb
+      - ./testdata/mongo/var/log/mongodb:/var/log/mongodb
 
   mongo_with_tls:
     image: ${MONGO_IMAGE:-mongo:5.0}
@@ -59,7 +59,7 @@ services:
       - "127.0.0.1:27018:27017"
     volumes:
       - ${PWD}/utils/tests/testdata/mongodb:/etc/tls/certificates
-      - ./mongo_logs:/var/log/mongodb
+      - ./testdata/mongo/var/log/mongodb:/var/log/mongodb
 
   mongonoauth:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
@@ -118,3 +118,4 @@ services:
 
 volumes:
   test_db_mysql:
+  test_db_postgres:

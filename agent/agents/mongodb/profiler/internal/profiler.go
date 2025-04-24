@@ -160,6 +160,7 @@ func start(ctx context.Context, monitors *monitors, wg *sync.WaitGroup, doneChan
 	defer monitors.StopAll()
 
 	// monitor all databases
+	// TODO merge it with same code in for loop
 	err := monitors.MonitorAll(ctx)
 	if err != nil {
 		logger.Debugf("couldn't monitor all databases, reason: %v", err)
@@ -172,6 +173,7 @@ func start(ctx context.Context, monitors *monitors, wg *sync.WaitGroup, doneChan
 	for {
 		// check if we should shutdown
 		select {
+		// PMM-13947
 		case <-doneChan:
 			return
 		case <-time.After(1 * time.Minute):

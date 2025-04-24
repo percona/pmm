@@ -94,7 +94,6 @@ func (p *Parser) Stop() {
 
 	// wait for goroutines to exit
 	p.wg.Wait()
-	return
 }
 
 func (p *Parser) Name() string {
@@ -107,14 +106,6 @@ func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.System
 
 	// update stats
 	for {
-		// check if we should shutdown
-		select {
-		case <-doneChan:
-			return
-		default:
-			// just continue if not
-		}
-
 		// aggregate documents and create report
 		select {
 		case doc, ok := <-docsChan:
@@ -123,6 +114,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.System
 				return
 			}
 
+			logger.Debugf("added to aggregator %v", doc.Query)
 			// aggregate the doc
 			err := aggregator.Add(ctx, doc)
 			if err != nil {
@@ -132,6 +124,8 @@ func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.System
 			// doneChan needs to be repeated in this select as docsChan can block
 			// doneChan needs to be also in separate select statement
 			// as docsChan could be always picked since select picks channels pseudo randomly
+			return
+		case <-ctx.Done():
 			return
 		}
 	}

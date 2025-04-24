@@ -22,7 +22,6 @@ import (
 
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // New creates new Collector.
@@ -35,7 +34,6 @@ func New(logsPath string, logger *logrus.Entry) *Collector {
 
 type Collector struct {
 	// dependencies
-	client   *mongo.Client
 	logsPath string
 	logger   *logrus.Entry
 
@@ -119,9 +117,14 @@ func start(ctx context.Context, wg *sync.WaitGroup, logsPath string,
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
-	fr := NewFileReader(logsPath)
+	fr, err := NewMongoLogReader(ctx, docsChan, doneChan, logsPath, logger)
+	if err != nil {
+		logger.Error(err)
+		return
+	}
 	go func() {
-		fr.ReadFile(ctx, docsChan, doneChan)
+		fr.ReadFile()
+		logger.Debugln("readning routine quit")
 	}()
 
 	firstTry := true

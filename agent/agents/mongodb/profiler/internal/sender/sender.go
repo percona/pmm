@@ -94,12 +94,12 @@ func (s *Sender) Name() string {
 }
 
 func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Report, w Writer, logger *logrus.Entry, doneChan <-chan struct{}) {
-	// TODO no context done check???
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
 	for {
 		select {
+		// PMM-13947
 		case report, ok := <-reportChan:
 			// if channel got closed we should exit as there is nothing we can listen to
 			if !ok {
@@ -107,6 +107,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Re
 			}
 
 			// check if we should shutdown
+			// TODO probably not needed at all
 			select {
 			case <-doneChan:
 				return

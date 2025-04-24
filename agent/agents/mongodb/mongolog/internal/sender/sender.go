@@ -86,7 +86,6 @@ func (s *Sender) Stop() {
 
 	// wait for goroutines to exit
 	s.wg.Wait()
-	return
 }
 
 func (s *Sender) Name() string {
@@ -94,7 +93,6 @@ func (s *Sender) Name() string {
 }
 
 func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Report, w Writer, logger *logrus.Entry, doneChan <-chan struct{}) {
-	// TODO no context done check???
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
@@ -106,20 +104,14 @@ func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Re
 				return
 			}
 
-			// check if we should shutdown
-			select {
-			case <-doneChan:
-				return
-			default:
-				// just continue if not
-			}
-
 			// sent report
 			if err := w.Write(report); err != nil {
 				logger.Warn("Lost report:", err)
 				continue
 			}
 		case <-doneChan:
+			return
+		case <-ctx.Done():
 			return
 		}
 	}

@@ -178,7 +178,7 @@ func (pf *ProfilerFingerprinter) fingerprintCommand(fp fingerprinter.Fingerprint
 			pipelineStages, _ := pipeline.(bson.A)
 
 			for _, stage := range pipelineStages {
-				stageMap := stage.(bson.D).Map()
+				stageMap := stage.(bson.D).Map() // TODO deprecated in GO Driver 2.0
 				var stageJSON []byte
 				switch {
 				case stageMap["$match"] != nil:

@@ -162,6 +162,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, aggregator *Aggregator, done
 	defer wg.Done()
 	for {
 		select {
+		// PMM-13947
 		case <-aggregator.t.C:
 			// When Tail()ing system.profile collection you don't know if sample
 			// is last sample in the collection until you get sample with higher timestamp than interval.
@@ -209,9 +210,11 @@ func (a *Aggregator) interval(ctx context.Context, ts time.Time) *report.Report 
 	}
 
 	// create result
+	// TODO not needed ctx
 	result := a.createResult(ctx)
 
 	// translate result into report and return it
+	// TODO not needed ctx
 	return report.MakeReport(ctx, a.timeStart, a.timeEnd, result)
 }
 

@@ -1,34 +1,59 @@
+// Copyright (C) 2023 Percona LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Package parser implements a Mongo log parser.
 package collector
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
-	"fmt"
-	"io"
-	"log"
-	"os"
-	"sync"
 	"time"
 
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/percona/pmm/agent/utils/filereader"
 )
 
-type FileReader struct {
-	filePath  string
-	fileSize  int64
-	fileMutex sync.Mutex
+// A MongologReader read a MongoDB log file.
+type MongologReader struct {
+	ctx      context.Context
+	logger   *logrus.Entry
+	r        filereader.Reader
+	docsChan chan<- proto.SystemProfile
+	doneChan <-chan struct{}
 }
 
-func NewFileReader(filePath string) *FileReader {
-	return &FileReader{
-		filePath: filePath,
-	}
+const slowQuery = "Slow query"
+
+type Mongolog struct {
+	T struct {
+		Date time.Time `json:"$date"`
+	} `json:"t"`
+	Msg  string `bson:"msg"`
+	Attr json.RawMessage
 }
 
+type systemProfile struct {
+	proto.SystemProfile
+	Command bson.M `json:"command"`
+}
+
+// GetLogFilePath returns path for mongo log file.
 func GetLogFilePath(client *mongo.Client) (string, error) {
 	var result bson.M
 	err := client.Database("admin").RunCommand(context.TODO(), bson.M{"getCmdLineOpts": 1}).Decode(&result)
@@ -55,92 +80,65 @@ func GetLogFilePath(client *mongo.Client) (string, error) {
 	return "", errors.New("No log path found. Logs may be in Docker stdout.")
 }
 
-const slowQuery = "Slow query"
+// NewMongoLogReader returns a new MongoLogReader that reads from the given reader.
+func NewMongoLogReader(ctx context.Context, docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}, logsPath string, logger *logrus.Entry) (*MongologReader, error) {
+	reader, err := filereader.NewContinuousFileReader(logsPath, logger)
+	if err != nil {
+		return nil, err
+	}
 
-type SlowQuery struct {
-	// Ctx  string `bson:"ctx"`
-	Msg  string `bson:"msg"`
-	Attr json.RawMessage
+	p := &MongologReader{
+		ctx:      ctx,
+		logger:   logger,
+		r:        reader,
+		docsChan: docsChan,
+		doneChan: doneChan,
+	}
+
+	return p, nil
 }
 
-type systemProfile struct {
-	proto.SystemProfile
-	// Command bson.Raw `bson:"command,omitempty"`
-	Command            bson.M `bson:"command"`
-	OriginatingCommand bson.M `bson:"originatingCommand"`
-}
-
-// ReadFile continuously reads the file, detects truncations, and sends new lines to the provided channel.
-func (fr *FileReader) ReadFile(ctx context.Context, docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}) {
-	var file *os.File
-	var err error
-
+func (p *MongologReader) ReadFile() {
+	p.logger.Debugln("reader started")
 	for {
-		fr.fileMutex.Lock()
-		file, err = os.Open(fr.filePath)
-		if err != nil {
-			if os.IsNotExist(err) {
-				fmt.Printf("File does not exist: %s\n", fr.filePath)
-				fr.fileMutex.Unlock()
-				continue // fmt.Errorf("File does not exist: %s\n", fr.filePath)
-			} else {
-				fr.fileMutex.Unlock()
-				fmt.Printf("error opening file: %v", err)
-				continue // fmt.Errorf("error opening file: %v", err)
+		select {
+		case <-p.ctx.Done():
+			p.logger.Debugln("context done")
+			return
+		case <-p.doneChan:
+			p.logger.Debugln("reader done")
+			return
+		default:
+			line, err := p.r.NextLine()
+			if err != nil {
+				p.logger.Error(err)
+				return
 			}
-		}
+			p.logger.Debugf("readed line: %s", line)
 
-		info, err := file.Stat()
-		if err != nil {
-			fr.fileMutex.Unlock()
-			fmt.Printf("error getting file info: %v", err)
-			continue // fmt.Errorf("error getting file info: %v", err)
-		}
-
-		// Check if file has been truncated
-		if info.Size() < fr.fileSize {
-			// File has been truncated, reset reading position
-			fmt.Println("File truncated, seeking to the end")
-			file.Seek(0, io.SeekEnd)
-		} else {
-			// Continue reading from where we left off
-			file.Seek(fr.fileSize, io.SeekCurrent)
-		}
-
-		fr.fileMutex.Unlock()
-
-		// Create a new scanner to read the file line by line
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			// Send each new line to the channel
-			// TODO logs could be formated, so one json != one line
-
-			line := scanner.Text()
-			var l SlowQuery
+			var l Mongolog
 			var doc proto.SystemProfile
 			if line == "" || !json.Valid([]byte(line)) {
-				docsChan <- doc // TODO remove, test purpose
 				continue
 			}
-			err := json.Unmarshal([]byte(line), &l)
+			err = json.Unmarshal([]byte(line), &l)
 			if err != nil {
-				log.Print(err.Error())
-				docsChan <- doc
+				p.logger.Error(err)
 				continue
 			}
 			if l.Msg != slowQuery {
-				docsChan <- doc
 				continue
 			}
+
 			var stats systemProfile
 			err = json.Unmarshal(l.Attr, &stats)
 			if err != nil {
-				log.Print(err.Error())
-				docsChan <- doc
+				p.logger.Debugln("not valid system.profile structure")
 				continue
 			}
 
 			doc = stats.SystemProfile
+			doc.Ts = l.T.Date
 
 			var command bson.D
 			for key, value := range stats.Command {
@@ -148,27 +146,7 @@ func (fr *FileReader) ReadFile(ctx context.Context, docsChan chan<- proto.System
 			}
 
 			doc.Command = command
-			docsChan <- doc
-		}
-
-		// Handle any errors from the scanner
-		if err := scanner.Err(); err != nil {
-			fmt.Printf("error reading file: %v", err)
-			continue // fmt.Errorf("error reading file: %v", err)
-		}
-
-		// Update the file size to track truncations
-		fr.fileSize = info.Size()
-
-		file.Close()
-
-		select {
-		// check if we should shutdown
-		case <-ctx.Done():
-			return
-		case <-doneChan:
-			return
-		case <-time.After(1 * time.Second):
+			p.docsChan <- doc
 		}
 	}
 }

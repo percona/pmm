@@ -19,7 +19,6 @@ import (
 	"sync"
 
 	"github.com/sirupsen/logrus"
-	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/collector"
@@ -27,9 +26,8 @@ import (
 )
 
 // NewMonitor creates new monitor.
-func NewMonitor(client *mongo.Client, logPath string, aggregator *aggregator.Aggregator, logger *logrus.Entry) *monitor {
+func NewMonitor(logPath string, aggregator *aggregator.Aggregator, logger *logrus.Entry) *monitor {
 	return &monitor{
-		client:     client,
 		logPath:    logPath,
 		aggregator: aggregator,
 		logger:     logger,
@@ -38,14 +36,13 @@ func NewMonitor(client *mongo.Client, logPath string, aggregator *aggregator.Agg
 
 type monitor struct {
 	// dependencies
-	client     *mongo.Client // TODO REMOVE???
 	logPath    string
 	aggregator *aggregator.Aggregator
 	logger     *logrus.Entry
 
 	// state
-	m       sync.Mutex // Lock() to protect internal consistency of the service
-	running bool       // Is this service running?
+	m       sync.Mutex
+	running bool
 }
 
 func (m *monitor) Start(ctx context.Context) error {
@@ -83,9 +80,4 @@ func (m *monitor) Stop() {
 	}
 
 	m.running = false
-}
-
-type services interface {
-	Stop()
-	Name() string
 }

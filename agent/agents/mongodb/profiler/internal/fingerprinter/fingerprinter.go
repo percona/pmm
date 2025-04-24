@@ -90,7 +90,7 @@ func (pf *ProfilerFingerprinter) fingerprintFind(fp fingerprinter.Fingerprint, d
 	fp.Fingerprint += ")"
 
 	if sort, ok := command["sort"]; ok {
-		sortJSON, _ := json.Marshal(sort.(bson.D).Map())
+		sortJSON, _ := json.Marshal(sort.(bson.D).Map()) // TODO deprecated in GO Driver 2.0
 		fp.Fingerprint += fmt.Sprintf(`.sort(%s)`, sortJSON)
 	}
 	if _, ok := command["limit"]; ok {

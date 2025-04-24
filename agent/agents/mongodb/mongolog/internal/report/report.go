@@ -42,7 +42,7 @@ func MakeReport(ctx context.Context, startTime, endTime time.Time, result *Resul
 	return report
 }
 
-// mongodb-slowlog --> Result --> qan.Report --> data.Spooler
+// mongodb-mongolog --> Result --> qan.Report --> data.Spooler
 
 // Data for an interval from slow log or performance schema (pfs) parser,
 // passed to MakeReport() which transforms into a qan.Report{}.
