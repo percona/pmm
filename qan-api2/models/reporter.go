@@ -73,7 +73,7 @@ SUM(num_queries) AS num_queries,
         {{ else }}
             SUM(m_query_time_sum) / {{ $.PeriodDuration }} AS load,
         {{ end }}
-    {{ else }}
+    {{ else if ne $col "num_queries" }}
         SUM({{ $col }}) AS {{ $col }},
     {{ end }}
 {{ end }}
@@ -585,7 +585,7 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 }
 
 const queryLabels = `
-SELECT
+SELECT DISTINCT
 	labels.key,
 	labels.value
 FROM metrics

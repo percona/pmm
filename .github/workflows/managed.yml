@@ -70,10 +70,7 @@ jobs:
         run: docker image rm ${{ env.PMM_CACHE_IMAGE }}
 
       - name: Rebuild the binaries
-        run: |
-          # TODO: remove the line below before merging
-          docker cp ./build/ansible/roles/clickhouse/files/users.xml pmm-server:/etc/clickhouse-server/users.xml
-          docker exec -i pmm-server make run-managed-ci run-agent run-vmproxy run-qan
+        run: docker exec -i pmm-server make run-managed-ci run-agent run-vmproxy run-qan
 
       - name: Check the status of components
         continue-on-error: true
@@ -86,7 +83,7 @@ jobs:
         run: docker exec -i pmm-server make -C managed test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
+        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
         with:
           files: managed/cover.out
           flags: managed
