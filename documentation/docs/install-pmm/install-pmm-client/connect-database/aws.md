@@ -1,4 +1,4 @@
-# Connect Amazon RDS instance
+# Connect Amazon RDS instance to PMM
 
 ## Required settings
 

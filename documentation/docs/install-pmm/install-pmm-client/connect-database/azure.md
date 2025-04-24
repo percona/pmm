@@ -1,4 +1,4 @@
-# Connect Azure instance
+# Connect Azure instance to PMM
 
 !!! caution alert alert-warning "Technical Preview"
     Microsoft Azure functionality is currently in [technical preview](../../../reference/glossary.md#technical-preview) and is subject to change.

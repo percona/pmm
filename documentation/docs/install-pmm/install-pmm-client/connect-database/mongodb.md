@@ -1,4 +1,4 @@
-# Connect MongoDB instance
+# Connect MongoDB databases to PMM
 
 Connect a MongoDB instance to PMM to monitor a [MongoDB] or [Percona Server for MongoDB] database server.
 

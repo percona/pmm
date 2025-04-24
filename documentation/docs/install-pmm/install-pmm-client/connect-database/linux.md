@@ -1,4 +1,4 @@
-# Connect Linux instance
+# Connect Linux databases to PMM
 
 ## Add general system metrics service
 

@@ -101,7 +101,7 @@ If you prefer to download and install the packages manually without configuring 
 
 - [Register a PMM Client](../register-client-node/index.md) 
 - [Install PMM Client using Docker](../install-pmm-client/docker.md) 
-- [Connect database services](../connect-database/index.md) 
+- [Connect database services](../install-pmm-client/connect-database/index.md) 
 - [PMM Client command reference](../../use/commands/pmm-admin.md) 
-- [Upgrade PMM Client](../../upgrade/client.md) 
-- [Uninstall PMM Client](../../uninstall/client.md)
+- [Upgrade PMM Client](../../pmm-upgrade/upgrade_client.md) 
+- [Uninstall PMM Client](../../uninstall-pmm/unregister_client.md)

@@ -1,4 +1,4 @@
-# Connect ProxySQL instance
+# Connect ProxySQL databases to PMM
 
 Monitor your ProxySQL instances with Percona Monitoring and Management (PMM) to track performance metrics and gain insights into query routing behavior.
 

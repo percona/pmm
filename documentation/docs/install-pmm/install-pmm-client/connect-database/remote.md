@@ -1,4 +1,4 @@
-# Connect a remote instance
+# Connect remote instance to PMM
 
 ## Recommended resolution settings
 When monitoring remote instances (including RDS and Google Cloud databases), network latency can affect data collection and cause timeout errors. For this reason, it is recommended to [lower the metrics resolution](../../../configure-pmm/metrics_res.md).

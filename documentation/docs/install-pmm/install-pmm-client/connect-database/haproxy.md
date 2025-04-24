@@ -1,4 +1,4 @@
-# Connect HAProxy instance
+# Connect HAProxy databases to PMM
 
 ## Adding HAProxy
 
