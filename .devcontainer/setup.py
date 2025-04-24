@@ -31,7 +31,7 @@ def install_packages():
             man man-pages \
             openssl-devel \
             wget \
-             krb5-devel",
+            krb5-devel",
         
         "dnf install -y ansible-lint glibc-static --enablerepo=ol9_codeready_builder"
 
