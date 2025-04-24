@@ -40,7 +40,7 @@ To deploy PMM Server using Docker volumes:
     docker exec -t pmm-server change-admin-password your_secure_password
     ```
 
-5. Access the PMM web interface at `https://localhost:443` in a web browser. 
+5. Access the PMM web interface at `https://localhost` in a web browser. 
 If you are accessing the Docker host remotely, replace `localhost` with your server's IP address or hostname.
 
 ## Additional configuration options
