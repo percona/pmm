@@ -110,7 +110,7 @@ Common variables:
 | `PMM_ENABLE_UPDATES` | `true` | Allow version checks and UI updates |
 | `PMM_ENABLE_TELEMETRY` | `true` | Send usage statistics |
 
-For a complete list, see the [ full environment variables list](../docker/env_var.md).
+For a complete list, see the [environment variables](../docker/env_var.md).
 
 ## Accessing PMM Server
 
