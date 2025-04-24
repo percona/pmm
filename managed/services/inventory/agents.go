@@ -127,6 +127,11 @@ func (as *AgentsService) List(ctx context.Context, filters models.AgentFilters) 
 		if got > 1 {
 			return status.Errorf(codes.InvalidArgument, "expected at most one param: pmm_agent_id, node_id or service_id")
 		}
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		filters.IgnoreNomad = !settings.IsNomadEnabled()
 
 		agents, err := models.FindAgents(tx.Querier, filters)
 		if err != nil {
