@@ -140,7 +140,7 @@ You can find more details on how to create DB on Azure at:
 - <https://docs.microsoft.com/en-us/azure/mysql/>
 
 !!! hint alert alert-success "Tip"
-    You must set `pg_stat_statements.track = all` in your PostgreSQL Server settings to use PMM Query Analytics. ([Read more.](postgresql.md#pg_stat_statements))
+    You must set `pg_stat_statements.track = all` in your PostgreSQL Server settings to use PMM Query Analytics. [Read more](../connect-database/postgresql.md#configure-pg_stat_statements).
 
 ![!](../../../images/PMM_Add_Instance_Azure_3.png)
 
@@ -163,7 +163,7 @@ PMM can use 3 exporters to collect metrics:
 
 - `mysql_exporter` or `postgres_exporter` – to collect database related metrics.
 
-- pmm-agent to collect queries related metrics using [`pg_stat_statements`](postgresql.md#pg_stat_statements) for PostgreSQL or Performance Schema for MySQL (MariaDB)
+- pmm-agent to collect queries related metrics using [`pg_stat_statements`](../connect-database/postgresql.md#configure-pg_stat_statements) for PostgreSQL or Performance Schema for MySQL (MariaDB)
 
 ### Adding an Azure Instance on PMM Client side
 
