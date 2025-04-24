@@ -12,6 +12,7 @@ export const Main = () => {
         alignItems="center"
         justifyContent="center"
         sx={{
+          flex: 1,
           padding: 10,
         }}
       >
@@ -21,7 +22,7 @@ export const Main = () => {
   }
 
   return (
-    <Stack>
+    <Stack flex={1}>
       <AppBar />
       <Outlet />
     </Stack>
