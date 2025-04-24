@@ -207,6 +207,9 @@ type ChangeAgentBody struct {
 	// node exporter
 	NodeExporter *ChangeAgentParamsBodyNodeExporter `json:"node_exporter,omitempty"`
 
+	// nomad agent
+	NomadAgent *ChangeAgentParamsBodyNomadAgent `json:"nomad_agent,omitempty"`
+
 	// postgres exporter
 	PostgresExporter *ChangeAgentParamsBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 
@@ -256,6 +259,10 @@ func (o *ChangeAgentBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateNodeExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateNomadAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -388,6 +395,25 @@ func (o *ChangeAgentBody) validateNodeExporter(formats strfmt.Registry) error {
 				return ve.ValidateName("body" + "." + "node_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "node_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentBody) validateNomadAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.NomadAgent) { // not required
+		return nil
+	}
+
+	if o.NomadAgent != nil {
+		if err := o.NomadAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "nomad_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "nomad_agent")
 			}
 			return err
 		}
@@ -591,6 +617,10 @@ func (o *ChangeAgentBody) ContextValidate(ctx context.Context, formats strfmt.Re
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateNomadAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidatePostgresExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -725,6 +755,26 @@ func (o *ChangeAgentBody) contextValidateNodeExporter(ctx context.Context, forma
 				return ve.ValidateName("body" + "." + "node_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "node_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentBody) contextValidateNomadAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.NomadAgent != nil {
+
+		if swag.IsZero(o.NomadAgent) { // not required
+			return nil
+		}
+
+		if err := o.NomadAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "nomad_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "nomad_agent")
 			}
 			return err
 		}
@@ -1171,6 +1221,9 @@ type ChangeAgentOKBody struct {
 	// node exporter
 	NodeExporter *ChangeAgentOKBodyNodeExporter `json:"node_exporter,omitempty"`
 
+	// nomad agent
+	NomadAgent *ChangeAgentOKBodyNomadAgent `json:"nomad_agent,omitempty"`
+
 	// postgres exporter
 	PostgresExporter *ChangeAgentOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 
@@ -1220,6 +1273,10 @@ func (o *ChangeAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateNodeExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateNomadAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1352,6 +1409,25 @@ func (o *ChangeAgentOKBody) validateNodeExporter(formats strfmt.Registry) error 
 				return ve.ValidateName("changeAgentOk" + "." + "node_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("changeAgentOk" + "." + "node_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentOKBody) validateNomadAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.NomadAgent) { // not required
+		return nil
+	}
+
+	if o.NomadAgent != nil {
+		if err := o.NomadAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "nomad_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "nomad_agent")
 			}
 			return err
 		}
@@ -1555,6 +1631,10 @@ func (o *ChangeAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateNomadAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidatePostgresExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1689,6 +1769,26 @@ func (o *ChangeAgentOKBody) contextValidateNodeExporter(ctx context.Context, for
 				return ve.ValidateName("changeAgentOk" + "." + "node_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("changeAgentOk" + "." + "node_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentOKBody) contextValidateNomadAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.NomadAgent != nil {
+
+		if swag.IsZero(o.NomadAgent) { // not required
+			return nil
+		}
+
+		if err := o.NomadAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAgentOk" + "." + "nomad_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAgentOk" + "." + "nomad_agent")
 			}
 			return err
 		}
@@ -3331,6 +3431,136 @@ func (o *ChangeAgentOKBodyNodeExporterMetricsResolutions) MarshalBinary() ([]byt
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentOKBodyNodeExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentOKBodyNodeExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyNomadAgent change agent OK body nomad agent
+swagger:model ChangeAgentOKBodyNomadAgent
+*/
+type ChangeAgentOKBodyNomadAgent struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+}
+
+// Validate validates this change agent OK body nomad agent
+func (o *ChangeAgentOKBodyNomadAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var changeAgentOkBodyNomadAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAgentOkBodyNomadAgentTypeStatusPropEnum = append(changeAgentOkBodyNomadAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ChangeAgentOKBodyNomadAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *ChangeAgentOKBodyNomadAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAgentOkBodyNomadAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyNomadAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("changeAgentOk"+"."+"nomad_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this change agent OK body nomad agent based on context it is used
+func (o *ChangeAgentOKBodyNomadAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyNomadAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyNomadAgent) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyNomadAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -6728,6 +6958,43 @@ func (o *ChangeAgentParamsBodyNodeExporterMetricsResolutions) MarshalBinary() ([
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyNodeExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyNodeExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyNomadAgent change agent params body nomad agent
+swagger:model ChangeAgentParamsBodyNomadAgent
+*/
+type ChangeAgentParamsBodyNomadAgent struct {
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
+}
+
+// Validate validates this change agent params body nomad agent
+func (o *ChangeAgentParamsBodyNomadAgent) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body nomad agent based on context it is used
+func (o *ChangeAgentParamsBodyNomadAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyNomadAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyNomadAgent) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyNomadAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

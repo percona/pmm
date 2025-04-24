@@ -104,7 +104,7 @@ Create or update a user with the minimum required privileges for monitoring by a
 === "MongoDB <8.0"
 
     ```javascript
-    db.getSiblingDB("admin").({
+    db.getSiblingDB("admin").createUser({
         "user": "pmm",
         "pwd": "pmm",
         "roles": [

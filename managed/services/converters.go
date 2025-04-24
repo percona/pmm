@@ -508,6 +508,16 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ListenPort:      uint32(pointer.GetUint16(agent.ListenPort)),
 		}, nil
 
+	case models.NomadAgentType:
+		return &inventoryv1.NomadAgent{
+			AgentId:         agent.AgentID,
+			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
+			Disabled:        agent.Disabled,
+			Status:          inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			ProcessExecPath: processExecPath,
+			ListenPort:      uint32(pointer.GetUint16(agent.ListenPort)),
+		}, nil
+
 	default:
 		panic(fmt.Errorf("unhandled Agent type %s", agent.AgentType))
 	}

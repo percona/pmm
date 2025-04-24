@@ -72,6 +72,28 @@ message VMAgent {
   uint32 listen_port = 12;
 }
 
+message NomadAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Custom user-assigned labels.
+  reserved 4;
+
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 10;
+  // Path to exec process.
+  string process_exec_path = 11;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 12;
+}
+
 // NodeExporter runs on Generic or Container Node and exposes its metrics.
 message NodeExporter {
   // Unique randomly generated instance identifier.
@@ -673,12 +695,13 @@ message ListAgentsResponse {
   repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 8;
   repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
   repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
-  repeated QANMongoDBMongologAgent qan_mongodb_mongolog_agent = 16;
+  repeated QANMongoDBMongologAgent qan_mongodb_mongolog_agent = 17;
   repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
   repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 12;
   repeated ExternalExporter external_exporter = 13;
   repeated RDSExporter rds_exporter = 14;
   repeated AzureDatabaseExporter azure_database_exporter = 15;
+  repeated NomadAgent nomad_agent = 16;
 }
 
 // Get
@@ -700,12 +723,13 @@ message GetAgentResponse {
     QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 8;
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
-    QANMongoDBMongologAgent qan_mongodb_mongolog_agent = 16;
+    QANMongoDBMongologAgent qan_mongodb_mongolog_agent = 17;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 12;
     ExternalExporter external_exporter = 13;
     RDSExporter rds_exporter = 14;
     AzureDatabaseExporter azure_database_exporter = 15;
+    NomadAgent nomad_agent = 16;
   }
 }
 
@@ -784,9 +808,11 @@ message ChangeAgentRequest {
     ChangeQANMySQLPerfSchemaAgentParams qan_mysql_perfschema_agent = 10;
     ChangeQANMySQLSlowlogAgentParams qan_mysql_slowlog_agent = 11;
     ChangeQANMongoDBProfilerAgentParams qan_mongodb_profiler_agent = 12;
-    ChangeQANMongoDBMongologAgentParams qan_mongodb_mongolog_agent = 15;
+    ChangeQANMongoDBMongologAgentParams qan_mongodb_mongolog_agent = 16;
     ChangeQANPostgreSQLPgStatementsAgentParams qan_postgresql_pgstatements_agent = 13;
     ChangeQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
+
+    ChangeNomadAgentParams nomad_agent = 15;
   }
 }
 
@@ -805,9 +831,11 @@ message ChangeAgentResponse {
     QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 10;
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 11;
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 12;
-    QANMongoDBMongologAgent qan_mongodb_mongolog_agent = 15;
+    QANMongoDBMongologAgent qan_mongodb_mongolog_agent = 16;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
+
+    NomadAgent nomad_agent = 15;
   }
 }
 
@@ -1445,6 +1473,11 @@ message ChangeAzureDatabaseExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+}
+
+message ChangeNomadAgentParams {
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
 }
 
 // Remove
