@@ -9,7 +9,7 @@ To log in to the PMM user interface:
 
 2. The PMM [login screen](../../../../reference/ui/log_in.md) appears.
 
-3. On the login screen, enter the default credentials:`admin`/ `admin`.
+3. On the login screen, enter the default credentials: `admin`/`admin`.
 
 4. (Recommended) Follow the prompts to change the default password. You also can change the default password through SSH by using the `change-admin-password` command.
 
