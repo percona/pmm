@@ -5,12 +5,19 @@
   "id": "pmm-compat-app",
   "preload": true,
   "info": {
-    "keywords": ["app"],
-    "description": "",
+    "keywords": ["percona", "pmm", "pmm-ui"],
+    "description": "This plugins provides a compatibility layer between Grafana and PMM UI",
+    "links": [
+      { "name": "Project site", "url": "https://github.com/percona/pmm" },
+      { "name": "AGPL-3 License", "url": "https://github.com/percona/pmm/blob/main/LICENSE" }
+    ],
     "author": {
-      "name": "PMM"
+      "name": "Percona"
     },
-    "logos": {},
+    "logos": {
+      "small": "img/pmm-logo.svg",
+      "large": "img/pmm-logo.svg"
+    },
     "screenshots": [],
     "version": "%VERSION%",
     "updated": "%TODAY%"
