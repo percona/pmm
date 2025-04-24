@@ -37,7 +37,7 @@ Before proceeding with restoration, ensure you have one of the following:
         cd pmm-data-backup
         ```
 
-    5. Copy the backed-up data to the PMM data volume:
+    5. Copy the backup data to the PMM data volume:
 
         ```sh
         docker run --rm -v $(pwd)/srv:/backup -v pmm-data:/srv -t percona/pmm-server:3 cp -r /backup/* /srv
