@@ -101,8 +101,8 @@ Decide which  PostgreSQL monitoring extensions to use, and configure your databa
 
 Choose:
 
-- [`pg_stat_statements`](#configure-pg_stat_statements) when you need a lightweight, built-in solution with minimal overhead
-- [`pg_stat_monitor`](#configure-pg_stat_monitor) when you need comprehensive monitoring capabilities with more detailed insights into query performance:
+- `pg_stat_monitor` when you need comprehensive monitoring capabilities with more detailed insights into query performance:
+- `pg_stat_statements` when you need a lightweight, built-in solution with minimal overhead
 
 | Aspect | **pg_stat_statements** | **pg_stat_monitor** |
 |----------------|---------------------|------------------|
@@ -116,39 +116,6 @@ Choose:
 For a more detailed comparison of extensions, see the [pg_stat_monitor documentation](https://docs.percona.com/pg-stat-monitor/user_guide.html).
 
 ### Configure monitoring extension
-
-=== "pg_stat_statements"
-
-    pg_stat_statements is the built-in PostgreSQL extension for tracking query performance, available as part of the postgresql-contrib package.
-    {.power-number}
-    
-    1. Install the required package:
-        -  Debian/Ubuntu: `apt install -y postgresql-contrib`
-        - Red Hat/CentOS: `yum install -y postgresql-contrib`
-    
-    2. Add these lines to your `postgresql.conf` file:
-    
-        ```conf
-        shared_preload_libraries = 'pg_stat_statements'
-        track_activity_query_size = 2048 # Increase tracked query string size
-        pg_stat_statements.track = all   # Track all statements including nested
-        track_io_timing = on             # Capture read/write stats
-        ```
-    
-    3. Restart the PostgreSQL server:
-    
-        ```sh
-        systemctl restart postgresql
-        ```
-    
-    4. Create the extension:
-    
-        ```sh
-        psql postgres postgres -c "CREATE EXTENSION pg_stat_statements SCHEMA public"
-        ```
-        
-        !!! note "Best practice"
-            Create the extension in the `postgres` database to access statistics from all databases without configuring each one individually.
 
 === "pg_stat_monitor"
 
@@ -171,7 +138,6 @@ For a more detailed comparison of extensions, see the [pg_stat_monitor documenta
         
         # Recommended settings
         pg_stat_monitor.pgsm_normalized_query = 1
-        pg_stat_monitor.pgsm_enable_query_plan = 1
         ```
         
         !!! caution "Using both extensions?"
@@ -207,6 +173,40 @@ For a more detailed comparison of extensions, see the [pg_stat_monitor documenta
     - When all buckets are full, the oldest bucket is reused
     - If a bucket fills before expiring, excess data is discarded
 
+=== "pg_stat_statements"
+
+    pg_stat_statements is the built-in PostgreSQL extension for tracking query performance, available as part of the postgresql-contrib package.
+    {.power-number}
+    
+    1. Install the required package:
+        -  Debian/Ubuntu: `apt install -y postgresql-contrib`
+        - Red Hat/CentOS: `yum install -y postgresql-contrib`
+    
+    2. Add these lines to your `postgresql.conf` file:
+    
+        ```conf
+        shared_preload_libraries = 'pg_stat_statements'
+        track_activity_query_size = 2048 # Increase tracked query string size
+        pg_stat_statements.track = all   # Track all statements including nested
+        track_io_timing = on             # Capture read/write stats
+        ```
+    
+    3. Restart the PostgreSQL server:
+    
+        ```sh
+        systemctl restart postgresql
+        ```
+    
+    4. Create the extension:
+    
+        ```sh
+        psql postgres postgres -c "CREATE EXTENSION pg_stat_statements SCHEMA public"
+        ```
+        
+        !!! note "Best practice"
+            Create the extension in the `postgres` database to access statistics from all databases without configuring each one individually.
+
+
 ## Add service to PMM
 
 After configuring your database server with the appropriate extension, you need to add it as a service to PMM. You can do this either through the PMM user interface or via the command line.
@@ -223,9 +223,8 @@ After configuring your database server with the appropriate extension, you need 
     3. Click **Add service**.
     ![!](../../../images/PMM_Add_Instance_PostgreSQL.jpg)
 
-    4. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.
-        
-    For TLS connection to work SSL needs to be configured in your PostgreSQL instance. 
+    4. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.        
+    For TLS connection, make sure SSL is configured in your PostgreSQL instance. 
     
     Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. 
     See PostgreSQL documentation on [Secure TCP/IP Connections with SSL].
@@ -382,13 +381,13 @@ After adding a PostgreSQL service, verify that it's properly connected and sendi
     Ensure PostgreSQL metrics are flowing and visualized correctly:
     {.power-number}
     
-    1. Open the **PostgreSQL Instance Summary** dashboard
+    1. Open the **PostgreSQL Instance Summary** dashboard.
     
-    2. Select your service name from the dropdown
+    2. Select your service name from the dropdown.
     
-    3. Verify that metrics are being displayed
+    3. Verify that metrics are being displayed.
     
-    4. Check that the graphs are updating with current data
+    4. Check that the graphs are updating with current data.
 
 ### Running custom queries
 
