@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.12">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.4af4bdda.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.2afb09e1.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -6028,6 +6028,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../../release-notes/2.44.1.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PMM 2.44.1 (2025-04-24)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../release-notes/2.44.0.1.html" class="md-nav__link">
         
   
@@ -8290,8 +8313,8 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 <ol>
 <li>
 <p>On an internet-connected host, download the Docker image and its checksum file.</p>
-<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm2/2.44.0/docker/pmm-server-2.44.0.docker
-wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm2/2.44.0/docker/pmm-server-2.44.0.sha256sum
+<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm2/2.44.1/docker/pmm-server-2.44.1.docker
+wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm2/2.44.1/docker/pmm-server-2.44.1.sha256sum
 </code></pre></div>
 </li>
 <li>
@@ -8302,12 +8325,12 @@ wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm2/2.44.0/
 </li>
 <li>
 <p>(Optional) Check the Docker image file integrity.</p>
-<div class="highlight"><pre><span></span><code>shasum<span class="w"> </span>-ca<span class="w"> </span><span class="m">256</span><span class="w"> </span>pmm-server-2.44.0.sha256sum
+<div class="highlight"><pre><span></span><code>shasum<span class="w"> </span>-ca<span class="w"> </span><span class="m">256</span><span class="w"> </span>pmm-server-2.44.1.sha256sum
 </code></pre></div>
 </li>
 <li>
 <p>Load the image.</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>load<span class="w"> </span>-i<span class="w"> </span>pmm-server-2.44.0.docker
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>load<span class="w"> </span>-i<span class="w"> </span>pmm-server-2.44.1.docker
 </code></pre></div>
 </li>
 <li>
