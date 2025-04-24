@@ -284,7 +284,7 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: tlsSkipVerify,
+			InsecureSkipVerify: tlsSkipVerify, //nolint:gosec // allow this for self-signed certs
 		},
 	}
 	client := &http.Client{Transport: tr}
