@@ -1,7 +1,9 @@
 # Connect databases to PMM
 Percona Monitoring and Management (PMM) supports monitoring for MySQL/MariaDB, PostgreSQL, MongoDB, and various cloud database services. 
 
-Here's how to connect various database technologies to PMM:
+## Supported database technologies
+
+The table below shows monitoring capabilities for each supported database type:
 
 | Database type                                | Local monitoring | Remote monitoring | Query Analytics (QAN) | Performance schema | Backup integration |
 |----------------------------------------------|------------------|-------------------|------------------|---------------------|---------------------|
@@ -14,24 +16,9 @@ Here's how to connect various database technologies to PMM:
 | [ProxySQL](../connect-database/proxysql.md)              | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span>  | <span style="color:red">✘</span>  | <span style="color:red">✘</span> |
 | [HAProxy](../connect-database/haproxy.md)                | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span>  | <span style="color:red">✘</span>  | <span style="color:red">✘</span> |
 
-## Setup overview
+## Modify existing services
 
-If you're setting up monitoring for the first time, follow these general steps:
+To change the parameters of a previously-added service, remove the service and re-add it with the new parameters.
 
-1. [Install PMM Server](../../install-pmm-server/index.md)
-2. [Install PMM Client](../../install-pmm-client/index.md) on your database server or a system with network access to it
-3. [Register the client node](../../register-client-node/index.md) with PMM Server
-4. Follow the relevant database instructions:
-    - [MySQL](../connect-database/mysql/mysql.md)
-    - [PostgreSQL](../connect-database/postgresql.md)
-    - [MongoDB](../connect-database/mongodb.md)
-    - [AWS RDS/Aurora](../connect-database/aws.md)
-    - [Azure Database](../connect-database/azure.md)
-    - [Google Cloud SQL](../connect-database/google.md)
-    - [ProxySQL](../connect-database/proxysql.md)
-    - [HAProxy](../connect-database/haproxy.md)
-5. [Verify monitoring is working](../../../use/using-pmm.md) through the PMM dashboard
-
-!!! tip "Changing service parameters"
-    To change the parameters of a previously-added service, remove the service and re-add it with the new parameters.
-
+## New to PMM?
+If you're setting up monitoring for the first time, follow the installation and setup instructions in the [PMM installation overview](../../index.md).

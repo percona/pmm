@@ -64,7 +64,7 @@ Install and run PMM Client on every node where there is a service you want to mo
 === ":material-package-variant: With package manager"
 
     [Linux package](../install-pmm/install-pmm-client/package_manager.md): Use `apt`, `apt-get`, `dnf`, `yum`. 
-    |The package manager automatically selects the correct version for your architecture.
+    The package manager automatically selects the correct version for your architecture.
 
 === ":material-archive: With binary package"
 
@@ -82,12 +82,14 @@ PMM supports monitoring across the following database technologies, cloud servic
 
 === ":material-database: Databases"
     Choose the database technology you want to monitor:
-    
+
     | **Database** | **Description** | **Setup guide** |
     | ------------------------- | ---------------------------- | ---------------------------- |
     | :material-dolphin: **MySQL** | MySQL, Percona Server for MySQL, MariaDB | [**Connect to MySQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/mysql/mysql.md) |
     | :material-elephant: **PostgreSQL** | PostgreSQL database servers | [**Connect to PostgreSQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/postgresql.md) |
     | :material-leaf: **MongoDB** | MongoDB, Percona Server for MongoDB | [**Connect to MongoDB** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/mongodb.md) |
+    | :material-network: **Remote databases** | Monitor MySQL, PostgreSQL, and MongoDB across network segments | [**Configure remote monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md) |
+
 
 === ":material-cloud: Cloud services"
     Configure monitoring for cloud-hosted database services:
@@ -99,14 +101,11 @@ PMM supports monitoring across the following database technologies, cloud servic
     | :material-google-cloud: **Google Cloud** | Cloud SQL for MySQL/PostgreSQL | [**Configure Google Cloud monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/google.md) |
 
 === ":material-server: System monitoring"
-    Monitor operating system and remote services:
+    Monitor operating system metrics:
     
     | **Monitoring type**| **Description**|**Setup guide** |
     | -------------------------------- | ---------------------------- | ---------------------------- |
     | :simple-linux: **Linux systems** | CPU, memory, disk, network metrics | [**Configure Linux monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/linux.md) |
-    | :material-network: **Remote MySQL** | Monitor MySQL across network segments | [**Configure remote MySQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md#mysql-remote) |
-    | :material-network: **Remote PostgreSQL** | Monitor PostgreSQL across network segments | [**Configure remote PostgreSQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md#postgresql-remote) |
-    | :material-network: **Remote MongoDB** | Monitor MongoDB across network segments | [**Configure remote MongoDB** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md#mongodb-remote) |
 
 === ":material-transit-connection-variant: Proxy services"
     Monitor database proxy and load balancing solutions:

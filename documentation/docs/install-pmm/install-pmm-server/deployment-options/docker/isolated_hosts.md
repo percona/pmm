@@ -12,7 +12,6 @@ To deploy [PMM Server][Docker image] in air-gapped or isolated environments with
 
 2. Transfer both files to the target host where you'll run PMM Server using a secure method (such as `scp`, physical media, or your organization's approved file transfer mechanism).
 
-
 3. On the target host, open a terminal and navigate to where you placed the downloaded files.
 
 4. Verify the Docker image file integrity (recommended):
@@ -27,8 +26,7 @@ To deploy [PMM Server][Docker image] in air-gapped or isolated environments with
     docker load -i pmm-server-{{release}}.docker
     ```
 
-6. [Run the PMM Server container](index.md#run-docker-container) as if your image is already pulled using your desired method for a storage volume. Skip any `docker pull` commands as the image has been pre-staged and available locally.
-
+6. [Run the PMM Server container](../docker/easy-install.md) as if your image is already pulled using your desired method for a storage volume. Skip any `docker pull` commands as the image has been pre-staged and available locally.
 
 ## Related resources
 

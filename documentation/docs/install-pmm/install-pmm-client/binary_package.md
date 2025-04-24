@@ -1,9 +1,9 @@
 # Install PMM Client manually using binaries
-This method allows you to install PMM Client using pre-compiled binary packages on any Linux distribution, for both x86_64 and ARM64 architectures.
+This method allows you to install PMM Client using pre-compiled binary packages on a wide range of Linux distributions, for both x86_64 and ARM64 architectures.
 
 Installing from binaries offers these advantages:
 
-- Works on any Linux distribution
+- Supports Linux distributions not covered by package managers
 - Doesn't require package managers
 - Allows installation without root permissions (unique to this method)
 - Provides complete control over the installation location
