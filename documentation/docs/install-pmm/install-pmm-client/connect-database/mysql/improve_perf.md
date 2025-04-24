@@ -61,7 +61,7 @@ To find the right balance between visibility and performance:
 Additional performance considerations: 
 
 - For high-traffic MySQL servers, consider using query sampling with the slow log. For details, see  [MySQL data source configuration](../mysql/mysql.md#slow-query-log-configuration)
-- Adjust metrics collection frequency for remote instances.  For details, see [Remote instances monitoring](../remote.md#recommended-settings)
+- Adjust metrics collection frequency for remote instances.  For details, see [Remote instances monitoring](../remote.md#recommended-resolution-settings)
 - Ensure PMM Client has adequate CPU and memory resources on busy database servers
 
 ## Change settings after initial setup

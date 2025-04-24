@@ -156,7 +156,7 @@ To configure the extension:
 !!! note alert alert-primary ""
     We recommend that you create the extension for the `postgres` database. In this case, you receive access to the statistics collected from every database.    
 
-You can now [add the service](#add-service).
+You can now [add the service](#add-service-to-pmm).
 
 ### Configure `pg_stat_monitor`
 
