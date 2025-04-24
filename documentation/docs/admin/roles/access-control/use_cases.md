@@ -17,7 +17,7 @@ This use case demonstrates a scenario with three different roles within an organ
     <!-- source: https://miro.com/app/board/uXjVPfHchvM=/ -->
     ![PMM Access Control - Roles](../../../images/lbac/pmm-lbac-query-metrics-1.jpg)
 
-**Acess summary**
+**Access summary**
 
 | **Role**  | **Label selectors**  | **Accessible metrics** |
 |-----------|----------------------|-----------------------|
