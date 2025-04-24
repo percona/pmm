@@ -334,13 +334,12 @@ func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOn
 	if !pmmAgentVersion.IsFeatureSupported(version.NomadAgentSupportVersion) {
 		return nil
 	}
-	nomadClientType := models.NomadAgentType
-	nomadClient, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: &nomadClientType})
+	nomadClient, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: pointer.To(models.NomadAgentType)})
 	if err != nil {
 		return status.Errorf(codes.Internal, "Can't get 'nomadClient' for pmm-agent with ID %q", pmmAgentID)
 	}
 	if len(nomadClient) == 0 {
-		if _, err := models.CreateAgent(q, nomadClientType, &models.CreateAgentParams{
+		if _, err := models.CreateAgent(q, models.NomadAgentType, &models.CreateAgentParams{
 			PMMAgentID: pmmAgentID,
 			NodeID:     runsOnNodeID,
 		}); err != nil {
