@@ -1,6 +1,6 @@
 # Set up PMM Client
 
-To make Percona Monitoring and Management (PMM) work properly a **PMM Client** needs to be set up in your database environment. This client acts as the messenger, relaying back the key performance insights from your database to the PMM Server.
+To make the most of Percona Monitoring and Management (PMM), we suggest to set up a **PMM Client** in your database environment. This client acts as an agent, relaying back the key performance insights from your database to the PMM Server.
 
 Depending on your setup, PMM Client may already be set up requiring only authentication or you may need to install it entirely. To understand what needs to be done in your system, select the database technology you're using first.
 
