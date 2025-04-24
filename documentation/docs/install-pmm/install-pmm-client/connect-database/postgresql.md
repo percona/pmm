@@ -370,7 +370,7 @@ After adding a PostgreSQL service, verify that it's properly connected and sendi
     Use the UI to confirm that your service was added and is actively monitored:
     {.power-number}
     
-    1. Select **Configuration > Inventory**
+    1. Select **Configuration > Inventory**.
     
     2. In the **Services** tab, verify that **Service name** matches what you configured, **Address** points to your PostgreSQL instance and **Status** shows as "Active".
     
