@@ -195,7 +195,7 @@ To configure `pg_stat_monitor`effectively:
     ```
 
     !!! caution "Parameter effects"
-        It is important to set maximal length of query to 2048 characters or more for PMM to work properly.
+        It is important to set maximal length of query to 2048 characters or more for QAN to provide correct information about query.
 
     You can configure additional parameters to enhance monitoring capabilities:
     

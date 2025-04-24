@@ -16,7 +16,7 @@ For monitoring Amazon RDS MySQL instances, see [Connect Amazon RDS instance](../
     {.power-number}
 
     1. **[Prerequisites](#prerequisites)**: Ensure PMM Server is running and PMM Client is installed
-    2. **[Create PMM user](#creating-a-dedicated-pmm-user)**: `CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'StrongPassword'`  
+    2. **[Create PMM user](#creating-a-dedicated-pmm-user)**: `CREATE USER 'pmm'@'localhost' IDENTIFIED BY '<StrongPassword>'`  
     3. **[Grant permissions](#creating-a-dedicated-pmm-user)**: `GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost'`
     4. **[Configure data source](#configuring-data-sources)**: Enable Slow Query Log or Performance Schema 
     5. **[Add service](#adding-mysql-services-to-pmm)**: Use PMM UI or command line to add the MySQL instance
