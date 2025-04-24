@@ -45,7 +45,7 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
     if (button.target) {
       window.open(button.url, button.target, 'noopener,noreferrer');
     } else {
-      //TO DO: use react router once the grafana iframe is in place
+      // TODO: use react router once the grafana iframe is in place
       button.url && window.location.assign(button.url);
     }
   }, []);

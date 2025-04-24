@@ -8,7 +8,6 @@ import { HelpCenterCard } from './help-center-card/HelpCenterCard';
 
 export const HelpCenter: FC = () => {
   const { user } = useUser();
-
   const cards = CARDS_DATA.filter(
     (card) => user?.isPMMAdmin || !card.adminOnly
   );
@@ -27,7 +26,7 @@ export const HelpCenter: FC = () => {
         }}
       >
         {cards.map((item) => (
-          <HelpCenterCard card={item} />
+          <HelpCenterCard key={item.id} card={item} />
         ))}
       </Box>
     </Page>

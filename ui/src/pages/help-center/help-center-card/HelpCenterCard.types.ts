@@ -5,7 +5,7 @@ export interface HelpCardButton {
   startIconName?: string;
 }
 
-export interface HelpCardType {
+export interface HelpCard {
   id: string;
   title: string;
   description: string;
@@ -15,5 +15,5 @@ export interface HelpCardType {
 }
 
 export interface HelpCenterCardProps {
-  card: HelpCardType;
+  card: HelpCard;
 }

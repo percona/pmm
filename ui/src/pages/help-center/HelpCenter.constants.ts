@@ -1,4 +1,4 @@
-import { HelpCardType } from './help-center-card/HelpCenterCard.types';
+import { HelpCard } from './help-center-card/HelpCenterCard.types';
 
 export const CARD_IDS = {
   pmmDocs: 'pmm-docs',
@@ -14,7 +14,7 @@ export const START_ICON = {
   map: 'map',
 };
 
-export const CARDS_DATA: HelpCardType[] = [
+export const CARDS_DATA: HelpCard[] = [
   {
     id: CARD_IDS.pmmDocs,
     title: 'PMM Documentation',
