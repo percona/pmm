@@ -27,8 +27,9 @@ type FeatureVersion *Parsed
 
 // Features list.
 var (
-	NodeExporterNewTLSConfig     FeatureVersion = V3_0_0
-	MysqlExporterV0_17_2         FeatureVersion = V3_2_0
+	NodeExporterNewTLSConfig FeatureVersion = V3_0_0
+	// TODO: Remove this after 3.2.0 release
+	MysqlExporterV0_17_2         FeatureVersion = MustParse("3.1.0-0") //nolint:revive,stylecheck
 	MysqlExporterPluginCollector FeatureVersion = V2_36_0
 	NomadAgentSupportVersion     FeatureVersion = V3_2_0
 )
