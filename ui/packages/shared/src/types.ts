@@ -1,7 +1,8 @@
 export type MessageType =
   | 'MESSENGER_READY'
   | 'LOCATION_CHANGE'
-  | 'DASHBOARD_VARIABLES';
+  | 'DASHBOARD_VARIABLES'
+  | 'GRAFANA_READY';
 
 export interface Message<T extends MessageType, V> {
   id?: string;

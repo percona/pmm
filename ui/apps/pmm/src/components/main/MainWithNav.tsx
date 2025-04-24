@@ -13,6 +13,7 @@ export const MainWithNav = () => {
         alignItems="center"
         justifyContent="center"
         sx={{
+          flex: 1,
           padding: 10,
         }}
       >

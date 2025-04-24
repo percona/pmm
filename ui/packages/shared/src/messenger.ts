@@ -89,6 +89,31 @@ export class CrossFrameMessenger {
     });
   }
 
+  waitForMessage<T extends MessageType>(
+    type: T,
+    timeout = 10_000
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      let resolved = false;
+
+      const listener: MessageListener<T, void> = {
+        type,
+        onMessage: () => {
+          resolved = true;
+          this.removeListener(listener);
+          resolve();
+        },
+      };
+      this.addListener(listener);
+
+      setTimeout(() => {
+        if (!resolved) {
+          reject();
+        }
+      }, timeout);
+    });
+  }
+
   private getWindow() {
     if (!this.targetWindow && this.fallbackSelector) {
       const iframe = document.querySelector<HTMLIFrameElement>(

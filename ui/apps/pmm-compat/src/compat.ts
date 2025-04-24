@@ -1,6 +1,7 @@
 import { locationService } from '@grafana/runtime';
 import { CrossFrameMessenger, DashboardVariablesMessage, LocationChangeMessage } from '@pmm/shared';
 import { applyCustomStyles } from 'styles';
+import { changeTheme } from 'theme';
 import { isWithinIframe } from 'utils';
 import { getLinkWithVariables } from 'variables';
 
@@ -19,10 +20,17 @@ export const initialize = () => {
   messenger.setWindow(window.top!);
   messenger.register();
 
-  applyCustomStyles();
-
   messenger.sendMessage({
     type: 'MESSENGER_READY',
+  });
+
+  applyCustomStyles();
+
+  // sync with PMM UI theme
+  changeTheme('light');
+
+  messenger.sendMessage({
+    type: 'GRAFANA_READY',
   });
 
   messenger.addListener({
