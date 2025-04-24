@@ -85,7 +85,7 @@ You can install PMM Server with Watchtower using one of two methods:
 
 ### Storage configuration
 
-You can choose PMM Server offers two storage options:
+You can choose either of two storage options offered by PMM Server:
 
 | Option | Suitable for | Command |
 |--------|-------------|---------|
