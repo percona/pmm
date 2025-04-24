@@ -1,0 +1,3 @@
+{
+  "extends": "@percona/tsconfig/react-library.json"
+}

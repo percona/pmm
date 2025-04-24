@@ -5,10 +5,7 @@
   "scripts": {
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --fix",
     "test": "",
-    "format": "prettier .  --write",
-    "clean": "rm -rf ./dist",
-    "build": "rollup -c",
-    "dev": "rollup -c -w"
+    "format": "prettier .  --write"
   },
   "private": "true",
   "keywords": [],
@@ -23,6 +20,11 @@
   ],
   "exports": {
     ".": "./src/index.ts"
+  },
+  "typesVersions": {
+    "*": {
+      "*": ["./src/index.tsx"]
+    }
   },
   "prettier": "@percona/prettier-config",
   "dependencies": {},
