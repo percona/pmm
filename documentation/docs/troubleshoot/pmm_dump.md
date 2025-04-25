@@ -2,17 +2,17 @@
 
 PMM data dumps are compressed tarball files containing a comprehensive export of your PMM metrics and QAN data collected by PMM Server.
 
-You can download these dataset files locally, or share them with Percona Support via an SFTP server. This enables you to share PMM data securely, which is especially useful when you need you troubleshoot PMM issues without without providing access to your PMM instance.
+You can download these dataset files locally, or share them with Percona Support via an SFTP server. This enables you to share PMM data securely, which is especially useful when you need to troubleshoot PMM issues without providing access to your PMM instance.
 
-Starting with 2.41, PMM enables you to generate PMM Datasets straight from PMM. If you are using an older PMM version, you can use the [standalone PMM Dump utility](https://docs.percona.com/pmm-dump-documentation/installation.html) instead.
+Starting with 2.41, PMM enables you to generate datasets straight from PMM UI. If you are using an older PMM version, you can use the [standalone PMM Dump utility](https://docs.percona.com/pmm-dump-documentation/installation.html) instead.
 
 ## Dump contents
 
 The **dump.tar.gz** dump file is a .TAR archive compressed via Gzip. Here's what's inside the folders it contains:
 
- - **meta.json**: metadata about the data dump
+ - **meta.json**: metadata of the data dump
  - **vm**: Victoria Metrics data chunks in native VM format, organized by timeframe
- - **ch**: Query Analytics (QAN) data stored in ClickHouse, organized by rows count
+ - **ch**: Query Analytics (QAN) data stored in ClickHouse format, organized by row count
  - **log.json**: logs detailing the export and archive creation process
 
 ## Create a data dump
