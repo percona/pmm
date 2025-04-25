@@ -627,4 +627,12 @@ plugin "raw_exec" {
 		require.Error(t, err)
 		assert.Regexp(t, `invalid text file name "../bar"`, err.Error())
 	})
+
+	t.Run("TrimPrefix", func(t *testing.T) {
+		t.Parallel()
+
+		actual := trimPrefix(inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER.String())
+		expected := "mysqld_exporter"
+		assert.Equal(t, expected, actual)
+	})
 }
