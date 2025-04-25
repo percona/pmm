@@ -2,7 +2,7 @@
 # Usage: ENABLE_PDF_EXPORT=1 mkdocs build -f mkdocs-pdf.yml
 INHERIT: mkdocs-base.yml
 
-copyright: Percona LLC and/or its affiliates &copy;2024
+copyright: Percona LLC and/or its affiliates &copy;2025
 
 plugins:
   mike:
