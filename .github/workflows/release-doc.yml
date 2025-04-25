@@ -18,7 +18,7 @@ jobs:
         shell: bash
         run: |
           version="${release_tag/refs\/tags\/v/}"
-          wget https://raw.githubusercontent.com/percona/pmm-doc/main/docs/release-notes/$version.md -O ${{ github.workspace }}-CHANGELOG.txt
+          wget https://raw.githubusercontent.com/percona/pmm/main/documentation/docs/release-notes/$version.md -O ${{ github.workspace }}-CHANGELOG.txt
         env:
           release_tag: ${{ github.ref }}
       - name: Convert mkdocs
