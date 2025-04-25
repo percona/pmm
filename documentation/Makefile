@@ -28,7 +28,7 @@ doc-build-pdf:      ## Build documentation in PDF format
 			git config user.email 'doc-team@percona.com' && \
 			git add --all && \
 			git commit -am 'Initial commit' > /dev/null && \
-			mkdocs build -f mkdocs-pdf.yml && \
+			ENABLE_PDF_EXPORT=1 mkdocs build -f mkdocs-pdf.yml && \
 			cp /build/site/pdf/*.pdf /docs/ \
 		"
 
