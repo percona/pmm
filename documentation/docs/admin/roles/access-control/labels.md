@@ -50,6 +50,8 @@ You can also add standard and custom labels using [pmm-admin](../../../use/comma
 
 ## Modifying labels
 
-Currently, PMM does not support modifying standard labels. To modify a standard label, you first need to remove the service and re-add it with a new set of standard labels.
+Currently, PMM supports modifying only a subset of standard labels - `environment`, `cluster`, `replication_set`, `external_group`. This can be done either via PMM UI or via an [API endpoint](https://percona-pmm.readme.io/reference/changeservice).
 
-However, you can modify custom labels of a service via an [API endpoint](https://percona-pmm.readme.io/reference/changeservice).
+Otherwsie, to modify other standard labels, you first need to remove the service and re-add it with a new set of labels.
+
+Modifying the custom labels can be done as well via PMM UI of via the same [API endpoint](https://percona-pmm.readme.io/reference/changeservice).
