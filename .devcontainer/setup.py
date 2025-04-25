@@ -28,7 +28,9 @@ def install_packages():
             vim \
             mc psmisc procps lsof which iproute diffutils \
             man man-pages \
-            openssl-devel",
+            openssl-devel \
+            wget \
+            krb5-devel",
         
         "dnf install -y ansible-lint glibc-static --enablerepo=ol9_codeready_builder"
 
@@ -65,7 +67,7 @@ def make_init():
     """Runs make init."""
 
     run_commands([
-        "make -C .. init",
+        "make init",
     ])
 
 
