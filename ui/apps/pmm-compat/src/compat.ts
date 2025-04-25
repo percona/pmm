@@ -7,18 +7,12 @@ import { getLinkWithVariables } from 'variables';
 
 export const initialize = () => {
   if (!isWithinIframe()) {
-    console.log('pmm-compat', 'not within iframe');
-
     // redirect user to the new UI
     window.location.replace(window.location.href.replace('/graph', '/pmm-ui/next/graph'));
-
     return;
   }
 
-  const messenger = new CrossFrameMessenger('GRAFANA');
-
-  messenger.setWindow(window.top!);
-  messenger.register();
+  const messenger = new CrossFrameMessenger('GRAFANA').setTargetWindow(window.top!).register();
 
   messenger.sendMessage({
     type: 'MESSENGER_READY',
@@ -35,33 +29,29 @@ export const initialize = () => {
 
   messenger.addListener({
     type: 'LOCATION_CHANGE',
-    onMessage: (message: LocationChangeMessage) => {
-      console.log('GRAFANA', 'LOCATION_CHANGE', message.data);
-
-      locationService.push(message.data!);
-    },
+    onMessage: (message: LocationChangeMessage) => locationService.push(message.payload!),
   });
 
-  locationService.getHistory().listen((location: Location) => {
+  locationService.getHistory().listen((location: Location) =>
     messenger.sendMessage({
       type: 'LOCATION_CHANGE',
-      data: location,
-    });
-  });
+      payload: location,
+    })
+  );
 
   messenger.addListener({
     type: 'DASHBOARD_VARIABLES',
     onMessage: (msg: DashboardVariablesMessage) => {
-      if (!msg.data || !msg.data.url) {
+      if (!msg.payload || !msg.payload.url) {
         return;
       }
 
-      const url = getLinkWithVariables(msg.data.url);
+      const url = getLinkWithVariables(msg.payload.url);
 
       messenger.sendMessage({
         id: msg.id,
         type: msg.type,
-        data: {
+        payload: {
           url: url,
         },
       });

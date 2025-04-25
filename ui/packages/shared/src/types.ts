@@ -4,13 +4,17 @@ export type MessageType =
   | 'DASHBOARD_VARIABLES'
   | 'GRAFANA_READY';
 
-export interface Message<T extends MessageType, V> {
+export interface Message<T extends MessageType = MessageType, V = undefined> {
   id?: string;
   type: T;
-  data?: V;
+  source?: string;
+  payload?: V;
 }
 
-export interface MessageListener<T extends MessageType, V> {
+export interface MessageListener<
+  T extends MessageType = MessageType,
+  V = undefined,
+> {
   type: T;
   onMessage: (message: Message<T, V>) => void;
 }

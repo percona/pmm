@@ -25,7 +25,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     if (location.pathname.includes('/graph') && !location.state?.fromGrafana) {
       messenger.sendMessage({
         type: 'LOCATION_CHANGE',
-        data: {
+        payload: {
           ...location,
           pathname: location.pathname.replace(PMM_NEW_NAV_GRAFANA_PATH, ''),
         },
@@ -38,17 +38,13 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       return;
     }
 
-    messenger.setWindow(frameRef.current?.contentWindow!, '#grafana-iframe');
-    messenger.register();
-
-    messenger.addListener({
-      type: 'MESSENGER_READY',
-      onMessage: console.log,
-    });
+    messenger
+      .setTargetWindow(frameRef.current?.contentWindow!, '#grafana-iframe')
+      .register();
 
     messenger.addListener({
       type: 'LOCATION_CHANGE',
-      onMessage: ({ data: location }: LocationChangeMessage) => {
+      onMessage: ({ payload: location }: LocationChangeMessage) => {
         if (!location) {
           return;
         }

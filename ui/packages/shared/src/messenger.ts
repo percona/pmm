@@ -1,7 +1,10 @@
 import { Message, MessageListener, MessageType } from './types';
+import { v4 as uuidv4 } from 'uuid';
 
 export class CrossFrameMessenger {
-  private name?: string;
+  private source?: string;
+  private window: Window = window;
+  private targetOrigin?: string;
   private targetWindow?: Window;
   private fallbackSelector?: string;
   private eventListener = (e: MessageEvent) => this.onMessageReceived(e);
@@ -9,21 +12,33 @@ export class CrossFrameMessenger {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private listeners: MessageListener<any, any>[] = [];
 
-  constructor(name?: string) {
-    this.name = name;
+  constructor(source?: string) {
+    this.source = source;
   }
 
-  setWindow(window: Window, fallbackSelector?: string) {
+  setTargetOrigin(origin: string) {
+    this.targetOrigin = origin;
+    return this;
+  }
+
+  setWindow(window: Window) {
+    this.window = window;
+    return this;
+  }
+
+  setTargetWindow(window: Window, fallbackSelector?: string) {
     this.targetWindow = window;
     this.fallbackSelector = fallbackSelector;
+    return this;
   }
 
   register() {
-    window.addEventListener('message', this.eventListener);
+    this.window.addEventListener('message', this.eventListener);
+    return this;
   }
 
   unregister() {
-    window.removeEventListener('message', this.eventListener);
+    this.window.removeEventListener('message', this.eventListener);
   }
 
   addListener<T extends MessageType, V>(listener: MessageListener<T, V>) {
@@ -41,7 +56,9 @@ export class CrossFrameMessenger {
       return;
     }
 
-    console.log(this.name, 'received', message);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(this.source, 'received', message);
+    }
 
     this.listeners.forEach((listener) => {
       if (listener.type === message.type) {
@@ -51,68 +68,64 @@ export class CrossFrameMessenger {
   }
 
   sendMessage<T extends MessageType, V>(message: Message<T, V>) {
-    if (!message.id) {
-      message.id = self.crypto.randomUUID();
+    // provide source and id if not present
+    const msg = {
+      ...message,
+      source: this.source,
+      id: message.id || uuidv4(),
+    };
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log(this.source, 'sending', msg);
     }
-    console.log(this.name, 'sending', message);
-    this.getWindow()?.postMessage(message);
+
+    this.getWindow()?.postMessage(msg, this.targetOrigin!);
   }
 
-  sendMessageWithResult<U, T extends MessageType, V>(
+  sendMessageWithResult = <U, T extends MessageType, V>(
     message: Message<T, V>,
-    timeout = 10_000
-  ): Promise<U> {
-    return new Promise((resolve, reject) => {
-      let resolved = false;
-      message.id = self.crypto.randomUUID();
+    timeoutMs = 10_000
+  ): Promise<U> =>
+    new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(reject, timeoutMs);
+      const id = uuidv4();
 
       const listener: MessageListener<T, U> = {
         type: message.type,
         onMessage: (received) => {
-          if (received.id === message.id) {
-            resolved = true;
+          if (received.id === id) {
+            clearTimeout(timeoutId);
             this.removeListener(listener);
-            resolve(received.data!);
+            resolve(received.payload!);
           }
         },
       };
 
       this.addListener(listener);
 
-      this.sendMessage(message);
-
-      setTimeout(() => {
-        if (!resolved) {
-          reject();
-        }
-      }, timeout);
+      this.sendMessage({
+        ...message,
+        id,
+      });
     });
-  }
 
-  waitForMessage<T extends MessageType>(
+  waitForMessage = <T extends MessageType>(
     type: T,
-    timeout = 10_000
-  ): Promise<void> {
-    return new Promise((resolve, reject) => {
-      let resolved = false;
+    timeoutMs = 10_000
+  ): Promise<void> =>
+    new Promise((resolve, reject) => {
+      const timeoutId = setTimeout(reject, timeoutMs);
 
       const listener: MessageListener<T, void> = {
         type,
         onMessage: () => {
-          resolved = true;
+          clearTimeout(timeoutId);
           this.removeListener(listener);
           resolve();
         },
       };
       this.addListener(listener);
-
-      setTimeout(() => {
-        if (!resolved) {
-          reject();
-        }
-      }, timeout);
     });
-  }
 
   private getWindow() {
     if (!this.targetWindow && this.fallbackSelector) {

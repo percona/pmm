@@ -18,9 +18,8 @@ export const useLinkWithVariables = (url: string) => {
 
   const enhanceWithVariables = async (url: string) => {
     const msg: DashboardVariablesMessage = {
-      id: self.crypto.randomUUID(),
       type: 'DASHBOARD_VARIABLES',
-      data: {
+      payload: {
         url: url.replace(PMM_NEW_NAV_GRAFANA_PATH, ''),
       },
     };
