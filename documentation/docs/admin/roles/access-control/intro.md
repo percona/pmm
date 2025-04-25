@@ -1,14 +1,49 @@
 # About label based access control (LBAC) in PMM
 
-Access control in PMM allows you to manage access to data. By using access control you can restrict access to monitoring metrics and Query Analytics data. This is particularly important in environments where sensitive data is involved, and it helps ensure that only authorized users can access specific information, which is crucial for maintaining security and compliance.
+Access control in PMM allows you to manage access to data. By using access control you can restrict access to monitoring metrics and Query Analytics data. 
 
-Access control is implemented through the use of roles assigned to each individual user. Every role can have a set of labels, or key-value pairs, that are used to filter and restrict access to specific data. For example, you can create a selector for a specific environment ("environment=prod") or database type ("service_type=mysql") and assign the selector to a certain role. Then, you can assign that role to one or more users, allowing those users to access only the relevant data.
+This is particularly important in environments where sensitive data is involved, and it helps ensure that only authorized users can access specific information, which is crucial for maintaining security and compliance.
 
-Therefore, access control provides a standardized way of granting, changing, and revoking access to data based on a set of roles assigned to the user.
+## How LBAC works
+PMM uses Prometheus label selectors to control access to metrics and Query Analytics data. 
 
-The following topics are covered as part of access control:
+Here's how LBAC works:
+{.power-number}
 
-- [Enable access control](enable_access_control.md)
-- [Labels for access control](labels.md)
-- [Create access roles](create_roles.md)
-- [Use cases](use_cases.md)
+1. Create roles with label selectors. For example `environment=prod` for a specific environment or `service_type=mysql` for specific databases.
+2. Assign roles to users based on their responsibilities.
+3. Users see only the metrics and data that match their role's label selectors.
+
+## Key benefits
+
+- Granular permissions: Restrict access to specific services, environments, or regions.
+- Enhanced security: Prevent unauthorized access to sensitive database metrics.
+- Compliance support: Meet regulatory requirements for data access control.
+- Team-specific views: Allow teams to focus only on their relevant systems.
+- Simplified management: Manage access through roles instead of individual user permissions.
+
+## Example scenarios
+
+| User type | Possible role configuration | What they can see |
+|-----------|---------------------------|------------------|
+| DBA team lead | All services across environments | Complete monitoring data for all databases |
+| MySQL administrators | `service_type=mysql` | Only MySQL-related metrics and queries |
+| Production support | `environment=production` | Only production environment metrics |
+| Regional team | `region=us-east` | Only metrics from a specific region |
+
+## Getting started with LBAC
+
+To implement label-based access control in PMM:
+{.power-number}
+
+1. [Enable access control](enable_access_control.md) in your PMM settings
+2. Learn about the [labels available for filtering](labels.md)
+3. [Create access roles](create_roles.md) based on your organizational needs
+4. Review common [use cases and examples](use_cases.md) for inspiration
+
+!!! tip "Best practice"
+    Start with broader access controls and refine them over time as you understand your organization's specific needs.
+
+## Related topics
+
+- [Manage PMM users](../../manage-users/index.md)

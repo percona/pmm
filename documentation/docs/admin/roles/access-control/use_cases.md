@@ -1,47 +1,39 @@
-# Use Cases
+# Implementing LBAC: practical scenarios
 
-An overview of the infrastructure can be seen in the diagram below. PMM monitors several services. The metrics that are stored in VictoriaMetrics have appropriate labels, for example, **environment** and **region**.
+Here are a few practical examples of how label-based access control can be implemented in PMM to meet specific organizational needs.
+
+## Infrastructure overview
+The diagram below shows a sample infrastructure monitored by PMM. Notice how the metrics stored in VictoriaMetrics include labels like **environment** and **region** that can be used for access control.
 
   <!-- source: https://miro.com/app/board/uXjVPfHchvM=/ -->
   ![PMM Access Control - Metrics collection](../../../images/lbac/pmm-lbac-collect-metrics.jpg)
 
+## Use case 1: Simple selectors
 
-## Use case 1 - Simple selectors
+This scenario demonstrates how to create three distinct roles with different levels of access:
 
-This use case demonstrates a scenario with three different roles within an organization that have access to data in PMM. The access control for each role is enforced as follows:
+![PMM Access Control - Basic Roles](../../../images/lbac/pmm-lbac-query-metrics-1.jpg)
 
-- Admin role: access to all metrics, in both **prod** and **qa** environments and in both regions
-- DBA role: access to metrics within **prod** environment in both regions
-- QA role: access to metrics within **qa** environment in both regions
+| Role | Access needs | Label selectors | Effect |
+|------|--------------|-----------------|--------|
+| **Admin** | Complete visibility across all environments | `environment=prod` OR `environment=qa` | Full access to all metrics in both production and QA environments across all regions |
+| **DBA** | Production database management | `environment=prod` | Access to all production metrics across all regions, but no visibility into QA |
+| **QA** | Testing environment monitoring | `environment=qa` | Access to all QA metrics across all regions, but no visibility into production |
 
-    <!-- source: https://miro.com/app/board/uXjVPfHchvM=/ -->
-    ![PMM Access Control - Roles](../../../images/lbac/pmm-lbac-query-metrics-1.jpg)
-
-**Access summary**
-
-| **Role**  | **Label selectors**  | **Accessible metrics** |
-|-----------|----------------------|-----------------------|
-| **Admin** | environment=prod OR environment=qa | The metrics in "prod" and "qa" environments in all regions will be accessible.|
-| **DBA**   | environment=prod AND region=emea| The metrics in "prod" environment in all regions will be accessible.|
-| **QA**    | environment=qa AND region=us-east | The metrics in "qa" environment in all regions will be accessible.|
-
+This approach allows for a clear separation of responsibilities while ensuring each team has access to exactly what they need.
 
 ## Use case 2 - Compound selectors
 
-This use case is a modification of the prior scenario, where the labels selectors are compound to provide a more granular access. In particular, both the **DBA** and **QA** roles now have access to one specific region each.
+This advanced use case demonstrates how compound selectors create more granular access control by combining multiple label conditions using logical operators (AND, OR). 
 
-- Admin role: access to all metrics, in both **prod** and **qa** environments and in both regions
-- DBA role: access to metrics within **prod** environment and in **emea** region only
-- QA role: access to metrics within **qa** environment and in **us-east** region only
+By requiring matches on multiple labels simultaneously, you can implement sophisticated access patterns that reflect real-world organizational structures and security requirements.
 
-    <!-- source: https://miro.com/app/board/uXjVPfHchvM=/ -->
-    ![PMM Access Control - Roles](../../../images/lbac/pmm-lbac-query-metrics-2.jpg)
+<!-- source: https://miro.com/app/board/uXjVPfHchvM=/ -->
+![PMM Access Control - Roles](../../../images/lbac/pmm-lbac-query-metrics-2.jpg)
 
 
-**Acess summary**
-
-| **Role**  | **Label selectors**  | **Accessible metrics** |
-|-----------|----------------------|-----------------------|
-| **Admin** | environment=prod OR environment=qa| The metrics in "prod" and "qa" environments in all regions will be accessible.|
-| **DBA**   | environment=prod AND region=emea| The metrics for "emea" region in "prod" environment will be accessible.|
-| **QA**    | environment=qa AND region=us-east | The metrics for "us-east" region in "qa" environment will be accessible.|
+| Role | Access needs | Label selectors | Effect |
+|------|--------------|-----------------|--------|
+| **Admin** | Complete visibility across all environments and regions | `environment=prod` OR `environment=qa` | Full access to all metrics in both production and QA environments across all regions |
+| **DBA** | Production database management in EMEA region | `environment=prod` AND `region=emea` | Access only to production metrics in the EMEA region |
+| **QA** | Testing environment monitoring in US-East region | `environment=qa` AND `region=us-east` | Access only to QA metrics in the US-East region |

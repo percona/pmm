@@ -1,31 +1,51 @@
 # Enable access control
 
-You can enable access control in PMM as follows:
+Access control in PMM lets you restrict user access to specific metrics based on their roles. 
+Choose your preferred method to enable this feature:
 
-- Docker
-- User Interface
+=== "Via Docker"
 
-## Enabling access control in container orchestration systems
+    When deploying PMM Server with Docker, enable access control by passing an environment variable:
+    
+    ```sh
+    docker run -d \
+      --name pmm-server \
+      -p 443:443 \
+      -e PMM_ENABLE_ACCESS_CONTROL=1 \
+      percona/pmm-server:latest
+    ```
 
-To enable access control in container orchestration systems, pass the environment variable `PMM_ENABLE_ACCESS_CONTROL` when starting the container.
+=== "Via Docker Compose"
 
-```sh
-docker run … -e PMM_ENABLE_ACCESS_CONTROL=1
-```
+    For Docker Compose deployments, add the environment variable to your `docker-compose.yml` file:
+    
+    ```yaml
+    services:
+      pmm-server:
+        image: percona/pmm-server:latest
+        ports:
+          - "443:443"
+        environment:
+          - PMM_ENABLE_ACCESS_CONTROL=1
+        volumes:
+          - pmm-data:/srv
+    ```
 
-For `docker compose`, add the environment variable to the `docker-compose.yml` file:
+=== "Via user interface"
 
-```
-services:
-  pmm-server:
-    …
-    environment:
-      …
-      PMM_ENABLE_ACCESS_CONTROL=1
-```
+    To enable access control from the PMM web interface:
+    {.power-number}
+    
+    1. Log in to PMM with an administrator account.
+    2. From the main menu, go to **PMM Configuration > Settings > Advanced Settings > Access Control**.
+    3. Toggle the <i class="uil uil-toggle-off"></i> toggle.
+    4. Click **Apply changes** to save your settings.
 
-## Enabling access control from the UI
+## After enabling access control
 
-To enable access control from the UI:
+Once access control is enabled:
 
-From the main menu, go to  **PMM Configuration > Settings > Advanced Settings > Access Control** and click the <i class="uil uil-toggle-off"></i> toggle.
+- All existing users will have full access until you assign specific roles.
+- [Create access roles](../access-control/create_roles.md) for different user types.
+- [Assign the new roles](../index.md) to your PMM users.
+- Test that restrictions work as expected.
