@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package parser implements a Mongo log parser.
 package collector
 
 import (
@@ -40,6 +39,7 @@ type MongologReader struct {
 
 const slowQuery = "Slow query"
 
+// Helper structure to unmarshall Monglog row to system.Profile metrics.
 type Mongolog struct {
 	T struct {
 		Date time.Time `json:"$date"`
@@ -58,7 +58,7 @@ func GetLogFilePath(client *mongo.Client) (string, error) {
 	var result bson.M
 	err := client.Database("admin").RunCommand(context.TODO(), bson.M{"getCmdLineOpts": 1}).Decode(&result)
 	if err != nil {
-		errors.Wrap(err, "failed to run command getCmdLineOpts")
+		return "", errors.Wrap(err, "failed to run command getCmdLineOpts")
 	}
 
 	if parsed, ok := result["parsed"].(bson.M); ok {
@@ -77,11 +77,11 @@ func GetLogFilePath(client *mongo.Client) (string, error) {
 		}
 	}
 
-	return "", errors.New("No log path found. Logs may be in Docker stdout.")
+	return "", errors.New("no log path found, logs may be in Docker stdout")
 }
 
-// NewMongoLogReader returns a new MongoLogReader that reads from the given reader.
-func NewMongoLogReader(ctx context.Context, docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}, logsPath string, logger *logrus.Entry) (*MongologReader, error) {
+// NewReader returns a new MongologReader that reads from the given reader.
+func NewReader(ctx context.Context, docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}, logsPath string, logger *logrus.Entry) (*MongologReader, error) {
 	reader, err := filereader.NewContinuousFileReader(logsPath, logger)
 	if err != nil {
 		return nil, err
@@ -98,6 +98,7 @@ func NewMongoLogReader(ctx context.Context, docsChan chan<- proto.SystemProfile,
 	return p, nil
 }
 
+// Continuously read new lines from file, until it is canceled or considered as done.
 func (p *MongologReader) ReadFile() {
 	p.logger.Debugln("reader started")
 	for {

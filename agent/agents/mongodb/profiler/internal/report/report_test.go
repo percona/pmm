@@ -16,6 +16,6 @@ package report
 
 import "testing"
 
-func TestReport(t *testing.T) {
+func TestReport(_ *testing.T) {
 	// we need at least one test per package to correctly calculate coverage
 }

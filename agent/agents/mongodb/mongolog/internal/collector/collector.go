@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package collector implements collecting mongo logs from file.
 package collector
 
 import (
@@ -32,6 +33,7 @@ func New(logsPath string, logger *logrus.Entry) *Collector {
 	}
 }
 
+// Collector is used by Mongolog agent.
 type Collector struct {
 	// dependencies
 	logsPath string
@@ -107,24 +109,20 @@ func (c *Collector) Stop() {
 	close(c.docsChan) // we can now safely close channels goroutines write to as goroutine is stopped
 }
 
-func (c *Collector) Name() string {
-	return "collector"
-}
-
 func start(ctx context.Context, wg *sync.WaitGroup, logsPath string,
 	docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry,
 ) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
-	fr, err := NewMongoLogReader(ctx, docsChan, doneChan, logsPath, logger)
+	fr, err := NewReader(ctx, docsChan, doneChan, logsPath, logger)
 	if err != nil {
 		logger.Error(err)
 		return
 	}
 	go func() {
 		fr.ReadFile()
-		logger.Debugln("readning routine quit")
+		logger.Debugln("reading routine quit")
 	}()
 
 	firstTry := true

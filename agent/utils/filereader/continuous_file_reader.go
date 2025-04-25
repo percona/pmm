@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package filereader provides ability to read and watch file.
 package filereader
 
 import (

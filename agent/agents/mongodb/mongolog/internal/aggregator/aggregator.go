@@ -244,11 +244,11 @@ func (a *Aggregator) newInterval(ts time.Time) {
 func (a *Aggregator) createResult(_ context.Context) *report.Result {
 	queries := a.mongostats.Queries()
 	queryStats := queries.CalcQueriesStats(int64(DefaultInterval))
-	var buckets []*agentv1.MetricsBucket
 
 	a.logger.Tracef("Queries: %#v", queries)
 	a.logger.Tracef("Query Stats: %#v", queryStats)
 
+	var buckets []*agentv1.MetricsBucket //nolint:prealloc
 	for _, v := range queryStats {
 		db := ""
 		collection := ""

@@ -101,7 +101,10 @@ func (l *mongolog) Start() error {
 	if err != nil {
 		return err
 	}
-	client.Disconnect(ctx)
+	err = client.Disconnect(ctx)
+	if err != nil {
+		l.logger.Warningln(err)
+	}
 
 	// create aggregator which collects documents and aggregates them into qan report
 	l.aggregator = aggregator.New(time.Now(), l.agentID, l.logger, l.maxQueryLength)

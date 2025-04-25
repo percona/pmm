@@ -240,7 +240,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 
 		// Agents with exactly one Service
 		case models.MySQLdExporterType, models.MongoDBExporterType, models.PostgresExporterType, models.ProxySQLExporterType,
-			models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType, models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType, models.QANPostgreSQLPgStatementsAgentType,
+			models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType, models.QANMongoDBProfilerAgentType,
+			models.QANMongoDBMongologAgentType, models.QANPostgreSQLPgStatementsAgentType,
 			models.QANPostgreSQLPgStatMonitorAgentType:
 
 			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))

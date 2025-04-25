@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package fingerprinter is used to get fingerpint for queries.
 package fingerprinter
 
 import (
@@ -256,6 +257,7 @@ func maskValues(data interface{}, options map[string]maskOption) interface{} {
 	}
 }
 
+// DefaultKeyFilters returns default keys used for filtering.
 func DefaultKeyFilters() []string {
 	return []string{}
 }

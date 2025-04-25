@@ -72,11 +72,11 @@ func TestCollector(t *testing.T) {
 
 func countLinesInFile(t *testing.T, filePath string) int {
 	// Open the file
-	file, err := os.Open(filePath)
+	file, err := os.Open(filePath) //nolint:gosec
 	if err != nil {
 		t.Fatalf("Error opening file %s: %v", filePath, err)
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	// Create a scanner to read through the file line by line
 	scanner := bufio.NewScanner(file)

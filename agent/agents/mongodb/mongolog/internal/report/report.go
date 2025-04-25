@@ -28,7 +28,7 @@ type Report struct {
 	Buckets []*agentv1.MetricsBucket // per-class metrics
 }
 
-func MakeReport(ctx context.Context, startTime, endTime time.Time, result *Result) *Report {
+func MakeReport(_ context.Context, startTime, endTime time.Time, result *Result) *Report {
 	// Sort classes by Query_time_sum, descending.
 	sort.Sort(ByQueryTime(result.Buckets))
 
