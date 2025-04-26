@@ -21,10 +21,10 @@ require (
 	github.com/jstemmer/go-junit-report v1.0.0
 	github.com/quasilyte/go-consistent v0.6.0
 	github.com/reviewdog/reviewdog v0.20.1
-	github.com/vburenin/ifacemaker v1.2.1
+	github.com/vburenin/ifacemaker v1.3.0
 	github.com/vektra/mockery/v2 v2.53.2
 	golang.org/x/perf v0.0.0-20230717203022-1ba3a21238c9
-	golang.org/x/tools v0.31.0
+	golang.org/x/tools v0.32.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.5.1
 	google.golang.org/protobuf v1.36.5
 	gopkg.in/reform.v1 v1.5.1
@@ -138,7 +138,7 @@ require (
 	github.com/jackc/pgx v3.6.2+incompatible // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jdx/go-netrc v1.0.0 // indirect
-	github.com/jessevdk/go-flags v1.5.0 // indirect
+	github.com/jessevdk/go-flags v1.6.1 // indirect
 	github.com/jinzhu/copier v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
@@ -230,16 +230,16 @@ require (
 	go.uber.org/zap/exp v0.3.0 // indirect
 	golang.org/x/arch v0.11.0 // indirect
 	golang.org/x/build v0.0.0-20240712162709-0b82a206aadf // indirect
-	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/exp v0.0.0-20250228200357-dead58393ab7 // indirect
 	golang.org/x/mod v0.24.0 // indirect
-	golang.org/x/net v0.37.0 // indirect
+	golang.org/x/net v0.39.0 // indirect
 	golang.org/x/oauth2 v0.25.0 // indirect
-	golang.org/x/sync v0.12.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/sync v0.13.0 // indirect
+	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/telemetry v0.0.0-20241106142447-58a1122356f5 // indirect
-	golang.org/x/term v0.30.0 // indirect
-	golang.org/x/text v0.23.0 // indirect
+	golang.org/x/term v0.31.0 // indirect
+	golang.org/x/text v0.24.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250224174004-546df14abb99 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250224174004-546df14abb99 // indirect
