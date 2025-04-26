@@ -26,8 +26,7 @@ def install_packages():
     run_commands([
         "dnf install -y gcc git make pkgconfig \
             vim \
-            mc tmux psmisc lsof which iproute diffutils \
-            bash-completion \
+            mc psmisc procps lsof which iproute diffutils \
             man man-pages \
             openssl-devel \
             wget \
@@ -42,7 +41,7 @@ def install_go():
     """Installs Go toolchain."""
 
     run_commands([
-        "curl -sS https://raw.githubusercontent.com/travis-ci/gimme/v1.5.5/gimme -o /usr/local/bin/gimme",
+        "curl -sS https://raw.githubusercontent.com/travis-ci/gimme/v1.5.6/gimme -o /usr/local/bin/gimme",
         "chmod +x /usr/local/bin/gimme"
     ])
 
@@ -68,7 +67,7 @@ def make_init():
     """Runs make init."""
 
     run_commands([
-        "make -C .. init",
+        "make init",
     ])
 
 
@@ -76,7 +75,7 @@ def setup():
     """Runs various setup commands."""
     run_commands([
         # allow connecting from any host, needed to connect from host to PG running in docker
-        "sed -i -e \"s/#listen_addresses = \'localhost\'/listen_addresses = \'*\'/\" /srv/postgres14/postgresql.conf",
+        "sed -i -e \"s/#listen_addresses = 'localhost'/listen_addresses = '*'/\" /srv/postgres14/postgresql.conf",
         # Turns fsync off. Create database operations with fsync on are very slow on Ubuntu.
         # Having fsync off in dev environment is fine.
         "sed -i -e \"s/#fsync = on/fsync = off/\" /srv/postgres14/postgresql.conf",
