@@ -32,7 +32,7 @@ PMM versions are managed in branches:
 
 ### Before you begin
 
-Before editing a page, make sure you have basic understanding of [Git], [Python], Docker, and [Markdown]—including how to install and use them via the command line.
+Before editing a page, make sure you have a basic understanding of [Git], [Python], Docker, and [Markdown], including how to install and use them via the command line.
 If you're not comfortable with these tools, no worries, just [open a Jira issue] instead of editing the documentation directly.
 
 ### Building locally
