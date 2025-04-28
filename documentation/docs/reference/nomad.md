@@ -101,4 +101,3 @@ Nomad is included in PMM to support future extensibility features. Nomad will re
 ## Related links
 
 - [Nomad documentation](https://developer.hashicorp.com/nomad/docs)
-- [PMM Architecture](../details/architecture.html)
