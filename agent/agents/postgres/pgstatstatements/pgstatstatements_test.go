@@ -479,8 +479,6 @@ func TestPGStatStatementsQPS(t *testing.T) {
 			}
 		}()
 		for i := 0; i < runTimes; i++ {
-			_, err = db.Exec(fmt.Sprintf("drop table if exists t%d", i))
-			require.NoError(t, err)
 			_, err = db.Exec(fmt.Sprintf("create /* controller='test' */ table t%d (id int);", i))
 			require.NoError(t, err)
 			_, err = db.Exec(fmt.Sprintf("insert /* controller='test' */ into t%d values(1);", i))
@@ -497,7 +495,7 @@ func TestPGStatStatementsQPS(t *testing.T) {
 				mismatchedCount++
 			}
 		}
-		assert.Equal(t, 0, mismatchedCount)
+		assert.Zero(t, mismatchedCount)
 
 		// re-run insert queries and check that there are now mismatches since the cache can't hold all the previous bucket.
 		for i := 0; i < runTimes; i++ {
@@ -531,8 +529,6 @@ func TestPGStatStatementsQPS(t *testing.T) {
 		}()
 
 		for i := 0; i < runTimes; i++ {
-			_, err = db.Exec(fmt.Sprintf("drop table if exists /* controller='test' */ t%d", i))
-			require.NoError(t, err)
 			_, err = db.Exec(fmt.Sprintf("create /* controller='test' */ table t%d (id int);", i))
 			require.NoError(t, err)
 			_, err = db.Exec(fmt.Sprintf("insert /* controller='test' */ into t%d values(1);", i))

@@ -76,8 +76,10 @@ type Params struct {
 	TextFiles              *agentv1.TextFiles
 }
 
-const queryTag = "agent='pgstatstatements'"
-const pgssMaxQuery = "SELECT /* " + queryTag + " */ setting FROM pg_settings WHERE name = 'pg_stat_statements.max'"
+const (
+	queryTag     = "agent='pgstatstatements'"
+	pgssMaxQuery = "SELECT /* " + queryTag + " */ setting FROM pg_settings WHERE name = 'pg_stat_statements.max'"
+)
 
 // New creates new PGStatStatementsQAN QAN service.
 func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
