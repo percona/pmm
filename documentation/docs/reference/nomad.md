@@ -33,15 +33,16 @@ To enable Nomad in PMM:
 
 4. Restart the PMM Server.
 
-**Example**:
-```
-docker run -d \
-  -e PMM_ENABLE_NOMAD=1 \
-  -p 4647:4647 \
-  -p 443:443 \
-  --name pmm-server \
-  percona/pmm-server:latest
-```
+??? info "Docker run command" 
+
+    ```
+    docker run -d \
+    -e PMM_ENABLE_NOMAD=1 \
+    -p 4647:4647 \
+    -p 443:443 \
+    --name pmm-server \
+    percona/pmm-server:latest
+    ```
 
 ### Disable Nomad
 
@@ -81,6 +82,17 @@ When enabled, PMM runs the following Nomad components:
 - **Nomad client** on PMM Clients - executes distributed workloads
 
 Communication between these components is secured and managed automatically when configured with the proper public address.
+
+## API access
+The Nomad API is available through the PMM Server's HTTPS port via the `/nomad` prefix. This allows you to access Nomad endpoints without requiring a separate port for the Nomad API.
+
+- Nomad endpoints are only available to users with admin privileges
+- All Nomad API endpoints are accessible under the `/nomad` path
+- The standard Nomad API documentation applies, but all requests must use the `/nomad`prefix
+
+??? info "Example API request" 
+
+    https://<PMM_SERVER_URL>/nomad/v1/jobs
 
 ## Future compatibility
 
