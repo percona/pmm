@@ -78,7 +78,7 @@ To verify that Nomad is running correctly:
 When enabled, PMM runs the following Nomad components:
 
 - **Nomad server** on PMM Server - manages the cluster and schedules workloads
-- **Nomad client** on PMM Server - executes local workloads
+- **Nomad client** on PMM Server - executes jobs (workloads) on remote instances
 - **Nomad client** on PMM Clients - executes distributed workloads
 
 Communication between these components is secured and managed automatically when configured with the proper public address.
