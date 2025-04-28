@@ -50,7 +50,7 @@ type Collector struct {
 }
 
 // Start starts but doesn't wait until it exits
-func (c *Collector) Start(context.Context) (<-chan proto.SystemProfile, error) {
+func (c *Collector) Start(ctx context.Context) (<-chan proto.SystemProfile, error) {
 	c.m.Lock()
 	defer c.m.Unlock()
 	if c.running {
@@ -73,7 +73,6 @@ func (c *Collector) Start(context.Context) (<-chan proto.SystemProfile, error) {
 	ready.L.Lock()
 	defer ready.L.Unlock()
 
-	ctx := context.Background()
 	labels := pprof.Labels("component", "mongodb.aggregator")
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
 		start(

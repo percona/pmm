@@ -22,12 +22,14 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
+// Report represents buckets and timestamps for qan.Report.
 type Report struct {
 	StartTs time.Time                // Start time of interval, UTC
 	EndTs   time.Time                // Stop time of interval, UTC
 	Buckets []*agentv1.MetricsBucket // per-class metrics
 }
 
+// MakeReport prepare report for QAN from given data.
 func MakeReport(_ context.Context, startTime, endTime time.Time, result *Result) *Report {
 	// Sort classes by Query_time_sum, descending.
 	sort.Sort(ByQueryTime(result.Buckets))
@@ -42,18 +44,21 @@ func MakeReport(_ context.Context, startTime, endTime time.Time, result *Result)
 	return report
 }
 
-// mongodb-profiler --> Result --> qan.Report --> data.Spooler
-
-// Data for an interval from slow log or performance schema (pfs) parser,
-// passed to MakeReport() which transforms into a qan.Report{}.
+// Result is passed to MakeReport() which transforms into a qan.Report{}.
 type Result struct {
 	Buckets []*agentv1.MetricsBucket
 }
 
+// ByQueryTime is sorted array of metrics buckets.
 type ByQueryTime []*agentv1.MetricsBucket
 
-func (a ByQueryTime) Len() int      { return len(a) }
+// Len returns count of metrics buckets.
+func (a ByQueryTime) Len() int { return len(a) }
+
+// Swap switch two buckets.
 func (a ByQueryTime) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
+// Less compares two buckets.
 func (a ByQueryTime) Less(i, j int) bool {
 	if a == nil || a[i] == nil || a[j] == nil {
 		return false

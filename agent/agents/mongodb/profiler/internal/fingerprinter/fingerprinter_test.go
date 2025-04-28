@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//nolint:errcheck
-
 package fingerprinter
 
 import (
@@ -123,8 +121,8 @@ func TestProfilerFingerprinter(t *testing.T) {
 		database.Collection("test").FindOne(ctx, bson.M{"id": 1, "name": "test", "time": time.Now()})
 		database.Collection("test").FindOneAndUpdate(ctx, bson.M{"id": 0}, bson.M{"$set": bson.M{"name": "new"}})
 		database.Collection("test").FindOneAndDelete(ctx, bson.M{"id": 1})
-		database.Collection("secondcollection").Find(ctx, bson.M{"name": "sec"}, options.Find().SetLimit(1).SetSort(bson.M{"id": -1}))
-		database.Collection("test").Aggregate(ctx,
+		database.Collection("secondcollection").Find(ctx, bson.M{"name": "sec"}, options.Find().SetLimit(1).SetSort(bson.M{"id": -1})) //nolint:errcheck
+		database.Collection("test").Aggregate(ctx,                                                                                     //nolint:errcheck
 			[]bson.M{
 				{
 					"$match": bson.M{"id": 0, "time": bson.M{"$gt": time.Now().Add(-time.Hour)}},
@@ -157,8 +155,8 @@ func TestProfilerFingerprinter(t *testing.T) {
 				},
 			},
 		})
-		database.Collection("secondcollection").DeleteOne(ctx, bson.M{"id": 0})
-		database.Collection("test").DeleteMany(ctx, bson.M{"name": "test"})
+		database.Collection("secondcollection").DeleteOne(ctx, bson.M{"id": 0}) //nolint:errcheck
+		database.Collection("test").DeleteMany(ctx, bson.M{"name": "test"})     //nolint:errcheck
 		profilerCollection := database.Collection("system.profile")
 		query := createQuery(dbName, time.Now().Add(-10*time.Minute))
 

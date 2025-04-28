@@ -42,6 +42,7 @@ func New(client *mongo.Client, dbName string, logger *logrus.Entry) *Collector {
 	}
 }
 
+// Collector is used by Profiler agent.
 type Collector struct {
 	// dependencies
 	client *mongo.Client

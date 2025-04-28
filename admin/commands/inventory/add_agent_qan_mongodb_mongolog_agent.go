@@ -45,7 +45,7 @@ func (res *addAgentQANMongoDBMongologAgentResult) String() string {
 	return commands.RenderTemplate(addAgentQANMongoDBMongologAgentResultT, res)
 }
 
-// addAgentQANMongoDBMongologAgentCommand is used by Kong for CLI flags and commands.
+// AddAgentQANMongoDBMongologAgentCommand is used by Kong for CLI flags and commands.
 //
 //nolint:lll
 type AddAgentQANMongoDBMongologAgentCommand struct {

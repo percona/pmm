@@ -39,7 +39,7 @@ type MongologReader struct {
 
 const slowQuery = "Slow query"
 
-// Helper structure to unmarshall Monglog row to system.Profile metrics.
+// Mongolog is a helper structure to unmarshall Monglog row to system.Profile metrics.
 type Mongolog struct {
 	T struct {
 		Date time.Time `json:"$date"`
@@ -72,7 +72,9 @@ func GetLogFilePath(client *mongo.Client) (string, error) {
 	if argv, ok := result["argv"].([]interface{}); ok {
 		for i := 0; i < len(argv); i++ {
 			if arg, ok := argv[i].(string); ok && arg == "--logpath" && i+1 < len(argv) {
-				return argv[i+1].(string), nil
+				if value, ok := argv[i+1].(string); ok {
+					return value, nil
+				}
 			}
 		}
 	}
@@ -98,7 +100,7 @@ func NewReader(ctx context.Context, docsChan chan<- proto.SystemProfile, doneCha
 	return p, nil
 }
 
-// Continuously read new lines from file, until it is canceled or considered as done.
+// ReadFile continuously read new lines from file, until it is canceled or considered as done.
 func (p *MongologReader) ReadFile() {
 	p.logger.Debugln("reader started")
 	for {

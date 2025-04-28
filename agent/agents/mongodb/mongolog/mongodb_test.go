@@ -30,7 +30,8 @@ import (
 )
 
 func TestMongoRun(t *testing.T) {
-	testdata, err := filepath.Abs(filepath.Join("..", "..", "..", "testdata/mongo"))
+	testdata, err := filepath.Abs("../../../testdata/mongo")
+	require.NoError(t, err)
 	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../..")
 	tempDir := t.TempDir()
 	sslDSN, err := templates.RenderDSN(sslDSNTemplate, files, tempDir)
