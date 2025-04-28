@@ -544,6 +544,10 @@ func TestExporterURL(t *testing.T) {
 				},
 			},
 		} {
+			if v, ok := str.(*models.Agent); ok {
+				encryptedAgent := models.EncryptAgent(*v)
+				str = &encryptedAgent
+			}
 			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
 		}
 
