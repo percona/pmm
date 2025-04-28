@@ -10,7 +10,7 @@ Percona Monitoring and Management (PMM) includes HashiCorp Nomad to enable futur
 
 Nomad is **disabled by default** in PMM and has no impact on system performance when not enabled. 
 
-### Internal configuration (Percona team)
+### Internal configuration
 
 If you're a Percona team member or an advanced user who needs to enable Nomad for specific use cases, follow these steps:
 
@@ -92,7 +92,7 @@ The Nomad API is available through the PMM Server's HTTPS port via the `/nomad` 
 
 ??? info "Example API request" 
 
-    https://<PMM_SERVER_URL>/nomad/v1/jobs
+    `https://<PMM_SERVER_URL>/nomad/v1/jobs`
 
 ## Future compatibility
 
