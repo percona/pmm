@@ -16,9 +16,14 @@
 package agents
 
 import (
+	"bytes"
 	"fmt"
 	"sort"
+	"text/template"
 	"time"
+
+	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -27,17 +32,14 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-var mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
-
-// The mysqldExporterConfig returns desired configuration of mysqld_exporter process.
-
+// mysqldExporterConfig returns desired configuration of mysqld_exporter process.
 func mysqldExporterConfig(
 	node *models.Node,
 	service *models.Service,
 	exporter *models.Agent,
 	redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
-) *agentv1.SetStateRequest_AgentProcess {
+) (*agentv1.SetStateRequest_AgentProcess, error) {
 	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
 
@@ -77,13 +79,15 @@ func mysqldExporterConfig(
 		"--exporter.max-idle-conns=3",
 		"--exporter.max-open-conns=3",
 		"--exporter.conn-max-lifetime=55s",
-		"--exporter.global-conn-pool",
 		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
-	if !pmmAgentVersion.Less(mysqlExporterVersionWithPluginCollector) {
-		args = append(args,
-			"--collect.plugins")
+	if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterPluginCollector) {
+		args = append(args, "--collect.plugins")
+	}
+
+	if !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
+		args = append(args, "--exporter.global-conn-pool")
 	}
 
 	if exporter.IsMySQLTablestatsGroupEnabled() {
@@ -110,9 +114,9 @@ func mysqldExporterConfig(
 		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
-	files := exporter.Files()
-	if files != nil {
-		for k := range files {
+	textFiles := exporter.Files()
+	if textFiles != nil && !pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
+		for k := range textFiles {
 			switch k {
 			case "tlsCa":
 				args = append(args, "--mysql.ssl-ca-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
@@ -124,8 +128,12 @@ func mysqldExporterConfig(
 				continue
 			}
 		}
+	}
 
-		if exporter.TLSSkipVerify {
+	if exporter.TLSSkipVerify {
+		if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
+			args = append(args, "--tls.insecure-skip-verify")
+		} else {
 			args = append(args, "--mysql.ssl-skip-verify")
 		}
 	}
@@ -139,16 +147,37 @@ func mysqldExporterConfig(
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
-		Env: []string{
+		TextFiles:          textFiles,
+	}
+
+	if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
+		if textFiles == nil {
+			textFiles = make(map[string]string)
+		}
+		res.TextFiles = textFiles
+
+		cfg, err := buildMyCnfConfig(service, exporter, textFiles)
+		if err != nil {
+			return nil, err
+		}
+		res.TextFiles["myCnf"] = cfg
+		res.Args = append(res.Args, "--config.my-cnf="+tdp.Left+" .TextFiles.myCnf "+tdp.Right)
+
+		if err := ensureAuthParams(exporter, res, pmmAgentVersion, version.MysqlExporterV0_17_2, true); err != nil {
+			return nil, err
+		}
+	} else {
+		env := []string{
 			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
-		},
-		TextFiles: exporter.Files(),
+		}
+		res.Env = env
 	}
+
 	if redactMode != exposeSecrets {
 		res.RedactWords = redactWords(exporter)
 	}
-	return res
+	return res, nil
 }
 
 // qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema built-in agent.
@@ -188,4 +217,64 @@ func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent, pm
 		},
 		TlsSkipVerify: agent.TLSSkipVerify,
 	}
+}
+
+// https://dev.mysql.com/doc/refman/8.4/en/mysql-command-options.html
+// https://dev.mysql.com/doc/refman/8.4/en/connection-options.html#encrypted-connection-options
+const myCnfTemplate = `[client]
+{{if .Host}}host={{ .Host }}{{end}}
+{{if .Port}}port={{ .Port }}{{end}}
+{{if .User}}user={{ .User }}{{end}}
+{{if .Password}}password={{ .Password }}{{end}}
+{{if .Socket}}socket={{ .Socket }}{{end}}
+{{if .CaFile}}ssl-ca={{ .CaFile }}{{end}}
+{{if .CertFile}}ssl-cert={{ .CertFile }}{{end}}
+{{if .KeyFile}}ssl-key={{ .KeyFile }}{{end}}
+`
+
+// BuildMyCnfConfig builds my.cnf configuration for MySQL connection.
+func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[string]string) (string, error) {
+	tmpl, err := template.New("myCnf").Parse(myCnfTemplate)
+	if err != nil {
+		return "", errors.Wrap(err, "Failed to parse my.cnf template")
+	}
+	tdp := agent.TemplateDelimiters(service)
+
+	var configBuffer bytes.Buffer
+	myCnfParams := struct {
+		User      string
+		Password  string
+		Socket    string
+		Host      string
+		Port      int
+		CaFile    string
+		CertFile  string
+		KeyFile   string
+		MyCnfPath string
+	}{
+		User:     pointer.GetString(agent.Username),
+		Password: pointer.GetString(agent.Password),
+		Host:     pointer.GetString(service.Address),
+		Port:     int(pointer.GetUint16(service.Port)),
+	}
+
+	if files["tlsCa"] != "" {
+		myCnfParams.CaFile = tdp.Left + " .TextFiles.tlsCa " + tdp.Right
+	}
+	if files["tlsCert"] != "" {
+		myCnfParams.CertFile = tdp.Left + " .TextFiles.tlsCert " + tdp.Right
+	}
+	if files["tlsKey"] != "" {
+		myCnfParams.KeyFile = tdp.Left + " .TextFiles.tlsKey " + tdp.Right
+	}
+
+	if service.Socket != nil {
+		myCnfParams.Socket = *service.Socket
+	}
+
+	if err = tmpl.Execute(&configBuffer, myCnfParams); err != nil {
+		return "", errors.Wrap(err, "Failed to execute myCnf template")
+	}
+
+	return configBuffer.String(), nil
 }
