@@ -200,7 +200,7 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 			"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 			"--no-collector.locks",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+			"--web.config={{ .TextFiles.webConfig }}",
 		},
 	}
 	requireNoDuplicateFlags(s.T(), actual.Args)
@@ -361,13 +361,13 @@ func TestMaxConnections(t *testing.T) {
 			"--collect.custom_query.mr.directory=" + pathsBase(pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
 			"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+			"--web.config={{ .TextFiles.webConfig }}",
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",
 		},
 		TextFiles: map[string]string{
-			"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
+			"webConfig": "basic_auth_users:\n    pmm: agent-id\n",
 		}, RedactWords: []string{"s3cur3 p@$$w0r4."},
 	}
 
@@ -493,13 +493,13 @@ func (s *PostgresExporterConfigTestSuite) TestPrometheusWebConfig() {
 			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
 			"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+			"--web.config={{ .TextFiles.webConfig }}",
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=verify-ca",
 		},
 		TextFiles: map[string]string{
-			"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
+			"webConfig": "basic_auth_users:\n    pmm: agent-id\n",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4."},
 	}
@@ -545,13 +545,13 @@ func (s *PostgresExporterConfigTestSuite) TestSSLSni() {
 			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
 			"--exclude-databases=template0,template1,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
-			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+			"--web.config={{ .TextFiles.webConfig }}",
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=verify-ca&sslsni=0",
 		},
 		TextFiles: map[string]string{
-			"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
+			"webConfig": "basic_auth_users:\n    pmm: agent-id\n",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4."},
 	}

@@ -456,7 +456,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 	}
 
 	ctx, cancel := context.WithCancel(s.ctx)
-	agentType := strings.ToLower(agentProcess.Type.String())
+	agentType := trimPrefix(agentProcess.Type.String())
 	logStore := tailog.NewStore(s.cfg.Get().LogLinesCount)
 	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-process",
@@ -543,7 +543,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 	cfg := s.cfg.Get()
 
 	ctx, cancel := context.WithCancel(s.ctx)
-	agentType := strings.ToLower(builtinAgent.Type.String())
+	agentType := trimPrefix(builtinAgent.Type.String())
 	logStore := tailog.NewStore(cfg.LogLinesCount)
 	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-builtin",
@@ -831,6 +831,11 @@ func (s *Supervisor) Collect(ch chan<- prometheus.Metric) {
 	for _, agent := range s.builtinAgents {
 		agent.collect(ch)
 	}
+}
+
+// trimPrefix converts AgentType to lowercase and removes "agent_type_" prefix from it.
+func trimPrefix(s string) string {
+	return strings.TrimPrefix(strings.ToLower(s), "agent_type_")
 }
 
 // check interfaces.
