@@ -511,7 +511,7 @@ func TestPGStatStatementsQPS(t *testing.T) {
 				mismatchedCount++
 			}
 		}
-		assert.Greater(t, mismatchedCount, 0)
+		assert.Greater(t, mismatchedCount, 0) // nolint:testifylint // this makes what we're testing more explicit
 	})
 
 	t.Run("check query count when cache size equals pgss.max", func(t *testing.T) {
