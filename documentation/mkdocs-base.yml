@@ -443,7 +443,7 @@ nav:
         - reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
         - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
         - reference/dashboards/dashboard-haproxy-instance-summary.md
--   -  reference/nomad.md
+    -  reference/nomad.md
     -  reference/glossary.md
     -  reference/faq.md
     -  reference/trademark-policy.md
