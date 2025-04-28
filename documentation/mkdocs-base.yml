@@ -371,6 +371,7 @@ nav:
       - PMM API:
         - api/index.md
         - api/authentication.md
+      - Nomad configuration (Percona teams): reference/nomad.md
 
     - PMM dashboards:
       - Insight:
