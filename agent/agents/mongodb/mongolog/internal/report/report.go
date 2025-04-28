@@ -42,10 +42,7 @@ func MakeReport(_ context.Context, startTime, endTime time.Time, result *Result)
 	return report
 }
 
-// mongodb-mongolog --> Result --> qan.Report --> data.Spooler
-
-// Data for an interval from slow log or performance schema (pfs) parser,
-// passed to MakeReport() which transforms into a qan.Report{}.
+// Passed to MakeReport() which transforms into a qan.Report{}.
 type Result struct {
 	Buckets []*agentv1.MetricsBucket
 }

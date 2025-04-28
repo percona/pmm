@@ -22,7 +22,7 @@ import (
 )
 
 var addAgentQANMongoDBMongologAgentResultT = commands.ParseTemplate(`
-QAN MongoDB profiler agent added.
+QAN MongoDB Mongolog agent added.
 Agent ID              : {{ .Agent.AgentID }}
 PMM-Agent ID          : {{ .Agent.PMMAgentID }}
 Service ID            : {{ .Agent.ServiceID }}
@@ -36,7 +36,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentQANMongoDBMongologAgentResult struct {
-	Agent *agents.AddAgentOKBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent"`
+	Agent *agents.AddAgentOKBodyQANMongodbMongologAgent `json:"qan_mongodb_mongolog_agent"`
 }
 
 func (res *addAgentQANMongoDBMongologAgentResult) Result() {}
@@ -106,7 +106,7 @@ func (cmd *AddAgentQANMongoDBMongologAgentCommand) RunCmd() (commands.Result, er
 	if err != nil {
 		return nil, err
 	}
-	return &addAgentQANMongoDBProfilerAgentResult{
-		Agent: resp.Payload.QANMongodbProfilerAgent,
+	return &addAgentQANMongoDBMongologAgentResult{
+		Agent: resp.Payload.QANMongodbMongologAgent,
 	}, nil
 }
