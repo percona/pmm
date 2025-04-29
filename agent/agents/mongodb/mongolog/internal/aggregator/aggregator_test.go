@@ -61,7 +61,7 @@ func TestAggregator(t *testing.T) {
 
 		result := aggregator.createResult(ctx)
 
-		require.Len(t, len(result.Buckets), 1)
+		require.Len(t, result.Buckets, 1)
 		assert.Equal(t, report.Result{
 			Buckets: []*agentv1.MetricsBucket{
 				{
@@ -129,7 +129,7 @@ func TestAggregator(t *testing.T) {
 
 		result := aggregator.createResult(ctx)
 
-		require.Len(t, len(result.Buckets), 1)
+		require.Len(t, result.Buckets, 1)
 		assert.True(t, utf8.ValidString(result.Buckets[0].Common.Example))
 		assert.Equal(t, report.Result{
 			Buckets: []*agentv1.MetricsBucket{
