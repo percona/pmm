@@ -449,7 +449,7 @@ client {
   # optional labels assigned to Nomad Client, can be the same as PMM Agent's.
   meta {
     pmm-agent = "1"
-    agent_type = "nomad-client"
+    agent_type = "nomad-agent"
     node_id = "node-id"
     node_name = "node-name"
   }
@@ -515,7 +515,7 @@ client {
   # optional labels assigned to Nomad Client, can be the same as PMM Agent's.
   meta {
     pmm-agent = "1"
-    agent_type = "nomad-client"
+    agent_type = "nomad-agent"
     node_id = "node-id"
     node_name = "node-name"
   }
@@ -626,5 +626,13 @@ plugin "raw_exec" {
 		_, err := s.processParams("ID", agentProcess, 0)
 		require.Error(t, err)
 		assert.Regexp(t, `invalid text file name "../bar"`, err.Error())
+	})
+
+	t.Run("TrimPrefix", func(t *testing.T) {
+		t.Parallel()
+
+		actual := trimPrefix(inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER.String())
+		expected := "mysqld_exporter"
+		assert.Equal(t, expected, actual)
 	})
 }
