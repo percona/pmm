@@ -104,7 +104,8 @@ func TestImports(t *testing.T) {
 
 	// agents code should be independent
 	for _, a := range []string{
-		"github.com/percona/pmm/agent/agents/mongodb",
+		"github.com/percona/pmm/agent/agents/mongodb/mongolog",
+		"github.com/percona/pmm/agent/agents/mongodb/profiler",
 		"github.com/percona/pmm/agent/agents/mysql/perfschema",
 		"github.com/percona/pmm/agent/agents/mysql/slowlog",
 		"github.com/percona/pmm/agent/agents/noop",
@@ -137,13 +138,6 @@ func TestImports(t *testing.T) {
 		}
 
 		constraints[a] = c
-	}
-
-	// slowlog parser should be fully independent
-	constraints["github.com/percona/pmm/agent/agents/mysql/slowlog/parser"] = constraint{
-		denyPrefixes: []string{
-			"github.com/percona/pmm/agent",
-		},
 	}
 
 	// those packages should be independent from each other

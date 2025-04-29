@@ -3,10 +3,14 @@ digraph packages {
 	"/agentlocal" -> "/tailog";
 	"/agentlocal.test" -> "/agentlocal";
 	"/agents/cache.test" -> "/agents/cache";
-	"/agents/mongodb" -> "/agents";
-	"/agents/mongodb" -> "/agents/mongodb/internal/profiler";
-	"/agents/mongodb" -> "/agents/mongodb/internal/report";
-	"/agents/mongodb.test" -> "/agents/mongodb";
+	"/agents/mongodb/mongolog" -> "/agents";
+	"/agents/mongodb/mongolog" -> "/agents/mongodb/mongolog/internal";
+	"/agents/mongodb/mongolog" -> "/agents/mongodb/mongolog/internal/report";
+	"/agents/mongodb/mongolog.test" -> "/agents/mongodb/mongolog";
+	"/agents/mongodb/profiler" -> "/agents";
+	"/agents/mongodb/profiler" -> "/agents/mongodb/profiler/internal";
+	"/agents/mongodb/profiler" -> "/agents/mongodb/profiler/internal/report";
+	"/agents/mongodb/profiler.test" -> "/agents/mongodb/profiler";
 	"/agents/mysql/perfschema" -> "/agents";
 	"/agents/mysql/perfschema" -> "/agents/cache";
 	"/agents/mysql/perfschema" -> "/queryparser";
@@ -17,7 +21,6 @@ digraph packages {
 	"/agents/mysql/slowlog" -> "/queryparser";
 	"/agents/mysql/slowlog" -> "/tlshelpers";
 	"/agents/mysql/slowlog.test" -> "/agents/mysql/slowlog";
-	"/agents/mysql/slowlog/parser.test" -> "/agents/mysql/slowlog/parser";
 	"/agents/noop" -> "/agents";
 	"/agents/noop.test" -> "/agents/noop";
 	"/agents/postgres/pgstatmonitor" -> "/agents";
@@ -30,7 +33,8 @@ digraph packages {
 	"/agents/postgres/pgstatstatements.test" -> "/agents/postgres/pgstatstatements";
 	"/agents/process.test" -> "/agents/process";
 	"/agents/supervisor" -> "/agents";
-	"/agents/supervisor" -> "/agents/mongodb";
+	"/agents/supervisor" -> "/agents/mongodb/mongolog";
+	"/agents/supervisor" -> "/agents/mongodb/profiler";
 	"/agents/supervisor" -> "/agents/mysql/perfschema";
 	"/agents/supervisor" -> "/agents/mysql/slowlog";
 	"/agents/supervisor" -> "/agents/noop";
