@@ -72,7 +72,7 @@ func (pf *ProfilerFingerprinter) Fingerprint(doc proto.SystemProfile) (fingerpri
 // Helper for find operations with optional parameters.
 func (pf *ProfilerFingerprinter) fingerprintFind(fp fingerprinter.Fingerprint, doc proto.SystemProfile) (fingerprinter.Fingerprint, error) {
 	filter := ""
-	command := doc.Command.Map() //nolint:forcetypeassert,staticcheck // TODO deprecated in GO Driver 2.0
+	command := doc.Command.Map() //nolint:staticcheck // TODO deprecated in GO Driver 2.0
 	if f, ok := command["filter"]; ok {
 		values := maskValues(f, make(map[string]maskOption))
 		filterJSON, _ := json.Marshal(values)
