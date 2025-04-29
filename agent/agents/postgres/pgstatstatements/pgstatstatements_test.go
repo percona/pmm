@@ -36,7 +36,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
-func setup(t *testing.T, db *reform.DB, cacheSize uint) *PGStatStatementsQAN {
+func setup(t *testing.T, db *reform.DB) *PGStatStatementsQAN {
 	t.Helper()
 
 	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
@@ -44,7 +44,7 @@ func setup(t *testing.T, db *reform.DB, cacheSize uint) *PGStatStatementsQAN {
 	_, err := db.Exec(selectQuery + "pg_stat_statements_reset()")
 	require.NoError(t, err)
 
-	p, err := newPgStatStatementsQAN(db.WithTag(queryTag), nil, "agent_id", cacheSize, truncate.GetDefaultMaxQueryLength(), false, logrus.WithField("test", t.Name()))
+	p, err := newPgStatStatementsQAN(db.WithTag(queryTag), nil, "agent_id", truncate.GetDefaultMaxQueryLength(), false, logrus.WithField("test", t.Name()))
 	require.NoError(t, err)
 
 	return p
@@ -169,7 +169,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	}
 
 	t.Run("AllCities", func(t *testing.T) {
-		m := setup(t, db, minPgSSCacheSize)
+		m := setup(t, db)
 
 		_, err := db.Exec(selectAllCities)
 		require.NoError(t, err)
@@ -259,7 +259,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	})
 
 	t.Run("AllCitiesTruncated", func(t *testing.T) {
-		m := setup(t, db, minPgSSCacheSize)
+		m := setup(t, db)
 
 		const n = 500
 		placeholders := db.Placeholders(1, n)
@@ -374,7 +374,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
 			require.NoError(t, err)
 		}()
-		m := setup(t, db, minPgSSCacheSize)
+		m := setup(t, db)
 
 		var waitGroup sync.WaitGroup
 		n := 1000
@@ -468,65 +468,23 @@ func TestPGStatStatementsQPS(t *testing.T) {
 		return res
 	}
 
-	t.Run("check query count for low cache size", func(t *testing.T) {
-		p := setup(t, db, minPgSSCacheSize)
-		runTimes := 5000
-
-		defer func() {
-			for i := 0; i < runTimes; i++ {
-				_, err = db.Exec(fmt.Sprintf("drop table if exists t%d", i))
-				require.NoError(t, err)
-			}
-		}()
-		for i := 0; i < runTimes; i++ {
-			_, err = db.Exec(fmt.Sprintf("create /* controller='test' */ table t%d (id int);", i))
-			require.NoError(t, err)
-			_, err = db.Exec(fmt.Sprintf("insert /* controller='test' */ into t%d values(1);", i))
-			require.NoError(t, err)
-		}
-
-		buckets, err := p.getNewBuckets(context.Background(), time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
-		require.NoError(t, err)
-		insertBuckets := filterInsertQueries(buckets)
-		mismatchedCount := 0
-		for _, b := range insertBuckets {
-			assert.Equal(t, float32(1), b.Common.NumQueries)
-			if b.Common.NumQueries != 1 {
-				mismatchedCount++
-			}
-		}
-		assert.Zero(t, mismatchedCount)
-
-		// re-run insert queries and check that there are now mismatches since the cache can't hold all the previous bucket.
-		for i := 0; i < runTimes; i++ {
-			_, err = db.Exec(fmt.Sprintf("insert /* controller='test' */ into t%d values(1);", i))
-			require.NoError(t, err)
-		}
-		buckets, err = p.getNewBuckets(context.Background(), time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
-		require.NoError(t, err)
-		insertBuckets = filterInsertQueries(buckets)
-		mismatchedCount = 0
-		for _, b := range insertBuckets {
-			if b.Common.NumQueries != 1 {
-				mismatchedCount++
-			}
-		}
-		assert.Greater(t, mismatchedCount, 0) //nolint:testifylint // this makes what we're testing more explicit
+	t.Run("uses pgss.max value", func(t *testing.T) {
+		p := setup(t, db)
+		assert.Equal(t, uint(10000), p.statementsCache.cache.Capacity())
 	})
 
 	t.Run("check query count when cache size equals pgss.max", func(t *testing.T) {
 		var cacheSize uint
 		err = db.Querier.QueryRow(pgssMaxQuery).Scan(&cacheSize)
 		require.NoError(t, err)
-		p := setup(t, db, cacheSize)
+		p := setup(t, db)
 
 		runTimes := 5000
-		defer func() {
+		t.Cleanup(func() {
 			for i := 0; i < runTimes; i++ {
-				_, err = db.Exec(fmt.Sprintf("drop table if exists t%d", i))
-				require.NoError(t, err)
+				_, _ = db.Exec(fmt.Sprintf("drop table if exists t%d", i))
 			}
-		}()
+		})
 
 		for i := 0; i < runTimes; i++ {
 			_, err = db.Exec(fmt.Sprintf("create /* controller='test' */ table t%d (id int);", i))
