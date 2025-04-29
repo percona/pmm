@@ -830,7 +830,7 @@ func (as *AgentsService) AddQANMongoDBMongologAgent(ctx context.Context, p *inve
 	return res, e
 }
 
-// ChangeQANMongoDBMonglogAgent updates MongoDB Mongolog QAN Agent with given parameters.
+// ChangeQANMongoDBMongologAgent updates MongoDB Mongolog QAN Agent with given parameters.
 //
 //nolint:lll,dupl
 func (as *AgentsService) ChangeQANMongoDBMongologAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMongoDBMongologAgentParams) (*inventoryv1.ChangeAgentResponse, error) {

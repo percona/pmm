@@ -49,7 +49,7 @@ type Parser struct {
 	wg       *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
 }
 
-// Start starts but doesn't wait until it exits
+// Start starts but doesn't wait until it exits.
 func (p *Parser) Start(ctx context.Context) error {
 	p.m.Lock()
 	defer p.m.Unlock()

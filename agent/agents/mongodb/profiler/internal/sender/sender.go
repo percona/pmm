@@ -47,7 +47,7 @@ type Sender struct {
 	wg       *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
 }
 
-// Start starts but doesn't wait until it exits
+// Start starts but doesn't wait until it exits.
 func (s *Sender) Start() error {
 	s.m.Lock()
 	defer s.m.Unlock()

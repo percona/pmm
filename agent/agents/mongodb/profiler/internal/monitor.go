@@ -51,6 +51,7 @@ type monitor struct {
 	running bool       // Is this service running?
 }
 
+// Start starts monitor to collect and parse data.
 func (m *monitor) Start(ctx context.Context) error {
 	m.m.Lock()
 	defer m.m.Unlock()
@@ -90,6 +91,7 @@ func (m *monitor) Start(ctx context.Context) error {
 	return nil
 }
 
+// Stop stops monitor.
 func (m *monitor) Stop() {
 	m.m.Lock()
 	defer m.m.Unlock()

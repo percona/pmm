@@ -109,7 +109,7 @@ func (a *Aggregator) Add(ctx context.Context, doc proto.SystemProfile) error {
 }
 
 // Start run aggregator timer.
-func (a *Aggregator) Start() <-chan *report.Report {
+func (a *Aggregator) Start() <-chan *report.Report { //nolint:unparam
 	a.m.Lock()
 	defer a.m.Unlock()
 	if a.running {

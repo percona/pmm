@@ -43,7 +43,7 @@ type Mongolog struct {
 	T struct {
 		Date time.Time `json:"$date"`
 	} `json:"t"`
-	Msg  string `bson:"msg"`
+	Msg  string `json:"msg"`
 	Attr json.RawMessage
 }
 
