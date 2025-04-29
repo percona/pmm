@@ -25,9 +25,9 @@ import (
 )
 
 const (
-	MgoTimeoutDialInfo      = 5 * time.Second
-	MgoTimeoutSessionSync   = 5 * time.Second
-	MgoTimeoutSessionSocket = 5 * time.Second
+	mgoTimeoutDialInfo      = 5 * time.Second
+	mgoTimeoutSessionSync   = 5 * time.Second
+	mgoTimeoutSessionSocket = 5 * time.Second
 )
 
 type newMonitor func(client *mongo.Client, logger *logrus.Entry, dbName string) *monitor

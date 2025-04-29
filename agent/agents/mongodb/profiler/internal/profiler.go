@@ -124,7 +124,7 @@ func (p *profiler) Start() error {
 	return nil
 }
 
-// Stop stops running analyzer, waits until it stops
+// Stop stops running analyzer, waits until it stops.
 func (p *profiler) Stop() error {
 	p.m.Lock()
 	defer p.m.Unlock()
@@ -195,7 +195,7 @@ func signalReady(ready *sync.Cond) {
 }
 
 func createSession(dsn string, agentID string) (*mongo.Client, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), MgoTimeoutDialInfo)
+	ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutDialInfo)
 	defer cancel()
 
 	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
@@ -206,7 +206,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	opts = opts.
 		SetDirect(true).
 		SetReadPreference(readpref.Nearest()).
-		SetSocketTimeout(MgoTimeoutSessionSocket).
+		SetSocketTimeout(mgoTimeoutSessionSocket).
 		SetAppName(fmt.Sprintf("QAN-mongodb-profiler-%s", agentID))
 
 	client, err := mongo.Connect(ctx, opts)

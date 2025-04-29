@@ -36,9 +36,9 @@ import (
 )
 
 const (
-	MgoTimeoutDialInfo      = 5 * time.Second
-	MgoTimeoutSessionSync   = 5 * time.Second
-	MgoTimeoutSessionSocket = 5 * time.Second
+	mgoTimeoutDialInfo      = 5 * time.Second
+	mgoTimeoutSessionSync   = 5 * time.Second
+	mgoTimeoutSessionSocket = 5 * time.Second
 )
 
 func createQuery(dbName string, startTime time.Time) bson.M {
@@ -63,7 +63,7 @@ type ProfilerStatus struct {
 }
 
 func createSession(dsn string, agentID string) (*mongo.Client, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), MgoTimeoutDialInfo)
+	ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutDialInfo)
 	defer cancel()
 
 	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
@@ -74,7 +74,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	opts = opts.
 		SetDirect(true).
 		SetReadPreference(readpref.Nearest()).
-		SetSocketTimeout(MgoTimeoutSessionSocket).
+		SetSocketTimeout(mgoTimeoutSessionSocket).
 		SetAppName(fmt.Sprintf("QAN-mongodb-profiler-%s", agentID))
 
 	client, err := mongo.Connect(ctx, opts)
@@ -95,7 +95,7 @@ func TestProfilerFingerprinter(t *testing.T) {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), MgoTimeoutSessionSync)
+		ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutSessionSync)
 		defer cancel()
 		_ = client.Database(dbName).Drop(ctx)
 		defer client.Database(dbName).Drop(context.TODO()) //nolint:errcheck

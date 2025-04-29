@@ -26,15 +26,16 @@ import (
 )
 
 // NewMonitor creates new monitor.
-func NewMonitor(logPath string, aggregator *aggregator.Aggregator, logger *logrus.Entry) *monitor {
-	return &monitor{
+func NewMonitor(logPath string, aggregator *aggregator.Aggregator, logger *logrus.Entry) *Monitor {
+	return &Monitor{
 		logPath:    logPath,
 		aggregator: aggregator,
 		logger:     logger,
 	}
 }
 
-type monitor struct {
+// Monitor represents mongolog aggregator and helpers.
+type Monitor struct {
 	// dependencies
 	logPath    string
 	aggregator *aggregator.Aggregator
@@ -45,7 +46,7 @@ type monitor struct {
 	running bool
 }
 
-func (m *monitor) Start(ctx context.Context) error {
+func (m *Monitor) Start(ctx context.Context) error {
 	m.m.Lock()
 	defer m.m.Unlock()
 
@@ -71,7 +72,7 @@ func (m *monitor) Start(ctx context.Context) error {
 	return nil
 }
 
-func (m *monitor) Stop() {
+func (m *Monitor) Stop() {
 	m.m.Lock()
 	defer m.m.Unlock()
 

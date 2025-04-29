@@ -28,7 +28,8 @@ import (
 )
 
 const (
-	MgoTimeoutTail = 1 * time.Second
+	collectorChanCapacity = 100
+	MgoTimeoutTail        = 1 * time.Second
 )
 
 var cursorTimeout = 3 * time.Second
@@ -69,7 +70,7 @@ func (c *Collector) Start(context.Context) (<-chan proto.SystemProfile, error) {
 
 	// create new channels over which we will communicate to...
 	// ... outside world by sending collected docs
-	c.docsChan = make(chan proto.SystemProfile, 100)
+	c.docsChan = make(chan proto.SystemProfile, collectorChanCapacity)
 	// ... inside goroutine to close it
 	c.doneChan = make(chan struct{})
 
@@ -105,7 +106,7 @@ func (c *Collector) Start(context.Context) (<-chan proto.SystemProfile, error) {
 	return c.docsChan, nil
 }
 
-// Stop stops running
+// Stop stops running collector.
 func (c *Collector) Stop() {
 	c.m.Lock()
 	defer c.m.Unlock()

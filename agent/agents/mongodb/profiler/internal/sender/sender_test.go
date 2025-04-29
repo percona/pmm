@@ -39,8 +39,8 @@ func (w *testWriter) Write(actual *report.Report) error {
 
 func TestSender(t *testing.T) {
 	expected := &report.Report{
-		StartTs: time.Now(),
-		EndTs:   time.Now().Add(time.Second * 10),
+		StartTS: time.Now(),
+		EndTS:   time.Now().Add(time.Second * 10),
 		Buckets: []*agentv1.MetricsBucket{{Common: &agentv1.MetricsBucket_Common{Queryid: "test"}}},
 	}
 

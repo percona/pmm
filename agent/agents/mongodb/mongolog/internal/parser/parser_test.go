@@ -129,12 +129,12 @@ func TestParserRunning(t *testing.T) {
 	select {
 	case actual := <-reportChan:
 		expected := report.Report{
-			StartTs: timeStart,
-			EndTs:   timeEnd,
+			StartTS: timeStart,
+			EndTS:   timeEnd,
 		}
 
-		assert.Equal(t, expected.StartTs, actual.StartTs)
-		assert.Equal(t, expected.EndTs, actual.EndTs)
+		assert.Equal(t, expected.StartTS, actual.StartTS)
+		assert.Equal(t, expected.EndTS, actual.EndTS)
 		assert.Len(t, actual.Buckets, 1)
 		assert.EqualValues(t, actual.Buckets[0].Common.NumQueries, 1)
 

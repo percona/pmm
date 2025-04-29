@@ -74,7 +74,7 @@ func (s *Sender) Start() error {
 	return nil
 }
 
-// Stop stops running
+// Stop stops running sender.
 func (s *Sender) Stop() {
 	s.m.Lock()
 	defer s.m.Unlock()
@@ -89,10 +89,6 @@ func (s *Sender) Stop() {
 	// wait for goroutines to exit
 	s.wg.Wait()
 	return
-}
-
-func (s *Sender) Name() string {
-	return "sender"
 }
 
 func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Report, w Writer, logger *logrus.Entry, doneChan <-chan struct{}) {

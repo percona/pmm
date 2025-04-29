@@ -25,6 +25,7 @@ import (
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/aggregator"
 )
 
+// New creates new parser.
 func New(docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, logger *logrus.Entry) *Parser {
 	return &Parser{
 		docsChan:   docsChan,
@@ -33,6 +34,7 @@ func New(docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator,
 	}
 }
 
+// Parser represents docs channel, aggregator and helpers.
 type Parser struct {
 	// dependencies
 	docsChan   <-chan proto.SystemProfile
@@ -79,7 +81,7 @@ func (p *Parser) Start(ctx context.Context) error {
 	return nil
 }
 
-// Stop stops running
+// Stop stops running parser.
 func (p *Parser) Stop() {
 	p.m.Lock()
 	defer p.m.Unlock()
@@ -93,10 +95,6 @@ func (p *Parser) Stop() {
 
 	// wait for goroutines to exit
 	p.wg.Wait()
-}
-
-func (p *Parser) Name() string {
-	return "parser"
 }
 
 func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator,

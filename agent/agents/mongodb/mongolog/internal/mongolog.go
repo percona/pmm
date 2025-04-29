@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package mongolog runs built-in QAN Agent for MongoDB Mongolog.
 package mongolog
 
 import (
@@ -33,13 +34,13 @@ import (
 )
 
 const (
-	MgoTimeoutDialInfo      = 5 * time.Second
-	MgoTimeoutSessionSocket = 5 * time.Second
+	mgoTimeoutDialInfo      = 5 * time.Second
+	mgoTimeoutSessionSocket = 5 * time.Second
 )
 
 // New creates new mongolog
-func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, logFilePrefix string, maxQueryLength int32) *mongolog {
-	return &mongolog{
+func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, logFilePrefix string, maxQueryLength int32) *Mongolog {
+	return &Mongolog{
 		mongoDSN:       mongoDSN,
 		logFilePrefix:  logFilePrefix,
 		maxQueryLength: maxQueryLength,
@@ -49,7 +50,8 @@ func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string,
 	}
 }
 
-type mongolog struct {
+// Mongolog represents mongolog agent helpers and properties.
+type Mongolog struct {
 	// dependencies
 	mongoDSN string
 	w        sender.Writer
@@ -57,7 +59,7 @@ type mongolog struct {
 	agentID  string
 
 	// internal deps
-	monitor    *monitor
+	monitor    *Monitor
 	aggregator *aggregator.Aggregator
 	sender     *sender.Sender
 
@@ -73,7 +75,7 @@ type mongolog struct {
 }
 
 // Start starts analyzer but doesn't wait until it exits
-func (l *mongolog) Start() error {
+func (l *Mongolog) Start() error {
 	l.m.Lock()
 	defer l.m.Unlock()
 	if l.running {
@@ -146,8 +148,8 @@ func (l *mongolog) Start() error {
 	return nil
 }
 
-// Stop stops running analyzer, waits until it stops
-func (l *mongolog) Stop() error {
+// Stop stops running mongolog, waits until it stops.
+func (l *Mongolog) Stop() error {
 	l.m.Lock()
 	defer l.m.Unlock()
 	if !l.running {
@@ -165,7 +167,7 @@ func (l *mongolog) Stop() error {
 	return nil
 }
 
-func start(ctx context.Context, monitor *monitor, wg *sync.WaitGroup, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry) {
+func start(ctx context.Context, monitor *Monitor, wg *sync.WaitGroup, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 	defer monitor.Stop()
@@ -192,7 +194,7 @@ func signalReady(ready *sync.Cond) {
 }
 
 func createSession(dsn string, agentID string) (*mongo.Client, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), MgoTimeoutDialInfo)
+	ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutDialInfo)
 	defer cancel()
 
 	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
@@ -203,7 +205,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	opts = opts.
 		SetDirect(true).
 		SetReadPreference(readpref.Nearest()).
-		SetSocketTimeout(MgoTimeoutSessionSocket).
+		SetSocketTimeout(mgoTimeoutSessionSocket).
 		SetAppName(fmt.Sprintf("QAN-mongodb-mongolog-%s", agentID))
 
 	client, err := mongo.Connect(ctx, opts)

@@ -34,7 +34,7 @@ import (
 )
 
 // DefaultInterval is interval for aggregator tick.
-var DefaultInterval = time.Duration(time.Minute)
+var DefaultInterval = time.Minute
 
 const (
 	reportChanBuffer      = 1000

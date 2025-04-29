@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Report prepares report for QAN.
+// Package report prepares report for QAN.
 package report
 
 import (
@@ -25,8 +25,8 @@ import (
 
 // Report represents buckets and timestamps for qan.Report.
 type Report struct {
-	StartTs time.Time                // Start time of interval, UTC
-	EndTs   time.Time                // Stop time of interval, UTC
+	StartTS time.Time                // Start time of interval, UTC
+	EndTS   time.Time                // Stop time of interval, UTC
 	Buckets []*agentv1.MetricsBucket // per-class metrics
 }
 
@@ -37,8 +37,8 @@ func MakeReport(_ context.Context, startTime, endTime time.Time, result *Result)
 
 	// Make qan.Report from Result and other metadata (e.g. Interval).
 	report := &Report{
-		StartTs: startTime,
-		EndTs:   endTime,
+		StartTS: startTime,
+		EndTS:   endTime,
 		Buckets: result.Buckets,
 	}
 

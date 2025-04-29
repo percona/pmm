@@ -25,6 +25,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const collectorChanCapacity = 100
+
 // New creates new Collector.
 func New(logsPath string, logger *logrus.Entry) *Collector {
 	return &Collector{
@@ -59,7 +61,7 @@ func (c *Collector) Start(ctx context.Context) (<-chan proto.SystemProfile, erro
 
 	// create new channels over which we will communicate to...
 	// ... outside world by sending collected docs
-	c.docsChan = make(chan proto.SystemProfile, 100)
+	c.docsChan = make(chan proto.SystemProfile, collectorChanCapacity)
 	// ... inside goroutine to close it
 	c.doneChan = make(chan struct{})
 
@@ -93,7 +95,7 @@ func (c *Collector) Start(ctx context.Context) (<-chan proto.SystemProfile, erro
 	return c.docsChan, nil
 }
 
-// Stop stops running
+// Stop stops running collector.
 func (c *Collector) Stop() {
 	c.m.Lock()
 	defer c.m.Unlock()
