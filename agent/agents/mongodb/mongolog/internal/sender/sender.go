@@ -96,6 +96,10 @@ func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Re
 
 	for {
 		select {
+		case <-ctx.Done():
+			return
+		case <-doneChan:
+			return
 		case report, ok := <-reportChan:
 			// if channel got closed we should exit as there is nothing we can listen to
 			if !ok {
@@ -107,10 +111,6 @@ func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Re
 				logger.Warn("Lost report:", err)
 				continue
 			}
-		case <-doneChan:
-			return
-		case <-ctx.Done():
-			return
 		}
 	}
 }

@@ -107,6 +107,13 @@ func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.System
 	for {
 		// aggregate documents and create report
 		select {
+		case <-ctx.Done():
+			return
+		case <-doneChan:
+			// doneChan needs to be repeated in this select as docsChan can block
+			// doneChan needs to be also in separate select statement
+			// as docsChan could be always picked since select picks channels pseudo randomly
+			return
 		case doc, ok := <-docsChan:
 			// if channel got closed we should exit as there is nothing we can listen to
 			if !ok {
@@ -119,13 +126,6 @@ func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.System
 			if err != nil {
 				logger.Warnf("couldn't add document to aggregator: %s", err)
 			}
-		case <-doneChan:
-			// doneChan needs to be repeated in this select as docsChan can block
-			// doneChan needs to be also in separate select statement
-			// as docsChan could be always picked since select picks channels pseudo randomly
-			return
-		case <-ctx.Done():
-			return
 		}
 	}
 }
