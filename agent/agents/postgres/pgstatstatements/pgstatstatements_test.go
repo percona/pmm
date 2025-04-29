@@ -479,7 +479,7 @@ func TestPGStatStatementsQPS(t *testing.T) {
 		require.NoError(t, err)
 		p := setup(t, db)
 
-		runTimes := 5000
+		runTimes := 7000
 		t.Cleanup(func() {
 			for i := 0; i < runTimes; i++ {
 				_, _ = db.Exec(fmt.Sprintf("drop table if exists t%d", i))
