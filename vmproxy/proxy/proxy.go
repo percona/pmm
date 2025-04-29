@@ -95,6 +95,7 @@ func prepareRequest(req *http.Request, target *url.URL, headerName string) {
 		req.Host = hostHeader
 		req.Header.Set("Host", hostHeader)
 	}
+	req.URL.User = target.User
 
 	rp, err := target.Parse(strings.TrimPrefix(req.URL.Path, "/"))
 	if err != nil {
