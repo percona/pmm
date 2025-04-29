@@ -6,9 +6,11 @@ PMM Server is the central component of Percona Monitoring and Management (PMM) t
 Before installing PMM Server, make sure to first:
 {.power-number}
 
-- [Choose a deployment strategy](../plan-pmm-installation/choose-deployment.md) based on your environment needs.
-- [Verify hardware requirements](../plan-pmm-installation/hardware_and_system.md) to ensure your system meets the necessary specifications.
-- [Configure your network](../plan-pmm-installation/network_and_firewall.md) for the required connections.
+- [Docker](../install-pmm-server/deployment-options/docker/index.md)
+- [Podman](../install-pmm-server/deployment-options/podman/index.md)
+- [Helm](../install-pmm-server/deployment-options/helm/index.md)
+- [Virtual appliance](../install-pmm-server/deployment-options/virtual/index.md)
+<!---- [Amazon AWS](../install-pmm-server/deployment-options/aws/aws.md) -->
 
 ## Deployment options
 

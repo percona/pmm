@@ -3,7 +3,17 @@ Percona Monitoring and Management (PMM) supports monitoring for MySQL/MariaDB, P
 
 ## Supported database technologies
 
-The table below shows monitoring capabilities for each supported database type:
+- [MySQL](mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
+- [MongoDB](mongodb.md)
+- [PostgreSQL](postgresql.md)
+- [ProxySQL](proxysql.md)
+<!---- [Amazon RDS](aws.md) --->
+- [Microsoft Azure](azure.md)
+- [Google Cloud Platform](google.md) (MySQL and PostgreSQL)
+- [Linux](linux.md)
+- [External services](external.md)
+- [HAProxy](haproxy.md)
+- [Remote instances](remote.md)
 
 | Database type                                | Local monitoring | Remote monitoring | Query Analytics (QAN) | Performance schema | Backup integration |
 |----------------------------------------------|------------------|-------------------|------------------|---------------------|---------------------|

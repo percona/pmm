@@ -33,7 +33,26 @@ While specific steps vary by deployment method, the general installation process
 
 ## Next steps
 
-After installing PMM Client:
+Before installing the PMM client, check [Prerequisites to install PMM client](./prerequisites.md).
+
+## Connect services
+
+Each database service requires specific configuration parameters. Configure your service according to its service type:
+
+- [MySQL](connect-database/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
+- [MongoDB](connect-database/mongodb.md)
+- [PostgreSQL](connect-database/postgresql.md)
+- [ProxySQL](connect-database/proxysql.md)
+<!---- [Amazon RDS](connect-database/aws.md)--->
+- [Microsoft Azure](connect-database/azure.md)
+- [Google Cloud Platform](connect-database/google.md) (MySQL and PostgreSQL)
+- [Linux](connect-database/linux.md)
+- [External services](connect-database/external.md)
+- [HAProxy](connect-database/haproxy.md)
+- [Remote instances](connect-database/remote.md)
+
+!!! hint alert alert-success "Tip"
+    To change the parameters of a previously-added service, remove the service and re-add it with new parameters.
 
 - [Register your Client node](../register-client-node/index.md) with PMM Server
 - [Connect database services](connect-database/index.md) for monitoring

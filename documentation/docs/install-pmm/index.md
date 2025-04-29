@@ -15,8 +15,13 @@ The PMM installation consists of three main steps that need to be completed in s
 
 ## Planning the installation
 
-Before installing PMM, make sure to first:
-{.power-number}
+| Use | :material-thumb-up: **Benefits** | :material-thumb-down: **Drawbacks**|
+|---|---|---
+| [Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md) | 1. Quick<br>2. Simple<br> 3. Rootless |  Additional network configuration required.
+| [Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) | 1. Quick<br>2. Simple<br>3. Rootless | Podman installation required.
+| [Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md) (Technical Preview) | 1. Quick<br>2. Simple<br>3. Cloud-compatible <br> 4. Rootless| Requires running a Kubernetes cluster.
+| [Virtual appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)  | 1. Easily import into Hypervisor of your choice <br> 2. Rootless| More system resources compared to Docker footprint.
+<!---| [Amazon AWS](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | 1. Wizard-driven install. <br>  2. Rootless| Paid, incurs infrastructure costs. --->
 
 - [Choose a deployment strategy](../install-pmm/plan-pmm-installation/choose-deployment.md) based on your environment needs.
 - [Verify hardware requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) to ensure your system meets the necessary specifications.
@@ -80,55 +85,14 @@ After installing PMM Client, configure the nodes and services you want to monito
 
 PMM supports monitoring across the following database technologies, cloud services, proxy services, and system metrics:
 
-=== ":material-database: Databases"
-    Choose the database technology you want to monitor:
-
-    | **Database** | **Description** | **Setup guide** |
-    | ------------------------- | ---------------------------- | ---------------------------- |
-    | :material-dolphin: **MySQL** | MySQL, Percona Server for MySQL, MariaDB | [**Connect to MySQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/mysql/mysql.md) |
-    | :material-elephant: **PostgreSQL** | PostgreSQL database servers | [**Connect to PostgreSQL** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/postgresql.md) |
-    | :material-leaf: **MongoDB** | MongoDB, Percona Server for MongoDB | [**Connect to MongoDB** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/mongodb.md) |
-    | :material-network: **Remote databases** | Monitor MySQL, PostgreSQL, and MongoDB across network segments | [**Configure remote monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/remote.md) |
-
-
-=== ":material-cloud: Cloud services"
-    Configure monitoring for cloud-hosted database services:
-    
-    | **Cloud provider** | **Supported services** | **Setup guide** |
-    | ------------------------------- | ----------------------------------- | ---------------------------- |
-    | :material-aws: **Amazon Web Services** | Amazon RDS for MySQL/PostgreSQL, Aurora | [**Configure AWS monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/aws.md) |
-    | :material-microsoft-azure: **Microsoft Azure** | Azure Database for MySQL/PostgreSQL, Cosmos DB | [**Configure Azure monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/azure.md) |
-    | :material-google-cloud: **Google Cloud** | Cloud SQL for MySQL/PostgreSQL | [**Configure Google Cloud monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/google.md) |
-
-=== ":material-server: System monitoring"
-    Monitor operating system metrics:
-    
-    | **Monitoring type**| **Description**|**Setup guide** |
-    | -------------------------------- | ---------------------------- | ---------------------------- |
-    | :simple-linux: **Linux systems** | CPU, memory, disk, network metrics | [**Configure Linux monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/linux.md) |
-
-=== ":material-transit-connection-variant: Proxy services"
-    Monitor database proxy and load balancing solutions:
-    
-    | **Proxy service** | **Description**| **Setup guide** |
-    | ------------------------------ | ---------------------------- | ---------------------------- |
-    | :material-database-cog: **ProxySQL** | MySQL database proxy | [**Configure ProxySQL monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/proxysql.md) |
-    | :material-scale-balance: **HAProxy** | High-availability load balancer | [**Configure HAProxy monitoring** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/haproxy.md) |
-
-=== ":material-gauge: External services"
-    Extend PMM with external exporters and third-party metrics:
-    
-    | **Service type** | **Description** | **Setup guide** |
-    | ----------------------------- | ---------------------------- | ---------------------------- |
-    | :material-chart-line: **Custom exporters** | Add custom Prometheus exporters | [**Configure external exporters** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md#adding-exporters) |
-    | :material-api: **Third-party sources** | Connect external metrics sources | [**Extend monitoring capabilities** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md#extended-monitoring) |
-    | :material-application-cog: **General external services** | Generic external service monitoring | [**Configure external services** :material-arrow-right:](../install-pmm/install-pmm-client/connect-database/external.md) |
-
-## What's next
-
-After completing the installation, you can:
-
-- [Configure alerts](../alert/index.md) to notify you of critical events
-- [Set up backup management](../backup/index.md) to protect your data
-- [Explore dashboards](../use/dashboards-panels/index.md) to monitor your database performance
-- [Analyze query performance](../use/qan/index.md) to identify and optimize slow queries
+    - [MySQL](../install-pmm/install-pmm-client/connect-database/mysql.md) and variants: Percona Server for MySQL, Percona XtraDB Cluster, MariaDB
+    - [MongoDB](../install-pmm/install-pmm-client/connect-database/mongodb.md)
+    - [PostgreSQL](../install-pmm/install-pmm-client/connect-database/postgresql.md)
+    - [ProxySQL](../install-pmm/install-pmm-client/connect-database/proxysql.md)
+ <!---   - [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md)--->
+    - [Microsoft Azure](../install-pmm/install-pmm-client/connect-database/azure.md)
+    - [Google Cloud Platform](../install-pmm/install-pmm-client/connect-database/google.md)
+    - [Linux](../install-pmm/install-pmm-client/connect-database/linux.md)
+    - [External services](../install-pmm/install-pmm-client/connect-database/external.md)
+    - [HAProxy](../install-pmm/install-pmm-client/connect-database/haproxy.md)
+    - [Remote instances](../install-pmm/install-pmm-client/connect-database/remote.md)
