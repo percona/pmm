@@ -157,14 +157,18 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		return errors.Wrapf(err, "failed to parse PMM agent version %q", *pmmAgent.Version)
 	}
 
-	agents, err := models.FindAgents(u.db.Querier, models.AgentFilters{PMMAgentID: agent.id})
-	if err != nil {
-		return errors.Wrap(err, "failed to collect agents")
-	}
-
 	settings, err := models.GetSettings(u.db.Querier)
 	if err != nil {
 		return errors.Wrap(err, "failed to get settings")
+	}
+
+	filters := models.AgentFilters{
+		PMMAgentID:  agent.id,
+		IgnoreNomad: !settings.IsNomadEnabled(),
+	}
+	agents, err := models.FindAgents(u.db.Querier, filters)
+	if err != nil {
+		return errors.Wrap(err, "failed to collect agents")
 	}
 
 	redactMode := redactSecrets
@@ -190,10 +194,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
 			}
 			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
-		case models.NomadClientType:
-			if !settings.IsNomadEnabled() {
-				continue
-			}
+		case models.NomadAgentType:
 			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
@@ -249,7 +250,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			node, _ := models.FindNodeByID(u.db.Querier, pointer.GetString(pmmAgent.RunsOnNodeID))
 			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
-				agentProcesses[row.AgentID] = mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				cfg, err := mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				if err != nil {
+					return err
+				}
+				agentProcesses[row.AgentID] = cfg
 			case models.MongoDBExporterType:
 				cfg, err := mongodbExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 				if err != nil {

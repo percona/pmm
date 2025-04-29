@@ -118,6 +118,7 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 
 	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-mysql-connection"), strconv.Itoa(int(id)))
 	_, err = templates.RenderDSN(dsn, files, tempdir)
+	defer templates.CleanupTempDir(tempdir, cc.l)
 	if err != nil {
 		cc.l.Debugf("checkMySQLDBConnection: failed to Render DSN: %s", err)
 		res.Error = err.Error()
@@ -154,6 +155,7 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 
 	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-mongodb-connection"), strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	defer templates.CleanupTempDir(tempdir, cc.l)
 	if err != nil {
 		cc.l.Debugf("checkMongoDBConnection: failed to Render DSN: %s", err)
 		res.Error = err.Error()
@@ -223,6 +225,7 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 
 	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-postgresql-connection"), strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	defer templates.CleanupTempDir(tempdir, cc.l)
 	if err != nil {
 		cc.l.Debugf("checkPostgreSQLConnection: failed to Render DSN: %s", err)
 		res.Error = err.Error()

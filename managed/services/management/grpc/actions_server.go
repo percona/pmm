@@ -106,7 +106,7 @@ func (s *actionsServer) StartMySQLExplainAction(ctx context.Context, req *action
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointerToAgentType(models.MySQLdExporterType)}) //nolint:lll
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointer.To(models.MySQLdExporterType)}) //nolint:lll
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func (s *actionsServer) StartMySQLExplainJSONAction(ctx context.Context, req *ac
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointerToAgentType(models.MySQLdExporterType)})
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointer.To(models.MySQLdExporterType)})
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +172,7 @@ func (s *actionsServer) StartMySQLExplainTraditionalJSONAction(ctx context.Conte
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointerToAgentType(models.MySQLdExporterType)})
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointer.To(models.MySQLdExporterType)})
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func (s *actionsServer) StartMySQLShowCreateTableAction(ctx context.Context, req
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointerToAgentType(models.MySQLdExporterType)})
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointer.To(models.MySQLdExporterType)})
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +237,7 @@ func (s *actionsServer) StartMySQLShowTableStatusAction(ctx context.Context, req
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointerToAgentType(models.MySQLdExporterType)})
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointer.To(models.MySQLdExporterType)})
 	if err != nil {
 		return nil, err
 	}
@@ -269,7 +269,7 @@ func (s *actionsServer) StartMySQLShowIndexAction(ctx context.Context, req *acti
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointerToAgentType(models.MySQLdExporterType)})
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointer.To(models.MySQLdExporterType)})
 	if err != nil {
 		return nil, err
 	}
@@ -402,10 +402,6 @@ func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *actionsv1
 	}, nil
 }
 
-func pointerToAgentType(agentType models.AgentType) *models.AgentType {
-	return &agentType
-}
-
 // StartPTPgSummaryAction starts pt-pg-summary (PostgreSQL) action and returns the pointer to the response message.
 func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actionsv1.StartPTPgSummaryActionParams) (*actionsv1.StartServiceActionResponse, error) {
 	service, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
@@ -442,7 +438,7 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actions
 		return nil, err
 	}
 
-	agentFilter := models.AgentFilters{ServiceID: req.ServiceId, AgentType: pointerToAgentType(models.PostgresExporterType)}
+	agentFilter := models.AgentFilters{ServiceID: req.ServiceId, AgentType: pointer.To(models.PostgresExporterType)}
 	postgresExporters, err := models.FindAgents(s.db.Querier, agentFilter)
 	if err != nil {
 		return nil, err
@@ -505,7 +501,7 @@ func (s *actionsServer) StartPTMongoDBSummaryAction(ctx context.Context, req *ac
 	// Exporters to be filtered by service ID and agent type
 	agentFilter := models.AgentFilters{
 		PMMAgentID: "", NodeID: "",
-		ServiceID: req.ServiceId, AgentType: pointerToAgentType(models.MongoDBExporterType),
+		ServiceID: req.ServiceId, AgentType: pointer.To(models.MongoDBExporterType),
 	}
 
 	// Need to get the mongoDB exporters to get the username and password therefrom
@@ -583,7 +579,7 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *acti
 
 	agentFilter := models.AgentFilters{
 		PMMAgentID: "", NodeID: "",
-		ServiceID: req.ServiceId, AgentType: pointerToAgentType(models.MySQLdExporterType),
+		ServiceID: req.ServiceId, AgentType: pointer.To(models.MySQLdExporterType),
 	}
 	mysqldExporters, err := models.FindAgents(s.db.Querier, agentFilter)
 	if err != nil {
