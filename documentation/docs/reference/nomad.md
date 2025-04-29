@@ -31,8 +31,6 @@ To enable Nomad in PMM:
 
 3. Go to PMM's **Advanced Settings** and set the public address.
 
-4. Restart the PMM Server.
-
 ??? info "Docker run command" 
 
     ```
@@ -41,7 +39,7 @@ To enable Nomad in PMM:
     -p 4647:4647 \
     -p 443:443 \
     --name pmm-server \
-    percona/pmm-server:latest
+    percona/pmm-server:3
     ```
 
 ### Disable Nomad
