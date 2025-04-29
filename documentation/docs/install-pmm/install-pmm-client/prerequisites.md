@@ -5,7 +5,7 @@ Before installing PMM Client, ensure your environment meets these requirements.
 ## Quick requirements checklist
 
 ✓ **Hardware**: 64-bit system (x86_64 or ARM64) with at least 100 MB storage  
-✓ **OS**: Modern 64-bit Linux (Debian, Ubuntu, RHEL, Oracle Linux)  
+✓ **OS**: Modern 64-bit Linux (Debian, Ubuntu, RHEL, Oracle Linux, Amazon Linux 2023)  
 ✓ **Network**: Connectivity to PMM Server (ports 80/443)  
 ✓ **Software**: curl, gnupg, sudo, wget  
 ✓ **Database**: Appropriate monitoring user credentials  
