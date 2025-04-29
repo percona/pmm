@@ -24,6 +24,7 @@ import (
 	"github.com/percona/pmm/agent/agents/mongodb/profiler/internal/report"
 )
 
+// New creates new sender.
 func New(reportChan <-chan *report.Report, w Writer, logger *logrus.Entry) *Sender {
 	return &Sender{
 		reportChan: reportChan,
@@ -32,6 +33,7 @@ func New(reportChan <-chan *report.Report, w Writer, logger *logrus.Entry) *Send
 	}
 }
 
+// Sender represents report channel and writer.
 type Sender struct {
 	// dependencies
 	reportChan <-chan *report.Report

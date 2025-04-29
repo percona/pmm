@@ -28,9 +28,8 @@ import (
 	"github.com/percona/pmm/agent/utils/filereader"
 )
 
-// A MongologReader read a MongoDB log file.
+// MongologReader read a MongoDB log file.
 type MongologReader struct {
-	ctx      context.Context
 	logger   *logrus.Entry
 	r        filereader.Reader
 	docsChan chan<- proto.SystemProfile
@@ -83,14 +82,13 @@ func GetLogFilePath(client *mongo.Client) (string, error) {
 }
 
 // NewReader returns a new MongologReader that reads from the given reader.
-func NewReader(ctx context.Context, docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}, logsPath string, logger *logrus.Entry) (*MongologReader, error) {
+func NewReader(docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}, logsPath string, logger *logrus.Entry) (*MongologReader, error) {
 	reader, err := filereader.NewContinuousFileReader(logsPath, logger)
 	if err != nil {
 		return nil, err
 	}
 
 	p := &MongologReader{
-		ctx:      ctx,
 		logger:   logger,
 		r:        reader,
 		docsChan: docsChan,
@@ -101,11 +99,11 @@ func NewReader(ctx context.Context, docsChan chan<- proto.SystemProfile, doneCha
 }
 
 // ReadFile continuously read new lines from file, until it is canceled or considered as done.
-func (p *MongologReader) ReadFile() {
+func (p *MongologReader) ReadFile(ctx context.Context) {
 	p.logger.Debugln("reader started")
 	for {
 		select {
-		case <-p.ctx.Done():
+		case <-ctx.Done():
 			p.logger.Debugln("context done")
 			return
 		case <-p.doneChan:

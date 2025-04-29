@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Report prepares report for QAN.
 package report
 
 import (

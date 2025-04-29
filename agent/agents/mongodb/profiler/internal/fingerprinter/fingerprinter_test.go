@@ -135,7 +135,7 @@ func TestProfilerFingerprinter(t *testing.T) {
 				},
 			},
 		)
-		database.Collection("secondcollection").Aggregate(ctx, mongo.Pipeline{
+		database.Collection("secondcollection").Aggregate(ctx, mongo.Pipeline{ //nolint:errcheck
 			bson.D{
 				{
 					Key: "$collStats",

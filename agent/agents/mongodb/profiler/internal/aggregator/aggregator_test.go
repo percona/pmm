@@ -61,7 +61,7 @@ func TestAggregator(t *testing.T) {
 
 		result := aggregator.createResult(ctx)
 
-		require.Equal(t, 1, len(result.Buckets))
+		require.Len(t, result.Buckets, 1)
 		assert.Equal(t, report.Result{
 			Buckets: []*agentv1.MetricsBucket{
 				{

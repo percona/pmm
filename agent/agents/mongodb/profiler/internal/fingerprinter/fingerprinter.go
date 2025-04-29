@@ -107,13 +107,13 @@ func (pf *ProfilerFingerprinter) fingerprintFind(fp fingerprinter.Fingerprint, d
 	return fp, nil
 }
 
-// Helper for insert operations
+// Helper for insert operations.
 func (pf *ProfilerFingerprinter) fingerprintInsert(fp fingerprinter.Fingerprint) (fingerprinter.Fingerprint, error) {
 	fp.Fingerprint = fmt.Sprintf(`db.%s.insert(?)`, fp.Collection)
 	return fp, nil
 }
 
-// Helper for update operations
+// Helper for update operations.
 func (pf *ProfilerFingerprinter) fingerprintUpdate(fp fingerprinter.Fingerprint, doc proto.SystemProfile) (fingerprinter.Fingerprint, error) {
 	command := doc.Command.Map() //nolint:forcetypeassert // TODO deprecated in GO Driver 2.0
 	filterJSON, _ := json.Marshal(maskValues(command["q"], make(map[string]maskOption)))
@@ -138,7 +138,7 @@ func (pf *ProfilerFingerprinter) fingerprintUpdate(fp fingerprinter.Fingerprint,
 	return fp, nil
 }
 
-// Helper for delete operations
+// Helper for delete operations.
 func (pf *ProfilerFingerprinter) fingerprintDelete(fp fingerprinter.Fingerprint, doc proto.SystemProfile) (fingerprinter.Fingerprint, error) {
 	command := doc.Command.Map() //nolint:forcetypeassert // TODO deprecated in GO Driver 2.0
 	method := "deleteMany"
@@ -151,7 +151,7 @@ func (pf *ProfilerFingerprinter) fingerprintDelete(fp fingerprinter.Fingerprint,
 	return fp, nil
 }
 
-// Helper for general command operations, including support for "aggregate" commands
+// Helper for general command operations, including support for "aggregate" commands.
 func (pf *ProfilerFingerprinter) fingerprintCommand(fp fingerprinter.Fingerprint, doc proto.SystemProfile) (fingerprinter.Fingerprint, error) {
 	// Unmarshal the command into a map for easy access and manipulation
 	command := doc.Command.Map() //nolint:forcetypeassert // TODO deprecated in GO Driver 2.0

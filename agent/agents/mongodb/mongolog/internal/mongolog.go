@@ -147,21 +147,21 @@ func (l *mongolog) Start() error {
 }
 
 // Stop stops running analyzer, waits until it stops
-func (s *mongolog) Stop() error {
-	s.m.Lock()
-	defer s.m.Unlock()
-	if !s.running {
+func (l *mongolog) Stop() error {
+	l.m.Lock()
+	defer l.m.Unlock()
+	if !l.running {
 		return nil
 	}
 
 	// notify goroutine to close
-	close(s.doneChan)
+	close(l.doneChan)
 
 	// wait for goroutine to exit
-	s.wg.Wait()
+	l.wg.Wait()
 
 	// set state to "not running"
-	s.running = false
+	l.running = false
 	return nil
 }
 

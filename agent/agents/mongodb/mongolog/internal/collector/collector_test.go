@@ -71,6 +71,8 @@ func TestCollector(t *testing.T) {
 }
 
 func countLinesInFile(t *testing.T, filePath string) int {
+	t.Helper()
+
 	// Open the file
 	file, err := os.Open(filePath) //nolint:gosec
 	if err != nil {

@@ -114,13 +114,13 @@ func start(ctx context.Context, wg *sync.WaitGroup, logsPath string,
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
-	fr, err := NewReader(ctx, docsChan, doneChan, logsPath, logger)
+	fr, err := NewReader(docsChan, doneChan, logsPath, logger)
 	if err != nil {
 		logger.Error(err)
 		return
 	}
 	go func() {
-		fr.ReadFile()
+		fr.ReadFile(ctx)
 		logger.Debugln("reading routine quit")
 	}()
 

@@ -33,6 +33,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
+// DefaultInterval is interval for aggregator tick.
 var DefaultInterval = time.Duration(time.Minute)
 
 const (
@@ -62,7 +63,7 @@ func New(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLeng
 	return aggregator
 }
 
-// Aggregator aggregates system.profile document
+// Aggregator aggregates system.profile document.
 type Aggregator struct {
 	agentID        string
 	maxQueryLength int32
@@ -86,7 +87,7 @@ type Aggregator struct {
 	wg       *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
 }
 
-// Add aggregates new system.profile document
+// Add aggregates new system.profile document.
 func (a *Aggregator) Add(ctx context.Context, doc proto.SystemProfile) error {
 	a.m.Lock()
 	defer a.m.Unlock()
@@ -107,6 +108,7 @@ func (a *Aggregator) Add(ctx context.Context, doc proto.SystemProfile) error {
 	return a.mongostats.Add(doc)
 }
 
+// Start run aggregator timer.
 func (a *Aggregator) Start() <-chan *report.Report {
 	a.m.Lock()
 	defer a.m.Unlock()
@@ -139,6 +141,7 @@ func (a *Aggregator) Start() <-chan *report.Report {
 	return a.reportChan
 }
 
+// Stop stops aggregator timer.
 func (a *Aggregator) Stop() {
 	a.m.Lock()
 	defer a.m.Unlock()
@@ -181,6 +184,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, aggregator *Aggregator, done
 	}
 }
 
+// Flush sends data to report chan.
 func (a *Aggregator) Flush(ctx context.Context) {
 	a.m.Lock()
 	defer a.m.Unlock()
@@ -215,14 +219,14 @@ func (a *Aggregator) interval(ctx context.Context, ts time.Time) *report.Report 
 	return report.MakeReport(ctx, a.timeStart, a.timeEnd, result)
 }
 
-// TimeStart returns start time for current interval
+// TimeStart returns start time for current interval.
 func (a *Aggregator) TimeStart() time.Time {
 	a.mx.RLock()
 	defer a.mx.RUnlock()
 	return a.timeStart
 }
 
-// TimeEnd returns end time for current interval
+// TimeEnd returns end time for current interval.
 func (a *Aggregator) TimeEnd() time.Time {
 	a.mx.RLock()
 	defer a.mx.RUnlock()
