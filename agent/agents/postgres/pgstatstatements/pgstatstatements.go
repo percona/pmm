@@ -98,14 +98,14 @@ func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 }
 
 func getPgStatStatementsCacheSize(q *reform.Querier, l *logrus.Entry) uint {
-	var pgSSCacheSize int
+	var pgSSCacheSize uint
 	err := q.QueryRow(pgssMaxQuery).Scan(&pgSSCacheSize)
 	if err != nil {
 		l.WithError(err).Error("failed to get pg_stat_statements.max")
 		return defaultPgssCacheSize
 	}
 
-	return uint(pgSSCacheSize)
+	return pgSSCacheSize
 }
 
 func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, disableCommentsParsing bool, l *logrus.Entry) (*PGStatStatementsQAN, error) { //nolint:lll
