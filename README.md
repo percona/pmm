@@ -46,7 +46,7 @@ Please check our [Documentation](https://docs.percona.com/percona-monitoring-and
 
 ## Installation
 
-There are numbers of installation methods, please check our [Setting Up](https://docs.percona.com/percona-monitoring-and-management/setting-up/index.html) documentation page.
+There are numbers of installation methods, please check our [Setting Up](https://docs.percona.com/percona-monitoring-and-management/2/setting-up/index.html) documentation page.
 
 But in a nutshell:
 1. Download PMM server Docker image
