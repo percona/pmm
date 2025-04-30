@@ -250,7 +250,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			node, _ := models.FindNodeByID(u.db.Querier, pointer.GetString(pmmAgent.RunsOnNodeID))
 			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
-				agentProcesses[row.AgentID] = mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				cfg, err := mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				if err != nil {
+					return err
+				}
+				agentProcesses[row.AgentID] = cfg
 			case models.MongoDBExporterType:
 				cfg, err := mongodbExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 				if err != nil {
