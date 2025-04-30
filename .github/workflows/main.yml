@@ -29,6 +29,11 @@ jobs:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
 
+      - name: Install kerberos development libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install libkrb5-dev
+
       - name: Enable Go build cache
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
@@ -182,7 +187,7 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@c33737706dea87cd7784c687dadc9adf1be59990 # v2.3.2
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
 
   workflow_failure:
     if: ${{ failure() }}
@@ -200,4 +205,4 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@c33737706dea87cd7784c687dadc9adf1be59990 # v2.3.2
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
