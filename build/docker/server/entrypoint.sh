@@ -19,13 +19,14 @@ if [ ! -f $DIST_FILE ]; then
     echo "Copying grafana plugins and the VERSION file..."
     mkdir -p /srv/grafana/plugins
     cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
-    
+    cp /usr/share/percona-dashboards/VERSION /srv/grafana/PERCONA_DASHBOARDS_VERSION
+
     echo "Generating self-signed certificates for nginx..."
     bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
-    
+
     echo "Initializing Postgres..."
     /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust --username=postgres
-    
+
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
     /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o '-c logging_collector=off'
     /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
