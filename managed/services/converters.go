@@ -318,6 +318,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
 
 		return exporter, nil
+
 	case models.QANMySQLPerfSchemaAgentType:
 		return &inventoryv1.QANMySQLPerfSchemaAgent{
 			AgentId:                agent.AgentID,
@@ -500,6 +501,28 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ProcessExecPath: processExecPath,
 			ListenPort:      uint32(pointer.GetUint16(agent.ListenPort)),
 		}, nil
+
+	case models.ValkeyExporterType:
+		exporter := &inventoryv1.ValkeyExporter{
+			AgentId:            agent.AgentID,
+			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
+			ServiceId:          serviceID,
+			Username:           pointer.GetString(agent.Username),
+			Disabled:           agent.Disabled,
+			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:       labels,
+			Tls:                agent.TLS,
+			TlsSkipVerify:      agent.TLSSkipVerify,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
+			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
+			ProcessExecPath:    processExecPath,
+			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
+		}
+
+		return exporter, nil
 
 	default:
 		panic(fmt.Errorf("unhandled Agent type %s", agent.AgentType))

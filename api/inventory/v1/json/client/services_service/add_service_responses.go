@@ -208,6 +208,9 @@ type AddServiceBody struct {
 
 	// proxysql
 	Proxysql *AddServiceParamsBodyProxysql `json:"proxysql,omitempty"`
+
+	// valkey
+	Valkey *AddServiceParamsBodyValkey `json:"valkey,omitempty"`
 }
 
 // Validate validates this add service body
@@ -235,6 +238,10 @@ func (o *AddServiceBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateProxysql(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateValkey(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -358,6 +365,25 @@ func (o *AddServiceBody) validateProxysql(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *AddServiceBody) validateValkey(formats strfmt.Registry) error {
+	if swag.IsZero(o.Valkey) { // not required
+		return nil
+	}
+
+	if o.Valkey != nil {
+		if err := o.Valkey.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "valkey")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "valkey")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this add service body based on the context it is used
 func (o *AddServiceBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -383,6 +409,10 @@ func (o *AddServiceBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := o.contextValidateProxysql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateValkey(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -504,6 +534,26 @@ func (o *AddServiceBody) contextValidateProxysql(ctx context.Context, formats st
 				return ve.ValidateName("body" + "." + "proxysql")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "proxysql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddServiceBody) contextValidateValkey(ctx context.Context, formats strfmt.Registry) error {
+	if o.Valkey != nil {
+
+		if swag.IsZero(o.Valkey) { // not required
+			return nil
+		}
+
+		if err := o.Valkey.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "valkey")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "valkey")
 			}
 			return err
 		}
@@ -772,6 +822,9 @@ type AddServiceOKBody struct {
 
 	// proxysql
 	Proxysql *AddServiceOKBodyProxysql `json:"proxysql,omitempty"`
+
+	// valkey
+	Valkey *AddServiceOKBodyValkey `json:"valkey,omitempty"`
 }
 
 // Validate validates this add service OK body
@@ -799,6 +852,10 @@ func (o *AddServiceOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateProxysql(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateValkey(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -922,6 +979,25 @@ func (o *AddServiceOKBody) validateProxysql(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *AddServiceOKBody) validateValkey(formats strfmt.Registry) error {
+	if swag.IsZero(o.Valkey) { // not required
+		return nil
+	}
+
+	if o.Valkey != nil {
+		if err := o.Valkey.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addServiceOk" + "." + "valkey")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addServiceOk" + "." + "valkey")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this add service OK body based on the context it is used
 func (o *AddServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -947,6 +1023,10 @@ func (o *AddServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 	}
 
 	if err := o.contextValidateProxysql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateValkey(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1068,6 +1148,26 @@ func (o *AddServiceOKBody) contextValidateProxysql(ctx context.Context, formats 
 				return ve.ValidateName("addServiceOk" + "." + "proxysql")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "proxysql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddServiceOKBody) contextValidateValkey(ctx context.Context, formats strfmt.Registry) error {
+	if o.Valkey != nil {
+
+		if swag.IsZero(o.Valkey) { // not required
+			return nil
+		}
+
+		if err := o.Valkey.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addServiceOk" + "." + "valkey")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addServiceOk" + "." + "valkey")
 			}
 			return err
 		}
@@ -1494,6 +1594,79 @@ func (o *AddServiceOKBodyProxysql) UnmarshalBinary(b []byte) error {
 }
 
 /*
+AddServiceOKBodyValkey ValkeyService represents a generic Valkey instance.
+swagger:model AddServiceOKBodyValkey
+*/
+type AddServiceOKBodyValkey struct {
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Database name.
+	DatabaseName string `json:"database_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	// Port is required when the address present.
+	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// PostgreSQL version.
+	Version string `json:"version,omitempty"`
+}
+
+// Validate validates this add service OK body valkey
+func (o *AddServiceOKBodyValkey) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add service OK body valkey based on context it is used
+func (o *AddServiceOKBodyValkey) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceOKBodyValkey) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceOKBodyValkey) UnmarshalBinary(b []byte) error {
+	var res AddServiceOKBodyValkey
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 AddServiceParamsBodyExternal add service params body external
 swagger:model AddServiceParamsBodyExternal
 */
@@ -1852,6 +2025,70 @@ func (o *AddServiceParamsBodyProxysql) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddServiceParamsBodyProxysql) UnmarshalBinary(b []byte) error {
 	var res AddServiceParamsBodyProxysql
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddServiceParamsBodyValkey add service params body valkey
+swagger:model AddServiceParamsBodyValkey
+*/
+type AddServiceParamsBodyValkey struct {
+	// Unique across all Services user-defined name. Required.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs. Required.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	// Port is required when the address present.
+	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this add service params body valkey
+func (o *AddServiceParamsBodyValkey) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add service params body valkey based on context it is used
+func (o *AddServiceParamsBodyValkey) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceParamsBodyValkey) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceParamsBodyValkey) UnmarshalBinary(b []byte) error {
+	var res AddServiceParamsBodyValkey
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
