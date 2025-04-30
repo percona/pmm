@@ -137,7 +137,7 @@ message ValkeyService {
   string replication_set = 10;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 11;
-  // PostgreSQL version.
+  // Valkey version.
   string version = 12;
 }
 

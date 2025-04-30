@@ -1240,7 +1240,7 @@ type GetServiceOKBodyValkey struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// PostgreSQL version.
+	// Valkey version.
 	Version string `json:"version,omitempty"`
 }
 

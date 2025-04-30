@@ -1470,8 +1470,6 @@ message AddValkeyExporterParams {
   LogLevel log_level = 15;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 16;
-  // Maximum number of connections that exporter can open to the database instance.
-  int32 max_exporter_connections = 17;
 }
 
 message ChangeValkeyExporterParams {

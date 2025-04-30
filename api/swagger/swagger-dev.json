@@ -8407,12 +8407,6 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 15
-                    },
-                    "max_exporter_connections": {
-                      "description": "Maximum number of connections that exporter can open to the database instance.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 16
                     }
                   },
                   "x-order": 14
@@ -16537,7 +16531,7 @@
                         "x-order": 10
                       },
                       "version": {
-                        "description": "PostgreSQL version.",
+                        "description": "Valkey version.",
                         "type": "string",
                         "x-order": 11
                       }
@@ -17404,7 +17398,7 @@
                       "x-order": 10
                     },
                     "version": {
-                      "description": "PostgreSQL version.",
+                      "description": "Valkey version.",
                       "type": "string",
                       "x-order": 11
                     }
@@ -17905,7 +17899,7 @@
                       "x-order": 10
                     },
                     "version": {
-                      "description": "PostgreSQL version.",
+                      "description": "Valkey version.",
                       "type": "string",
                       "x-order": 11
                     }
@@ -18448,7 +18442,7 @@
                       "x-order": 10
                     },
                     "version": {
-                      "description": "PostgreSQL version.",
+                      "description": "Valkey version.",
                       "type": "string",
                       "x-order": 11
                     }
