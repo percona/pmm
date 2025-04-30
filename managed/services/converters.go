@@ -154,6 +154,21 @@ func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //noli
 			CustomLabels:   labels,
 		}, nil
 
+	case models.ValkeyServiceType:
+		return &inventoryv1.ValkeyService{
+			ServiceId:      service.ServiceID,
+			ServiceName:    service.ServiceName,
+			DatabaseName:   service.DatabaseName,
+			NodeId:         service.NodeID,
+			Address:        pointer.GetString(service.Address),
+			Port:           uint32(pointer.GetUint16(service.Port)),
+			Socket:         pointer.GetString(service.Socket),
+			Environment:    service.Environment,
+			Cluster:        service.Cluster,
+			ReplicationSet: service.ReplicationSet,
+			CustomLabels:   labels,
+		}, nil
+
 	case models.ProxySQLServiceType:
 		return &inventoryv1.ProxySQLService{
 			ServiceId:      service.ServiceID,
