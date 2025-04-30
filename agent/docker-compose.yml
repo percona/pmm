@@ -50,7 +50,9 @@ services:
   mongo:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongo
-    command: --profile=2
+    command:
+      - --profile=2
+      - --logpath=/var/log/mongodb/mongo_tls.log
     ports:
       - "127.0.0.1:27017:27017"
     environment:
@@ -67,6 +69,7 @@ services:
       - --sslCAFile=/etc/ssl/certificates/ca.crt
       - --sslWeakCertificateValidation
       - -bind_ip=0.0.0.0
+      - --logpath=/var/log/mongodb/mongo_tls.log
     ports:
       - "127.0.0.1:27018:27017"
     volumes:
