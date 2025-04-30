@@ -221,9 +221,6 @@ func TestProxy(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
 		prepareRequest(req, uri, headerName)
 
-		require.NotNil(t, req.URL.User)
-		require.Equal(t, username, req.URL.User.Username())
-		pwd, _ := req.URL.User.Password()
-		require.Equal(t, password, pwd)
+		require.Equal(t, "Basic dXNlcjpwYXNzd29yZA==", req.Header.Get("Authorization"))
 	})
 }
