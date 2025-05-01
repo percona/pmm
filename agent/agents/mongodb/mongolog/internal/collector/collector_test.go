@@ -17,6 +17,9 @@ package collector
 import (
 	"bufio"
 	"context"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -34,15 +37,13 @@ import (
 )
 
 const (
-	delay = 5 * time.Millisecond
+	delay   = 5 * time.Millisecond
+	timeout = 30 * time.Second
 )
 
 func TestCollector(t *testing.T) {
 	logrus.SetLevel(logrus.TraceLevel)
 	defer logrus.SetLevel(logrus.InfoLevel)
-
-	destination := "testdata/mongo.log"
-	timeout := 30 * time.Second
 
 	tests, err := testFileNames()
 	require.NoError(t, err)
@@ -50,6 +51,10 @@ func TestCollector(t *testing.T) {
 		t.Run(test, func(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			defer cancel()
+
+			hash, err := generateRandomHash()
+			require.NoError(t, err)
+			destination := fmt.Sprintf("./testdata/mongo_%s.log", hash)
 
 			ctr := New(destination, logrus.WithField("component", "collector-test"))
 
@@ -62,7 +67,7 @@ func TestCollector(t *testing.T) {
 			require.NoError(t, err)
 
 			errChan := make(chan error, 1)
-			go readSourceWriteDestination(errChan, ctx, fmt.Sprintf("testdata/%s.log", test), destination, delay)
+			go readSourceWriteDestination(errChan, ctx, fmt.Sprintf("./testdata/logs/%s.log", test), destination, delay)
 
 			var data []proto.SystemProfile
 			go func() {
@@ -87,7 +92,7 @@ func TestCollector(t *testing.T) {
 			cancel()
 			ctr.Stop()
 
-			expectedFile := fmt.Sprintf("testdata/expected/%s", test)
+			expectedFile := fmt.Sprintf("./testdata/expected/%s", test)
 			if os.Getenv("REFRESH_TEST_DATA") != "" {
 				writeData(data, expectedFile)
 				return
@@ -101,8 +106,19 @@ func TestCollector(t *testing.T) {
 	}
 }
 
+func generateRandomHash() (string, error) {
+	randomBytes := make([]byte, 32)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		return "", err
+	}
+
+	hash := sha256.Sum256(randomBytes)
+	return hex.EncodeToString(hash[:]), nil
+}
+
 func testFileNames() ([]string, error) {
-	files, err := os.ReadDir("./testdata")
+	files, err := os.ReadDir("./testdata/logs")
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +213,22 @@ func readSourceWriteDestination(errChan chan error, ctx context.Context, source,
 		errChan <- err
 		return
 	}
-	defer srcFile.Close()
+	scanner := bufio.NewScanner(srcFile)
+	var lines []string
+	for scanner.Scan() {
+		select {
+		case <-ctx.Done():
+			errChan <- ctx.Err()
+			return
+		default:
+		}
+		lines = append(lines, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		errChan <- err
+		return
+	}
+	srcFile.Close()
 
 	dstFile, err := os.Create(destination)
 	if err != nil {
@@ -206,17 +237,14 @@ func readSourceWriteDestination(errChan chan error, ctx context.Context, source,
 	}
 	defer dstFile.Close()
 
-	scanner := bufio.NewScanner(srcFile)
 	writer := bufio.NewWriter(dstFile)
-
-	for scanner.Scan() {
+	for _, line := range lines {
 		select {
 		case <-ctx.Done():
 			errChan <- ctx.Err()
 			return
 		default:
 		}
-		line := scanner.Text()
 		_, err := writer.WriteString(line + "\n")
 		if err != nil {
 			errChan <- err
