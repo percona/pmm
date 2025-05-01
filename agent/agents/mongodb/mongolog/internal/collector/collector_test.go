@@ -95,8 +95,8 @@ func TestCollector(t *testing.T) {
 			// lets triple collector wait duration to be sure we got data and can stop
 			<-time.After(3 * collectorWaitDuration)
 			cancel()
-			ctr.Stop()
 			wg.Wait()
+			ctr.Stop()
 
 			expectedFile := fmt.Sprintf("./testdata/expected/%s", test)
 			if os.Getenv("REFRESH_TEST_DATA") != "" {
