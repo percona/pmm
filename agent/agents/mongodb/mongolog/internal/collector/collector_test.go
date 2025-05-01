@@ -26,6 +26,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -70,8 +71,11 @@ func TestCollector(t *testing.T) {
 			errChan := make(chan error, 1)
 			go readSourceWriteDestination(errChan, ctx, fmt.Sprintf("./testdata/logs/%s.log", test), destination, delay)
 
+			var wg sync.WaitGroup
+			wg.Add(1)
 			var data []proto.SystemProfile
 			go func() {
+				defer wg.Done()
 				for {
 					select {
 					case <-ctx.Done():
@@ -92,6 +96,7 @@ func TestCollector(t *testing.T) {
 			<-time.After(3 * collectorWaitDuration)
 			cancel()
 			ctr.Stop()
+			wg.Wait()
 
 			expectedFile := fmt.Sprintf("./testdata/expected/%s", test)
 			if os.Getenv("REFRESH_TEST_DATA") != "" {
@@ -102,10 +107,7 @@ func TestCollector(t *testing.T) {
 			expectedData, err := readData(expectedFile)
 			require.NoError(t, err)
 
-			expected := reorderData(expectedData)
-			reorder := reorderData(data)
-
-			require.Equal(t, expected, reorder)
+			require.Equal(t, reorderData(expectedData), reorderData(data))
 		})
 	}
 }
