@@ -31,7 +31,7 @@ services:
       - ./testdata/mysql:/mysql
 
   mongo:
-    image: ${MONGO_IMAGE:-mongo:5.0}
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongo
     command:
       - --profile=2
@@ -45,7 +45,7 @@ services:
       - ./testdata/mongo/var/log/mongodb:/var/log/mongodb
 
   mongo_with_tls:
-    image: ${MONGO_IMAGE:-mongo:5.0}
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongo_with_tls
     command:
       - --profile=2
