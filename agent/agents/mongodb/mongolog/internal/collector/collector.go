@@ -25,7 +25,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const collectorChanCapacity = 100
+const (
+	collectorChanCapacity = 100
+	collectorWaitDuration = time.Second
+)
 
 // New creates new Collector.
 func New(logsPath string, logger *logrus.Entry) *Collector {
@@ -65,6 +68,11 @@ func (c *Collector) Start(ctx context.Context) (<-chan proto.SystemProfile, erro
 	// ... inside goroutine to close it
 	c.doneChan = make(chan struct{})
 
+	reader, err := NewReader(c.docsChan, c.doneChan, c.logsPath, c.logger)
+	if err != nil {
+		return nil, err
+	}
+
 	// start a goroutine and Add() it to WaitGroup
 	// so we could later Wait() for it to finish
 	c.wg = &sync.WaitGroup{}
@@ -80,6 +88,7 @@ func (c *Collector) Start(ctx context.Context) (<-chan proto.SystemProfile, erro
 		start(
 			ctx,
 			c.wg,
+			reader,
 			c.logsPath,
 			c.docsChan,
 			c.doneChan,
@@ -110,19 +119,14 @@ func (c *Collector) Stop() {
 	close(c.docsChan) // we can now safely close channels goroutines write to as goroutine is stopped
 }
 
-func start(ctx context.Context, wg *sync.WaitGroup, logsPath string,
+func start(ctx context.Context, wg *sync.WaitGroup, reader *MongologReader, logsPath string,
 	docsChan chan<- proto.SystemProfile, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry,
 ) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
-	fr, err := NewReader(docsChan, doneChan, logsPath, logger)
-	if err != nil {
-		logger.Error(err)
-		return
-	}
 	go func() {
-		fr.ReadFile(ctx)
+		reader.ReadFile(ctx)
 		logger.Debugln("reading routine quit")
 	}()
 
@@ -136,7 +140,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, logsPath string,
 		case <-doneChan:
 			return
 		// wait some time before reconnecting
-		case <-time.After(1 * time.Second):
+		case <-time.After(collectorWaitDuration):
 		}
 
 		// After first failure in connection we signal that we are ready anyway
