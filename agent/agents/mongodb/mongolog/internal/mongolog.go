@@ -23,12 +23,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"gopkg.in/mgo.v2/bson"
 
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/aggregator"
-	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/collector"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/sender"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 )
@@ -99,7 +100,7 @@ func (l *Mongolog) Start() error {
 	if err != nil {
 		return err
 	}
-	logsPath, err := collector.GetLogFilePath(client)
+	logsPath, err := getLogFilePath(client)
 	if err != nil {
 		return err
 	}
@@ -214,4 +215,32 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	}
 
 	return client, nil
+}
+
+func getLogFilePath(client *mongo.Client) (string, error) {
+	var result bson.M
+	err := client.Database("admin").RunCommand(context.TODO(), bson.M{"getCmdLineOpts": 1}).Decode(&result)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to run command getCmdLineOpts")
+	}
+
+	if parsed, ok := result["parsed"].(bson.M); ok {
+		if systemLog, ok := parsed["systemLog"].(bson.M); ok {
+			if logPath, ok := systemLog["path"].(string); ok {
+				return logPath, nil
+			}
+		}
+	}
+
+	if argv, ok := result["argv"].([]interface{}); ok {
+		for i := 0; i < len(argv); i++ {
+			if arg, ok := argv[i].(string); ok && arg == "--logpath" && i+1 < len(argv) {
+				if value, ok := argv[i+1].(string); ok {
+					return value, nil
+				}
+			}
+		}
+	}
+
+	return "", errors.New("no log path found, logs may be in Docker stdout")
 }

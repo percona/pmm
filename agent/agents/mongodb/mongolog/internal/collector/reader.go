@@ -20,10 +20,8 @@ import (
 	"time"
 
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm/agent/utils/filereader"
 )
@@ -50,35 +48,6 @@ type Mongolog struct {
 type systemProfile struct {
 	proto.SystemProfile
 	Command bson.M `json:"command"`
-}
-
-// GetLogFilePath returns path for mongo log file.
-func GetLogFilePath(client *mongo.Client) (string, error) {
-	var result bson.M
-	err := client.Database("admin").RunCommand(context.TODO(), bson.M{"getCmdLineOpts": 1}).Decode(&result)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to run command getCmdLineOpts")
-	}
-
-	if parsed, ok := result["parsed"].(bson.M); ok {
-		if systemLog, ok := parsed["systemLog"].(bson.M); ok {
-			if logPath, ok := systemLog["path"].(string); ok {
-				return logPath, nil
-			}
-		}
-	}
-
-	if argv, ok := result["argv"].([]interface{}); ok {
-		for i := 0; i < len(argv); i++ {
-			if arg, ok := argv[i].(string); ok && arg == "--logpath" && i+1 < len(argv) {
-				if value, ok := argv[i+1].(string); ok {
-					return value, nil
-				}
-			}
-		}
-	}
-
-	return "", errors.New("no log path found, logs may be in Docker stdout")
 }
 
 // NewReader returns a new MongologReader that reads from the given reader.
