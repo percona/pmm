@@ -49,6 +49,7 @@ func TestCollector(t *testing.T) {
 	require.NoError(t, err)
 	for _, test := range tests {
 		t.Run(test, func(t *testing.T) {
+			t.Parallel()
 			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			defer cancel()
 
@@ -101,7 +102,10 @@ func TestCollector(t *testing.T) {
 			expectedData, err := readData(expectedFile)
 			require.NoError(t, err)
 
-			require.Equal(t, reorderData(expectedData), reorderData(data))
+			expected := reorderData(expectedData)
+			reorder := reorderData(data)
+
+			require.Equal(t, expected, reorder)
 		})
 	}
 }
@@ -138,16 +142,19 @@ func testFileNames() ([]string, error) {
 }
 
 func reorderData(data []proto.SystemProfile) []proto.SystemProfile {
-	for k, v := range data {
-		data[k].Ts = v.Ts.UTC()
+	var res []proto.SystemProfile
+	for _, d := range data {
+		d.Ts = d.Ts.UTC()
 
 		// all bson.D needs to be reordered
-		data[k].Command = reorderBSOND(v.Command)
-		data[k].OriginatingCommand = reorderBSOND(v.OriginatingCommand)
-		data[k].UpdateObj = reorderBSOND(v.UpdateObj)
+		d.Command = reorderBSOND(d.Command)
+		d.OriginatingCommand = reorderBSOND(d.OriginatingCommand)
+		d.UpdateObj = reorderBSOND(d.UpdateObj)
+
+		res = append(res, d)
 	}
 
-	return data
+	return res
 }
 
 func reorderBSOND(data bson.D) bson.D {
