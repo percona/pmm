@@ -26,10 +26,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
+
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 )
 
 const (
@@ -83,7 +84,7 @@ func TestCollector(t *testing.T) {
 
 			// lets triple collector wait duration to be sure we got data and can stop
 			<-time.After(3 * collectorWaitDuration)
-			ctx.Done()
+			cancel()
 			ctr.Stop()
 
 			expectedFile := fmt.Sprintf("testdata/expected/%s", test)
