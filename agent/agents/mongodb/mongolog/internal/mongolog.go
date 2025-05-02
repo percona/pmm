@@ -160,11 +160,11 @@ func (l *Mongolog) Stop() error {
 
 	// notify goroutine to close
 	close(l.doneChan)
+	l.monitor.reader.Close()
 
 	// wait for goroutine to exit
 	l.wg.Wait()
 
-	l.monitor.reader.Close()
 	// set state to "not running"
 	l.running = false
 	return nil

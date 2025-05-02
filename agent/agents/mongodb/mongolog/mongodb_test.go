@@ -16,6 +16,7 @@ package mongolog
 
 import (
 	"context"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -29,18 +30,22 @@ import (
 )
 
 func TestMongoRun(t *testing.T) {
+	testdata, err := filepath.Abs("../../../testdata/mongo")
+	require.NoError(t, err)
 	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../..")
 	tempDir := t.TempDir()
 	sslDSN, err := templates.RenderDSN(sslDSNTemplate, files, tempDir)
 	require.NoError(t, err)
 	for _, params := range []*Params{
 		{
-			DSN:     "mongodb://root:root-password@127.0.0.1:27017/admin",
-			AgentID: "test",
+			DSN:           "mongodb://root:root-password@127.0.0.1:27017/admin",
+			AgentID:       "test",
+			LogFilePrefix: testdata,
 		},
 		{
-			DSN:     sslDSN,
-			AgentID: "test",
+			DSN:           sslDSN,
+			AgentID:       "test",
+			LogFilePrefix: testdata,
 		},
 	} {
 		m, err := New(params, logrus.WithField("test", t.Name()))
