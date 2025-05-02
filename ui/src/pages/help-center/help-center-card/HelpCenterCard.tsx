@@ -53,12 +53,20 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
   return (
     <Card
       sx={{
-        borderTop: borderColor ? `solid 12px ${borderColor}` : 'none',
+        ...(borderColor && { borderTop: `solid 12px ${borderColor}` }),
       }}
       key={id}
       data-testid={`help-card-${id}`}
+      variant="outlined"
     >
-      <CardContent sx={{ px: 2 }}>
+      <CardContent
+        sx={{
+          px: 2,
+          '&:last-child': {
+            paddingBottom: '16px',
+          },
+        }}
+      >
         <Stack
           flexDirection="row"
           justifyContent="flex-start"
