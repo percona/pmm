@@ -26,8 +26,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 
-	"github.com/percona/pmm/agent/agents/mongodb/profiler/internal/aggregator"
-	"github.com/percona/pmm/agent/agents/mongodb/profiler/internal/report"
+	"github.com/percona/pmm/agent/agents/mongodb/shared/aggregator"
+	"github.com/percona/pmm/agent/agents/mongodb/shared/report"
 	"github.com/percona/pmm/agent/utils/truncate"
 )
 

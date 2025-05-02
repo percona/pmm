@@ -26,8 +26,8 @@ import (
 	mongostats "github.com/percona/percona-toolkit/src/go/mongolib/stats"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/agent/agents/mongodb/profiler/internal/fingerprinter"
-	"github.com/percona/pmm/agent/agents/mongodb/profiler/internal/report"
+	"github.com/percona/pmm/agent/agents/mongodb/shared/fingerprinter"
+	"github.com/percona/pmm/agent/agents/mongodb/shared/report"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"

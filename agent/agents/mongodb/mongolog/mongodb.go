@@ -24,7 +24,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	mongolog "github.com/percona/pmm/agent/agents/mongodb/mongolog/internal"
-	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/report"
+	"github.com/percona/pmm/agent/agents/mongodb/shared/report"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 

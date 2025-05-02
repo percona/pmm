@@ -24,7 +24,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	profiler "github.com/percona/pmm/agent/agents/mongodb/profiler/internal"
-	"github.com/percona/pmm/agent/agents/mongodb/profiler/internal/report"
+	"github.com/percona/pmm/agent/agents/mongodb/shared/report"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 

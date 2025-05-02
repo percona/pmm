@@ -21,7 +21,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/agent/agents/mongodb/profiler/internal/report"
+	"github.com/percona/pmm/agent/agents/mongodb/shared/report"
 )
 
 // New creates new sender.

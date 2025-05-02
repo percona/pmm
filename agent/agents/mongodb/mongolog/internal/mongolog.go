@@ -30,8 +30,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/aggregator"
-	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/sender"
+	"github.com/percona/pmm/agent/agents/mongodb/shared/aggregator"
+	"github.com/percona/pmm/agent/agents/mongodb/shared/sender"
 	"github.com/percona/pmm/agent/utils/filereader"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 )
@@ -190,6 +190,8 @@ func start(ctx context.Context, monitor *Monitor, aggregator *aggregator.Aggrega
 	for {
 		select {
 		case <-ctx.Done():
+			return
+		case <-doneChan:
 			return
 		case doc, ok := <-docsChan:
 			if !ok {
