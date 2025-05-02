@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package collector
+package mongolog
 
 import (
 	"bufio"
@@ -30,16 +30,18 @@ import (
 	"testing"
 	"time"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
+	"github.com/percona/pmm/agent/utils/filereader"
 )
 
 const (
-	delay   = 5 * time.Millisecond
-	timeout = 30 * time.Second
+	delay         = 5 * time.Millisecond
+	timeout       = 30 * time.Second
+	timeToCollect = 10 * time.Second
 )
 
 func TestCollector(t *testing.T) {
@@ -58,27 +60,39 @@ func TestCollector(t *testing.T) {
 			require.NoError(t, err)
 			destination := fmt.Sprintf("./testdata/mongo_%s.log", hash)
 
-			ctr := New(destination, logrus.WithField("component", "collector-test"))
+			l := logrus.WithField("test", t.Name())
 
 			file, err := os.Create(destination)
 			require.NoError(t, err)
 			file.Close()
 			defer os.Remove(destination)
 
-			docsChan, err := ctr.Start(ctx)
+			reader, err := filereader.NewContinuousFileReader(destination, l)
 			require.NoError(t, err)
+
+			monitor := NewMonitor(destination, reader, l)
+
+			docsChan := make(chan proto.SystemProfile, collectorChanCapacity)
+			defer close(docsChan)
+
+			doneChan := make(chan struct{})
+			defer close(doneChan)
 
 			errChan := make(chan error, 1)
 			go readSourceWriteDestination(errChan, ctx, fmt.Sprintf("./testdata/logs/%s.log", test), destination, delay)
 
 			var wg sync.WaitGroup
-			wg.Add(1)
+			wg.Add(2)
+			go monitor.Start(ctx, docsChan, doneChan, &wg)
+
 			var data []proto.SystemProfile
 			go func() {
 				defer wg.Done()
 				for {
 					select {
 					case <-ctx.Done():
+						return
+					case <-doneChan:
 						return
 					case row, ok := <-docsChan:
 						if !ok {
@@ -92,11 +106,13 @@ func TestCollector(t *testing.T) {
 			err = <-errChan
 			require.NoError(t, err)
 
-			// lets triple collector wait duration to be sure we got data and can stop
-			<-time.After(3 * collectorWaitDuration)
-			cancel()
+			// All data are written right now, lets wait
+			// several more seconds to ensure all data are collected.
+			<-time.After(timeToCollect)
+			doneChan <- struct{}{}
+			err = reader.Close()
+			require.NoError(t, err)
 			wg.Wait()
-			ctr.Stop()
 
 			expectedFile := fmt.Sprintf("./testdata/expected/%s", test)
 			if os.Getenv("REFRESH_TEST_DATA") != "" {

@@ -23,6 +23,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -31,6 +32,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog/internal/sender"
+	"github.com/percona/pmm/agent/utils/filereader"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 )
 
@@ -87,11 +89,6 @@ func (l *Mongolog) Start() error {
 	// we will tell goroutine it should close
 	l.doneChan = make(chan struct{})
 
-	// start a goroutine and Add() it to WaitGroup
-	// so we could later Wait() for it to finish
-	l.wg = &sync.WaitGroup{}
-	l.wg.Add(1)
-
 	ctx := context.Background()
 	labels := pprof.Labels("component", "mongodb.mongolog")
 
@@ -127,7 +124,7 @@ func (l *Mongolog) Start() error {
 	// start a goroutine and Add() it to WaitGroup
 	// so we could later Wait() for it to finish
 	l.wg = &sync.WaitGroup{}
-	l.wg.Add(1)
+	l.wg.Add(2)
 
 	// create ready sync.Cond so we could know when goroutine actually started getting data from db
 	ready := sync.NewCond(&sync.Mutex{})
@@ -135,11 +132,15 @@ func (l *Mongolog) Start() error {
 	defer ready.L.Unlock()
 
 	logsPathWithPrefix := path.Join(l.logFilePrefix, logsPath)
+	reader, err := filereader.NewContinuousFileReader(logsPathWithPrefix, l.logger)
+	if err != nil {
+		return err
+	}
 	// create monitors service which we use to periodically scan server for new/removed databases
-	l.monitor = NewMonitor(logsPathWithPrefix, l.aggregator, l.logger)
+	l.monitor = NewMonitor(logsPathWithPrefix, reader, l.logger)
 
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
-		start(ctx, l.monitor, l.wg, l.doneChan, ready, l.logger)
+		start(ctx, l.monitor, l.aggregator, l.wg, l.doneChan, ready, l.logger)
 	})
 
 	// wait until we actually fetch data from db
@@ -163,18 +164,22 @@ func (l *Mongolog) Stop() error {
 	// wait for goroutine to exit
 	l.wg.Wait()
 
+	l.monitor.reader.Close()
 	// set state to "not running"
 	l.running = false
 	return nil
 }
 
-func start(ctx context.Context, monitor *Monitor, wg *sync.WaitGroup, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry) {
+func start(ctx context.Context, monitor *Monitor, aggregator *aggregator.Aggregator, wg *sync.WaitGroup, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 	defer monitor.Stop()
 
+	docsChan := make(chan proto.SystemProfile, collectorChanCapacity)
+	defer close(docsChan)
+
 	// monitor log file
-	err := monitor.Start(ctx)
+	err := monitor.Start(ctx, docsChan, doneChan, wg)
 	if err != nil {
 		logger.Debugf("couldn't monitor log file (%s), reason: %v", monitor.logPath, err)
 	}
@@ -182,9 +187,21 @@ func start(ctx context.Context, monitor *Monitor, wg *sync.WaitGroup, doneChan <
 	// signal we started monitoring
 	signalReady(ready)
 
-	select {
-	case <-doneChan:
-	case <-ctx.Done():
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case doc, ok := <-docsChan:
+			if !ok {
+				return
+			}
+
+			logger.Debugf("added to aggregator %v", doc.Query)
+			err := aggregator.Add(ctx, doc)
+			if err != nil {
+				logger.Warnf("couldn't add document to aggregator: %s", err)
+			}
+		}
 	}
 }
 
