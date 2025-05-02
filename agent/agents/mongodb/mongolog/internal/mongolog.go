@@ -42,7 +42,7 @@ const (
 	collectorChanCapacity   = 100
 )
 
-// New creates new mongolog
+// New creates new mongolog.
 func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, logFilePrefix string, maxQueryLength int32) *Mongolog {
 	return &Mongolog{
 		mongoDSN:       mongoDSN,
@@ -171,7 +171,9 @@ func (l *Mongolog) Stop() error {
 	return nil
 }
 
-func start(ctx context.Context, monitor *Monitor, aggregator *aggregator.Aggregator, wg *sync.WaitGroup, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry) {
+func start(ctx context.Context, monitor *Monitor, aggregator *aggregator.Aggregator, wg *sync.WaitGroup,
+	doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry,
+) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 	defer monitor.Stop()
@@ -180,10 +182,7 @@ func start(ctx context.Context, monitor *Monitor, aggregator *aggregator.Aggrega
 	defer close(docsChan)
 
 	// monitor log file
-	err := monitor.Start(ctx, docsChan, doneChan, wg)
-	if err != nil {
-		logger.Debugf("couldn't monitor log file (%s), reason: %v", monitor.logPath, err)
-	}
+	monitor.Start(ctx, docsChan, doneChan, wg)
 
 	// signal we started monitoring
 	signalReady(ready)

@@ -53,21 +53,20 @@ type Monitor struct {
 }
 
 // Start starts monitor to collect and parse data.
-func (m *Monitor) Start(ctx context.Context, docsChan chan proto.SystemProfile, doneChan <-chan struct{}, wg *sync.WaitGroup) error {
+func (m *Monitor) Start(ctx context.Context, docsChan chan proto.SystemProfile, doneChan <-chan struct{}, wg *sync.WaitGroup) {
 	m.m.Lock()
 	defer m.m.Unlock()
 
 	if m.running {
-		return nil
+		return
 	}
 
 	go func() {
 		readFile(ctx, m.reader, docsChan, doneChan, wg, m.logger)
 		m.logger.Debugln("reading routine quit")
 	}()
-	m.running = true
 
-	return nil
+	m.running = true
 }
 
 // row is a helper structure to unmarshall Monglog row to system.Profile metrics.
@@ -85,7 +84,9 @@ type systemProfile struct {
 }
 
 // readFile continuously read new lines from file, until it is canceled or considered as done.
-func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docsChan chan proto.SystemProfile, doneChan <-chan struct{}, wg *sync.WaitGroup, logger *logrus.Entry) {
+func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docsChan chan proto.SystemProfile,
+	doneChan <-chan struct{}, wg *sync.WaitGroup, logger *logrus.Entry,
+) {
 	defer wg.Done()
 	logger.Debugln("reader started")
 	for {
@@ -110,7 +111,7 @@ func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docs
 			if line == "" || !json.Valid([]byte(line)) {
 				continue
 			}
-			err = json.Unmarshal([]byte(line), &l)
+			err = json.Unmarshal([]byte(line), &l) //nolint:musttag
 			if err != nil {
 				logger.Error(err)
 				continue
@@ -149,7 +150,10 @@ func (m *Monitor) Stop() {
 		return
 	}
 
-	m.reader.Close()
+	err := m.reader.Close()
+	if err != nil {
+		m.logger.Error(err)
+	}
 
 	m.running = false
 }

@@ -91,7 +91,7 @@ func (pf *ProfilerFingerprinter) fingerprintFind(fp fingerprinter.Fingerprint, d
 	fp.Fingerprint += ")"
 
 	if sort, ok := command["sort"]; ok {
-		sortJSON, _ := json.Marshal(sort.(bson.D).Map()) //nolint:forcetypeassert,staticcheck // TODO deprecated in GO Driver 2.0
+		sortJSON, _ := json.Marshal(sort.(bson.D).Map()) //nolint:forcetypeassert,errchkjson,staticcheck // TODO deprecated in GO Driver 2.0
 		fp.Fingerprint += fmt.Sprintf(`.sort(%s)`, sortJSON)
 	}
 	if _, ok := command["limit"]; ok {
@@ -115,7 +115,7 @@ func (pf *ProfilerFingerprinter) fingerprintInsert(fp fingerprinter.Fingerprint)
 
 // Helper for update operations.
 func (pf *ProfilerFingerprinter) fingerprintUpdate(fp fingerprinter.Fingerprint, doc proto.SystemProfile) (fingerprinter.Fingerprint, error) {
-	command := doc.Command.Map() //nolint:forcetypeassert,staticcheck // TODO deprecated in GO Driver 2.0
+	command := doc.Command.Map() //nolint:staticcheck // TODO deprecated in GO Driver 2.0
 	filterJSON, _ := json.Marshal(maskValues(command["q"], make(map[string]maskOption)))
 	updateJSON, _ := json.Marshal(maskValues(command["u"], make(map[string]maskOption)))
 
@@ -140,7 +140,7 @@ func (pf *ProfilerFingerprinter) fingerprintUpdate(fp fingerprinter.Fingerprint,
 
 // Helper for delete operations.
 func (pf *ProfilerFingerprinter) fingerprintDelete(fp fingerprinter.Fingerprint, doc proto.SystemProfile) (fingerprinter.Fingerprint, error) {
-	command := doc.Command.Map() //nolint:forcetypeassert,staticcheck // TODO deprecated in GO Driver 2.0
+	command := doc.Command.Map() //nolint:staticcheck // TODO deprecated in GO Driver 2.0
 	method := "deleteMany"
 	if limit, ok := command["limit"]; ok && limit == int32(1) {
 		method = "deleteOne"
@@ -154,7 +154,7 @@ func (pf *ProfilerFingerprinter) fingerprintDelete(fp fingerprinter.Fingerprint,
 // Helper for general command operations, including support for "aggregate" commands.
 func (pf *ProfilerFingerprinter) fingerprintCommand(fp fingerprinter.Fingerprint, doc proto.SystemProfile) (fingerprinter.Fingerprint, error) {
 	// Unmarshal the command into a map for easy access and manipulation
-	command := doc.Command.Map() //nolint:forcetypeassert,staticcheck // TODO deprecated in GO Driver 2.0
+	command := doc.Command.Map() //nolint:staticcheck // TODO deprecated in GO Driver 2.0
 
 	maskOptions := map[string]maskOption{
 		"$db":                      {remove: true},

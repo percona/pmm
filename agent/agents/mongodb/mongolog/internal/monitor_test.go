@@ -62,10 +62,10 @@ func TestCollector(t *testing.T) {
 
 			l := logrus.WithField("test", t.Name())
 
-			file, err := os.Create(destination)
+			file, err := os.Create(destination) //nolint:gosec
 			require.NoError(t, err)
-			file.Close()
-			defer os.Remove(destination)
+			file.Close()                 //nolint:errcheck
+			defer os.Remove(destination) //nolint:errcheck
 
 			reader, err := filereader.NewContinuousFileReader(destination, l)
 			require.NoError(t, err)
@@ -79,11 +79,11 @@ func TestCollector(t *testing.T) {
 			defer close(doneChan)
 
 			errChan := make(chan error, 1)
-			go readSourceWriteDestination(errChan, ctx, fmt.Sprintf("./testdata/logs/%s.log", test), destination, delay)
+			go readSourceWriteDestination(ctx, errChan, fmt.Sprintf("./testdata/logs/%s.log", test), destination, delay)
 
 			var wg sync.WaitGroup
 			wg.Add(2)
-			go monitor.Start(ctx, docsChan, doneChan, &wg)
+			monitor.Start(ctx, docsChan, doneChan, &wg)
 
 			var data []proto.SystemProfile
 			go func() {
@@ -144,7 +144,7 @@ func testFileNames() ([]string, error) {
 		return nil, err
 	}
 
-	var names []string
+	var names []string //nolint:prealloc
 	for _, file := range files {
 		if file.IsDir() {
 			continue
@@ -159,7 +159,7 @@ func testFileNames() ([]string, error) {
 }
 
 func reorderData(data []proto.SystemProfile) []proto.SystemProfile {
-	var res []proto.SystemProfile
+	var res []proto.SystemProfile //nolint:prealloc
 	for _, d := range data {
 		d.Ts = d.Ts.UTC()
 
@@ -175,7 +175,7 @@ func reorderData(data []proto.SystemProfile) []proto.SystemProfile {
 }
 
 func reorderBSOND(data bson.D) bson.D {
-	var res []bson.E
+	var res []bson.E //nolint:prealloc
 	for _, d := range data {
 		res = append(res, d)
 	}
@@ -201,7 +201,7 @@ func writeData(data []proto.SystemProfile, name string) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	jsonData, err := dataToJSON(data)
 	if err != nil {
@@ -220,7 +220,7 @@ func readData(name string) ([]proto.SystemProfile, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	var data []proto.SystemProfile
 	err = json.NewDecoder(file).Decode(&data)
@@ -231,7 +231,7 @@ func readData(name string) ([]proto.SystemProfile, error) {
 	return data, nil
 }
 
-func readSourceWriteDestination(errChan chan error, ctx context.Context, source, destination string, delay time.Duration) {
+func readSourceWriteDestination(ctx context.Context, errChan chan error, source, destination string, delay time.Duration) {
 	srcFile, err := os.Open(source)
 	if err != nil {
 		errChan <- err
@@ -252,14 +252,14 @@ func readSourceWriteDestination(errChan chan error, ctx context.Context, source,
 		errChan <- err
 		return
 	}
-	srcFile.Close()
+	srcFile.Close() //nolint:errcheck
 
 	dstFile, err := os.Create(destination)
 	if err != nil {
 		errChan <- err
 		return
 	}
-	defer dstFile.Close()
+	defer dstFile.Close() //nolint:errcheck
 
 	writer := bufio.NewWriter(dstFile)
 	for _, line := range lines {
@@ -274,7 +274,11 @@ func readSourceWriteDestination(errChan chan error, ctx context.Context, source,
 			errChan <- err
 			return
 		}
-		writer.Flush()
+		err = writer.Flush()
+		if err != nil {
+			errChan <- err
+			return
+		}
 		time.Sleep(delay)
 	}
 
