@@ -3,14 +3,6 @@ digraph packages {
 	"/agentlocal" -> "/tailog";
 	"/agentlocal.test" -> "/agentlocal";
 	"/agents/cache.test" -> "/agents/cache";
-	"/agents/mongodb/mongolog" -> "/agents";
-	"/agents/mongodb/mongolog" -> "/agents/mongodb/mongolog/internal";
-	"/agents/mongodb/mongolog" -> "/agents/mongodb/mongolog/internal/report";
-	"/agents/mongodb/mongolog.test" -> "/agents/mongodb/mongolog";
-	"/agents/mongodb/profiler" -> "/agents";
-	"/agents/mongodb/profiler" -> "/agents/mongodb/profiler/internal";
-	"/agents/mongodb/profiler" -> "/agents/mongodb/profiler/internal/report";
-	"/agents/mongodb/profiler.test" -> "/agents/mongodb/profiler";
 	"/agents/mysql/perfschema" -> "/agents";
 	"/agents/mysql/perfschema" -> "/agents/cache";
 	"/agents/mysql/perfschema" -> "/queryparser";
