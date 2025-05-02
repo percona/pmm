@@ -30,11 +30,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/percona/pmm/agent/utils/filereader"
 )
 
@@ -81,7 +81,7 @@ func TestCollector(t *testing.T) {
 
 			doneChan := make(chan struct{})
 			t.Cleanup(func() {
-				defer close(doneChan)
+				close(doneChan)
 			})
 
 			errChan := make(chan error, 1)
