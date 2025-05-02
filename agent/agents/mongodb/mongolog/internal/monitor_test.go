@@ -110,6 +110,7 @@ func TestCollector(t *testing.T) {
 			// several more seconds to ensure all data are collected.
 			<-time.After(timeToCollect)
 			doneChan <- struct{}{}
+			monitor.Stop()
 			wg.Wait()
 
 			expectedFile := fmt.Sprintf("./testdata/expected/%s", test)

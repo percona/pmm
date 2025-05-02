@@ -17,7 +17,6 @@ package mongolog
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"sync"
 	"time"
 
@@ -99,13 +98,11 @@ func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docs
 			return
 		default:
 			logger.Debugln("reading line")
-			fmt.Println("readning line")
 			line, err := reader.NextLine()
 			if err != nil {
 				logger.Error(err)
 				return
 			}
-			fmt.Println("readed")
 			logger.Debugf("readed line: %s", line)
 
 			var l row
