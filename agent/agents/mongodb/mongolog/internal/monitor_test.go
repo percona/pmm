@@ -260,7 +260,7 @@ func readSourceWriteDestination(ctx context.Context, errChan chan error, source,
 	}
 	srcFile.Close() //nolint:errcheck
 
-	dstFile, err := os.Create(destination)
+	dstFile, err := os.Create(destination) //nolint:gosec
 	if err != nil {
 		errChan <- err
 		return
