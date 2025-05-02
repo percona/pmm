@@ -54,7 +54,7 @@ func TestCollector(t *testing.T) {
 		t.Run(test, func(t *testing.T) {
 			t.Parallel()
 			ctx, cancel := context.WithTimeout(context.Background(), timeout)
-			defer cancel()
+			t.Cleanup(cancel)
 
 			hash, err := generateRandomHash()
 			require.NoError(t, err)
@@ -64,8 +64,10 @@ func TestCollector(t *testing.T) {
 
 			file, err := os.Create(destination) //nolint:gosec
 			require.NoError(t, err)
-			file.Close()                 //nolint:errcheck
-			defer os.Remove(destination) //nolint:errcheck
+			file.Close() //nolint:errcheck
+			t.Cleanup(func() {
+				os.Remove(destination) //nolint:errcheck
+			})
 
 			reader, err := filereader.NewContinuousFileReader(destination, l)
 			require.NoError(t, err)
@@ -73,10 +75,14 @@ func TestCollector(t *testing.T) {
 			monitor := NewMonitor(destination, reader, l)
 
 			docsChan := make(chan proto.SystemProfile, collectorChanCapacity)
-			defer close(docsChan)
+			t.Cleanup(func() {
+				close(docsChan)
+			})
 
 			doneChan := make(chan struct{})
-			defer close(doneChan)
+			t.Cleanup(func() {
+				defer close(doneChan)
+			})
 
 			errChan := make(chan error, 1)
 			go readSourceWriteDestination(ctx, errChan, fmt.Sprintf("./testdata/logs/%s.log", test), destination, delay)
