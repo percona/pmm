@@ -238,7 +238,7 @@ func readData(name string) ([]proto.SystemProfile, error) {
 }
 
 func readSourceWriteDestination(ctx context.Context, errChan chan error, source, destination string, delay time.Duration) {
-	srcFile, err := os.Open(source)
+	srcFile, err := os.Open(source) //nolint:gosec
 	if err != nil {
 		errChan <- err
 		return

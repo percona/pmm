@@ -78,7 +78,7 @@ type Mongolog struct {
 	maxQueryLength int32
 }
 
-// Start starts analyzer but doesn't wait until it exits
+// Start starts analyzer but doesn't wait until it exits.
 func (l *Mongolog) Start() error {
 	l.m.Lock()
 	defer l.m.Unlock()

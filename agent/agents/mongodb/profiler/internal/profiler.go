@@ -64,7 +64,7 @@ type profiler struct {
 	maxQueryLength int32
 }
 
-// Start starts analyzer but doesn't wait until it exits
+// Start starts analyzer but doesn't wait until it exits.
 func (p *profiler) Start() error {
 	p.m.Lock()
 	defer p.m.Unlock()
