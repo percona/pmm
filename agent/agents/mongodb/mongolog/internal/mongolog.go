@@ -39,6 +39,7 @@ import (
 const (
 	mgoTimeoutDialInfo      = 5 * time.Second
 	mgoTimeoutSessionSocket = 5 * time.Second
+	collectorChanCapacity   = 100
 )
 
 // New creates new mongolog
@@ -160,7 +161,7 @@ func (l *Mongolog) Stop() error {
 
 	// notify goroutine to close
 	close(l.doneChan)
-	l.monitor.reader.Close()
+	l.monitor.Stop()
 
 	// wait for goroutine to exit
 	l.wg.Wait()

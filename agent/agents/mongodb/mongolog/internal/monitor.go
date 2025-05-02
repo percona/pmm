@@ -29,8 +29,7 @@ import (
 )
 
 const (
-	collectorChanCapacity = 100
-	collectorWaitDuration = time.Second
+	slowQuery = "Slow query"
 )
 
 // NewMonitor creates new monitor.
@@ -71,8 +70,6 @@ func (m *Monitor) Start(ctx context.Context, docsChan chan proto.SystemProfile, 
 
 	return nil
 }
-
-const slowQuery = "Slow query"
 
 // row is a helper structure to unmarshall Monglog row to system.Profile metrics.
 type row struct {
@@ -154,6 +151,8 @@ func (m *Monitor) Stop() {
 	if !m.running {
 		return
 	}
+
+	m.reader.Close()
 
 	m.running = false
 }
