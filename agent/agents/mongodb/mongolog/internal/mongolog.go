@@ -193,6 +193,10 @@ func start(ctx context.Context, monitor *Monitor, aggregator *aggregator.Aggrega
 			return
 		case <-doneChan:
 			return
+		default:
+		}
+
+		select {
 		case doc, ok := <-docsChan:
 			if !ok {
 				return
@@ -203,6 +207,10 @@ func start(ctx context.Context, monitor *Monitor, aggregator *aggregator.Aggrega
 			if err != nil {
 				logger.Warnf("couldn't add document to aggregator: %s", err)
 			}
+		case <-ctx.Done():
+			return
+		case <-doneChan:
+			return
 		}
 	}
 }
