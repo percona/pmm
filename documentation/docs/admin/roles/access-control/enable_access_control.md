@@ -1,6 +1,6 @@
 # Enable access control
 
-Access control in PMM lets you restrict user access to specific metrics based on their roles. 
+Access control in PMM lets you restrict user access to specific metrics and Query Analytics data based on their roles. 
 Choose your preferred method to enable this feature:
 
 === "Via Docker"

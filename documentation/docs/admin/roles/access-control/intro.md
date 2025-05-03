@@ -12,24 +12,24 @@ Here's how LBAC works:
 
 1. Create roles with label selectors. For example `environment=prod` for a specific environment or `service_type=mysql` for specific databases.
 2. Assign roles to users based on their responsibilities.
-3. Users see only the metrics and data that match their role's label selectors.
+3. Users see only the metrics and (Query Analytics) QAN data that match their role's label selectors.
 
 ## Key benefits
 
 - Granular permissions: Restrict access to specific services, environments, or regions.
-- Enhanced security: Prevent unauthorized access to sensitive database metrics.
+- Enhanced security: Prevent unauthorized access to sensitive database metrics and query data.
 - Compliance support: Meet regulatory requirements for data access control.
-- Team-specific views: Allow teams to focus only on their relevant systems.
+- Team-specific views: Allow teams to focus only on their relevant systems and queries.
 - Simplified management: Manage access through roles instead of individual user permissions.
 
 ## Example scenarios
 
 | User type | Possible role configuration | What they can see |
 |-----------|---------------------------|------------------|
-| DBA team lead | All services across environments | Complete monitoring data for all databases |
+| DBA team lead | All services across environments | Complete monitoring data for all databases and queries |
 | MySQL administrators | `service_type=mysql` | Only MySQL-related metrics and queries |
-| Production support | `environment=production` | Only production environment metrics |
-| Regional team | `region=us-east` | Only metrics from a specific region |
+| Production support | `environment=production` | Only production environment metrics and queries |
+| Regional team | `region=us-east` | Only metrics and queries from a specific region |
 
 ## Getting started with LBAC
 
@@ -42,7 +42,7 @@ To implement label-based access control in PMM:
 4. Review common [use cases and examples](use_cases.md) for inspiration
 
 !!! tip "Best practice"
-    Start with broader access controls and refine them over time as you understand your organization's specific needs.
+    Start with broader access controls and refine them over time as you understand your organization's specific needs. Test LBAC behavior in both dashboards and QAN to ensure proper access control.
 
 ## Related topics
 
