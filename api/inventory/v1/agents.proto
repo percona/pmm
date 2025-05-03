@@ -1171,7 +1171,7 @@ message ChangeQANMySQLSlowlogAgentParams {
   // Replace all custom user-assigned labels.
   optional common.StringMap custom_labels = 2;
   // Enables push metrics with vmagent.
-  optional bool enable_push_metrics = 3; //TODO needed for slowlog?
+  optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
 }
