@@ -45,6 +45,8 @@ const (
 )
 
 func TestCollector(t *testing.T) {
+	t.Parallel()
+
 	logrus.SetLevel(logrus.TraceLevel)
 	t.Cleanup(func() {
 		logrus.SetLevel(logrus.InfoLevel)
