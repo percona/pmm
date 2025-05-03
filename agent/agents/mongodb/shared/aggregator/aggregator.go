@@ -214,11 +214,11 @@ func (a *Aggregator) interval(ctx context.Context, ts time.Time) *report.Report 
 	}
 
 	// create result
-	// TODO not needed ctx
+	// PMM-13965
 	result := a.createResult(ctx)
 
 	// translate result into report and return it
-	// TODO not needed ctx
+	// PMM-13965
 	return report.MakeReport(ctx, a.timeStart, a.timeEnd, result)
 }
 
