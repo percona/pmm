@@ -109,7 +109,6 @@ func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.System
 	// update stats
 	for {
 		// check if we should shutdown
-		// TODO merge it with select below
 		select {
 		// PMM-13947
 		case <-doneChan:

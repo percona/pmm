@@ -105,7 +105,6 @@ func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Re
 			}
 
 			// check if we should shutdown
-			// TODO probably not needed at all
 			select {
 			case <-doneChan:
 				return

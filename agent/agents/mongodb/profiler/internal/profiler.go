@@ -160,7 +160,6 @@ func start(ctx context.Context, monitors *monitors, wg *sync.WaitGroup, doneChan
 	defer monitors.StopAll()
 
 	// monitor all databases
-	// TODO merge it with same code in for loop
 	err := monitors.MonitorAll(ctx)
 	if err != nil {
 		logger.Debugf("couldn't monitor all databases, reason: %v", err)

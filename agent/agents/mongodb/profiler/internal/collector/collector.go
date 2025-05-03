@@ -208,7 +208,6 @@ func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName
 			count++
 
 			// check if we should shutdown
-			// TODO merge code with select below
 			select {
 			case <-ctx.Done():
 				return
