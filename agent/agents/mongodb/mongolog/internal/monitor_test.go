@@ -46,7 +46,9 @@ const (
 
 func TestCollector(t *testing.T) {
 	logrus.SetLevel(logrus.TraceLevel)
-	defer logrus.SetLevel(logrus.InfoLevel)
+	t.Cleanup(func() {
+		logrus.SetLevel(logrus.InfoLevel)
+	})
 
 	tests, err := testFileNames()
 	require.NoError(t, err)
