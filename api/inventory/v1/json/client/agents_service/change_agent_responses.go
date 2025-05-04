@@ -8161,8 +8161,6 @@ type ChangeAgentParamsBodyQANMysqlSlowlogAgent struct {
 	Enable *bool `json:"enable,omitempty"`
 
 	// Enables push metrics with vmagent.
-	//
-	// TODO needed for slowlog?
 	EnablePushMetrics *bool `json:"enable_push_metrics,omitempty"`
 
 	// custom labels

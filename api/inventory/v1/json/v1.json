@@ -7353,7 +7353,7 @@
                       "x-order": 1
                     },
                     "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent.\n\nTODO needed for slowlog?",
+                      "description": "Enables push metrics with vmagent.",
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 2
