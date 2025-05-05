@@ -21,7 +21,7 @@ To run Docker with volume:
     ```sh
     docker run --detach --restart always \
     --publish 443:8443 \
-    --env PMM_WATCHTOWER_HOST=your_watchtower_host \
+    --env PMM_WATCHTOWER_HOST=your_watchtower_host:8080 \
     --env PMM_WATCHTOWER_TOKEN=your_watchtower_token \
     --volume pmm-data:/srv \
     --network=pmm-network \
