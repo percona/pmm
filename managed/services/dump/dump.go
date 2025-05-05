@@ -45,6 +45,7 @@ const (
 	dumpsDir   = "/srv/dump"
 )
 
+// URLs contains the URLs for Clickhouse and VictoriaMetrics.
 type URLs struct {
 	ClickhouseURL string
 	VMURL         string
