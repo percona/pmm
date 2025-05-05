@@ -51,20 +51,14 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
   }, []);
 
   return (
-    <Card
-      sx={{
-        ...(borderColor && { borderTop: `solid 12px ${borderColor}` }),
-      }}
-      key={id}
-      data-testid={`help-card-${id}`}
-      variant="outlined"
-    >
+    <Card key={id} data-testid={`help-card-${id}`} variant="outlined">
       <CardContent
         sx={{
           px: 2,
           '&:last-child': {
             paddingBottom: '16px',
           },
+          ...(borderColor && { borderTop: `solid 12px ${borderColor}` }),
         }}
       >
         <Stack
