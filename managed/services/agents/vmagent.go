@@ -58,6 +58,7 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetS
 		"-envflag.enable=true",
 		"-envflag.prefix=VMAGENT_",
 	}
+	args = append(args, params.VMAgentArgs()...)
 
 	sort.Strings(args)
 

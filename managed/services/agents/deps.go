@@ -62,6 +62,7 @@ type victoriaMetricsParams interface {
 	ExternalVM() bool
 	URLFor(path string) (*url.URL, error)
 	URL() string
+	VMAgentArgs() []string
 }
 
 type nomad interface {

@@ -118,3 +118,15 @@ func (vmp *VictoriaMetricsParams) URLFor(path string) (*url.URL, error) {
 	}
 	return vmp.url.Parse(path)
 }
+
+func (vmp *VictoriaMetricsParams) VMAgentArgs() []string {
+	if vmp.url.User != nil {
+		username := vmp.url.User.Username()
+		password, _ := vmp.url.User.Password()
+		return []string{
+			"-remoteWrite.basicAuth.username=" + username,
+			"-remoteWrite.basicAuth.password=" + password,
+		}
+	}
+	return []string{}
+}
