@@ -18,6 +18,7 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -197,7 +198,7 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 	case *inventoryv1.AddAgentRequest_PostgresExporter:
 		return s.s.AddPostgresExporter(ctx, req.GetPostgresExporter())
 	case *inventoryv1.AddAgentRequest_ValkeyExporter:
-		return nil, fmt.Errorf("Valkey Exporter is not supported yet")
+		return nil, errors.New("Valkey Exporter is not supported yet")
 	case *inventoryv1.AddAgentRequest_ProxysqlExporter:
 		return s.s.AddProxySQLExporter(ctx, req.GetProxysqlExporter())
 	case *inventoryv1.AddAgentRequest_RdsExporter:
@@ -235,7 +236,7 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 	case *inventoryv1.ChangeAgentRequest_PostgresExporter:
 		return s.s.ChangePostgresExporter(ctx, agentID, req.GetPostgresExporter())
 	case *inventoryv1.ChangeAgentRequest_ValkeyExporter:
-		return nil, fmt.Errorf("Valkey Exporter is not supported yet")
+		return nil, errors.New("Valkey Exporter is not supported yet")
 	case *inventoryv1.ChangeAgentRequest_ProxysqlExporter:
 		return s.s.ChangeProxySQLExporter(ctx, agentID, req.GetProxysqlExporter())
 	case *inventoryv1.ChangeAgentRequest_RdsExporter:
