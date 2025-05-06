@@ -317,7 +317,7 @@ message ProxySQLExporter {
   common.MetricsResolutions metrics_resolutions = 25;
 }
 
-// ValkeyExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
+// ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
 message ValkeyExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
