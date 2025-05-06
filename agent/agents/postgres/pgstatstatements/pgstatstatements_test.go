@@ -455,7 +455,8 @@ func TestPGStatStatementsQPS(t *testing.T) {
 	}()
 
 	// filterInsertQueries retrieves only buckets for insert queries used by test.
-	filterInsertQueries := func(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
+	filterInsertQueries := func(t *testing.T, mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
+		t.Helper()
 		res := make([]*agentv1.MetricsBucket, 0, len(mb))
 		for _, b := range mb {
 			switch {
@@ -495,7 +496,7 @@ func TestPGStatStatementsQPS(t *testing.T) {
 
 		buckets, err := p.getNewBuckets(context.Background(), time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
-		insertBuckets := filterInsertQueries(buckets)
+		insertBuckets := filterInsertQueries(t, buckets)
 		mismatchedCount := 0
 		for _, b := range insertBuckets {
 			assert.Equal(t, float32(1), b.Common.NumQueries)
@@ -511,7 +512,7 @@ func TestPGStatStatementsQPS(t *testing.T) {
 		}
 		buckets, err = p.getNewBuckets(context.Background(), time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
-		insertBuckets = filterInsertQueries(buckets)
+		insertBuckets = filterInsertQueries(t, buckets)
 		mismatchedCount = 0
 		for _, b := range insertBuckets {
 			if b.Common.NumQueries != 1 {
