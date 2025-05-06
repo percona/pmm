@@ -118,7 +118,7 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		"export",
 		"--pmm-url=http://127.0.0.1:8080",
 		"--click-house-url="+s.urls.ClickhouseURL,
-		"--vm-url="+s.urls.VMURL,
+		"--victoria-metrics-url="+s.urls.VMURL,
 		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID)))
 
 	if params.APIKey != "" {
