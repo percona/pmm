@@ -56,7 +56,7 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
         sx={{
           px: 2,
           '&:last-child': {
-            paddingBottom: '16px',
+            paddingBottom: 2,
           },
           ...(borderColor && { borderTop: `solid 12px ${borderColor}` }),
         }}
