@@ -1815,7 +1815,7 @@
                 "valkey_exporter": {
                   "type": "array",
                   "items": {
-                    "description": "ValkeyExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
+                    "description": "ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
@@ -4892,7 +4892,7 @@
                   "x-order": 13
                 },
                 "valkey_exporter": {
-                  "description": "ValkeyExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
+                  "description": "ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -6772,7 +6772,7 @@
                   "x-order": 15
                 },
                 "valkey_exporter": {
-                  "description": "ValkeyExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
+                  "description": "ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -9362,7 +9362,7 @@
                   "x-order": 13
                 },
                 "valkey_exporter": {
-                  "description": "ValkeyExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
+                  "description": "ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -11355,46 +11355,41 @@
                         "type": "string",
                         "x-order": 1
                       },
-                      "database_name": {
-                        "description": "Database name.",
-                        "type": "string",
-                        "x-order": 2
-                      },
                       "node_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string",
-                        "x-order": 3
+                        "x-order": 2
                       },
                       "address": {
                         "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
                         "type": "string",
-                        "x-order": 4
+                        "x-order": 3
                       },
                       "port": {
                         "description": "Access port.\nPort is required when the address present.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 5
+                        "x-order": 4
                       },
                       "socket": {
                         "description": "Access unix socket.\nAddress (and port) or socket is required.",
                         "type": "string",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "environment": {
                         "description": "Environment name.",
                         "type": "string",
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "cluster": {
                         "description": "Cluster name.",
                         "type": "string",
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "replication_set": {
                         "description": "Replication set name.",
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -11402,12 +11397,12 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "version": {
                         "description": "Valkey version.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 10
                       }
                     }
                   },
@@ -12222,46 +12217,41 @@
                       "type": "string",
                       "x-order": 1
                     },
-                    "database_name": {
-                      "description": "Database name.",
-                      "type": "string",
-                      "x-order": 2
-                    },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
-                      "x-order": 3
+                      "x-order": 2
                     },
                     "address": {
                       "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
                       "type": "string",
-                      "x-order": 4
+                      "x-order": 3
                     },
                     "port": {
                       "description": "Access port.\nPort is required when the address present.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 5
+                      "x-order": 4
                     },
                     "socket": {
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "environment": {
                       "description": "Environment name.",
                       "type": "string",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "replication_set": {
                       "description": "Replication set name.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -12269,12 +12259,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "version": {
                       "description": "Valkey version.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 10
                     }
                   },
                   "x-order": 6
@@ -12723,46 +12713,41 @@
                       "type": "string",
                       "x-order": 1
                     },
-                    "database_name": {
-                      "description": "Database name.",
-                      "type": "string",
-                      "x-order": 2
-                    },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
-                      "x-order": 3
+                      "x-order": 2
                     },
                     "address": {
                       "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
                       "type": "string",
-                      "x-order": 4
+                      "x-order": 3
                     },
                     "port": {
                       "description": "Access port.\nPort is required when the address present.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 5
+                      "x-order": 4
                     },
                     "socket": {
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "environment": {
                       "description": "Environment name.",
                       "type": "string",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "replication_set": {
                       "description": "Replication set name.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -12770,12 +12755,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "version": {
                       "description": "Valkey version.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 10
                     }
                   },
                   "x-order": 6
@@ -13266,46 +13251,41 @@
                       "type": "string",
                       "x-order": 1
                     },
-                    "database_name": {
-                      "description": "Database name.",
-                      "type": "string",
-                      "x-order": 2
-                    },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
-                      "x-order": 3
+                      "x-order": 2
                     },
                     "address": {
                       "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
                       "type": "string",
-                      "x-order": 4
+                      "x-order": 3
                     },
                     "port": {
                       "description": "Access port.\nPort is required when the address present.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 5
+                      "x-order": 4
                     },
                     "socket": {
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 5
                     },
                     "environment": {
                       "description": "Environment name.",
                       "type": "string",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
-                      "x-order": 8
+                      "x-order": 7
                     },
                     "replication_set": {
                       "description": "Replication set name.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 8
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -13313,12 +13293,12 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 10
+                      "x-order": 9
                     },
                     "version": {
                       "description": "Valkey version.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 10
                     }
                   },
                   "x-order": 6

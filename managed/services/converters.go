@@ -158,7 +158,6 @@ func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //noli
 		return &inventoryv1.ValkeyService{
 			ServiceId:      service.ServiceID,
 			ServiceName:    service.ServiceName,
-			DatabaseName:   service.DatabaseName,
 			NodeId:         service.NodeID,
 			Address:        pointer.GetString(service.Address),
 			Port:           uint32(pointer.GetUint16(service.Port)),

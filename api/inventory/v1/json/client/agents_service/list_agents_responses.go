@@ -5244,7 +5244,7 @@ func (o *ListAgentsOKBodyVMAgentItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ListAgentsOKBodyValkeyExporterItems0 ValkeyExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
+ListAgentsOKBodyValkeyExporterItems0 ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
 swagger:model ListAgentsOKBodyValkeyExporterItems0
 */
 type ListAgentsOKBodyValkeyExporterItems0 struct {

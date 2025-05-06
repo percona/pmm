@@ -435,8 +435,6 @@ func (m *ValkeyService) validate(all bool) error {
 
 	// no validation rules for ServiceName
 
-	// no validation rules for DatabaseName
-
 	// no validation rules for NodeId
 
 	// no validation rules for Address

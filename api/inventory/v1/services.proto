@@ -116,29 +116,27 @@ message ValkeyService {
   string service_id = 1;
   // Unique across all Services user-defined name.
   string service_name = 2;
-  // Database name.
-  string database_name = 3;
   // Node identifier where this instance runs.
-  string node_id = 4;
+  string node_id = 3;
   // Access address (DNS name or IP).
   // Address (and port) or socket is required.
-  string address = 5;
+  string address = 4;
   // Access port.
   // Port is required when the address present.
-  uint32 port = 6;
+  uint32 port = 5;
   // Access unix socket.
   // Address (and port) or socket is required.
-  string socket = 7;
+  string socket = 6;
   // Environment name.
-  string environment = 8;
+  string environment = 7;
   // Cluster name.
-  string cluster = 9;
+  string cluster = 8;
   // Replication set name.
-  string replication_set = 10;
+  string replication_set = 9;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 11;
+  map<string, string> custom_labels = 10;
   // Valkey version.
-  string version = 12;
+  string version = 11;
 }
 
 // ProxySQLService represents a generic ProxySQL instance.

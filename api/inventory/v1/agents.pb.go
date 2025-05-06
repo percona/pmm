@@ -1349,7 +1349,7 @@ func (x *ProxySQLExporter) GetMetricsResolutions() *common.MetricsResolutions {
 	return nil
 }
 
-// ValkeyExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
+// ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
 type ValkeyExporter struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique randomly generated instance identifier.

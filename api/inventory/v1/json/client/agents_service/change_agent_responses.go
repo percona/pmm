@@ -5607,7 +5607,7 @@ func (o *ChangeAgentOKBodyRDSExporterMetricsResolutions) UnmarshalBinary(b []byt
 }
 
 /*
-ChangeAgentOKBodyValkeyExporter ValkeyExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
+ChangeAgentOKBodyValkeyExporter ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
 swagger:model ChangeAgentOKBodyValkeyExporter
 */
 type ChangeAgentOKBodyValkeyExporter struct {

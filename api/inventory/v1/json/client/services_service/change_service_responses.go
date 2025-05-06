@@ -1316,9 +1316,6 @@ type ChangeServiceOKBodyValkey struct {
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
 
-	// Database name.
-	DatabaseName string `json:"database_name,omitempty"`
-
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
 
