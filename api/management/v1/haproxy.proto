@@ -55,6 +55,8 @@ message AddHAProxyServiceParams {
   MetricsMode metrics_mode = 15;
   // Skip connection check.
   bool skip_connection_check = 16;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 17;
 }
 
 message HAProxyServiceResult {

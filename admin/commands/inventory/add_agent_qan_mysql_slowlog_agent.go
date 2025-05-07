@@ -77,7 +77,7 @@ type AddAgentQANMySQLSlowlogAgentCommand struct {
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MaxSlowlogFileSize   units.Base2Bytes  `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: 0; 0 or negative value disables rotation). Ex.: 1GiB"`
 	TLS                  bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify        bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify        bool              `help:"Skip TLS certificate verification"`
 	TLSCAFile            string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile          string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile           string            `name:"tls-key" help:"Path to client key file"`

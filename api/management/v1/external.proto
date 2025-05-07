@@ -61,6 +61,8 @@ message AddExternalServiceParams {
   MetricsMode metrics_mode = 17;
   // Skip connection check.
   bool skip_connection_check = 18;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 19;
 }
 
 message ExternalServiceResult {

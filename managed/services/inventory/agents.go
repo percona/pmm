@@ -1099,15 +1099,16 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 	)
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateExternalExporterParams{
-			RunsOnNodeID: p.RunsOnNodeId,
-			ServiceID:    p.ServiceId,
-			Username:     p.Username,
-			Password:     p.Password,
-			Scheme:       p.Scheme,
-			MetricsPath:  p.MetricsPath,
-			ListenPort:   p.ListenPort,
-			CustomLabels: p.CustomLabels,
-			PushMetrics:  p.PushMetrics,
+			RunsOnNodeID:  p.RunsOnNodeId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			Scheme:        p.Scheme,
+			MetricsPath:   p.MetricsPath,
+			ListenPort:    p.ListenPort,
+			CustomLabels:  p.CustomLabels,
+			PushMetrics:   p.PushMetrics,
+			TLSSkipVerify: p.TlsSkipVerify,
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {
