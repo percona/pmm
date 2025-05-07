@@ -1,30 +1,29 @@
 # MongoDB PBM Details dashboard
 
-The MongoDB PBM Details dashboard provides a comprehensive view of your Percona Backup for MongoDB (PBM) environment. 
+The MongoDB PBM Details dashboard offers an integrated view of your Percona Backup for MongoDB (PBM) environment directly within Percona Monitoring and Management (PMM).
 
-It displays essential information about backup configuration, status, performance metrics, and agent health—all in one place. 
+The dashboard consolidates key information—such as backup configuration, status, performance metrics, and agent health—into a single, easy-to-use interface.
 
-If you're already using PBM with PMM, this dashboard lets you track MongoDB backup operations without switching between tools.
+By accessing PBM insights directly from PMM, you can efficiently monitor and manage your MongoDB backups without switching between tools.
+
 
 ![PBM dashboard](../../images/PBM_Dashboard.png)
 
 ## Backup Configured
 
-Shows whether backups are properly configured for your MongoDB environment. A clear "Yes" in green indicates that PBM is properly set up and functioning, while a "No" in red signals that backups are not configured. 
-
-This panel helps you quickly verify that your MongoDB data has backup protection in place.
+Shows whether backups are properly configured for your MongoDB environment. A green "Yes" indicates that PBM is properly set up and functioning, while a **No** in red signals that backups are not configured. 
 
 ## PITR Enabled
 
-Displays whether Point-in-Time Recovery (PITR) is enabled for your MongoDB environment. PITR allows for more granular recovery options, enabling restoration to any point in time rather than just to specific backup points. 
+Displays whether Point-in-Time Recovery (PITR) is enabled for your MongoDB environment. A green **Yes** confirms PITR is active, while a **No** in red indicates this feature is not currently enabled.
 
-A "Yes" in green confirms PITR is active, while a "No" in red indicates this feature is not currently enabled.
+PITR allows for more granular recovery options, enabling restoration to any point in time rather than just to specific backup points. 
 
 ## Agent Status
 
 Monitors the operational status of each PBM agent connected to your MongoDB cluster nodes using a color-coded timeline visualization. 
 
-The panel shows each replica set node (e.g., `rs101:27017`, `rs102:27017`, `rs103:27017`) with an "Ok" status in green for functioning agents. This helps you quickly identify any problematic agents that may be affecting backup operations.
+The panel shows each replica set node (e.g., `rs101:27017`, `rs102:27017`, `rs103:27017`) with an **Ok** status in green for functioning agents. This helps you quickly identify any problematic agents that may be affecting backup operations.
 
 ## Size Bytes
 
@@ -44,7 +43,7 @@ Provides a tabular view of recent backup operations with columns for **Name** (t
 
 This historical record helps you verify that scheduled backups are running successfully and lets you quickly identify any failed backup operations that may require attention.
 
-The current status reporting in this panel may not yet capture the full range of error states available in PBM's native tools (including "stuck" or "incompatible" backups).This will be improved with an upcoming release to provide a more complete picture of your backup status.
+The current status reporting in this panel may not yet capture the full range of error states available in PBM's native tools (including "stuck" or "incompatible" backups). This will be improved with an upcoming release to provide a more complete picture of your backup status.
 
 ## Last Successful Backup
 
