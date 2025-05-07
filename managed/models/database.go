@@ -1135,6 +1135,9 @@ var databaseSchema = [][]string{
 		`ALTER TABLE user_flags
 			ADD COLUMN snoozed_api_keys_migration BOOLEAN NOT NULL DEFAULT false`,
 	},
+	109: {
+		`ALTER TABLE user_flags DROP COLUMN snoozed_api_keys_migration`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
