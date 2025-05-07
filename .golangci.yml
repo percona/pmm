@@ -14,8 +14,8 @@ linters-settings:
     rules:
       main:
         deny:
-          - pkg: "errors"
-            desc: use "github.com/pkg/errors" instead
+          - pkg: "github.com/pkg/errors"
+            desc: use "errors" instead
           - pkg: "github.com/gogo/protobuf/proto"
             desc: use "github.com/golang/protobuf/proto" instead
           - pkg: "github.com/percona/go-mysql/log/slow"
