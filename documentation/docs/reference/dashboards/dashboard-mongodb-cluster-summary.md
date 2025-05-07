@@ -142,7 +142,7 @@ To ensure your MongoDB sharded cluster components appear in the correct sections
  - use the same `--cluster` name for all components of your sharded cluster
  - add each component (config servers, shard nodes, and mongos routers) as a separate service. 
  
- For detailed instructions on adding MongoDB nodes, see [Add MongoDB services via CLI](../../install-pmm/install-pmm-client/connect-database/mongodb.md#on-the-command-line).
+ For detailed instructions on adding MongoDB nodes, see [Add MongoDB services via CLI](../../install-pmm/install-pmm-client/connect-database/mongodb.md#add-mongodb-service-to-pmm).
 
 
 ??? info "Example command for adding a MongoDB shard node" 
