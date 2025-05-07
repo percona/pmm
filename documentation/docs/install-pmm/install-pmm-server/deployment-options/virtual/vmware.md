@@ -1,32 +1,40 @@
-# VMware - Import OVA file
+# Deploy PMM Server on VMware
 
-=== "OVA file downloaded from UI"
-    To import downloaded file from UI:
+Import the PMM Server OVA file into VMware products including ESXi, vSphere, Workstation, and Fusion to create a virtual machine for your monitoring environment.
+
+## Prerequisites
+
+- Downloaded [PMM Server OVA file](download_ova.md)
+- VMware product installed (Workstation, Fusion, ESXi, or vSphere)
+- At least 8GB of free RAM and 100GB of free disk space
+- Network connectivity to monitored database instances
+
+## Import OVA file
+
+=== "OVA file downloaded using WMware UI"
+    To import the OVA file using the VMware user interface:
     {.power-number}
 
-    1. Select **File** → **Import**.
-    2. Click **Choose* file...*.
-    3. Navigate to the downloaded `.ova` file and select it.
-    4. Click **Open**.
-    5. Click **Continue**.
+    1. Select **File > Import**.
+    2. Click **Choose file** (wording may vary depending on VMware product).
+    3. Navigate to the downloaded `.ova` file and open it.
     6. In the **Save as** dialog:
-        -  (Optional) Change the directory or file name.
-        -  Click **Save**.
 
+        -  (Optional) Change the directory or virtual machine name.
+        -  Click **Save**.
     7. Choose one of:
-        - (Optional) Click **Finish**. This starts the virtual machine.
-        - (Recommended) Click **Customize Settings**. This opens the VM's settings page without starting the machine.
+
+        - Click **Finish** to complete the import and start the virtual machine.
+        - (Recommended) Click **Customize Settings** to open the VM's settings page before starting the machine.
 
 === "OVA file downloaded via CLI"
-    To import downloaded file from the CLI:
+    To import downloaded file using the command-line interface:
     {.power-number}
 
     1. Install [`ovftool`][OVFTool]. (You need to register.)
-    2. Import and convert the OVA file. (`ovftool` can't change CPU or memory settings during import but it can set the default interface.)
+    2. Import and convert the OVA file using one of these methods:
 
-        Choose one of:
-
-        * Download and import the OVA file.
+        * To download and import the OVA file directly:
 
             ```sh
             ovftool --name="PMM Server" --net:NAT=Wi-Fi \
@@ -34,63 +42,77 @@
             pmm-server-{{release}}.vmx
             ```
 
-        * Import an already-downloaded OVA file.
+        * To import a previously downloaded OVA file, replacing `Wi-Fi` with your actual network interface name. You can list available network interfaces with `ovftool --listNetworks`:
 
             ```sh
-            ovftool --name="PMM Server" --net:NAT=WiFi \
+            ovftool --name="PMM Server" --net:NAT=Wi-Fi \
             pmm-server-{{release}}.ova \
             pmm-server.vmx
             ```
 
-## Reconfigure interface
+## Configure network settings
 
-!!! note alert alert-primary "Note"
-    When using the command line, the interface is remapped during import.
+For PMM Server to be accessible, it must have proper network configuration. Bridged networking is recommended for production environments.
 
-### Reconfigure with UI
+When using the command line, the interface is remapped during import.
 
-To reconfigure the interface with the UI:
+### Configure networking with UI
+
+To configure VM network settings using the UI:
 {.power-number}
 
-
-1. If started, shut down the virtual machine.
+1. If the VM is running, shut it down first.
 2. In the VMware main window, select the imported virtual machine.
 3. Click **Virtual Machine** → **Settings...**.
-4. Click **Network Adapter**.
-5. In the **Bridged Networking** section, select **Autodetect**.
-6. Close the settings window.
+4. Click **Network Adapter** in the hardware list.
+5. Select the appropriate networking mode:
+    - **Bridged Networking**: Recommended for production (direct network access)
+    - **NAT**: For testing environments
+6. If using bridged networking, select **Autodetect** or choose a specific network adapter.
+7. Click **OK** to save changes.
 
-### Start guest and get IP address from UI
+### Start the VM and obtain IP address (UI method)
 
-To start the guest and get the IP address from the UI:
+To start the VM and find its IP address using the VMware UI:
 {.power-number}
 
-
-1. In the VMware main window, select the imported virtual machine.
+1. In the VMware main window, select the imported PMM Server virtual machine.
 2. Click the play button <i class="uil uil-caret-right"></i> or select **Virtual Machine** → **Start Up**.
-3. When the instance has been booted, note the IP address in the guest console.
+3. Wait for the VM to boot completely (this may take 2-5 minutes).
+4. Look for the IP address displayed in the VM console window.
 
-### Start guest and get IP address from CLI
+### Start the VM and obtain IP address (CLI method)
 
-To start the guest and get the IP address from the CLI:
+To start the VM and get its IP address using the command line:
 {.power-number}
 
-1. Start the virtual machine in GUI mode. (There's no way to redirect a VMware VM's console to the host.)
+1. Start the virtual machine in GUI mode to view the console:
 
     ```sh
     vmrun -gu root -gp percona start \
     pmm-server.vmx gui
     ```
 
-2. When the instance has been booted, note the IP address in the guest console.
+2. Wait for the boot process to complete and note the IP address displayed in the VM console.
 
-3. (Optional) Stop and restart the instance in headless mode.
+3. Optional: After noting the IP address, you can stop and restart the VM in headless mode:
 
     ```sh
     vmrun stop pmm-server.vmx
     vmrun -gu root -gp percona start \
     pmm-server.vmx nogui
     ```
+
+## Next steps
+
+After successfully importing and starting the PMM Server VM:
+
+- Open a web browser and navigate to `https://<vm-ip-address>`
+- [Complete initial login and setup](login_UI.md)
+- [Register PMM Clients](../../../register-client-node/index.md) to begin monitoring
+
+!!! tip "Bookmarking"
+    Save the PMM Server IP address or add it to your bookmarks for easy access. For production environments, consider configuring a static IP address or DNS name.
 
 [OVA]: https://www.percona.com/downloads/pmm/{{release}}/ova
 [OVF]: https://wikipedia.org/wiki/Open_Virtualization_Format

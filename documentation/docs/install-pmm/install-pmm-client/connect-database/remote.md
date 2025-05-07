@@ -1,32 +1,37 @@
-# Connect a remote instance
+# Connect remote instance to PMM
 
-## Recommended settings
+## Recommended resolution settings
+When monitoring remote instances (including RDS and Google Cloud databases), network latency can affect data collection and cause timeout errors. For this reason, it is recommended to [lower the metrics resolution](../../../configure-pmm/metrics_res.md).
 
-When monitoring remote instances including RDS and Google instances, network latency might affect the scrape process and throw timeout errors.
-For this reason, it is recommended to [lower the metrics resolution](../../../configure-pmm/metrics_res.md).
+PMM dynamically sets scrape timeouts based on the data collection resolution:
 
-The scrape timeout in PMM is dynamically set based on the resolution of data collection. The following rules determine the scrape timeout:
-Scrape timeouts are managed based on resolution settings:
+- FHigh frequency collection (≤ 2 seconds resolution): 1 second timeout
+- Medium frequency collection (≤ 10 seconds resolution): (resolution - 1) second timeout. Example: For 10 second resolution, timeout is 9 seconds
+- Low frequency collection (> 10 seconds resolution): 90% of the resolution. Example: For 60 second resolution, timeout is 54 seconds
+
+## Troubleshooting scrape timeouts
+
+If dashboards show no data despite proper setup, check for scrape target failures:
 {.power-number}
 
-- For resolutions <= 2 seconds, scrape timeout is 1 second.
-- For resolutions <= 10 seconds, timeout is set to resolution minus 1 second. For example, for 10 second resolution, timeout will be set at 9 seconds.
-- For lower resolutions (values > 10 seconds), the scrape timeout is set to 90% of the resolution time. For example, for 60 second resolution, the scrape timeout will be set to 54 seconds.
-
-## How to check for scrape timeouts
-
-Sometimes it is hard to check if you are using the correct values to scrape or if there some other reason why there is no data in a dashboard even when the instance has been added correctly and the agent is running.
-
-One additional step you can do is to check for scrape target statuses. Browse to `http://<your-pmm-server-address>/prometheus/targets` and then click on the Unhealthy button.
+1. Browse to `http://<your-pmm-server-address>/prometheus/targets`.
+2. Click the **Unhealthy** button to filter problematic agents. 
 
 ![!image](../../../images/scrape_targets_01.png)
 
-The page will show only agents having issues while scrapping and the scrape result including the error messages.
+3. Review error messages and scrape durations:
+
 
 ![!image](../../../images/scrape_targets_02.png)
 
-In the example here, there is a message that says: **context deadline exceeded** and the scrape duration column says the scrape took 10 seconds; this means that the exporter didn't respond in the 10 seconds the scrape process was allowed to run due to the configured metric resolutions and their timeouts.
+In the example:
 
-In this case, we can lower the metric resolutions increasing these values as shown in the image below.
+- error shows **context deadline exceeded** 
+- scrape duration column says the scrape took 10 seconds. This means that the exporter didn't respond in the 10 seconds the scrape process was allowed to run due to the configured metric resolutions and their timeouts.
+
+## Resolving timeout issues
+If you see timeout errors, increase the metric resolution values in PMM:
 
 ![!image](../../../images/scrape_targets_03.png)
+
+Higher resolution values (lower collection frequency) provide more time for remote agents to respond, reducing timeout errors while maintaining effective monitoring.RetryClaude can make mistakes. Please double-check responses.
