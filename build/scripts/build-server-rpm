@@ -127,7 +127,7 @@ build() {
             done
 
             if [[ ${spec_name} =~ ^grafana|^percona-dashboards ]]; then
-                sudo yum-builddep -y SOURCES/${spec_name}.spec
+                sudo dnf builddep -y SOURCES/${spec_name}.spec
             fi
 
             spectool -C SOURCES -g SOURCES/${spec_name}.spec

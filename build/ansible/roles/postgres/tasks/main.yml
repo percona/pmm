@@ -11,7 +11,7 @@
 - name: Install Postgres
   when:
     - not ansible_check_mode
-  yum:
+  dnf:
     name:
       - percona-postgresql14-server
       - percona-postgresql14-contrib

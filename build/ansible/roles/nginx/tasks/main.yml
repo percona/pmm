@@ -11,7 +11,7 @@
     - /etc/nginx/ssl/
 
 - name: Install nginx
-  yum:
+  dnf:
     name: nginx
     state: installed
     exclude:

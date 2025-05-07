@@ -10,7 +10,7 @@
     enabled: no
 
 - name: Install clickhouse package
-  yum:
+  dnf:
     name:
       - clickhouse-client-{{ clickhouse_version }}
       - clickhouse-server-{{ clickhouse_version }}

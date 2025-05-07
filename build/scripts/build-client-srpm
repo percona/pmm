@@ -19,7 +19,7 @@ main() {
         if [ -e /usr/bin/sudo ]; then
             export sudo_path=\$(ls /usr/bin/sudo)
         fi
-        [[ ${IMAGE} = ${rpmbuild_docker_image} ]] || \$sudo_path yum -y install git rpm-build
+        [[ ${IMAGE} = ${rpmbuild_docker_image} ]] || \$sudo_path dnf -y install git rpm-build
 
         mkdir -p /tmp/pmm
         pushd /home/builder/results

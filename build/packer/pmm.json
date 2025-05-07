@@ -111,11 +111,11 @@
     {
       "type": "shell",
       "inline": [
-        "sudo yum -y update",
+        "sudo dnf -y update",
         "sudo dnf install -y rsync jq podman",
-        "sudo yum -y install epel-release",
-        "sudo yum -y install ansible-core",
-        "sudo yum -y install ansible-collection-community-general ansible-collection-ansible-posix"
+        "sudo dnf -y install epel-release",
+        "sudo dnf -y install ansible-core",
+        "sudo dnf -y install ansible-collection-community-general ansible-collection-ansible-posix"
       ]
     },
     {

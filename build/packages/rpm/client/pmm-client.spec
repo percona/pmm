@@ -172,7 +172,7 @@ fi
 
 %postun
 case "$1" in
-   1) # This is a yum upgrade.
+   1) # This is a dnf upgrade.
       %systemd_postun_with_restart pmm-agent.service
    ;;
 esac

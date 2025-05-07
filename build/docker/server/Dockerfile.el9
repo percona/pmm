@@ -17,7 +17,7 @@ RUN --mount=type=cache,target=/var/cache/dnf \
                         ansible-collection-community-postgresql \
                         ansible-collection-ansible-posix \
                         glibc-langpack-en \
-                        yum \
+                        dnf \
                         vi
 
 COPY entrypoint.sh /opt/entrypoint.sh
