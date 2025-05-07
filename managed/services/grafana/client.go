@@ -228,25 +228,14 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
 		role, err := c.getRoleForServiceToken(ctx, token)
-		if err == nil {
-			return authUser{
-				role:   role,
-				userID: 0,
-			}, nil
+		if err != nil {
+			return emptyUser, err
 		}
 
-		if strings.Contains(err.Error(), "Auth method is not service account token") {
-			role, err := c.getRoleForAPIKey(ctx, authHeaders)
-			if err == nil {
-				l.Warning("you should migrate your API Key to a Service Account")
-			}
-			return authUser{
-				role:   role,
-				userID: 0,
-			}, err
-		}
-
-		return emptyUser, err
+		return authUser{
+			role:   role,
+			userID: 0,
+		}, nil
 	}
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
@@ -294,20 +283,6 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 		role:   none,
 		userID: userID,
 	}, nil
-}
-
-func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) (role, error) {
-	var k map[string]interface{}
-	if err := c.do(ctx, http.MethodGet, "/api/auth/key", "", authHeaders, nil, &k); err != nil {
-		return none, err
-	}
-
-	if id, _ := k["orgId"].(float64); id != 1 {
-		return none, nil
-	}
-
-	role, _ := k["role"].(string)
-	return c.convertRole(role), nil
 }
 
 func (c *Client) convertRole(role string) role {
