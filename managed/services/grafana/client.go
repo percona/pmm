@@ -298,14 +298,6 @@ func (c *Client) convertRole(role string) role {
 	}
 }
 
-type apiKey struct {
-	ID         int64      `json:"id"`
-	OrgID      int64      `json:"orgId,omitempty"`
-	Name       string     `json:"name"`
-	Role       string     `json:"role"`
-	Expiration *time.Time `json:"expiration,omitempty"`
-}
-
 func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
 	header := http.Header{}
 	header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
@@ -617,35 +609,6 @@ func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) 
 	}
 
 	return grafanaClient, nil
-}
-
-func (c *Client) createAPIKey(ctx context.Context, name string, role role, authHeaders http.Header) (int64, string, error) {
-	// https://grafana.com/docs/grafana/latest/http_api/auth/#create-api-key
-	b, err := json.Marshal(apiKey{Name: name, Role: role.String()})
-	if err != nil {
-		return 0, "", errors.WithStack(err)
-	}
-	var m map[string]interface{}
-	if err = c.do(ctx, "POST", "/api/auth/keys", "", authHeaders, b, &m); err != nil {
-		return 0, "", err
-	}
-	key := m["key"].(string) //nolint:forcetypeassert
-
-	apiAuthHeaders := http.Header{}
-	apiAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", key))
-
-	var k apiKey
-	if err := c.do(ctx, http.MethodGet, "/api/auth/key", "", apiAuthHeaders, nil, &k); err != nil {
-		return 0, "", err
-	}
-	apiKeyID := k.ID
-
-	return apiKeyID, key, nil
-}
-
-func (c *Client) deleteAPIKey(ctx context.Context, apiKeyID int64, authHeaders http.Header) error {
-	// https://grafana.com/docs/grafana/latest/http_api/auth/#delete-api-key
-	return c.do(ctx, "DELETE", "/api/auth/keys/"+strconv.FormatInt(apiKeyID, 10), "", authHeaders, nil, nil)
 }
 
 type serviceAccount struct {
