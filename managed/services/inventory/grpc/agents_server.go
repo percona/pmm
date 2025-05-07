@@ -18,7 +18,6 @@ package grpc
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"google.golang.org/grpc/codes"
@@ -239,7 +238,7 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 	case *inventoryv1.ChangeAgentRequest_PostgresExporter:
 		return s.s.ChangePostgresExporter(ctx, agentID, req.GetPostgresExporter())
 	case *inventoryv1.ChangeAgentRequest_ValkeyExporter:
-		return nil, errors.New("Valkey Exporter is not supported yet") //nolint:stylecheck
+		return s.s.ChangeValkeyExporter(ctx, agentID, req.GetValkeyExporter())
 	case *inventoryv1.ChangeAgentRequest_ProxysqlExporter:
 		return s.s.ChangeProxySQLExporter(ctx, agentID, req.GetProxysqlExporter())
 	case *inventoryv1.ChangeAgentRequest_RdsExporter:
@@ -261,7 +260,7 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 	case *inventoryv1.ChangeAgentRequest_NomadAgent:
 		return s.s.ChangeNomadAgent(ctx, agentID, req.GetNomadAgent())
 	default:
-		return nil, fmt.Errorf("invalid request %v", req.Agent)
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}
 }
 
