@@ -3,15 +3,34 @@
 ![!image](../../images/PMM_MongoDB_ReplSet_Summary.jpg)
 
 ## Overview
-Displays essential data for individual nodes, such as their role, CPU usage, memory consumption, disk space, network traffic, uptime, and the current MongoDB version.
+Displays key metrics for individual nodes, such as their role, CPU usage, memory consumption, disk space, network traffic, uptime, and current MongoDB version.
 
 ### Feature Compatibility Version
-Displays the Feature Compatibility Version (FCV) currently active in your MongoDB deployment. The FCV controls which database features are available and affects data file format compatibility between MongoDB versions.
+Shows the Feature Compatibility Version (FCV) currently active in your MongoDB deployment. The FCV controls which database features are available and affects data file format compatibility between MongoDB versions.
 
 This panel helps you confirm that your cluster is running the expected FCV—especially useful after upgrades, when the FCV may lag behind the MongoDB binary version.
 
 Monitoring FCV is important when planning upgrades or downgrades, as setting a newer FCV can enable advanced features but may prevent rolling back to older MongoDB versions.
 
+### Nodes
+Displays the total number of nodes in the replica set, including all members regardless of state. 
+
+Monitoring this value ensures the replica set maintains the expected number of nodes for proper replication and fault tolerance.
+
+### DBs
+Shows the total number of user-created databases, excluding system databases (like admin, local, and config). This metric helps track database growth and understand the scale of your MongoDB deployment.
+
+### Last Election
+Displays the time elapsed since the most recent primary election.
+
+Frequent elections can indicate connectivity issues or node failures. A stable replica set should show a relatively high value.
+
+If the value is low, it may indicate a problem that needs investigation.
+
+### State
+Shows the current replica set state of this MongoDB node. MongoDB replica set members can be in various states including PRIMARY (handling all write operations), SECONDARY (replicating data from the primary), ARBITER (participating in elections but not storing data), or several transitional states.
+
+This status indicator helps you quickly identify the role of each node and spot any nodes experiencing issues. Color coding makes it easy to distinguish primaries (green) from secondaries (yellow) and problem states.
 
 ### CPU Usage
 Shows CPU usage as a percentage from 0% to 100%. It updates every minute, turning from green to red when usage exceeds 80%. This helps quickly spot high CPU load, which could affect system performance, and monitor how hard the CPU is working at a glance.
