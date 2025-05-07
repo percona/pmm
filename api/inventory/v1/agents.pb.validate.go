@@ -35,9 +35,6 @@ var (
 	_ = sort.Sort
 )
 
-// define the regex for a UUID once up-front
-var _agents_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
-
 // Validate checks the field values on PMMAgent with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -11892,11 +11889,10 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetPmmAgentId()); err != nil {
-		err = AddValkeyExporterParamsValidationError{
+	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
+		err := AddValkeyExporterParamsValidationError{
 			field:  "PmmAgentId",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err
@@ -11904,11 +11900,10 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if err := m._validateUuid(m.GetServiceId()); err != nil {
-		err = AddValkeyExporterParamsValidationError{
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := AddValkeyExporterParamsValidationError{
 			field:  "ServiceId",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err
@@ -11953,14 +11948,6 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 
 	if len(errors) > 0 {
 		return AddValkeyExporterParamsMultiError(errors)
-	}
-
-	return nil
-}
-
-func (m *AddValkeyExporterParams) _validateUuid(uuid string) error {
-	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
-		return errors.New("invalid uuid format")
 	}
 
 	return nil

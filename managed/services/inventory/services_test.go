@@ -493,7 +493,7 @@ func TestServices(t *testing.T) {
 		})
 	})
 
-	/*t.Run("Valkey", func(t *testing.T) {
+	t.Run("Valkey", func(t *testing.T) {
 		t.Run("Basic", func(t *testing.T) {
 			ss, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
@@ -502,31 +502,30 @@ func TestServices(t *testing.T) {
 			require.NoError(t, err)
 			require.Len(t, actualServices, 1) // PMM Server PostgreSQL
 
-			actualPostgreSQLService, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
-				ServiceName: "test-postgres",
+			actualValkeyService, err := ss.AddValkey(ctx, &models.AddDBMSServiceParams{
+				ServiceName: "test-valkey",
 				NodeID:      models.PMMServerNodeID,
 				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(5432),
+				Port:        pointer.ToUint16(6379),
 			})
 			require.NoError(t, err)
-			expectedPostgreSQLService := &inventoryv1.PostgreSQLService{
-				ServiceId:    "00000000-0000-4000-8000-000000000005",
-				ServiceName:  "test-postgres",
-				DatabaseName: "postgres",
-				NodeId:       models.PMMServerNodeID,
-				Address:      "127.0.0.1",
-				Port:         5432,
+			expectedValkeyService := &inventoryv1.ValkeyService{
+				ServiceId:   "00000000-0000-4000-8000-000000000005",
+				ServiceName: "test-valkey",
+				NodeId:      models.PMMServerNodeID,
+				Address:     "127.0.0.1",
+				Port:        6379,
 			}
-			assert.Equal(t, expectedPostgreSQLService, actualPostgreSQLService)
+			assert.Equal(t, expectedValkeyService, actualValkeyService)
 
 			actualService, err := ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
 			require.NoError(t, err)
-			assert.Equal(t, expectedPostgreSQLService, actualService)
+			assert.Equal(t, expectedValkeyService, actualService)
 
 			actualServices, err = ss.List(ctx, models.ServiceFilters{NodeID: models.PMMServerNodeID})
 			require.NoError(t, err)
 			require.Len(t, actualServices, 2)
-			assert.Equal(t, expectedPostgreSQLService, actualServices[1])
+			assert.Equal(t, expectedValkeyService, actualServices[1])
 
 			err = ss.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 			require.NoError(t, err)
@@ -543,29 +542,28 @@ func TestServices(t *testing.T) {
 			require.NoError(t, err)
 			require.Len(t, actualServices, 1) // PMM Server PostgreSQL
 
-			actualPostgreSQLService, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
-				ServiceName: "test-postgres",
+			actualValkeyService, err := ss.AddValkey(ctx, &models.AddDBMSServiceParams{
+				ServiceName: "test-valkey",
 				NodeID:      models.PMMServerNodeID,
-				Socket:      pointer.ToString("/var/run/postgresql"),
+				Socket:      pointer.ToString("/tmp/valkey.sock"),
 			})
 			require.NoError(t, err)
-			expectedPostgreSQLService := &inventoryv1.PostgreSQLService{
-				ServiceId:    "00000000-0000-4000-8000-000000000005",
-				ServiceName:  "test-postgres",
-				DatabaseName: "postgres",
-				NodeId:       models.PMMServerNodeID,
-				Socket:       "/var/run/postgresql",
+			expectedValkeyService := &inventoryv1.ValkeyService{
+				ServiceId:   "00000000-0000-4000-8000-000000000005",
+				ServiceName: "test-valkey",
+				NodeId:      models.PMMServerNodeID,
+				Socket:      "/tmp/valkey.sock",
 			}
-			assert.Equal(t, expectedPostgreSQLService, actualPostgreSQLService)
+			assert.Equal(t, expectedValkeyService, actualValkeyService)
 
 			actualService, err := ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
 			require.NoError(t, err)
-			assert.Equal(t, expectedPostgreSQLService, actualService)
+			assert.Equal(t, expectedValkeyService, actualService)
 
 			actualServices, err = ss.List(ctx, models.ServiceFilters{NodeID: models.PMMServerNodeID})
 			require.NoError(t, err)
 			require.Len(t, actualServices, 2)
-			assert.Equal(t, expectedPostgreSQLService, actualServices[1])
+			assert.Equal(t, expectedValkeyService, actualServices[1])
 
 			err = ss.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 			require.NoError(t, err)
@@ -582,12 +580,12 @@ func TestServices(t *testing.T) {
 			require.NoError(t, err)
 			require.Len(t, actualServices, 1) // PMM Server PostgreSQL
 
-			_, err = ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
-				ServiceName: "test-postgres",
+			_, err = ss.AddValkey(ctx, &models.AddDBMSServiceParams{
+				ServiceName: "test-valkey",
 				NodeID:      models.PMMServerNodeID,
-				Socket:      pointer.ToString("/var/run/postgresql"),
+				Socket:      pointer.ToString("/tmp/valkey.sock"),
 				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(5432),
+				Port:        pointer.ToUint16(6379),
 			})
 
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Socket and address cannot be specified together."), err)
@@ -601,16 +599,16 @@ func TestServices(t *testing.T) {
 			require.NoError(t, err)
 			require.Len(t, actualServices, 1) // PMM Server PostgreSQL
 
-			_, err = ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
-				ServiceName: "test-postgres",
+			_, err = ss.AddValkey(ctx, &models.AddDBMSServiceParams{
+				ServiceName: "test-valkey",
 				NodeID:      models.PMMServerNodeID,
-				Socket:      pointer.ToString("/var/run/postgresql"),
-				Port:        pointer.ToUint16(5432),
+				Socket:      pointer.ToString("/tmp/valkey.sock"),
+				Port:        pointer.ToUint16(6379),
 			})
 
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Socket and port cannot be specified together."), err)
 		})
-	})*/
+	})
 
 	t.Run("BasicProxySQL", func(t *testing.T) {
 		ss, _, _, teardown, ctx, _ := setup(t)

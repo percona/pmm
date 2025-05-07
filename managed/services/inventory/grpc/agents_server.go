@@ -21,6 +21,9 @@ import (
 	"errors"
 	"fmt"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/inventory"
@@ -198,7 +201,7 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 	case *inventoryv1.AddAgentRequest_PostgresExporter:
 		return s.s.AddPostgresExporter(ctx, req.GetPostgresExporter())
 	case *inventoryv1.AddAgentRequest_ValkeyExporter:
-		return nil, errors.New("Valkey Exporter is not supported yet") //nolint:stylecheck
+		return s.s.AddValkeyExporter(ctx, req.GetValkeyExporter())
 	case *inventoryv1.AddAgentRequest_ProxysqlExporter:
 		return s.s.AddProxySQLExporter(ctx, req.GetProxysqlExporter())
 	case *inventoryv1.AddAgentRequest_RdsExporter:
@@ -218,7 +221,7 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatmonitorAgent:
 		return s.s.AddQANPostgreSQLPgStatMonitorAgent(ctx, req.GetQanPostgresqlPgstatmonitorAgent())
 	default:
-		return nil, fmt.Errorf("invalid request %v", req.Agent)
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}
 }
 
