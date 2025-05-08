@@ -21,9 +21,12 @@ PITR allows for more granular recovery options, enabling restoration to any poin
 
 ## Agent Status
 
-Monitors the operational status of each PBM agent connected to your MongoDB cluster nodes using a color-coded timeline visualization. 
+Monitors the operational status of each PBM agent connected to your MongoDB cluster nodes. 
 
 The panel shows each replica set node (e.g., `rs101:27017`, `rs102:27017`, `rs103:27017`) with an **Ok** status in green for functioning agents. This helps you quickly identify any problematic agents that may be affecting backup operations.
+
+For clarity in sharded environments, arbiter nodes are not included in this view. Since arbiters do not store data and thus do not run PBM agents, the panel focuses on primaries and secondaries, the data-bearing nodes essential for backups.
+
 
 ## Size Bytes
 
