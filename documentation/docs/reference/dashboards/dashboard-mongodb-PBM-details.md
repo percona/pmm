@@ -20,7 +20,7 @@ This panel monitors the operational status of each PBM agent connected to your M
 
 Each replica set node (e.g., `rs101:27017`, `rs102:27017`, `rs103:27017`) is shown with an **OK** status in green when the PBM agent is functioning correctly. This allows you to quickly identify any agents that may be experiencing issues and potentially affecting backup operations.
 
-Arbiter nodes, whether in replica sets or sharded clusters, will appear with a **Fail** status. This is expected behavior—arbiters are designed only to participate in elections and do not store data, so they do not and cannot run PBM agents. In future updates, this status will be clarified with a message such as "Arbiter node is not supported" to avoid confusion.
+Arbiter nodes, whether in replica sets or sharded clusters, will appear with a **Fail** status. This is because arbiters are designed only to participate in elections and do not store data, so they do not and cannot run PBM agents. In future updates, this status will be clarified with a message such as "Arbiter node is not supported".
 
 ## Size Bytes
 Displays the size of your MongoDB backups in a bar chart format. 
