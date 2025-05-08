@@ -228,25 +228,14 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
 		role, err := c.getRoleForServiceToken(ctx, token)
-		if err == nil {
-			return authUser{
-				role:   role,
-				userID: 0,
-			}, nil
+		if err != nil {
+			return emptyUser, err
 		}
 
-		if strings.Contains(err.Error(), "Auth method is not service account token") {
-			role, err := c.getRoleForAPIKey(ctx, authHeaders)
-			if err == nil {
-				l.Warning("you should migrate your API Key to a Service Account")
-			}
-			return authUser{
-				role:   role,
-				userID: 0,
-			}, err
-		}
-
-		return emptyUser, err
+		return authUser{
+			role:   role,
+			userID: 0,
+		}, nil
 	}
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
@@ -296,20 +285,6 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	}, nil
 }
 
-func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) (role, error) {
-	var k map[string]interface{}
-	if err := c.do(ctx, http.MethodGet, "/api/auth/key", "", authHeaders, nil, &k); err != nil {
-		return none, err
-	}
-
-	if id, _ := k["orgId"].(float64); id != 1 {
-		return none, nil
-	}
-
-	role, _ := k["role"].(string)
-	return c.convertRole(role), nil
-}
-
 func (c *Client) convertRole(role string) role {
 	switch role {
 	case "Viewer":
@@ -321,14 +296,6 @@ func (c *Client) convertRole(role string) role {
 	default:
 		return none
 	}
-}
-
-type apiKey struct {
-	ID         int64      `json:"id"`
-	OrgID      int64      `json:"orgId,omitempty"`
-	Name       string     `json:"name"`
-	Role       string     `json:"role"`
-	Expiration *time.Time `json:"expiration,omitempty"`
 }
 
 func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
@@ -501,7 +468,15 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 	}
 
 	var group AlertRuleGroup
-	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderUID, groupName), "", authHeaders, nil, &group); err != nil {
+	err = c.do(ctx, http.MethodGet, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderUID, groupName), "", authHeaders, nil, &group)
+	clientErr := &clientError{}
+
+	switch {
+	// Initialize rule group if not present
+	case errors.As(err, &clientErr) && clientErr.Code == http.StatusNotFound:
+		group.Name = groupName
+		group.Rules = []json.RawMessage{}
+	case err != nil:
 		return err
 	}
 
@@ -634,35 +609,6 @@ func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) 
 	}
 
 	return grafanaClient, nil
-}
-
-func (c *Client) createAPIKey(ctx context.Context, name string, role role, authHeaders http.Header) (int64, string, error) {
-	// https://grafana.com/docs/grafana/latest/http_api/auth/#create-api-key
-	b, err := json.Marshal(apiKey{Name: name, Role: role.String()})
-	if err != nil {
-		return 0, "", errors.WithStack(err)
-	}
-	var m map[string]interface{}
-	if err = c.do(ctx, "POST", "/api/auth/keys", "", authHeaders, b, &m); err != nil {
-		return 0, "", err
-	}
-	key := m["key"].(string) //nolint:forcetypeassert
-
-	apiAuthHeaders := http.Header{}
-	apiAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", key))
-
-	var k apiKey
-	if err := c.do(ctx, http.MethodGet, "/api/auth/key", "", apiAuthHeaders, nil, &k); err != nil {
-		return 0, "", err
-	}
-	apiKeyID := k.ID
-
-	return apiKeyID, key, nil
-}
-
-func (c *Client) deleteAPIKey(ctx context.Context, apiKeyID int64, authHeaders http.Header) error {
-	// https://grafana.com/docs/grafana/latest/http_api/auth/#delete-api-key
-	return c.do(ctx, "DELETE", "/api/auth/keys/"+strconv.FormatInt(apiKeyID, 10), "", authHeaders, nil, nil)
 }
 
 type serviceAccount struct {

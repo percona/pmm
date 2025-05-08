@@ -108,7 +108,7 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 	}
 
 	params := &dump.Params{
-		APIKey:       token,
+		Token:        token,
 		Cookie:       cookie,
 		User:         user,
 		Password:     password,
