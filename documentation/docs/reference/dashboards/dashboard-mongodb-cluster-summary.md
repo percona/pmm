@@ -12,6 +12,16 @@ This dashboard provides a comprehensive view of your MongoDB sharded cluster's p
 
 For MongoS (Router) specific monitoring, see the [MongoDB Router Summary](dashboard-mongodb-router-summary.md) dashboard.
 
+## Overview 
+
+### Feature Compatibility Version
+
+Displays the Feature Compatibility Version (FCV) currently active in your MongoDB deployment. The FCV controls which database features are available and affects data file format compatibility between MongoDB versions.
+
+This panel helps you confirm that your cluster is running the expected FCV—especially useful after upgrades, when the FCV may lag behind the MongoDB binary version.
+
+Monitoring FCV is important when planning upgrades or downgrades, as setting a newer FCV can enable advanced features but may prevent rolling back to older MongoDB versions.
+
 ### QPS of Services in Shard
 
 Displays the Queries Per Second (QPS) for each shard and the config server replica set in your MongoDB cluster. It shows the rate of operations (excluding commands) for each component, helping you quickly assess the query load distribution across your sharded environment.
@@ -142,7 +152,7 @@ To ensure your MongoDB sharded cluster components appear in the correct sections
  - use the same `--cluster` name for all components of your sharded cluster
  - add each component (config servers, shard nodes, and mongos routers) as a separate service. 
  
- For detailed instructions on adding MongoDB nodes, see [Add MongoDB services via CLI](../../install-pmm/install-pmm-client/connect-database/mongodb.md#on-the-command-line).
+ For detailed instructions on adding MongoDB nodes, see [Add MongoDB services via CLI](../../install-pmm/install-pmm-client/connect-database/mongodb.md#add-mongodb-service-to-pmm).
 
 
 ??? info "Example command for adding a MongoDB shard node" 

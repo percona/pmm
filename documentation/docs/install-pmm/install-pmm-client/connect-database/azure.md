@@ -36,9 +36,9 @@ GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%';
 ALTER USER 'pmm'@'%' WITH MAX_USER_CONNECTIONS 10;
 ```
 
-## Adding an Azure Instance
+## Adding an Azure instance
 
-Follow the instructions for remotes instances explained [here](aws.md), Azure MySQL databases are similar to AWS RDS databases.
+<!---Follow the instructions for remotes instances explained [here](aws.md), Azure MySQL databases are similar to AWS RDS databases. --->
 
 Example:
 
