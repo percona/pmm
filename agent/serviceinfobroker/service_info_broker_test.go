@@ -221,7 +221,7 @@ func TestServiceInfoBroker(t *testing.T) {
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
-			expectedErr: `pq: password authentication failed for user "pmm-agent"`,
+			expectedErr: `WRONGPASS invalid username-password pair or user is disabled.`,
 		},
 		{
 			name: "Valkey timeout",
@@ -230,7 +230,7 @@ func TestServiceInfoBroker(t *testing.T) {
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
 				Timeout: durationpb.New(time.Nanosecond),
 			},
-			expectedErr: `context deadline exceeded`,
+			expectedErr: `dial tcp 127.0.0.1:6379: i/o timeout`,
 		},
 	}
 

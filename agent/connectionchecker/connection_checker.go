@@ -269,7 +269,7 @@ func (cc *ConnectionChecker) checkValkeyConnection(ctx context.Context, dsn stri
 		return &res
 	}
 
-	defer c.Close()
+	defer c.Close() //nolint:errcheck
 	return &res
 }
 
