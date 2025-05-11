@@ -20,19 +20,19 @@ import (
 	"crypto/x509"
 	"database/sql"
 	"fmt"
-	"io"
-	"net/http"
-	"path/filepath"
-	"strconv"
-	"strings"
-
 	"github.com/go-sql-driver/mysql"
+	"github.com/gomodule/redigo/redis"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/expfmt"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"io"
+	"net/http"
+	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tlshelpers"
@@ -79,6 +79,8 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentv1.CheckConnec
 		return cc.checkMongoDBConnection(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE:
 		return cc.checkPostgreSQLConnection(ctx, msg.Dsn, msg.TextFiles, id)
+	case inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE:
+		return cc.checkValkeyConnection(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:
 		return cc.checkProxySQLConnection(ctx, msg.Dsn)
 	case inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
@@ -244,6 +246,29 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 		res.Error = err.Error()
 	}
 
+	return &res
+}
+
+func (cc *ConnectionChecker) checkValkeyConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, id uint32) *agentv1.CheckConnectionResponse {
+	var res agentv1.CheckConnectionResponse
+	var err error
+
+	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-valkey-connection"), strconv.Itoa(int(id)))
+	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	defer templates.CleanupTempDir(tempdir, cc.l)
+	if err != nil {
+		cc.l.Debugf("checkValkeyConnection: failed to Render DSN: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	c, err := redis.DialURLContext(ctx, dsn)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	defer c.Close()
 	return &res
 }
 
