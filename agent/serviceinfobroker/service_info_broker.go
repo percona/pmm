@@ -21,10 +21,12 @@ import (
 	"fmt"
 	"math"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/gomodule/redigo/redis"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -76,6 +78,8 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 		return sib.getPostgreSQLInfo(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:
 		return sib.getProxySQLInfo(ctx, msg.Dsn)
+	case inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE:
+		return sib.getValkeyInfo(ctx, msg.Dsn, msg.TextFiles, id)
 	// NOTE: these types may be implemented later.
 	case inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
 		return &agentv1.ServiceInfoResponse{}
@@ -243,6 +247,53 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	res.PgsmVersion = &pgsmVersion
 
 	return &res
+}
+
+func (sib *ServiceInfoBroker) getValkeyInfo(ctx context.Context, dsn string, files *agentv1.TextFiles, id uint32) *agentv1.ServiceInfoResponse {
+	var res agentv1.ServiceInfoResponse
+	var err error
+
+	tempdir := filepath.Join(sib.cfg.Get().Paths.TempDir, strings.ToLower("get-valkey-info"), strconv.Itoa(int(id)))
+	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	defer templates.CleanupTempDir(tempdir, sib.l)
+	if err != nil {
+		sib.l.Debugf("getValkeyInfo: failed to Render DSN: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	c, err := redis.DialURLContext(ctx, dsn)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+	defer c.Close() //nolint:errcheck
+
+	infoOutput, err := redis.String(c.Do("INFO", "server"))
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+	valkeyVersion, err := extractValkeyVersion(infoOutput)
+	if err != nil {
+		valkeyVersion = "unknown"
+	}
+	res.Version = valkeyVersion
+	return &res
+}
+
+func extractValkeyVersion(infoString string) (string, error) {
+	re := regexp.MustCompile(`(?m)^valkey_version:(.*)$`)
+	matches := re.FindStringSubmatch(infoString)
+	if len(matches) > 1 {
+		return matches[1], nil
+	}
+	re = regexp.MustCompile(`(?m)^redis_version:(.*)$`)
+	matches = re.FindStringSubmatch(infoString)
+	if len(matches) > 1 {
+		return matches[1], nil
+	}
+	return "", errors.New("failed to get Valkey version")
 }
 
 func (sib *ServiceInfoBroker) getProxySQLInfo(ctx context.Context, dsn string) *agentv1.ServiceInfoResponse {
