@@ -262,7 +262,13 @@ func (sib *ServiceInfoBroker) getValkeyInfo(ctx context.Context, dsn string, fil
 		return &res
 	}
 
-	c, err := redis.DialURLContext(ctx, dsn)
+	opts, err := tlshelpers.GetValkeyTlsConfig(files)
+	if err != nil {
+		sib.l.Debugf("checkValkeyConnection: failed to get TLS config: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+	c, err := redis.DialURLContext(ctx, dsn, opts...)
 	if err != nil {
 		res.Error = err.Error()
 		return &res

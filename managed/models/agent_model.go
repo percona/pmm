@@ -670,7 +670,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		return dsn
 	case ValkeyExporterType:
 		redisScheme := "redis"
-		if s.ValkeyOptions.SSLCert != "" {
+		if s.TLS {
 			redisScheme = "rediss"
 		}
 		address := ""
