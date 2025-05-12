@@ -184,7 +184,7 @@ func (svc *Service) reload(ctx context.Context) error {
 		return errors.WithStack(err)
 	}
 
-	if resp.StatusCode != http.StatusNoContent {
+	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
 		return errors.Errorf("expected 204, got %d", resp.StatusCode)
 	}
 	return nil

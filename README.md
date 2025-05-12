@@ -45,7 +45,7 @@ Check [PMM documentation](../pmm/documentation/docs/index.md) for the actual arc
 
 ## Installation
 
-There are numbers of installation methods, please check our [Setting Up](../pmm/documentation/docs/install-pmm/index.md) documentation page.
+There are numbers of installation methods, please check our [About PMM installation](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/index.html) documentation page.
 
 But in a nutshell:
 
@@ -67,7 +67,7 @@ percona/pmm-server:3
 ```
 4. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
 
-<img src="../pmm/documentation/docs/images/PMM_Login.png" width="280">
+<img src="documentation/docs/images/PMM_Login.png" width="280">
 
 Enter the username and password. The defaults are username: **admin** and password: **admin**
 
