@@ -81,7 +81,13 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentv1.CheckConnec
 	case inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE:
 		return cc.checkPostgreSQLConnection(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE:
-		return cc.checkValkeyConnection(ctx, msg.Dsn, msg.TextFiles, msg.TlsSkipVerify, id)
+		return cc.checkValkeyConnection(
+			ctx,
+			msg.Dsn,
+			msg.TextFiles,
+			msg.TlsSkipVerify,
+			id,
+		)
 	case inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:
 		return cc.checkProxySQLConnection(ctx, msg.Dsn)
 	case inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
@@ -250,7 +256,13 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 	return &res
 }
 
-func (cc *ConnectionChecker) checkValkeyConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, tlsSkipVerify bool, id uint32) *agentv1.CheckConnectionResponse {
+func (cc *ConnectionChecker) checkValkeyConnection(
+	ctx context.Context,
+	dsn string,
+	files *agentv1.TextFiles,
+	tlsSkipVerify bool,
+	id uint32,
+) *agentv1.CheckConnectionResponse {
 	var res agentv1.CheckConnectionResponse
 	var err error
 
@@ -263,7 +275,7 @@ func (cc *ConnectionChecker) checkValkeyConnection(ctx context.Context, dsn stri
 		return &res
 	}
 
-	opts, err := tlshelpers.GetValkeyTlsConfig(files)
+	opts, err := tlshelpers.GetValkeyTLSConfig(files, tlsSkipVerify)
 	if err != nil {
 		cc.l.Debugf("checkValkeyConnection: failed to get TLS config: %s", err)
 		res.Error = err.Error()

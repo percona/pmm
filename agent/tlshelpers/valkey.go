@@ -25,8 +25,8 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
-// GetValkeyTlsConfig returns TLS config for Valkey connections.
-func GetValkeyTlsConfig(files *agentv1.TextFiles) ([]redis.DialOption, error) {
+// GetValkeyTLSConfig returns TLS config for Valkey connections.
+func GetValkeyTLSConfig(files *agentv1.TextFiles, tlsSkipVerify bool) ([]redis.DialOption, error) {
 	var opts []redis.DialOption
 	if files != nil {
 		ca := x509.NewCertPool()
@@ -43,8 +43,8 @@ func GetValkeyTlsConfig(files *agentv1.TextFiles) ([]redis.DialOption, error) {
 			Certificates:       []tls.Certificate{cert},
 			RootCAs:            ca,
 		}
-		opts = append(opts, redis.DialUseTLS(true))
-		opts = append(opts, redis.DialTLSSkipVerify(true))
+		opts = append(opts, redis.DialUseTLS(tlsSkipVerify))
+		opts = append(opts, redis.DialTLSSkipVerify(tlsSkipVerify))
 		opts = append(opts, redis.DialTLSConfig(tlsConfig))
 	}
 	return opts, nil

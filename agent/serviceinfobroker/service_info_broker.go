@@ -79,7 +79,13 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 	case inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:
 		return sib.getProxySQLInfo(ctx, msg.Dsn)
 	case inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE:
-		return sib.getValkeyInfo(ctx, msg.Dsn, msg.TextFiles, id)
+		return sib.getValkeyInfo(
+			ctx,
+			msg.Dsn,
+			msg.TextFiles,
+			msg.TlsSkipVerify,
+			id,
+		)
 	// NOTE: these types may be implemented later.
 	case inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
 		return &agentv1.ServiceInfoResponse{}
@@ -249,7 +255,13 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	return &res
 }
 
-func (sib *ServiceInfoBroker) getValkeyInfo(ctx context.Context, dsn string, files *agentv1.TextFiles, id uint32) *agentv1.ServiceInfoResponse {
+func (sib *ServiceInfoBroker) getValkeyInfo(
+	ctx context.Context,
+	dsn string,
+	files *agentv1.TextFiles,
+	tlsSkipVerify bool,
+	id uint32,
+) *agentv1.ServiceInfoResponse {
 	var res agentv1.ServiceInfoResponse
 	var err error
 
@@ -262,7 +274,7 @@ func (sib *ServiceInfoBroker) getValkeyInfo(ctx context.Context, dsn string, fil
 		return &res
 	}
 
-	opts, err := tlshelpers.GetValkeyTlsConfig(files)
+	opts, err := tlshelpers.GetValkeyTLSConfig(files, tlsSkipVerify)
 	if err != nil {
 		sib.l.Debugf("checkValkeyConnection: failed to get TLS config: %s", err)
 		res.Error = err.Error()
