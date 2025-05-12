@@ -39,7 +39,7 @@ func GetValkeyTLSConfig(files *agentv1.TextFiles, tlsSkipVerify bool) ([]redis.D
 			return nil, errors.New("failed to append certs from PEM")
 		}
 		tlsConfig := &tls.Config{
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: tlsSkipVerify,
 			Certificates:       []tls.Certificate{cert},
 			RootCAs:            ca,
 		}
