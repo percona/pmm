@@ -440,3 +440,86 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 	})
 }
+
+func TestPGStatStatementsQPS(t *testing.T) {
+	sqlDB := tests.OpenTestPostgreSQL(t)
+	defer sqlDB.Close() //nolint:errcheck
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public")
+	require.NoError(t, err)
+
+	defer func() {
+		_, err := db.Exec("DROP EXTENSION pg_stat_statements")
+		assert.NoError(t, err)
+	}()
+
+	// filterInsertQueries retrieves only buckets for insert queries used by test.
+	filterInsertQueries := func(t *testing.T, mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
+		t.Helper()
+		res := make([]*agentv1.MetricsBucket, 0, len(mb))
+		for _, b := range mb {
+			switch {
+			case strings.Contains(b.Common.Fingerprint, "insert /* controller='test' */"):
+				res = append(res, b)
+			default:
+				continue
+			}
+		}
+		return res
+	}
+
+	t.Run("uses pgss.max value", func(t *testing.T) {
+		p := setup(t, db)
+		assert.Equal(t, uint(10000), p.statementsCache.cache.Capacity())
+	})
+
+	t.Run("check query count when cache size equals pgss.max", func(t *testing.T) {
+		var cacheSize uint
+		err = db.Querier.QueryRow(pgssMaxQuery).Scan(&cacheSize)
+		require.NoError(t, err)
+		p := setup(t, db)
+
+		runTimes := 7000
+		t.Cleanup(func() {
+			for i := 0; i < runTimes; i++ {
+				_, _ = db.Exec(fmt.Sprintf("drop table if exists t%d", i))
+			}
+		})
+
+		for i := 0; i < runTimes; i++ {
+			_, err = db.Exec(fmt.Sprintf("create /* controller='test' */ table t%d (id int);", i))
+			require.NoError(t, err)
+			_, err = db.Exec(fmt.Sprintf("insert /* controller='test' */ into t%d values(1);", i))
+			require.NoError(t, err)
+		}
+
+		buckets, err := p.getNewBuckets(context.Background(), time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
+		require.NoError(t, err)
+		insertBuckets := filterInsertQueries(t, buckets)
+		mismatchedCount := 0
+		for _, b := range insertBuckets {
+			assert.Equal(t, float32(1), b.Common.NumQueries)
+			if b.Common.NumQueries != 1 {
+				mismatchedCount++
+			}
+		}
+		assert.Zero(t, mismatchedCount)
+
+		for i := 0; i < runTimes; i++ {
+			_, err = db.Exec(fmt.Sprintf("insert /* controller='test' */ into t%d values(1);", i))
+			require.NoError(t, err)
+		}
+		buckets, err = p.getNewBuckets(context.Background(), time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
+		require.NoError(t, err)
+		insertBuckets = filterInsertQueries(t, buckets)
+		mismatchedCount = 0
+		for _, b := range insertBuckets {
+			if b.Common.NumQueries != 1 {
+				mismatchedCount++
+			}
+		}
+
+		assert.Zero(t, mismatchedCount)
+	})
+}

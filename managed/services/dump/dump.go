@@ -45,11 +45,18 @@ const (
 	dumpsDir   = "/srv/dump"
 )
 
+// URLs contains the URLs for Clickhouse and VictoriaMetrics.
+type URLs struct {
+	ClickhouseURL string
+	VMURL         string
+}
+
 // Service represents the dump service.
 type Service struct {
 	l *logrus.Entry
 
-	db *reform.DB
+	db   *reform.DB
+	urls *URLs
 
 	running atomic.Bool
 
@@ -58,10 +65,11 @@ type Service struct {
 }
 
 // New creates a new instance of the dump service..
-func New(db *reform.DB) *Service {
+func New(db *reform.DB, urls *URLs) *Service {
 	return &Service{
-		l:  logrus.WithField("component", "services/dump"),
-		db: db,
+		l:    logrus.WithField("component", "services/dump"),
+		db:   db,
+		urls: urls,
 	}
 }
 
@@ -109,6 +117,8 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		pmmDumpBin,
 		"export",
 		"--pmm-url=http://127.0.0.1:8080",
+		"--click-house-url="+s.urls.ClickhouseURL,
+		"--victoria-metrics-url="+s.urls.VMURL,
 		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID)))
 
 	if params.APIKey != "" {
