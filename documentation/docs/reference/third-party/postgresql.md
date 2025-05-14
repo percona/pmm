@@ -1,10 +1,11 @@
-# PostgreSQL
+# Configure PMM with external PostgreSQL
 
-You can use an external PostgreSQL database instance outside the PMM Server container running on the same or other hosts.
+Percona Monitoring and Management (PMM) can be configured to use an external PostgreSQL database instead of its built-in instance. 
+To configure PMM Server to connect to an external PostgreSQL database running on the same host or a remote server, set up the required environment variables, configure SSL for secure connections, and ensure proper permissions for both PMM components and Grafana.
 
 ## Environment variables
-
-PMM predefines certain flags that allow you to use PostgreSQL parameters as environment variables:
+!!! caution alert alert-warning "Important for PMM 3.2.0 and later"
+    Due to a regression in Grafana 11.6 (included in PMM 3.2.0+), the `GF_DATABASE_URL` environment variable is no longer sufficient for configuring Grafana's connection to an external PostgreSQL database. When using PMM 3.2.0 or later with an external PostgreSQL, you must use the individual `GF_DATABASE_*` environment variables as described below.
 
 To use PostgreSQL as an external database instance, use the following environment variables:
 
@@ -22,7 +23,22 @@ To use PostgreSQL as an external database instance, use the following environmen
 
 By default, communication between the PMM Server and the database is not encrypted. To secure a connection, follow [PostgeSQL SSL instructions](https://www.postgresql.org/docs/14/ssl-tcp.html) and provide `POSTGRES_SSL_*` variables.
 
-To use grafana with external PostgreSQL add `GF_DATABASE_*` environment variables accordingly.
+## Grafana Database Configuration
+To use Grafana with external PostgreSQL, add `GF_DATABASE_*` environment variables in the format `postgres://USER:PASSWORD@HOST:PORT/DATABASE_NAME`.
+
+For PMM 3.2.0 and later, Grafana requires individual database parameters instead of a single connection URL. Use the following environment variables to configure Grafana with an external PostgreSQL database:
+
+| Environment variable     | Description                                                      |
+|--------------------------|------------------------------------------------------------------|
+| GF_DATABASE_TYPE         | Must be set to `postgresql`                                      |
+| GF_DATABASE_HOST         | Hostname and port of the PostgreSQL server (e.g., `host:5432`)   |
+| GF_DATABASE_NAME         | Database name for Grafana                                        |
+| GF_DATABASE_USER         | PostgreSQL user for Grafana                                      |
+| GF_DATABASE_PASSWORD     | Password for the Grafana database user                           |
+| GF_DATABASE_SSL_MODE     | SSL mode for database connection (disable, require, verify-ca, verify-full) |
+| GF_DATABASE_CA_CERT_PATH | Path to CA certificate file                                      |
+| GF_DATABASE_CLIENT_KEY_PATH | Path to client key file                                       |
+| GF_DATABASE_CLIENT_CERT_PATH | Path to client certificate file                              |
 
 **Example**
 
@@ -30,7 +46,7 @@ To use PostgreSQL as an external database:
 {.power-number}
 
 1. Generate all necessary SSL certificates.
-2. Deploy PMM Server with certificates under read-only permissions and Grafana user and Grafana group.
+2. Deploy PMM Server with certificates under read-only permissions and Grafana user and Grafana group:
 
         ```sh
         /pmm-server-certificates# la -la
@@ -41,7 +57,7 @@ To use PostgreSQL as an external database:
         -rw------- 1 grafana grafana 1708 Apr  5 12:38 pmm_server.key
         ```
 
-3. Attach `pg_hba.conf` and certificates to the PostgreSQL image.
+3. Attach `pg_hba.conf` and certificates to the PostgreSQL image:
 
         ```sh
         /external-postgres-configuration# cat pg_hba.conf 
@@ -62,7 +78,7 @@ To use PostgreSQL as an external database:
 
 5. Install `pg_stat_statements` in PostgreSQL in order to have all metrics according to [this](../../install-pmm/install-pmm-client/connect-database/postgresql.md) handy document.
 
-6. Run PostgreSQL server.
+6. Run PostgreSQL server:
 
     ```sh
     docker run
@@ -81,20 +97,10 @@ To use PostgreSQL as an external database:
     -c hba_file=$HBA_PATH
     ```
 
-7. Run PMM Server.
+7. Run PMM Server:
 
+    === "PMM < 3.2.0"
     ```sh
-    docker run 
-    --name pmm-server 
-    -e PMM_POSTGRES_ADDR=$ADDRESS:$PORT
-    -e PMM_POSTGRES_DBNAME=$DBNAME
-    -e PMM_POSTGRES_USERNAME=$USER
-    -e PMM_POSTGRES_DBPASSWORD=$PASSWORD
-    -e PMM_POSTGRES_SSL_MODE=$SSL_MODE
-    -e PMM_POSTGRES_SSL_CA_PATH=$CA_PATH
-    -e PMM_POSTGRES_SSL_KEY_PATH=$KEY_PATH
-    -e PMM_POSTGRES_SSL_CERT_PATH=$CERT_PATH 
-    -e PMM_DISABLE_BUILTIN_POSTGRES=true
     -e GF_DATABASE_URL=$GF_DATABASE_URL
     -e GF_DATABASE_SSL_MODE=$GF_SSL_MODE
     -e GF_DATABASE_CA_CERT_PATH=$GF_CA_PATH
@@ -102,3 +108,18 @@ To use PostgreSQL as an external database:
     -e GF_DATABASE_CLIENT_CERT_PATH=$GF_CERT_PATH
     percona/pmm-server:3
     ```
+    === "PMM >= 3.2.0"
+        ```sh
+        -e GF_DATABASE_TYPE=postgresql
+        -e GF_DATABASE_HOST=$GF_HOST:$GF_PORT
+        -e GF_DATABASE_NAME=$GF_DATABASE_NAME
+        -e GF_DATABASE_USER=$GF_USER
+        -e GF_DATABASE_PASSWORD=$GF_PASSWORD
+        -e GF_DATABASE_SSL_MODE=$GF_SSL_MODE
+        -e GF_DATABASE_CA_CERT_PATH=$GF_CA_PATH
+        -e GF_DATABASE_CLIENT_KEY_PATH=$GF_KEY_PATH
+        -e GF_DATABASE_CLIENT_CERT_PATH=$GF_CERT_PATH
+        percona/pmm-server:3
+        ```
+
+        

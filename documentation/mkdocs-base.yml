@@ -226,6 +226,8 @@ nav:
     - Upgrade PMM Server:
       - pmm-upgrade/index.md
       - pmm-upgrade/ui_upgrade.md
+      - pmm-upgrade/external_postgres_pmm_upgrade.md
+    
       - Manual upgrade:
         - pmm-upgrade/upgrade_docker.md
         - pmm-upgrade/upgrade_podman.md
