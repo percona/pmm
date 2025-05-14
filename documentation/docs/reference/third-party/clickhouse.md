@@ -55,7 +55,25 @@ Alternatively, you can use the `PMM_CLICKHOUSE_HOST` and `PMM_CLICKHOUSE_PORT` v
 -e PMM_DISABLE_BUILTIN_CLICKHOUSE=1
 ```
 
+## Security best practices
+
+We encourage you to follow security best practices when using ClickHouse with PMM. For example, you should use SSL/TLS encryption for data in transit and ensure that your ClickHouse instance is properly secured and monitored.
+
+The following are the user settings to enforce:
+- disabling empty passwords
+- disabling plain text passwords
+- preventing the implicit creation of users without passwords
+
+For optimal security, we recommend generating random user passwords and using them in your PMM configuration. You can use the following set of commands to generate a random password:
+
+```sh
+PASSWORD=$(base64 < /dev/urandom | head -c12)
+echo "$PASSWORD" # note it down
+echo -n "$PASSWORD" | sha256sum | tr -d '-'
+```
+
+For more details refer to ClickHouse’s [User Settings](https://clickhouse.com/docs/en/operations/settings/settings-users) documentation.
+
 ## Troubleshooting
 
 To troubleshoot issues, see the ClickHouse [troubleshooting documentation](https://clickhouse.com/docs/guides/troubleshooting).
-
