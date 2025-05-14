@@ -72,7 +72,7 @@ echo "$PASSWORD" # note it down
 echo -n "$PASSWORD" | sha256sum | tr -d '-'
 ```
 
-For more details refer to ClickHouse’s [User Settings](https://clickhouse.com/docs/en/operations/settings/settings-users) documentation.
+For more details refer to ClickHouse [User Settings](https://clickhouse.com/docs/en/operations/settings/settings-users) documentation.
 
 ## Troubleshooting
 
