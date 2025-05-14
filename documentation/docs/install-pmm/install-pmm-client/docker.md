@@ -37,11 +37,10 @@ Follow these steps to deploy PMM Client using Docker:
 3. Start the [pmm-agent](../../use/commands/pmm-agent.md) in Setup mode to connect to PMM Server. Replace `X.X.X.X` with the IP address of your PMM Server:
 
     ```sh
-    PMM_SERVER=X.X.X.X:443
-    docker run \
+     docker run \
      --rm \
      --name pmm-client \
-     -e PMM_AGENT_SERVER_ADDRESS=${PMM_SERVER} \
+     -e PMM_AGENT_SERVER_ADDRESS=X.X.X.X:443 \
      -e PMM_AGENT_SERVER_USERNAME=admin \
      -e PMM_AGENT_SERVER_PASSWORD=admin \
      -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
@@ -56,7 +55,18 @@ Follow these steps to deploy PMM Client using Docker:
          - Do not use the `docker --detach` option with this command. The pmm-agent outputs logs directly to the console, and detaching would prevent you from seeing important setup information and potential errors.
          - You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
 
-4. Verify the PMM Client status. If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface:
+4. After the setup is complete, start the [pmm-agent](../../use/commands/pmm-agent.md) in normal mode:
+
+    ```sh
+      docker run \
+      --detach \
+      --name pmm-client \
+      -e PMM_AGENT_SETUP=0 \
+      -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
+      -v pmm-client-data:/usr/local/percona/pmm/tmp \
+      percona/pmm-client:3
+    ```
+5. Verify the PMM Client status. If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface:
 
     ```sh
     docker exec -t pmm-client pmm-admin status

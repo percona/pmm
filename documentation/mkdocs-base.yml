@@ -200,6 +200,7 @@ nav:
         - Deployment options:
           - Install from Percona repositories: install-pmm/install-pmm-client/package_manager.md
           - Install from binaries: install-pmm/install-pmm-client/binary_package.md
+          - Install on Docker: install-pmm/install-pmm-client/docker.md
         - Configuration:
           - Register Client node: install-pmm/register-client-node/index.md
           - Configure monitoring:
