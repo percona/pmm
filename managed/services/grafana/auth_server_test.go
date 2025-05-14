@@ -125,6 +125,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/server/settings/readonly":      viewer,
 		"/v1/server/AWSInstance":            none,
 		"/v1/backups":                       admin,
+		"/v1/dumps":                         admin,
 		"/v1/accesscontrol":                 admin,
 		"/v1/users":                         viewer,
 		"/v1/platform:connect":              admin,
