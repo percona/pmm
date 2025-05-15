@@ -955,7 +955,10 @@ func main() { //nolint:maintidx,cyclop
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 
-	dumpService := dump.New(db)
+	dumpService := dump.New(db, &dump.URLs{
+		ClickhouseURL: chURI.String(),
+		VMURL:         *victoriaMetricsURLF,
+	})
 
 	serverParams := &server.Params{
 		DB:                   db,

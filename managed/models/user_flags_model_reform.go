@@ -32,7 +32,6 @@ func (v *userDetailsTableType) Columns() []string {
 		"tour_done",
 		"alerting_tour_done",
 		"snoozed_pmm_version",
-		"snoozed_api_keys_migration",
 		"created_at",
 		"updated_at",
 	}
@@ -63,7 +62,6 @@ var UserDetailsTable = &userDetailsTableType{
 			{Name: "Tour", Type: "bool", Column: "tour_done"},
 			{Name: "AlertingTour", Type: "bool", Column: "alerting_tour_done"},
 			{Name: "SnoozedPMMVersion", Type: "string", Column: "snoozed_pmm_version"},
-			{Name: "SnoozedAPIKeysMigration", Type: "bool", Column: "snoozed_api_keys_migration"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
@@ -74,14 +72,13 @@ var UserDetailsTable = &userDetailsTableType{
 
 // String returns a string representation of this struct or record.
 func (s UserDetails) String() string {
-	res := make([]string, 7)
+	res := make([]string, 6)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Tour: " + reform.Inspect(s.Tour, true)
 	res[2] = "AlertingTour: " + reform.Inspect(s.AlertingTour, true)
 	res[3] = "SnoozedPMMVersion: " + reform.Inspect(s.SnoozedPMMVersion, true)
-	res[4] = "SnoozedAPIKeysMigration: " + reform.Inspect(s.SnoozedAPIKeysMigration, true)
-	res[5] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[6] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[4] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[5] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -93,7 +90,6 @@ func (s *UserDetails) Values() []interface{} {
 		s.Tour,
 		s.AlertingTour,
 		s.SnoozedPMMVersion,
-		s.SnoozedAPIKeysMigration,
 		s.CreatedAt,
 		s.UpdatedAt,
 	}
@@ -107,7 +103,6 @@ func (s *UserDetails) Pointers() []interface{} {
 		&s.Tour,
 		&s.AlertingTour,
 		&s.SnoozedPMMVersion,
-		&s.SnoozedAPIKeysMigration,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 	}
