@@ -24,7 +24,7 @@ RUN dnf install -y gcc gcc-c++ \
     krb5-devel \
     wget && \
     dnf install -y --enablerepo=ol8_codeready_builder glibc-static && \
-    dnf clean all && rm -rf /var/cache/dnf
+    dnf clean all && rm -rf /var/cache/dnf /var/cache/yum
 
 # keep that format for easier search
 ENV GO_VERSION=1.23.4
