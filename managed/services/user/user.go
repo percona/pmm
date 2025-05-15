@@ -68,11 +68,10 @@ func (s *Service) GetUser(ctx context.Context, _ *userv1.GetUserRequest) (*userv
 	}
 
 	resp := &userv1.GetUserResponse{
-		UserId:                  uint32(userInfo.ID),
-		ProductTourCompleted:    userInfo.Tour,
-		AlertingTourCompleted:   userInfo.AlertingTour,
-		SnoozedPmmVersion:       userInfo.SnoozedPMMVersion,
-		SnoozedApiKeysMigration: userInfo.SnoozedAPIKeysMigration,
+		UserId:                uint32(userInfo.ID),
+		ProductTourCompleted:  userInfo.Tour,
+		AlertingTourCompleted: userInfo.AlertingTour,
+		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
 	}
 	return resp, nil
 }
@@ -96,10 +95,9 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 		}
 
 		params := &models.UpdateUserParams{
-			UserID:                  userInfo.ID,
-			Tour:                    req.ProductTourCompleted,
-			AlertingTour:            req.AlertingTourCompleted,
-			SnoozedAPIKeysMigration: req.SnoozedApiKeysMigration,
+			UserID:       userInfo.ID,
+			Tour:         req.ProductTourCompleted,
+			AlertingTour: req.AlertingTourCompleted,
 		}
 		if req.SnoozedPmmVersion != nil {
 			params.SnoozedPMMVersion = req.SnoozedPmmVersion
@@ -117,11 +115,10 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 	}
 
 	resp := &userv1.UpdateUserResponse{
-		UserId:                  uint32(userInfo.ID),
-		ProductTourCompleted:    userInfo.Tour,
-		AlertingTourCompleted:   userInfo.AlertingTour,
-		SnoozedPmmVersion:       userInfo.SnoozedPMMVersion,
-		SnoozedApiKeysMigration: userInfo.SnoozedAPIKeysMigration,
+		UserId:                uint32(userInfo.ID),
+		ProductTourCompleted:  userInfo.Tour,
+		AlertingTourCompleted: userInfo.AlertingTour,
+		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
 	}
 	return resp, nil
 }
