@@ -144,7 +144,7 @@ func isCommonMetric(name string) bool {
 	return ok
 }
 
-func interfaceToFloat32(unk interface{}) float32 {
+func interfaceToFloat32(unk any) float32 {
 	switch i := unk.(type) {
 	case float64:
 		return float32(i)
@@ -157,48 +157,13 @@ func interfaceToFloat32(unk interface{}) float32 {
 	}
 }
 
-func interfaceToString(unk interface{}) string {
+func interfaceToString(unk any) string {
 	switch i := unk.(type) {
 	case string:
 		return i
 	default:
 		return ""
 	}
-}
-
-func isDimension(name string) bool {
-	dimensionColumnNames := map[string]struct{}{
-		// Main dimensions
-		"queryid":      {},
-		"service_name": {},
-		"database":     {},
-		"schema":       {},
-		"username":     {},
-		"client_host":  {},
-		// Standard labels
-		"replication_set":  {},
-		"cluster":          {},
-		"service_type":     {},
-		"service_id":       {},
-		"environment":      {},
-		"az":               {},
-		"region":           {},
-		"node_model":       {},
-		"node_id":          {},
-		"node_name":        {},
-		"node_type":        {},
-		"machine_id":       {},
-		"container_name":   {},
-		"container_id":     {},
-		"cmd_type":         {},
-		"application_name": {},
-		"top_queryid":      {},
-		"planid":           {},
-		"plan_summary":     {},
-	}
-
-	_, ok := dimensionColumnNames[name]
-	return ok
 }
 
 // isTimeMetric checks if a metric in the time metrics group.

@@ -42,7 +42,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (
 	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
-		if isDimension(label.Key) {
+		if models.IsDimension(label.Key) {
 			dimensions[label.Key] = label.Value
 			continue
 		}
@@ -239,7 +239,7 @@ func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.GetQueryExample
 	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
-		if isDimension(label.Key) {
+		if models.IsDimension(label.Key) {
 			dimensions[label.Key] = label.Value
 			continue
 		}
@@ -330,7 +330,7 @@ func (s *Service) GetHistogram(ctx context.Context, in *qanpb.GetHistogramReques
 	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
-		if isDimension(label.Key) {
+		if models.IsDimension(label.Key) {
 			dimensions[label.Key] = label.Value
 			continue
 		}
