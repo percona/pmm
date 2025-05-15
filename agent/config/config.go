@@ -89,7 +89,7 @@ func (s *Server) FilteredURL() string {
 	return strings.ReplaceAll(u.String(), ":%2A%2A%2A@", ":***@")
 }
 
-// Paths represents binaries paths configuration.
+// Paths represent binaries paths configuration.
 type Paths struct {
 	PathsBase        string `yaml:"paths_base"`
 	ExportersBase    string `yaml:"exporters_base"`
@@ -100,6 +100,7 @@ type Paths struct {
 	ProxySQLExporter string `yaml:"proxysql_exporter"`
 	RDSExporter      string `yaml:"rds_exporter"`
 	AzureExporter    string `yaml:"azure_exporter"`
+	ValkeyExporter   string `yaml:"valkey_exporter"`
 
 	VMAgent string `yaml:"vmagent"`
 	Nomad   string `yaml:"nomad"`
@@ -225,6 +226,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 			&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
 			&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
 			&cfg.Paths.PostgresExporter: "postgres_exporter",
+			&cfg.Paths.ValkeyExporter:   "valkey_exporter",
 			&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
 			&cfg.Paths.RDSExporter:      "rds_exporter",
 			&cfg.Paths.AzureExporter:    "azure_exporter",
@@ -287,6 +289,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 			"mysqld_exporter":   &cfg.Paths.MySQLdExporter,
 			"mongodb_exporter":  &cfg.Paths.MongoDBExporter,
 			"postgres_exporter": &cfg.Paths.PostgresExporter,
+			"valkey_exporter":   &cfg.Paths.ValkeyExporter,
 			"proxysql_exporter": &cfg.Paths.ProxySQLExporter,
 			"rds_exporter":      &cfg.Paths.RDSExporter,
 			"azure_exporter":    &cfg.Paths.AzureExporter,
@@ -396,6 +399,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_PROXYSQL_EXPORTER").StringVar(&cfg.Paths.ProxySQLExporter)
 	app.Flag("paths-azure_exporter", "Path to azure_exporter to use [PMM_AGENT_PATHS_AZURE_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_AZURE_EXPORTER").StringVar(&cfg.Paths.AzureExporter)
+	app.Flag("paths-valkey", "Path to valkey_exporter to use [PMM_AGENT_PATHS_VALKEY_EXPORTER]").
+		Envar("PMM_AGENT_PATHS_VALKEY_EXPORTER").StringVar(&cfg.Paths.ValkeyExporter)
 	app.Flag("paths-pt-summary", "Path to pt summary to use [PMM_AGENT_PATHS_PT_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_SUMMARY").StringVar(&cfg.Paths.PTSummary)
 	app.Flag("paths-pt-pg-summary", "Path to pt-pg-summary to use [PMM_AGENT_PATHS_PT_PG_SUMMARY]").
