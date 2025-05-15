@@ -48,14 +48,7 @@
     - name: Cleanup dnf cache
       command: dnf clean all
 
-    # "yum clean all" function will only remove cache from configured yum repositories
-    # Details: https://bugzilla.redhat.com/show_bug.cgi?id=1357083
-    - name: Cleanup dnf cache
-      file:
-        state: absent
-        path: /var/cache/dnf
-
-    - name: Cleanup build logs and data
+    - name: Cleanup build logs, data and package cache
       file:
         path: "{{ item }}"
         state: absent
@@ -67,6 +60,8 @@
         - /var/log/clickhouse-server
         - /var/log/nginx
         - /var/lib/pgsql
+        - /var/cache/dnf
+        - /var/cache/yum
         - /srv/pmm-encryption.key
 
     - name: Remove users created by installers
