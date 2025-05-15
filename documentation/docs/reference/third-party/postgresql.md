@@ -53,7 +53,7 @@ To use PostgreSQL as an external database:
 2. Deploy PMM Server with certificates under read-only permissions and Grafana user and Grafana group:
 
     ```sh
-    /pmm-server-certificates# la -la
+    /pmm-server-certificates# ls -la
     drwxr-xr-x 1 root    root    4096 Apr  5 12:43 .
     drwxr-xr-x 1 root    root    4096 Apr  5 12:43 ..
     -rw------- 1 grafana grafana 1391 Apr  5 12:38 certificate_authority.crt

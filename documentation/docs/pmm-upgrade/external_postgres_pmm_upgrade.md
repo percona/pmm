@@ -36,7 +36,8 @@ Use the appropriate command for your deployment method to stop and remove the PM
 
 === "Docker Compose"
     ```bash
-    docker-compose down
+    docker-compose stop pmm-server
+    docker-compose rm pmm-server
     ```
 
 === "Kubernetes/Helm"
@@ -95,7 +96,8 @@ Modify your startup command or configuration file to use the new parameters:
    ```
 
 === "Docker Compose"
-   Update your `docker-compose.yml` file:
+   Update your `docker-compose.yml` file to include both PMM and Grafana database configuration variables `PMM_POSTGRES_*` is required for PMM's internal components and `GF_DATABASE_*` for Grafana. For details, see the [Configure PMM with external PostgreSQL](../reference/third-party/postgresql.md#environment-variables) topic.
+
    ```yaml
    services:
      pmm-server:
@@ -105,10 +107,17 @@ Modify your startup command or configuration file to use the new parameters:
        volumes:
          - pmm-data:/srv
        environment:
-         - GF_DATABASE_USER=your_user
-         - GF_DATABASE_PASSWORD=your_password
+         # PMM PostgreSQL connection variables
+         - PMM_POSTGRES_ADDR=your_host:your_port
+         - PMM_POSTGRES_DBNAME=your_pmm_db_name
+         - PMM_POSTGRES_USERNAME=your_pmm_user
+         - PMM_POSTGRES_DBPASSWORD=your_pmm_password
+         # Grafana PostgreSQL connection variables (for PMM 3.2.0+)
+         - GF_DATABASE_USER=your_grafana_user
+         - GF_DATABASE_PASSWORD=your_grafana_password
          - GF_DATABASE_HOST=your_host:your_port
-         - GF_DATABASE_NAME=your_db_name
+         - GF_DATABASE_NAME=your_grafana_db_name
+         # Disable built-in PostgreSQL
          - PMM_DISABLE_BUILTIN_POSTGRES=1
        restart: always
    
