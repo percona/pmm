@@ -23,8 +23,8 @@ require (
 	github.com/aws/aws-sdk-go v1.55.5
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.28.0
-	github.com/charmbracelet/bubbles v0.20.0
-	github.com/charmbracelet/bubbletea v1.3.2
+	github.com/charmbracelet/bubbles v0.21.0
+	github.com/charmbracelet/bubbletea v1.3.4
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/docker/docker v28.0.4+incompatible
@@ -52,7 +52,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.55
 	github.com/percona/exporter_shared v0.7.5
-	github.com/percona/go-mysql v0.0.0-20250402095632-a74727b12b16
+	github.com/percona/go-mysql v0.0.0-20250429063950-bc274ddba990
 	github.com/percona/percona-toolkit v0.0.0-20250306213812-9ad6dc01250f
 	github.com/percona/promconfig v0.2.5
 	github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e
@@ -68,16 +68,16 @@ require (
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.10.0
 	github.com/tink-crypto/tink-go v0.0.0-20230613075026-d6de17e3f164
-	go.mongodb.org/mongo-driver v1.17.2
+	go.mongodb.org/mongo-driver v1.17.3
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	golang.org/x/crypto v0.37.0
 	golang.org/x/sync v0.13.0
 	golang.org/x/sys v0.32.0
 	golang.org/x/text v0.24.0
 	golang.org/x/tools v0.32.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250115164207-1a7da9e5054f
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250115164207-1a7da9e5054f
-	google.golang.org/grpc v1.71.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20250218202821-56aae31c358a
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250218202821-56aae31c358a
+	google.golang.org/grpc v1.72.0
 	google.golang.org/protobuf v1.36.5
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1

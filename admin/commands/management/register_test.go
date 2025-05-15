@@ -49,13 +49,13 @@ Node ID     : second_id
 					AgentID:      "warning",
 					RunsOnNodeID: "warning_node",
 				},
-				Warning: "Couldn't create Admin API Key",
+				Warning: "Couldn't create a Service Key",
 			},
 			want: `pmm-agent registered.
 pmm-agent ID: warning
 Node ID     : warning_node
 
-Warning: Couldn't create Admin API Key
+Warning: Couldn't create a Service Key
 `,
 		},
 	}
