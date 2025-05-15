@@ -13,7 +13,7 @@ test: setup
 	yarn test
 
 setup:
-	yarn install --frozen-lockfile
+	yarn install
 
 build: setup
 	yarn build
@@ -21,4 +21,4 @@ build: setup
 release: build
 
 clean:
-	rm -r dist
+	yarn clean
