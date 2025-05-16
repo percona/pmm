@@ -11,9 +11,8 @@ RUN dnf update -y && \
     dnf install -y --setopt=skip_missing_names_on_install=False \
     nodejs \
     yarn && \
-    dnf remove -y nodesource-release-el9-1.noarch
-
-RUN dnf install -y gcc gcc-c++ \
+    dnf remove -y nodesource-release-el9-1.noarch && \
+    dnf install -y gcc gcc-c++ \
     libtool libtool-ltdl \
     make cmake \
     git \
@@ -26,7 +25,7 @@ RUN dnf install -y gcc gcc-c++ \
     krb5-devel \
     wget && \
     dnf install -y --enablerepo=ol9_codeready_builder glibc-static && \
-    dnf clean all && rm -rf /var/cache/dnf
+    dnf clean all && rm -rf /var/cache/dnf /var/cache/yum
 
 # keep that format for easier search
 ENV GO_VERSION=1.23.4
