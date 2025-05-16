@@ -58,9 +58,9 @@ The package manager will automatically select the appropriate version for your s
         ```
     5. [Register the node](../register-client-node/index.md).
 
-## Package manager -- manual download
+## Packages -- manual download
 
-To manually download package manager:
+To manually download packages:
 {.power-number}
 
 1. Visit the [Percona Monitoring and Management 3 download](https://www.percona.com/downloads/) page.
