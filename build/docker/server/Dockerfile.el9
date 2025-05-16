@@ -11,6 +11,7 @@ ENV PS1="[\u@\h \W] # "
 WORKDIR /opt
 
 RUN --mount=type=cache,target=/var/cache/dnf \
+    --mount=type=cache,target=/var/cache/yum \
     microdnf -y install epel-release && \
     microdnf -y install ansible-core \
                         ansible-collection-community-general \

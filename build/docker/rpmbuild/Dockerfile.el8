@@ -9,9 +9,8 @@ RUN dnf update -y && \
     dnf install -y crypto-policies-scripts && \
     dnf install -y --setopt=skip_missing_names_on_install=False \
     nodejs \
-    yarn
-
-RUN dnf install -y gcc gcc-c++ \
+    yarn && \
+    dnf install -y gcc gcc-c++ \
     libtool libtool-ltdl \
     make cmake \
     git \
@@ -24,7 +23,7 @@ RUN dnf install -y gcc gcc-c++ \
     krb5-devel \
     wget && \
     dnf install -y --enablerepo=ol8_codeready_builder glibc-static && \
-    dnf clean all && rm -rf /var/cache/dnf
+    dnf clean all && rm -rf /var/cache/dnf /var/cache/yum
 
 # keep that format for easier search
 ENV GO_VERSION=1.23.4
