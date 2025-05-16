@@ -102,7 +102,7 @@ func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docs
 			logger.Debugln("reader done")
 			return
 		default:
-			logger.Debugln("reading line")
+			logger.Debugln("reading a line")
 			line, err := reader.NextLine()
 			if err != nil {
 				logger.Error(err)
