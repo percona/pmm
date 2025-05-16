@@ -1,6 +1,6 @@
 # UI components
 
-How to log in, how the user interface is laid out, and what the controls do.
+This section explains how to access the interface, navigate the layout, and use the various controls within PMM.
 
 PMM's user interface is a browser application based on [Grafana](https://grafana.com/docs/grafana/latest/).
 
@@ -14,7 +14,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 |:----------------------------------:|----------------------|-------------------------------
 | <i class="uil uil-star"></i>       | Starred              | Mark your favorite dashboards.
 | <i class="uil uil-apps"></i>       | Dashboards           | Create dashboards or [folders][Folders], manage dashboards, import dashboards, create playlists, manage snapshots.
-| <i class="uil uil-compass"></i>    | Explore              | Run queries with [PromQL].
+| <i class="uil uil-compass"></i>    | Explore              | Explore the data using various datasources. For example, choose the `Prometheus` datasource and run queries with [PromQL].
 | <i class="uil uil-compass"></i>     | Operating System (OS)    | Operating System dashboard
 | :simple-mysql: :simple-mongodb: :simple-postgresql: | Service Type dashboards |   Navigate to the dashboards available for the [services added for monitoring](../../install-pmm/install-pmm-client/connect-database/index.md) (MySQL, MongoDB, PostgreSQL, HAproxy or ProxySQL).
 | <i class="uil uil-chart"></i> | Query Analytics (QAN) | Navigate to the Query Analytics dashboard where you can analyze database queries over time, optimize database performance, and identify the source of problems.
