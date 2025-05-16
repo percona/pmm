@@ -268,5 +268,5 @@ func getLogFilePath(ctx context.Context, client *mongo.Client) (string, error) {
 		}
 	}
 
-	return "", errors.New("no log path found, logs may be in Docker stdout")
+	return "", errors.New("no log path found, logs may go to stdout")
 }
