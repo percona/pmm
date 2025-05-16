@@ -96,7 +96,6 @@ type Params struct {
 	GrafanaClient        grafanaClient
 	Updater              *Updater
 	Dus                  *distribution.Service
-	HAService            haService
 	Nomad                nomadService
 }
 
@@ -120,7 +119,6 @@ func NewServer(params *Params) (*Server, error) {
 		telemetryService:     params.TelemetryService,
 		grafanaClient:        params.GrafanaClient,
 		updater:              params.Updater,
-		haService:            params.HAService,
 		nomad:                params.Nomad,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
