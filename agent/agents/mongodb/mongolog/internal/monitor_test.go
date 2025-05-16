@@ -52,7 +52,7 @@ func TestCollector(t *testing.T) {
 		logrus.SetLevel(logrus.InfoLevel)
 	})
 
-	tests, err := testFileNames()
+	tests, err := testFileNames(t)
 	require.NoError(t, err)
 	for _, test := range tests {
 		t.Run(test, func(t *testing.T) {
@@ -60,7 +60,7 @@ func TestCollector(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), timeout)
 			t.Cleanup(cancel)
 
-			hash, err := generateRandomHash()
+			hash, err := generateRandomHash(t)
 			require.NoError(t, err)
 			destination := fmt.Sprintf("./testdata/mongo_%s.log", hash)
 
@@ -89,7 +89,7 @@ func TestCollector(t *testing.T) {
 			})
 
 			errChan := make(chan error, 1)
-			go readSourceWriteDestination(ctx, errChan, fmt.Sprintf("./testdata/logs/%s.log", test), destination, delay)
+			go readSourceWriteDestination(t, ctx, errChan, fmt.Sprintf("./testdata/logs/%s.log", test), destination, delay)
 
 			var wg sync.WaitGroup
 			wg.Add(2)
@@ -125,19 +125,21 @@ func TestCollector(t *testing.T) {
 
 			expectedFile := fmt.Sprintf("./testdata/expected/%s", test)
 			if os.Getenv("REFRESH_TEST_DATA") != "" {
-				writeData(data, expectedFile)
+				writeData(t, data, expectedFile)
 				return
 			}
 
-			expectedData, err := readData(expectedFile)
+			expectedData, err := readData(t, expectedFile)
 			require.NoError(t, err)
 
-			require.Equal(t, reorderData(expectedData), reorderData(data))
+			require.Equal(t, reorderData(t, expectedData), reorderData(t, data))
 		})
 	}
 }
 
-func generateRandomHash() (string, error) {
+func generateRandomHash(t *testing.T) (string, error) {
+	t.Helper()
+
 	randomBytes := make([]byte, 32)
 	_, err := rand.Read(randomBytes)
 	if err != nil {
@@ -148,7 +150,9 @@ func generateRandomHash() (string, error) {
 	return hex.EncodeToString(hash[:]), nil
 }
 
-func testFileNames() ([]string, error) {
+func testFileNames(t *testing.T) ([]string, error) {
+	t.Helper()
+
 	files, err := os.ReadDir("./testdata/logs")
 	if err != nil {
 		return nil, err
@@ -168,15 +172,17 @@ func testFileNames() ([]string, error) {
 	return names, nil
 }
 
-func reorderData(data []proto.SystemProfile) []proto.SystemProfile {
+func reorderData(t *testing.T, data []proto.SystemProfile) []proto.SystemProfile {
+	t.Helper()
+
 	var res []proto.SystemProfile //nolint:prealloc
 	for _, d := range data {
 		d.Ts = d.Ts.UTC()
 
 		// all bson.D needs to be reordered
-		d.Command = reorderBSOND(d.Command)
-		d.OriginatingCommand = reorderBSOND(d.OriginatingCommand)
-		d.UpdateObj = reorderBSOND(d.UpdateObj)
+		d.Command = reorderBSOND(t, d.Command)
+		d.OriginatingCommand = reorderBSOND(t, d.OriginatingCommand)
+		d.UpdateObj = reorderBSOND(t, d.UpdateObj)
 
 		res = append(res, d)
 	}
@@ -184,7 +190,9 @@ func reorderData(data []proto.SystemProfile) []proto.SystemProfile {
 	return res
 }
 
-func reorderBSOND(data bson.D) bson.D {
+func reorderBSOND(t *testing.T, data bson.D) bson.D {
+	t.Helper()
+
 	var res []bson.E //nolint:prealloc
 	for _, d := range data {
 		res = append(res, d)
@@ -197,7 +205,9 @@ func reorderBSOND(data bson.D) bson.D {
 	return res
 }
 
-func dataToJSON(data []proto.SystemProfile) ([]byte, error) {
+func dataToJSON(t *testing.T, data []proto.SystemProfile) ([]byte, error) {
+	t.Helper()
+
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return nil, err
@@ -206,14 +216,16 @@ func dataToJSON(data []proto.SystemProfile) ([]byte, error) {
 	return jsonData, nil
 }
 
-func writeData(data []proto.SystemProfile, name string) error {
+func writeData(t *testing.T, data []proto.SystemProfile, name string) error {
+	t.Helper()
+
 	file, err := os.Create(fmt.Sprintf("%s.json", name))
 	if err != nil {
 		return err
 	}
 	defer file.Close() //nolint:errcheck
 
-	jsonData, err := dataToJSON(data)
+	jsonData, err := dataToJSON(t, data)
 	if err != nil {
 		return err
 	}
@@ -225,7 +237,9 @@ func writeData(data []proto.SystemProfile, name string) error {
 	return nil
 }
 
-func readData(name string) ([]proto.SystemProfile, error) {
+func readData(t *testing.T, name string) ([]proto.SystemProfile, error) {
+	t.Helper()
+
 	file, err := os.Open(fmt.Sprintf("%s.json", name))
 	if err != nil {
 		return nil, err
@@ -241,7 +255,9 @@ func readData(name string) ([]proto.SystemProfile, error) {
 	return data, nil
 }
 
-func readSourceWriteDestination(ctx context.Context, errChan chan error, source, destination string, delay time.Duration) {
+func readSourceWriteDestination(t *testing.T, ctx context.Context, errChan chan error, source, destination string, delay time.Duration) {
+	t.Helper()
+
 	srcFile, err := os.Open(source) //nolint:gosec
 	if err != nil {
 		errChan <- err
