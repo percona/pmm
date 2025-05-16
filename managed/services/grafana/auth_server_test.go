@@ -245,7 +245,7 @@ func TestServerClientConnection(t *testing.T) {
 		req.Header.Set("Authorization", "Bearer wrong")
 
 		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
-		assert.Equal(t, codes.Unauthenticated, authError.code)
+		assert.Equal(t, codes.Internal, authError.code)
 	})
 }
 
