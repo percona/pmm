@@ -70,8 +70,6 @@ To successfully use an external PostgreSQL database with PMM:
 
 ## Set up PostgreSQL for PMM 
 
-
-
 ### 1. Prepare the PostgreSQL Server
 
 To use PostgreSQL as an external database with PMM:
@@ -170,11 +168,14 @@ If you need to secure the connection with SSL:
               -c ssl_cert_file=/etc/postgresql/certs/external_postgres.crt \
               -c hba_file=/path/to/pg_hba.conf
    ```
+
 4. Create a `pg_hba.conf` file that enforces SSL:
+
    ```sh
    local     all         all                                    trust
    hostnossl all         example_user all                       reject
    hostssl   all         example_user all                       cert
+   ```
 
 ### 3. Run PMM Server with external PostgreSQL
 
@@ -225,45 +226,46 @@ When using Docker Compose to run PMM with an external PostgreSQL database, make 
 
 1. Create a `docker-compose.yml` file with the following content (adjust values as needed):
 
-```yaml
+   ```yaml
    services:
-  pmm-server:
-    image: percona/pmm-server:3.2.0
-    ports:
-      - "443:443"
-    volumes:
-      - pmm-data:/srv
-    environment:
-      # PMM PostgreSQL connection variables
-      - PMM_POSTGRES_ADDR=your_host:your_port
-      - PMM_POSTGRES_DBNAME=your_pmm_db_name
-      - PMM_POSTGRES_USERNAME=your_pmm_user
-      - PMM_POSTGRES_DBPASSWORD=your_pmm_password
-      # Grafana PostgreSQL connection variables (for PMM 3.2.0+)
-      - GF_DATABASE_USER=your_grafana_user
-      - GF_DATABASE_PASSWORD=your_grafana_password
-      - GF_DATABASE_HOST=your_host:your_port
-      - GF_DATABASE_NAME=your_grafana_db_name
-      # Disable built-in PostgreSQL
-      - PMM_DISABLE_BUILTIN_POSTGRES=1
-    restart: always
+     pmm-server:
+       image: percona/pmm-server:3.2.0
+       ports:
+         - "443:443"
+       volumes:
+         - pmm-data:/srv
+       environment:
+         # PMM PostgreSQL connection variables
+         - PMM_POSTGRES_ADDR=your_host:your_port
+         - PMM_POSTGRES_DBNAME=your_pmm_db_name
+         - PMM_POSTGRES_USERNAME=your_pmm_user
+         - PMM_POSTGRES_DBPASSWORD=your_pmm_password
+         # Grafana PostgreSQL connection variables (for PMM 3.2.0+)
+         - GF_DATABASE_USER=your_grafana_user
+         - GF_DATABASE_PASSWORD=your_grafana_password
+         - GF_DATABASE_HOST=your_host:your_port
+         - GF_DATABASE_NAME=your_grafana_db_name
+         # Disable built-in PostgreSQL
+         - PMM_DISABLE_BUILTIN_POSTGRES=1
+       restart: always
 
-volumes:
-  pmm-data:
-```
+   volumes:
+     pmm-data:
+   ```
+
 2. Start the PMM Server service:
+   ```sh
+   docker-compose stop pmm-server
+   docker-compose rm pmm-server
+   docker-compose up -d pmm-server
+   ```
 
-```sh
-docker-compose stop pmm-server
-docker-compose rm pmm-server
-docker-compose up -d pmm-server
-```
 3. Restart the service after making changes:
-```sh
-docker-compose stop pmm-server
-docker-compose rm pmm-server
-docker-compose up -d pmm-server
-```
+   ```sh
+   docker-compose stop pmm-server
+   docker-compose rm pmm-server
+   docker-compose up -d pmm-server
+   ```
 
 ## Troubleshooting
 If you encounter issues when configuring PMM with an external PostgreSQL database, check the following:
