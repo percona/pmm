@@ -63,7 +63,7 @@ func (m *Monitor) Start(ctx context.Context, docsChan chan proto.SystemProfile, 
 
 	go func() {
 		readFile(ctx, m.reader, docsChan, doneChan, wg, m.logger)
-		m.logger.Debugln("reading routine quit")
+		m.logger.Debugln("done reading the log file")
 
 		m.m.Lock()
 		defer m.m.Unlock()
