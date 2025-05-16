@@ -168,7 +168,7 @@ If you need to secure the connection with SSL:
               -c ssl_cert_file=/etc/postgresql/certs/external_postgres.crt \
               -c hba_file=/path/to/pg_hba.conf
    ```
-
+ 
 4. Create a `pg_hba.conf` file that enforces SSL:
 
    ```sh
@@ -176,7 +176,6 @@ If you need to secure the connection with SSL:
    hostnossl all         example_user all                       reject
    hostssl   all         example_user all                       cert
    ```
-
 ### 3. Run PMM Server with external PostgreSQL
 
 Now that PostgreSQL is set up, configure PMM Server to use it:
@@ -252,8 +251,8 @@ When using Docker Compose to run PMM with an external PostgreSQL database, make 
    volumes:
      pmm-data:
    ```
-
 2. Start the PMM Server service:
+
    ```sh
    docker-compose stop pmm-server
    docker-compose rm pmm-server
