@@ -1,0 +1,69 @@
+// Copyright (C) 2023 Percona LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Package report prepares report for QAN.
+package report
+
+import (
+	"context"
+	"sort"
+	"time"
+
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+)
+
+// Report represents buckets and timestamps for qan.Report.
+type Report struct {
+	StartTS time.Time                // Start time of interval, UTC
+	EndTS   time.Time                // Stop time of interval, UTC
+	Buckets []*agentv1.MetricsBucket // per-class metrics
+}
+
+// MakeReport prepare report for QAN from given data.
+func MakeReport(_ context.Context, startTime, endTime time.Time, result *Result) *Report {
+	// Sort classes by Query_time_sum, descending.
+	sort.Sort(ByQueryTime(result.Buckets))
+
+	// Make qan.Report from Result and other metadata (e.g. Interval).
+	report := &Report{
+		StartTS: startTime,
+		EndTS:   endTime,
+		Buckets: result.Buckets,
+	}
+
+	return report
+}
+
+// Result is passed to MakeReport() which transforms into a qan.Report{}.
+type Result struct {
+	Buckets []*agentv1.MetricsBucket
+}
+
+// ByQueryTime is sorted array of metrics buckets.
+type ByQueryTime []*agentv1.MetricsBucket
+
+// Len returns count of metrics buckets.
+func (a ByQueryTime) Len() int { return len(a) }
+
+// Swap switch two buckets.
+func (a ByQueryTime) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+
+// Less compares two buckets.
+func (a ByQueryTime) Less(i, j int) bool {
+	if a == nil || a[i] == nil || a[j] == nil {
+		return false
+	}
+	// descending order
+	return a[i].Common.MQueryTimeSum > a[j].Common.MQueryTimeSum
+}
