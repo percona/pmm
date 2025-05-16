@@ -83,7 +83,7 @@ func (m *MongoDB) Run(ctx context.Context) {
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 	log = mongolog.New(m.mongoDSN, m.l, m, m.agentID, m.logFilePrefix, m.maxQueryLength)
-	if err := log.Start(); err != nil {
+	if err := log.Start(ctx); err != nil {
 		m.l.Errorf("can't run mongolog, reason: %v", err)
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
 		return
@@ -107,7 +107,7 @@ func (m *MongoDB) Write(r *report.Report) error {
 }
 
 type Mongolog interface { //nolint:revive
-	Start() error
+	Start(ctx context.Context) error
 	Stop() error
 }
 

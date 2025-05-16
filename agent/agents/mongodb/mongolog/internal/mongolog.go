@@ -79,7 +79,7 @@ type Mongolog struct {
 }
 
 // Start starts analyzer but doesn't wait until it exits.
-func (l *Mongolog) Start() error {
+func (l *Mongolog) Start(ctx context.Context) error {
 	l.m.Lock()
 	defer l.m.Unlock()
 	if l.running {
@@ -90,15 +90,14 @@ func (l *Mongolog) Start() error {
 	// we will tell goroutine it should close
 	l.doneChan = make(chan struct{})
 
-	ctx := context.Background()
 	labels := pprof.Labels("component", "mongodb.mongolog")
 
 	// create new session
-	client, err := createSession(l.mongoDSN, l.agentID)
+	client, err := createSession(ctx, l.mongoDSN, l.agentID)
 	if err != nil {
 		return err
 	}
-	logsPath, err := getLogFilePath(client)
+	logsPath, err := getLogFilePath(ctx, client)
 	if err != nil {
 		return err
 	}
@@ -221,8 +220,8 @@ func signalReady(ready *sync.Cond) {
 	ready.Broadcast()
 }
 
-func createSession(dsn string, agentID string) (*mongo.Client, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutDialInfo)
+func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Client, error) {
+	ctxWithoutTimeout, cancel := context.WithTimeout(ctx, mgoTimeoutDialInfo)
 	defer cancel()
 
 	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
@@ -236,7 +235,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 		SetSocketTimeout(mgoTimeoutSessionSocket).
 		SetAppName(fmt.Sprintf("QAN-mongodb-mongolog-%s", agentID))
 
-	client, err := mongo.Connect(ctx, opts)
+	client, err := mongo.Connect(ctxWithoutTimeout, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -244,9 +243,9 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	return client, nil
 }
 
-func getLogFilePath(client *mongo.Client) (string, error) {
+func getLogFilePath(ctx context.Context, client *mongo.Client) (string, error) {
 	var result bson.M
-	err := client.Database("admin").RunCommand(context.TODO(), bson.M{"getCmdLineOpts": 1}).Decode(&result)
+	err := client.Database("admin").RunCommand(ctx, bson.M{"getCmdLineOpts": 1}).Decode(&result)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to run command getCmdLineOpts")
 	}
