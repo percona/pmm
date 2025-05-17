@@ -125,7 +125,6 @@
       "extra_arguments": [
         "-vvv",
         "-u root",
-        "--no-color",
         "--extra-vars",
         "\"pmm_server_image_name='{{ user `pmm_server_image_name` }}' watchtower_image_name='{{ user `watchtower_image_name` }}'\""
       ],
