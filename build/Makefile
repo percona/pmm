@@ -1,6 +1,6 @@
 export PACKER_CACHE_DIR := .cache
 export PACKER_VERSION := 1.11.2
-export BOX_VERSION := 202407.23.0
+export BOX_VERSION := 202502.21.0 # check available versions at https://vagrantcloud.com/api/v2/vagrant/bento/oraclelinux-9
 export PMM_SERVER_IMAGE ?= docker.io/perconalab/pmm-server:3-dev-latest
 export WATCHTOWER_IMAGE ?= docker.io/perconalab/watchtower:dev-latest
 
@@ -8,8 +8,7 @@ export WATCHTOWER_IMAGE ?= docker.io/perconalab/watchtower:dev-latest
 fetch:
 	mkdir -p ${PACKER_CACHE_DIR}/box
 	test -f ${PACKER_CACHE_DIR}/id_rsa_vagrant \
-	    || curl -L https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant \
-		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
+		|| curl -L https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant -o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 
 	# Add the box using Vagrant
