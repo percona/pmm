@@ -19,6 +19,11 @@ gobuild_component() {
     local component_path=$4
     local result_file=${5:-bin/$(basename ${component_path:-$extract_path})}
 
+    local volume_mounts="-v ${tmp_dir}:/home/builder/tmp -v ${tmp_dir}/go:/tmp/go"
+    volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
+    volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
+    volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
+
     # Set target for Nomad accordingly
     local target
     case "$(uname -m)" in
@@ -57,7 +62,7 @@ gobuild_component() {
     else
         build_command="go build -o \${binary_dir}/${result_file} ./src/${extract_path}/${component_path}"
     fi
-    docker run --rm -v ${tmp_dir}:/home/builder/tmp -v ${tmp_dir}/go:/tmp/go ${rpmbuild_docker_image} sh -c "
+    docker run --rm ${volume_mounts} ${rpmbuild_docker_image} sh -c "
         set -o errexit
         set -o xtrace
         export GOOS=${GOOS:-linux}
