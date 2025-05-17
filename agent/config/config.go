@@ -399,7 +399,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_PROXYSQL_EXPORTER").StringVar(&cfg.Paths.ProxySQLExporter)
 	app.Flag("paths-azure_exporter", "Path to azure_exporter to use [PMM_AGENT_PATHS_AZURE_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_AZURE_EXPORTER").StringVar(&cfg.Paths.AzureExporter)
-	app.Flag("paths-valkey", "Path to valkey_exporter to use [PMM_AGENT_PATHS_VALKEY_EXPORTER]").
+	app.Flag("paths-valkey-exporter", "Path to valkey_exporter to use [PMM_AGENT_PATHS_VALKEY_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_VALKEY_EXPORTER").StringVar(&cfg.Paths.ValkeyExporter)
 	app.Flag("paths-pt-summary", "Path to pt summary to use [PMM_AGENT_PATHS_PT_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_SUMMARY").StringVar(&cfg.Paths.PTSummary)

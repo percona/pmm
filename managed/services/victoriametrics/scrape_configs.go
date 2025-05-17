@@ -509,7 +509,7 @@ func scrapeConfigsForPostgresExporter(params *scrapeConfigParams) ([]*config.Scr
 }
 
 func scrapeConfigForValkeyExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
-	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, nil) // TODO https://jira.percona.com/browse/PMM-4619
+	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, nil)
 	if err != nil {
 		return nil, err
 	}
