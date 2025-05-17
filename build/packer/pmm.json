@@ -122,6 +122,7 @@
     {
       "type": "ansible-local",
       "playbook_file": "packer/ansible/pmm.yml",
+      "command": "PYTHONUNBUFFERED=1 ansible-playbook",
       "extra_arguments": [
         "-vvv",
         "-u root",
