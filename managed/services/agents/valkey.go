@@ -25,11 +25,10 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-// valkeyExporterConfig returns desired configuration of valkey_exporter process.
-// todo: to be implemented in PMM-13837
+// valkeyExporterConfig returns the desired configuration of the valkey_exporter process.
 func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
-) (*agentv1.SetStateRequest_AgentProcess, error) {
+) *agentv1.SetStateRequest_AgentProcess {
 	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
 	args := []string{
@@ -57,5 +56,5 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 	if redactMode != exposeSecrets {
 		res.RedactWords = redactWords(exporter)
 	}
-	return res, nil
+	return res
 }

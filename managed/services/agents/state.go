@@ -239,7 +239,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 
 		// Agents with exactly one Service
 		case models.MySQLdExporterType, models.MongoDBExporterType, models.PostgresExporterType, models.ProxySQLExporterType,
-			models.QANMySQLPerfSchemaAgentType, models.ValkeyExporterType, models.QANMySQLSlowlogAgentType, models.QANMongoDBProfilerAgentType, models.QANPostgreSQLPgStatementsAgentType,
+			models.QANMySQLPerfSchemaAgentType, models.ValkeyExporterType, models.QANMySQLSlowlogAgentType,
+			models.QANMongoDBProfilerAgentType, models.QANPostgreSQLPgStatementsAgentType,
 			models.QANPostgreSQLPgStatMonitorAgentType:
 			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))
 			if err != nil {
@@ -268,11 +269,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			case models.ProxySQLExporterType:
 				agentProcesses[row.AgentID] = proxysqlExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 			case models.ValkeyExporterType:
-				cfg, err := valkeyExporterConfig(node, service, row, redactMode, pmmAgentVersion)
-				if err != nil {
-					return err
-				}
-				agentProcesses[row.AgentID] = cfg
+				agentProcesses[row.AgentID] = valkeyExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 			case models.QANMySQLPerfSchemaAgentType:
 				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(service, row, pmmAgentVersion)
 			case models.QANMySQLSlowlogAgentType:
