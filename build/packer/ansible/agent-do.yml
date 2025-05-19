@@ -20,12 +20,12 @@
         dest: /etc/yum.repos.d/hashicorp.repo
 
     - name: Enable epel repo
-      yum:
+      dnf:
         name: epel-release
         state: present
 
     - name: Upgrade OS packages
-      yum:
+      dnf:
         name: "*"
         state: latest
 
@@ -73,7 +73,6 @@
           - packer
           # - xmlstarlet
         state: present
-
 
     - name: Install Java17
       package:
@@ -167,7 +166,7 @@
         ##    state: present
 
         - name: Install packages for virtualization
-          yum:
+          dnf:
             state: present
             name: "{{ item }}"
           loop:
