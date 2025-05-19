@@ -428,6 +428,9 @@ type ListServicesOKBody struct {
 
 	// external
 	External []*ListServicesOKBodyExternalItems0 `json:"external"`
+
+	// valkey
+	Valkey []*ListServicesOKBodyValkeyItems0 `json:"valkey"`
 }
 
 // Validate validates this list services OK body
@@ -455,6 +458,10 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateExternal(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateValkey(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -620,6 +627,32 @@ func (o *ListServicesOKBody) validateExternal(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *ListServicesOKBody) validateValkey(formats strfmt.Registry) error {
+	if swag.IsZero(o.Valkey) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Valkey); i++ {
+		if swag.IsZero(o.Valkey[i]) { // not required
+			continue
+		}
+
+		if o.Valkey[i] != nil {
+			if err := o.Valkey[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "valkey" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "valkey" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list services OK body based on the context it is used
 func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -645,6 +678,10 @@ func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt
 	}
 
 	if err := o.contextValidateExternal(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateValkey(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -777,6 +814,28 @@ func (o *ListServicesOKBody) contextValidateExternal(ctx context.Context, format
 					return ve.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("listServicesOk" + "." + "external" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) contextValidateValkey(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Valkey); i++ {
+		if o.Valkey[i] != nil {
+
+			if swag.IsZero(o.Valkey[i]) { // not required
+				return nil
+			}
+
+			if err := o.Valkey[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "valkey" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listServicesOk" + "." + "valkey" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -1196,6 +1255,76 @@ func (o *ListServicesOKBodyProxysqlItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListServicesOKBodyProxysqlItems0) UnmarshalBinary(b []byte) error {
 	var res ListServicesOKBodyProxysqlItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListServicesOKBodyValkeyItems0 ValkeyService represents a generic Valkey instance.
+swagger:model ListServicesOKBodyValkeyItems0
+*/
+type ListServicesOKBodyValkeyItems0 struct {
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	// Port is required when the address present.
+	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Valkey version.
+	Version string `json:"version,omitempty"`
+}
+
+// Validate validates this list services OK body valkey items0
+func (o *ListServicesOKBodyValkeyItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list services OK body valkey items0 based on context it is used
+func (o *ListServicesOKBodyValkeyItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListServicesOKBodyValkeyItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListServicesOKBodyValkeyItems0) UnmarshalBinary(b []byte) error {
+	var res ListServicesOKBodyValkeyItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
