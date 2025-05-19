@@ -68,11 +68,13 @@ func (s *services) StartAllServices(ctx context.Context) {
 		if _, ok := s.running[id]; !ok {
 			s.wg.Add(1)
 			s.running[id] = service
-			s.l.Infoln("Starting ", service.ID())
-			err := service.Start(ctx)
-			if err != nil {
-				s.l.Errorln(err)
-			}
+			go func() {
+				s.l.Infoln("Starting", service.ID())
+				err := service.Start(ctx)
+				if err != nil {
+					s.l.Errorln(err)
+				}
+			}()
 		}
 	}
 }
@@ -84,8 +86,8 @@ func (s *services) StopRunningServices() {
 	for id, service := range s.running {
 		s.l.Infoln("Stopping", service.ID())
 		service.Stop()
-		delete(s.running, id)
 		s.wg.Done()
+		delete(s.running, id)
 	}
 }
 
