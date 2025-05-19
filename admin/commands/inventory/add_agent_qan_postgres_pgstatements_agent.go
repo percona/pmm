@@ -55,7 +55,7 @@ type AddAgentQANPostgreSQLPgStatementsAgentCommand struct {
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 	MaxQueryLength      int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	TLS                 bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
 	TLSCAFile           string            `name:"tls-ca-file" help:"TLS CA certificate file"`
 	TLSCertFile         string            `help:"TLS certificate file"`
 	TLSKeyFile          string            `help:"TLS certificate key file"`

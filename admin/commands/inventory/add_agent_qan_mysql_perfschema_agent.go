@@ -64,7 +64,7 @@ type AddAgentQANMySQLPerfSchemaAgentCommand struct {
 	MaxQueryLength       int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                  bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify        bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify        bool              `help:"Skip TLS certificate verification"`
 	TLSCAFile            string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile          string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile           string            `name:"tls-key" help:"Path to client key file"`
