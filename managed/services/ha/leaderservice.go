@@ -55,8 +55,7 @@ func (s *StandardService) ID() string {
 func (s *StandardService) Start(ctx context.Context) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	err := s.startFunc(ctx)
-	return err
+	return s.startFunc(ctx)
 }
 
 // Stop stops the standard service.
