@@ -194,7 +194,7 @@ install_deps() {
         exit 1
     fi
     if [ "$PACKAGE_MANAGER" = "rpm" ]; then
-        yum -y install git wget rpmdevtools bison yum-utils rpm-build systemd pkgconf-pkg-config
+        dnf -y install git wget rpmdevtools bison rpm-build systemd pkgconf-pkg-config
     else
         apt-get update
         apt-get -y install devscripts equivs debhelper

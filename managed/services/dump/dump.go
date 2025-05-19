@@ -75,7 +75,7 @@ func New(db *reform.DB, urls *URLs) *Service {
 
 // Params represents the parameters for configuring the dump service.
 type Params struct {
-	APIKey       string
+	Token        string
 	Cookie       string
 	User         string
 	Password     string
@@ -121,8 +121,8 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		"--victoria-metrics-url="+s.urls.VMURL,
 		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID)))
 
-	if params.APIKey != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-token=%s`, params.APIKey))
+	if params.Token != "" {
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-token=%s`, params.Token))
 	}
 
 	if params.Cookie != "" {

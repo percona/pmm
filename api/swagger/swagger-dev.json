@@ -29932,11 +29932,6 @@
                   "type": "string",
                   "title": "Snoozed PMM version update",
                   "x-order": 3
-                },
-                "snoozed_api_keys_migration": {
-                  "type": "boolean",
-                  "title": "Snoozed warning about API keys migration",
-                  "x-order": 4
                 }
               }
             }
@@ -30006,12 +30001,6 @@
                   "title": "Snooze update alert for a PMM version",
                   "x-nullable": true,
                   "x-order": 2
-                },
-                "snoozed_api_keys_migration": {
-                  "type": "boolean",
-                  "title": "Snoozed warning about API keys migration",
-                  "x-nullable": true,
-                  "x-order": 3
                 }
               }
             }
@@ -30043,11 +30032,6 @@
                   "type": "string",
                   "title": "Snooze update alert for a PMM version",
                   "x-order": 3
-                },
-                "snoozed_api_keys_migration": {
-                  "type": "boolean",
-                  "title": "Snoozed warning about API keys migration",
-                  "x-order": 4
                 }
               }
             }
