@@ -92,8 +92,8 @@ func (s *ContextService) ID() string {
 // Start starts the context service.
 func (s *ContextService) Start(ctx context.Context) error {
 	s.m.Lock()
-	defer s.m.Unlock()
 	ctx, s.cancel = context.WithCancel(ctx)
+	s.m.Unlock()
 	return s.startFunc(ctx)
 }
 
