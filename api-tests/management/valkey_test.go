@@ -397,7 +397,7 @@ func TestAddValkey(t *testing.T) {
 }
 
 func TestRemoveValkey(t *testing.T) {
-	addValkey := func(t *testing.T, serviceName, nodeName string, withAgents bool) (nodeID string, pmmAgentID string, serviceID string) {
+	addValkey := func(t *testing.T, serviceName, nodeName string) (nodeID string, pmmAgentID string, serviceID string) {
 		t.Helper()
 		nodeID, pmmAgentID = RegisterGenericNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
@@ -430,7 +430,7 @@ func TestRemoveValkey(t *testing.T) {
 	t.Run("By name", func(t *testing.T) {
 		serviceName := pmmapitests.TestString(t, "service-remove-by-name")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-name")
-		nodeID, pmmAgentID, serviceID := addValkey(t, serviceName, nodeName, true)
+		nodeID, pmmAgentID, serviceID := addValkey(t, serviceName, nodeName)
 		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
@@ -457,7 +457,7 @@ func TestRemoveValkey(t *testing.T) {
 	t.Run("By ID", func(t *testing.T) {
 		serviceName := pmmapitests.TestString(t, "service-remove-by-id")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-id")
-		nodeID, pmmAgentID, serviceID := addValkey(t, serviceName, nodeName, true)
+		nodeID, pmmAgentID, serviceID := addValkey(t, serviceName, nodeName)
 		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
@@ -484,7 +484,7 @@ func TestRemoveValkey(t *testing.T) {
 	t.Run("Wrong type", func(t *testing.T) {
 		serviceName := pmmapitests.TestString(t, "service-remove-wrong-type")
 		nodeName := pmmapitests.TestString(t, "node-remove-wrong-type")
-		nodeID, pmmAgentID, serviceID := addValkey(t, serviceName, nodeName, false)
+		nodeID, pmmAgentID, serviceID := addValkey(t, serviceName, nodeName)
 		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
