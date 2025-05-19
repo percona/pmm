@@ -89,7 +89,7 @@ func TestCollector(t *testing.T) {
 			})
 
 			errChan := make(chan error, 1)
-			go readSourceWriteDestination(t, ctx, errChan, fmt.Sprintf("./testdata/logs/%s.log", test), destination, delay)
+			go readSourceWriteDestination(ctx, t, errChan, fmt.Sprintf("./testdata/logs/%s.log", test), destination, delay)
 
 			var wg sync.WaitGroup
 			wg.Add(2)
@@ -255,7 +255,7 @@ func readData(t *testing.T, name string) ([]proto.SystemProfile, error) {
 	return data, nil
 }
 
-func readSourceWriteDestination(t *testing.T, ctx context.Context, errChan chan error, source, destination string, delay time.Duration) {
+func readSourceWriteDestination(ctx context.Context, t *testing.T, errChan chan error, source, destination string, delay time.Duration) {
 	t.Helper()
 
 	srcFile, err := os.Open(source) //nolint:gosec
