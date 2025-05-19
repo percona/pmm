@@ -9,9 +9,8 @@ RUN dnf update -y && \
     dnf install -y crypto-policies-scripts && \
     dnf install -y --setopt=skip_missing_names_on_install=False \
     nodejs \
-    yarn
-
-RUN dnf install -y gcc gcc-c++ \
+    yarn && \
+    dnf install -y gcc gcc-c++ \
     libtool libtool-ltdl \
     make cmake \
     git \
