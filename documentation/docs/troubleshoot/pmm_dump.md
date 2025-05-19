@@ -13,9 +13,9 @@ PMM Dump access is restricted based on user roles:
 | User role | Can access PMM Dump | Can create datasets |
 |-----------|---------------------|---------------------|
 | Admin (with or without Grafana Admin) | Yes | Yes |
-| Editor with Grafana Admin | Yes | Yes (may require enabling **Ignore load**) |
+| Editor with Grafana Admin | Yes | Yes  |
 | Editor without Grafana Admin | No | No |
-| Viewer with Grafana Admin | Yes | Yes (may require enabling **Ignore load**) |
+| Viewer with Grafana Admin | Yes | Yes  |
 | Viewer without Grafana Admin | No | No |
 
 If you cannot see the **PMM Dump** option in the Help menu or receive access errors when trying to access it directly, check that your user account has the necessary permissions.
@@ -39,7 +39,6 @@ To create a dump of your dataset:
 3. Choose the service for which you want to create the dataset or leave it empty to export all data.
 4. Define the time range for the dataset.
 5. Enable **Export QAN** to include Query Analytics (QAN) metrics alongside the core metrics.
-6. Enable **Ignore load** to export the dump bypassing the default resource limit restrictions. If you have an **Editor** or **Viewer** role but also have Grafana Admin privileges, you may need to enable this option to successfully create datasets.
 7. Click **Create dataset**. This will generate a data dump file and automatically record an entry in the PMM Dump table. From there, you can use the options available in the **Options** menu to send the dump file to Percona Support or download it locally for internal usage.
 
 ## Send a data dump to Percona Support
@@ -57,5 +56,5 @@ If you are a Percona Customer, you can securely share PMM data dumps with Percon
 If you experience issues accessing or using PMM Dump, consider the following:
 
 - Cannot see PMM Dump in the Help menu: Verify that you have Admin role or Grafana Admin privileges. **Editor** and **Viewer** roles without Grafana Admin cannot access this feature.
-- Error when creating dump datasets: If you encounter errors such as *Failed to compose meta error* when creating datasets, try enabling the **Ignore load** option.
+- Error when creating dump datasets: If you encounter errors such as *Failed to compose meta error* when creating datasets, make sure that the **Ignore load** option is enabled on the **PMM Dump > Export new datasheet**. 
 - Access denied messages: your user account lacks the necessary permissions to access PMM Dump.
