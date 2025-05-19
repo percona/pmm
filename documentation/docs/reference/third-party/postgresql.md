@@ -224,7 +224,7 @@ Create a `docker-compose.yml` file with the following content (adjust values as 
    ```yaml
    services:
      pmm-server:
-       image: percona/pmm-server:3.2.0
+       image: percona/pmm-server:3
        ports:
          - "443:443"
        volumes:
