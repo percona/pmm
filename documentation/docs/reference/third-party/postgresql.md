@@ -13,7 +13,6 @@ To configure PMM Server to connect to an external PostgreSQL database running on
 Before configuring PMM with an external PostgreSQL database, ensure you have:
 
 - a PostgreSQL 14+ server accessible from your PMM Server
-- basic understanding of Docker if using containerized deployment
 
 ## Configuration overview
 To configure PMM Server to connect to an external PostgreSQL database:
