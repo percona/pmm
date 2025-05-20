@@ -141,11 +141,11 @@ If you need to secure the connection with SSL:
    ```sh
     # Example directory structure for certificates:
     /pmm-server-certificates# ls -la
-    drwxr-xr-x 1 root    root    4096 Apr  5 12:43 .
+    drwxr-xr-x 1 1000    1000    4096 Apr  5 12:43 .
     drwxr-xr-x 1 root    root    4096 Apr  5 12:43 ..
-    -rw------- 1 grafana grafana 1391 Apr  5 12:38 certificate_authority.crt
-    -rw------- 1 grafana grafana 1257 Apr  5 12:38 pmm_server.crt
-    -rw------- 1 grafana grafana 1708 Apr  5 12:38 pmm_server.key
+    -rw------- 1 1000    1000    1391 Apr  5 12:38 certificate_authority.crt
+    -rw------- 1 1000    1000    1257 Apr  5 12:38 pmm_server.crt
+    -r-------- 1 1000    1000    1708 Apr  5 12:38 pmm_server.key
    ```
 3. Configure PostgreSQL for SSL by updating your PostgreSQL container run command:
    ```sh
