@@ -100,6 +100,19 @@ Property names are shared between API calls, database columns, and label values 
 - `replication_set` (optional) Replication set (group) name.
 - `custom_labels` (optional). key/value pairs of custom assigned labels.
 
+**PostgreSQLService** represents a generic Valkey instance. Properties:
+
+- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
+- `service_name` (required, label). Unique across all Services user-defined name, can be changed.
+- `node_id` (required, label). Node identifier where this instance runs. Can be changed – service can be moved to another Node.
+- `address` (required). Access address (DNS name or IP). Required if unix_socket is absent. Can be changed.
+- `port` (required). Access port. Can be changed.
+- `unix_socket` (optional). Access Unix socket. Required if address and port are absent.
+- `environment` (optional) Environment name.
+- `cluster` (optional) Cluster name.
+- `replication_set` (optional) Replication set (group) name.
+- `custom_labels` (optional). key/value pairs of custom assigned labels.
+
 **ProxySQLService** represents a generic ProxySQL instance. Properties:
 
 - `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
@@ -181,6 +194,20 @@ Property names are shared between API calls, database columns, and label values 
 - `custom_labels` key/value pairs of custom assigned labels
 - `status` (read only on responses) Actual agent status. See statuses list below.
 - `listen_port` Listen port for scraping metrics.
+
+**ValkeyExporter** runs on Generic or Container Node and exposes Valkey Service metrics.
+
+- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
+- `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
+- `service_id` (required) Service identifier.
+- `username` MongoDB authentication user
+- `password` MongoDB authentication password.
+- `tls` Use TLS for database connections.
+- `tls_skip_verify` Skip TLS certificate and hostname validation.
+- `custom_labels` key/value pairs of custom assigned labels
+- `status` (read only on responses) Actual agent status. See statuses list below.
+- `listen_port` Listen port for scraping metrics.
+- `use_redis_scheme` Use Redis URI scheme for Valkey connection (i.e., `redis://<host>:<port>` instead of `valkey://<host>:<port>`).
 
 **ProxySQLExporter** runs on Generic or Container Node and exposes ProxySQL Service metrics.
 

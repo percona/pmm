@@ -82,7 +82,7 @@ func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) PostgreSQLOpti
 }
 
 // ValkeyOptionsParams contains methods to create a ValkeyOptions object.
-type ValkeyOptionsParams interface { //nolint:iface
+type ValkeyOptionsParams interface {
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
