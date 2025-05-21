@@ -44,7 +44,7 @@ gobuild_component() {
     fi
     if [ ${component} = 'pmm-admin' -o ${component} = 'pmm-agent' ]; then
         build_command="cd /tmp/go/src/${extract_path}/${component_path} && make release"
-    elif [ ${component} = 'mongodb_exporter' ]; then
+    elif [ ${component} = 'mongodb_exporter' ] || [ ${component} = 'redis_exporter' ]; then
         build_command="cd /tmp/go/src/${extract_path} && make build"
     elif [ ${component} = 'node_exporter' ] || [ ${component} = 'mysqld_exporter' ] || \
          [ ${component} = 'proxysql_exporter' ] || [ ${component} = 'rds_exporter' ] || \
