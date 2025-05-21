@@ -76,12 +76,32 @@ prepare_nomad_tarball() {
     fi
 }
 
+prepare_redis_exporter_tarball() {
+    local repo_name=redis_exporter
+    local commit_hash=${redis_exporter_commit_hash}
+    local commit_short=${commit_hash::6}
+    local tarball=${source_dir}/${repo_name}-${commit_short}.tar.gz
+    local repo_var=$(
+        echo "${repo_name}_commit" \
+            | sed -e 's:-:_:g' \
+            | tr '[[:lower:]]' '[[:upper:]]'
+    )
+    echo "${repo_var}=$commit_short" >> ${client_properties}
+
+    if [ -f "${tarball}" ]; then
+        echo ${tarball} already exists, skipping download
+    else
+        curl -o ${tarball} -fSsL https://github.com/oliver006/redis_exporter/archive/${commit_hash}.tar.gz
+    fi
+}
+
 main() {
     rm -rf ${source_tarball}
     mkdir -p ${source_dir}/ $(dirname ${source_tarball}) || :
     echo "PMM_SUBMODULES_COMMIT=$(git rev-parse --short HEAD)" > ${client_properties}
     prepare_vmagent_tarball
     prepare_nomad_tarball
+    prepare_redis_exporter_tarball
     prepare_tarball pmm-submodules
     prepare_tarball pmm
     prepare_tarball mongodb_exporter

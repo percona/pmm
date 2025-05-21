@@ -34,6 +34,7 @@ install -m 0755 bin/mongodb_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/expor
 install -m 0755 bin/proxysql_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters/
 install -m 0755 bin/rds_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters/
 install -m 0755 bin/azure_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters/
+install -m 0755 bin/redis_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters/
 install -m 0755 bin/vmagent $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters/
 
 install -m 0755 bin/pt-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools/

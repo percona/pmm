@@ -115,6 +115,7 @@ main() {
 
     gobuild_component "vmagent" "" "github.com/VictoriaMetrics/VictoriaMetrics" "app/vmagent"
     gobuild_component "nomad" "" "github.com/hashicorp/nomad"
+    gobuild_component "redis_exporter" "" "github.com/oliver006/redis_exporter"
     gobuild_component "node_exporter" "" "github.com/prometheus/node_exporter"
     gobuild_component "mysqld_exporter"
     gobuild_component "postgres_exporter" "" "" "cmd/postgres_exporter"

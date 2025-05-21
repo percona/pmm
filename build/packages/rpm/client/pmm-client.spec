@@ -104,6 +104,7 @@ install -m 0755 bin/mongodb_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/expor
 install -m 0755 bin/proxysql_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/rds_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/azure_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
+install -m 0755 bin/redis_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/vmagent $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/pt-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools
 install -m 0755 bin/pt-mysql-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools
@@ -213,6 +214,9 @@ fi
 %attr(-,pmm-agent,pmm-agent) /usr/local/percona/pmm
 
 %changelog
+* Wed May 21 2025 Talha Bin Rizwan <talha.rizwan@percona.com>
+- PKG-521 include redis_exporter into pmm client
+
 * Fri Nov 8 2024 Nurlan Moldomurov <nurlan.moldomurov@percona.com>
 - PMM-13399 include nomad into pmm client
 
