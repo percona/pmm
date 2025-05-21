@@ -43,7 +43,7 @@ func GetValkeyTLSConfig(files *agentv1.TextFiles, tlsSkipVerify bool) ([]redis.D
 			Certificates:       []tls.Certificate{cert},
 			RootCAs:            ca,
 		}
-		opts = append(opts, redis.DialUseTLS(tlsSkipVerify))
+		opts = append(opts, redis.DialUseTLS(!tlsSkipVerify))
 		opts = append(opts, redis.DialTLSSkipVerify(tlsSkipVerify))
 		opts = append(opts, redis.DialTLSConfig(tlsConfig))
 	}

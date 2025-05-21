@@ -299,7 +299,7 @@ func TestValkey(t *testing.T) {
 			Port:    pointer.ToUint16(12345),
 		}
 
-		expected := "redis://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345"
+		expected := "valkey://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345"
 
 		assert.Equal(t, expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 	})
@@ -315,6 +315,49 @@ func TestValkey(t *testing.T) {
 				SSLCa:   "aa",
 				SSLCert: "bb",
 				SSLKey:  "cc",
+			},
+		}
+		service := &models.Service{
+			Address: pointer.ToString("1.2.3.4"),
+			Port:    pointer.ToUint16(12345),
+		}
+
+		expected := "valkeys://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345"
+
+		assert.Equal(t, expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
+	})
+	t.Run("Redis DSN", func(t *testing.T) {
+		agent := &models.Agent{
+			Username:        pointer.ToString("username"),
+			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			AgentType:       models.ValkeyExporterType,
+			ExporterOptions: models.ExporterOptions{},
+			ValkeyOptions: models.ValkeyOptions{
+				UseRedisScheme: true,
+			},
+		}
+		service := &models.Service{
+			Address: pointer.ToString("1.2.3.4"),
+			Port:    pointer.ToUint16(12345),
+		}
+
+		expected := "redis://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345"
+
+		assert.Equal(t, expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
+	})
+
+	t.Run("Valkey DSN with TLS", func(t *testing.T) {
+		agent := &models.Agent{
+			Username:        pointer.ToString("username"),
+			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
+			AgentType:       models.ValkeyExporterType,
+			ExporterOptions: models.ExporterOptions{},
+			TLS:             true,
+			ValkeyOptions: models.ValkeyOptions{
+				UseRedisScheme: true,
+				SSLCa:          "aa",
+				SSLCert:        "bb",
+				SSLKey:         "cc",
 			},
 		}
 		service := &models.Service{
