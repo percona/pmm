@@ -184,7 +184,6 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			continue
 		}
 
-		// Ordered the same as AgentType consts
 		switch row.AgentType {
 		case models.PMMAgentType:
 			continue
@@ -240,9 +239,9 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 
 		// Agents with exactly one Service
 		case models.MySQLdExporterType, models.MongoDBExporterType, models.PostgresExporterType, models.ProxySQLExporterType,
-			models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType, models.QANMongoDBProfilerAgentType, models.QANPostgreSQLPgStatementsAgentType,
+			models.QANMySQLPerfSchemaAgentType, models.ValkeyExporterType, models.QANMySQLSlowlogAgentType,
+			models.QANMongoDBProfilerAgentType, models.QANPostgreSQLPgStatementsAgentType,
 			models.QANPostgreSQLPgStatMonitorAgentType:
-
 			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
@@ -284,7 +283,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			}
 
 		default:
-			return errors.Errorf("unhandled Agent type %s", row.AgentType)
+			return errors.Errorf("cannot send request for unknown agent type %s", row.AgentType)
 		}
 	}
 

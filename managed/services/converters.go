@@ -536,11 +536,9 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 			UseRedisScheme:     agent.ValkeyOptions.UseRedisScheme,
 		}
-
 		return exporter, nil
-
 	default:
-		panic(fmt.Errorf("unhandled Agent type %s", agent.AgentType))
+		panic(fmt.Errorf("cannot convert unknown agent type %s", agent.AgentType))
 	}
 }
 
