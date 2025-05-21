@@ -36,7 +36,6 @@ This command configures PMM to:
 For more precise control, you can specify a custom limit for when table statistics should be disabled.
 
 ### Change the number of tables
-
 When adding an instance with `pmm-admin add`, the `--disable-tablestats-limit` option changes the number of tables (from the default of 1000) beyond which per-table statistics collection is disabled:
 
 ```sh
@@ -60,7 +59,7 @@ To find the right balance between visibility and performance:
 
 Additional performance considerations: 
 
-- For high-traffic MySQL servers, consider using query sampling with the slow log. For details, see [MySQL data source configuration](../mysql/mysql.md#slow-query-log-configuration)
+- For high-traffic MySQL servers, consider using query sampling with the slow log. For details, see [MySQL data source configuration](../mysql/mysql.md#data-source-configuration)
 - Adjust metrics collection frequency for remote instances. For details, see [Remote instances monitoring](../remote.md#recommended-resolution-settings)
 - Ensure PMM Client has adequate CPU and memory resources on busy database servers
 

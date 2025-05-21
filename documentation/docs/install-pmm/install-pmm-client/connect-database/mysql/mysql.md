@@ -68,7 +68,7 @@ This example creates a pmm user account that has just enough access to collect m
 
 ## Choose and configure a source
 
-PMM can collect metrics from two primary sources: [Slow query log](##slow-query-log-configuration) and Performance Schema.
+PMM can collect metrics from two primary sources: Slow query log and Performance Schema.
 
 While you can use both at the same time we recommend using only one--there is some overlap in the data reported, and each incurs a small performance penalty.
 
@@ -195,7 +195,7 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
     === "Manual log rotation" 
         If you prefer to handle log rotation manually, such as with [logrotate][LOGROTATE], you can disable PMM Client's automatic log rotation. To do this, set a negative value for the `--size-slow-logs` option when adding a service with the `pmm-admin add` command.
 
-=== "Performance schema"
+=== "Performance Schema"
         
     To configure a MySQL-based database server to use Performance Schema as a source of metrics:
     
