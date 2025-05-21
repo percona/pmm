@@ -10,9 +10,7 @@ Percona Monitoring and Management (PMM) can be configured to use an external Pos
 To configure PMM Server to connect to an external PostgreSQL database running on the same host or a remote server, set up the required environment variables, configure SSL for secure connections, and ensure proper permissions for both PMM components and Grafana.
 
 ## Prerequisites
-Before configuring PMM with an external PostgreSQL database, ensure you have:
-
-- a PostgreSQL 14+ server accessible from your PMM Server
+Before configuring PMM with an external PostgreSQL database, ensure you have a PostgreSQL 14+ server accessible from your PMM Server.
 
 ## Configuration overview
 To configure PMM Server to connect to an external PostgreSQL database:
@@ -186,7 +184,7 @@ Now that PostgreSQL is set up, configure PMM Server to use it:
     -e PMM_POSTGRES_DBNAME=pmm-managed \
     -e PMM_POSTGRES_USERNAME=pmm_user \
     -e PMM_POSTGRES_DBPASSWORD=pmm_password \
-    -e GF_DATABASE_URL=postgres://grafana_user:grafana_password@postgres-host:5432/grafana \
+    -e GF_DATABASE_URL=postgres://your_grafana_user:your_grafana_password@postgres-host:5432/grafana \
     -e GF_DATABASE_SSL_MODE=$GF_SSL_MODE \
     -e GF_DATABASE_CA_CERT_PATH=$GF_CA_PATH \
     -e GF_DATABASE_CLIENT_KEY_PATH=$GF_KEY_PATH \
@@ -202,12 +200,12 @@ Now that PostgreSQL is set up, configure PMM Server to use it:
     -v pmm-data:/srv \
     -e PMM_POSTGRES_ADDR=postgres-host:5432 \
     -e PMM_POSTGRES_DBNAME=pmm-managed \
-    -e PMM_POSTGRES_USERNAME=pmm_user \
+    -e GF_DATABASE_PASSWORD=your_grafana_password \
     -e PMM_POSTGRES_DBPASSWORD=pmm_password \
     -e GF_DATABASE_HOST=postgres-host:5432 \
     -e GF_DATABASE_NAME=grafana \
-    -e GF_DATABASE_USER=grafana_user \
-    -e GF_DATABASE_PASSWORD=grafana_password \
+    -e GF_DATABASE_USER=your_grafana_user \
+    -e GF_DATABASE_PASSWORD=your_grafana_password \
     -e GF_DATABASE_SSL_MODE=$GF_SSL_MODE \
     -e GF_DATABASE_CA_CERT_PATH=$GF_CA_PATH \
     -e GF_DATABASE_CLIENT_KEY_PATH=$GF_KEY_PATH \
