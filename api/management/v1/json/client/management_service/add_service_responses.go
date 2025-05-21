@@ -7842,6 +7842,9 @@ type AddServiceOKBodyValkeyValkeyExporter struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
+	// If true, PMM will connect to the server using the redis:// scheme instead of valkey://.
+	UseRedisScheme bool `json:"use_redis_scheme,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -10821,6 +10824,9 @@ type AddServiceParamsBodyValkey struct {
 
 	// TLS Certificate Key.
 	TLSKey string `json:"tls_key,omitempty"`
+
+	// If true, PMM will connect to the server using the redis:// scheme instead of valkey://.
+	UseRedisScheme bool `json:"use_redis_scheme,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyValkeyAddNode `json:"add_node,omitempty"`

@@ -55,6 +55,7 @@ func TestAddValkey(t *testing.T) {
 					Port:                6379,
 					Username:            "default",
 					SkipConnectionCheck: true,
+					UseRedisScheme:      true,
 				},
 			},
 		}
@@ -100,6 +101,7 @@ func TestAddValkey(t *testing.T) {
 				CustomLabels:       make(map[string]string),
 				DisabledCollectors: []string{},
 				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				UseRedisScheme:     true,
 			},
 		}, listAgents.Payload.ValkeyExporter)
 		defer removeAllAgentsInList(t, listAgents)

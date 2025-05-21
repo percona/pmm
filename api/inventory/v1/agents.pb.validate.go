@@ -1202,6 +1202,8 @@ func (m *ValkeyExporter) validate(all bool) error {
 
 	// no validation rules for PushMetricsEnabled
 
+	// no validation rules for UseRedisScheme
+
 	// no validation rules for Status
 
 	// no validation rules for ListenPort
@@ -11949,6 +11951,8 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 	// no validation rules for LogLevel
 
 	// no validation rules for ExposeExporter
+
+	// no validation rules for UseRedisScheme
 
 	if len(errors) > 0 {
 		return AddValkeyExporterParamsMultiError(errors)

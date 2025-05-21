@@ -5560,6 +5560,9 @@ type AddAgentOKBodyValkeyExporter struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
+	// If true, PMM will connect to the server using the redis:// scheme instead of valkey://.
+	UseRedisScheme bool `json:"use_redis_scheme,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -7718,6 +7721,9 @@ type AddAgentParamsBodyValkeyExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// If true, PMM will connect to the server using the redis:// scheme instead of valkey://.
+	UseRedisScheme bool `json:"use_redis_scheme,omitempty"`
 }
 
 // Validate validates this add agent params body valkey exporter
