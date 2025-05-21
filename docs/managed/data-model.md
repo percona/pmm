@@ -100,10 +100,10 @@ Property names are shared between API calls, database columns, and label values 
 - `replication_set` (optional) Replication set (group) name.
 - `custom_labels` (optional). key/value pairs of custom assigned labels.
 
-**PostgreSQLService** represents a generic Valkey instance. Properties:
+**ValkeyService** represents a generic Valkey instance. Properties:
 
-- `service_id` (required, label). Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
-- `service_name` (required, label). Unique across all Services user-defined name, can be changed.
+- `service_id` (required, label). A unique randomly generated instance identifier that cannot be changed. Value format: "<uuid>".
+- `service_name` (required, label). Unique across all Services user-defined name and can be changed.
 - `node_id` (required, label). Node identifier where this instance runs. Can be changed – service can be moved to another Node.
 - `address` (required). Access address (DNS name or IP). Required if unix_socket is absent. Can be changed.
 - `port` (required). Access port. Can be changed.
@@ -204,10 +204,10 @@ Property names are shared between API calls, database columns, and label values 
 - `password` MongoDB authentication password.
 - `tls` Use TLS for database connections.
 - `tls_skip_verify` Skip TLS certificate and hostname validation.
-- `custom_labels` key/value pairs of custom assigned labels
-- `status` (read only on responses) Actual agent status. See statuses list below.
+- `custom_labels` key/value pairs of custom-assigned labels
+- `status` (read only on responses) Actual agent status. See the statuses list below.
 - `listen_port` Listen port for scraping metrics.
-- `use_redis_scheme` Use Redis URI scheme for Valkey connection (i.e., `redis://<host>:<port>` instead of `valkey://<host>:<port>`).
+- `use_redis_scheme` Use a Redis URI scheme for Valkey connection (i.e., `redis://<host>:<port>` instead of `valkey://<host>:<port>`).
 
 **ProxySQLExporter** runs on Generic or Container Node and exposes ProxySQL Service metrics.
 
