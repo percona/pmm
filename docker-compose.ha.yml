@@ -1,5 +1,4 @@
 ---
-# version: '3.7' // Deprecated: see https://docs.docker.com/compose/compose-file/04-version-and-name/
 services:
   # PMM with external DBs
   ch:
@@ -8,11 +7,14 @@ services:
     hostname: ${CH_HOSTNAME:-ch}
     ports:
       - ${CH_PORT:-9000}:9000
+    environment:
+      - CLICKHOUSE_PASSWORD=clickhouse
     networks:
       ha:
         ipv4_address: 172.20.0.7
     volumes:
       - chdata:/var/lib/clickhouse  # Volume for ClickHouse data
+
 
   victoriametrics:
     hostname: ${VM_HOSTNAME:-victoriametrics}
@@ -38,12 +40,12 @@ services:
 
   # PMM with external Postgres DB
   pg:
-    build:
-      context: ./managed/testdata/pg
-      args:
-        POSTGRES_IMAGE: ${POSTGRES_IMAGE:-postgres:14}
-      dockerfile: Dockerfile
-    # image: postgres:14
+#    build:
+#      context: ./managed/testdata/pg
+#      args:
+#        POSTGRES_IMAGE: ${POSTGRES_IMAGE:-postgres:14}
+#      dockerfile: Dockerfile
+    image: postgres:14
     container_name: pg
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pmm-password}
@@ -57,6 +59,7 @@ services:
       -c pg_stat_statements.save=off 
       -c fsync=off 
       -c hba_file=/conf/pg_hba.conf
+      -c log_statement=all
     # -c ssl=on
     # -c ssl_ca_file=/certs/root.crt
     # -c ssl_cert_file=/certs/server.crt
@@ -68,6 +71,13 @@ services:
       - pgdata:/var/lib/postgresql/data  # Volume for PostgreSQL data
       - ./managed/testdata/pg/conf/:/conf/
       - ./managed/testdata/pg/queries/:/docker-entrypoint-initdb.d/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 
   haproxy:
     image: haproxy:latest
@@ -80,8 +90,8 @@ services:
       - ./managed/testdata/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
       - ./managed/testdata/haproxy/localhost.pem:/usr/local/etc/ssl/private/localhost.pem:ro
     ports:
-      - 80:80
-      - 443:443
+      - 7080:80
+      - 7443:443
     depends_on:
       - pmm-server-active
       - pmm-server-passive
@@ -89,10 +99,14 @@ services:
 
   pmm-server-active:
     depends_on:
-      - ch
-      - victoriametrics
-      - pg
+      ch:
+        condition: service_started
+      pg:
+        condition: service_healthy
+      victoriametrics:
+        condition: service_started
     image: ${PMM_CONTAINER:-perconalab/pmm-server:3-dev-container}
+    platform: linux/amd64
     container_name: pmm-server-active
     hostname: pmm-server-active
     networks:
@@ -103,12 +117,6 @@ services:
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN:-}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY:-}
-      # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
-      # - PMM_DEV_PERCONA_PLATFORM_INSECURE=1
-      # - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=<public key>
-      # - PMM_DEV_TELEMETRY_INTERVAL=10s
-      # - PMM_DEV_TELEMETRY_RETRY_BACKOFF=10s
-      # - PMM_DEV_TELEMETRY_DISABLE_START_DELAY=1
       - PMM_CLICKHOUSE_ADDR=${CH_HOSTNAME:-ch}:9000
       - PMM_CLICKHOUSE_DATABASE=pmm
       - PMM_DISABLE_BUILTIN_CLICKHOUSE=1
@@ -116,13 +124,12 @@ services:
       - PMM_POSTGRES_USERNAME=pmm-managed
       - PMM_POSTGRES_DBPASSWORD=pmm-managed
       - PMM_DISABLE_BUILTIN_POSTGRES=1
-      # - PMM_POSTGRES_SSL_MODE=require
-      # - PMM_POSTGRES_SSL_CA_PATH=/certs/root.crt
-      # - PMM_POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
-      # - PMM_POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
       - GF_DATABASE_URL=postgres://grafana:grafana@pg:5432/grafana
-      # - GF_DATABASE_SSL_MODE=require
-      # - PMM_DEBUG=1
+      - GF_DATABASE_NAME=grafana
+      - GF_DATABASE_USER=grafana
+      - GF_DATABASE_PASSWORD=grafana
+      - GF_DATABASE_HOST=pg
+      - GF_DATABASE_PORT=5432
       - GO_VERSION=1.22
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PMM_TEST_HA_ENABLE=1
@@ -163,14 +170,25 @@ services:
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
       - ./managed/testdata/pg/certs/:/certs/
+    healthcheck:
+        test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8080/v1/server/readyz"]
+        interval: 10s
+        timeout: 5s
+        start_period: 30s
+        retries: 10
 
   pmm-server-passive:
     depends_on:
-      - ch
-      - pg
-      - victoriametrics
-      - pmm-server-active
+      ch:
+        condition: service_started
+      pg:
+        condition: service_healthy
+      victoriametrics:
+        condition: service_started
+      pmm-server-active:
+        condition: service_healthy
     image: ${PMM_CONTAINER:-perconalab/pmm-server:3-dev-container}
+    platform: linux/amd64
     container_name: pmm-server-passive
     hostname: pmm-server-passive
     networks:
@@ -199,6 +217,11 @@ services:
       # - PMM_POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
       # - PMM_POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
       - GF_DATABASE_URL=postgres://grafana:grafana@pg:5432/grafana
+      - GF_DATABASE_NAME=grafana
+      - GF_DATABASE_USER=grafana
+      - GF_DATABASE_PASSWORD=grafana
+      - GF_DATABASE_HOST=pg
+      - GF_DATABASE_PORT=5432
       # - GF_DATABASE_SSL_MODE=require
       # - PMM_DEBUG=1
       - GO_VERSION=1.20
@@ -243,11 +266,16 @@ services:
 
   pmm-server-passive-2:
     depends_on:
-      - ch
-      - pg
-      - victoriametrics
-      - pmm-server-active
+      ch:
+        condition: service_started
+      pg:
+        condition: service_healthy
+      victoriametrics:
+        condition: service_started
+      pmm-server-active:
+        condition: service_healthy
     image: ${PMM_CONTAINER:-perconalab/pmm-server:3-dev-container}
+    platform: linux/amd64
     container_name: pmm-server-passive-2
     hostname: pmm-server-passive-2
     networks:
@@ -276,6 +304,11 @@ services:
       # - PMM_POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
       # - PMM_POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
       - GF_DATABASE_URL=postgres://grafana:grafana@pg:5432/grafana
+      - GF_DATABASE_NAME=grafana
+      - GF_DATABASE_USER=grafana
+      - GF_DATABASE_PASSWORD=grafana
+      - GF_DATABASE_HOST=pg
+      - GF_DATABASE_PORT=5432
       # - GF_DATABASE_SSL_MODE=require
       # - PMM_DEBUG=1
       - GO_VERSION=1.20
@@ -322,6 +355,8 @@ volumes:
   chdata:  # Volume for ClickHouse data
   vmdata:  # Volume for VictoriaMetrics data
   pgdata:  # Volume for PostgreSQL data
+  go-modules:
+  root-cache:
 
 networks:
   ha:
