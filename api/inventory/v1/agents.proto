@@ -339,6 +339,8 @@ message ValkeyExporter {
   bool push_metrics_enabled = 9;
   // List of disabled collector names.
   repeated string disabled_collectors = 10;
+  // If true, PMM will connect to the server using the redis:// scheme instead of valkey://.
+  bool use_redis_scheme = 11;
 
   //
   // Status fields below.
@@ -1470,6 +1472,8 @@ message AddValkeyExporterParams {
   LogLevel log_level = 15;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 16;
+  // If true, PMM will connect to the server using the redis:// scheme instead of valkey://.
+  bool use_redis_scheme = 17;
 }
 
 message ChangeValkeyExporterParams {

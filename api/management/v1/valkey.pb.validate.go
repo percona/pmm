@@ -161,6 +161,8 @@ func (m *AddValkeyServiceParams) validate(all bool) error {
 
 	// no validation rules for TlsKey
 
+	// no validation rules for UseRedisScheme
+
 	if len(errors) > 0 {
 		return AddValkeyServiceParamsMultiError(errors)
 	}

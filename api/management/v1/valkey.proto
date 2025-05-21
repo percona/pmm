@@ -64,6 +64,8 @@ message AddValkeyServiceParams {
   string tls_cert = 22;
   // TLS Certificate Key.
   string tls_key = 23;
+  // If true, PMM will connect to the server using the redis:// scheme instead of valkey://.
+  bool use_redis_scheme = 24;
 }
 
 message ValkeyServiceResult {
