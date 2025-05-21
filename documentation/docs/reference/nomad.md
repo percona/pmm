@@ -1,4 +1,4 @@
-# Nomad configuration (Percona teams)
+# Configure Nomad configuration
 
 Percona Monitoring and Management (PMM) includes HashiCorp Nomad to enable future extensibility and enhanced service capabilities.
 
@@ -10,13 +10,9 @@ Percona Monitoring and Management (PMM) includes HashiCorp Nomad to enable futur
 
 Nomad is **disabled by default** in PMM and has no impact on system performance when not enabled. 
 
-### Internal configuration
-
-If you're a Percona team member or an advanced user who needs to enable Nomad for specific use cases, follow these steps:
-
 ### Enable Nomad
 
-To enable Nomad in PMM:
+If you're an advanced user who needs Nomad for specific use cases, follow these steps to enable Nomad in PMM:
 { .power-number }
 
 1. Start PMM Server with the `PMM_ENABLE_NOMAD` environment variable:
