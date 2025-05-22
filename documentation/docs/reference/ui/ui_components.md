@@ -27,7 +27,7 @@ You'll find these options in the left-side menu:
 | <i class="uil uil-database"></i> | PostgreSQL | Access PostgreSQL-specific monitoring dashboards and metrics. |
 | <i class="uil uil-chart"></i> | Query Analytics (QAN) | Analyze database queries over time, identify slow queries, optimize performance, and troubleshoot issues. |
 | <i class="uil uil-compass"></i> | Explore | Run ad-hoc queries with [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) to investigate specific metrics without creating dashboards. |
-| <i class="uil uil-analytics"></i> | Drilldown | Perform detailed analysis with specialized views for database metrics. |
+| <i class="uil uil-analytics"></i> | Drilldown | Run detailed analysis with specialized views for database metrics. This option allows you to dive deeper into specific metrics by clicking through related data points and exploring underlying patterns. Learn more about drilling down into metrics in the [Grafana documentation](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/metrics/drill-down-metrics/) |
 | <i class="uil uil-save"></i> | Backup | Configure and manage your [database backups](../../backup/index.md) and storage locations. |
 | <i class="uil uil-check-circle"></i> | Advisors | Run health assessment checks on your databases and view recommendations for improving performance. |
 | <i class="uil uil-bell"></i> | Alerting | Create and manage [alerts](../../alert/index.md) that notify you when metrics exceed thresholds. |
