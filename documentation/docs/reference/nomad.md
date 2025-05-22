@@ -33,7 +33,7 @@ If you're an advanced user who needs Nomad for specific use cases, follow these 
     docker run -d \
     -e PMM_ENABLE_NOMAD=1 \
     -p 4647:4647 \
-    -p 443:443 \
+    -p 443:8443 \
     --name pmm-server \
     percona/pmm-server:3
     ```
