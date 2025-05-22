@@ -53,10 +53,10 @@ Install and run at least one PMM Server using one of the following deployment me
     
     [**Get started with Virtual Appliance** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)
 
-=== ":material-aws: AWS Marketplace"
+<!---=== ":material-aws: AWS Marketplace"
     Deploy PMM Server from AWS Marketplace
     
-    [**Get started with AWS deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/aws/aws.md)
+    [**Get started with AWS deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) -->
 
 If you're sure which deployment method is best for your environment, check out this [Choose a PMM deployment strategy](../install-pmm/plan-pmm-installation/choose-deployment.md) topic for a comparison of your options.
 

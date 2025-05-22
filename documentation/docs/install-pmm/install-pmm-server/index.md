@@ -18,7 +18,7 @@ Install and run at least one PMM Server using one of the following deployment me
 
 | **Your setup**                             | **Recommended deployment**                                          |
 |--------------------------------------------|---------------------------------------------------------------------|
-| Running in **AWS**                         | **[AWS Marketplace ->](../install-pmm-server/deployment-options/aws/aws.md)** |
+<!----| Running in **AWS**                         | **[AWS Marketplace ->](../install-pmm-server/deployment-options/aws/aws.md)** |-->
 | Cloud-native/**Kubernetes** environment  | **[Helm ->](../install-pmm-server/deployment-options/helm/index.md)**     |
 | Traditional **virtual machines**           | **[Virtual Appliance ->](../install-pmm-server/deployment-options/virtual/index.md)** |
 | **Fast** setup & flexibility              | **[Docker ->](../install-pmm-server/deployment-options/docker/index.md)** |

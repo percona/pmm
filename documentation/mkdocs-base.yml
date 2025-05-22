@@ -205,8 +205,7 @@ nav:
           - Register Client node: install-pmm/register-client-node/index.md
           - Configure monitoring:
             - install-pmm/install-pmm-client/connect-database/index.md
-            - Databases:
-              - MySQL: install-pmm/install-pmm-client/connect-database/mysql.md
+              - MySQL: install-pmm/install-pmm-client/connect-database/mysql/mysql.md
               - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
               - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
             - Cloud services:

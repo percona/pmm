@@ -24,17 +24,25 @@ PMM Client supports collecting metrics from various MySQL-based database systems
 
 ## Prerequisites
 
-Before connecting your database to PMM:
+Before connecting MySQL to PMM, review the prerequisites for your monitoring setup:
 
 === "Local MySQL monitoring"
     - [PMM Server is installed](../../../install-pmm-server/index.md) and running.
     - [PMM Client is installed](../../../install-pmm-client/index.md) and the [nodes are registered with PMM Server](../../../register-client-node/index.md).
-    - You have superuser (root) access on the client host.
+    - `Root`/`sudo` access is required if PMM Client was installed from packages (RPM/DEB) or if you need to access MySQL slow query logs. Non-root access may be sufficient if PMM Client was installed via tarball or if you're only monitoring performance schema metrics
 
 === "Remote MySQL monitoring"
-    - [PMM Server is installed](../../../install-pmm-server/index.md) and running.
-    - PMM Server has direct network access to the MySQL instance.
+    - [PMM Server is installed](../../../install-pmm-server/index.md) and running
+    - PMM Server has direct network access to the MySQL instance
     - You have a MySQL user with appropriate permissions on the remote MySQL instance.
+
+!!! note "When is `root` access required?"
+    Root or `sudo` access on the client host is needed when:
+    - PMM Client was installed from RPM or DEB packages
+    - you want to monitor MySQL slow query logs (requires file system access)
+    - you need to configure system-level monitoring (CPU, memory, disk I/O)
+
+For remote monitoring or when using only Performance Schema metrics, `root` access on the database server itself is not required.
 
 ## Security setup
 
@@ -99,7 +107,7 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
         
     The *slow query log* records the details of queries that take more than a certain amount of time to complete. 
     
-    With the database server configured to write this information to a file rather than a table, PMM Client parses the file and sends aggregated data to PMM Server via the Query Analytics part of pmm-agent.
+    With the database server configured to write this information to a file rather than a table, PMM Client parses the file and sends aggregated data to PMM Server via the Query Analytics part of `pmm-agent`.
     
     #### Settings
     
@@ -335,38 +343,6 @@ User activity, individual table and index access details are shown on the [MySQL
 
 Add MySQL monitoring through either the PMM web interface or command line.
 
-=== "Via Web UI (Recommended for flexibility)"
-    Add MySQL services and specify which `pmm-agent` will monitor them. This includes both scenarios: when the `pmm-agent` runs on the same host as the MySQL instance (enabling full host and database metrics), and when it runs on a different host (providing remote database-only monitoring).
-
-    **To add a MySQL service:**
-    {.power-number}
-
-    1. GO to **PMM Configuration > PMM Inventory > Add Service**.
-    2. Select **MySQL** service type.
-    3. Fill in the connection details:
-        - **Service Name**: A descriptive name for your MySQL instance.
-        - **Host/Socket**: 
-            - For local monitoring: Use `localhost` or a socket path.
-            - For remote monitoring: The hostname or IP address of your remote MySQL server.
-        - **Port**: MySQL port (default: 3306)
-        - **Username**: The PMM user created earlier
-        - **Password**: Your PMM user password
-        - **Query Source**: Choose between **Slow Log** or **Performance Schema**.
-        - **PMM Agent**: **(Required)** Select which PMM agent should monitor this instance:
-            - For local monitoring: Choose the agent installed on the MySQL host
-            - For remote monitoring: Choose any agent with network access to the MySQL instance
-    4. Click **Add Service**.
-        
-    ![MySQL Service Addition Screen](../../../../images/PMM_Add_Instance_MySQL.jpg)
-    
-    **For TLS-enabled MySQL instances:**
-    {.power-number}
-
-    1. Check **Use TLS for database connections**
-    2. Fill in your TLS certificates and key information
-    
-    ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.jpg)
-
 === "Via Command Line"
     Use the command line approach when you prefer automation or scripting. Key differences:
     
@@ -433,6 +409,38 @@ Add MySQL monitoring through either the PMM web interface or command line.
       --custom-labels="region=eu-west,tier=application" \
       Remote-MySQL
     ```
+
+=== "Via Web UI (Recommended for flexibility)"
+    Add MySQL services and specify which `pmm-agent` will monitor them. This includes both scenarios: when the `pmm-agent` runs on the same host as the MySQL instance (enabling full host and database metrics), and when it runs on a different host (providing remote database-only monitoring).
+
+    **To add a MySQL service:**
+    {.power-number}
+
+    1. GO to **PMM Configuration > PMM Inventory > Add Service**.
+    2. Select **MySQL** service type.
+    3. Fill in the connection details:
+        - **Service Name**: A descriptive name for your MySQL instance.
+        - **Host/Socket**: 
+            - For local monitoring: Use `localhost` or a socket path.
+            - For remote monitoring: The hostname or IP address of your remote MySQL server.
+        - **Port**: MySQL port (default: 3306)
+        - **Username**: The PMM user created earlier
+        - **Password**: Your PMM user password
+        - **Query Source**: Choose between **Slow Log** or **Performance Schema**.
+        - **PMM Agent**: **(Required)** Select which PMM agent should monitor this instance:
+            - For local monitoring: Choose the agent installed on the MySQL host
+            - For remote monitoring: Choose any agent with network access to the MySQL instance
+    4. Click **Add Service**.
+        
+    ![MySQL Service Addition Screen](../../../../images/PMM_Add_Instance_MySQL.jpg)
+    
+    **For TLS-enabled MySQL instances:**
+    {.power-number}
+
+    1. Check **Use TLS for database connections**
+    2. Fill in your TLS certificates and key information
+    
+    ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.jpg)
 
 ## After adding the service
 

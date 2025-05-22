@@ -67,7 +67,7 @@ To ensure successful database monitoring with PMM, confirm the following:
 
 === ":material-cloud: Cloud services"
 
-    - [Amazon RDS / Aurora](../install-pmm-client/connect-database/aws.md#creating-an-iam-user-with-permission-to-access-amazon-rds-db-instances)  
+    <!---[Amazon RDS / Aurora](../install-pmm-client/connect-database/aws.md#creating-an-iam-user-with-permission-to-access-amazon-rds-db-instances)--->
     - [Microsoft Azure](../install-pmm-client/connect-database/azure.md#required-settings)  
     - [Google Cloud Platform](../install-pmm-client/connect-database/google.md#mysql)
 
