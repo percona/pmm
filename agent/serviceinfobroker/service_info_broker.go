@@ -258,7 +258,7 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 func (sib *ServiceInfoBroker) getValkeyInfo(
 	ctx context.Context,
 	dsn string,
-	useTls bool,
+	useTLS bool,
 	files *agentv1.TextFiles,
 	tlsSkipVerify bool,
 	id uint32,
@@ -275,7 +275,7 @@ func (sib *ServiceInfoBroker) getValkeyInfo(
 		return &res
 	}
 
-	opts, err := tlshelpers.GetValkeyTLSConfig(files, useTls, tlsSkipVerify)
+	opts, err := tlshelpers.GetValkeyTLSConfig(files, useTLS, tlsSkipVerify)
 	if err != nil {
 		sib.l.Debugf("getValkeyInfo: failed to get TLS config: %s", err)
 		res.Error = err.Error()
