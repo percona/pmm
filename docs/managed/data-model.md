@@ -207,7 +207,6 @@ Property names are shared between API calls, database columns, and label values 
 - `custom_labels` key/value pairs of custom-assigned labels
 - `status` (read only on responses) Actual agent status. See the statuses list below.
 - `listen_port` Listen port for scraping metrics.
-- `use_redis_scheme` Use a Redis URI scheme for Valkey connection (i.e., `redis://<host>:<port>` instead of `valkey://<host>:<port>`).
 
 **ProxySQLExporter** runs on Generic or Container Node and exposes ProxySQL Service metrics.
 
