@@ -131,4 +131,4 @@ jobs:
           docker compose ps -a
           # comamands here
           echo $PWD
-          ls -la
+          ls -la ./testdata/mongo/var/log/mongodb
