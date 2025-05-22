@@ -1439,7 +1439,7 @@ message ChangeNomadAgentParams {
 
 message AddValkeyExporterParams {
   // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 1 [(validate.rules).string.uuid = true];
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
   string service_id = 2 [(validate.rules).string.uuid = true];
   // Valkey username for scraping metrics.
