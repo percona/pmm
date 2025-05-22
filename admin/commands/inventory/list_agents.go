@@ -43,6 +43,7 @@ var acceptableAgentTypes = map[string][]string{
 	types.AgentTypeMySQLdExporter:                  {types.AgentTypeName(types.AgentTypeMySQLdExporter), "mysqld-exporter"},
 	types.AgentTypeMongoDBExporter:                 {types.AgentTypeName(types.AgentTypeMongoDBExporter), "mongodb-exporter"},
 	types.AgentTypePostgresExporter:                {types.AgentTypeName(types.AgentTypePostgresExporter), "postgres-exporter"},
+	types.AgentTypeValkeyExporter:                  {types.AgentTypeName(types.AgentTypeValkeyExporter), "valkey-exporter"},
 	types.AgentTypeProxySQLExporter:                {types.AgentTypeName(types.AgentTypeProxySQLExporter), "proxysql-exporter"},
 	types.AgentTypeQANMySQLPerfSchemaAgent:         {types.AgentTypeName(types.AgentTypeQANMySQLPerfSchemaAgent), "qan-mysql-perfschema-agent"},
 	types.AgentTypeQANMySQLSlowlogAgent:            {types.AgentTypeName(types.AgentTypeQANMySQLSlowlogAgent), "qan-mysql-slowlog-agent"},
@@ -168,6 +169,17 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 	for _, a := range agentsRes.Payload.PostgresExporter {
 		agentsList = append(agentsList, listResultAgent{
 			AgentType:  types.AgentTypePostgresExporter,
+			AgentID:    a.AgentID,
+			PMMAgentID: a.PMMAgentID,
+			ServiceID:  a.ServiceID,
+			Status:     getAgentStatus(a.Status),
+			Disabled:   a.Disabled,
+			Port:       a.ListenPort,
+		})
+	}
+	for _, a := range agentsRes.Payload.ValkeyExporter {
+		agentsList = append(agentsList, listResultAgent{
+			AgentType:  types.AgentTypeValkeyExporter,
 			AgentID:    a.AgentID,
 			PMMAgentID: a.PMMAgentID,
 			ServiceID:  a.ServiceID,

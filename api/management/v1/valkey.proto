@@ -70,6 +70,10 @@ message AddValkeyServiceParams {
   string tls_cert = 22;
   // TLS Certificate Key.
   string tls_key = 23;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 24;
+  // Custom password for exporter endpoint /metrics.
+  string agent_password = 25;
 }
 
 message ValkeyServiceResult {
