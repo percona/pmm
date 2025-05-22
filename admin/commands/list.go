@@ -192,6 +192,14 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
+	for _, s := range servicesRes.Payload.Valkey {
+		servicesList = append(servicesList, listResultService{
+			ServiceType: types.ServiceTypeValkeyService,
+			ServiceID:   s.ServiceID,
+			ServiceName: s.ServiceName,
+			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
+		})
+	}
 	for _, s := range servicesRes.Payload.Proxysql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeProxySQLService,
@@ -293,6 +301,19 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
 				AgentType:   types.AgentTypePostgresExporter,
+				AgentID:     a.AgentID,
+				ServiceID:   a.ServiceID,
+				Status:      getStatus(a.Status),
+				Disabled:    a.Disabled,
+				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
+				Port:        a.ListenPort,
+			})
+		}
+	}
+	for _, a := range agentsRes.Payload.ValkeyExporter {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType:   types.AgentTypeValkeyExporter,
 				AgentID:     a.AgentID,
 				ServiceID:   a.ServiceID,
 				Status:      getStatus(a.Status),
