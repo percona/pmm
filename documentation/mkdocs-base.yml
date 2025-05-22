@@ -146,7 +146,7 @@ nav:
         - install-pmm/plan-pmm-installation/hardware_and_system.md
         - install-pmm/plan-pmm-installation/network_and_firewall.md
       - Install PMM Server:
-        - install-pmm/install-pmm-server/index.md
+        - Overview: install-pmm/install-pmm-server/index.md
         - Deployment options:
           - Install on Docker:
             - install-pmm/install-pmm-server/deployment-options/docker/index.md
@@ -195,8 +195,8 @@ nav:
     #          - install-pmm/install-pmm-server/deployment-options/aws/restore_pmm_server.md
     #          - install-pmm/install-pmm-server/deployment-options/aws/remove_pmm_server.md
       - Install PMM Client:
-        - install-pmm/install-pmm-client/index.md
-        - install-pmm/install-pmm-client/prerequisites.md
+        - Overview: install-pmm/install-pmm-client/index.md
+        - Prerequisites: install-pmm/install-pmm-client/prerequisites.md
         - Deployment options:
           - Install from Percona repositories: install-pmm/install-pmm-client/package_manager.md
           - Install from binaries: install-pmm/install-pmm-client/binary_package.md
@@ -204,24 +204,25 @@ nav:
         - Configuration:
           - Register Client node: install-pmm/register-client-node/index.md
           - Configure monitoring:
-            - install-pmm/install-pmm-client/connect-database/index.md
+            - Database monitoring: 
+              - Overview: install-pmm/install-pmm-client/connect-database/index.md
               - MySQL: install-pmm/install-pmm-client/connect-database/mysql/mysql.md
               - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
               - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
-            - Cloud services:
-  #            - AWS: install-pmm/install-pmm-client/connect-database/aws.md
+            - Cloud services monitoring:
+              # - AWS: install-pmm/install-pmm-client/connect-database/aws.md
               - Azure: install-pmm/install-pmm-client/connect-database/azure.md
               - Google Cloud: install-pmm/install-pmm-client/connect-database/google.md
             - System monitoring:
               - Linux: install-pmm/install-pmm-client/connect-database/linux.md
               - Remote: install-pmm/install-pmm-client/connect-database/remote.md
-            - Proxy services:
+            - Proxy services monitoring:
               - HAproxy: install-pmm/install-pmm-client/connect-database/haproxy.md
               - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
-            - External services:
-               - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
+            - External services monitoring:
+              - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
           - Maintenance:
-            - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
+            - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md         
 
   - Upgrade:
     - Upgrade PMM Server:

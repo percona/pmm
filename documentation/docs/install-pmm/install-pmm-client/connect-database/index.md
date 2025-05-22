@@ -3,7 +3,7 @@ Percona Monitoring and Management (PMM) supports monitoring for MySQL/MariaDB, P
 
 ## Supported database technologies
 
-- [MySQL](mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
+- [MySQL](mysql/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
 - [MongoDB](mongodb.md)
 - [PostgreSQL](postgresql.md)
 - [ProxySQL](proxysql.md)
