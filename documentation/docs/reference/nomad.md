@@ -10,6 +10,10 @@ Percona Monitoring and Management (PMM) includes HashiCorp Nomad to enable futur
 
 Nomad is **disabled by default** in PMM and has no impact on system performance when not enabled. 
 
+## Prerequisites
+
+Before enabling Nomad, ensure that PMM Server has a public address configured under **PMM Configuration > Advanced Settings**. This is required for Nomad to function properly and enable communication between Nomad components.
+
 ### Enable Nomad
 
 If you're an advanced user who needs Nomad for specific use cases, follow these steps to enable Nomad in PMM:
