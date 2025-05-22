@@ -129,3 +129,6 @@ jobs:
           git status
           docker compose logs
           docker compose ps -a
+          # comamands here
+          echo $PWD
+          ls -la
