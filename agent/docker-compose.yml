@@ -50,8 +50,9 @@ services:
   mongo:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongo
-    command: >
-        sh -c "umask 0000 && exec mongod --profile=2 --logpath=/var/log/mongodb/mongo.log"
+    command:
+      - --profile=2
+      - --logpath=/var/log/mongodb/mongo.log
     ports:
       - "127.0.0.1:27017:27017"
     environment:
@@ -63,9 +64,14 @@ services:
   mongo_with_tls:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:5.0}
     container_name: pmm-agent_mongo_with_tls
-    command: >
-        sh -c "umask 0000 && exec mongod --profile=2 --tlsMode=requireTLS --tlsCertificateKeyFile=/etc/tls/certificates/server.pem 
-        --tlsCAFile=/etc/tls/certificates/ca.crt --tlsAllowInvalidCertificates --bind_ip=0.0.0.0 --logpath=/var/log/mongodb/mongo_tls.log"
+    command:
+      - --profile=2
+      - --tlsMode=requireTLS
+      - --tlsCertificateKeyFile=/etc/tls/certificates/server.pem
+      - --tlsCAFile=/etc/tls/certificates/ca.crt
+      - --tlsAllowInvalidCertificates
+      - --bind_ip=0.0.0.0
+      - --logpath=/var/log/mongodb/mongo_tls.log
     ports:
       - "127.0.0.1:27018:27017"
     volumes:
