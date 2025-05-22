@@ -1,9 +1,9 @@
 %global debug_package   %{nil}
-%global commit          8e3855945b7c890b4c07e517e4a4786337ae854e
+%global commit          7eb13cd5e16e25e8392845a719ed8a3cc634b3f7
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         109
-%define grafana_version 11.6.0
+%define release         110
+%define grafana_version 11.6.1
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
@@ -82,6 +82,9 @@ getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it 
 exit 0
 
 %changelog
+* Thu May 22 2025 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.6.1-1
+- PMM-14005 Grafana 11.6.1
+
 * Thu Apr 10 2025 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.6.0-1
 - PMM-13463 Grafana 11.6.0
 
