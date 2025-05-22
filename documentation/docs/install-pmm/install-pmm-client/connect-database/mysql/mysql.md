@@ -341,22 +341,22 @@ Add MySQL monitoring through either the PMM web interface or command line.
     **To add a MySQL service:**
     {.power-number}
 
-    1. Navigate to **PMM Configuration > PMM Inventory > Add Service**.
+    1. GO to **PMM Configuration > PMM Inventory > Add Service**.
     2. Select **MySQL** service type.
-    2. Fill in the connection details:
-        - **Service Name**: A descriptive name for your MySQL instance
+    3. Fill in the connection details:
+        - **Service Name**: A descriptive name for your MySQL instance.
         - **Host/Socket**: 
-            - For local monitoring: Use `localhost` or a socket path
-            - For remote monitoring: The hostname or IP address of your remote MySQL server
+            - For local monitoring: Use `localhost` or a socket path.
+            - For remote monitoring: The hostname or IP address of your remote MySQL server.
         - **Port**: MySQL port (default: 3306)
         - **Username**: The PMM user created earlier
         - **Password**: Your PMM user password
-        - **Query Source**: Choose between Slow Log or Performance Schema
-        - **PMM Agent**: Select which PMM agent should monitor this instance:
+        - **Query Source**: Choose between **Slow Log** or **Performance Schema**.
+        - **PMM Agent**: **(Required)** Select which PMM agent should monitor this instance:
             - For local monitoring: Choose the agent installed on the MySQL host
             - For remote monitoring: Choose any agent with network access to the MySQL instance
-    3. Click **Add Service**.
-    
+    4. Click **Add Service**.
+        
     ![MySQL Service Addition Screen](../../../../images/PMM_Add_Instance_MySQL.jpg)
     
     **For TLS-enabled MySQL instances:**
