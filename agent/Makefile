@@ -110,7 +110,6 @@ env-up:                         ## Start development environment
 	mkdir -p testdata/mysql/slowlogs
 	# to make monoglog tests work
 	mkdir -p testdata/mongo/var/log/mongodb
-	touch testdata/mongo/var/log/mongodb/mongo.log testdata/mongo/var/log/mongodb/mongo_tls.log
 	chmod -R 0777 testdata
 
 	docker compose up $(ENV_UP_FLAGS)
