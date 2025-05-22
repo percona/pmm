@@ -1462,8 +1462,6 @@ func (m *UniversalAgent_ValkeyOptions) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for UseRedisScheme
-
 	if len(errors) > 0 {
 		return UniversalAgent_ValkeyOptionsMultiError(errors)
 	}

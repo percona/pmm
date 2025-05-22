@@ -126,6 +126,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 	case models.ValkeyServiceType:
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentv1.ServiceInfoRequest{
+			Tls:  agent.TLS,
 			Type: inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
 			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second},
 				nil, pmmAgentVersion),

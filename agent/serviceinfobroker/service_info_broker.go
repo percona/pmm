@@ -82,6 +82,7 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 		return sib.getValkeyInfo(
 			ctx,
 			msg.Dsn,
+			msg.Tls,
 			msg.TextFiles,
 			msg.TlsSkipVerify,
 			id)
@@ -257,6 +258,7 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 func (sib *ServiceInfoBroker) getValkeyInfo(
 	ctx context.Context,
 	dsn string,
+	useTls bool,
 	files *agentv1.TextFiles,
 	tlsSkipVerify bool,
 	id uint32,
@@ -273,9 +275,9 @@ func (sib *ServiceInfoBroker) getValkeyInfo(
 		return &res
 	}
 
-	opts, err := tlshelpers.GetValkeyTLSConfig(files, tlsSkipVerify)
+	opts, err := tlshelpers.GetValkeyTLSConfig(files, useTls, tlsSkipVerify)
 	if err != nil {
-		sib.l.Debugf("checkValkeyConnection: failed to get TLS config: %s", err)
+		sib.l.Debugf("getValkeyInfo: failed to get TLS config: %s", err)
 		res.Error = err.Error()
 		return &res
 	}

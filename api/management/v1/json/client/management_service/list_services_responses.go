@@ -882,6 +882,9 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// True if an exporter agent is exposed on all host addresses.
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
+	// valkey options
+	ValkeyOptions interface{} `json:"valkey_options,omitempty"`
+
 	// azure options
 	AzureOptions *ListServicesOKBodyServicesItems0AgentsItems0AzureOptions `json:"azure_options,omitempty"`
 
@@ -893,9 +896,6 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 
 	// postgresql options
 	PostgresqlOptions *ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions `json:"postgresql_options,omitempty"`
-
-	// valkey options
-	ValkeyOptions *ListServicesOKBodyServicesItems0AgentsItems0ValkeyOptions `json:"valkey_options,omitempty"`
 }
 
 // Validate validates this list services OK body services items0 agents items0
@@ -927,10 +927,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) Validate(formats strfmt.R
 	}
 
 	if err := o.validatePostgresqlOptions(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateValkeyOptions(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1094,25 +1090,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) validatePostgresqlOptions
 	return nil
 }
 
-func (o *ListServicesOKBodyServicesItems0AgentsItems0) validateValkeyOptions(formats strfmt.Registry) error {
-	if swag.IsZero(o.ValkeyOptions) { // not required
-		return nil
-	}
-
-	if o.ValkeyOptions != nil {
-		if err := o.ValkeyOptions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("valkey_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("valkey_options")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 // ContextValidate validate this list services OK body services items0 agents items0 based on the context it is used
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -1130,10 +1107,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) ContextValidate(ctx conte
 	}
 
 	if err := o.contextValidatePostgresqlOptions(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.contextValidateValkeyOptions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1215,26 +1188,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidatePostgresql
 				return ve.ValidateName("postgresql_options")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("postgresql_options")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateValkeyOptions(ctx context.Context, formats strfmt.Registry) error {
-	if o.ValkeyOptions != nil {
-
-		if swag.IsZero(o.ValkeyOptions) { // not required
-			return nil
-		}
-
-		if err := o.ValkeyOptions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("valkey_options")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("valkey_options")
 			}
 			return err
 		}
@@ -1438,43 +1391,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions) MarshalB
 // UnmarshalBinary interface implementation
 func (o *ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions) UnmarshalBinary(b []byte) error {
 	var res ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-ListServicesOKBodyServicesItems0AgentsItems0ValkeyOptions list services OK body services items0 agents items0 valkey options
-swagger:model ListServicesOKBodyServicesItems0AgentsItems0ValkeyOptions
-*/
-type ListServicesOKBodyServicesItems0AgentsItems0ValkeyOptions struct {
-	// If true, PMM will connect to the server using the redis:// scheme instead of valkey://.
-	UseRedisScheme bool `json:"use_redis_scheme,omitempty"`
-}
-
-// Validate validates this list services OK body services items0 agents items0 valkey options
-func (o *ListServicesOKBodyServicesItems0AgentsItems0ValkeyOptions) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list services OK body services items0 agents items0 valkey options based on context it is used
-func (o *ListServicesOKBodyServicesItems0AgentsItems0ValkeyOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListServicesOKBodyServicesItems0AgentsItems0ValkeyOptions) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListServicesOKBodyServicesItems0AgentsItems0ValkeyOptions) UnmarshalBinary(b []byte) error {
-	var res ListServicesOKBodyServicesItems0AgentsItems0ValkeyOptions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

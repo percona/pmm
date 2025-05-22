@@ -50,10 +50,7 @@ message UniversalAgent {
     int32 max_exporter_connections = 3;
   }
 
-  message ValkeyOptions {
-    // If true, PMM will connect to the server using the redis:// scheme instead of valkey://.
-    bool use_redis_scheme = 1;
-  }
+  message ValkeyOptions {}
 
   // Unique agent identifier.
   string agent_id = 1;

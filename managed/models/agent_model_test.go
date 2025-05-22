@@ -332,9 +332,7 @@ func TestValkey(t *testing.T) {
 			Password:        pointer.ToString("s3cur3 p@$$w0r4."),
 			AgentType:       models.ValkeyExporterType,
 			ExporterOptions: models.ExporterOptions{},
-			ValkeyOptions: models.ValkeyOptions{
-				UseRedisScheme: true,
-			},
+			ValkeyOptions:   models.ValkeyOptions{},
 		}
 		service := &models.Service{
 			Address: pointer.ToString("1.2.3.4"),
@@ -354,10 +352,9 @@ func TestValkey(t *testing.T) {
 			ExporterOptions: models.ExporterOptions{},
 			TLS:             true,
 			ValkeyOptions: models.ValkeyOptions{
-				UseRedisScheme: true,
-				SSLCa:          "aa",
-				SSLCert:        "bb",
-				SSLKey:         "cc",
+				SSLCa:   "aa",
+				SSLCert: "bb",
+				SSLKey:  "cc",
 			},
 		}
 		service := &models.Service{
