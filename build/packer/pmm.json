@@ -67,7 +67,7 @@
       "type": "virtualbox-ovf",
       "vm_name": "PMM3-Server-{{isotime \"2006-01-02-1504\"}}",
       "export_opts": [
-        "--ovf10",
+        "--ovf20",
         "--manifest",
         "--vsys", "0",
         "--product", "Percona Monitoring and Management",
@@ -77,16 +77,17 @@
         "--version", "{{isotime \"2006-01-02\"}}",
         "--description", "Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL, PostgreSQL and MongoDB"
       ],
-      "format": "ovf",
+      "format": "ova",
       "guest_additions_mode": "disable",
       "headless": true,
-      "output_directory": "pmm-virtualbox-ovf",
-      "shutdown_command": "rm -rf ~/.ssh/authorized_keys; cat /dev/zero > zero.fill; sync; sleep 1; sync; rm -f zero.fill; sudo shutdown -P now",
+      "output_directory": "pmm-virtualbox",
+      "shutdown_command": "sudo shutdown -P now",
       "source_path": ".cache/box/box.ovf",
       "ssh_private_key_file": ".cache/id_rsa_vagrant",
       "ssh_wait_timeout": "8m",
       "ssh_pty": true,
       "ssh_username": "vagrant",
+      "ssh_clear_authorized_keys": true,
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "4096"],
         ["modifyvm", "{{.Name}}", "--audio", "none"],
@@ -121,6 +122,7 @@
     {
       "type": "ansible-local",
       "playbook_file": "packer/ansible/pmm.yml",
+      "command": "PYTHONUNBUFFERED=1 ansible-playbook",
       "extra_arguments": [
         "-vvv",
         "-u root",
@@ -150,23 +152,6 @@
     }
   ],
   "post-processors": [
-    [
-      {
-        "type": "shell-local",
-        "only": ["virtualbox-ovf"],
-        "inline_shebang": "/bin/bash",
-        "inline": [
-          "set -o errexit",
-          "set -o xtrace",
-          "pushd pmm-virtualbox-ovf",
-          "    NAME=$(ls *.ovf | sed -e 's/.ovf//')",
-          "    sha256sum *.ovf *.vmdk | sed -E 's/^([^ ]+)  ([^ ]+)$/SHA256(\\2)= \\1/' ${NAME}.mf",
-          "    tar -cpf ${NAME}.ova *.ovf *.mf *-disk00*.vmdk",
-          "    rm -rf               *.ovf *.mf *-disk00*.vmdk",
-          "popd"
-        ]
-      }
-    ],
     [
       {
         "type": "manifest",
