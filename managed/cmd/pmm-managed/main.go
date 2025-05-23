@@ -41,6 +41,7 @@ import (
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	mcpserver "github.com/mark3labs/mcp-go/server"
 	"github.com/pkg/errors"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -90,6 +91,7 @@ import (
 	"github.com/percona/pmm/managed/services/management/common"
 	managementdump "github.com/percona/pmm/managed/services/management/dump"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
+	"github.com/percona/pmm/managed/services/mcp"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
 	"github.com/percona/pmm/managed/services/platform"
@@ -332,6 +334,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 type http1ServerDeps struct {
 	logs       *server.Logs
 	authServer *grafana.AuthServer
+	mcpServer  *mcp.Mcp
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -396,9 +399,23 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		}
 	}
 
+	sseServer := mcpserver.NewSSEServer(
+		deps.mcpServer.Server(),
+		mcpserver.WithStaticBasePath("/v1/mcp"),
+		mcpserver.WithKeepAlive(true),
+	)
+	endpoint, err := sseServer.CompleteSseEndpoint()
+	if err != nil {
+		l.Panic(err)
+	}
+	l.Infof("SSE endpoint: %s", endpoint)
+
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	mux.Handle("/auth_request", deps.authServer)
+	mux.Handle("/v1/mcp", sseServer)
+	mux.Handle("/v1/mcp/sse", sseServer.SSEHandler())
+	mux.Handle("/v1/mcp/message", sseServer.MessageHandler())
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -406,6 +423,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
 		Handler:  mux,
 	}
+
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			l.Panic(err)
@@ -1142,6 +1160,7 @@ func main() { //nolint:maintidx,cyclop
 		runHTTP1Server(ctx, &http1ServerDeps{
 			logs:       logs,
 			authServer: authServer,
+			mcpServer:  mcp.New(managementgrpc.NewActionsServer(actionsService, db)),
 		})
 	}()
 
