@@ -24,12 +24,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"gopkg.in/mgo.v2/bson"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/percona/pmm/agent/agents/mongodb/shared/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/shared/sender"
 	"github.com/percona/pmm/agent/utils/filereader"
@@ -242,7 +242,7 @@ func getLogFilePath(ctx context.Context, client *mongo.Client) (string, error) {
 	var result bson.M
 	err := client.Database("admin").RunCommand(ctx, bson.M{"getCmdLineOpts": 1}).Decode(&result)
 	if err != nil {
-		return "", fmt.Errorf("failed to run command getCmdLineOpts %s", err)
+		return "", fmt.Errorf("failed to run command getCmdLineOpts %w", err)
 	}
 
 	if parsed, ok := result["parsed"].(bson.M); ok {
