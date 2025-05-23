@@ -21,7 +21,7 @@ Install and run at least one PMM Server. Choose from the following options:
 | [Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) | 1. Quick<br>2. Simple<br>3. Rootless | Podman installation required.
 | [Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md) (Technical Preview) | 1. Quick<br>2. Simple<br>3. Cloud-compatible <br> 4. Rootless| Requires running a Kubernetes cluster.
 | [Virtual appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)  | 1. Easily import into Hypervisor of your choice <br> 2. Rootless| More system resources compared to Docker footprint.
-| [Amazon AWS](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | 1. Wizard-driven install. <br>  2. Rootless| Paid, incurs infrastructure costs.
+<!---| [Amazon AWS](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | 1. Wizard-driven install. <br>  2. Rootless| Paid, incurs infrastructure costs. --->
 
 ## Install PMM Client
 
@@ -55,7 +55,7 @@ On each PMM Client instance, configure the nodes and services you want to monito
     - [MongoDB](../install-pmm/install-pmm-client/connect-database/mongodb.md)
     - [PostgreSQL](../install-pmm/install-pmm-client/connect-database/postgresql.md)
     - [ProxySQL](../install-pmm/install-pmm-client/connect-database/proxysql.md)
-    - [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md)
+ <!---   - [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md)--->
     - [Microsoft Azure](../install-pmm/install-pmm-client/connect-database/azure.md)
     - [Google Cloud Platform](../install-pmm/install-pmm-client/connect-database/google.md)
     - [Linux](../install-pmm/install-pmm-client/connect-database/linux.md)

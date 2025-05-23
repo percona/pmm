@@ -8,6 +8,6 @@ Install and run at least one PMM Server using one of the following ways:
 - [Podman](../install-pmm-server/deployment-options/podman/index.md)
 - [Helm](../install-pmm-server/deployment-options/helm/index.md)
 - [Virtual appliance](../install-pmm-server/deployment-options/virtual/index.md)
-- [Amazon AWS](../install-pmm-server/deployment-options/aws/aws.md)
+<!---- [Amazon AWS](../install-pmm-server/deployment-options/aws/aws.md) -->
 
 
