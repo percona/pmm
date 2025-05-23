@@ -17,6 +17,7 @@ package mongolog
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"path"
 	"runtime/pprof"
@@ -24,7 +25,6 @@ import (
 	"time"
 
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -86,12 +86,6 @@ func (l *Mongolog) Start(ctx context.Context) error {
 		return nil
 	}
 
-	// create new channel over which
-	// we will tell goroutine it should close
-	l.doneChan = make(chan struct{})
-
-	labels := pprof.Labels("component", "mongodb.mongolog")
-
 	// create new session
 	client, err := createSession(ctx, l.mongoDSN, l.agentID)
 	if err != nil {
@@ -139,6 +133,7 @@ func (l *Mongolog) Start(ctx context.Context) error {
 	// create monitors service which we use to periodically scan server for new/removed databases
 	l.monitor = NewMonitor(logsPathWithPrefix, reader, l.logger)
 
+	labels := pprof.Labels("component", "mongodb.mongolog")
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
 		start(ctx, l.monitor, l.aggregator, l.wg, l.doneChan, ready, l.logger)
 	})
@@ -247,7 +242,7 @@ func getLogFilePath(ctx context.Context, client *mongo.Client) (string, error) {
 	var result bson.M
 	err := client.Database("admin").RunCommand(ctx, bson.M{"getCmdLineOpts": 1}).Decode(&result)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to run command getCmdLineOpts")
+		return "", fmt.Errorf("failed to run command getCmdLineOpts %s", err)
 	}
 
 	if parsed, ok := result["parsed"].(bson.M); ok {
