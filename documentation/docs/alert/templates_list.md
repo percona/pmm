@@ -4,6 +4,8 @@ The table below lists all the alert templates available in Percona Monitoring an
 
 To access the customer-only templates, you must be a Percona customer and [connect PMM to Percona Platform](../configure-pmm/percona_platform/check_percona_platform.md) using a Percona Account.
 
+## Template catalog
+
 - [Operating System templates](#os_alerts)
 - [PMM templates](#pmm_alerts)
 - [MongoDB templates](#mongodb_alerts)
