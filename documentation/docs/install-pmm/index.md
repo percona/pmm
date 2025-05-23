@@ -85,14 +85,31 @@ After installing PMM Client, configure the nodes and services you want to monito
 
 PMM supports monitoring across the following database technologies, cloud services, proxy services, and system metrics:
 
-    - [MySQL](../install-pmm/install-pmm-client/connect-database/mysql.md) and variants: Percona Server for MySQL, Percona XtraDB Cluster, MariaDB
+=== ":material-database: Database Services"
+    Monitor relational and NoSQL database instances:
+
+    - [MySQL](../install-pmm/install-pmm-client/connect-database/mysql/mysql.md) and variants (Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
     - [MongoDB](../install-pmm/install-pmm-client/connect-database/mongodb.md)
     - [PostgreSQL](../install-pmm/install-pmm-client/connect-database/postgresql.md)
-    - [ProxySQL](../install-pmm/install-pmm-client/connect-database/proxysql.md)
- <!---   - [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md)--->
+
+=== ":material-cloud: Cloud Services"
+
+    Monitor cloud-hosted database services and platforms:
+
     - [Microsoft Azure](../install-pmm/install-pmm-client/connect-database/azure.md)
     - [Google Cloud Platform](../install-pmm/install-pmm-client/connect-database/google.md)
-    - [Linux](../install-pmm/install-pmm-client/connect-database/linux.md)
-    - [External services](../install-pmm/install-pmm-client/connect-database/external.md)
-    - [HAProxy](../install-pmm/install-pmm-client/connect-database/haproxy.md)
+    <!--- - [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md) --->
+
+=== ":material-server-network: System & Infrastructure"
+
+    Monitor system resources and infrastructure components:
+
+    - [Linux systems](../install-pmm/install-pmm-client/connect-database/linux.md)
     - [Remote instances](../install-pmm/install-pmm-client/connect-database/remote.md)
+    - [External services](../install-pmm/install-pmm-client/connect-database/external.md)
+
+    === ":material-router-network: Proxy Services"
+
+    Monitor database proxy and load balancing services:
+    - [ProxySQL](../install-pmm/install-pmm-client/connect-database/proxysql.md)
+    - [HAProxy](../install-pmm/install-pmm-client/connect-database/haproxy.md)

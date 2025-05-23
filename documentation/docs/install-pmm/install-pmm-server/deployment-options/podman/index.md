@@ -13,7 +13,7 @@ Choose Podman deployment when:
 - Security is a priority and you need rootless container execution
 - Your organization has security policies restricting the use of Docker daemon
 - You're running in environments where fine-grained permission control is required
-- You need systemD integration for better service management
+- You need systemd integration for better service management
 
 
 !!! tip "Recommended setup for best performance"
@@ -24,13 +24,17 @@ Choose Podman deployment when:
 Before installing PMM Server with Podman, ensure you have:
 {.power-number}
 
-1.  Install [Podman](https://podman.io/getting-started/installation).
-- Configure [rootless](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md) Podman.
-2.  Create the Podman network for PMM:
+1. Install [Podman](https://podman.io/getting-started/installation).
+2. Configure [rootless](https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md) Podman.
+3. Create the Podman volume for PMM:
+  ```sh
+  podman volume create pmm-data
+  ```
+3. Create the Podman network for PMM:
   ```sh
   podman network create pmm_default
   ```
-3.  Set up required system configurations:
+4. Set up required system configurations:
     ```sh
     # Allow non-root users to bind to privileged ports (required for port 443)
     sudo sysctl -w net.ipv4.ip_unprivileged_port_start=443
@@ -39,11 +43,11 @@ Before installing PMM Server with Podman, ensure you have:
     echo "net.ipv4.ip_unprivileged_port_start=443" | sudo tee /etc/sysctl.d/99-pmm.conf
     sudo sysctl -p /etc/sysctl.d/99-pmm.conf
     ```
-4. Create the Podman network for PMM:
+5. Create the Podman network for PMM:
     ```sh
     podman network create pmm_default
     ```
-5. Configure Watchtower (if using UI updates) with these security considerations:
+6. Configure Watchtower (if using UI updates) with these security considerations:
 
     - ensure Watchtower is only accessible from within the Podman network or local host to prevent unauthorized access and enhance container security.
     - configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Podman network.
@@ -175,7 +179,7 @@ On the other hand, the manual method offers a simpler setup with complete contro
 
     The installation with manual updates offers a straightforward setup with direct control over updates, without relying on additional services. 
     
-    In this approach, you manually update the `PMM_IMAGE` in the environment file and restart the PMM Server service. SystemD then automatically manages the container replacement.
+    In this approach, you manually update the `PMM_IMAGE` in the environment file and restart the PMM Server service. Systemd then automatically manages the container replacement.
     {.power-number}
 
     1. Create directories for configuration files if they don't exist:
