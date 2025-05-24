@@ -54,17 +54,17 @@ The [PMM Client Docker image] is a convenient way to run PMM Client as a preconf
 
     ```sh
     docker create \
-    --volume /srv \
+    --volume /usr/local/percona/pmm2/ \
     --name pmm-client-data \
     percona/pmm-client:2 /bin/true
     ```
 
-3. Run the container to start [PMM Agent](../../details/commands/pmm-agent.md) in setup mode. Set `X.X.X.X` to the IP address of your PMM Server. Do not use the `--detach` flag as PMM Agent only outputs logs to the console:
+3. Run the container to start [PMM Agent](../../details/commands/pmm-agent.md) in setup mode. Set `X.X.X.X` to the IP address of your PMM Server.
 
     ```sh
     PMM_SERVER=X.X.X.X:443
     docker run \
-    --rm \
+    -d \
     --name pmm-client \
     -e PMM_AGENT_SERVER_ADDRESS=${PMM_SERVER} \
     -e PMM_AGENT_SERVER_USERNAME=admin \
