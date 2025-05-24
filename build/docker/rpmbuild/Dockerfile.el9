@@ -28,7 +28,8 @@ RUN dnf install -y gcc gcc-c++ \
   wget \
   python3-pip && \
   pip install pyaml==24.9.0 GitPython==3.1.43 PyGithub==2.5.0 && \
-  dnf install -y --enablerepo=ol9_codeready_builder glibc-static
+  dnf install -y --enablerepo=ol9_codeready_builder glibc-static && \
+  dnf clean all && rm -rf /var/cache/dnf /var/cache/yum
 
 # keep that format for easier search
 ARG GO_VERSION

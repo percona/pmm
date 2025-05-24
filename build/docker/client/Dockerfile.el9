@@ -21,13 +21,18 @@ RUN dnf install -y \
   
 RUN ls -R /usr/bin  
 
-ADD pmm-client.tar.gz /tmp/
 RUN groupadd -g 1002 pmm-agent && \
     useradd -u 1002 -r -g pmm-agent -s /sbin/nologin \
             -d /usr/local/percona/pmm \
             -c "PMM 3.x Client User" pmm-agent
 
-FROM redhat/ubi9-micro
+ADD pmm-client.tar.gz /tmp/
+RUN cd /tmp/pmm-client* \
+  && env PMM_USER=pmm-agent PMM_GROUP=root ./install_tarball \
+  && cd /tmp \
+  && rm -rf /tmp/pmm-client*
+
+FROM redhat/ubi9-micro AS final
 
 ARG VERSION
 ARG RELEASE

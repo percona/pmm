@@ -8,7 +8,7 @@ import logging
 import os
 import sys
 
-from subprocess import check_output, check_call, call, CalledProcessError
+from subprocess import check_output
 from pathlib import Path
 
 import yaml
