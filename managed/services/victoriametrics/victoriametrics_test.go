@@ -83,7 +83,9 @@ func TestVictoriaMetrics(t *testing.T) {
 		check := require.New(t)
 		db, svc, original := setup(t)
 		defer teardown(t, db, svc, original)
-		err := models.SaveSettings(db.Querier, &models.Settings{})
+		settings := &models.Settings{}
+		settings.Nomad.Enabled = pointer.ToBool(true)
+		err := models.SaveSettings(db.Querier, settings)
 		check.NoError(err)
 
 		for _, str := range []reform.Struct{
@@ -287,7 +289,7 @@ scrape_configs:
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
-      metrics_path: /metrics
+      metrics_path: /graph/metrics
       static_configs:
         - targets:
             - 127.0.0.1:3000
@@ -326,6 +328,20 @@ scrape_configs:
             - 127.0.0.1:9363
           labels:
             instance: pmm-server
+      follow_redirects: false
+    - job_name: nomad
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /v1/metrics?format=prometheus
+      scheme: https
+      static_configs:
+        - targets:
+            - 127.0.0.1:4646
+          labels:
+            instance: pmm-server
+      tls_config:
+        insecure_skip_verify: true
       follow_redirects: false
     - job_name: mongodb_exporter_cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8_hr
       honor_timestamps: false
@@ -843,7 +859,7 @@ scrape_configs:
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
-      metrics_path: /metrics
+      metrics_path: /graph/metrics
       static_configs:
         - targets:
             - 127.0.0.1:3000

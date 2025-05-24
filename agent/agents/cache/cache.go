@@ -163,6 +163,13 @@ func (c *Cache) Len() int {
 	return len(c.items)
 }
 
+// Capacity returns the maximum number of elements in Cache.
+func (c *Cache) Capacity() uint {
+	c.rw.RLock()
+	defer c.rw.RUnlock()
+	return c.sizeLimit
+}
+
 // Stats contains Cache statistics.
 type Stats struct {
 	Current  uint

@@ -127,6 +127,11 @@ func (as *AgentsService) List(ctx context.Context, filters models.AgentFilters) 
 		if got > 1 {
 			return status.Errorf(codes.InvalidArgument, "expected at most one param: pmm_agent_id, node_id or service_id")
 		}
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		filters.IgnoreNomad = !settings.IsNomadEnabled()
 
 		agents, err := models.FindAgents(tx.Querier, filters)
 		if err != nil {
@@ -1228,6 +1233,25 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_AzureDatabaseExporter{
 			AzureDatabaseExporter: agent,
+		},
+	}
+	return res, nil
+}
+
+// ChangeNomadAgent updates Nomad Agent with given parameters.
+func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, params *inventoryv1.ChangeNomadAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
+	common := &commonAgentParams{
+		Enable: params.Enable,
+	}
+	ag, err := as.changeAgent(ctx, agentID, common)
+	if err != nil {
+		return nil, err
+	}
+	agent := ag.(*inventoryv1.NomadAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_NomadAgent{
+			NomadAgent: agent,
 		},
 	}
 	return res, nil

@@ -6,7 +6,7 @@
     docker_compose_version: "2.26.1"
     kubectl_version: "1.29.2"
     doctl_version: "1.105.0"
-    node_version: "18.x"
+    node_version: "22.x"
     goreleaser_version: "2.3.2" # https://github.com/goreleaser/goreleaser/releases
 
   tasks:
@@ -28,13 +28,8 @@
         name: oracle-epel-release-el9
         state: latest
 
-    - name: Install yum-utils
-      dnf:
-        name: yum-utils
-        state: latest
-
     - name: Add Docker repository
-      command: yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+      command: dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
 
     - name: Install Docker packages
       dnf:
@@ -97,7 +92,7 @@
 
     - name: Install bats
       shell: "npm install -g bats"
-    
+
     # TODO: remove once we refactor percona/pmm-qa and percona-lab/qa-integration
     - name: Install docker-compose
       get_url:
@@ -132,7 +127,7 @@
     - name: Install Goreleaser
       dnf:
         name: https://github.com/goreleaser/goreleaser/releases/download/v{{ goreleaser_version }}/goreleaser-{{ goreleaser_version }}-1.{{ ansible_architecture }}.rpm
-        disable_gpg_check: true
+        disable_gpg_check: yes
         state: present
 
     - name: Install latest YQ (YAML processor) 

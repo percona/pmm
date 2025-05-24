@@ -143,34 +143,25 @@ func testProfiler(t *testing.T, url string) {
 	for _, r := range ms.reports {
 		for _, bucket := range r.Buckets {
 			switch bucket.Common.Fingerprint {
-			case "INSERT people":
+			case "db.people.insert(?)":
 				key := fmt.Sprintf("%s:%s", bucket.Common.Database, bucket.Common.Fingerprint)
 				if b, ok := bucketsMap[key]; ok {
 					b.Mongodb.MDocsReturnedCnt += bucket.Mongodb.MDocsReturnedCnt
 					b.Mongodb.MResponseLengthCnt += bucket.Mongodb.MResponseLengthCnt
 					b.Mongodb.MResponseLengthSum += bucket.Mongodb.MResponseLengthSum
-					b.Mongodb.MDocsScannedCnt += bucket.Mongodb.MDocsScannedCnt
+					b.Mongodb.MDocsExaminedCnt += bucket.Mongodb.MDocsExaminedCnt
 				} else {
 					bucketsMap[key] = bucket
 				}
-			case "FIND people name_00\ufffd":
+			case `db.people.find({"name_00\ufffd":"?"})`:
 				findBucket = bucket
+			default:
+				t.Logf("unknown fingerprint: %s", bucket.Common.Fingerprint)
 			}
 		}
 	}
 
-	version, err := GetMongoVersion(context.TODO(), sess)
-	require.NoError(t, err)
-
-	var responseLength float32
-	switch version {
-	case "3.4":
-		responseLength = 44
-	case "3.6":
-		responseLength = 29
-	default:
-		responseLength = 45
-	}
+	responseLength := float32(45)
 
 	assert.Equal(t, dbsCount, len(bucketsMap)) // 300 sample docs / 10 = different database names
 	var buckets []*agentv1.MetricsBucket
@@ -182,7 +173,7 @@ func testProfiler(t *testing.T, url string) {
 	})
 	for i, bucket := range buckets {
 		assert.Equal(t, bucket.Common.Database, fmt.Sprintf("test_%02d", i))
-		assert.Equal(t, "INSERT people", bucket.Common.Fingerprint)
+		assert.Equal(t, "db.people.insert(?)", bucket.Common.Fingerprint)
 		assert.Equal(t, []string{"people"}, bucket.Common.Tables)
 		assert.Equal(t, "test-id", bucket.Common.AgentId)
 		assert.Equal(t, inventoryv1.AgentType(9), bucket.Common.AgentType)
@@ -193,19 +184,18 @@ func testProfiler(t *testing.T, url string) {
 			MResponseLengthMin: responseLength,
 			MResponseLengthMax: responseLength,
 			MResponseLengthP99: responseLength,
-			MDocsScannedCnt:    docsCount,
 		}
 		// TODO: fix protobuf equality https://jira.percona.com/browse/PMM-6743
-		assert.Equalf(t, expected.MDocsReturnedCnt, bucket.Mongodb.MDocsReturnedCnt, "wrong metrics for db %s", bucket.Common.Database)
-		assert.Equalf(t, expected.MResponseLengthCnt, bucket.Mongodb.MResponseLengthCnt, "wrong metrics for db %s", bucket.Common.Database)
-		assert.Equalf(t, expected.MResponseLengthSum, bucket.Mongodb.MResponseLengthSum, "wrong metrics for db %s", bucket.Common.Database)
-		assert.Equalf(t, expected.MResponseLengthMin, bucket.Mongodb.MResponseLengthMin, "wrong metrics for db %s", bucket.Common.Database)
-		assert.Equalf(t, expected.MResponseLengthMax, bucket.Mongodb.MResponseLengthMax, "wrong metrics for db %s", bucket.Common.Database)
-		assert.Equalf(t, expected.MResponseLengthP99, bucket.Mongodb.MResponseLengthP99, "wrong metrics for db %s", bucket.Common.Database)
-		assert.Equalf(t, expected.MDocsScannedCnt, bucket.Mongodb.MDocsScannedCnt, "wrong metrics for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MDocsReturnedCnt, bucket.Mongodb.MDocsReturnedCnt, "wrong metrics MDocsReturnedCnt for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthCnt, bucket.Mongodb.MResponseLengthCnt, "wrong metrics MResponseLengthCnt for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthSum, bucket.Mongodb.MResponseLengthSum, "wrong metrics MResponseLengthSum for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthMin, bucket.Mongodb.MResponseLengthMin, "wrong metrics MResponseLengthMin for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthMax, bucket.Mongodb.MResponseLengthMax, "wrong metrics MResponseLengthMax for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MResponseLengthP99, bucket.Mongodb.MResponseLengthP99, "wrong metrics MResponseLengthP99 for db %s", bucket.Common.Database)
+		assert.Equalf(t, expected.MDocsExaminedCnt, bucket.Mongodb.MDocsExaminedCnt, "wrong metrics MDocsExaminedCnt for db %s", bucket.Common.Database)
 	}
 	require.NotNil(t, findBucket)
-	assert.Equal(t, "FIND people name_00\ufffd", findBucket.Common.Fingerprint)
+	assert.Equal(t, `db.people.find({"name_00\ufffd":"?"})`, findBucket.Common.Fingerprint)
 	assert.Equal(t, docsCount, findBucket.Mongodb.MDocsReturnedSum)
 }
 

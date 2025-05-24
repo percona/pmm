@@ -1,0 +1,55 @@
+FROM oraclelinux:8-slim
+
+RUN microdnf install -y dnf
+# enable nodesource repo for nodejs
+RUN curl -sL https://rpm.nodesource.com/setup_22.x | bash -
+RUN curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
+
+RUN dnf update -y && \
+    dnf install -y crypto-policies-scripts && \
+    dnf install -y --setopt=skip_missing_names_on_install=False \
+    nodejs \
+    yarn && \
+    dnf install -y gcc gcc-c++ \
+    libtool libtool-ltdl \
+    make cmake \
+    git \
+    pkgconfig \
+    sudo \
+    automake autoconf \
+    rpmdevtools createrepo_c epel-release \
+    bison rpm-build \
+    rsync \
+    krb5-devel \
+    wget && \
+    dnf install -y --enablerepo=ol8_codeready_builder glibc-static && \
+    dnf clean all && rm -rf /var/cache/dnf /var/cache/yum
+
+# keep that format for easier search
+ENV GO_VERSION=1.23.4
+ENV GO_RELEASER_VERSION=2.8.2
+
+RUN if [ `uname -m` == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
+    curl -fSsL -o /tmp/golang.tar.gz https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz && \
+    curl -fSsL -o /tmp/goreleaser.rpm https://github.com/goreleaser/goreleaser/releases/download/v${GO_RELEASER_VERSION}/goreleaser-${GO_RELEASER_VERSION}-1.`uname -m`.rpm && \
+    tar -C /usr/local -xzf /tmp/golang.tar.gz && \
+    dnf install -y /tmp/goreleaser.rpm && \
+    rm /tmp/golang.tar.gz /tmp/goreleaser.rpm
+
+RUN update-alternatives --install "/usr/bin/go" "go" "/usr/local/go/bin/go" 0
+RUN update-alternatives --set go /usr/local/go/bin/go
+RUN update-alternatives --install "/usr/bin/gofmt" "gofmt" "/usr/local/go/bin/gofmt" 0
+RUN update-alternatives --set gofmt /usr/local/go/bin/gofmt
+
+RUN useradd builder -u 1000 -m -G users,wheel && \
+    echo "builder ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+    echo "# macros"                      >  /home/builder/.rpmmacros && \
+    echo "%_topdir    /home/builder/rpm" >> /home/builder/.rpmmacros && \
+    mkdir -p /home/builder/{rpm,go/pkg} && \
+    chmod -R 755 /home/builder && \
+    chown -R builder:builder /home/builder
+
+USER builder
+
+ENV FLAVOR=rpmbuild OS=centos DIST=el8
+WORKDIR /home/builder/rpm

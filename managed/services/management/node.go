@@ -111,9 +111,12 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			return err
 		}
 		res.PmmAgent = a.(*inventoryv1.PMMAgent) //nolint:forcetypeassert
-		_, err = models.
-			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.ExposeExporter,
-				req.DisableCollectors, pointer.ToStringOrNil(req.AgentPassword), "")
+
+		_, err = models.CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.ExposeExporter,
+			req.DisableCollectors, pointer.ToStringOrNil(req.AgentPassword), "")
+		if err != nil {
+			return err
+		}
 		return err
 	})
 	if e != nil {
@@ -228,7 +231,15 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 			return err
 		}
 
-		agents, err = models.FindAgents(s.db.Querier, models.AgentFilters{})
+		agentFilters := models.AgentFilters{}
+
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		agentFilters.IgnoreNomad = !settings.IsNomadEnabled()
+
+		agents, err = models.FindAgents(tx.Querier, agentFilters)
 		if err != nil {
 			return err
 		}

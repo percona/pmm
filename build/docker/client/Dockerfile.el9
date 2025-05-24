@@ -1,7 +1,27 @@
-FROM redhat/ubi9-minimal AS base
+FROM redhat/ubi9 AS builder
 
-RUN microdnf install shadow-utils jq tar -y
+RUN dnf install -y shadow-utils jq tar https://repo.percona.com/yum/percona-release-latest.noarch.rpm \
+  && percona-release enable ps-80 \
+  && dnf install -y percona-server-client
 
+# Install required dependencies into the installation root
+RUN dnf install -y \
+  perl-core \
+  perl-DBD-MySQL \
+  perl-DBI \
+  perl-Digest-MD5 \
+  perl-English \
+  perl-FindBin \
+  perl-IO-Socket-SSL \
+  perl-Sys-Hostname \
+  perl-TermReadKey \
+  perl-Time-HiRes \
+  perl-sigtrap \
+  && rm -rf /var/cache/*
+  
+RUN ls -R /usr/bin  
+
+ADD pmm-client.tar.gz /tmp/
 RUN groupadd -g 1002 pmm-agent && \
     useradd -u 1002 -r -g pmm-agent -s /sbin/nologin \
             -d /usr/local/percona/pmm \
@@ -10,50 +30,74 @@ RUN groupadd -g 1002 pmm-agent && \
 FROM redhat/ubi9-micro
 
 ARG VERSION
+ARG RELEASE
 ARG BUILD_DATE
 
+LABEL build-date=${BUILD_DATE} \
+  org.opencontainers.image.created=${BUILD_DATE} \
+  org.opencontainers.image.licenses=Apache-2.0 \
+  org.opencontainers.image.title="Percona Monitoring and Management Client" \
+  org.opencontainers.image.vendor="Percona, LLC" \
+  org.opencontainers.image.version=${VERSION} \
+  version=${VERSION} \
+  release=${RELEASE} \
+  name="percona/pmm-client" \
+  summary="PMM Client image" \
+  description="The client image for Percona Monitoring and Management" \
+  io.k8s.description="The client image for Percona Monitoring and Management" \
+  io.k8s.display-name="Percona Monitoring and Management Client" \
+  url="https://docs.percona.com/percona-monitoring-and-management" \
+  vendor="Percona, LLC" \
+  maintainer="Percona, LLC"
+
 COPY LICENSE /licenses/
-COPY --from=base --chown=0:0 /etc/passwd /etc/passwd
-COPY --from=base --chown=0:0 /etc/group /etc/group
+COPY --from=builder --chown=0:0 /etc/passwd /etc/passwd
+COPY --from=builder --chown=0:0 /etc/group /etc/group
 
 # Install jq along with its dependencies
-COPY --from=base --chown=0:0 /usr/bin/jq /usr/bin/
-COPY --from=base --chown=0:0 /usr/bin/tar /usr/bin/
-COPY --from=base --chown=0:0 /usr/bin/curl /usr/bin/
+COPY --from=builder --chown=0:0 /usr/bin/jq /usr/bin/
+COPY --from=builder --chown=0:0 /usr/bin/tar /usr/bin/
+COPY --from=builder --chown=0:0 /usr/bin/curl /usr/bin/
+COPY --from=builder --chown=0:0 /usr/bin/sed /usr/bin/
+COPY --from=builder --chown=0:0 /usr/bin/grep /usr/bin/
+COPY --from=builder --chown=0:0 /usr/bin/awk /usr/bin/
 
-COPY --from=base --chown=0:0 /usr/lib64/libjq.so.1.0.4 /lib64/libjq.so.1
-COPY --from=base --chown=0:0 /usr/lib64/libonig.so.5.1.0 /lib64/libonig.so.5
+COPY --from=builder --chown=0:0 /usr/lib64/libjq.so.1 /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libonig.so.5 /usr/lib64/
 
-# Dependencies of curl
-COPY --from=base --chown=0:0 /usr/lib64/libkeyutils.so* /lib64/
-COPY --from=base --chown=0:0 /usr/lib64/libz.so* /lib64/
-COPY --from=base --chown=0:0 /usr/lib64/libkrb5support.so* /lib64/
-COPY --from=base --chown=0:0 /usr/lib64/libkrb5.so* /lib64/
-COPY --from=base --chown=0:0 /usr/lib64/libk5crypto.so* /lib64/
-COPY --from=base --chown=0:0 /usr/lib64/libgssapi_krb5.so* /lib64/
-COPY --from=base --chown=0:0 /usr/lib64/libcom_err.so* /lib64/
-COPY --from=base --chown=0:0 /usr/lib64/libssl.so* /lib64/
-COPY --from=base --chown=0:0 /usr/lib64/libcrypto.so* /lib64/
-COPY --from=base --chown=0:0 /usr/lib64/libcurl.so* /lib64/
-COPY --from=base --chown=0:0 /usr/lib64/libnghttp2.so* /lib64/
-COPY --from=base --chown=0:0 /usr/lib64/libresolv.so* /lib64/
+# Install perl along with its dependencies
+COPY --from=builder --chown=0:0 /usr/bin/mysql* /usr/bin/
+COPY --from=builder --chown=0:0 /usr/bin/perl* /usr/bin/
+COPY --from=builder --chown=0:0 /usr/lib64/*perl* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/share/perl5 /usr/share/perl5
+COPY --from=builder --chown=0:0 /usr/lib64/libcrypt.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libstdc++.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libreadline.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /etc/ld.so.conf.d/mysql-*.conf /etc/ld.so.conf.d
 
+# Install dependencies of curl
+COPY --from=builder --chown=0:0 /usr/lib64/libkeyutils.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libz.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libkrb5support.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libkrb5.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libk5crypto.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libgssapi_krb5.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libcom_err.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libssl.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libcrypto.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libcurl.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libnghttp2.so* /usr/lib64/
+COPY --from=builder --chown=0:0 /usr/lib64/libresolv.so* /usr/lib64/
+
+# Install dependencies of grep and awk
+COPY --from=builder --chown=0:0 /lib64/libpcre.so.1 /usr/lib64/
+COPY --from=builder --chown=0:0 /lib64/libsigsegv.so.2 /usr/lib64/
+COPY --from=builder --chown=0:0 /lib64/libgmp.so.10 /usr/lib64/
+COPY --from=builder --chown=0:0 /lib64/libmpfr.so.6 /usr/lib64/
+
+# Install pmm-client
 RUN install -d -o pmm-agent -g pmm-agent -m 0775 /usr/local/percona/pmm
-
-ADD pmm-client.tar.gz /tmp/
-
-RUN cd /tmp/pmm-client-* \
-    && PMM_USER=pmm-agent PMM_GROUP=root ./install_tarball \
-    && cd /tmp \
-    && rm -rf /tmp/pmm-client*
-
-LABEL org.opencontainers.image.created=${BUILD_DATE}
-LABEL org.opencontainers.image.licenses=Apache-2.0
-LABEL org.opencontainers.image.title="Percona Monitoring and Management Client"
-LABEL org.opencontainers.image.vendor=Percona
-LABEL org.opencontainers.image.version=${VERSION}
-LABEL org.opencontainers.image.source=https://github.com/percona/pmm/blob/main/build/docker/client/Dockerfile
-LABEL org.opencontainers.image.docs=https://docs.percona.com/percona-monitoring-and-management/setting-up/client/index.html#docker
+COPY --from=builder /usr/local/percona/pmm /usr/local/percona/pmm/
 
 USER pmm-agent
 WORKDIR /usr/local/percona/pmm/

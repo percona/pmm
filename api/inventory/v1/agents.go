@@ -26,6 +26,7 @@ type Agent interface {
 
 func (*PMMAgent) sealedAgent()                        {}
 func (*VMAgent) sealedAgent()                         {}
+func (*NomadAgent) sealedAgent()                      {}
 func (*NodeExporter) sealedAgent()                    {}
 func (*MySQLdExporter) sealedAgent()                  {}
 func (*MongoDBExporter) sealedAgent()                 {}
@@ -39,3 +40,4 @@ func (*QANPostgreSQLPgStatMonitorAgent) sealedAgent() {}
 func (*RDSExporter) sealedAgent()                     {}
 func (*ExternalExporter) sealedAgent()                {}
 func (*AzureDatabaseExporter) sealedAgent()           {}
+func (*ValkeyExporter) sealedAgent()                  {}

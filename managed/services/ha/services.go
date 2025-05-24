@@ -89,7 +89,7 @@ func (s *services) StopRunningServices() {
 		ls := service
 		go func() {
 			defer s.wg.Done()
-			s.l.Infoln("Stopping ", ls)
+			s.l.Infoln("Stopping", ls.ID())
 			ls.Stop()
 			s.rw.Lock()
 			defer s.rw.Unlock()

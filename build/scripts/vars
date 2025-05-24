@@ -62,10 +62,10 @@ docker_client_tag_file=${build_dir}/docker/CLIENT_TAG
 source_tarball=${build_dir}/source_tarball/pmm-client-${pmm_version}.tar.gz
 binary_tarball=${build_dir}/tarball/pmm-client-${pmm_version}.tar.gz
 
-# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.93.4
-vmagent_commit_hash=58ecb9066574f38f1d1c91ace467316e7f175b09
-# https://github.com/hashicorp/nomad/releases/tag/v1.9.3
-nomad_commit_hash=d92bf1014886c0ff9f882f4a2691d5ae8ad8131c
+# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.114.0
+vmagent_commit_hash=a5e3c6d4492db765800363dfae48a04b4d7888be
+# https://github.com/hashicorp/nomad/releases/tag/v1.9.0
+nomad_commit_hash=7ad36851ec02f875e0814775ecf1df0229f0a615
 
 set -o errexit
 if [ "${DEBUG_MODE:-0}" -eq 1 ] || [ -n "${CI:-}" ]; then

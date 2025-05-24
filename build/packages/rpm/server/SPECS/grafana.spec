@@ -1,9 +1,7 @@
-%global commit          ae7b461382be0d9b9acd0022398369bf313cc6f8
+%global commit          7eb13cd5e16e25e8392845a719ed8a3cc634b3f7
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
-%define release         107
-%define grafana_version 11.1.8
-%define full_pmm_version 2.0.0
-%define full_version    v%{grafana_version}-%{full_pmm_version}
+%define release         110
+%define grafana_version 11.6.1
 %define rpm_release     %{release}.%{shortcommit}%{?dist}
 
 %if ! 0%{?gobuild:1}
@@ -81,6 +79,15 @@ getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it 
 
 
 %changelog
+* Thu May 22 2025 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.6.1-1
+- PMM-14005 Grafana 11.6.1
+
+* Thu Apr 10 2025 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.6.0-1
+- PMM-13463 Grafana 11.6.0
+
+* Thu Mar 27 2025 Matej Kubinec <matej.kubinec@ext.percona.com> - 11.5.3-1
+- PMM-13463 Grafana 11.5.3
+
 * Thu Oct 24 2024 Yash Sartanpara <yash.sartanpara@ext.percona.com> - 11.1.8-1
 - PMM-13449 Grafana 11.1.8
 

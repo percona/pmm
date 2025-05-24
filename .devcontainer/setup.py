@@ -26,11 +26,11 @@ def install_packages():
     run_commands([
         "dnf install -y gcc git make pkgconfig \
             vim \
-            mc tmux psmisc lsof which iproute diffutils \
-            bash-completion \
+            mc psmisc procps lsof which iproute diffutils \
             man man-pages \
             openssl-devel \
-            wget",
+            wget \
+            krb5-devel",
         
         "dnf install -y ansible-lint glibc-static --enablerepo=ol9_codeready_builder"
 
@@ -75,7 +75,7 @@ def setup():
     """Runs various setup commands."""
     run_commands([
         # allow connecting from any host, needed to connect from host to PG running in docker
-        "sed -i -e \"s/#listen_addresses = \'localhost\'/listen_addresses = \'*\'/\" /srv/postgres14/postgresql.conf",
+        "sed -i -e \"s/#listen_addresses = 'localhost'/listen_addresses = '*'/\" /srv/postgres14/postgresql.conf",
         # Turns fsync off. Create database operations with fsync on are very slow on Ubuntu.
         # Having fsync off in dev environment is fine.
         "sed -i -e \"s/#fsync = on/fsync = off/\" /srv/postgres14/postgresql.conf",

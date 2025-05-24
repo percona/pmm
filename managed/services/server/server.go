@@ -63,6 +63,7 @@ type Server struct {
 	grafanaClient        grafanaClient
 	haService            haService
 	updater              *Updater
+	nomad                nomadService
 
 	l *logrus.Entry
 
@@ -95,6 +96,7 @@ type Params struct {
 	GrafanaClient        grafanaClient
 	Updater              *Updater
 	Dus                  *distribution.Service
+	Nomad                nomadService
 }
 
 // NewServer returns new server for Server service.
@@ -117,6 +119,7 @@ func NewServer(params *Params) (*Server, error) {
 		telemetryService:     params.TelemetryService,
 		grafanaClient:        params.GrafanaClient,
 		updater:              params.Updater,
+		nomad:                params.Nomad,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
@@ -126,7 +129,7 @@ func NewServer(params *Params) (*Server, error) {
 
 // UpdateSettingsFromEnv updates settings in the database with environment variables values.
 // It returns only validation or database errors; invalid environment variables are logged and skipped.
-func (s *Server) UpdateSettingsFromEnv(env []string) []error {
+func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []error {
 	s.envRW.Lock()
 	defer s.envRW.Unlock()
 
@@ -146,6 +149,10 @@ func (s *Server) UpdateSettingsFromEnv(env []string) []error {
 		return []error{err}
 	}
 	s.envSettings = envSettings
+	err = s.UpdateConfigurations(ctx)
+	if err != nil {
+		return []error{err}
+	}
 	return nil
 }
 
@@ -494,6 +501,22 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 	return res
 }
 
+// convertReadOnlySettings creates a subset of database settings for non-admin roles.
+func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.ReadOnlySettings {
+	res := &serverv1.ReadOnlySettings{
+		UpdatesEnabled:          settings.IsUpdatesEnabled(),
+		TelemetryEnabled:        settings.IsTelemetryEnabled(),
+		AdvisorEnabled:          settings.IsAdvisorsEnabled(),
+		AlertingEnabled:         settings.IsAlertingEnabled(),
+		PmmPublicAddress:        settings.PMMPublicAddress,
+		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
+		AzurediscoverEnabled:    settings.IsAzureDiscoverEnabled(),
+		EnableAccessControl:     settings.IsAccessControlEnabled(),
+	}
+
+	return res
+}
+
 // GetSettings returns current PMM Server settings.
 func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsRequest) (*serverv1.GetSettingsResponse, error) { //nolint:revive
 	s.envRW.RLock()
@@ -508,6 +531,21 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 
 	return &serverv1.GetSettingsResponse{
 		Settings: s.convertSettings(settings, err == nil),
+	}, nil
+}
+
+// GetReadOnlySettings returns current PMM Server settings .
+func (s *Server) GetReadOnlySettings(ctx context.Context, req *serverv1.GetReadOnlySettingsRequest) (*serverv1.GetReadOnlySettingsResponse, error) { //nolint:revive
+	s.envRW.RLock()
+	defer s.envRW.RUnlock()
+
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serverv1.GetReadOnlySettingsResponse{
+		Settings: s.convertReadOnlySettings(settings),
 	}, nil
 }
 
@@ -566,7 +604,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}
 
 	var newSettings, oldSettings *models.Settings
-	errTX := s.db.InTransaction(func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		if oldSettings, err = models.GetSettings(tx); err != nil {
 			return errors.WithStack(err)
@@ -616,7 +654,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		if req.SshKey != nil {
 			if err = s.writeSSHKey(pointer.GetString(req.SshKey)); err != nil {
 				s.l.Error(errors.WithStack(err))
-				return status.Errorf(codes.Internal, err.Error())
+				return status.Error(codes.Internal, err.Error())
 			}
 		}
 
@@ -625,7 +663,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	if errTX != nil {
 		return nil, errTX
 	}
-
 	if err := s.UpdateConfigurations(ctx); err != nil {
 		return nil, err
 	}
@@ -661,12 +698,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 	}
 
-	if isAgentsStateUpdateNeeded(req.MetricsResolutions) {
-		if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
-			return nil, err
-		}
-	}
-
 	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 
 	return &serverv1.ChangeSettingsResponse{
@@ -686,11 +717,19 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 			return errors.Wrap(err, "failed to get SSO details")
 		}
 	}
+
+	if err := s.nomad.UpdateConfiguration(settings); err != nil {
+		return errors.Wrap(err, "failed to update nomad configuration")
+	}
 	if err := s.supervisord.UpdateConfiguration(settings, ssoDetails); err != nil {
 		return errors.Wrap(err, "failed to update supervisord configuration")
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
+
+	if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
+		return errors.Wrap(err, "failed to update agents state")
+	}
 	return nil
 }
 
@@ -727,18 +766,6 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 	return nil
-}
-
-// isAgentsStateUpdateNeeded - checks metrics resolution changes,
-// if it was changed, agents state must be updated.
-func isAgentsStateUpdateNeeded(mr *serverv1.MetricsResolutions) bool {
-	if mr == nil {
-		return false
-	}
-	if mr.Lr == nil && mr.Hr == nil && mr.Mr == nil {
-		return false
-	}
-	return true
 }
 
 func canUpdateDurationSetting(newValue, envValue time.Duration) bool {

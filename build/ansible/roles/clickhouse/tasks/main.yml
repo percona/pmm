@@ -10,7 +10,7 @@
     enabled: no
 
 - name: Install clickhouse package
-  yum:
+  dnf:
     name:
       - clickhouse-client-{{ clickhouse_version }}
       - clickhouse-server-{{ clickhouse_version }}
@@ -34,16 +34,18 @@
     - /var/log/clickhouse-server
     - /run/clickhouse-server
 
-- name: Copy a customized clickhouse config
+- name: Copy customized clickhouse config files
   copy:
-    src: config.xml
-    dest: /etc/clickhouse-server/config.xml
+    src: "{{ item }}"
+    dest: "/etc/clickhouse-server/{{ item }}"
     owner: pmm
     group: pmm
     mode: 0664
+  loop:
+    - config.xml
+    - users.xml
 
 # We need to remove capabilities because we run PMM in an unprivileged container
-# But we run clickhouse as root user
 - name: Remove cap_ipc_lock from clickhouse binary
   capabilities:
     path: /usr/bin/clickhouse

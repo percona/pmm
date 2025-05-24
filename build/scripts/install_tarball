@@ -8,7 +8,7 @@ usage () {
 Usage: $0 [OPTIONS]
     The following options may be given :
         -u                  Update PMM-Agent
-        -help) usage ;;
+        -help)              This help
 Example:
         For help command - $0 -help
         To install PMM tarball - $0

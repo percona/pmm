@@ -83,7 +83,7 @@ jobs:
         run: docker exec -i pmm-server make -C managed test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
+        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
         with:
           files: managed/cover.out
           flags: managed
@@ -134,5 +134,5 @@ jobs:
           services=(`echo ${services}`)
           for service in "${services[@]}"; do
             echo "Logs for $service:"
-            docker exec pmm-server supervisorctl tail $service
+            docker exec pmm-server supervisorctl tail $service || true
           done

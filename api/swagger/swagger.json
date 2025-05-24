@@ -4220,6 +4220,7 @@
               "AGENT_TYPE_MONGODB_EXPORTER",
               "AGENT_TYPE_POSTGRES_EXPORTER",
               "AGENT_TYPE_PROXYSQL_EXPORTER",
+              "AGENT_TYPE_VALKEY_EXPORTER",
               "AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT",
               "AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT",
               "AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT",
@@ -5927,6 +5928,192 @@
                     }
                   },
                   "x-order": 14
+                },
+                "nomad_agent": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "AGENT_STATUS_UNSPECIFIED",
+                          "AGENT_STATUS_STARTING",
+                          "AGENT_STATUS_INITIALIZATION_ERROR",
+                          "AGENT_STATUS_RUNNING",
+                          "AGENT_STATUS_WAITING",
+                          "AGENT_STATUS_STOPPING",
+                          "AGENT_STATUS_DONE",
+                          "AGENT_STATUS_UNKNOWN"
+                        ],
+                        "x-order": 3
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 5
+                      }
+                    }
+                  },
+                  "x-order": 15
+                },
+                "valkey_exporter": {
+                  "type": "array",
+                  "items": {
+                    "description": "ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "service_id": {
+                        "description": "Service identifier.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "username": {
+                        "description": "Valkey username for scraping metrics.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "tls": {
+                        "description": "Use TLS for database connections.",
+                        "type": "boolean",
+                        "x-order": 5
+                      },
+                      "tls_skip_verify": {
+                        "description": "Skip TLS certificate and hostname verification.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 7
+                      },
+                      "push_metrics_enabled": {
+                        "description": "True if exporter uses push metrics mode.",
+                        "type": "boolean",
+                        "x-order": 8
+                      },
+                      "disabled_collectors": {
+                        "description": "List of disabled collector names.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "AGENT_STATUS_UNSPECIFIED",
+                          "AGENT_STATUS_STARTING",
+                          "AGENT_STATUS_INITIALIZATION_ERROR",
+                          "AGENT_STATUS_RUNNING",
+                          "AGENT_STATUS_WAITING",
+                          "AGENT_STATUS_STOPPING",
+                          "AGENT_STATUS_DONE",
+                          "AGENT_STATUS_UNKNOWN"
+                        ],
+                        "x-order": 10
+                      },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 11
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "log_level": {
+                        "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "LOG_LEVEL_UNSPECIFIED",
+                        "enum": [
+                          "LOG_LEVEL_UNSPECIFIED",
+                          "LOG_LEVEL_FATAL",
+                          "LOG_LEVEL_ERROR",
+                          "LOG_LEVEL_WARN",
+                          "LOG_LEVEL_INFO",
+                          "LOG_LEVEL_DEBUG"
+                        ],
+                        "x-order": 13
+                      },
+                      "expose_exporter": {
+                        "type": "boolean",
+                        "title": "Optionally expose the exporter process on all public interfaces",
+                        "x-order": 14
+                      },
+                      "metrics_resolutions": {
+                        "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                        "type": "object",
+                        "properties": {
+                          "hr": {
+                            "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "mr": {
+                            "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "lr": {
+                            "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        },
+                        "x-order": 15
+                      }
+                    }
+                  },
+                  "x-order": 16
                 }
               }
             }
@@ -7163,6 +7350,108 @@
                     }
                   },
                   "x-order": 13
+                },
+                "valkey_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "username": {
+                      "description": "Valkey username for scraping metrics.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "password": {
+                      "description": "Valkey password for scraping metrics.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-order": 7
+                    },
+                    "push_metrics": {
+                      "description": "Enables push metrics mode for exporter.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certifcate.",
+                      "type": "string",
+                      "x-order": 11
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-order": 13
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 14
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
+                    }
+                  },
+                  "x-order": 14
                 }
               }
             }
@@ -8769,6 +9058,138 @@
                     }
                   },
                   "x-order": 13
+                },
+                "valkey_exporter": {
+                  "description": "ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "Valkey username for scraping metrics.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname verification.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 10
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 11
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 14
+                    },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 15
+                    }
+                  },
+                  "x-order": 14
                 }
               }
             }
@@ -10469,6 +10890,186 @@
                     }
                   },
                   "x-order": 14
+                },
+                "nomad_agent": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 3
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 15
+                },
+                "valkey_exporter": {
+                  "description": "ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "Valkey username for scraping metrics.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname verification.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 10
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 11
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 14
+                    },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 15
+                    }
+                  },
+                  "x-order": 16
                 }
               }
             }
@@ -11241,6 +11842,73 @@
                     }
                   },
                   "x-order": 12
+                },
+                "nomad_agent": {
+                  "type": "object",
+                  "properties": {
+                    "enable": {
+                      "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 13
+                },
+                "valkey_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "enable": {
+                      "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 0
+                    },
+                    "custom_labels": {
+                      "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                      "type": "object",
+                      "properties": {
+                        "values": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-nullable": true,
+                      "x-order": 1
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 2
+                    },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 14
                 }
               }
             }
@@ -12812,6 +13480,186 @@
                     }
                   },
                   "x-order": 12
+                },
+                "nomad_agent": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 3
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 13
+                },
+                "valkey_exporter": {
+                  "description": "ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "Valkey username for scraping metrics.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname verification.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 10
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 11
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 14
+                    },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 15
+                    }
+                  },
+                  "x-order": 14
                 }
               }
             }
@@ -14247,6 +15095,7 @@
               "SERVICE_TYPE_MYSQL_SERVICE",
               "SERVICE_TYPE_MONGODB_SERVICE",
               "SERVICE_TYPE_POSTGRESQL_SERVICE",
+              "SERVICE_TYPE_VALKEY_SERVICE",
               "SERVICE_TYPE_PROXYSQL_SERVICE",
               "SERVICE_TYPE_HAPROXY_SERVICE",
               "SERVICE_TYPE_EXTERNAL_SERVICE"
@@ -14657,6 +15506,75 @@
                     }
                   },
                   "x-order": 5
+                },
+                "valkey": {
+                  "type": "array",
+                  "items": {
+                    "description": "ValkeyService represents a generic Valkey instance.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "version": {
+                        "description": "Valkey version.",
+                        "type": "string",
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -15017,6 +15935,61 @@
                     }
                   },
                   "x-order": 5
+                },
+                "valkey": {
+                  "type": "object",
+                  "properties": {
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name. Required.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "port": {
+                      "description": "Access port.\nPort is required when the address present.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 3
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -15397,6 +16370,72 @@
                     }
                   },
                   "x-order": 5
+                },
+                "valkey": {
+                  "description": "ValkeyService represents a generic Valkey instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "port": {
+                      "description": "Access port.\nPort is required when the address present.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 4
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "version": {
+                      "description": "Valkey version.",
+                      "type": "string",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -15827,6 +16866,72 @@
                     }
                   },
                   "x-order": 5
+                },
+                "valkey": {
+                  "description": "ValkeyService represents a generic Valkey instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "port": {
+                      "description": "Access port.\nPort is required when the address present.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 4
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "version": {
+                      "description": "Valkey version.",
+                      "type": "string",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -16299,6 +17404,72 @@
                     }
                   },
                   "x-order": 5
+                },
+                "valkey": {
+                  "description": "ValkeyService represents a generic Valkey instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "port": {
+                      "description": "Access port.\nPort is required when the address present.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 4
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "version": {
+                      "description": "Valkey version.",
+                      "type": "string",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 6
                 }
               }
             }
@@ -16434,6 +17605,7 @@
                       "SERVICE_TYPE_MYSQL_SERVICE",
                       "SERVICE_TYPE_MONGODB_SERVICE",
                       "SERVICE_TYPE_POSTGRESQL_SERVICE",
+                      "SERVICE_TYPE_VALKEY_SERVICE",
                       "SERVICE_TYPE_PROXYSQL_SERVICE",
                       "SERVICE_TYPE_HAPROXY_SERVICE",
                       "SERVICE_TYPE_EXTERNAL_SERVICE"
@@ -17885,6 +19057,7 @@
               "SERVICE_TYPE_MYSQL_SERVICE",
               "SERVICE_TYPE_MONGODB_SERVICE",
               "SERVICE_TYPE_POSTGRESQL_SERVICE",
+              "SERVICE_TYPE_VALKEY_SERVICE",
               "SERVICE_TYPE_PROXYSQL_SERVICE",
               "SERVICE_TYPE_HAPROXY_SERVICE",
               "SERVICE_TYPE_EXTERNAL_SERVICE"
@@ -22720,6 +23893,7 @@
               "SERVICE_TYPE_MYSQL_SERVICE",
               "SERVICE_TYPE_MONGODB_SERVICE",
               "SERVICE_TYPE_POSTGRESQL_SERVICE",
+              "SERVICE_TYPE_VALKEY_SERVICE",
               "SERVICE_TYPE_PROXYSQL_SERVICE",
               "SERVICE_TYPE_HAPROXY_SERVICE",
               "SERVICE_TYPE_EXTERNAL_SERVICE"
@@ -24284,143 +25458,203 @@
                               "format": "float",
                               "x-order": 42
                             },
+                            "m_docs_examined_sum_per_sec": {
+                              "description": "Total number of documents scanned during query execution.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 43
+                            },
+                            "m_keys_examined_sum_per_sec": {
+                              "description": "Total number of index keys scanned during query execution.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 44
+                            },
+                            "m_locks_global_acquire_count_read_shared_sum_per_sec": {
+                              "description": "Number of times a global read lock was acquired during query execution.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 45
+                            },
+                            "m_locks_global_acquire_count_write_shared_sum_per_sec": {
+                              "description": "Number of times a global write lock was acquired during query execution.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 46
+                            },
+                            "m_locks_database_acquire_count_read_shared_sum_per_sec": {
+                              "description": "Number of times a read lock was acquired at the database level during query execution.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 47
+                            },
+                            "m_locks_database_acquire_wait_count_read_shared_sum_per_sec": {
+                              "description": "Number of times a read lock at the database level was requested but had to wait before being granted.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 48
+                            },
+                            "m_locks_database_time_acquiring_micros_read_shared_sum_per_sec": {
+                              "description": "Indicates the time, spent acquiring a read lock at the database level during an operation.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 49
+                            },
+                            "m_locks_collection_acquire_count_read_shared_sum_per_sec": {
+                              "description": "Number of times a read lock was acquired on a specific collection during operations.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 50
+                            },
+                            "m_storage_bytes_read_sum_per_sec": {
+                              "description": "Total number of bytes read from storage during a specific operation.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 51
+                            },
+                            "m_storage_time_reading_micros_sum_per_sec": {
+                              "description": "Indicates the time, spent reading data from storage during an operation.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 52
+                            },
                             "m_shared_blks_hit_sum_per_sec": {
                               "description": "Total number of shared block cache hits by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 43
+                              "x-order": 53
                             },
                             "m_shared_blks_read_sum_per_sec": {
                               "description": "Total number of shared blocks read by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 44
+                              "x-order": 54
                             },
                             "m_shared_blks_dirtied_sum_per_sec": {
                               "description": "Total number of shared blocks dirtied by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 45
+                              "x-order": 55
                             },
                             "m_shared_blks_written_sum_per_sec": {
                               "description": "Total number of shared blocks written by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 46
+                              "x-order": 56
                             },
                             "m_shared_blk_read_time_sum_per_sec": {
                               "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                               "type": "number",
                               "format": "float",
-                              "x-order": 47
+                              "x-order": 57
                             },
                             "m_shared_blk_write_time_sum_per_sec": {
                               "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                               "type": "number",
                               "format": "float",
-                              "x-order": 48
+                              "x-order": 58
                             },
                             "m_local_blk_read_time_sum_per_sec": {
                               "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                               "type": "number",
                               "format": "float",
-                              "x-order": 49
+                              "x-order": 59
                             },
                             "m_local_blk_write_time_sum_per_sec": {
                               "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                               "type": "number",
                               "format": "float",
-                              "x-order": 50
+                              "x-order": 60
                             },
                             "m_local_blks_hit_sum_per_sec": {
                               "description": "Total number of local block cache hits by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 51
+                              "x-order": 61
                             },
                             "m_local_blks_read_sum_per_sec": {
                               "description": "Total number of local blocks read by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 52
+                              "x-order": 62
                             },
                             "m_local_blks_dirtied_sum_per_sec": {
                               "description": "Total number of local blocks dirtied by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 53
+                              "x-order": 63
                             },
                             "m_local_blks_written_sum_per_sec": {
                               "description": "Total number of local blocks written by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 54
+                              "x-order": 64
                             },
                             "m_temp_blks_read_sum_per_sec": {
                               "description": "Total number of temp blocks read by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 55
+                              "x-order": 65
                             },
                             "m_temp_blks_written_sum_per_sec": {
                               "description": "Total number of temp blocks written by the statement.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 56
+                              "x-order": 66
                             },
                             "m_blk_read_time_sum_per_sec": {
                               "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                               "type": "number",
                               "format": "float",
-                              "x-order": 57
+                              "x-order": 67
                             },
                             "m_blk_write_time_sum_per_sec": {
                               "description": "Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                               "type": "number",
                               "format": "float",
-                              "x-order": 58
+                              "x-order": 68
                             },
                             "m_cpu_user_time_sum_per_sec": {
                               "description": "Total time user spent in query.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 59
+                              "x-order": 69
                             },
                             "m_cpu_sys_time_sum_per_sec": {
                               "description": "Total time system spent in query.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 60
+                              "x-order": 70
                             },
                             "m_plans_calls_sum_per_sec": {
                               "description": "Total number of planned calls.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 61
+                              "x-order": 71
                             },
                             "m_wal_records_sum_per_sec": {
                               "description": "Total number of WAL (Write-ahead logging) records.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 62
+                              "x-order": 72
                             },
                             "m_wal_fpi_sum_per_sec": {
                               "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 63
+                              "x-order": 73
                             },
                             "m_wal_bytes_sum_per_sec": {
                               "description": "Total bytes of WAL (Write-ahead logging) records.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 64
+                              "x-order": 74
                             },
                             "m_plan_time_sum_per_sec": {
                               "description": "Plan time in per seconds.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 65
+                              "x-order": 75
                             }
                           }
                         },
@@ -25598,143 +26832,203 @@
                         "format": "float",
                         "x-order": 42
                       },
+                      "m_docs_examined_sum_per_sec": {
+                        "description": "Total number of documents scanned during query execution.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 43
+                      },
+                      "m_keys_examined_sum_per_sec": {
+                        "description": "Total number of index keys scanned during query execution.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 44
+                      },
+                      "m_locks_global_acquire_count_read_shared_sum_per_sec": {
+                        "description": "Number of times a global read lock was acquired during query execution.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 45
+                      },
+                      "m_locks_global_acquire_count_write_shared_sum_per_sec": {
+                        "description": "Number of times a global write lock was acquired during query execution.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 46
+                      },
+                      "m_locks_database_acquire_count_read_shared_sum_per_sec": {
+                        "description": "Number of times a read lock was acquired at the database level during query execution.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 47
+                      },
+                      "m_locks_database_acquire_wait_count_read_shared_sum_per_sec": {
+                        "description": "Number of times a read lock at the database level was requested but had to wait before being granted.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 48
+                      },
+                      "m_locks_database_time_acquiring_micros_read_shared_sum_per_sec": {
+                        "description": "Indicates the time, spent acquiring a read lock at the database level during an operation.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 49
+                      },
+                      "m_locks_collection_acquire_count_read_shared_sum_per_sec": {
+                        "description": "Number of times a read lock was acquired on a specific collection during operations.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 50
+                      },
+                      "m_storage_bytes_read_sum_per_sec": {
+                        "description": "Total number of bytes read from storage during a specific operation.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 51
+                      },
+                      "m_storage_time_reading_micros_sum_per_sec": {
+                        "description": "Indicates the time, spent reading data from storage during an operation.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 52
+                      },
                       "m_shared_blks_hit_sum_per_sec": {
                         "description": "Total number of shared block cache hits by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 43
+                        "x-order": 53
                       },
                       "m_shared_blks_read_sum_per_sec": {
                         "description": "Total number of shared blocks read by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 44
+                        "x-order": 54
                       },
                       "m_shared_blks_dirtied_sum_per_sec": {
                         "description": "Total number of shared blocks dirtied by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 45
+                        "x-order": 55
                       },
                       "m_shared_blks_written_sum_per_sec": {
                         "description": "Total number of shared blocks written by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 46
+                        "x-order": 56
                       },
                       "m_shared_blk_read_time_sum_per_sec": {
                         "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                         "type": "number",
                         "format": "float",
-                        "x-order": 47
+                        "x-order": 57
                       },
                       "m_shared_blk_write_time_sum_per_sec": {
                         "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                         "type": "number",
                         "format": "float",
-                        "x-order": 48
+                        "x-order": 58
                       },
                       "m_local_blk_read_time_sum_per_sec": {
                         "description": "Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                         "type": "number",
                         "format": "float",
-                        "x-order": 49
+                        "x-order": 59
                       },
                       "m_local_blk_write_time_sum_per_sec": {
                         "description": "Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                         "type": "number",
                         "format": "float",
-                        "x-order": 50
+                        "x-order": 60
                       },
                       "m_local_blks_hit_sum_per_sec": {
                         "description": "Total number of local block cache hits by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 51
+                        "x-order": 61
                       },
                       "m_local_blks_read_sum_per_sec": {
                         "description": "Total number of local blocks read by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 52
+                        "x-order": 62
                       },
                       "m_local_blks_dirtied_sum_per_sec": {
                         "description": "Total number of local blocks dirtied by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 53
+                        "x-order": 63
                       },
                       "m_local_blks_written_sum_per_sec": {
                         "description": "Total number of local blocks written by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 54
+                        "x-order": 64
                       },
                       "m_temp_blks_read_sum_per_sec": {
                         "description": "Total number of temp blocks read by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 55
+                        "x-order": 65
                       },
                       "m_temp_blks_written_sum_per_sec": {
                         "description": "Total number of temp blocks written by the statement.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 56
+                        "x-order": 66
                       },
                       "m_blk_read_time_sum_per_sec": {
                         "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                         "type": "number",
                         "format": "float",
-                        "x-order": 57
+                        "x-order": 67
                       },
                       "m_blk_write_time_sum_per_sec": {
                         "description": "Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).",
                         "type": "number",
                         "format": "float",
-                        "x-order": 58
+                        "x-order": 68
                       },
                       "m_cpu_user_time_sum_per_sec": {
                         "description": "Total time user spent in query.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 59
+                        "x-order": 69
                       },
                       "m_cpu_sys_time_sum_per_sec": {
                         "description": "Total time system spent in query.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 60
+                        "x-order": 70
                       },
                       "m_plans_calls_sum_per_sec": {
                         "description": "Total number of planned calls.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 61
+                        "x-order": 71
                       },
                       "m_wal_records_sum_per_sec": {
                         "description": "Total number of WAL (Write-ahead logging) records.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 62
+                        "x-order": 72
                       },
                       "m_wal_fpi_sum_per_sec": {
                         "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 63
+                        "x-order": 73
                       },
                       "m_wal_bytes_sum_per_sec": {
                         "description": "Total bytes of WAL (Write-ahead logging) records.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 64
+                        "x-order": 74
                       },
                       "m_plan_time_sum_per_sec": {
                         "description": "Plan time in per seconds.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 65
+                        "x-order": 75
                       }
                     }
                   },
@@ -26529,6 +27823,106 @@
         }
       }
     },
+    "/v1/server/settings/readonly": {
+      "get": {
+        "description": "Returns a stripped version of PMM Server settings.",
+        "tags": [
+          "ServerService"
+        ],
+        "summary": "Get read-only settings",
+        "operationId": "GetReadOnlySettings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "settings": {
+                  "description": "ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.",
+                  "type": "object",
+                  "properties": {
+                    "updates_enabled": {
+                      "description": "True if updates are enabled.",
+                      "type": "boolean",
+                      "x-order": 0
+                    },
+                    "telemetry_enabled": {
+                      "description": "True if telemetry is enabled.",
+                      "type": "boolean",
+                      "x-order": 1
+                    },
+                    "advisor_enabled": {
+                      "description": "True if Advisor is enabled.",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "alerting_enabled": {
+                      "description": "True if Alerting is enabled.",
+                      "type": "boolean",
+                      "x-order": 3
+                    },
+                    "pmm_public_address": {
+                      "description": "PMM Server public address.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "backup_management_enabled": {
+                      "description": "True if Backup Management is enabled.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "azurediscover_enabled": {
+                      "description": "True if Azure Discover is enabled.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "enable_access_control": {
+                      "description": "True if Access Control is enabled.",
+                      "type": "boolean",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/server/updates": {
       "get": {
         "description": "Checks for available PMM Server updates.",
@@ -27171,11 +28565,6 @@
                   "type": "string",
                   "title": "Snoozed PMM version update",
                   "x-order": 3
-                },
-                "snoozed_api_keys_migration": {
-                  "type": "boolean",
-                  "title": "Snoozed warning about API keys migration",
-                  "x-order": 4
                 }
               }
             }
@@ -27245,12 +28634,6 @@
                   "title": "Snooze update alert for a PMM version",
                   "x-nullable": true,
                   "x-order": 2
-                },
-                "snoozed_api_keys_migration": {
-                  "type": "boolean",
-                  "title": "Snoozed warning about API keys migration",
-                  "x-nullable": true,
-                  "x-order": 3
                 }
               }
             }
@@ -27282,11 +28665,6 @@
                   "type": "string",
                   "title": "Snooze update alert for a PMM version",
                   "x-order": 3
-                },
-                "snoozed_api_keys_migration": {
-                  "type": "boolean",
-                  "title": "Snoozed warning about API keys migration",
-                  "x-order": 4
                 }
               }
             }

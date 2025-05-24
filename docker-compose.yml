@@ -16,14 +16,18 @@ services:
     networks:
       - ${NETWORK:-default}
     environment:
-      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
-      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY:-}
+      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN:-}
       - PMM_RELEASE_PATH=/root/go/bin
       - PMM_ENABLE_ACCESS_CONTROL=${PMM_ENABLE_ACCESS_CONTROL:-0}
       - PMM_WATCHTOWER_HOST=${PMM_WATCHTOWER_HOST:-http://watchtower:8080}
       - PMM_WATCHTOWER_TOKEN=${PMM_WATCHTOWER_TOKEN:-INSECURE_TOKEN}
-      - PMM_RELEASE_VERSION=3.0.0-alpha
+      - PMM_ENABLE_NOMAD=${PMM_ENABLE_NOMAD:-0}
+      - PMM_ENABLE_TELEMETRY=${PMM_ENABLE_TELEMETRY:-0}
+      - PMM_PUBLIC_ADDRESS=${PMM_PUBLIC_ADDRESS:-localhost}
+      - PMM_RELEASE_VERSION=3.0.0
+      - GO_VERSION=1.23.x
       # - PMM_DISTRIBUTION_METHOD=${PMM_DISTRIBUTION_METHOD:-docker}
       # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_DEV_UPDATE_DOCKER_IMAGE:-}
       # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
@@ -34,12 +38,14 @@ services:
       # - PMM_DEV_TELEMETRY_RETRY_BACKOFF=10s
       # - PMM_CLICKHOUSE_ADDR=127.0.0.1:9000
       # - PMM_CLICKHOUSE_DATABASE=pmm
+      # - PMM_CLICKHOUSE_USER=default
+      # - PMM_CLICKHOUSE_PASSWORD=<password>
       # - PMM_DEBUG=1
       # - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/local-checks.yml
       # - PMM_POSTGRES_ADDR=pg
       # - PMM_POSTGRES_DBNAME=pmm-managed
       # - PMM_POSTGRES_USERNAME=pmm-managed
-      # - PMM_POSTGRES_DBPASSWORD=pmm-managed
+      # - PMM_POSTGRES_DBPASSWORD=<password>
       # - PMM_POSTGRES_SSL_MODE=verify-full
       # - PMM_POSTGRES_SSL_CA_PATH=/tmp/certs/root.crt
       # - PMM_POSTGRES_SSL_KEY_PATH=/tmp/certs/pmm-managed.key
@@ -88,6 +94,7 @@ services:
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
+      - srv:/srv
       # grafana
 #      - "../grafana:/workspace"
 #      - "../grafana/public:/usr/share/grafana/public"
@@ -239,9 +246,9 @@ services:
         ipv4_address: 172.20.0.5
     environment:
       - PMM_RELEASE_PATH=/root/go/src/github.com/percona/pmm/bin
-      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
-      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
-      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN:-}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY:-}
       # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
       # - PMM_DEV_PERCONA_PLATFORM_INSECURE=1
       # - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=<public key>
@@ -319,9 +326,9 @@ services:
         ipv4_address: 172.20.0.6
     environment:
       - PMM_RELEASE_PATH=/root/go/src/github.com/percona/pmm/bin
-      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
-      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
-      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN:-}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY:-}
       # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
       # - PMM_DEV_PERCONA_PLATFORM_INSECURE=1
       # - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=<public key>
@@ -398,9 +405,9 @@ services:
         ipv4_address: 172.20.0.11
     environment:
       - PMM_RELEASE_PATH=/root/go/src/github.com/percona/pmm/bin
-      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
-      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
-      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN:-}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY:-}
       # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check.localhost
       # - PMM_DEV_PERCONA_PLATFORM_INSECURE=1
       # - PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY=<public key>
@@ -467,6 +474,7 @@ volumes:
   pgdata:  # Volume for PostgreSQL data
   go-modules:
   root-cache:
+  srv:
 
 networks:
   minikube:

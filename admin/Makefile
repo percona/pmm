@@ -35,8 +35,8 @@ clean:                          ## Remove generated files
 	find . -name *_reform.go -delete
 
 release:                        ## Build pmm-admin release binary
-	env CGO_ENABLED=0 go build -v $(NO_VCS) $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin ./cmd/pmm-admin/
-	env CGO_ENABLED=0 go build -v $(NO_VCS) $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm ./cmd/pmm/
+	CGO_ENABLED=0 go build -v $(NO_VCS) $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin ./cmd/pmm-admin/
+	CGO_ENABLED=0 go build -v $(NO_VCS) $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm ./cmd/pmm/
 
 install:                        ## Install pmm & pmm-admin binary
 	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/

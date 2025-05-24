@@ -1,34 +1,34 @@
 FROM oraclelinux:9-slim
 
-RUN microdnf install -y yum
+RUN microdnf install -y dnf
 # enable nodesource repo for nodejs
-RUN curl -fSsL https://rpm.nodesource.com/setup_18.x | bash -
+RUN curl -fSsL https://rpm.nodesource.com/setup_22.x | bash -
 RUN curl -fSsL https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
 
 RUN rm -f /etc/yum.repos.d/nodesource-nsolid.repo && \
-    yum update -y && \
-    yum install -y crypto-policies-scripts && \
-    update-crypto-policies --set DEFAULT:SHA1 && \
-    yum install -y --setopt=skip_missing_names_on_install=False \
-    nodejs \
-    yarn
+  dnf update -y && \
+  dnf install -y crypto-policies-scripts && \
+  update-crypto-policies --set DEFAULT:SHA1 && \
+  dnf install -y --setopt=skip_missing_names_on_install=False \
+  nodejs \
+  yarn
 
-RUN yum install -y gcc gcc-c++ \
-    libtool libtool-ltdl \
-    make cmake \
-    git \
-    pkgconfig \
-    sudo \
-    automake autoconf \
-    rpmdevtools createrepo_c epel-release \
-    bison yum-utils rpm-build \
-    tree \
-    jq \
-    rsync \
-    wget \
-    python3-pip && \
-    pip install pyaml==24.9.0 GitPython==3.1.43 PyGithub==2.5.0 && \
-    yum install -y --enablerepo=ol9_codeready_builder glibc-static
+RUN dnf install -y gcc gcc-c++ \
+  libtool libtool-ltdl \
+  make cmake \
+  git \
+  pkgconfig \
+  sudo \
+  automake autoconf \
+  rpmdevtools createrepo_c epel-release \
+  bison rpm-build \
+  tree \
+  jq \
+  rsync \
+  wget \
+  python3-pip && \
+  pip install pyaml==24.9.0 GitPython==3.1.43 PyGithub==2.5.0 && \
+  dnf install -y --enablerepo=ol9_codeready_builder glibc-static
 
 # keep that format for easier search
 ARG GO_VERSION
@@ -37,14 +37,14 @@ ENV GO_RELEASER_VERSION=2.4.8
 ENV NODE_OPTIONS=--max_old_space_size=8000
 
 RUN if [ `uname -i` == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
-    curl -fSsL -o /tmp/golang.tar.gz https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz && \
-    curl -fSsL -o /tmp/goreleaser.rpm https://github.com/goreleaser/goreleaser/releases/download/v${GO_RELEASER_VERSION}/goreleaser-${GO_RELEASER_VERSION}-1.`uname -i`.rpm && \
-    tar -C /usr/local -xzf /tmp/golang.tar.gz && \
-    yum install -y --disablerepo="*" /tmp/goreleaser.rpm && \
-    rm /tmp/golang.tar.gz /tmp/goreleaser.rpm && \
-    curl -o /usr/bin/yq -fSsL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH} && \
-    chmod +x /usr/bin/yq && \
-    yum clean all && rm -rf /var/cache/yum /var/cache/dnf
+  curl -fSsL -o /tmp/golang.tar.gz https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz && \
+  curl -fSsL -o /tmp/goreleaser.rpm https://github.com/goreleaser/goreleaser/releases/download/v${GO_RELEASER_VERSION}/goreleaser-${GO_RELEASER_VERSION}-1.`uname -i`.rpm && \
+  tar -C /usr/local -xzf /tmp/golang.tar.gz && \
+  dnf install -y --disablerepo="*" /tmp/goreleaser.rpm && \
+  rm /tmp/golang.tar.gz /tmp/goreleaser.rpm && \
+  curl -o /usr/bin/yq -fSsL https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH} && \
+  chmod +x /usr/bin/yq && \
+  dnf clean all && rm -rf /var/cache/yum /var/cache/dnf
 
 
 RUN update-alternatives --install "/usr/bin/go" "go" "/usr/local/go/bin/go" 0
@@ -53,12 +53,12 @@ RUN update-alternatives --install "/usr/bin/gofmt" "gofmt" "/usr/local/go/bin/go
 RUN update-alternatives --set gofmt /usr/local/go/bin/gofmt
 
 RUN useradd builder -u 1000 -m -G users,wheel && \
-    echo "builder ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers && \
-    echo "# macros"                      >  /home/builder/.rpmmacros && \
-    echo "%_topdir    /home/builder/rpm" >> /home/builder/.rpmmacros && \
-    mkdir -p /home/builder/{rpm,go/pkg} /home/builder/.cache/{go-build,yarn} && \
-    chmod 755 /home/builder && \
-    chown -R builder:builder /home/builder
+  echo "builder ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+  echo "# macros"                      >  /home/builder/.rpmmacros && \
+  echo "%_topdir    /home/builder/rpm" >> /home/builder/.rpmmacros && \
+  mkdir -p /home/builder/{rpm,go/pkg} /home/builder/.cache/{go-build,yarn} && \
+  chmod 755 /home/builder && \
+  chown -R builder:builder /home/builder
 
 USER builder
 

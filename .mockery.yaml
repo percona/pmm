@@ -77,6 +77,7 @@ packages:
       telemetryService:
       templatesService:
       vmAlertExternalRules:
+      nomadService:
   github.com/percona/pmm/managed/services/versioncache:
     interfaces:
       Versioner:
