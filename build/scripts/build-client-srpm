@@ -15,7 +15,7 @@ main() {
     -w /home/builder/build \
     -e PMM_VERSION="${pmm_version}" \
     -e PMM_RELEASE="${pmm_release}" \
-    --entrypoint="/home/builder/bin/build-client-packages" \
+    --entrypoint="/home/builder/bin/build-client-entrypoint" \
     "${IMAGE}" --build_src_rpm
 }
 

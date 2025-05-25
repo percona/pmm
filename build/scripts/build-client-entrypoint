@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -E
 # NOTE: this script must be executed in a container environment.
 
 # Disable some shellcheck warnings - this is a script that runs in a controlled environment
@@ -22,8 +22,6 @@ Usage: $0 [OPTIONS]
         --help)             Display this help
 Example $0 --build_src_rpm --build_rpm
 EOF
-
-  exit 1
 }
 
 run() {
@@ -45,8 +43,14 @@ run() {
         echo "Building deb packages..."
         build_deb
         ;;
-      --help) usage ;;
-      *) usage ;;
+      --help)
+        usage
+        exit 0
+        ;;
+      *) 
+        usage
+        exit 1
+        ;;
     esac
   done
 }
@@ -154,6 +158,9 @@ build_rpm(){
 }
 
 build_source_deb(){
+  apt-get update
+  apt-get -y install git lsb-release devscripts dh-make dh-systemd
+
   rm -rf pmm-client*
   rm -f *.dsc *.orig.tar.gz *.debian.tar.gz *.changes
 
@@ -224,6 +231,9 @@ build_source_deb(){
 }
 
 build_deb(){
+  apt-get update
+  apt-get -y install git lsb-release devscripts dh-make dh-systemd
+  
   for file in 'dsc' 'orig.tar.gz' 'changes' 'diff.gz'; do
     get_deb_sources $file
   done

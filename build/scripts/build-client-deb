@@ -1,47 +1,30 @@
 #!/bin/bash
 
-. $(dirname $0)/vars
+. "$(dirname "$0")/vars"
 
 main() {
   local IMAGE=${1:-ubuntu:focal}
   docker run --rm \
     -e DEBIAN_FRONTEND=noninteractive \
-    -v ${bin_dir}:/home/builder/bin \
-    -v ${build_dir}:/home/builder/build ${IMAGE} sh -c "
-      set -o errexit
-      set -o xtrace
-
-      export pmm_release=$pmm_release
-      OS_VERSION=\$(cat /etc/os-release | grep VERSION_ID | awk -F'\"' '{print \$2}')
-
-      apt-get update
-      DEBIAN_FRONTEND=noninteractive apt-get -y install git lsb-release devscripts dh-make dh-systemd
-      cd /home/builder/build
-
-      bash /home/builder/bin/build-client-packages --build_source_deb
-    "
+    -e PMM_VERSION="${pmm_version}" \
+    -e PMM_RELEASE="${pmm_release}" \
+    -v "${bin_dir}":/home/builder/bin \
+    -v "${build_dir}":/home/builder/build \
+    -w /home/builder/build \
+    --entrypoint="/home/builder/bin/build-client-entrypoint" \
+    "${IMAGE}" --build_source_deb
 
   docker run --rm \
     -e DEBIAN_FRONTEND=noninteractive \
-    -v ${bin_dir}:/home/builder/bin \
-    -v ${build_dir}:/home/builder/build ${IMAGE} sh -c "
-      set -o errexit
-      set -o xtrace
-
-      export pmm_release=$pmm_release
-      OS_VERSION=\$(cat /etc/os-release | grep VERSION_ID | awk -F'\"' '{print \$2}')
-
-      apt-get update
-      case "\$OS_VERSION" in
-          11 | 12 | 22.04 | 24.04) apt-get -y install git lsb-release devscripts dh-make;;
-          *) apt-get -y install git lsb-release devscripts dh-make dh-systemd;;
-      esac
-
-      cd /home/builder/build
-      bash /home/builder/bin/build-client-packages --build_deb
-    "
+    -e PMM_VERSION="${pmm_version}" \
+    -e PMM_RELEASE="${pmm_release}" \
+    -v "${bin_dir}":/home/builder/bin \
+    -v "${build_dir}":/home/builder/build \
+    -w /home/builder/build \
+    --entrypoint="/home/builder/bin/build-client-entrypoint" \
+    "${IMAGE}" --build_deb
 }
 
-main $*
+main "$*"
 
 # vim: expandtab shiftwidth=2 tabstop=2
