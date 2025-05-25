@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. $(dirname $0)/vars
+. "$(dirname "$0")/vars"
 
 main() {
   echo -----------------------------------------
@@ -9,21 +9,20 @@ main() {
 
   local IMAGE=${1:-${rpmbuild_docker_image}}
   docker run --rm \
-    --platform=${platform} \
-    -v ${bin_dir}:/home/builder/bin \
-    -v ${build_dir}:/home/builder/build \
-    ${IMAGE} sh -c "
+    --platform="${platform}" \
+    -v "${bin_dir}":/home/builder/bin \
+    -v "${build_dir}":/home/builder/build \
+    -w /home/builder/build \
+    -e PMM_VERSION="${pmm_version}" \
+    -e PMM_RELEASE="${pmm_release}" \
+    "${IMAGE}" sh -c "
       set -o errexit
       set -o xtrace
-
-      export pmm_version=$pmm_version
-      export pmm_release=$pmm_release
-      cd /home/builder/build
 
       /home/builder/bin/build-client-packages --build_rpm
     "
 }
 
-main $*
+main "$*"
 
 # vim: expandtab shiftwidth=2 tabstop=2

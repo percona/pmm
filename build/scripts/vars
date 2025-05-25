@@ -1,13 +1,17 @@
 # The variables in this file are global. Every script located in this
 # directory needs to have them available in its scope to function properly.
+# shellcheck disable=SC2034
 
-bin_dir=$(cd $(dirname $0); pwd -P)
-# Note: `ROOT_DIR` must always point to the root of [pmm-submodules](https://github.com/percona-lab/pmm-submodules).
+# `bin_dir` is the directory where the build scripts are located.
+bin_dir=$(cd "$(dirname "$0")"; pwd -P)
+# `root_dir` must always point to the root of [pmm-submodules](https://github.com/percona-lab/pmm-submodules).
 root_dir=${ROOT_DIR:-$(git rev-parse --show-superproject-working-tree)}
-build_dir=${root_dir}/build
-pmm_build_dir=$(realpath ${bin_dir}/..)
+build_dir="${root_dir}/build"
+pmm_build_dir=$(realpath "${bin_dir}"/..)
 s3_cache_dir=PR-BUILDS
-[ "${RELEASE_BUILD:-}" = 1 ] && s3_cache_dir=RELEASE
+if [ "${RELEASE_BUILD:-}" = 1 ]; then
+  s3_cache_dir=RELEASE
+fi
 
 # In VERSION file we can have numeric value like '2.0.0' as well as
 # alphanumeric value like '2.0.0-alpha3' which can not be used entirely,
@@ -16,7 +20,7 @@ s3_cache_dir=PR-BUILDS
 # 'pmm_version'      - must contain only MAJOR.MINOR.PATCH: '2.0.0'
 # 'pmm_release'      - can contain only pre-release part (but can also be empty): 'alpha3'
 pmm_branch=$(git rev-parse --abbrev-ref HEAD)
-pmm_base_version=$(cat ${root_dir}/VERSION)
+pmm_base_version=$(< "${root_dir}/VERSION")
 
 shortcommit=$(git rev-parse --short HEAD)
 full_pmm_version=${pmm_base_version}-${pmm_branch}-${shortcommit}
@@ -27,8 +31,8 @@ if [[ "${pmm_branch}" =~ ^pmm-3.|^v3$|^main$ ]]; then
   full_pmm_version=${pmm_base_version}
 fi
 
-pmm_version=$(cat ${root_dir}/VERSION | awk -F'-' '{print $1}')
-pmm_release=$(cat ${root_dir}/VERSION | awk -F'-' '{print $2}')
+pmm_version=$(awk -F'-' '{print $1}' < "${root_dir}/VERSION")
+pmm_release=$(awk -F'-' '{print $2}' < "${root_dir}/VERSION")
 
 if [ -z "$pmm_release" ]; then
   pmm_release=${PMM_RELEASE:-1}
@@ -44,8 +48,8 @@ if [ -n "$CI" ]; then
 fi
 rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-$default_rpmbuild_docker_image}
 
-arch=$(docker run --rm --platform=${platform} ${rpmbuild_docker_image} uname -m 2>/dev/null)
-if [ "${arch}" = "arm64" ] && echo $(uname -s) | grep -qi "Darwin"; then
+arch=$(docker run --rm --platform="${platform}" "${rpmbuild_docker_image}" uname -m 2>/dev/null)
+if [ "${arch}" = "arm64" ] && uname -s | grep -qi "Darwin"; then
   arch=aarch64
 fi
 

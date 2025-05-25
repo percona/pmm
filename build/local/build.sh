@@ -51,7 +51,8 @@ parse_params() {
   fi
 
   if ! cat .modules 2> /dev/null; then
-    local TMPDIR=$(mktemp -d)
+    local TMPDIR
+    TMPDIR=$(mktemp -d)
     echo -n "$TMPDIR" > .modules
     SUBMODULES="$TMPDIR"
   else
@@ -61,7 +62,8 @@ parse_params() {
   # Exported variables
   export USE_S3_CACHE=0
   export DEBUG_MODE=0
-  export RPMBUILD_DOCKER_IMAGE=$([ -n "${CI:-}" ] && echo "public.ecr.aws/e7j3v3n0/rpmbuild:3" || echo "perconalab/rpmbuild:3")
+  export RPMBUILD_DOCKER_IMAGE
+  RPMBUILD_DOCKER_IMAGE=$([ -n "${CI:-}" ] && echo "public.ecr.aws/e7j3v3n0/rpmbuild:3" || echo "perconalab/rpmbuild:3")
   # This replaces the old `RPM_EPOCH=1`, which was used for feature builds
   export RELEASE_BUILD=0
   export BUILD_SUMMARY=""
@@ -184,8 +186,10 @@ check_files() {
 
   # Get the PR number and the commit hash for feature builds
   if [ "$RELEASE_BUILD" -eq 0 ]; then
-    local FB_COMMIT=$(git rev-parse HEAD)
-    local PR_NUMBER=$(git ls-remote origin 'refs/pull/*/head' | grep ${FB_COMMIT} | awk -F'/' '{print $3}')
+    local FB_COMMIT
+    FB_COMMIT=$(git rev-parse HEAD)
+    local PR_NUMBER
+    PR_NUMBER=$(git ls-remote origin 'refs/pull/*/head' | grep "${FB_COMMIT}" | awk -F'/' '{print $3}')
     local TAG
     if [ -n "$PR_NUMBER" ]; then
       TAG="PR-${PR_NUMBER}-${FB_COMMIT:0:7}"
@@ -201,8 +205,6 @@ check_files() {
 # Update submodules and PR branches
 update() {
   local CURDIR="$PWD"
-  local deps=""
-  local commit=""
 
   if [ "$NO_UPDATE" -eq 1 ]; then
     echo
@@ -214,10 +216,10 @@ update() {
   echo "This script rewinds submodule branches as per the joint config of '.gitmodules' and the user-supplied 'ci.yml'."
 
   docker run --rm --platform="$PLATFORM" \
-    -v $SUBMODULES:/app \
-    -v $CURDIR/ci.yml:/app/ci.yml \
-    -v $CURDIR/build/local/ci.py:/app/ci.py \
-    -v $CURDIR/build/local/entrypoint.sh:/entrypoint.sh \
+    -v "$SUBMODULES:/app" \
+    -v "$CURDIR/ci.yml:/app/ci.yml" \
+    -v "$CURDIR/build/local/ci.py:/app/ci.py" \
+    -v "$CURDIR/build/local/entrypoint.sh:/entrypoint.sh" \
     -w /app \
     -e BRANCH_NAME="$BRANCH_NAME" \
     --entrypoint=/entrypoint.sh \
@@ -247,14 +249,15 @@ update() {
 
 get_branch_name() {
   local module="${1:-}"
-  local path=$(git config -f .gitmodules submodule.${module}.path)
+  local path
+  path=$(git config -f ".gitmodules submodule.${module}.path")
 
   if [ ! -d "$path" ]; then
     print_error "could not resolve the path to submodule ${module}"
     exit 1
   fi
 
-  echo $(git -C "$path" branch --show-current)
+  git -C "$path" branch --show-current
 }
 
 print_duration() {
@@ -311,7 +314,8 @@ purge_files() {
     if [ -d "build/pmm-server" ]; then
       tmp_files=$(find build/pmm-server | grep -v "RPMS" | grep -Ev "^build/pmm-server$" || :)
       if [ -n "$tmp_files" ]; then
-        tmp_files=( $tmp_files )
+        # Use read to properly split the output into an array
+        readarray -t tmp_files <<< "$tmp_files"
         for f in "${tmp_files[@]}"; do
           echo "Removing file or directory $f ..."
           rm -rf "$f"
@@ -373,7 +377,8 @@ check_volumes() {
 
 initialize() {
   local CURDIR="$PWD"
-  local NPROCS=$(getconf _NPROCESSORS_ONLN 2>/dev/null)
+  local NPROCS
+  NPROCS=$(getconf _NPROCESSORS_ONLN 2>/dev/null)
 
   if [ -d "$SUBMODULES" ] && [ -f "$SUBMODULES/VERSION" ]; then
     echo
@@ -385,7 +390,7 @@ initialize() {
   echo "Checking out the source code, it may take a while..."
   git clone --branch "$CLONE_BRANCH" git@github.com:/Percona-Lab/pmm-submodules.git "$SUBMODULES"
   cd "$SUBMODULES" > /dev/null
-  git submodule update --init --jobs ${NPROCS:-2}
+  git submodule update --init --jobs "${NPROCS:-2}"
   git submodule status
 
   echo
@@ -505,7 +510,7 @@ main() {
   echo
   echo "Done building PMM artifacts."
   echo ---
-  echo "Total execution time: $(print_duration $(($(date +%s) - $START_TIME)))"
+  echo "Total execution time: $(print_duration $(($(date +%s) - START_TIME)))"
   echo ---
 
   cleanup

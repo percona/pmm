@@ -74,5 +74,8 @@ tidy:                 ## Tidy up the go mod files
 	@go mod tidy
 	@cd tools && go mod tidy
 
-serve:                ## Serve API documentation with nginx
+serve-api:            ## Serve API documentation with nginx
 	nginx -p . -c api/nginx/nginx.conf
+
+build-local:        ## Build local docker images
+  ./build/local/build.sh
