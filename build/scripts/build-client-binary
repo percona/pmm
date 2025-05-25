@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. $(dirname $0)/vars
+. "$(dirname "$0")/vars"
 
 # Important: `bin_dir` and `binary_dir` are different directories. `bin_dir` defines the directory for binary files 
 # inside the container, while `binary_dir` defines the directory for binary files outside the container.
@@ -77,9 +77,10 @@ gobuild_component() {
     fi
 
     # Note: the variables used in the script below do not need to be passed via `-e` flag.
+    # shellcheck disable=SC2086
     docker run --rm \
       --platform="${platform}" \
-      "${volume_mounts}" \
+      ${volume_mounts} \
       "${rpmbuild_docker_image}" sh -c "
         # Note: use no double quotes inside this script.
         set -o errexit
@@ -108,13 +109,13 @@ copy_component() {
   local component=$1
   local component_path=$2
   local component_dest=${3:-$component_path}
-  local component_dir=$(git config -f .gitmodules submodule.${component}.path)
+  local component_dir=$(git config -f ".gitmodules submodule.${component}.path")
   if [ ! -d "$component_dir" ]; then
     echo "Error: could not locate the component directory for $component."
     exit 1
   fi
 
-  cp -r ${component_dir}/${component_path} ${binary_dir}/${component_dest}
+  cp -r "${component_dir}/${component_path}" "${binary_dir}/${component_dest}"
 }
 
 main() {

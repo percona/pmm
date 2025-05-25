@@ -50,17 +50,6 @@ run() {
   done
 }
 
-check_workdir(){
-  if [ "$WORKDIR" = "$CURDIR" ]; then
-    echo >&2 "Current directory cannot be used for building!"
-    exit 1
-  fi
-  
-  if ! test -d "$WORKDIR"; then
-    mkdir -p "$WORKDIR"
-  fi
-}
-
 # Find the tarball and copy it to WORKDIR
 get_tar(){
   local TARBALL_DIR="$1"
@@ -76,7 +65,8 @@ get_tar(){
 
 get_deb_sources(){
   local param="$1"
-  local FILE=$(basename $(find "$CURDIR/source_deb" -name "${PACKAGE_NAME}*.$param" | sort | tail -n1))
+  local FILE
+  FILE=$(basename $(find "$CURDIR/source_deb" -name "${PACKAGE_NAME}*.$param" | sort | tail -n1))
   if [ -z "$FILE" ]; then
     echo "There is no source to build from"
     exit 1
@@ -86,10 +76,11 @@ get_deb_sources(){
 }
 
 build_srpm(){
-  local TARFILE=$(get_tar "tarball")
-  local NAME=$(echo "${TARFILE}"| awk -F '-' '{print $1"-"$2}')
-  local VERSION_TMP=$(echo "${TARFILE}"| awk -F '-' '{print $3}')
-  local VERSION="${VERSION_TMP%.tar.gz}"
+  local TARFILE NAME VERSION_TMP VERSION
+  TARFILE=$(get_tar tarball)
+  NAME=$(echo "${TARFILE}"| awk -F '-' '{print $1"-"$2}')
+  VERSION_TMP=$(echo "${TARFILE}"| awk -F '-' '{print $3}')
+  VERSION="${VERSION_TMP%.tar.gz}"
 
   cd $WORKDIR
   mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
@@ -112,7 +103,7 @@ build_srpm(){
 
 build_rpm(){
   local SRC_RPM RHEL
-  SRC_RPM="$(basename $(find $CURDIR/srpm -name "${PACKAGE_NAME}*.src.rpm" | sort | tail -n1) || :)"
+  SRC_RPM="$(basename $(find "$CURDIR/srpm" -name "${PACKAGE_NAME}*.src.rpm" | sort | tail -n1) || :)"
   RHEL="$(rpm --eval %rhel)"
 
   if [ -z "$SRC_RPM" ]; then
@@ -248,13 +239,13 @@ main() {
   WORKDIR=/tmp/pmm
   PACKAGE_NAME=pmm-client
   VERSION_FILE=${CURDIR}/${PACKAGE_NAME}.properties
-  RPM_RELEASE=${pmm_release:-1}
-  DEB_RELEASE=${pmm_release:-1}
+  RPM_RELEASE=${PMM_RELEASE:-1}
+  DEB_RELEASE=${PMM_RELEASE:-1}
   REVISION=0
   BRANCH="v3"
   REPO="https://github.com/Percona-Lab/pmm-submodules.git"
 
-  check_workdir
+  mkdir -p "$WORKDIR"
 
   run "$@"
 }

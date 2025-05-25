@@ -28,7 +28,7 @@ RUN groupadd -g 1002 pmm-agent && \
 
 ADD pmm-client.tar.gz /tmp/
 RUN cd /tmp/pmm-client* \
-  && env PMM_USER=pmm-agent PMM_GROUP=root ./install_tarball \
+  && PMM_USER=pmm-agent PMM_GROUP=root ./install_tarball \
   && cd /tmp \
   && rm -rf /tmp/pmm-client*
 
