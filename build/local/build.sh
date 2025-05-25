@@ -37,8 +37,8 @@ parse_params() {
   NO_SERVER=0
   CLEAN=0
   START_TIME=$(date +%s)
-  LOG_FILE="$(dirname $0)/build.log"
-  BASE_NAME=$(basename $0)
+  LOG_FILE="$(dirname "$0")/build.log"
+  BASE_NAME=$(basename "$0")
   PLATFORM=linux/amd64
   SUBMODULES=""
   CLONE_BRANCH=v3
@@ -50,7 +50,7 @@ parse_params() {
     exit 1
   fi
 
-  if ! cat .modules 2> /dev/null; then
+  if ! cat .modules &> /dev/null; then
     local TMPDIR
     TMPDIR=$(mktemp -d)
     echo -n "$TMPDIR" > .modules
@@ -315,7 +315,7 @@ purge_files() {
       tmp_files=$(find build/pmm-server | grep -v "RPMS" | grep -Ev "^build/pmm-server$" || :)
       if [ -n "$tmp_files" ]; then
         # Use read to properly split the output into an array
-        readarray -t tmp_files <<< "$tmp_files"
+        tmp_files=( $tmp_files )
         for f in "${tmp_files[@]}"; do
           echo "Removing file or directory $f ..."
           rm -rf "$f"

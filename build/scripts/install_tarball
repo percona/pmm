@@ -14,7 +14,6 @@ Example:
         To install PMM tarball - $0
         To update the installed PMM tarball - $0 -u
 EOF
-    exit 1
 }
 
 UPDATE=0
@@ -22,8 +21,8 @@ for arg in "$@"
 do
     case "$arg" in
         "-u") UPDATE=1 ;;
-        "-help") usage ;;
-        *) echo "Invalid option:$arg"; usage;;
+        "-help") usage; exit 0 ;;
+        *) echo "Invalid option:$arg"; usage; exit 1 ;;
     esac
 done
 
@@ -36,15 +35,18 @@ PMM_DIR=${PMM_DIR:-/usr/local/percona/pmm}
 PMM_USER=${PMM_USER:-}
 PMM_GROUP=${PMM_GROUP:-}
 
-if [ -z "${PMM_USER}" ] || [ -z "${PMM_GROUP}" ]; then
-    INSTALL_COMMAND="install"
-else
-    INSTALL_COMMAND="install -o ${PMM_USER} -g ${PMM_GROUP}"
+INSTALL_COMMAND="install"
+if [ -n "${PMM_USER}" ]; then
+  INSTALL_COMMAND+=" -o ${PMM_USER}"
+fi
+
+if [ -n "${PMM_GROUP}" ]; then
+  INSTALL_COMMAND+=" -g ${PMM_GROUP}"
 fi
 
 # Check if PMM_DIR has the right permission to install files into it
 mkdir -p "${PMM_DIR}" || true
-if [ -w ${PMM_DIR} ]; then
+if [ -w "${PMM_DIR}" ]; then
     echo "Installing into ${PMM_DIR}...";
 else
     echo -e "Cannot write to ${PMM_DIR}. \nPlease make sure the user $(id -un) has permissions to write to this directory\n\n"
@@ -76,13 +78,14 @@ ${INSTALL_COMMAND} -m 0755 queries-mr.yaml "${PMM_DIR}"/collectors/custom-querie
 ${INSTALL_COMMAND} -m 0755 queries-lr.yaml "${PMM_DIR}"/collectors/custom-queries/postgresql/low-resolution
 ${INSTALL_COMMAND} -m 0755 queries-mysqld-group-replication.yml "${PMM_DIR}"/collectors/custom-queries/mysql/high-resolution
 
-for FILE in $( ls ${PWD}/bin ); do
-    if [[ "${FILE}" =~ pmm-admin|^pmm-agent$|pmm-agent-entrypoint ]]; then
-        ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/${FILE} "${PMM_DIR}"/bin
-    elif [[ "${FILE}" =~ pt-summary|pt-mysql-summary|pt-pg-summary|pt-mongodb-summary|nomad ]]; then
-        ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/"${FILE}" "${PMM_DIR}"/tools
+for FILE in "${PWD}"/bin/*; do
+    FILENAME=$(basename "${FILE}")
+    if [[ "${FILENAME}" =~ pmm-admin|^pmm-agent$|pmm-agent-entrypoint ]]; then
+        ${INSTALL_COMMAND} -m 0755 "${FILE}" "${PMM_DIR}"/bin
+    elif [[ "${FILENAME}" =~ pt-summary|pt-mysql-summary|pt-pg-summary|pt-mongodb-summary|nomad ]]; then
+        ${INSTALL_COMMAND} -m 0755 "${FILE}" "${PMM_DIR}"/tools
     else
-        ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/"${FILE}" "${PMM_DIR}"/exporters
+        ${INSTALL_COMMAND} -m 0755 "${FILE}" "${PMM_DIR}"/exporters
     fi
 done
 
