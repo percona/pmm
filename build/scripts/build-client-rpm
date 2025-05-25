@@ -15,12 +15,8 @@ main() {
     -w /home/builder/build \
     -e PMM_VERSION="${pmm_version}" \
     -e PMM_RELEASE="${pmm_release}" \
-    "${IMAGE}" sh -c "
-      set -o errexit
-      set -o xtrace
-
-      /home/builder/bin/build-client-packages --build_rpm
-    "
+    --entrypoint="/home/builder/bin/build-client-packages" \
+    "${IMAGE}" --build_rpm
 }
 
 main "$*"
