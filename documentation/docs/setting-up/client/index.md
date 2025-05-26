@@ -54,7 +54,7 @@ The [PMM Client Docker image] is a convenient way to run PMM Client as a preconf
 
     ```sh
     docker create \
-    --volume /usr/local/percona/pmm2/ \
+    --volume /usr/local/percona/pmm2/config \
     --name pmm-client-data \
     percona/pmm-client:2 /bin/true
     ```
