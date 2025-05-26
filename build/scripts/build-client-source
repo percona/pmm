@@ -38,60 +38,24 @@ prepare_tarball() {
     fi
 }
 
-prepare_vmagent_tarball() {
-    local repo_name=vmagent
-    local commit_hash=${vmagent_commit_hash}
+prepare_external_tarball() {
+    local repo_name=$1
+    local commit_hash=$2
+    local base_url=$3
+
     local commit_short=${commit_hash::6}
-    local tarball=${source_dir}/${repo_name}-${commit_short}.tar.gz
+    local tarball="${source_dir}/${repo_name}-${commit_short}.tar.gz"
     local repo_var=$(
         echo "${repo_name}_commit" \
             | sed -e 's:-:_:g' \
             | tr '[[:lower:]]' '[[:upper:]]'
     )
-    echo "${repo_var}=$commit_short" >> ${client_properties}
+    echo "${repo_var}=${commit_short}" >> "${client_properties}"
 
-    if [ -f "${tarball}" ]; then
-        echo ${tarball} already exists, skipping download
+    if [[ -f "${tarball}" ]]; then
+        echo "${tarball} already exists, skipping download"
     else
-        curl -fsSL -o ${tarball} https://github.com/VictoriaMetrics/VictoriaMetrics/archive/${commit_hash}.tar.gz
-    fi
-}
-
-prepare_nomad_tarball() {
-    local repo_name=nomad
-    local commit_hash=${nomad_commit_hash}
-    local commit_short=${commit_hash::6}
-    local tarball=${source_dir}/${repo_name}-${commit_short}.tar.gz
-    local repo_var=$(
-        echo "${repo_name}_commit" \
-            | sed -e 's:-:_:g' \
-            | tr '[[:lower:]]' '[[:upper:]]'
-    )
-    echo "${repo_var}=$commit_short" >> ${client_properties}
-
-    if [ -f "${tarball}" ]; then
-        echo ${tarball} already exists, skipping download
-    else
-        curl -o ${tarball} -fSsL https://github.com/hashicorp/nomad/archive/${commit_hash}.tar.gz
-    fi
-}
-
-prepare_redis_exporter_tarball() {
-    local repo_name=redis_exporter
-    local commit_hash=${redis_exporter_commit_hash}
-    local commit_short=${commit_hash::6}
-    local tarball=${source_dir}/${repo_name}-${commit_short}.tar.gz
-    local repo_var=$(
-        echo "${repo_name}_commit" \
-            | sed -e 's:-:_:g' \
-            | tr '[[:lower:]]' '[[:upper:]]'
-    )
-    echo "${repo_var}=$commit_short" >> ${client_properties}
-
-    if [ -f "${tarball}" ]; then
-        echo ${tarball} already exists, skipping download
-    else
-        curl -o ${tarball} -fSsL https://github.com/oliver006/redis_exporter/archive/${commit_hash}.tar.gz
+        curl -fsSL -o "${tarball}" "${base_url}/${commit_hash}.tar.gz"
     fi
 }
 
@@ -99,9 +63,12 @@ main() {
     rm -rf ${source_tarball}
     mkdir -p ${source_dir}/ $(dirname ${source_tarball}) || :
     echo "PMM_SUBMODULES_COMMIT=$(git rev-parse --short HEAD)" > ${client_properties}
-    prepare_vmagent_tarball
-    prepare_nomad_tarball
-    prepare_redis_exporter_tarball
+
+    # External sources from GitHub
+    prepare_external_tarball "vmagent" "${vmagent_commit_hash}" "https://github.com/VictoriaMetrics/VictoriaMetrics/archive"
+    prepare_external_tarball "nomad" "${nomad_commit_hash}" "https://github.com/hashicorp/nomad/archive"
+    prepare_external_tarball "redis_exporter" "${redis_exporter_commit_hash}" "https://github.com/oliver006/redis_exporter/archive"
+
     prepare_tarball pmm-submodules
     prepare_tarball pmm
     prepare_tarball mongodb_exporter
