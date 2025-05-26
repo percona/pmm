@@ -1,15 +1,14 @@
 #!/bin/bash
 
-. $(dirname $0)/vars
+. "$(dirname "$0")/vars"
 
 get_rpm_version() {
   local spec_name=$1
-
   local rpm_version=$(
     docker run --rm \
-      --platform=${platform} \
-      -v ${rpmbuild_dir}:/home/builder/rpm/SOURCES \
-      ${rpmbuild_docker_image} sh -c "
+      --platform="${platform}" \
+      -v "${rpmbuild_dir}":/home/builder/rpm/SOURCES \
+      "${rpmbuild_docker_image}" sh -c "
         rpmspec -q --qf '%{version}-%{release}\n' SOURCES/${spec_name}.spec \
             | sed -re 's/\.[0-9]{10}\././' | head -1
       "
@@ -47,21 +46,21 @@ is_build_needed() {
   local packages=
 
   # Structure of S3 build cache
-  # s3://pmm-build-cache/PR-BUILDS/9 - el9
-  # s3://pmm-build-cache/RELEASE/9 - el9
+  # s3://pmm-build-cache/PR-BUILDS/9 - rhel9, feature branch
+  # s3://pmm-build-cache/RELEASE/9 - rhel9, rc and release branches
 
-  mkdir -p ${rpms_dir}/${spec_name}-${rpm_version}/${arch}
+  mkdir -p "${rpms_dir}/${spec_name}-${rpm_version}/${arch}"
 
   if command -v aws &> /dev/null && [ -n "${CI:-}" ]; then
     aws s3 sync \
         --region us-east-2 \
         --no-sign-request \
         --no-progress \
-        s3://pmm-build-cache/${s3_cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version} \
-        ${rpms_dir}/${spec_name}-${rpm_version}/${arch}  || :
+        "s3://pmm-build-cache/${s3_cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version}" \
+        "${rpms_dir}/${spec_name}-${rpm_version}/${arch}"  || :
   fi
 
-  packages=$(find ${rpms_dir}/${spec_name}-${rpm_version}/${arch} -type f -name "*-${rpm_version}.${arch}.rpm" | wc -l)
+  packages=$(find "${rpms_dir}/${spec_name}-${rpm_version}/${arch}" -type f -name "*-${rpm_version}.${arch}.rpm" | wc -l)
 
   # return result as true (0) or false (>0)
   [[ ${packages// /} == 0 ]]
@@ -77,8 +76,8 @@ prepare_spec() {
   local spec_file=${rpmbuild_dir}/${spec_name}.spec
   local full_commit=
 
-  mkdir -p ${rpms_dir} ${rpmbuild_dir} 2>/dev/null || :
-  cp ${rpmspec_dir}/${spec_name}.spec ${spec_file}
+  mkdir -p "${rpms_dir}" "${rpmbuild_dir}" 2>/dev/null || :
+  cp "${rpmspec_dir}/${spec_name}.spec" "${spec_file}"
   if [ ! -d "${root_dir}/sources/${repo_name}" ]; then
     # Exit if the repo is not located in pmm-submodules, e.g. VictoriaMetrics or Nomad,
     # as they do not have a spec file.
@@ -104,21 +103,21 @@ prepare_spec() {
     exit 1
   fi
 
-  sed -i -e "s/global commit.*/global commit ${full_commit}/" ${spec_file}
+  sed -i -e "s/global commit.*/global commit ${full_commit}/" "${spec_file}"
 
   if [ "${spec_name}" != "grafana" ]; then
-    sed -i -e "s/Version:.*/Version: ${pmm_version}/" ${spec_file}
+    sed -i -e "s/Version:.*/Version: ${pmm_version}/" "${spec_file}"
   fi
 
   if [ -z "${full_pmm_version}" ]; then
     echo "Fatal: 'full_pmm_version' is not specified, exiting..."
     exit 1
   fi
-  sed -i -e "s/%define full_pmm_version.*/%define full_pmm_version ${full_pmm_version}/" ${spec_file}
+  sed -i -e "s/%define full_pmm_version.*/%define full_pmm_version ${full_pmm_version}/" "${spec_file}"
 
   if [ "${spec_name}" != "victoriametrics" ]; then
     # Substitute the https source by pointing to the repo on the filesystem
-    sed -i -e "s;\(Source0:[[:space:]]*\)http.*;\1${tar_archive};" ${spec_file}
+    sed -i -e "s;\(Source0:[[:space:]]*\)http.*;\1${tar_archive};" "${spec_file}"
   fi
 
   if [ -f "${tar_archive}" ]; then
@@ -161,7 +160,11 @@ build() {
   echo "spec_name: ${spec_name}"
   echo "rpm_verison: ${rpm_version}"
 
-  docker run --rm --platform=${platform} ${volume_mounts} ${rpmbuild_docker_image} sh -c "
+  # shellcheck disable=SC2086 # otherwise $volume_mounts will break
+  docker run --rm \
+    --platform="${platform}" \
+    ${volume_mounts} \
+    "${rpmbuild_docker_image}" sh -c "
     set -o errexit
     set -o xtrace
 
@@ -196,8 +199,8 @@ build() {
     aws s3 sync \
         --region us-east-2 \
         --no-progress \
-        ${rpms_dir}/${spec_name}-${rpm_version}/${arch} \
-        s3://pmm-build-cache/${s3_cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+        "${rpms_dir}/${spec_name}-${rpm_version}/${arch}" \
+        "s3://pmm-build-cache/${s3_cache_dir}/${rpmbuild_dist}/${spec_name}-${rpm_version}" \
         || :
   fi
 
