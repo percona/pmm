@@ -1,7 +1,7 @@
-#!/bin/sh -E
+#!/bin/sh
 # NOTE: this script must be executed in a container environment.
 
-# Disable some shellcheck warnings - this is a script that runs in a controlled environment
+# Disable some shellcheck warnings, since this script runs in a controlled environment.
 # shellcheck disable=SC3043 # In POSIX sh, local is undefined.
 # shellcheck disable=SC3044 # In POSIX sh, pushd is undefined.
 # shellcheck disable=SC3009 # In POSIX sh, brace expansion is undefined.

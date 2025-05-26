@@ -78,4 +78,4 @@ serve-api:            ## Serve API documentation with nginx
 	nginx -p . -c api/nginx/nginx.conf
 
 build-local:        ## Build local docker images
-  ./build/local/build.sh
+	./build/local/build.sh
