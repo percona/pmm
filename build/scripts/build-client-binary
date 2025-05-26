@@ -20,10 +20,10 @@ gobuild_component() {
     local extract_path=${3:-"github.com/percona/$parent_component"}
     local component_path=$4
     local result_file=${5:-bin/$(basename ${component_path:-$extract_path})}
-    local src_dir=/home/builder/tmp/source/pmm-client-${pmm_version}
-    local bin_dir=/home/builder/tmp/binary/pmm-client-${pmm_version}
+    local src_dir=/home/builder/build/source/pmm-client-${pmm_version}
+    local bin_dir=/home/builder/build/binary/pmm-client-${pmm_version}
     local archive build_command target pmm_release_fullcommit
-    local volume_mounts="-v ${build_dir}:/home/builder/tmp"
+    local volume_mounts="-v ${build_dir}:/home/builder/build"
     volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
     volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
     volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
@@ -79,21 +79,19 @@ gobuild_component() {
     # shellcheck disable=SC2086
     docker run --rm \
       --platform="${platform}" \
+      -e CGO_ENABLED=0 \
+      -e GO111MODULE=auto \
+      -e PMM_RELEASE_VERSION="${full_pmm_version}" \
+      -e PMM_RELEASE_TIMESTAMP="$(date '+%s')" \
+      -e PMM_RELEASE_PATH="${bin_dir}/bin" \
+      -e PMM_RELEASE_FULLCOMMIT="${pmm_release_fullcommit}" \
       ${volume_mounts} \
       "${rpmbuild_docker_image}" sh -c "
         # Note: use no double quotes inside this script.
         set -o errexit
         set -o xtrace
-        export CGO_ENABLED=0
-        export GO111MODULE=auto
 
-        # Setting variables for 'make release'
-        export PMM_RELEASE_VERSION=${full_pmm_version}
-        export PMM_RELEASE_TIMESTAMP=$(date '+%s')
-        export PMM_RELEASE_PATH=${bin_dir}/bin
-        export PMM_RELEASE_FULLCOMMIT=${pmm_release_fullcommit:-}
-
-        sudo chown -R builder:builder /home/builder/tmp
+        sudo chown -R builder:builder /home/builder/build
 
         mkdir -p ${bin_dir}/bin
         mkdir -p /tmp/go/src/${extract_path}
@@ -108,7 +106,8 @@ copy_component() {
   local component=$1
   local component_path=$2
   local component_dest=${3:-$component_path}
-  local component_dir=$(git config -f .gitmodules "submodule.${component}.path")
+  local component_dir
+  component_dir=$(git config -f .gitmodules "submodule.${component}.path")
   if [ ! -d "$component_dir" ]; then
     echo "Error: could not locate the component directory for $component."
     exit 1
