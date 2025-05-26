@@ -8,12 +8,12 @@ Options:
       --platform <platform>   Build for a specific platform (defaults to linux/amd64)
       --no-update             Do not fetch the latest changes from the repo before building
       --update-only           Just fetch the latest changes from the repo and exit
-      --client-only           Build only PMM Client (client binaries + docker)
       --no-client             Do not build PMM Client (this will use local cache)
       --no-client-docker      Do not build PMM Client docker image
+      --no-server             Do not build PMM Server image
       --log-file <path>       Save build logs to a file located at <path> (defaults to $PWD/build.log)
                               Note: the log file will get reset on every subsequent run
-      --release-build         Mark it as release, or release candidate build (otherwise it's a feature build)
+      --release-build         Mark it as a release (or RC) build (otherwise it's a feature build)
       --clean                 Remove the build state and all related files, except 'ci.yml'
   -d  --debug                 Turn on a more verbose output mode, useful for troubleshooting
   -h  --help                  Display help
@@ -85,8 +85,8 @@ parse_params() {
         fi      
         NO_UPDATE=1
         ;;
-      --client-only)
-        NO_CLIENT=0; NO_CLIENT_DOCKER=0; NO_SERVER=1
+      --no-server)
+        NO_SERVER=1
         ;;
       --no-client)
         NO_CLIENT=1; NO_CLIENT_DOCKER=1
@@ -314,8 +314,7 @@ purge_files() {
     if [ -d "build/pmm-server" ]; then
       tmp_files=$(find build/pmm-server | grep -v "RPMS" | grep -Ev "^build/pmm-server$" || :)
       if [ -n "$tmp_files" ]; then
-        # Use read to properly split the output into an array
-        tmp_files=( $tmp_files )
+        tmp_files=( "$tmp_files" )
         for f in "${tmp_files[@]}"; do
           echo "Removing file or directory $f ..."
           rm -rf "$f"

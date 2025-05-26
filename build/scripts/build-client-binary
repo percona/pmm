@@ -22,14 +22,13 @@ gobuild_component() {
     local result_file=${5:-bin/$(basename ${component_path:-$extract_path})}
     local src_dir=/home/builder/tmp/source/pmm-client-${pmm_version}
     local bin_dir=/home/builder/tmp/binary/pmm-client-${pmm_version}
-    local archive=$(ls "${source_dir}" | grep -e "${parent_component}-\w*\.tar\.gz" | head -n1)
-    local build_command
-    local target
-    local pmm_release_fullcommit
+    local archive build_command target pmm_release_fullcommit
     local volume_mounts="-v ${build_dir}:/home/builder/tmp"
     volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
     volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
     volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
+
+    archive=$(ls "${source_dir}" | grep -e "${parent_component}-\w*\.tar\.gz" | head -n1)
 
     # Set target for Nomad
     case "$platform" in
@@ -161,10 +160,10 @@ main() {
   gobuild_component "percona-toolkit" "" "github.com/percona/percona-toolkit" "src/go/pt-pg-summary"
 
   rm -rf "${binary_tarball}"
-  mkdir -p "$(dirname ${binary_tarball})"
+  mkdir -p "$(dirname "${binary_tarball}")"
 
   # Removes pmm binary (aka CLI) in case this is not a feature build - such as RC/GA build
-  if [[ "$(basename ${root_dir})" != pmm-submodules_PR-* ]]; then
+  if [[ "$(basename "${root_dir}")" != pmm-submodules_PR-* ]]; then
     rm -f "${binary_dir}/bin/pmm"
   fi
   
@@ -172,7 +171,7 @@ main() {
   if uname -s | grep -qi "Darwin"; then
     noxattrs="--no-xattrs"
   fi
-  tar -C "$(dirname ${binary_dir})" ${noxattrs} -zcpf "${binary_tarball}" "$(basename ${binary_dir})"
+  tar -C "$(dirname "${binary_dir}")" ${noxattrs} -zcpf "${binary_tarball}" "$(basename "${binary_dir}")"
 
   local s3_tarball_name="pmm-build-cache/${s3_cache_dir}/pmm-client/pmm-client-${pmm_version}-${pmm_commit}.tar.gz"
   local s3_tarball_url="https://s3.us-east-2.amazonaws.com/${s3_tarball_name}"
