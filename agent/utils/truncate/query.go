@@ -15,6 +15,8 @@
 // Package truncate privides strings truncation utilities.
 package truncate
 
+import "strings"
+
 const (
 	defaultMaxQueryLength        = int32(2048)
 	defaultMongoDBMaxQueryLength = int32(4096)
@@ -33,7 +35,7 @@ func Query(q string, maxQueryLength, defaultMaxQueryLength int32) (string, bool)
 
 	runes := []rune(q)
 	if int32(len(runes)) <= maxQueryLength {
-		return string(runes), false
+		return string(runes), strings.HasSuffix(string(runes), "...")
 	}
 
 	// for queries shorter than 4 chars

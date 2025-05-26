@@ -335,7 +335,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 				b.Common.Schema = pointer.GetString(esh.CurrentSchema)
 			}
 
-			if esh.SQLText != nil {
+			if esh.SQLText != nil && *esh.SQLText != "" {
 				explainFingerprint, placeholdersCount := queryparser.GetMySQLFingerprintPlaceholders(*esh.SQLText, *esh.DigestText)
 				explainFingerprint, truncated := truncate.Query(explainFingerprint, m.maxQueryLength, truncate.GetDefaultMaxQueryLength())
 				if truncated {
