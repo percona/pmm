@@ -109,7 +109,7 @@ copy_component() {
   local component=$1
   local component_path=$2
   local component_dest=${3:-$component_path}
-  local component_dir=$(git config -f ".gitmodules submodule.${component}.path")
+  local component_dir=$(git config -f .gitmodules "submodule.${component}.path")
   if [ ! -d "$component_dir" ]; then
     echo "Error: could not locate the component directory for $component."
     exit 1
