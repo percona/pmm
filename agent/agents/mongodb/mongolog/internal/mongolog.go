@@ -24,12 +24,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"gopkg.in/mgo.v2/bson"
 
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/percona/pmm/agent/agents/mongodb/shared/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/shared/sender"
 	"github.com/percona/pmm/agent/utils/filereader"
@@ -216,7 +216,7 @@ func signalReady(ready *sync.Cond) {
 }
 
 func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Client, error) {
-	ctxWithoutTimeout, cancel := context.WithTimeout(ctx, mgoTimeoutDialInfo)
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, mgoTimeoutDialInfo)
 	defer cancel()
 
 	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
@@ -230,7 +230,7 @@ func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Clie
 		SetSocketTimeout(mgoTimeoutSessionSocket).
 		SetAppName(fmt.Sprintf("QAN-mongodb-mongolog-%s", agentID))
 
-	client, err := mongo.Connect(ctxWithoutTimeout, opts)
+	client, err := mongo.Connect(ctxWithTimeout, opts)
 	if err != nil {
 		return nil, err
 	}
