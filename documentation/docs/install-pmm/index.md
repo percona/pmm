@@ -15,17 +15,23 @@ The PMM installation consists of three main steps that need to be completed in s
 
 ## Planning the installation
 
-| Use | :material-thumb-up: **Benefits** | :material-thumb-down: **Drawbacks**|
-|---|---|---
-| [Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md) | 1. Quick<br>2. Simple<br> 3. Rootless |  Additional network configuration required.
-| [Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) | 1. Quick<br>2. Simple<br>3. Rootless | Podman installation required.
-| [Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md) (Technical Preview) | 1. Quick<br>2. Simple<br>3. Cloud-compatible <br> 4. Rootless| Requires running a Kubernetes cluster.
-| [Virtual appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)  | 1. Easily import into Hypervisor of your choice <br> 2. Rootless| More system resources compared to Docker footprint.
-<!---| [Amazon AWS](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | 1. Wizard-driven install. <br>  2. Rootless| Paid, incurs infrastructure costs. --->
+Before ou install PMM, ensure your environment is properly prepared:
 
 - [Choose a deployment strategy](../install-pmm/plan-pmm-installation/choose-deployment.md) based on your environment needs.
 - [Verify hardware requirements](../install-pmm/plan-pmm-installation/hardware_and_system.md) to ensure your system meets the necessary specifications.
 - [Configure your network](../install-pmm/plan-pmm-installation/network_and_firewall.md) for the required connections.
+
+### PMM Server deployment options
+
+Compare the available deployment methods to choose what works best for your setup. For a fast evaluation setup, Docker is the quickest option. For production environments, consider your existing infrastructure stack and operational preferences when choosing between Docker, Kubernetes (Helm), or Virtual Appliance deployments:
+
+| Deployment Method | Best for | Advantages | Considerations |
+|-------------------|----------|------------|----------------|
+| [Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md) | Quick setup, development environments | • Fast deployment<br>• Easy to manage<br>• Runs without root privileges<br>• Minimal resource overhead | • Requires Docker knowledge<br>• May need additional network configuration |
+| [Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) | Security-conscious environments | • Rootless by default<br>• Enhanced security<br>• Docker-compatible commands<br>• No daemon required | • Requires Podman installation<br>• Less common than Docker |
+<!---| [Amazon AWS](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | 1. Wizard-driven install. <br>  2. Rootless| Paid, incurs infrastructure costs. --->
+
+
 
 ## Installation steps 
 
@@ -111,5 +117,6 @@ PMM supports monitoring across the following database technologies, cloud servic
     === ":material-router-network: Proxy Services"
 
     Monitor database proxy and load balancing services:
+
     - [ProxySQL](../install-pmm/install-pmm-client/connect-database/proxysql.md)
     - [HAProxy](../install-pmm/install-pmm-client/connect-database/haproxy.md)

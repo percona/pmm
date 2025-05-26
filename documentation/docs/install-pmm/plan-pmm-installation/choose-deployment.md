@@ -101,7 +101,7 @@ Review this checklist to help you plan and size your monitoring environment and 
 
 ✓ [Estimate monitoring scope](../plan-pmm-installation/hardware_and_system.md/#storage-planning) - Calculate number of instances and expected metric volume 
 
-✓ Size the PMM Server - Determine hardware requirements based on monitoring load 
+✓ [Size the PMM Server](../plan-pmm-installation/hardware_and_system.md) - Determine hardware requirements based on monitoring load 
 
 ✓ [Choose Server deployment method](../install-pmm-server/index.md) - Select the appropriate PMM Server installation option 
 
@@ -109,7 +109,7 @@ Review this checklist to help you plan and size your monitoring environment and 
 
 ✓ [Verify network access](../plan-pmm-installation/network_and_firewall.md) - Ensure proper connectivity and firewall rules are in place 
 
-✓ [Plan data retention](../../backup/index.md) - Establish backup and disaster recovery processes 
+✓ [Plan data retention](../../configure-pmm/advanced_settings.md#data-retention) - Establish backup and disaster recovery processes 
 
 ✓ [Define maintenance](../../pmm-upgrade/index.md) - Create upgrade and patching procedures for PMM components
 

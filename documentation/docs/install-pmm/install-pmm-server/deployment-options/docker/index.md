@@ -90,7 +90,7 @@ You can choose either of two storage options offered by PMM Server:
 | Option | Suitable for | Command |
 |--------|-------------|---------|
 | [Docker volumes](../docker/run_with_vol.md) (Recommended) | Production environments | `--volume pmm-data:/srv` |
-| [Docker volumes](../docker/run_with_vol.md) | Development/testing | `--volume /path/on/host:/srv` |
+| [Host directory](../docker/run_with_host_dir.md) | Development/testing | `--volume /path/on/host:/srv` |
 
 
 ### Environment variables
@@ -136,7 +136,7 @@ After basic installation, you may want to customize your PMM Server setup:
 - Enable HTTP (insecure, NOT recommended): add `--publish 80:8080` to the `docker run` command.
 
 !!! info "Warning"
-    PMM Client **requires** TLS to communicate with PMM Server, only working on a secure port.
+    PMM Client requires a secure (TLS-encrypted) connection and will only communicate with PMM Server over HTTPS.
 
 ## Next steps
 - [Install PMM Client on hosts you want to monitor](../../../install-pmm-client/index.md)

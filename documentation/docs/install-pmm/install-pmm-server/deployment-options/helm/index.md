@@ -58,25 +58,44 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
     ```sh
     kubectl get secret pmm-secret -o jsonpath='{.data.PMM_ADMIN_PASSWORD}' | base64 --decode
     ```
-
-3. Add the Percona repository and deploy PMM Server with default settings and your secret. See configuration parameters for customization. See [configuration parameters](#view-available-parameters) for customization.
-
+3. Add the Percona repository and check available PMM versions:
     ```sh
     helm repo add percona https://percona.github.io/percona-helm-charts/
+    helm repo update
+    ```
+4. Choose your PMM version by checking available chart versions:
+    ```sh
+    helm search repo percona/pmm --versions
+    ```
+
+    ??? info "Example output"
+        ```
+        NAME       	CHART VERSION	APP VERSION	DESCRIPTION
+        percona/pmm	1.4.3        	3.1.0      	A Helm chart for Percona Monitoring and Managem...
+        percona/pmm	1.4.2        	3.1.0      	A Helm chart for Percona Monitoring and Managem...
+        percona/pmm	1.4.1        	3.0.0      	A Helm chart for Percona Monitoring and Managem...
+        percona/pmm	1.4.0        	3.0.0      	A Helm chart for Percona Monitoring and Managem...
+        percona/pmm	1.3.21       	2.44.0     	A Helm chart for Percona Monitoring and Managem...
+        ```
+  
+5. Deploy PMM Server with your chosen version and secret:
+
+   ```sh
+    # Choose a specific chart version from the list in previous step
     helm install pmm \
     --set secret.create=false \
     --set secret.name=pmm-secret \
-    --version ^1.4.0 \
+    --version 1.4.3 \
     percona/pmm
-    ```
-
-4. Verify the deployment:
+   ```
+  
+5. Verify the deployment:
     ```sh
     helm list
     kubectl get pods -l app.kubernetes.io/name=pmm
     ```
 
-5. Access PMM Server:
+6. Access PMM Server:
 
     ```sh
     # If using ClusterIP (default)

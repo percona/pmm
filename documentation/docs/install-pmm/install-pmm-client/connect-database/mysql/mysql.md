@@ -2,6 +2,31 @@
 
 Easily connect your MySQL databases—whether self-hosted or running on AWS EC2—to Percona Monitoring and Management (PMM) for in-depth performance insights.
 
+## Quick setup
+Get your MySQL instance connected to PMM in just a few steps, create PMM user and add service
+
+```sql
+-- Create PMM user with required permissions
+CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'StrongPassword123!' WITH MAX_USER_CONNECTIONS 10;
+GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
+
+```
+
+```sh
+# Add MySQL service to PMM
+pmm-admin add mysql \
+  --username=pmm \
+  --password=StrongPassword123! \
+  --host=localhost \
+  --port=3306 \
+  --query-source=slowlog \
+  --environment=production \
+  MySQL-Primary
+```
+That's it! Your MySQL instance should now appear in PMM dashboards. For advanced configuration options, continue reading below.
+
+## Advanced configuration
+
 PMM Client supports collecting metrics from various MySQL-based database systems:
 
  - [MySQL][ORACLE_MYSQL]
@@ -16,13 +41,13 @@ PMM Client supports collecting metrics from various MySQL-based database systems
     {.power-number}
 
     1. **[Prerequisites](#prerequisites)**: Ensure PMM Server is running and PMM Client is installed
-    2. **[Create PMM user](#creating-a-dedicated-pmm-user)**: `CREATE USER 'pmm'@'localhost' IDENTIFIED BY '<StrongPassword>'`  
-    3. **[Grant permissions](#creating-a-dedicated-pmm-user)**: `GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost'`
+    2. **[Create PMM user](#create-a-database-account-for-pmm)**: `CREATE USER 'pmm'@'localhost' IDENTIFIED BY '<StrongPassword>'`  
+    3. **[Grant permissions](#create-a-database-account-for-pmm)**: `GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost'`
     4. **[Configure data source](#configuring-data-sources)**: Enable Slow Query Log or Performance Schema 
     5. **[Add service](#adding-mysql-services-to-pmm)**: Use PMM UI or command line to add the MySQL instance
     6. **[Verify connection](#verifying-the-setup)**: Check PMM Inventory and dashboards for data
 
-## Prerequisites
+### Prerequisites
 
 Before connecting MySQL to PMM, review the prerequisites for your monitoring setup:
 
@@ -44,9 +69,9 @@ Before connecting MySQL to PMM, review the prerequisites for your monitoring set
 
 For remote monitoring or when using only Performance Schema metrics, `root` access on the database server itself is not required.
 
-## Security setup
+### Security setup
 
-### Create a database account for PMM
+#### Create a database account for PMM
 
 For security best practices, connect PMM Client to your database using a dedicated monitoring user with limited permissions. 
 
@@ -74,7 +99,7 @@ This example creates a pmm user account that has just enough access to collect m
     GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD, BACKUP_ADMIN ON *.* TO 'pmm'@'localhost';
     ```
 
-## Choose and configure a source
+### Choose and configure a source
 
 PMM can collect metrics from two primary sources: Slow query log and Performance Schema.
 
@@ -82,7 +107,7 @@ While you can use both at the same time we recommend using only one--there is so
 
 The choice depends on the version and variant of your MySQL instance, and how much detail you want to see.
 
-### Data source comparison
+#### Data source comparison
 
 Here are the benefits and drawbacks of Slow query log and Performance Schema metrics sources:
 
@@ -91,7 +116,7 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
 | **Slow Query Log** | - Percona Server<br>- When detailed query analysis is critical | ✔ More detailed query information<br>✔ Lower resource impact with query sampling | ⚠ Requires log file access<br>⚠ Log files need management<br>⚠ Higher disk I/O |
 | **Performance Schema** | - MySQL 5.6+<br>- MariaDB 10.0+<br>- Production environments with resource constraints | ✔ Lower overhead<br>✔ Faster parsing<br>✔ No file management needed | ⚠ Less detailed query information<br>⚠ Higher memory usage |
 
-### Version-specific recommendations
+#### Version-specific recommendations
 
 | Database server          | Versions       | Recommended source |
 |--------------------------|----------------|--------------------|
@@ -101,7 +126,7 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
 | Percona Server for MySQL | 5.7, 8.0       | Slow query log     |
 | Percona XtraDB Cluster   | 5.6, 5.7, 8.0  | Slow query log     |
 
-## Data source configuration
+### Configure data source
 
 === "Slow query log"
         
@@ -272,11 +297,11 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
     events_transactions_history_long
     ```
 
-## Query response time
+### Query response time
 
 **Query time distribution** is a chart in the [**Details** tab of Query Analytics](../../../../use/qan/panels/details.md#details-tab) showing the proportion of query time spent on various activities. It is enabled with the `query_response_time_stats` variable and associated plugins.
 
-### Applicable versions
+#### Applicable versions
 
 - **Percona Server for MySQL**: 5.7 (**not** [Percona Server for MySQL 8.0][PS_FEATURES_REMOVED].)
 - **MariaDB**: 10.0.4
@@ -285,7 +310,7 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
 
 To enable query time distribution charts, set the `[query_response_time_stats][ps_query_response_time_stats] = ON` and install the plugin.
 
-### Plugin installation
+#### Plugin installation
 
 Before installing the plugins, ensure you have the necessary plugin files and run these commands in your MySQL session:
 {.power-number}
@@ -311,7 +336,7 @@ Before installing the plugins, ensure you have the necessary plugin files and ru
         SET GLOBAL query_response_time_stats = ON;
         ```
 
-## Tablestats
+### Tablestats
 
 Some table metrics are automatically disabled when the number of tables exceeds a default limit of 1000 tables. This prevents PMM Client from affecting the performance of your database server.
 
@@ -322,9 +347,9 @@ You can change the limit [when configuring MySQL performance improvements](https
 | `--disable-tablestats`         | Disables tablestats collection when the default limit is reached.
 | `--disable-tablestats-limit=N` | Sets the number of tables (`N`) for which tablestats collection is disabled. 0 means no limit. A negative number means tablestats is completely disabled (for any number of tables).
 
-## User statistics
+### User statistics
 
-### Applicable versions
+#### Applicable versions
 
 User activity, individual table and index access details are shown on the [MySQL User Details][DASH_MYSQLUSERDETAILS] dashboard when the `userstat` variable is set:
 
@@ -339,110 +364,101 @@ User activity, individual table and index access details are shown on the [MySQL
     - Session: `SET GLOBAL userstat = ON;`
 
 
-## Add MySQL services to PMM
+### Add service to PMM
 
-Add MySQL monitoring through either the PMM web interface or command line.
+After creating your PMM database user, you can quickly add your MySQL service to PMM. You can do this either through the PMM user interface or via the command line.
 
-=== "Via Command Line"
-    Use the command line approach when you prefer automation or scripting. Key differences:
-    
-    - **Local monitoring**: Use `--host=localhost` to monitor a MySQL instance on the same host
-    - **Remote monitoring**: Use `--host=remote-mysql.example.com` to monitor a remote MySQL instance
-    
-    !!! note "Important"
-        For remote monitoring, ensure that the host running PMM Agent has network access to the remote MySQL instance.
-    
-    **Basic syntax**
-    
-    ```bash
-    pmm-admin add mysql \
-      --username=pmm \
-      --password=StrongPassword \
-      --host=localhost \
-      --port=3306 \
-      --query-source=slowlog \
-      MySQL-Primary
-    ```
-    
-    **With additional options**
-    
-    ```bash
-    pmm-admin add mysql \
-      --username=pmm \
-      --password=StrongPassword \
-      --host=localhost \
-      --port=3306 \
-      --query-source=slowlog \
-      --environment=production \
-      --custom-labels="role=primary,datacenter=east" \
-      MySQL-Primary
-    ```
-    
-    **For TLS connections**
-    
-    ```bash
-    pmm-admin add mysql \
-      --username=pmm \
-      --password=StrongPassword \
-      --host=localhost \
-      --port=3306 \
-      --tls \
-      --tls-skip-verify \
-      --tls-ca=/path/to/ca.pem \
-      --tls-cert=/path/to/client-cert.pem \
-      --tls-key=/path/to/client-key.pem \
-      --query-source=slowlog \
-      --environment=production \
-      MySQL-TLS
-    ```
-    
-    **For remote monitoring**
-    
-    ```bash
-    pmm-admin add mysql \
-      --username=pmm \
-      --password=StrongPassword \
-      --host=remote-mysql.example.com \
-      --port=3306 \
-      --query-source=perfschema \
-      --environment=production \
-      --custom-labels="region=eu-west,tier=application" \
-      Remote-MySQL
-    ```
+=== "Using the PMM user interface"
 
-=== "Via Web UI (Recommended for flexibility)"
-    Add MySQL services and specify which `pmm-agent` will monitor them. This includes both scenarios: when the `pmm-agent` runs on the same host as the MySQL instance (enabling full host and database metrics), and when it runs on a different host (providing remote database-only monitoring).
+    To add the service from the user interface:
 
-    **To add a MySQL service:**
-    {.power-number}
-
-    1. GO to **PMM Configuration > PMM Inventory > Add Service**.
+    1. Go to **PMM Configuration > PMM Inventory > Add Service**.
+    
     2. Select **MySQL** service type.
-    3. Fill in the connection details:
-        - **Service Name**: A descriptive name for your MySQL instance.
-        - **Host/Socket**: 
-            - For local monitoring: Use `localhost` or a socket path.
-            - For remote monitoring: The hostname or IP address of your remote MySQL server.
+    
+    3. Enter or select values for the fields:
+        - **Service Name**: A descriptive name for your MySQL instance
+        - **Host/Socket**: Use `localhost` for local monitoring or hostname/IP for remote monitoring
         - **Port**: MySQL port (default: 3306)
         - **Username**: The PMM user created earlier
         - **Password**: Your PMM user password
-        - **Query Source**: Choose between **Slow Log** or **Performance Schema**.
-        - **PMM Agent**: **(Required)** Select which PMM agent should monitor this instance:
-            - For local monitoring: Choose the agent installed on the MySQL host
-            - For remote monitoring: Choose any agent with network access to the MySQL instance
-    4. Click **Add Service**.
-        
-    ![MySQL Service Addition Screen](../../../../images/PMM_Add_Instance_MySQL.jpg)
+        - **Query Source**: Choose between **Slow Log** or **Performance Schema**
+        - **PMM Agent**: Select which PMM agent should monitor this instance
     
-    **For TLS-enabled MySQL instances:**
-    {.power-number}
+    4. Click **Add Service**.
+    
+    ![MySQL Service Addition Screen](../../../../images/PMM_Add_Instance_MySQL.jpg)
 
-    1. Check **Use TLS for database connections**
-    2. Fill in your TLS certificates and key information
+    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information.
     
     ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.jpg)
 
-## After adding the service
+=== "Using the command line"
+
+    === "Basic setup"
+    
+        Add a local MySQL instance with default settings:
+        
+        ```sh
+        pmm-admin add mysql \
+          --username=pmm \
+          --password=StrongPassword \
+          --host=localhost \
+          --port=3306 \
+          --query-source=slowlog \
+          MySQL-Primary
+        ```
+    
+    === "Remote monitoring"
+    
+        Add a remote MySQL instance:
+        
+        ```sh
+        pmm-admin add mysql \
+          --username=pmm \
+          --password=StrongPassword \
+          --host=remote-mysql.example.com \
+          --port=3306 \
+          --query-source=perfschema \
+          --environment=production \
+          Remote-MySQL
+        ```
+    
+    === "With custom labels"
+    
+        Add an instance with environment and custom labels:
+        
+        ```sh
+        pmm-admin add mysql \
+          --username=pmm \
+          --password=StrongPassword \
+          --host=localhost \
+          --port=3306 \
+          --query-source=slowlog \
+          --environment=production \
+          --custom-labels="role=primary,datacenter=east" \
+          MySQL-Primary
+        ```
+    
+    === "TLS connection"
+    
+        Add an instance with TLS security:
+        
+        ```sh
+        pmm-admin add mysql \
+          --username=pmm \
+          --password=StrongPassword \
+          --host=mysql-server.example.com \
+          --port=3306 \
+          --tls \
+          --tls-ca=/path/to/ca.pem \
+          --tls-cert=/path/to/client-cert.pem \
+          --tls-key=/path/to/client-key.pem \
+          --query-source=slowlog \
+          MySQL-TLS
+        ```
+
+### After adding the service
 
 Upon successful addition, PMM Client will display a confirmation message:
 
@@ -452,10 +468,10 @@ Service ID  : /service_id/abcd1234-5678-efgh-ijkl-mnopqrstuvwx
 Service name: MySQL-Primary
 ```
 
-### Verify your MySQL service
+## Verify your MySQL service
 After adding your MySQL service to PMM, it's important to verify that it's properly connected and collecting data.
 
-### Check service status
+#### Check service status
 
 === "Via command line"
     Use these commands to manage and monitor your MySQL services:
@@ -488,7 +504,7 @@ After adding your MySQL service to PMM, it's important to verify that it's prope
         - the correct agents are running
         - your selected query source (Slow Log or Performance Schema) is active
 
-### Verify data collection
+#### Verify data collection
 
 Once the service is confirmed as active, verify that metrics are being properly collected:
 

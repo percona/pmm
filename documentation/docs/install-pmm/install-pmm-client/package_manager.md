@@ -46,11 +46,13 @@ On Debian or Red Hat Linux, install `percona-release` and use a Linux package ma
         percona-release enable pmm3-client
         ```
     3. Install the PMM Client package:
-        !!! hint "Root permissions"
-            ```sh
-            apt update
-            apt install -y pmm-client
-            ```
+         !!! hint "Root permissions required"
+            The installation commands below require root privileges. Use `sudo` if you're not running as root.
+        
+        ```sh
+        apt update
+        apt install -y pmm-client
+        ```
     4. Verify the installation by checking the PMM Client version:
         ```sh
         pmm-admin --version
