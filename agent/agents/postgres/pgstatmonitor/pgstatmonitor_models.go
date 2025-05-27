@@ -283,7 +283,8 @@ func (v *pgStatMonitorAllViewType) Columns() []string {
 
 // NewStruct makes a new struct for that view or table.
 func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct { //nolint:ireturn
-	return &pgStatMonitor{}
+	str, _ := newPgStatMonitorStructs(v.vPGSM, v.vPG)
+	return str
 }
 
 // String returns a string representation of this struct or record.
