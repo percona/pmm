@@ -198,7 +198,7 @@ services:
       -c pg_stat_statements.track=all 
       -c pg_stat_statements.save=off 
       -c fsync=off 
-    # -c hba_file=/conf/pg_hba.conf
+      -c hba_file=/conf/pg_hba.conf
     # -c ssl=on
     # -c ssl_ca_file=/certs/root.crt
     # -c ssl_cert_file=/certs/server.crt
@@ -222,7 +222,7 @@ services:
         ipv4_address: 172.20.0.10
     volumes:
       - ./managed/testdata/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
-      - ./managed/testdata/haproxy/localhost.pem:/etc/ssl/private/localhost.pem
+      - ./managed/testdata/haproxy/localhost.pem:/usr/local/etc/ssl/private/localhost.pem:ro
     ports:
       - 80:80
       - 443:443
@@ -296,11 +296,11 @@ services:
     ulimits:
       memlock: 67108864
 
-    ports:
-      - ${PMM_PORT_HTTP:-8081}:8080
-      - ${PMM_PORT_HTTPS:-8441}:8443
+#    ports:
+#      - ${PMM_PORT_HTTP:-8081}:8080
+#      - ${PMM_PORT_HTTPS:-8441}:8443
       # For headless delve
-      - ${PMM_PORT_DELVE:-2345}:2345
+#      - ${PMM_PORT_DELVE:-2345}:2345
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       #  - "../grafana/public:/usr/share/grafana/public"
@@ -375,11 +375,11 @@ services:
     ulimits:
       memlock: 67108864
 
-    ports:
-      - ${PMM_PORT_HTTP:-8082}:8080
-      - ${PMM_PORT_HTTPS:-8432}:8443
+#    ports:
+#      - ${PMM_PORT_HTTP:-8082}:8080
+#      - ${PMM_PORT_HTTPS:-8432}:8443
       # For headless delve
-      - ${PMM_PORT_DELVE:-12345}:2345
+#      - ${PMM_PORT_DELVE:-12345}:2345
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       # - "../grafana/public:/usr/share/grafana/public"
@@ -454,9 +454,9 @@ services:
     ulimits:
       memlock: 67108864
 
-    ports:
-      - ${PMM_PORT_HTTP:-8083}:8080
-      - ${PMM_PORT_HTTPS:-8433}:8443
+#    ports:
+#      - ${PMM_PORT_HTTP:-8083}:8080
+#      - ${PMM_PORT_HTTPS:-8433}:8443
       # For headless delve
       # - ${PMM_PORT_DELVE:-12345}:2345
     volumes:
