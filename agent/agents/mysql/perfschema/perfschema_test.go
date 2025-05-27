@@ -472,7 +472,7 @@ func TestPerfSchema(t *testing.T) {
 			require.NoError(t, err)
 		}()
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(context.Background()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
