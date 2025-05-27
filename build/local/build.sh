@@ -242,6 +242,15 @@ update() {
 
   cd "$CURDIR" > /dev/null
 
+  echo "Syncing PMM source code with pmm-submodules docker volume..."
+  docker run --rm \
+    --platform="$PLATFORM" \
+    --user root \
+    -v "$SUBMODULES":/submodules \
+    -v pmm-submodules:/app \
+    "$RPMBUILD_DOCKER_IMAGE" \
+    rsync -a --delete --chown=builder:builder /submodules/ /app/
+
   if [ "$UPDATE_ONLY" -eq 1 ]; then
     exit 0
   fi
@@ -347,15 +356,6 @@ check_volumes() {
       echo "Docker volume $volume checked."
     fi
   done
-
-  echo "Syncing PMM source code with pmm-submodules docker volume..."
-  docker run --rm \
-    --platform="$PLATFORM" \
-    --user root \
-    -v "$SUBMODULES":/submodules \
-    -v pmm-submodules:/app \
-    "$RPMBUILD_DOCKER_IMAGE" \
-    rsync -a --delete --chown=builder:builder /submodules/ /app/
 
   docker run --rm \
     --platform="$PLATFORM" \
