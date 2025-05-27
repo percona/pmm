@@ -134,6 +134,8 @@ func (m *AddMongoDBServiceParams) validate(all bool) error {
 
 	// no validation rules for QanMongodbProfiler
 
+	// no validation rules for QanMongodbMongolog
+
 	// no validation rules for CustomLabels
 
 	// no validation rules for SkipConnectionCheck
@@ -349,6 +351,35 @@ func (m *MongoDBServiceResult) validate(all bool) error {
 		if err := v.Validate(); err != nil {
 			return MongoDBServiceResultValidationError{
 				field:  "QanMongodbProfiler",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetQanMongodbMongolog()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MongoDBServiceResultValidationError{
+					field:  "QanMongodbMongolog",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MongoDBServiceResultValidationError{
+					field:  "QanMongodbMongolog",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetQanMongodbMongolog()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MongoDBServiceResultValidationError{
+				field:  "QanMongodbMongolog",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
