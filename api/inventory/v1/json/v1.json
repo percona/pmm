@@ -1874,11 +1874,6 @@
                         },
                         "x-order": 9
                       },
-                      "use_redis_scheme": {
-                        "description": "If true, PMM will connect to the server using the redis:// scheme instead of valkey://.",
-                        "type": "boolean",
-                        "x-order": 10
-                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
@@ -1893,18 +1888,18 @@
                           "AGENT_STATUS_DONE",
                           "AGENT_STATUS_UNKNOWN"
                         ],
-                        "x-order": 11
+                        "x-order": 10
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 12
+                        "x-order": 11
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 13
+                        "x-order": 12
                       },
                       "log_level": {
                         "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -1919,12 +1914,12 @@
                           "LOG_LEVEL_INFO",
                           "LOG_LEVEL_DEBUG"
                         ],
-                        "x-order": 14
+                        "x-order": 13
                       },
                       "expose_exporter": {
                         "type": "boolean",
                         "title": "Optionally expose the exporter process on all public interfaces",
-                        "x-order": 15
+                        "x-order": 14
                       },
                       "metrics_resolutions": {
                         "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -1946,7 +1941,7 @@
                             "x-order": 2
                           }
                         },
-                        "x-order": 16
+                        "x-order": 15
                       }
                     }
                   },
@@ -3286,11 +3281,6 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 15
-                    },
-                    "use_redis_scheme": {
-                      "description": "If true, PMM will connect to the server using the redis:// scheme instead of valkey://.",
-                      "type": "boolean",
-                      "x-order": 16
                     }
                   },
                   "x-order": 14
@@ -4961,11 +4951,6 @@
                       },
                       "x-order": 9
                     },
-                    "use_redis_scheme": {
-                      "description": "If true, PMM will connect to the server using the redis:// scheme instead of valkey://.",
-                      "type": "boolean",
-                      "x-order": 10
-                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -4980,18 +4965,18 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -5006,12 +4991,12 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -5033,7 +5018,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 16
+                      "x-order": 15
                     }
                   },
                   "x-order": 14
@@ -6846,11 +6831,6 @@
                       },
                       "x-order": 9
                     },
-                    "use_redis_scheme": {
-                      "description": "If true, PMM will connect to the server using the redis:// scheme instead of valkey://.",
-                      "type": "boolean",
-                      "x-order": 10
-                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -6865,18 +6845,18 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -6891,12 +6871,12 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -6918,7 +6898,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 16
+                      "x-order": 15
                     }
                   },
                   "x-order": 16
@@ -9441,11 +9421,6 @@
                       },
                       "x-order": 9
                     },
-                    "use_redis_scheme": {
-                      "description": "If true, PMM will connect to the server using the redis:// scheme instead of valkey://.",
-                      "type": "boolean",
-                      "x-order": 10
-                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -9460,18 +9435,18 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -9486,12 +9461,12 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -9513,7 +9488,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 16
+                      "x-order": 15
                     }
                   },
                   "x-order": 14
