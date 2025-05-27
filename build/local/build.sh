@@ -242,6 +242,7 @@ update() {
 
   cd "$CURDIR" > /dev/null
 
+  echo
   echo "Syncing PMM source code with pmm-submodules docker volume..."
   docker run --rm \
     --platform="$PLATFORM" \
