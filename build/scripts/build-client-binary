@@ -28,7 +28,7 @@ gobuild_component() {
   volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
   volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
 
-  archive=$(ls "${source_dir}" | grep -e "${parent_component}-\w*\.tar\.gz" | head -n1)
+  archive=$(ls "${source_dir}/${parent_component}-\w*\.tar\.gz" | head -n1)
 
   # Set target for Nomad
   case "$platform" in
@@ -53,19 +53,19 @@ gobuild_component() {
     return
   fi
   if [[ "${component}" =~ pmm-admin|pmm-agent ]]; then
-    build_command="cd '/tmp/go/src/${extract_path}/${component_path}' && NO_VCS=1 make release"
+    build_command="NO_VCS=1 make -C /tmp/go/src/${extract_path}/${component_path} release"
   elif [ "${component}" = mongodb_exporter ]; then
     component_version=$(git -C "sources/${parent_component}/src/${extract_path}" describe --tags --abbrev=0 --always)
-    build_command="cd /tmp/go/src/${extract_path} && COMPONENT_VERSION=${component_version} make build"
+    build_command="COMPONENT_VERSION=${component_version} make -C /tmp/go/src/${extract_path} build"
   elif [[ "${component}" =~ (node|mysqld|proxysql|rds|postgres|azure_metrics)_exporter ]]; then
-    build_command="cd /tmp/go/src/${extract_path} && make release"
+    build_command="make -C /tmp/go/src/${extract_path} release"
   elif [ "${component}" = percona-toolkit ]; then
-    build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o ${bin_dir}/${result_file} ."
+    build_command="go build -o ${bin_dir}/${result_file} /tmp/go/src/${extract_path}/${component_path}"
   elif [ "${component}" = nomad ]; then
-    build_command="cd /tmp/go/src/${extract_path} && TARGETS=${target} make deps release;"
+    build_command="TARGETS=${target} make -C /tmp/go/src/${extract_path} deps release;"
     build_command+=" cp /tmp/go/src/github.com/hashicorp/nomad/pkg/linux_*/nomad ${bin_dir}/bin/nomad"
   else
-    build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o ${bin_dir}/${result_file} ."
+    build_command="go build -o ${bin_dir}/${result_file} /tmp/go/src/${extract_path}/${component_path}"
   fi
 
   if [ "${component}" = vmagent ]; then

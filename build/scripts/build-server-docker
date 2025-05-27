@@ -1,17 +1,17 @@
 #!/bin/bash
 
-. $(dirname $0)/vars
+. "$(dirname "$0")/vars"
 
 main() {
   echo -----------------------------------------
   echo "Building docker image for PMM Server..."
   echo -----------------------------------------
 
-  local docker_root=$(realpath ${rpms_dir}/..)
+  local docker_root=$(realpath "${rpms_dir}"/..)
 
   cp -r "${pmm_build_dir}/ansible" "${docker_root}/ansible"
   cp "${pmm_build_dir}/docker/server/"* "${docker_root}"
-  cp ${build_dir}/tarball/pmm-client-*.tar.gz "${docker_root}/pmm-client.tar.gz"
+  cp "${build_dir}"/tarball/pmm-client-*.tar.gz "${docker_root}/pmm-client.tar.gz"
   if [ -s "${root_dir}/build/build.json" ]; then
     cp "${root_dir}/build/build.json" "${docker_root}/build.json"
   else
@@ -19,19 +19,20 @@ main() {
   fi
 
   if [ -n "$CI" ]; then
-    git -C ${root_dir} rev-parse HEAD > ${docker_root}/gitCommit
+    git -C "${root_dir}" rev-parse HEAD > "${docker_root}/gitCommit"
   else
-    git -C ${pmm_build_dir} rev-parse HEAD > ${docker_root}/gitCommit
+    git -C "${pmm_build_dir}" rev-parse HEAD > "${docker_root}/gitCommit"
   fi
-  ls -la ${rpms_dir}
+  ls -la "${rpms_dir}"
 
-  docker run --rm --platform=${platform} -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
-    sudo chown -R builder /home/builder/rpm/RPMS
-    until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
-      echo "waiting"
-      sleep 1
-    done
-  "
+  docker run --rm --platform="${platform}" -v "${rpms_dir}":/home/builder/rpm/RPMS \
+    "${rpmbuild_docker_image}" sh -c "
+      sudo chown -R builder /home/builder/rpm/RPMS
+      until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
+        echo "waiting to create repo..."
+        sleep 1
+      done
+    "
 
   if [ -z "${DOCKER_TAG}" ]; then
     DOCKER_TAG=perconalab/pmm-server-fb:${shortcommit}
@@ -48,14 +49,14 @@ main() {
   docker buildx build \
     --build-arg BUILD_DATE="$BUILD_DATE" \
     --build-arg VERSION="$IMAGE_VERSION" \
-    --platform=${platform} \
+    --platform="${platform}" \
     --progress plain \
-    -f ${docker_root}/${docker_file} \
-    -t ${DOCKER_TAG} \
-    ${docker_root}
+    -f "${docker_root}/${docker_file}" \
+    -t "${DOCKER_TAG}" \
+    "${docker_root}"
 
-  mkdir -p $(dirname ${docker_tag_file})
-  echo -n ${DOCKER_TAG} > ${docker_tag_file}
+  mkdir -p "$(dirname "${docker_tag_file}")"
+  echo -n "${DOCKER_TAG}" > "${docker_tag_file}"
 
   echo
   echo "Finished building PMM Server docker image: $DOCKER_TAG"
