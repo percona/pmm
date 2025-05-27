@@ -136,7 +136,7 @@
       pip:
         name: "{{ item }}"
       loop: # Lookup versions at: https://pypi.org/search/
-        - pyaml==24.7.0
+        - pyaml==25.1.0
         - GitPython==3.1.43
         - PyGithub==2.3.0
         - python-digitalocean==1.17.0
