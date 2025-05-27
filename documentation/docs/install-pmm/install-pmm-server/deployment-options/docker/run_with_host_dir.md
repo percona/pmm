@@ -17,7 +17,7 @@ To run Docker with the host directory:
     ```sh
     docker run --detach --restart always \
     --publish 443:8443 \
-    --env PMM_WATCHTOWER_HOST=your_watchtower_host:8080 \
+    --env PMM_WATCHTOWER_HOST=http://your_watchtower_host:8080 \
     --env PMM_WATCHTOWER_TOKEN=your_watchtower_token \
     --volume /home/user/srv:/srv \
     --network=pmm-network \
