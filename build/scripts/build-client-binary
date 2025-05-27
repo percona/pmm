@@ -74,7 +74,7 @@ gobuild_component() {
   elif [ "${component}" = nomad ]; then
     echo 'Skipping PMM_RELEASE_FULLCOMMIT for nomad...'
   else
-    pmm_release_fullcommit=$(git -C "/app/${submodule_dir}" rev-parse HEAD)
+    pmm_release_fullcommit=$(git -C "${root_dir}/${submodule_dir}" rev-parse HEAD)
   fi
 
   # Note: the variables used in the script below do not need to be passed via `-e` flag.

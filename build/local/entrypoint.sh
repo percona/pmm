@@ -13,10 +13,11 @@ if [ -s "ci.yml" ]; then
 fi
 
 needs_to_pull() {
-  local UPSTREAM=${1:-'@{u}'}
-  local LOCAL=$(git rev-parse @)
-  local BASE=$(git merge-base @ "$UPSTREAM")
-  local REMOTE=$(git rev-parse "$UPSTREAM")
+  local UPSTREAM='@{u}'
+  local LOCAL BASE REMOTE
+  LOCAL=$(git rev-parse @)
+  BASE=$(git merge-base @ "$UPSTREAM")
+  REMOTE=$(git rev-parse "$UPSTREAM")
 
   if [ "$LOCAL" = "$REMOTE" ]; then
     return 1 # false, we are up-to-date
@@ -31,9 +32,10 @@ rewind() {
   local DIR="$1"
   local BRANCH="$2"
   local NAME="$3"
+  local CURRENT
 
   cd "$DIR" > /dev/null
-  local CURRENT=$(git rev-parse --abbrev-ref HEAD)
+  CURRENT=$(git rev-parse --abbrev-ref HEAD)
   echo
   echo "Rewinding submodule ${NAME}..."
   git fetch
@@ -65,12 +67,12 @@ if ! python ci.py --convert; then
   exit 1
 fi
 
-declare deps=$(yq -o=json '.' gitmodules.yml | jq -r '[.deps[] | {name: .name, branch: .branch, path: .path, url: .url}]')
-declare ci_branch
 declare -a discovered_branches=()
 declare discovered_file="/tmp/ci.yml"
 declare updated_deps="[]"
 declare branch path name url commit
+declare ci_branch deps
+deps=$(yq -o=json '.' gitmodules.yml | jq -r '[.deps[] | {name: .name, branch: .branch, path: .path, url: .url}]')
 # Note: BRANCHE_NAME is passed via the environment variable
 
 while read -r item; do
@@ -120,7 +122,7 @@ fi
 if [ ! -s "ci.yml" ]; then
   echo
   echo "Info: generating 'ci.yml'..."
-  cat "$discovered_file" | tee ci.yml
+  tee ci.yml < "$discovered_file" 
 fi
 
 rm -f gitmodules.yml
