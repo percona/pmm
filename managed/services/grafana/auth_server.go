@@ -100,6 +100,8 @@ var rules = map[string]role{
 	"/graph":           none,
 	"/swagger":         none,
 
+	"/v1/mcp": none, // TODO: remove this once we have a proper auth for mcp
+
 	"/v1/server/logs.zip": admin,
 
 	// kept for backwards compatibility with PMM v2
