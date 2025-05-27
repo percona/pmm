@@ -16,7 +16,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 
 	"google.golang.org/grpc/credentials"
 )
