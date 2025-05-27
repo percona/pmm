@@ -11892,11 +11892,10 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetPmmAgentId()); err != nil {
-		err = AddValkeyExporterParamsValidationError{
+	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
+		err := AddValkeyExporterParamsValidationError{
 			field:  "PmmAgentId",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err

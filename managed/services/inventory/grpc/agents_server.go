@@ -18,8 +18,10 @@ package grpc
 
 import (
 	"context"
-	"errors"
 	"fmt"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -198,7 +200,7 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 	case *inventoryv1.AddAgentRequest_PostgresExporter:
 		return s.s.AddPostgresExporter(ctx, req.GetPostgresExporter())
 	case *inventoryv1.AddAgentRequest_ValkeyExporter:
-		return nil, errors.New("Valkey Exporter is not supported yet") //nolint:stylecheck
+		return s.s.AddValkeyExporter(ctx, req.GetValkeyExporter())
 	case *inventoryv1.AddAgentRequest_ProxysqlExporter:
 		return s.s.AddProxySQLExporter(ctx, req.GetProxysqlExporter())
 	case *inventoryv1.AddAgentRequest_RdsExporter:
@@ -218,7 +220,7 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatmonitorAgent:
 		return s.s.AddQANPostgreSQLPgStatMonitorAgent(ctx, req.GetQanPostgresqlPgstatmonitorAgent())
 	default:
-		return nil, fmt.Errorf("invalid request %v", req.Agent)
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}
 }
 
@@ -236,7 +238,7 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 	case *inventoryv1.ChangeAgentRequest_PostgresExporter:
 		return s.s.ChangePostgresExporter(ctx, agentID, req.GetPostgresExporter())
 	case *inventoryv1.ChangeAgentRequest_ValkeyExporter:
-		return nil, errors.New("Valkey Exporter is not supported yet") //nolint:stylecheck
+		return s.s.ChangeValkeyExporter(ctx, agentID, req.GetValkeyExporter())
 	case *inventoryv1.ChangeAgentRequest_ProxysqlExporter:
 		return s.s.ChangeProxySQLExporter(ctx, agentID, req.GetProxysqlExporter())
 	case *inventoryv1.ChangeAgentRequest_RdsExporter:
@@ -258,7 +260,7 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 	case *inventoryv1.ChangeAgentRequest_NomadAgent:
 		return s.s.ChangeNomadAgent(ctx, agentID, req.GetNomadAgent())
 	default:
-		return nil, fmt.Errorf("invalid request %v", req.Agent)
+		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}
 }
 

@@ -110,8 +110,10 @@ func (s *ManagementService) AddService(ctx context.Context, req *managementv1.Ad
 		return s.addExternal(ctx, req.GetExternal())
 	case *managementv1.AddServiceRequest_Rds:
 		return s.addRDS(ctx, req.GetRds())
+	case *managementv1.AddServiceRequest_Valkey:
+		return s.addValkey(ctx, req.GetValkey())
 	default:
-		return nil, errors.Errorf("invalid request %v", req.GetService())
+		return nil, status.Error(codes.InvalidArgument, "invalid service type")
 	}
 }
 

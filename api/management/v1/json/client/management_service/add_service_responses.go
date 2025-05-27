@@ -212,6 +212,9 @@ type AddServiceBody struct {
 
 	// rds
 	RDS *AddServiceParamsBodyRDS `json:"rds,omitempty"`
+
+	// valkey
+	Valkey *AddServiceParamsBodyValkey `json:"valkey,omitempty"`
 }
 
 // Validate validates this add service body
@@ -243,6 +246,10 @@ func (o *AddServiceBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRDS(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateValkey(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -385,6 +392,25 @@ func (o *AddServiceBody) validateRDS(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *AddServiceBody) validateValkey(formats strfmt.Registry) error {
+	if swag.IsZero(o.Valkey) { // not required
+		return nil
+	}
+
+	if o.Valkey != nil {
+		if err := o.Valkey.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "valkey")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "valkey")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this add service body based on the context it is used
 func (o *AddServiceBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -414,6 +440,10 @@ func (o *AddServiceBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := o.contextValidateRDS(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateValkey(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -555,6 +585,26 @@ func (o *AddServiceBody) contextValidateRDS(ctx context.Context, formats strfmt.
 				return ve.ValidateName("body" + "." + "rds")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "rds")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddServiceBody) contextValidateValkey(ctx context.Context, formats strfmt.Registry) error {
+	if o.Valkey != nil {
+
+		if swag.IsZero(o.Valkey) { // not required
+			return nil
+		}
+
+		if err := o.Valkey.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "valkey")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "valkey")
 			}
 			return err
 		}
@@ -826,6 +876,9 @@ type AddServiceOKBody struct {
 
 	// rds
 	RDS *AddServiceOKBodyRDS `json:"rds,omitempty"`
+
+	// valkey
+	Valkey *AddServiceOKBodyValkey `json:"valkey,omitempty"`
 }
 
 // Validate validates this add service OK body
@@ -857,6 +910,10 @@ func (o *AddServiceOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRDS(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateValkey(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -999,6 +1056,25 @@ func (o *AddServiceOKBody) validateRDS(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *AddServiceOKBody) validateValkey(formats strfmt.Registry) error {
+	if swag.IsZero(o.Valkey) { // not required
+		return nil
+	}
+
+	if o.Valkey != nil {
+		if err := o.Valkey.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addServiceOk" + "." + "valkey")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addServiceOk" + "." + "valkey")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this add service OK body based on the context it is used
 func (o *AddServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -1028,6 +1104,10 @@ func (o *AddServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 	}
 
 	if err := o.contextValidateRDS(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateValkey(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1169,6 +1249,26 @@ func (o *AddServiceOKBody) contextValidateRDS(ctx context.Context, formats strfm
 				return ve.ValidateName("addServiceOk" + "." + "rds")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addServiceOk" + "." + "rds")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddServiceOKBody) contextValidateValkey(ctx context.Context, formats strfmt.Registry) error {
+	if o.Valkey != nil {
+
+		if swag.IsZero(o.Valkey) { // not required
+			return nil
+		}
+
+		if err := o.Valkey.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addServiceOk" + "." + "valkey")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addServiceOk" + "." + "valkey")
 			}
 			return err
 		}
@@ -7494,6 +7594,536 @@ func (o *AddServiceOKBodyRDSRDSExporterMetricsResolutions) UnmarshalBinary(b []b
 }
 
 /*
+AddServiceOKBodyValkey add service OK body valkey
+swagger:model AddServiceOKBodyValkey
+*/
+type AddServiceOKBodyValkey struct {
+	// service
+	Service *AddServiceOKBodyValkeyService `json:"service,omitempty"`
+
+	// valkey exporter
+	ValkeyExporter *AddServiceOKBodyValkeyValkeyExporter `json:"valkey_exporter,omitempty"`
+}
+
+// Validate validates this add service OK body valkey
+func (o *AddServiceOKBodyValkey) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateService(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateValkeyExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyValkey) validateService(formats strfmt.Registry) error {
+	if swag.IsZero(o.Service) { // not required
+		return nil
+	}
+
+	if o.Service != nil {
+		if err := o.Service.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "service")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "service")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddServiceOKBodyValkey) validateValkeyExporter(formats strfmt.Registry) error {
+	if swag.IsZero(o.ValkeyExporter) { // not required
+		return nil
+	}
+
+	if o.ValkeyExporter != nil {
+		if err := o.ValkeyExporter.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add service OK body valkey based on the context it is used
+func (o *AddServiceOKBodyValkey) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateService(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateValkeyExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyValkey) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
+	if o.Service != nil {
+
+		if swag.IsZero(o.Service) { // not required
+			return nil
+		}
+
+		if err := o.Service.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "service")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "service")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddServiceOKBodyValkey) contextValidateValkeyExporter(ctx context.Context, formats strfmt.Registry) error {
+	if o.ValkeyExporter != nil {
+
+		if swag.IsZero(o.ValkeyExporter) { // not required
+			return nil
+		}
+
+		if err := o.ValkeyExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceOKBodyValkey) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceOKBodyValkey) UnmarshalBinary(b []byte) error {
+	var res AddServiceOKBodyValkey
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddServiceOKBodyValkeyService ValkeyService represents a generic Valkey instance.
+swagger:model AddServiceOKBodyValkeyService
+*/
+type AddServiceOKBodyValkeyService struct {
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	// Port is required when the address present.
+	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Valkey version.
+	Version string `json:"version,omitempty"`
+}
+
+// Validate validates this add service OK body valkey service
+func (o *AddServiceOKBodyValkeyService) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add service OK body valkey service based on context it is used
+func (o *AddServiceOKBodyValkeyService) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceOKBodyValkeyService) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceOKBodyValkeyService) UnmarshalBinary(b []byte) error {
+	var res AddServiceOKBodyValkeyService
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddServiceOKBodyValkeyValkeyExporter ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
+swagger:model AddServiceOKBodyValkeyValkeyExporter
+*/
+type AddServiceOKBodyValkeyValkeyExporter struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Valkey username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// True if exporter uses push metrics mode.
+	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// List of disabled collector names.
+	DisabledCollectors []string `json:"disabled_collectors"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddServiceOKBodyValkeyValkeyExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
+}
+
+// Validate validates this add service OK body valkey valkey exporter
+func (o *AddServiceOKBodyValkeyValkeyExporter) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addServiceOkBodyValkeyValkeyExporterTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyValkeyValkeyExporterTypeStatusPropEnum = append(addServiceOkBodyValkeyValkeyExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddServiceOKBodyValkeyValkeyExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyValkeyValkeyExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyValkeyValkeyExporterTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyValkeyValkeyExporter) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addServiceOk"+"."+"valkey"+"."+"valkey_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addServiceOkBodyValkeyValkeyExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceOkBodyValkeyValkeyExporterTypeLogLevelPropEnum = append(addServiceOkBodyValkeyValkeyExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddServiceOKBodyValkeyValkeyExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceOkBodyValkeyValkeyExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyValkeyValkeyExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addServiceOk"+"."+"valkey"+"."+"valkey_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AddServiceOKBodyValkeyValkeyExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add service OK body valkey valkey exporter based on the context it is used
+func (o *AddServiceOKBodyValkeyValkeyExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddServiceOKBodyValkeyValkeyExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+
+		if swag.IsZero(o.MetricsResolutions) { // not required
+			return nil
+		}
+
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addServiceOk" + "." + "valkey" + "." + "valkey_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceOKBodyValkeyValkeyExporter) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceOKBodyValkeyValkeyExporter) UnmarshalBinary(b []byte) error {
+	var res AddServiceOKBodyValkeyValkeyExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddServiceOKBodyValkeyValkeyExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model AddServiceOKBodyValkeyValkeyExporterMetricsResolutions
+*/
+type AddServiceOKBodyValkeyValkeyExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this add service OK body valkey valkey exporter metrics resolutions
+func (o *AddServiceOKBodyValkeyValkeyExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add service OK body valkey valkey exporter metrics resolutions based on context it is used
+func (o *AddServiceOKBodyValkeyValkeyExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceOKBodyValkeyValkeyExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceOKBodyValkeyValkeyExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res AddServiceOKBodyValkeyValkeyExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 AddServiceParamsBodyExternal add service params body external
 swagger:model AddServiceParamsBodyExternal
 */
@@ -10102,6 +10732,413 @@ func (o *AddServiceParamsBodyRDS) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddServiceParamsBodyRDS) UnmarshalBinary(b []byte) error {
 	var res AddServiceParamsBodyRDS
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddServiceParamsBodyValkey add service params body valkey
+swagger:model AddServiceParamsBodyValkey
+*/
+type AddServiceParamsBodyValkey struct {
+	// Node identifier on which the service is running.
+	// Only one of these parameters should be present: node_id, node_name, add_node.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Node name on which a service is running.
+	// Only one of these parameters should be present: node_id, node_name, add_node.
+	NodeName string `json:"node_name,omitempty"`
+
+	// User-defined name, it is required and should be unique across all services.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Node and Service access address (DNS name or IP).
+	// Address (and port) or socket is required.
+	Address string `json:"address,omitempty"`
+
+	// Service access port.
+	// Port is required when the address is present.
+	Port int64 `json:"port,omitempty"`
+
+	// Service access socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
+
+	// The "pmm-agent" identifier which should run agents. Required.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Valkey username for scraping metrics.
+	Username string `json:"username,omitempty"`
+
+	// Valkey password for scraping metrics.
+	Password string `json:"password,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels for Service.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Use TLS for connection.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// MetricsMode defines desired metrics mode for agent,
+	// it can be pull, push or auto mode chosen by server.
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: ["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]
+	MetricsMode *string `json:"metrics_mode,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// TLS CA certificate.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// TLS Certifcate.
+	TLSCert string `json:"tls_cert,omitempty"`
+
+	// TLS Certificate Key.
+	TLSKey string `json:"tls_key,omitempty"`
+
+	// add node
+	AddNode *AddServiceParamsBodyValkeyAddNode `json:"add_node,omitempty"`
+}
+
+// Validate validates this add service params body valkey
+func (o *AddServiceParamsBodyValkey) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateAddNode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addServiceParamsBodyValkeyTypeMetricsModePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceParamsBodyValkeyTypeMetricsModePropEnum = append(addServiceParamsBodyValkeyTypeMetricsModePropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceParamsBodyValkeyMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	AddServiceParamsBodyValkeyMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
+
+	// AddServiceParamsBodyValkeyMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	AddServiceParamsBodyValkeyMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
+
+	// AddServiceParamsBodyValkeyMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	AddServiceParamsBodyValkeyMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
+)
+
+// prop value enum
+func (o *AddServiceParamsBodyValkey) validateMetricsModeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceParamsBodyValkeyTypeMetricsModePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceParamsBodyValkey) validateMetricsMode(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsMode) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateMetricsModeEnum("body"+"."+"valkey"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addServiceParamsBodyValkeyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceParamsBodyValkeyTypeLogLevelPropEnum = append(addServiceParamsBodyValkeyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceParamsBodyValkeyLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddServiceParamsBodyValkeyLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddServiceParamsBodyValkeyLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddServiceParamsBodyValkeyLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddServiceParamsBodyValkeyLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddServiceParamsBodyValkeyLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddServiceParamsBodyValkeyLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddServiceParamsBodyValkeyLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddServiceParamsBodyValkeyLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddServiceParamsBodyValkeyLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddServiceParamsBodyValkeyLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddServiceParamsBodyValkeyLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddServiceParamsBodyValkey) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceParamsBodyValkeyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceParamsBodyValkey) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"valkey"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AddServiceParamsBodyValkey) validateAddNode(formats strfmt.Registry) error {
+	if swag.IsZero(o.AddNode) { // not required
+		return nil
+	}
+
+	if o.AddNode != nil {
+		if err := o.AddNode.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "valkey" + "." + "add_node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "valkey" + "." + "add_node")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add service params body valkey based on the context it is used
+func (o *AddServiceParamsBodyValkey) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateAddNode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddServiceParamsBodyValkey) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
+	if o.AddNode != nil {
+
+		if swag.IsZero(o.AddNode) { // not required
+			return nil
+		}
+
+		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "valkey" + "." + "add_node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "valkey" + "." + "add_node")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceParamsBodyValkey) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceParamsBodyValkey) UnmarshalBinary(b []byte) error {
+	var res AddServiceParamsBodyValkey
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddServiceParamsBodyValkeyAddNode AddNodeParams holds node params and is used to add new node to inventory while adding new service.
+swagger:model AddServiceParamsBodyValkeyAddNode
+*/
+type AddServiceParamsBodyValkeyAddNode struct {
+	// NodeType describes supported Node types.
+	// Enum: ["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]
+	NodeType *string `json:"node_type,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// Linux machine-id.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
+
+	// Container identifier. If specified, must be a unique Docker container identifier.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Container name.
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels for Node.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this add service params body valkey add node
+func (o *AddServiceParamsBodyValkeyAddNode) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateNodeType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addServiceParamsBodyValkeyAddNodeTypeNodeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addServiceParamsBodyValkeyAddNodeTypeNodeTypePropEnum = append(addServiceParamsBodyValkeyAddNodeTypeNodeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEUNSPECIFIED captures enum value "NODE_TYPE_UNSPECIFIED"
+	AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEUNSPECIFIED string = "NODE_TYPE_UNSPECIFIED"
+
+	// AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEGENERICNODE captures enum value "NODE_TYPE_GENERIC_NODE"
+	AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEGENERICNODE string = "NODE_TYPE_GENERIC_NODE"
+
+	// AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPECONTAINERNODE captures enum value "NODE_TYPE_CONTAINER_NODE"
+	AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPECONTAINERNODE string = "NODE_TYPE_CONTAINER_NODE"
+
+	// AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEREMOTENODE captures enum value "NODE_TYPE_REMOTE_NODE"
+	AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEREMOTENODE string = "NODE_TYPE_REMOTE_NODE"
+
+	// AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEREMOTERDSNODE captures enum value "NODE_TYPE_REMOTE_RDS_NODE"
+	AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEREMOTERDSNODE string = "NODE_TYPE_REMOTE_RDS_NODE"
+
+	// AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+	AddServiceParamsBodyValkeyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+)
+
+// prop value enum
+func (o *AddServiceParamsBodyValkeyAddNode) validateNodeTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addServiceParamsBodyValkeyAddNodeTypeNodeTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddServiceParamsBodyValkeyAddNode) validateNodeType(formats strfmt.Registry) error {
+	if swag.IsZero(o.NodeType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateNodeTypeEnum("body"+"."+"valkey"+"."+"add_node"+"."+"node_type", "body", *o.NodeType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this add service params body valkey add node based on context it is used
+func (o *AddServiceParamsBodyValkeyAddNode) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddServiceParamsBodyValkeyAddNode) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddServiceParamsBodyValkeyAddNode) UnmarshalBinary(b []byte) error {
+	var res AddServiceParamsBodyValkeyAddNode
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -266,6 +266,7 @@ func (c PostgreSQLOptions) IsEmpty() bool {
 
 // ValkeyOptions represents a structure for special Valkey options.
 type ValkeyOptions struct { //nolint:recvcheck
+	TLS     bool   `json:"tls"`
 	SSLCa   string `json:"ssl_ca"`
 	SSLCert string `json:"ssl_cert"`
 	SSLKey  string `json:"ssl_key"`
@@ -668,6 +669,35 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Right), tdp.Right)
 
 		return dsn
+	case ValkeyExporterType:
+		urlScheme := "redis"
+		if s.TLS {
+			urlScheme += "s"
+		}
+		address := ""
+		if socket == "" {
+			address = net.JoinHostPort(host, strconv.Itoa(int(port)))
+		} else {
+			// Set socket directory as host URI parameter.
+			address = socket
+		}
+
+		u := &url.URL{
+			Scheme: urlScheme,
+			Host:   address,
+		}
+		switch {
+		case password != "":
+			u.User = url.UserPassword(username, password)
+		case username != "":
+			u.User = url.User(username)
+		}
+
+		dsn := u.String()
+		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Left), tdp.Left)
+		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Right), tdp.Right)
+
+		return dsn
 	default:
 		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
 	}
@@ -779,6 +809,24 @@ func (s Agent) Files() map[string]string {
 		}
 		if s.PostgreSQLOptions.SSLKey != "" {
 			files[certificateKeyFilePlaceholder] = s.PostgreSQLOptions.SSLKey
+		}
+
+		if len(files) != 0 {
+			return files
+		}
+
+		return nil
+	case ValkeyExporterType:
+		files := make(map[string]string)
+
+		if s.ValkeyOptions.SSLCa != "" {
+			files[caFilePlaceholder] = s.ValkeyOptions.SSLCa
+		}
+		if s.PostgreSQLOptions.SSLCert != "" {
+			files[certificateFilePlaceholder] = s.ValkeyOptions.SSLCert
+		}
+		if s.PostgreSQLOptions.SSLKey != "" {
+			files[certificateKeyFilePlaceholder] = s.ValkeyOptions.SSLKey
 		}
 
 		if len(files) != 0 {

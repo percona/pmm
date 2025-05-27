@@ -123,6 +123,16 @@ services:
     volumes:
       - test_db_postgres:/docker-entrypoint-initdb.d/
 
+  valkey:
+    image: valkey/valkey:8.1
+    container_name: pmm-agent_valkey
+    command: ["valkey-server", "/etc/valkey/valkey.conf"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - ${PWD}/utils/tests/testdata/valkey:/etc/valkey/
+      - test_db_valkey:/docker-entrypoint-initdb.d/
+
   sysbench:
     image: perconalab/sysbench
     container_name: pmm-agent_sysbench
@@ -130,3 +140,4 @@ services:
 volumes:
   test_db_mysql:
   test_db_postgres:
+  test_db_valkey:

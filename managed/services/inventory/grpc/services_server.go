@@ -50,6 +50,7 @@ var serviceTypes = map[inventoryv1.ServiceType]models.ServiceType{
 	inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
 	inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:    models.HAProxyServiceType,
 	inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE:   models.ExternalServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE:     models.ValkeyServiceType,
 }
 
 func serviceType(serviceType inventoryv1.ServiceType) *models.ServiceType {
@@ -152,7 +153,7 @@ func (s *servicesServer) AddService(ctx context.Context, req *inventoryv1.AddSer
 	case *inventoryv1.AddServiceRequest_Postgresql:
 		return s.addPostgreSQLService(ctx, req.GetPostgresql())
 	case *inventoryv1.AddServiceRequest_Valkey:
-		return nil, errors.New("Valkey service is not supported yet")
+		return s.addValkeyService(ctx, req.GetValkey())
 	case *inventoryv1.AddServiceRequest_Proxysql:
 		return s.addProxySQLService(ctx, req.GetProxysql())
 	case *inventoryv1.AddServiceRequest_Haproxy:
@@ -160,7 +161,7 @@ func (s *servicesServer) AddService(ctx context.Context, req *inventoryv1.AddSer
 	case *inventoryv1.AddServiceRequest_External:
 		return s.addExternalService(ctx, req.GetExternal())
 	default:
-		return nil, errors.Errorf("invalid request %v", req.Service)
+		return nil, status.Errorf(codes.InvalidArgument, "unsupported service type %T", req.Service)
 	}
 }
 
@@ -184,6 +185,31 @@ func (s *servicesServer) addMySQLService(ctx context.Context, params *inventoryv
 	res := &inventoryv1.AddServiceResponse{
 		Service: &inventoryv1.AddServiceResponse_Mysql{
 			Mysql: service,
+		},
+	}
+	return res, nil
+}
+
+// addValkeyService adds Valkey Service.
+func (s *servicesServer) addValkeyService(ctx context.Context, params *inventoryv1.AddValkeyServiceParams) (*inventoryv1.AddServiceResponse, error) {
+	service, err := s.s.AddValkey(ctx, &models.AddDBMSServiceParams{
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		Address:        pointer.ToStringOrNil(params.Address),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Socket:         pointer.ToStringOrNil(params.Socket),
+		CustomLabels:   params.CustomLabels,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventoryv1.AddServiceResponse{
+		Service: &inventoryv1.AddServiceResponse_Valkey{
+			Valkey: service,
 		},
 	}
 	return res, nil

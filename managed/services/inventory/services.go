@@ -207,6 +207,28 @@ func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.Add
 	return res.(*inventoryv1.PostgreSQLService), nil //nolint:forcetypeassert
 }
 
+// AddValkey inserts Valkey Service with given parameters.
+func (ss *ServicesService) AddValkey(ctx context.Context, params *models.AddDBMSServiceParams) (*inventoryv1.ValkeyService, error) {
+	service := &models.Service{}
+	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		var err error
+		service, err = models.AddNewService(tx.Querier, models.ValkeyServiceType, params)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	res, err := services.ToAPIService(service)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*inventoryv1.ValkeyService), nil //nolint:forcetypeassert
+}
+
 // AddProxySQL inserts ProxySQL Service with given parameters.
 //
 //nolint:dupl
