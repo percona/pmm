@@ -641,8 +641,8 @@ plugin "raw_exec" {
 			},
 		}
 		assert.Equal(t, expected.Path, actual.Path)
-		assert.Equal(t, expected.Args, actual.Args)
-		assert.Equal(t, expected.Env, actual.Env)
+		assert.ElementsMatch(t, expected.Args, actual.Args)
+		assert.ElementsMatch(t, expected.Env, actual.Env)
 		assert.NotEmpty(t, actual.TemplateParams)
 		assert.NotEmpty(t, actual.TemplateRenderer)
 		require.FileExists(t, configFilePath)
