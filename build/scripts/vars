@@ -3,7 +3,7 @@
 # shellcheck disable=SC2034
 
 # `bin_dir` is the directory where the build scripts are located.
-bin_dir=$(dirname "$0")
+bin_dir=$(realpath "$0")
 # `root_dir` must always point to the root of [pmm-submodules](https://github.com/percona-lab/pmm-submodules).
 top_level=$(git rev-parse --show-toplevel 2>/dev/null)
 root_dir=${ROOT_DIR:-$(git rev-parse --show-superproject-working-tree)}
