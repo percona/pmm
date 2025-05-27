@@ -134,7 +134,7 @@ func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss g
 
 		err := logRequest(l, "Stream "+info.FullMethod, func() error {
 			wrapped := grpc_middleware.WrapServerStream(ss)
-			wrapped.WrappedContext = ctx //nolint:fatcontext
+			wrapped.WrappedContext = ctx
 			return interceptor(srv, wrapped, info, handler)
 		})
 		return err

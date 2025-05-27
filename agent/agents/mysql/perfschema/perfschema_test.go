@@ -195,7 +195,7 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 
 	p, err := newPerfSchema(newParams)
 	require.NoError(t, err)
-	require.NoError(t, p.refreshHistoryCache(context.Background()))
+	require.NoError(t, p.refreshHistoryCache(t.Context()))
 	return p
 }
 
@@ -370,7 +370,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err := db.Exec("SELECT /* Sleep controller='test' */ sleep(0.1)")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache(context.Background()))
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
@@ -417,7 +417,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err := db.Exec("SELECT /* AllCities controller='test' */ * FROM city")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache(context.Background()))
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
