@@ -34,7 +34,7 @@ var (
 
 // extractCredentialsFromURL extracts username and password from a URL string.
 // Returns empty strings if no credentials are found or if there's an error parsing the URL.
-func extractCredentialsFromURL(urlStr string) (username, password string) {
+func extractCredentialsFromURL(urlStr string) (username string, password string) {
 	if urlStr == "" {
 		return "", ""
 	}
