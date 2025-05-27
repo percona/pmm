@@ -114,17 +114,17 @@ func TestDeleteArtifact(t *testing.T) {
 			Status:     models.SuccessRestoreStatus,
 		})
 		require.NoError(t, err)
-
-		t.Cleanup(func() {
+		go func() {
 			tx, err := db.BeginTx(context.Background(), &sql.TxOptions{Isolation: sql.LevelSerializable})
 			require.NoError(t, err)
 
 			err = models.RemoveRestoreHistoryItem(tx.Querier, ri.ID)
 			require.NoError(t, err)
 
+			time.Sleep(time.Second * 3)
 			err = tx.Commit()
 			assert.NoError(t, err)
-		})
+		}()
 
 		time.Sleep(time.Second)
 

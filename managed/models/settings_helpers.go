@@ -116,7 +116,7 @@ func SetPMMServerID(q reform.DBTX) error {
 func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) { //nolint:cyclop
 	err := ValidateSettings(params)
 	if err != nil {
-		return nil, NewInvalidArgumentError(err.Error())
+		return nil, NewInvalidArgumentError("couldn't validate settings params", err.Error())
 	}
 
 	if params.DefaultRoleID != nil {
