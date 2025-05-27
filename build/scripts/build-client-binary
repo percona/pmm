@@ -83,11 +83,8 @@ gobuild_component() {
         mkdir -p /tmp/go/src/${extract_path}
         archive=$(ls ${source_dir} | grep -e "${parent_component}-\w*\.tar\.gz")
         tar -C /tmp/go/src/${extract_path} --strip-components=1 -zxpf \${source_dir}/\$archive
-        pushd /tmp/go
-            export GOPATH=\$(pwd -P)
-            export PATH=$PATH:\$(go env GOPATH)/bin
-            ${build_command}
-        popd
+
+        ${build_command}
         sudo chown -R $(id -u):$(id -g) /home/builder/tmp
     "
 }
