@@ -98,7 +98,6 @@ linters:
     - dupl             # we can't avoid duplicating code
     - err113           # extra work & poor benefit (renamed from goerr113)
     - exhaustruct      # too many files to fix/nolint
-    - exportloopref    # deprecated since Go 1.22, replaced by copyloopvar
     - funlen           # useless
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
@@ -108,6 +107,7 @@ linters:
     - nlreturn         # too annoying
     - protogetter      # we need direct access to proto fields
     - rowserrcheck     # disabled because of generics
+    - tenv             # deprecated, replaced by usetesting
     - varnamelen       # useless
     - wastedassign     # disabled because of generics
     - wrapcheck        # we do not use wrapping everywhere
@@ -139,6 +139,9 @@ issues:
     - "comment on exported method `.+` should be of the form `.+ ...`"
     # golint: We have to return unexported types due to oneof implementation
     - "exported method .+ returns unexported type .+, which can be annoying to use"
+    # Exclude build issues from external dependencies
+    - "buildssa: failed to load package"
+    - "could not load export data"
   exclude-rules:
     - path: _test\.go
       linters:

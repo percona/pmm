@@ -35,6 +35,7 @@ import (
 const (
 	defaultNodeEventChanSize = 5
 	defaultRaftRetries       = 3
+	defaultTransportTimeout  = 10 * time.Second
 	defaultLeaveTimeout      = 5 * time.Second
 	defaultTickerInterval    = 5 * time.Second
 	defaultApplyTimeout      = 3 * time.Second
@@ -125,7 +126,7 @@ func (s *Service) Run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	raftTrans, err := raft.NewTCPTransport(net.JoinHostPort("0.0.0.0", strconv.Itoa(s.params.RaftPort)), raa, defaultRaftRetries, 10*time.Second, nil)
+	raftTrans, err := raft.NewTCPTransport(net.JoinHostPort("0.0.0.0", strconv.Itoa(s.params.RaftPort)), raa, defaultRaftRetries, defaultTransportTimeout, nil)
 	if err != nil {
 		return err
 	}
