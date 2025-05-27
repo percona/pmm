@@ -21,7 +21,7 @@ import (
 	"sort"
 	"strings"
 
-	pgquery "github.com/pganalyze/pg_query_go/v5"
+	pgquery "github.com/pganalyze/pg_query_go/v6"
 	"github.com/pkg/errors"
 )
 
