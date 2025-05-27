@@ -22,14 +22,17 @@ gobuild_component() {
   local result_file=${5:-bin/$(basename ${component_path:-$extract_path})}
   local src_dir=/home/builder/build/source/pmm-client-${pmm_version}
   local bin_dir=/home/builder/build/binary/pmm-client-${pmm_version}
-  local archive build_command target pmm_release_fullcommit
+  local archive build_command target pmm_release_fullcommit submodule_dir
   local volume_mounts="-v ${build_dir}:/home/builder/build"
+  volume_mounts+=" -v pmm-submodules:/app"
   volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
   volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
   volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
 
   # shellcheck disable=SC2012
-  archive=$(ls -t -1 "${source_dir}/${parent_component}-*.tar.gz" | head -n1)
+  archive=$(basename "$(ls -t -1 "${source_dir}/${parent_component}-*.tar.gz" | head -n1)")
+  submodule_dir=$(git config -f .gitmodules "submodule.${parent_component}.path" || true)
+  submodule_dir=${submodule_dir:-"sources/${parent_component}"}
 
   # Set target for Nomad
   case "$platform" in
@@ -46,20 +49,24 @@ gobuild_component() {
     echo "The binary ${result_file} was found, skipping the build ..."
     return
   fi
+
   if [[ "${component}" =~ pmm-admin|pmm-agent ]]; then
-    build_command="NO_VCS=1 make -C /tmp/go/src/${extract_path}/${component_path} release"
+    build_command="NO_VCS=1 make -C /app/${submodule_dir}/${component_path} release"
   elif [ "${component}" = mongodb_exporter ]; then
-    component_version=$(git -C "sources/${parent_component}/src/${extract_path}" describe --tags --abbrev=0 --always)
-    build_command="COMPONENT_VERSION=${component_version} make -C /tmp/go/src/${extract_path} build"
+    # component_version=$(git -C "sources/${parent_component}/src/${extract_path}" describe --tags --abbrev=0 --always)
+    # build_command="COMPONENT_VERSION=${component_version} make -C /tmp/${extract_path} build"
+    build_command="make -C /app/${submodule_dir} build"
   elif [[ "${component}" =~ (node|mysqld|proxysql|rds|postgres|azure_metrics)_exporter ]]; then
-    build_command="make -C /tmp/go/src/${extract_path} release"
+    build_command="make -C /app/${submodule_dir} release"
   elif [ "${component}" = percona-toolkit ]; then
-    build_command="go build -o ${bin_dir}/${result_file} /tmp/go/src/${extract_path}/${component_path}"
+    build_command="go build -o ${bin_dir}/${result_file} /app/${submodule_dir}/${component_path}"
   elif [ "${component}" = nomad ]; then
-    build_command="TARGETS=${target} make -C /tmp/go/src/${extract_path} deps release;"
-    build_command+=" cp /tmp/go/src/github.com/hashicorp/nomad/pkg/linux_*/nomad ${bin_dir}/bin/nomad"
+    build_command="TARGETS=${target} make -C /tmp/${extract_path} deps release;"
+    build_command+=" cp /tmp/${extract_path}/pkg/linux_*/nomad ${bin_dir}/bin/nomad"
+  elif [ "${component}" = vmagent ]; then
+    build_command="go build -o ${bin_dir}/${result_file} /tmp/${extract_path}/${component_path}"
   else
-    build_command="go build -o ${bin_dir}/${result_file} /tmp/go/src/${extract_path}/${component_path}"
+    build_command="go build -o ${bin_dir}/${result_file} /app/${submodule_dir}"
   fi
 
   if [ "${component}" = vmagent ]; then
@@ -67,7 +74,7 @@ gobuild_component() {
   elif [ "${component}" = nomad ]; then
     echo 'Skipping PMM_RELEASE_FULLCOMMIT for nomad...'
   else
-    pmm_release_fullcommit=$(git -C "sources/${parent_component}/src/${extract_path}" rev-parse HEAD)
+    pmm_release_fullcommit=$(git -C "/app/${submodule_dir}" rev-parse HEAD)
   fi
 
   # Note: the variables used in the script below do not need to be passed via `-e` flag.
@@ -82,16 +89,16 @@ gobuild_component() {
     -e PMM_RELEASE_FULLCOMMIT="${pmm_release_fullcommit}" \
     ${volume_mounts} \
     "${rpmbuild_docker_image}" sh -c "
-      # Note: use no double quotes inside this script.
+      # IMPORTANT: do NOT use double quotes inside this CMD script.
       set -o errexit
       set -o xtrace
 
       sudo chown -R builder:builder /home/builder/build
 
       mkdir -p ${bin_dir}/bin
-      mkdir -p /tmp/go/src/${extract_path}
+      mkdir -p /tmp/${extract_path}
 
-      tar -C /tmp/go/src/${extract_path} --strip-components=1 -zxpf ${src_dir}/${archive}
+      tar -C /tmp/${extract_path} --strip-components=1 -zxpf ${src_dir}/${archive}
 
       ${build_command}
   "
