@@ -339,7 +339,7 @@ check_volumes() {
   # Read more in the section about `rpmbuild`.
   echo
   echo "Checking Docker volumes..."
-  for volume in pmm-gobuild pmm-gomod pmm-yarn pmm-dnf; do
+  for volume in pmm-gobuild pmm-gomod pmm-yarn pmm-dnf pmm-submodules; do
     if ! docker volume ls | grep "$volume" >/dev/null; then
       docker volume create "$volume" > /dev/null
       echo "Docker volume $volume created."
@@ -348,7 +348,16 @@ check_volumes() {
     fi
   done
 
-  docker run --rm --platform="$PLATFORM" \
+  echo "Copying pmm sources to the docker volume..."
+  docker run --rm \
+    --platform="$PLATFORM" \
+    -v "$SUBMODULES":/submodules \
+    -v pmm-submodules:/app \
+    "$RPMBUILD_DOCKER_IMAGE" \
+    rsync -a --delete --chown=builder:builder /submodules/ /app/
+
+  docker run --rm \
+    --platform="$PLATFORM" \
     -v pmm-gobuild:/home/builder/.cache/go-build \
     -v pmm-gomod:/home/builder/go/pkg/mod \
     -v pmm-yarn:/home/builder/.cache/yarn \
