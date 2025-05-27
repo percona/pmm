@@ -2,11 +2,14 @@ package mcp
 
 import (
 	"context"
+	"fmt"
+	"time"
+
 	mcpgo "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	actionsv1 "github.com/percona/pmm/api/actions/v1"
 	"github.com/sirupsen/logrus"
-	"time"
+
+	actionsv1 "github.com/percona/pmm/api/actions/v1"
 )
 
 type Mcp struct {
@@ -27,8 +30,8 @@ func (m *Mcp) Server() *server.MCPServer {
 	mcpServer := server.NewMCPServer(
 		"pmm-mcp",
 		"1.0.0",
-		//server.WithResourceCapabilities(true, true),
-		//server.WithPromptCapabilities(true),
+		// server.WithResourceCapabilities(true, true),
+		// server.WithPromptCapabilities(true),
 		server.WithToolCapabilities(true),
 		server.WithLogging(),
 	)
@@ -114,6 +117,7 @@ type explainArgs struct {
 	PMMAgentID  string `json:"pmm_agent_id"`
 	ServiceType string `json:"service_type"`
 	ServiceID   string `json:"service_id"`
+	Database    string `json:"database"`
 	QueryID     string `json:"query_id"`
 	Query       string `json:"query"`
 }
@@ -125,10 +129,11 @@ func (m *Mcp) explain(ctx context.Context, req mcpgo.CallToolRequest, args expla
 	case "mysql":
 		// MySQL specific logic
 		actionRequest = actionsv1.StartServiceActionRequest{
-			Action: &actionsv1.StartServiceActionRequest_MysqlExplainJson{
-				MysqlExplainJson: &actionsv1.StartMySQLExplainJSONActionParams{
+			Action: &actionsv1.StartServiceActionRequest_MysqlExplain{
+				MysqlExplain: &actionsv1.StartMySQLExplainActionParams{
 					PmmAgentId: args.PMMAgentID,
 					ServiceId:  args.ServiceID,
+					Database:   args.Database,
 					QueryId:    args.QueryID,
 				},
 			},
@@ -144,6 +149,8 @@ func (m *Mcp) explain(ctx context.Context, req mcpgo.CallToolRequest, args expla
 				},
 			},
 		}
+	default:
+		return nil, fmt.Errorf("unsupported service type: %s", args.ServiceType)
 	}
 	action, err := m.actionServer.StartServiceAction(ctx, &actionRequest)
 	if err != nil {
@@ -152,7 +159,7 @@ func (m *Mcp) explain(ctx context.Context, req mcpgo.CallToolRequest, args expla
 	var actionID string
 	switch args.ServiceType {
 	case "mysql":
-		actionID = action.GetMysqlExplainJson().ActionId
+		actionID = action.GetMysqlExplain().ActionId
 	case "mongodb":
 		actionID = action.GetMongodbExplain().ActionId
 	}
@@ -168,9 +175,11 @@ func (m *Mcp) responseActionOutput(ctx context.Context, actionID string) (*mcpgo
 				ActionId: actionID,
 			})
 			if err != nil {
+				m.l.WithField("action_id", actionID).Errorf("Failed to get action: %v", err)
 				return nil, err
 			}
 			if action.Done {
+				m.l.WithField("action_id", actionID).Infof("Action completed with output: %s", action.Output)
 				return &mcpgo.CallToolResult{
 					Content: []mcpgo.Content{
 						mcpgo.TextContent{
@@ -181,6 +190,7 @@ func (m *Mcp) responseActionOutput(ctx context.Context, actionID string) (*mcpgo
 				}, nil
 			}
 		case <-ctx.Done():
+			m.l.WithField("action_id", actionID).Info("Context done, stopping action polling")
 			return nil, ctx.Err()
 		}
 	}
@@ -190,8 +200,8 @@ type showTablesArgs struct {
 	PMMAgentID  string `json:"pmm_agent_id"`
 	ServiceType string `json:"service_type"`
 	ServiceID   string `json:"service_id"`
-	TableName   string `json:"table_name"`
 	Database    string `json:"database"`
+	TableName   string `json:"table_name"`
 }
 
 func (m *Mcp) ShowTables(ctx context.Context, request mcpgo.CallToolRequest, args showTablesArgs) (*mcpgo.CallToolResult, error) {
@@ -205,8 +215,8 @@ func (m *Mcp) ShowTables(ctx context.Context, request mcpgo.CallToolRequest, arg
 				MysqlShowCreateTable: &actionsv1.StartMySQLShowCreateTableActionParams{
 					PmmAgentId: args.PMMAgentID,
 					ServiceId:  args.ServiceID,
-					TableName:  args.TableName,
 					Database:   args.Database,
+					TableName:  args.TableName,
 				},
 			},
 		}

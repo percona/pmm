@@ -399,23 +399,10 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		}
 	}
 
-	sseServer := mcpserver.NewSSEServer(
-		deps.mcpServer.Server(),
-		mcpserver.WithStaticBasePath("/v1/mcp"),
-		mcpserver.WithKeepAlive(true),
-	)
-	endpoint, err := sseServer.CompleteSseEndpoint()
-	if err != nil {
-		l.Panic(err)
-	}
-	l.Infof("SSE endpoint: %s", endpoint)
-
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
+	addMCPHandler(mux, deps.mcpServer)
 	mux.Handle("/auth_request", deps.authServer)
-	mux.Handle("/v1/mcp", sseServer)
-	mux.Handle("/v1/mcp/sse", sseServer.SSEHandler())
-	mux.Handle("/v1/mcp/message", sseServer.MessageHandler())
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -437,6 +424,19 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
+}
+
+func addMCPHandler(mux *http.ServeMux, mcpServer *mcp.Mcp) {
+	server := mcpServer.Server()
+
+	sseServer := mcpserver.NewSSEServer(
+		server,
+		mcpserver.WithStaticBasePath("/v1/mcp"),
+		mcpserver.WithKeepAlive(true),
+	)
+	mux.Handle("/v1/mcp", sseServer)
+	mux.Handle("/v1/mcp/sse", sseServer.SSEHandler())
+	mux.Handle("/v1/mcp/message", sseServer.MessageHandler())
 }
 
 // runDebugServer runs debug server until context is canceled, then gracefully stops it.
