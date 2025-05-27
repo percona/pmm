@@ -1,7 +1,7 @@
 # Define global variables for the build scripts.
 # shellcheck disable=SC2034
 
-bin_dir=$(dirname "$0")
+bin_dir=$(dirname "$(realpath "$0")")
 # NOTE: `root_dir` must evaluate the root of pmm-submodules repository.
 # Example: /home/ec2-user/workspace/pmm3-server-autobuild/
 top_level=$(git rev-parse --show-toplevel 2>/dev/null)
