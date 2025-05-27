@@ -970,7 +970,7 @@ func argListFromMongoDBParams(pParams *agentv1.StartActionRequest_PTMongoDBSumma
 
 	if pParams.Password != "" {
 		// TODO change this line when pt-mongodb-summary is updated
-		args = append(args, fmt.Sprintf("--password=%s", pParams.Password)) //nolint:perfsprint
+		args = append(args, "--password=" + pParams.Password)
 	}
 
 	if pParams.Host != "" {
