@@ -10,8 +10,8 @@ main() {
   local IMAGE=${1:-${rpmbuild_docker_image}}
   docker run --rm \
     --platform="${platform}" \
-    -v "${bin_dir}":/home/builder/bin \
-    -v "${build_dir}":/home/builder/build \
+    -v ${bin_dir}:/home/builder/bin \
+    -v ${build_dir}:/home/builder/build \
     -w /home/builder/build \
     -e PMM_VERSION="${pmm_version}" \
     -e PMM_RELEASE="${pmm_release}" \
