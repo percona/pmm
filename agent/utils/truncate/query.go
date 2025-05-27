@@ -35,7 +35,7 @@ func Query(q string, maxQueryLength, defaultMaxQueryLength int32) (string, bool)
 
 	runes := []rune(q)
 	if int32(len(runes)) <= maxQueryLength {
-		return string(runes), strings.HasSuffix(string(runes), "...")
+		return string(runes), strings.HasSuffix(string(runes), "...") || len(runes) != len(q)
 	}
 
 	// for queries shorter than 4 chars
