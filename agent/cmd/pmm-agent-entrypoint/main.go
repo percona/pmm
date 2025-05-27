@@ -29,6 +29,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
+	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -71,6 +72,27 @@ var (
 )
 
 var pmmAgentProcessID = 0
+
+// isAgentConfigured checks if pmm-agent is already configured by checking if it has an ID
+func isAgentConfigured(l *logrus.Entry) bool {
+	// Try to load the configuration to check if agent has an ID
+	configStorage := config.NewStorage(nil)
+	_, err := configStorage.Reload(l)
+
+	// If there's an error loading config (e.g., file doesn't exist), agent is not configured
+	var e config.ConfigFileDoesNotExistError
+	if err != nil && errors.As(err, &e) {
+		return false
+	}
+	if err != nil {
+		l.Debugf("Error loading configuration: %s", err)
+		return false
+	}
+
+	cfg := configStorage.Get()
+	// Agent is configured if it has an ID
+	return cfg.ID != ""
+}
 
 func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy restartPolicy, l *logrus.Entry, pmmAgentSidecarSleep int) int {
 	pmmAgentFullCommand := "pmm-agent " + strings.Join(commandLineArgs, " ")
@@ -178,25 +200,30 @@ func main() {
 	}
 
 	if *pmmAgentSetup { //nolint:nestif
-		var agent *exec.Cmd
-		restartPolicy := doNotRestart
-		if *pmmAgentSidecar {
-			restartPolicy = restartOnFail
-			l.Info("Starting pmm-agent for liveness probe...")
-			agent = commandPmmAgent([]string{"run"})
-			err := agent.Start()
-			if err != nil {
-				l.Fatalf("Can't run pmm-agent: %s", err)
+		// Check if agent is already configured
+		if isAgentConfigured(l) {
+			l.Info("PMM agent is already configured, skipping setup")
+		} else {
+			var agent *exec.Cmd
+			restartPolicy := doNotRestart
+			if *pmmAgentSidecar {
+				restartPolicy = restartOnFail
+				l.Info("Starting pmm-agent for liveness probe...")
+				agent = commandPmmAgent([]string{"run"})
+				err := agent.Start()
+				if err != nil {
+					l.Fatalf("Can't run pmm-agent: %s", err)
+				}
 			}
-		}
-		statusSetup := runPmmAgent(ctx, []string{"setup"}, restartPolicy, l, *pmmAgentSidecarSleep)
-		if statusSetup != 0 {
-			os.Exit(statusSetup)
-		}
-		if *pmmAgentSidecar {
-			l.Info("Stopping pmm-agent...")
-			if err := agent.Process.Signal(syscall.SIGTERM); err != nil {
-				l.Fatal("Failed to kill pmm-agent: ", err)
+			statusSetup := runPmmAgent(ctx, []string{"setup"}, restartPolicy, l, *pmmAgentSidecarSleep)
+			if statusSetup != 0 {
+				os.Exit(statusSetup)
+			}
+			if *pmmAgentSidecar {
+				l.Info("Stopping pmm-agent...")
+				if err := agent.Process.Signal(syscall.SIGTERM); err != nil {
+					l.Fatal("Failed to kill pmm-agent: ", err)
+				}
 			}
 		}
 	}
