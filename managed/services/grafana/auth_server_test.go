@@ -125,6 +125,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/server/settings/readonly":      viewer,
 		"/v1/server/AWSInstance":            none,
 		"/v1/backups":                       admin,
+		"/v1/dumps":                         admin,
 		"/v1/accesscontrol":                 admin,
 		"/v1/users":                         viewer,
 		"/v1/platform:connect":              admin,
@@ -145,6 +146,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/qan:getMetrics":       viewer,
 
 		"/prometheus/":        admin,
+		"/nomad/":             admin,
 		"/v1/server/logs.zip": admin,
 	} {
 		for _, role := range []role{viewer, editor, admin} {
@@ -239,7 +241,7 @@ func TestServerClientConnection(t *testing.T) {
 		req.Header.Set("Authorization", "Bearer wrong")
 
 		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
-		assert.Equal(t, codes.Unauthenticated, authError.code)
+		assert.Equal(t, codes.Internal, authError.code)
 	})
 }
 

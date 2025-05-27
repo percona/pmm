@@ -327,13 +327,15 @@ func TestSupervisorProcessParams(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		paths := config.Paths{
 			MySQLdExporter: "/path/to/mysql_exporter",
+			Nomad:          "/path/to/nomad",
 			TempDir:        temp,
+			NomadDataDir:   "/path/to/nomad/data",
 		}
 
 		cfgStorage := config.NewStorage(&config.Config{
 			Paths:         paths,
 			Ports:         config.Ports{},
-			Server:        config.Server{},
+			Server:        config.Server{Address: "server:443", Username: "admin", Password: "admin"},
 			LogLinesCount: 1,
 		})
 		s := NewSupervisor(ctx, nil, cfgStorage) //nolint:varnamelen
@@ -360,6 +362,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 			Args: []string{
 				"-web.listen-address=:{{ .listen_port }}",
 				"-web.ssl-cert-file={{ .TextFiles.Cert }}",
+				"-web.config={{ .TextFiles.Config }}",
 			},
 			Env: []string{
 				"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&ssl=true&sslCaFile={{.TextFiles.caFilePlaceholder}}&sslCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}",
@@ -376,11 +379,13 @@ func TestSupervisorProcessParams(t *testing.T) {
 		actual, err := s.processParams("ID", p, 12345)
 		require.NoError(t, err)
 
+		configFilePath := filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_mysqld_exporter", "ID", "Config")
 		expected := process.Params{
 			Path: "/path/to/mysql_exporter",
 			Args: []string{
 				"-web.listen-address=:12345",
 				"-web.ssl-cert-file=" + filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_mysqld_exporter", "ID", "Cert"),
+				"-web.config=" + configFilePath,
 			},
 			Env: []string{
 				"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&ssl=true&" +
@@ -395,6 +400,187 @@ func TestSupervisorProcessParams(t *testing.T) {
 		assert.Equal(t, expected.Env, actual.Env)
 		assert.NotEmpty(t, actual.TemplateParams)
 		assert.NotEmpty(t, actual.TemplateRenderer)
+		require.FileExists(t, configFilePath)
+		b, err := os.ReadFile(configFilePath) //nolint:gosec
+		require.NoError(t, err)
+		assert.Equal(t, "test=12345", string(b))
+	})
+
+	t.Run("Nomad", func(t *testing.T) {
+		t.Parallel()
+		s, teardown := setup(t)
+		defer teardown()
+
+		configTemplate := `log_level = "DEBUG"
+
+disable_update_check = true
+data_dir = "{{.nomad_data_dir}}" # it shall be persistent
+region = "global"
+datacenter = "PMM Deployment"
+name = "PMM Agent node-name"
+
+ui {
+  enabled = false
+}
+
+addresses {
+  http = "127.0.0.1"
+  rpc = "127.0.0.1"
+}
+
+advertise {
+  # 127.0.0.1 is not applicable here
+  http = "node-address" # filled by PMM Server
+  rpc = "node-address"  # filled by PMM Server
+}
+
+client {
+  enabled = true
+  cpu_total_compute = 1000
+
+  servers = ["{{.server_host}}:4647"] # filled by PMM Server
+
+  # disable Docker plugin
+  options = {
+    "driver.denylist" = "docker,qemu,java,exec"
+    "driver.allowlist" = "raw_exec"
+  }
+
+  # optional labels assigned to Nomad Client, can be the same as PMM Agent's.
+  meta {
+    pmm-agent = "1"
+    agent_type = "nomad-agent"
+    node_id = "node-id"
+    node_name = "node-name"
+  }
+}
+
+server {
+  enabled = false
+}
+
+tls {
+  http = true
+  rpc  = true
+  ca_file   = "{{ .TextFiles.caCert }}" # filled by PMM Agent
+  cert_file = "{{ .TextFiles.certFile }}" # filled by PMM Agent
+  key_file  = "{{ .TextFiles.keyFile }}" # filled by PMM Agent
+
+  verify_server_hostname = true
+}
+
+# Enabled plugins
+plugin "raw_exec" {
+  config {
+      enabled = true
+  }
+}
+`
+
+		expectedConfig := `log_level = "DEBUG"
+
+disable_update_check = true
+data_dir = "/path/to/nomad/data" # it shall be persistent
+region = "global"
+datacenter = "PMM Deployment"
+name = "PMM Agent node-name"
+
+ui {
+  enabled = false
+}
+
+addresses {
+  http = "127.0.0.1"
+  rpc = "127.0.0.1"
+}
+
+advertise {
+  # 127.0.0.1 is not applicable here
+  http = "node-address" # filled by PMM Server
+  rpc = "node-address"  # filled by PMM Server
+}
+
+client {
+  enabled = true
+  cpu_total_compute = 1000
+
+  servers = ["server:4647"] # filled by PMM Server
+
+  # disable Docker plugin
+  options = {
+    "driver.denylist" = "docker,qemu,java,exec"
+    "driver.allowlist" = "raw_exec"
+  }
+
+  # optional labels assigned to Nomad Client, can be the same as PMM Agent's.
+  meta {
+    pmm-agent = "1"
+    agent_type = "nomad-agent"
+    node_id = "node-id"
+    node_name = "node-name"
+  }
+}
+
+server {
+  enabled = false
+}
+
+tls {
+  http = true
+  rpc  = true
+  ca_file   = "` + filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_nomad_agent", "ID", "caCert") + `" # filled by PMM Agent
+  cert_file = "` + filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_nomad_agent", "ID", "certFile") + `" # filled by PMM Agent
+  key_file  = "` + filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_nomad_agent", "ID", "keyFile") + `" # filled by PMM Agent
+
+  verify_server_hostname = true
+}
+
+# Enabled plugins
+plugin "raw_exec" {
+  config {
+      enabled = true
+  }
+}
+`
+
+		p := &agentv1.SetStateRequest_AgentProcess{
+			Type:               inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT,
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+			Args: []string{
+				"agent",
+				"-client",
+				"-config",
+				"{{ .TextFiles.nomadConfig }}",
+			},
+			TextFiles: map[string]string{
+				"nomadConfig": configTemplate,
+				"caCert":      "-----BEGIN CERTIFICATE-----\n...",
+				"certFile":    "---BEGIN CERTIFICATE---\n...",
+				"keyFile":     "---BEGIN PRIVATE",
+			},
+		}
+		actual, err := s.processParams("ID", p, 12345)
+		require.NoError(t, err)
+
+		configFilePath := filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_nomad_agent", "ID", "nomadConfig")
+		expected := process.Params{
+			Path: "/path/to/nomad",
+			Args: []string{
+				"agent",
+				"-client",
+				"-config",
+				configFilePath,
+			},
+		}
+		assert.Equal(t, expected.Path, actual.Path)
+		assert.Equal(t, expected.Args, actual.Args)
+		assert.NotEmpty(t, actual.TemplateParams)
+		assert.NotEmpty(t, actual.TemplateRenderer)
+		require.FileExists(t, configFilePath)
+		b, err := os.ReadFile(configFilePath) //nolint:gosec
+		require.NoError(t, err)
+		assert.Equal(t, expectedConfig, string(b))
 	})
 
 	t.Run("BadTemplate", func(t *testing.T) {
@@ -440,5 +626,13 @@ func TestSupervisorProcessParams(t *testing.T) {
 		_, err := s.processParams("ID", agentProcess, 0)
 		require.Error(t, err)
 		assert.Regexp(t, `invalid text file name "../bar"`, err.Error())
+	})
+
+	t.Run("TrimPrefix", func(t *testing.T) {
+		t.Parallel()
+
+		actual := trimPrefix(inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER.String())
+		expected := "mysqld_exporter"
+		assert.Equal(t, expected, actual)
 	})
 }

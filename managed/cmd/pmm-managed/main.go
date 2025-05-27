@@ -91,6 +91,7 @@ import (
 	managementdump "github.com/percona/pmm/managed/services/management/dump"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/minio"
+	"github.com/percona/pmm/managed/services/nomad"
 	"github.com/percona/pmm/managed/services/platform"
 	"github.com/percona/pmm/managed/services/qan"
 	"github.com/percona/pmm/managed/services/scheduler"
@@ -500,7 +501,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	deps.l.Infof("Updating settings...")
 	env := os.Environ()
 	sort.Strings(env)
-	if errs := deps.server.UpdateSettingsFromEnv(env); len(errs) != 0 {
+	if errs := deps.server.UpdateSettingsFromEnv(ctx, env); len(errs) != 0 {
 		// This should be impossible in the normal workflow.
 		// An invalid environment variable must be caught with pmm-managed-init
 		// and the docker run must be terminated.
@@ -698,6 +699,8 @@ func main() { //nolint:maintidx,cyclop
 
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
+	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
+	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
 
 	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
@@ -750,7 +753,7 @@ func main() { //nolint:maintidx,cyclop
 	pmmdb := ds.PmmDBSelect
 	pmmdb.Credentials.Username = *postgresDBUsernameF
 	pmmdb.Credentials.Password = *postgresDBPasswordF
-	pmmdb.DSN.Scheme = "postgres" // TODO: should be configurable
+	pmmdb.DSN.Scheme = "postgres"
 	pmmdb.DSN.Host = *postgresAddrF
 	pmmdb.DSN.DB = *postgresDBNameF
 	q := make(url.Values)
@@ -768,10 +771,15 @@ func main() { //nolint:maintidx,cyclop
 	grafanadb.DSN.DB = "grafana"
 	grafanadb.DSN.Params = q.Encode()
 
-	clickhouseDSN := "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
+	chURI := url.URL{
+		Scheme: "tcp",
+		User:   url.UserPassword(*clickhouseUsernameF, *clickhousePasswordF),
+		Host:   *clickhouseAddrF,
+		Path:   *clickHouseDatabaseF,
+	}
 
 	qanDB := ds.QanDBSelect
-	qanDB.DSN = clickhouseDSN
+	qanDB.DSN = chURI.String()
 
 	ds.VM.Address = *victoriaMetricsURLF
 
@@ -906,9 +914,13 @@ func main() { //nolint:maintidx,cyclop
 
 	grafanaClient := grafana.NewClient(*grafanaAddrF)
 	prom.MustRegister(grafanaClient)
+	nomad, err := nomad.New(db)
+	if err != nil {
+		l.Fatalf("Could not create Nomad client: %s", err)
+	}
 
 	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
-	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams)
+	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams, nomad)
 	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
@@ -918,7 +930,7 @@ func main() { //nolint:maintidx,cyclop
 		l.Fatalf("Could not create Victoria Metrics client: %s", err)
 	}
 
-	clickhouseClient, err := newClickhouseDB(clickhouseDSN, clickhouseMaxIdleConns, clickhouseMaxOpenConns)
+	clickhouseClient, err := newClickhouseDB(qanDB.DSN, clickhouseMaxIdleConns, clickhouseMaxOpenConns)
 	if err != nil {
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}
@@ -943,7 +955,10 @@ func main() { //nolint:maintidx,cyclop
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 
-	dumpService := dump.New(db)
+	dumpService := dump.New(db, &dump.URLs{
+		ClickhouseURL: chURI.String(),
+		VMURL:         *victoriaMetricsURLF,
+	})
 
 	serverParams := &server.Params{
 		DB:                   db,
@@ -958,6 +973,7 @@ func main() { //nolint:maintidx,cyclop
 		VMAlertExternalRules: externalRules,
 		Updater:              updater,
 		Dus:                  dus,
+		Nomad:                nomad,
 	}
 
 	server, err := server.NewServer(serverParams)

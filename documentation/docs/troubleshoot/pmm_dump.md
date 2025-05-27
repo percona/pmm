@@ -20,7 +20,7 @@ The **dump.tar.gz** dump file is a .TAR archive compressed via Gzip. Here's what
 To create a dump of your dataset:
 {.power-number}
 
-1. From the main menu on the left, go to <i class="uil uil-question-circle"></i>  **Help > PMM Dump**.
+1. From the top-right corner of the PMM home page, go to <i class="uil uil-question-circle"></i>  **Help > PMM Dump**.
 2. Click **Create dataset** to go to the **Export new dataset** page.
 3. Choose the service for which you want to create the dataset or leave it empty to export all data.
 4. Define the time range for the dataset.
@@ -33,7 +33,7 @@ To create a dump of your dataset:
 If you are a Percona Customer, you can securely share PMM data dumps with Percona Support via SFTP.
 {.power-number}
 
-1. From the main menu on the left, go to <i class="uil uil-question-circle"></i>  **Help > PMM Dump**.
+1. From the top-right corner of the PMM home page, go to <i class="uil uil-question-circle"></i>  **Help > PMM Dump**.
 2. Select the PMM dump entry which you want to send to Support.
 3. In the **Options** column, expand the table row to check the PMM Service associated with the dataset, click the ellipsis (three vertical dots) and select **Send to Support**.
 4. Fill in the [details of the SFTP server](https://percona.service-now.com/percona?id=kb_article_view&sysparm_article=KB0010247&sys_kb_id=bebd04da87e329504035b8c9cebb35a7&spa=1), then click **Send**.

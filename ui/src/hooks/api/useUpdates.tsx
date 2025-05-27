@@ -21,11 +21,11 @@ export const useCheckUpdates = (
     queryKey: ['checkUpdates'],
     queryFn: async () => {
       try {
-        return await checkForUpdates();
+        return await checkForUpdates({ force: true });
       } catch (error) {
         if ((error as AxiosError).response?.status !== 401) {
           return await checkForUpdates({
-            force: false,
+            force: true,
             onlyInstalledVersion: true,
           });
         }

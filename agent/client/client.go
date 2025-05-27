@@ -692,8 +692,9 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 }
 
 func (c *Client) getMongoDSN(dsn string, files *agentv1.TextFiles, jobID string) (string, error) {
-	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.Replace(jobID, "/", "_", -1)) //nolint:gocritic
+	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.ReplaceAll(jobID, "/", "_"))
 	res, err := templates.RenderDSN(dsn, files, tempDir)
+	defer templates.CleanupTempDir(tempDir, c.l)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}

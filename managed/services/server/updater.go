@@ -45,7 +45,7 @@ import (
 
 const (
 	pmmInitLog             = "/srv/logs/pmm-init.log"
-	updateCheckInterval    = 24 * time.Hour
+	updateCheckInterval    = 12 * time.Hour
 	updateCheckResultFresh = updateCheckInterval + 10*time.Minute
 	updateDefaultTimeout   = 30 * time.Second
 	pmmEnvfilePath         = "/home/pmm/update/pmm-server.env"

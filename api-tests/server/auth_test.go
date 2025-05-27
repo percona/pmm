@@ -176,18 +176,9 @@ func TestBasicAuthPermissions(t *testing.T) {
 	adminID := createUserWithRole(t, admin, "Admin")
 	defer deleteUser(t, adminID)
 
-	const apiPrefix = "api"
-	viewerAPIKeyID, viewerAPIKey := createAPIKeyWithRole(t, fmt.Sprintf("%s-%s", apiPrefix, viewer), "Viewer")
-	defer deleteAPIKey(t, viewerAPIKeyID)
-	editorAPIKeyID, editorAPIKey := createAPIKeyWithRole(t, fmt.Sprintf("%s-%s", apiPrefix, editor), "Editor")
-	defer deleteAPIKey(t, editorAPIKeyID)
-	adminAPIKeyID, adminAPIKey := createAPIKeyWithRole(t, fmt.Sprintf("%s-%s", apiPrefix, admin), "Admin")
-	defer deleteAPIKey(t, adminAPIKeyID)
-
 	type userCase struct {
 		userType   string
 		login      string
-		apiKey     string
 		statusCode int
 	}
 
@@ -199,15 +190,15 @@ func TestBasicAuthPermissions(t *testing.T) {
 	}{
 		{name: "settings", url: "/v1/server/settings", method: "GET", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
-			{userType: "viewer", login: viewer, apiKey: viewerAPIKey, statusCode: 401},
-			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},
-			{userType: "admin", login: admin, apiKey: adminAPIKey, statusCode: 200},
+			{userType: "viewer", login: viewer, statusCode: 401},
+			{userType: "editor", login: editor, statusCode: 401},
+			{userType: "admin", login: admin, statusCode: 200},
 		}},
 		{name: "platform-connect", url: "/v1/platform:connect", method: "POST", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
-			{userType: "viewer", login: viewer, apiKey: viewerAPIKey, statusCode: 401},
-			{userType: "editor", login: editor, apiKey: editorAPIKey, statusCode: 401},
-			{userType: "admin", login: admin, apiKey: adminAPIKey, statusCode: 400}, // We send a bad request, but have access to endpoint
+			{userType: "viewer", login: viewer, statusCode: 401},
+			{userType: "editor", login: editor, statusCode: 401},
+			{userType: "admin", login: admin, statusCode: 400}, // We send a bad request, but have access to endpoint
 		}},
 	}
 
@@ -219,48 +210,6 @@ func TestBasicAuthPermissions(t *testing.T) {
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
 					u.User = url.UserPassword(user.login, user.login)
-					u.Path = test.url
-
-					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
-					require.NoError(t, err)
-
-					resp, err := http.DefaultClient.Do(req)
-					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
-
-					assert.Equal(t, user.statusCode, resp.StatusCode)
-				})
-
-				t.Run(fmt.Sprintf("API Key auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
-					if user.apiKey == "" {
-						t.Skip("API Key does not exist")
-					}
-					// make a BaseURL without authentication
-					u, err := url.Parse(pmmapitests.BaseURL.String())
-					require.NoError(t, err)
-					u.User = nil
-					u.Path = test.url
-
-					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
-					require.NoError(t, err)
-
-					req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", user.apiKey))
-
-					resp, err := http.DefaultClient.Do(req)
-					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
-
-					assert.Equal(t, user.statusCode, resp.StatusCode)
-				})
-
-				t.Run(fmt.Sprintf("API Key Basic auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
-					if user.apiKey == "" {
-						t.Skip("API Key does not exist")
-					}
-					// make a BaseURL without authentication
-					u, err := url.Parse(pmmapitests.BaseURL.String())
-					require.NoError(t, err)
-					u.User = url.UserPassword("api_key", user.apiKey)
 					u.Path = test.url
 
 					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
@@ -442,68 +391,6 @@ func TestServiceAccountPermissions(t *testing.T) {
 			}
 		})
 	}
-}
-
-func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
-	t.Helper()
-	u, err := url.Parse(pmmapitests.BaseURL.String())
-	require.NoError(t, err)
-	u.Path = "/graph/api/auth/keys"
-
-	// https://grafana.com/docs/grafana/latest/http_api/auth/#create-api-key
-	data, err := json.Marshal(map[string]string{
-		"name": name,
-		"role": role,
-	})
-	require.NoError(t, err)
-
-	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, u.String(), bytes.NewReader(data))
-	require.NoError(t, err)
-
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-
-	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
-
-	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create API key, status code: %d, response: %s", resp.StatusCode, b)
-
-	var m map[string]interface{}
-	err = json.Unmarshal(b, &m)
-	require.NoError(t, err)
-	apiKey := m["key"].(string)
-
-	u.User = nil
-	u.Path = "/graph/api/auth/key"
-	req, err = http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, u.String(), bytes.NewReader(data))
-	require.NoError(t, err)
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
-
-	resp1, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
-
-	require.Equalf(t, http.StatusOK, resp1.StatusCode, "failed to get API key, status code: %d, response: %s", resp1.StatusCode, b)
-
-	var k map[string]interface{}
-	err = json.Unmarshal(b, &k)
-	require.NoError(t, err)
-
-	apiKeyID := int(k["id"].(float64))
-
-	return apiKeyID, apiKey
-}
-
-func deleteAPIKey(t *testing.T, apiKeyID int) {
-	t.Helper()
-	// https://grafana.com/docs/grafana/latest/http_api/auth/#delete-api-key
-	u, err := url.Parse(pmmapitests.BaseURL.String())
-	require.NoError(t, err)
-	u.Path = "/graph/api/auth/keys/" + strconv.Itoa(apiKeyID)
-
-	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
-	require.NoError(t, err)
-
-	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
-
-	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete API Key, status code: %d, response: %s", resp.StatusCode, b)
 }
 
 func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {

@@ -139,9 +139,14 @@ func TestAgentHelpers(t *testing.T) {
 				},
 			},
 			&models.Agent{
+				AgentID:      "A12",
+				AgentType:    models.PMMAgentType,
+				RunsOnNodeID: pointer.ToString("N1"),
+			},
+			&models.Agent{
 				AgentID:       "A8",
 				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A8"),
+				PMMAgentID:    pointer.ToString("A12"),
 				RunsOnNodeID:  nil,
 				NodeID:        pointer.ToString("N1"),
 				ListenPort:    pointer.ToUint16(8200),
@@ -160,7 +165,7 @@ func TestAgentHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:       "A9",
 				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A9"),
+				PMMAgentID:    pointer.ToString("A12"),
 				RunsOnNodeID:  nil,
 				NodeID:        pointer.ToString("N1"),
 				ListenPort:    pointer.ToUint16(8200),
@@ -180,14 +185,29 @@ func TestAgentHelpers(t *testing.T) {
 			&models.Agent{
 				AgentID:       "A10",
 				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A10"),
+				PMMAgentID:    pointer.ToString("A12"),
 				RunsOnNodeID:  nil,
 				NodeID:        pointer.ToString("N1"),
 				ListenPort:    pointer.ToUint16(8200),
 				TLS:           true,
 				TLSSkipVerify: true,
 			},
+			&models.Agent{
+				AgentID:      "A11",
+				AgentType:    models.NomadAgentType,
+				PMMAgentID:   pointer.ToString("A12"),
+				RunsOnNodeID: nil,
+				NodeID:       pointer.ToString("N1"),
+				ListenPort:   pointer.ToUint16(8201),
+				ExporterOptions: models.ExporterOptions{
+					PushMetrics: true,
+				},
+			},
 		} {
+			if v, ok := str.(*models.Agent); ok {
+				encryptedAgent := models.EncryptAgent(*v)
+				str = &encryptedAgent
+			}
 			require.NoError(t, q.Insert(str))
 		}
 
@@ -211,12 +231,26 @@ func TestAgentHelpers(t *testing.T) {
 				Status:        models.AgentStatusUnknown,
 				AgentID:       "A10",
 				AgentType:     models.MongoDBExporterType,
-				PMMAgentID:    pointer.ToString("A10"),
+				PMMAgentID:    pointer.ToString("A12"),
 				RunsOnNodeID:  nil,
 				NodeID:        pointer.ToString("N1"),
 				ListenPort:    pointer.ToUint16(8200),
 				TLS:           true,
 				TLSSkipVerify: true,
+			},
+			{
+				CreatedAt:    now,
+				UpdatedAt:    now,
+				Status:       models.AgentStatusUnknown,
+				AgentID:      "A11",
+				AgentType:    models.NomadAgentType,
+				PMMAgentID:   pointer.ToString("A12"),
+				RunsOnNodeID: nil,
+				NodeID:       pointer.ToString("N1"),
+				ListenPort:   pointer.ToUint16(8201),
+				ExporterOptions: models.ExporterOptions{
+					PushMetrics: true,
+				},
 			},
 			{
 				AgentID:      "A3",
@@ -256,7 +290,7 @@ func TestAgentHelpers(t *testing.T) {
 				AgentID:       "A8",
 				AgentType:     "mongodb_exporter",
 				NodeID:        pointer.ToStringOrNil("N1"),
-				PMMAgentID:    pointer.ToStringOrNil("A8"),
+				PMMAgentID:    pointer.ToStringOrNil("A12"),
 				CreatedAt:     now,
 				UpdatedAt:     now,
 				Status:        models.AgentStatusUnknown,
@@ -277,7 +311,7 @@ func TestAgentHelpers(t *testing.T) {
 				AgentID:       "A9",
 				AgentType:     "mongodb_exporter",
 				NodeID:        pointer.ToStringOrNil("N1"),
-				PMMAgentID:    pointer.ToStringOrNil("A9"),
+				PMMAgentID:    pointer.ToStringOrNil("A12"),
 				CreatedAt:     now,
 				UpdatedAt:     now,
 				Status:        models.AgentStatusUnknown,
@@ -331,7 +365,7 @@ func TestAgentHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: "A1", AgentType: pointerToAgentType(models.MySQLdExporterType)})
+		agents, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: "A1", AgentType: pointer.To(models.MySQLdExporterType)})
 		require.NoError(t, err)
 		expected := []*models.Agent{{
 			AgentID:      "A2",
@@ -364,7 +398,7 @@ func TestAgentHelpers(t *testing.T) {
 		}}
 		assert.Equal(t, expected, agents)
 
-		agents, err = models.FindAgents(q, models.AgentFilters{ServiceID: "S1", AgentType: pointerToAgentType(models.MySQLdExporterType)})
+		agents, err = models.FindAgents(q, models.AgentFilters{ServiceID: "S1", AgentType: pointer.To(models.MySQLdExporterType)})
 		require.NoError(t, err)
 		expected = []*models.Agent{{
 			AgentID:      "A2",
@@ -378,7 +412,7 @@ func TestAgentHelpers(t *testing.T) {
 		}}
 		assert.Equal(t, expected, agents)
 
-		agents, err = models.FindAgents(q, models.AgentFilters{ServiceID: "S1", AgentType: pointerToAgentType(models.MongoDBExporterType)})
+		agents, err = models.FindAgents(q, models.AgentFilters{ServiceID: "S1", AgentType: pointer.To(models.MongoDBExporterType)})
 		require.NoError(t, err)
 		assert.Equal(t, []*models.Agent{}, agents)
 	})
@@ -542,17 +576,24 @@ func TestAgentHelpers(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("FindPMMAgentsIDsWithPushMetrics", func(t *testing.T) {
+	t.Run("FindAllPMMAgentsIDs", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.FindPMMAgentsIDsWithPushMetrics(q)
+		agents, err := models.FindAllPMMAgentsIDs(q)
 		require.NoError(t, err)
-		assert.Equal(t, "A4", agents[0])
-		assert.Len(t, agents, 1)
+		require.Len(t, agents, 4, agents)
+		assert.Equal(t, []string{"A1", "A12", "A4", models.PMMServerAgentID}, agents)
 	})
-}
 
-func pointerToAgentType(agentType models.AgentType) *models.AgentType {
-	return &agentType
+	t.Run("FindAllAgentsWithoutNomad", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+		agents, err := models.FindAgents(q, models.AgentFilters{IgnoreNomad: true, PMMAgentID: "A12"})
+		require.NoError(t, err)
+		require.Len(t, agents, 3)
+		assert.Equal(t, "A10", agents[0].AgentID)
+		assert.Equal(t, "A8", agents[1].AgentID)
+		assert.Equal(t, "A9", agents[2].AgentID)
+	})
 }

@@ -71,13 +71,13 @@ func TestAuthWebConfig(t *testing.T) {
 		expected := &agentv1.SetStateRequest_AgentProcess{
 			Env: []string(nil),
 			TextFiles: map[string]string{
-				"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
+				"webConfig": "basic_auth_users:\n    pmm: agent-id\n",
 			},
 		}
 
 		require.Equal(t, expected.Env, actual.Env)
 		require.Equal(t, expected.TextFiles, actual.TextFiles)
-		require.Contains(t, actual.Args, "--web.config={{ .TextFiles.webConfigPlaceholder }}")
+		require.Contains(t, actual.Args, "--web.config={{ .TextFiles.webConfig }}")
 	})
 
 	t.Run("v3.0.0", func(t *testing.T) {
@@ -97,13 +97,13 @@ func TestAuthWebConfig(t *testing.T) {
 		expected := &agentv1.SetStateRequest_AgentProcess{
 			Env: []string(nil),
 			TextFiles: map[string]string{
-				"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
+				"webConfig": "basic_auth_users:\n    pmm: agent-id\n",
 			},
 		}
 
 		require.Equal(t, expected.Env, actual.Env)
 		require.Equal(t, expected.TextFiles, actual.TextFiles)
-		require.Contains(t, actual.Args, "--web.config.file={{ .TextFiles.webConfigPlaceholder }}")
+		require.Contains(t, actual.Args, "--web.config.file={{ .TextFiles.webConfig }}")
 	})
 }
 

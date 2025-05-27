@@ -122,29 +122,6 @@ func TestClient(t *testing.T) {
 				assert.Equal(t, role.String(), actualRole.String())
 			})
 
-			t.Run(fmt.Sprintf("API Key auth %s", role.String()), func(t *testing.T) {
-				login := fmt.Sprintf("api-%s-%d", role, time.Now().Nanosecond())
-				apiKeyID, apiKey, err := c.createAPIKey(ctx, login, role, authHeaders)
-				require.NoError(t, err)
-				require.NotZero(t, apiKeyID)
-				require.NotEmpty(t, apiKey)
-				if err != nil {
-					defer func() {
-						err = c.deleteAPIKey(ctx, apiKeyID, authHeaders)
-						require.NoError(t, err)
-					}()
-				}
-
-				apiKeyAuthHeaders := http.Header{}
-				apiKeyAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
-
-				u, err := c.getAuthUser(ctx, apiKeyAuthHeaders, l)
-				actualRole := u.role
-				require.NoError(t, err)
-				assert.Equal(t, role, actualRole)
-				assert.Equal(t, role.String(), actualRole.String())
-			})
-
 			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
 				name, err := stringsgen.GenerateRandomString(256)
 				require.NoError(t, err)

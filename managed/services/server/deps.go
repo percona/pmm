@@ -107,3 +107,8 @@ type victoriaMetricsParams interface {
 	ExternalVM() bool
 	URLFor(path string) (*url.URL, error)
 }
+
+// nomadService represents an interface for managing and updating Nomad-related configurations in a given context.
+type nomadService interface {
+	UpdateConfiguration(settings *models.Settings) error
+}
