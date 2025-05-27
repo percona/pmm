@@ -145,8 +145,8 @@
         virtualenv: /home/ec2-user/venv
       loop: # Lookup versions at: https://pypi.org/search/
         - pyaml==25.1.0
-        - GitPython==3.1.43
-        - PyGithub==2.5.0
+        - GitPython==3.1.44
+        - PyGithub==2.6.1
         - python-digitalocean==1.17.0
         - docker==7.1.0
         - linode-cli==5.50.0
