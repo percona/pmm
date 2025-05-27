@@ -583,6 +583,74 @@ plugin "raw_exec" {
 		assert.Equal(t, expectedConfig, string(b))
 	})
 
+	t.Run("VMAgent", func(t *testing.T) {
+		t.Parallel()
+		s, teardown := setup(t)
+		defer teardown()
+
+		// Update the config to include VMAgent path
+		cfg := s.cfg.Get()
+		cfg.Paths.VMAgent = "/path/to/vmagent"
+
+		p := &agentv1.SetStateRequest_AgentProcess{
+			Type:               inventoryv1.AgentType_AGENT_TYPE_VM_AGENT,
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+			Args: []string{
+				"-envflag.enable=true",
+				"-envflag.prefix=VMAGENT_",
+				"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
+				"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
+				"-httpListenAddr=127.0.0.1:{{.listen_port}}",
+			},
+			Env: []string{
+				"VMAGENT_remoteWrite_url={{.server_url}}/victoriametrics/api/v1/write",
+				"VMAGENT_remoteWrite_tlsInsecureSkipVerify={{.server_insecure}}",
+				"VMAGENT_promscrape_maxScrapeSize=64MiB",
+				"VMAGENT_remoteWrite_maxDiskUsagePerURL=1073741824",
+				"VMAGENT_loggerLevel=INFO",
+				"VMAGENT_remoteWrite_basicAuth_username={{.server_username}}",
+				"VMAGENT_remoteWrite_basicAuth_password={{.server_password}}",
+			},
+			TextFiles: map[string]string{
+				"vmagentscrapecfg": "global:\n  scrape_interval: 15s\n",
+			},
+		}
+		actual, err := s.processParams("vmagent-id", p, 12345)
+		require.NoError(t, err)
+
+		configFilePath := filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_vm_agent", "vmagent-id", "vmagentscrapecfg")
+		tempDir := s.cfg.Get().Paths.TempDir
+		expected := process.Params{
+			Path: "/path/to/vmagent",
+			Args: []string{
+				"-envflag.enable=true",
+				"-envflag.prefix=VMAGENT_",
+				"-remoteWrite.tmpDataPath=" + tempDir + "/vmagent-temp-dir",
+				"-promscrape.config=" + configFilePath,
+				"-httpListenAddr=127.0.0.1:12345",
+			},
+			Env: []string{
+				"VMAGENT_remoteWrite_url=https://server:443/victoriametrics/api/v1/write",
+				"VMAGENT_remoteWrite_tlsInsecureSkipVerify=false",
+				"VMAGENT_promscrape_maxScrapeSize=64MiB",
+				"VMAGENT_remoteWrite_maxDiskUsagePerURL=1073741824",
+				"VMAGENT_loggerLevel=INFO",
+				"VMAGENT_remoteWrite_basicAuth_username=admin",
+				"VMAGENT_remoteWrite_basicAuth_password=admin",
+			},
+		}
+		assert.Equal(t, expected.Path, actual.Path)
+		assert.Equal(t, expected.Args, actual.Args)
+		assert.Equal(t, expected.Env, actual.Env)
+		assert.NotEmpty(t, actual.TemplateParams)
+		assert.NotEmpty(t, actual.TemplateRenderer)
+		require.FileExists(t, configFilePath)
+		b, err := os.ReadFile(configFilePath) //nolint:gosec
+		require.NoError(t, err)
+		assert.Equal(t, "global:\n  scrape_interval: 15s\n", string(b))
+	})
+
 	t.Run("BadTemplate", func(t *testing.T) {
 		t.Parallel()
 		s, teardown := setup(t)
