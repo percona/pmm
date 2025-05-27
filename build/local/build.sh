@@ -208,7 +208,7 @@ update() {
 
   if [ "$NO_UPDATE" -eq 1 ]; then
     echo
-    echo "Info: not refreshing the source code from upstream repositories."
+    echo "Info: not refreshing the source code from remote repositories."
     return
   fi
 

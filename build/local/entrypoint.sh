@@ -23,7 +23,7 @@ needs_to_pull() {
   fi
 
   if [ "$LOCAL" = "$BASE" ]; then
-    return 0 # true, we are behind upstream
+    return 0 # true, we are behind remote
   fi
 }
 
@@ -48,13 +48,13 @@ rewind() {
       git reset --hard HEAD~30
       git pull origin > /dev/null
     fi
-    echo "Submodule ${NAME} has pulled from upstream."
+    echo "Submodule ${NAME} has pulled from remote."
     git log --oneline -n 2
     cd - > /dev/null
     git add "$DIR"
   else
     cd - > /dev/null
-    echo "Submodule ${NAME} is up-to-date with upstream."
+    echo "Submodule ${NAME} is up-to-date with remote."
   fi
 }
 
