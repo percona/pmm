@@ -1,9 +1,10 @@
-bin_dir=$(cd $(dirname $0); pwd -P)
-# TODO: refactor to pass ${WORKSPACE} as ROOT_DIR from either Jenkins or, if relevant, from GH actions
-# NOTE: in most cases, this evaluates to Jenkins ${WORKSPACE} directory when called from pipelines
-# Example: /home/ec2-user/workspace/ol9-build-server/, see how it's used in ol9-build-server.groovy
-root_dir_tmp=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
-root_dir=${ROOT_DIR:-$root_dir_tmp}
+# Define global variables for the build scripts.
+# shellcheck disable=SC2034
+
+bin_dir=$(dirname "$0")
+# NOTE: `root_dir` must evaluate the root of pmm-submodules repository.
+# Example: /home/ec2-user/workspace/pmm3-server-autobuild/
+root_dir=${ROOT_DIR:-$(git rev-parse --show-superproject-working-tree)}
 tmp_dir=${root_dir}/tmp
 
 # In VERSION file we can have numeric value like '2.0.0' as well as
@@ -14,21 +15,17 @@ tmp_dir=${root_dir}/tmp
 # * pmm_release to contain only pre-release part (can be empty): 'alpha3'.
 pmm_branch=$(git rev-parse --abbrev-ref HEAD)
 
-pmm_base_version=$(cat ${root_dir}/VERSION)
+pmm_base_version=$(< "${root_dir}/VERSION")
 full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
 # Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
 full_pmm_version=${full_pmm_version//\//-}
 
-# TODO Maybe it makes sense to use variable from job here
-if [[ ${pmm_branch} =~ release-* || \
-      ${pmm_branch} =~ pmm-3.* || \
-      ${pmm_branch} == v3 || \
-      ${pmm_branch} == "main" ]]; then
+if [[ "${pmm_branch}" =~ ^pmm-3.|^v3$|^main$ ]]; then
     full_pmm_version=${pmm_base_version}
 fi
 
-new_pmm_version=$(cat ${root_dir}/VERSION | awk -F'-' '{print $1}')
-new_pmm_release=$(cat ${root_dir}/VERSION | awk -F'-' '{print $2}')
+new_pmm_version=$(awk -F'-' '{print $1}' < "${root_dir}/VERSION")
+new_pmm_release=$(awk -F'-' '{print $2}' < "${root_dir}/VERSION")
 
 # Failsafe during refactoring - check that we did not redefine pmm_version in some other script
 if [ -n "${pmm_version}" ] && [ "${new_pmm_version}" != "${pmm_version}" ]; then
