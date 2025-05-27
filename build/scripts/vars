@@ -4,7 +4,9 @@
 bin_dir=$(dirname "$0")
 # NOTE: `root_dir` must evaluate the root of pmm-submodules repository.
 # Example: /home/ec2-user/workspace/pmm3-server-autobuild/
+top_level=$(git rev-parse --show-toplevel 2>/dev/null)
 root_dir=${ROOT_DIR:-$(git rev-parse --show-superproject-working-tree)}
+root_dir=${root_dir:-$top_level}
 tmp_dir=${root_dir}/tmp
 
 # In VERSION file we can have numeric value like '2.0.0' as well as
