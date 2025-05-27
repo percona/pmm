@@ -30,7 +30,7 @@ gobuild_component() {
   volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
 
   # shellcheck disable=SC2012
-  archive=$(basename "$(ls -t -1 "${source_dir}/${parent_component}-*.tar.gz" | head -n1)")
+  archive=$(basename "$(ls -t -1 "${source_dir}/${parent_component}"-*.tar.gz | head -n1)")
   submodule_dir=$(git config -f .gitmodules "submodule.${parent_component}.path" || true)
   submodule_dir=${submodule_dir:-"sources/${parent_component}"}
 

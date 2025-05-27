@@ -348,9 +348,10 @@ check_volumes() {
     fi
   done
 
-  echo "Copying pmm sources to the docker volume..."
+  echo "Copying PMM source code to pmm-submodules docker volume..."
   docker run --rm \
     --platform="$PLATFORM" \
+    --user root \
     -v "$SUBMODULES":/submodules \
     -v pmm-submodules:/app \
     "$RPMBUILD_DOCKER_IMAGE" \
