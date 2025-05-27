@@ -59,14 +59,14 @@ gobuild_component() {
   elif [[ "${component}" =~ (node|mysqld|proxysql|rds|postgres|azure_metrics)_exporter ]]; then
     build_command="make -C /app/${submodule_dir} release"
   elif [ "${component}" = percona-toolkit ]; then
-    build_command="go build -o ${bin_dir}/${result_file} /app/${submodule_dir}/${component_path}"
+    build_command="go build -o ${bin_dir}/${result_file} /app/${submodule_dir}/${component_path}/."
   elif [ "${component}" = nomad ]; then
     build_command="TARGETS=${target} make -C /tmp/${extract_path} deps release;"
     build_command+=" cp /tmp/${extract_path}/pkg/linux_*/nomad ${bin_dir}/bin/nomad"
   elif [ "${component}" = vmagent ]; then
-    build_command="go build -o ${bin_dir}/${result_file} /tmp/${extract_path}/${component_path}"
+    build_command="go build -o ${bin_dir}/${result_file} /tmp/${extract_path}/${component_path}/."
   else
-    build_command="go build -o ${bin_dir}/${result_file} /app/${submodule_dir}"
+    build_command="go build -o ${bin_dir}/${result_file} /app/${submodule_dir}/."
   fi
 
   if [ "${component}" = vmagent ]; then

@@ -348,7 +348,7 @@ check_volumes() {
     fi
   done
 
-  echo "Copying PMM source code to pmm-submodules docker volume..."
+  echo "Syncing PMM source code with pmm-submodules docker volume..."
   docker run --rm \
     --platform="$PLATFORM" \
     --user root \
