@@ -266,7 +266,7 @@ func (sib *ServiceInfoBroker) getValkeyInfo(
 	var res agentv1.ServiceInfoResponse
 	var err error
 
-	tempdir := filepath.Join(sib.cfg.Get().Paths.TempDir, strings.ToLower("get-valkey-info"), strconv.Itoa(int(id)))
+	tempdir := filepath.Join(sib.cfg.Get().Paths.TempDir, "get-valkey-info", strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
 	defer templates.CleanupTempDir(tempdir, sib.l)
 	if err != nil {

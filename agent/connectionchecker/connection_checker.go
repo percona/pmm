@@ -267,7 +267,7 @@ func (cc *ConnectionChecker) checkValkeyConnection(
 	var res agentv1.CheckConnectionResponse
 	var err error
 
-	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-valkey-connection"), strconv.Itoa(int(id)))
+	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, "check-valkey-connection", strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
 	defer templates.CleanupTempDir(tempdir, cc.l)
 	if err != nil {
