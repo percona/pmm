@@ -346,7 +346,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 // Application returns kingpin application that will parse command-line flags and environment variables
 // (but not configuration file) into cfg except --config-file/PMM_AGENT_CONFIG_FILE that is returned separately.
 func Application(cfg *Config) (*kingpin.Application, *string) {
-	app := kingpin.New("pmm-agent", "Version " + version.Version)
+	app := kingpin.New("pmm-agent", "Version "+version.Version)
 	app.HelpFlag.Short('h')
 
 	app.Command("run", "Run pmm-agent (default command)").Default()
