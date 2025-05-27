@@ -39,7 +39,7 @@ func TestVersionPlain(t *testing.T) {
 	require.NoError(t, err, "%s", b)
 
 	out := string(b)
-	assert.Contains(t, out, `Version:`, `--version output is incorrect"`)
+	assert.Contains(t, out, `Version:`, `--version output is incorrect`)
 }
 
 func TestVersionJson(t *testing.T) {
