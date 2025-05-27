@@ -52,7 +52,7 @@ prepare_external_tarball() {
     )
     echo "${repo_var}=${commit_short}" >> "${client_properties}"
 
-    if [[ -f "${tarball}" ]]; then
+    if [ -f "${tarball}" ]; then
         echo "${tarball} already exists, skipping download"
     else
         curl -fsSL -o "${tarball}" "${base_url}/${commit_hash}.tar.gz"
