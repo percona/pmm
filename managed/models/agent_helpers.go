@@ -83,19 +83,19 @@ func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) PostgreSQLOpti
 
 // ValkeyOptionsParams contains methods to create a ValkeyOptions object.
 type ValkeyOptionsParams interface {
+	GetTls() bool
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
-	GetUseRedisScheme() bool
 }
 
 // ValkeyOptionsFromRequest creates ValkeyOptions object from request.
 func ValkeyOptionsFromRequest(params ValkeyOptionsParams) ValkeyOptions {
 	res := ValkeyOptions{}
+	res.TLS = params.GetTls()
 	res.SSLCa = params.GetTlsCa()
 	res.SSLCert = params.GetTlsCert()
 	res.SSLKey = params.GetTlsKey()
-	res.UseRedisScheme = params.GetUseRedisScheme()
 
 	return res
 }
@@ -895,7 +895,6 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		AzureOptions:      params.AzureOptions,
 		MongoDBOptions:    params.MongoDBOptions,
 		MySQLOptions:      params.MySQLOptions,
-		ValkeyOptions:     params.ValkeyOptions,
 		PostgreSQLOptions: params.PostgreSQLOptions,
 		ValkeyOptions:     params.ValkeyOptions,
 		LogLevel:          pointer.ToStringOrNil(params.LogLevel),

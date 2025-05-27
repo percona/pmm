@@ -364,13 +364,6 @@
                       },
                       "valkey_options": {
                         "type": "object",
-                        "properties": {
-                          "use_redis_scheme": {
-                            "description": "If true, PMM will connect to the server using the redis:// scheme instead of valkey://.",
-                            "type": "boolean",
-                            "x-order": 0
-                          }
-                        },
                         "x-order": 40
                       }
                     }
@@ -1870,13 +1863,6 @@
                             },
                             "valkey_options": {
                               "type": "object",
-                              "properties": {
-                                "use_redis_scheme": {
-                                  "description": "If true, PMM will connect to the server using the redis:// scheme instead of valkey://.",
-                                  "type": "boolean",
-                                  "x-order": 0
-                                }
-                              },
                               "x-order": 40
                             }
                           }
@@ -3659,11 +3645,6 @@
                       "description": "TLS Certificate Key.",
                       "type": "string",
                       "x-order": 22
-                    },
-                    "use_redis_scheme": {
-                      "description": "If true, PMM will connect to the server using the redis:// scheme instead of valkey://.",
-                      "type": "boolean",
-                      "x-order": 23
                     }
                   },
                   "x-order": 7

@@ -82,6 +82,7 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 		return sib.getValkeyInfo(
 			ctx,
 			msg.Dsn,
+			msg.Tls,
 			msg.TextFiles,
 			msg.TlsSkipVerify,
 			id)
@@ -257,6 +258,7 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 func (sib *ServiceInfoBroker) getValkeyInfo(
 	ctx context.Context,
 	dsn string,
+	useTLS bool,
 	files *agentv1.TextFiles,
 	tlsSkipVerify bool,
 	id uint32,
@@ -264,7 +266,7 @@ func (sib *ServiceInfoBroker) getValkeyInfo(
 	var res agentv1.ServiceInfoResponse
 	var err error
 
-	tempdir := filepath.Join(sib.cfg.Get().Paths.TempDir, strings.ToLower("get-valkey-info"), strconv.Itoa(int(id)))
+	tempdir := filepath.Join(sib.cfg.Get().Paths.TempDir, "get-valkey-info", strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
 	defer templates.CleanupTempDir(tempdir, sib.l)
 	if err != nil {
@@ -273,9 +275,9 @@ func (sib *ServiceInfoBroker) getValkeyInfo(
 		return &res
 	}
 
-	opts, err := tlshelpers.GetValkeyTLSConfig(files, tlsSkipVerify)
+	opts, err := tlshelpers.GetValkeyTLSConfig(files, useTLS, tlsSkipVerify)
 	if err != nil {
-		sib.l.Debugf("checkValkeyConnection: failed to get TLS config: %s", err)
+		sib.l.Debugf("getValkeyInfo: failed to get TLS config: %s", err)
 		res.Error = err.Error()
 		return &res
 	}

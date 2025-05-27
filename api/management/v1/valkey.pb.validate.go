@@ -39,6 +39,9 @@ var (
 	_ = inventoryv1.LogLevel(0)
 )
 
+// define the regex for a UUID once up-front
+var _valkey_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on AddValkeyServiceParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -61,9 +64,32 @@ func (m *AddValkeyServiceParams) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for NodeId
+	if m.GetNodeId() != "" {
+		if err := m._validateUuid(m.GetNodeId()); err != nil {
+			err = AddValkeyServiceParamsValidationError{
+				field:  "NodeId",
+				reason: "value must be a valid UUID",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
 
-	// no validation rules for NodeName
+	if m.GetNodeName() != "" {
+		if utf8.RuneCountInString(m.GetNodeName()) < 1 {
+			err := AddValkeyServiceParamsValidationError{
+				field:  "NodeName",
+				reason: "value length must be at least 1 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
 
 	if all {
 		switch v := interface{}(m.GetAddNode()).(type) {
@@ -161,10 +187,16 @@ func (m *AddValkeyServiceParams) validate(all bool) error {
 
 	// no validation rules for TlsKey
 
-	// no validation rules for UseRedisScheme
-
 	if len(errors) > 0 {
 		return AddValkeyServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddValkeyServiceParams) _validateUuid(uuid string) error {
+	if matched := _valkey_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil

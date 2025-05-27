@@ -266,10 +266,10 @@ func (c PostgreSQLOptions) IsEmpty() bool {
 
 // ValkeyOptions represents a structure for special Valkey options.
 type ValkeyOptions struct { //nolint:recvcheck
-	SSLCa          string `json:"ssl_ca"`
-	SSLCert        string `json:"ssl_cert"`
-	SSLKey         string `json:"ssl_key"`
-	UseRedisScheme bool   `json:"use_redis_scheme"`
+	TLS     bool   `json:"tls"`
+	SSLCa   string `json:"ssl_ca"`
+	SSLCert string `json:"ssl_cert"`
+	SSLKey  string `json:"ssl_key"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -670,10 +670,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		return dsn
 	case ValkeyExporterType:
-		urlScheme := "valkey"
-		if s.ValkeyOptions.UseRedisScheme {
-			urlScheme = "redis"
-		}
+		urlScheme := "redis"
 		if s.TLS {
 			urlScheme += "s"
 		}

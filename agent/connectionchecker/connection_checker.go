@@ -84,6 +84,7 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentv1.CheckConnec
 		return cc.checkValkeyConnection(
 			ctx,
 			msg.Dsn,
+			msg.Tls,
 			msg.TextFiles,
 			msg.TlsSkipVerify,
 			id)
@@ -258,6 +259,7 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 func (cc *ConnectionChecker) checkValkeyConnection(
 	ctx context.Context,
 	dsn string,
+	tls bool,
 	files *agentv1.TextFiles,
 	tlsSkipVerify bool,
 	id uint32,
@@ -265,7 +267,7 @@ func (cc *ConnectionChecker) checkValkeyConnection(
 	var res agentv1.CheckConnectionResponse
 	var err error
 
-	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-valkey-connection"), strconv.Itoa(int(id)))
+	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, "check-valkey-connection", strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
 	defer templates.CleanupTempDir(tempdir, cc.l)
 	if err != nil {
@@ -274,7 +276,7 @@ func (cc *ConnectionChecker) checkValkeyConnection(
 		return &res
 	}
 
-	opts, err := tlshelpers.GetValkeyTLSConfig(files, tlsSkipVerify)
+	opts, err := tlshelpers.GetValkeyTLSConfig(files, tls, tlsSkipVerify)
 	if err != nil {
 		cc.l.Debugf("checkValkeyConnection: failed to get TLS config: %s", err)
 		res.Error = err.Error()
