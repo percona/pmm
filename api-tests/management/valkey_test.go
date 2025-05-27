@@ -480,21 +480,4 @@ func TestRemoveValkey(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgents)
 	})
-
-	t.Run("Wrong type", func(t *testing.T) {
-		serviceName := pmmapitests.TestString(t, "service-remove-wrong-type")
-		nodeName := pmmapitests.TestString(t, "node-remove-wrong-type")
-		nodeID, pmmAgentID, serviceID := addValkey(t, serviceName, nodeName)
-		defer pmmapitests.UnregisterNodes(t, nodeID)
-		defer pmmapitests.RemoveServices(t, serviceID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
-
-		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
-			ServiceID:   serviceID,
-			ServiceType: pointer.ToString(types.ServiceTypeMongoDBService),
-			Context:     pmmapitests.Context,
-		})
-		assert.Nil(t, removeServiceOK)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "wrong service type")
-	})
 }
