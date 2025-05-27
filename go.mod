@@ -15,7 +15,7 @@ replace golang.org/x/crypto => github.com/percona-lab/crypto v0.0.0-202311081441
 
 require (
 	github.com/AlekSi/pointer v1.2.0
-	github.com/ClickHouse/clickhouse-go/v2 v2.34.0
+	github.com/ClickHouse/clickhouse-go/v2 v2.35.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/alecthomas/kong v1.11.0
@@ -27,7 +27,7 @@ require (
 	github.com/charmbracelet/bubbletea v1.3.4
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
-	github.com/docker/docker v28.0.4+incompatible
+	github.com/docker/docker v28.1.1+incompatible
 	github.com/docker/go-connections v0.5.0
 	github.com/envoyproxy/protoc-gen-validate v1.2.1
 	github.com/go-co-op/gocron v1.37.0
@@ -131,7 +131,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.11.1 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph v0.9.0
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.4.2 // indirect
-	github.com/ClickHouse/ch-go v0.65.1 // indirect
+	github.com/ClickHouse/ch-go v0.66.0 // indirect
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
@@ -180,7 +180,7 @@ require (
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/opencontainers/image-spec v1.1.0 // indirect
+	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
