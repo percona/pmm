@@ -40,9 +40,9 @@ if [ -z "$pmm_release" ]; then
   pmm_release=${PMM_RELEASE:-1}
 fi
 
-printf "\n---"
-printf ">>> full_pmm_version=%s pmm_version=%s pmm_release=%s <<<" "${full_pmm_version}" "${pmm_version}" "${pmm_release}"
-printf "---\n"
+echo "---"
+echo "--- full_pmm_version=${full_pmm_version} pmm_version=${pmm_version} pmm_release=${pmm_release}"
+echo "---"
 
 platform=${PLATFORM:-linux/amd64}
 
