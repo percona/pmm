@@ -73,7 +73,7 @@ var (
 
 var pmmAgentProcessID = 0
 
-// isAgentConfigured checks if pmm-agent is already configured by checking if it has an ID
+// isAgentConfigured checks if pmm-agent is already configured by checking if it has an ID.
 func isAgentConfigured(l *logrus.Entry) bool {
 	// Try to load the configuration to check if agent has an ID
 	configStorage := config.NewStorage(nil)
