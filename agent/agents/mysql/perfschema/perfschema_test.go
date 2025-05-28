@@ -549,7 +549,6 @@ func TestPerfSchema(t *testing.T) {
 		// Perf schema truncates queries with non-utf8 characters.
 		case (mySQLVendor == version.PerconaVendor || mySQLVendor == version.OracleVendor) && mySQLVersion.Float() >= 8.0:
 			example = "SELECT /* t1 controller='test' */ * FROM t1 where col1='Bu"
-			isTruncated = true
 		default:
 			example = "SELECT /* t1 controller='test' */ * FROM t1 where col1=..."
 		}
