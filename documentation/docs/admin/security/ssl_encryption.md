@@ -28,14 +28,14 @@ To implement SSL encryption in PMM:
 {.power-number}
 
 1. **Prepare your certificates**: Choose one method to provide certificates to PMM Server:
-   - [Mount certificates](#mounting-certificates) from a local directory on the host
-   - [Copy certificates](#copying-certificates) directly into the PMM Server container
+    - [mount certificates](#mounting-certificates) from a local directory on the host
+    - [copy certificates](#copying-certificates) directly into the PMM Server container
 
 2. **Restart PMM Server** to apply the new certificates
 
 3. **Configure client trust**: Choose your preferred method for PMM Client certificate verification:
-   - [System trust store](#using-system-trust-store) (recommended for production)
-   - [Custom CA certificates](#using-custom-ca-certificates) with `SSL_CERT_FILE` environment variable
+    - system trust store - recommended for production
+    - custom CA certificates with `SSL_CERT_FILE` environment variable 
 
 ## Location for certificate storage 
 
@@ -104,9 +104,7 @@ pmm-admin config --server-url=https://<user>:<password>@<server-hostname>
     - Running in containerized or restricted environments
     - Testing with different CA configurations
     
-    **Set SSL_CERT_FILE for `pmm-admin` commands
-
-    Export the `SSL_CERT_FILE` environment variable pointing to your custom CA bundle file *before* running `pmm-admin` commands:
+    To set SSL_CERT_FILE for `pmm-admin` commands, export the `SSL_CERT_FILE` environment variable pointing to your custom CA bundle file *before* running `pmm-admin` commands:
 
     ```sh
     export SSL_CERT_FILE=/path/to/custom-ca-bundle.pem
