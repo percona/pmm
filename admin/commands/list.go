@@ -272,7 +272,7 @@ func getMetricsMode(s bool) string {
 	return "pull"
 }
 
-func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent { //nolint:cyclop,maintidx
+func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent { //nolint:maintidx
 	pmmAgentIDs := make(map[string]struct{})
 	agentsList := []listResultAgent{}
 
