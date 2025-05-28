@@ -19,7 +19,7 @@ gobuild_component() {
   local parent_component=${2:-$component}
   local extract_path=${3:-"github.com/percona/$parent_component"}
   local component_path=$4
-  local result_file=${5:-bin/$(basename ${component_path:-$extract_path})}
+  local result_file=${5:-bin/$(basename "${component_path:-$extract_path}")}
   local src_dir=/home/builder/build/source/pmm-client-${pmm_version}
   local bin_dir=/home/builder/build/binary/pmm-client-${pmm_version}
   local archive build_command target pmm_release_fullcommit submodule_dir
@@ -53,8 +53,6 @@ gobuild_component() {
   if [[ "${component}" =~ pmm-admin|pmm-agent ]]; then
     build_command="NO_VCS=1 make -C /app/${submodule_dir}/${component_path} release"
   elif [ "${component}" = mongodb_exporter ]; then
-    # component_version=$(git -C "sources/${parent_component}/src/${extract_path}" describe --tags --abbrev=0 --always)
-    # build_command="COMPONENT_VERSION=${component_version} make -C /tmp/go/src/${extract_path} build"
     build_command="make -C /app/${submodule_dir} build"
   elif [[ "${component}" =~ (node|mysqld|proxysql|rds|postgres|azure_metrics)_exporter ]]; then
     build_command="make -C /app/${submodule_dir} release"
@@ -96,9 +94,11 @@ gobuild_component() {
       sudo chown -R builder:builder /home/builder/build
 
       mkdir -p ${bin_dir}/bin
-      mkdir -p /tmp/go/src/${extract_path}
 
-      tar -C /tmp/go/src/${extract_path} --strip-components=1 -zxpf ${src_dir}/${archive}
+      if [[ ${component} =~ nomad|vmagent ]]; then
+        mkdir -p /tmp/go/src/${extract_path}
+        tar -C /tmp/go/src/${extract_path} --strip-components=1 -zxpf ${src_dir}/${archive}
+      fi
 
       ${build_command}
   "
@@ -120,6 +120,7 @@ copy_component() {
 
 main() {
   local pmm_commit=$(git -C "${bin_dir}" rev-parse --short HEAD)
+  local noxattrs
 
   echo -----------------------------------------
   echo "Building PMM Client binary files..."
@@ -168,11 +169,8 @@ main() {
     rm -f "${binary_dir}/bin/pmm"
   fi
   
-  local noxattrs=""
-  if uname -s | grep -qi "Darwin"; then
-    noxattrs="--no-xattrs"
-  fi
-  tar -C "$(dirname "${binary_dir}")" ${noxattrs} -zcpf "${binary_tarball}" "$(basename "${binary_dir}")"
+  noxattrs=$(uname -s | grep -qi "Darwin" && echo "--no-xattrs" || echo "")
+  tar -C "$(dirname "${binary_dir}")" "${noxattrs}" -zcpf "${binary_tarball}" "$(basename "${binary_dir}")"
 
   local s3_tarball_name="pmm-build-cache/${s3_cache_dir}/pmm-client/pmm-client-${pmm_version}-${pmm_commit}.tar.gz"
   local s3_tarball_url="https://s3.us-east-2.amazonaws.com/${s3_tarball_name}"

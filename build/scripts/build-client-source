@@ -7,13 +7,14 @@ prepare_tarball() {
   local commit=$2
   local repo_url=$3
   local git_dir=
-  local repo_var=$(
-    echo "${repo_name}_commit" | sed -e 's:-:_:g' | tr '[[:lower:]]' '[[:upper:]]'
-  )
+  local repo_var=$(echo "${repo_name}_commit" | sed -e 's:-:_:g' | tr '[:lower:]' '[:upper:]')
   local tarball=${source_dir}/${repo_name}-${commit::7}.tar.gz
+  
+  # Remove old tarballs for the same repo
+  find "${source_dir}" -name "${repo_name}-*.tar.gz" -type f -not -name "${tarball}" -exec rm -f {} \;
 
   if [ -z "$commit" ]; then
-    git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
+    git_dir=$(git -C "${root_dir}" config -f .gitmodules "submodule.${repo_name}.path")
     commit=$(git -C "${git_dir}" rev-parse --short HEAD)
     tarball=${source_dir}/${repo_name}-${commit}.tar.gz
   fi
@@ -57,12 +58,9 @@ main() {
   prepare_tarball azure_metrics_exporter
   prepare_tarball percona-toolkit
 
-  local noxattrs=
-  if uname -s | grep -qi "Darwin"; then
-    noxattrs="--no-xattrs"
-  fi
+  local noxattrs=$(uname -s | grep -qi "Darwin" && echo "--no-xattrs" || echo "")
 
-  tar -C "$(dirname "${source_dir}")" ${noxattrs} -zcpf "${source_tarball}" "$(basename "${source_dir}")"
+  tar -C "$(dirname "${source_dir}")" "${noxattrs}" -zcpf "${source_tarball}" "$(basename "${source_dir}")"
 }
 
 main
