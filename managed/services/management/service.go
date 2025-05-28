@@ -139,6 +139,7 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 		or mongodb_up{job=~".*_hr$"}
 		or proxysql_up{job=~".*_hr$"}
 		or haproxy_backend_status{state="UP"}
+		or redis_up{job=~".*_hr$"}
 	`
 	result, _, err := s.vmClient.Query(ctx, query, time.Now())
 	if err != nil {

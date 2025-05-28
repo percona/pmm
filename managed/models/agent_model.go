@@ -820,13 +820,13 @@ func (s Agent) Files() map[string]string {
 		files := make(map[string]string)
 
 		if s.ValkeyOptions.SSLCa != "" {
-			files[caFilePlaceholder] = s.ValkeyOptions.SSLCa
+			files["tlsCa"] = s.ValkeyOptions.SSLCa
 		}
-		if s.PostgreSQLOptions.SSLCert != "" {
-			files[certificateFilePlaceholder] = s.ValkeyOptions.SSLCert
+		if s.ValkeyOptions.SSLCert != "" {
+			files["tlsCert"] = s.ValkeyOptions.SSLCert
 		}
-		if s.PostgreSQLOptions.SSLKey != "" {
-			files[certificateKeyFilePlaceholder] = s.ValkeyOptions.SSLKey
+		if s.ValkeyOptions.SSLKey != "" {
+			files["tlsKey"] = s.ValkeyOptions.SSLKey
 		}
 
 		if len(files) != 0 {

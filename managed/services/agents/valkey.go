@@ -16,26 +16,45 @@
 package agents
 
 import (
+	"sort"
+	"time"
+
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
 
-// valkeyExporterConfig returns desired configuration of valkey_exporter process.
-// todo: to be implemented in PMM-13837
-func valkeyExporterConfig(_ *models.Node, service *models.Service, exporter *models.Agent, _ redactMode,
+// valkeyExporterConfig returns the desired configuration of the valkey_exporter process.
+func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
 ) *agentv1.SetStateRequest_AgentProcess {
+	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
-	var args []string
+	args := []string{
+		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
+	}
 
+	if exporter.ExporterOptions.MetricsPath != "" {
+		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
+	}
+
+	dnsParams := models.DSNParams{
+		DialTimeout: 3 * time.Second,
+	}
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)
+	args = append(args, "--redis.addr="+exporter.DSN(service, dnsParams, nil, pmmAgentVersion))
+	sort.Strings(args)
 
-	return &agentv1.SetStateRequest_AgentProcess{
+	res := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_VALKEY_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
+		TextFiles:          exporter.Files(),
 	}
+	if redactMode != exposeSecrets {
+		res.RedactWords = redactWords(exporter)
+	}
+	return res
 }
