@@ -2,7 +2,7 @@
 # We use percona-release package to install the gpg keys and ppg-14
 # To workaround the package's incompatibility with RHEL9, we have to disable the gpg verification :(
 - name: Add percona-release package
-  yum:
+  dnf:
     name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     state: installed
     disable_gpg_check: yes
@@ -20,13 +20,13 @@
     enabled: no
 
 - name: Update OS packages
-  yum:
+  dnf:
     name: "*"
     state: latest
     disablerepo: percona-release-x86_64
 
 - name: Install OS tools
-  yum:
+  dnf:
     name:
       - python3-pip
       - rsync
@@ -86,7 +86,7 @@
     - /var/lib/cloud/scripts/per-boot
 
 - name: Install PMM Server components
-  yum:
+  dnf:
     name:
       - percona-grafana
       - percona-victoriametrics
