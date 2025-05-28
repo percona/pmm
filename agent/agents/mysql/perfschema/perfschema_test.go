@@ -575,6 +575,7 @@ func TestPerfSchema(t *testing.T) {
 				AgentType:              inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:                example,
 				ExampleType:            agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
+				IsTruncated:            true,
 				NumQueries:             1,
 				NumQueriesWithWarnings: numQueriesWithWarnings,
 				MQueryTimeCnt:          1,
