@@ -29,7 +29,7 @@ main() {
     "${rpmbuild_docker_image}" sh -c "
       sudo chown -R builder /home/builder/rpm/RPMS
       until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
-        echo "waiting to create repo..."
+        echo waiting to create a local repo...
         sleep 1
       done
     "
