@@ -7,7 +7,7 @@ PMM Client supports collecting metrics from PostgreSQL-based database systems:
 - [PostgreSQL][PostgreSQL]
 - [Percona Distribution for PostgreSQL][Percona Distribution for PostgreSQL]
 
-<!---For monitoring Amazon RDS PostgreSQL instances, see [Connect Amazon RDS instance](../connect-database/aws.md).-->
+For monitoring Amazon RDS PostgreSQL instances, see [Connect Amazon RDS instance](../connect-database/aws.md).
 
 ??? info "Setup process at a glance"
     These are the high-level steps for configuring PostgreSQL monitoring in PMM:

@@ -112,7 +112,7 @@ Common variables:
 
 For a complete list, see the [environment variables](../docker/env_var.md).
 
-## Accessing PMM Server
+## Access PMM Server
 
 After installation:
 {.power-number}

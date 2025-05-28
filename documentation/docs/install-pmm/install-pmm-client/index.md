@@ -43,7 +43,7 @@ Each database service requires specific configuration parameters. Configure your
 - [MongoDB](connect-database/mongodb.md)
 - [PostgreSQL](connect-database/postgresql.md)
 - [ProxySQL](connect-database/proxysql.md)
-<!---- [Amazon RDS](connect-database/aws.md)--->
+- [Amazon RDS](connect-database/aws.md)
 - [Microsoft Azure](connect-database/azure.md)
 - [Google Cloud Platform](connect-database/google.md) (MySQL and PostgreSQL)
 - [Linux](connect-database/linux.md)

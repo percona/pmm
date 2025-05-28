@@ -1,5 +1,8 @@
 # PMM installation overview
 
+!!! info "Content under improvement"
+    We're currently enhancing this chapter to make it more accurate and easier to follow. Content may be updated as improvements are made. [Share your feedback](https://docs.google.com/forms/d/1bkWACehjqlwA0AKf-qTJcXvYbOSYgze8iTPXjntqmNo/edit) to help us improve it.
+
 Installing Percona Monitoring and Management (PMM) involves setting up a central PMM Server and distributed PMM Clients that work together to monitor your database environment. 
 
 PMM Server provides the web interface with dashboards and analytics, while PMM Clients collect data from your databases with minimal performance impact and send it back to PMM Server for analysis and visualization.
@@ -13,7 +16,7 @@ The PMM installation consists of three main steps that need to be completed in s
 2. [Install PMM Clients](#2-install-pmm-client): lightweight agents on each database host that collect metrics without impacting performance
 3. [Configure monitoring services](#3-add-services-for-monitoring): connect PMM to your database instances, select which metrics to collect, and customize monitoring parameters
 
-## Planning the installation
+## Plan the installation
 
 Before ou install PMM, ensure your environment is properly prepared:
 
@@ -104,7 +107,7 @@ PMM supports monitoring across the following database technologies, cloud servic
 
     - [Microsoft Azure](../install-pmm/install-pmm-client/connect-database/azure.md)
     - [Google Cloud Platform](../install-pmm/install-pmm-client/connect-database/google.md)
-    <!--- - [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md) --->
+    - [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md) 
 
 === ":material-server-network: System & Infrastructure"
 

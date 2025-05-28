@@ -34,7 +34,7 @@ PMM Client supports collecting metrics from various MySQL-based database systems
  - [Percona XtraDB Cluster][PERCONA_XTRADB_CLUSTER]
  - [MariaDB][MARIADB]
 
-<!---For monitoring Amazon RDS MySQL instances, see [Connect Amazon RDS instance](../aws.md).--->
+For monitoring Amazon RDS MySQL instances, see [Connect Amazon RDS instance](../aws.md).
 
 ??? info "Setup process at a glance"
     These are the high-level steps for configuring MySQL monitoring in PMM:
@@ -303,8 +303,13 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
 
 #### Applicable versions
 
-- **Percona Server for MySQL**: 5.7 (**not** [Percona Server for MySQL 8.0][PS_FEATURES_REMOVED].)
-- **MariaDB**: 10.0.4
+!!! warning "Limited version support"   
+    This feature is not available in current Percona Server 8.0. Use this information only if you are using Percona Server 5.7 through our Post-EOL support program, where it remains actively supported.
+
+Supported versions:
+    - **Percona Server for MySQL**: 5.7 (available through Post-EOL support program)
+    - **NOT** available in Percona Server for MySQL 8.0 ([removed features][PS_FEATURES_REMOVED])
+    - **MariaDB**: 10.0.4
 
 ### Required variable
 
