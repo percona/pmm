@@ -29,11 +29,6 @@ jobs:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
 
-      - name: Install kerberos development libraries
-        run: |
-          sudo apt-get update
-          sudo apt-get install libkrb5-dev
-
       - name: Enable Go build cache
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
@@ -152,7 +147,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Check spelling of md files
-        uses: crate-ci/typos@b1a1ef3893ff35ade0cfa71523852a49bfd05d19 # v1.31.1
+        uses: crate-ci/typos@0f0ccba9ed1df83948f0c15026e4f5ccfce46109 # v1.32.0
         with:
           files: "**/*.md ./documentation/**/*.md"
 

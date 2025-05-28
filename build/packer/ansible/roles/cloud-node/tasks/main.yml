@@ -4,17 +4,16 @@
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
-  yum:
+  dnf:
     name: epel-release
     state: installed
 
 - name: Packages                   | Install OS tools for EL9
   when:
     - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
-  yum:
+  dnf:
     name:
       - screen
-      - yum-utils
       - cloud-init
       - firewalld
       - python3-libselinux
