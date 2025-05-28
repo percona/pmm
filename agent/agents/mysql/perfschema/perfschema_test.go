@@ -541,10 +541,15 @@ func TestPerfSchema(t *testing.T) {
 
 		require.NoError(t, m.refreshHistoryCache())
 		var example string
+		isTruncated := true
+		if mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 8.0 {
+			isTruncated = false
+		}
 		switch {
 		// Perf schema truncates queries with non-utf8 characters.
 		case (mySQLVendor == version.PerconaVendor || mySQLVendor == version.OracleVendor) && mySQLVersion.Float() >= 8.0:
 			example = "SELECT /* t1 controller='test' */ * FROM t1 where col1='Bu"
+			isTruncated = true
 		default:
 			example = "SELECT /* t1 controller='test' */ * FROM t1 where col1=..."
 		}
@@ -575,7 +580,7 @@ func TestPerfSchema(t *testing.T) {
 				AgentType:              inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:                example,
 				ExampleType:            agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
-				IsTruncated:            true,
+				IsTruncated:            isTruncated,
 				NumQueries:             1,
 				NumQueriesWithWarnings: numQueriesWithWarnings,
 				MQueryTimeCnt:          1,
