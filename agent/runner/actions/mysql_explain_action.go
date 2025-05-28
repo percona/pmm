@@ -61,13 +61,13 @@ func NewMySQLExplainAction(id string, timeout time.Duration, params *agentv1.Sta
 
 	// You cant run Explain on trimmed queries.
 	if strings.HasSuffix(params.Query, "...") {
-		return nil, errors.New("EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value.") //nolint:revive
+		return nil, errors.New("EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value.") //nolint:revive,lll // explain is a keyword
 	}
 
 	// Explain is supported only for DML queries.
 	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
 	if !isDMLQuery(params.Query) {
-		return nil, errors.New("EXPLAIN functionality is supported only for DML queries - SELECT, INSERT, UPDATE, DELETE and REPLACE.") //nolint:revive
+		return nil, errors.New("EXPLAIN functionality is supported only for DML queries - SELECT, INSERT, UPDATE, DELETE and REPLACE.") //nolint:revive,lll // explain is a keyword
 	}
 
 	return &mysqlExplainAction{
@@ -223,7 +223,7 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	rows, err := tx.QueryContext(ctx, "SHOW /* pmm-agent */ WARNINGS")
 	if err != nil {
 		// ignore error, return original output
-		return b, nil //nolint:nilerr
+		return b, nil
 	}
 	defer rows.Close() //nolint:errcheck
 

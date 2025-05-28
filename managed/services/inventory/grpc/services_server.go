@@ -173,7 +173,7 @@ func (s *servicesServer) addMySQLService(ctx context.Context, params *inventoryv
 		Cluster:        params.Cluster,
 		ReplicationSet: params.ReplicationSet,
 		Address:        pointer.ToStringOrNil(params.Address),
-		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)), //nolint:gosec // port is not expected to overflow uint16
 		Socket:         pointer.ToStringOrNil(params.Socket),
 		CustomLabels:   params.CustomLabels,
 	})

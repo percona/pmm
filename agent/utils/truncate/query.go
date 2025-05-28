@@ -32,7 +32,7 @@ func Query(q string, maxQueryLength, defaultMaxQueryLength int32) (string, bool)
 	}
 
 	runes := []rune(q)
-	if int32(len(runes)) <= maxQueryLength {
+	if int32(len(runes)) <= maxQueryLength { //nolint:gosec // len(runes) is not expected to overflow int32
 		return string(runes), false
 	}
 

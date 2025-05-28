@@ -277,7 +277,7 @@ func updateAgentStatus(
 
 	agent.Status = status.String()
 	agent.ProcessExecPath = processExecPath
-	agent.ListenPort = pointer.ToUint16(uint16(listenPort))
+	agent.ListenPort = pointer.ToUint16(uint16(listenPort)) //nolint:gosec // port is uint16
 	if version != nil {
 		agent.Version = version
 	}
