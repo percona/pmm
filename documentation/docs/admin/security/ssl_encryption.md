@@ -1,10 +1,11 @@
 # SSL encryption
 
-SSL encryption protects communication between PMM Client and PMM Server by encrypting all data in transit. To enable SSL, you need valid certificates that can be:
+Securing your PMM deployment with SSL/TLS encryption protects sensitive database metrics and authentication credentials in transit. 
+You can obtain SSL certificates from several sources:
 
-- **Purchased certificates**: Obtained from commercial Certificate Authorities (CAs) like Let's Encrypt, DigiCert, or GlobalSign
-- **Self-signed certificates**: Generated internally for testing or closed environments
-- **Internal CA certificates**: Created by your organization's internal Certificate Authority
+- commercial certificates from public CAs (automatically trusted by all systems)
+- internal CA certificates from your organization 
+- self-signed certificates for testing and development environments
 
 To implement SSL encryption in PMM:
 {.power-number}
@@ -13,17 +14,18 @@ To implement SSL encryption in PMM:
    - [Mount certificates](#mounting-certificates) from a local directory on the host
    - [Copy certificates](#copying-certificates) directly into the PMM Server container
 
-2. **Restart PMM Server** to apply the new certificates.
+2. **Restart PMM Server** to apply the new certificates
 
 3. **Configure client trust**: Ensure PMM Clients can verify the server certificate:
    - Add the CA certificate to the system trust store ([Ubuntu guide](https://ubuntu.com/server/docs/install-a-root-ca-certificate-in-the-trust-store) | [Red Hat guide](https://www.redhat.com/sysadmin/configure-ca-trust-list))
-   - **Or use the `SSL_CERT_FILE` environment variable** for [custom CA certificates](#using-custom-ca-certificates-with-pmm-client).
+   - **Or use the `SSL_CERT_FILE` environment variable** for [custom CA certificates](#using-custom-ca-certificates-with-pmm-client)
 
-With Docker, OVF, and AMI deployments, certificates are stored in `/srv/nginx` where self-signed certificates are placed by default.
+!!! info "Certificate storage location"
+    With Docker, OVF, and AMI deployments, certificates are stored in `/srv/nginx` where self-signed certificates are placed by default.
 
-### Mounting certificates
+## Mounting certificates
 
-For container-based installation, if your certificates are in a directory called `/etc/pmm-certs` on the container host, run the following to mount that directory in the proper location so that PMM can find it when the container starts:
+For container-based installation, mount your certificate directory to `/srv/nginx`:
 
 ```sh
 docker run -d -p 443:443 --volumes-from pmm-data \
@@ -31,106 +33,138 @@ docker run -d -p 443:443 --volumes-from pmm-data \
   --restart always percona/pmm-server:3
 ```
 
-!!! note alert alert-primary ""
-    - All certificates must be owned by root. You can do this with: `chown 0:0 /etc/pmm-certs/*`
-    - The mounted certificate directory (`/etc/pmm-certs` in this example) must contain the files named `certificate.crt`, `certificate.key`, `ca-certs.pem`, and `dhparam.pem`.
-    - For SSL encryption, the container should publish on port 443 instead of 80.
+!!! warning "Certificate requirements"
+    - All certificates must be owned by root: `chown 0:0 /etc/pmm-certs/*`
+    - Set proper permissions: `chmod 644 /etc/pmm-certs/*.crt /etc/pmm-certs/*.pem && chmod 600 /etc/pmm-certs/*.key`
+    - The certificate directory must contain: `certificate.crt`, `certificate.key`, `ca-certs.pem`, and `dhparam.pem`
+    - Use port 443 for SSL encryption
 
-### Copying certificates
+## Copying certificates
 
-If PMM Server is running as a Docker image, use `docker cp` to copy certificates. This example copies certificate files from the current working directory to a running PMM Server docker container.
+If PMM Server is already running, copy certificates directly into the container:
 
 ```sh
+# Copy certificate files
 docker cp certificate.crt pmm-server:/srv/nginx/certificate.crt
 docker cp certificate.key pmm-server:/srv/nginx/certificate.key
 docker cp ca-certs.pem pmm-server:/srv/nginx/ca-certs.pem
 docker cp dhparam.pem pmm-server:/srv/nginx/dhparam.pem
-docker exec -it pmm-server chown pmm:pmm /srv/nginx/*
+
+# Set proper ownership and permissions
+docker exec -it pmm-server chown root:root /srv/nginx/*
+docker exec -it pmm-server chmod 644 /srv/nginx/*.crt /srv/nginx/*.pem
+docker exec -it pmm-server chmod 600 /srv/nginx/*.key
+
+# Restart to apply changes
+docker restart pmm-server
 ```
 
-### Use trusted SSL when connecting PMM Client to PMM Server
+## Connecting PMM Client to PMM Server
 
-To apply the new trusted certificates, simply restart the PMM Server. If you're an advanced user, you can alternatively restart only the NGINX service from the shell using: `supervisorctl restart nginx`.
+After installing certificates and restarting PMM Server, register clients using HTTPS:
 
-You can now register clients to the PMM Server using the following:
 ```sh
-pmm-admin config --server-url=https://<user>:<password>@<server IP>
+pmm-admin config --server-url=https://<user>:<password>@<server-hostname>
 ```
 
-!!! hint alert alert-success "Remember"
-    Your client machine(s) must trust the issuer of the certificate, or you will still see "untrusted connections" messages when accessing the web interface. Thus, your client will need the `--server-insecure-tls` parameter when running the `pmm-admin config` command. Follow the instructions on your operating system to install the issuer certificate (ca-certs.pem). 
+!!! tip "Certificate trust"
+    For the connection to work properly, PMM Clients must trust the certificate issuer. You can either:
+    
+    - Install the CA certificate in your system's trust store (recommended for production)
+    - Use the `SSL_CERT_FILE` environment variable for custom CAs (see below)
+    - Use `--server-insecure-tls` for testing only (not recommended for production)
 
-### Using custom CA certificates with PMM Client
+## Using custom Certificate Authorities with pmm-agent
 
-If your PMM Server uses a certificate signed by a custom Certificate Authority (CA) that is not trusted by the host running `pmm-agent`, you can configure the client to trust the custom CA using the `SSL_CERT_FILE` environment variable:
+For environments where you cannot or prefer not to modify the system's global certificate trust store, use the `SSL_CERT_FILE` environment variable. This is particularly useful when:
 
-=== "Direct host installation"
+- PMM Server uses certificates signed by an internal/custom certificate authority
+- You want to avoid modifying system-wide certificate settings
+- Running in containerized or restricted environments
+- Testing with different CA configurations
 
-    For PMM Client installed directly on the host system:
+### Setting SSL_CERT_FILE for pmm-admin commands
 
-    Set the `SSL_CERT_FILE` environment variable to point to your custom CA certificate file:
+Export the `SSL_CERT_FILE` environment variable pointing to your custom CA bundle file *before* running `pmm-admin` commands:
 
-    ```sh
-    export SSL_CERT_FILE=/path/to/your/ca-certificate.pem
-    pmm-admin config --server-url=https://<user>:<password>@<server IP>
-    ```
+```sh
+export SSL_CERT_FILE=/path/to/custom-ca-bundle.pem
+pmm-admin config --server-url=https://<user>:<password>@<server-hostname>
+```
 
-    !!! note "Persistent environment variable"
-        To make the SSL_CERT_FILE setting persistent across reboots, add it to your shell profile:
-        ```sh
-        echo 'export SSL_CERT_FILE=/path/to/your/ca-certificate.pem' >> ~/.bashrc
-        source ~/.bashrc
+### Persistent configuration
+
+For persistent configuration, add the environment variable to your shell profile or systemd service configuration:
+
+!!! note ""
+    === "Shell profile"
+        Add to your shell profile (.bashrc, .zshrc, etc.):
+        ```sh         
+        export SSL_CERT_FILE=/etc/ssl/certs/custom-ca-bundle.pem
         ```
 
-=== "Container deployment"
+    === "Systemd service"
+        For pmm-agent running as a systemd service:
+        ```ini
+        [Unit]
+        Description=PMM Agent
+        After=network.target
 
-    For PMM Client running as a Docker container:
+        [Service]
+        Type=simple
+        User=pmm-agent
+        Environment="SSL_CERT_FILE=/etc/ssl/certs/custom-ca-bundle.pem"
+        ExecStart=/usr/local/bin/pmm-agent --config-file=/etc/pmm-agent.yaml
+        Restart=always
 
-    **Option 1: Using SSL_CERT_FILE environment variable**
+        [Install]
+        WantedBy=multi-user.target
+        ```
+        
+    === "Docker container"
+        When running pmm-client in a container:
+        ```sh
+        docker run \
+          --rm --name pmm-client \
+          -e PMM_AGENT_SERVER_ADDRESS=<server-hostname>:443 \
+          -e PMM_AGENT_SERVER_USERNAME=admin \
+          -e PMM_AGENT_SERVER_PASSWORD=admin \
+          -e PMM_AGENT_SETUP=1 \
+          -e SSL_CERT_FILE=/etc/ssl/certs/custom-ca-bundle.pem \
+          -v /path/to/ca-bundle.pem:/etc/ssl/certs/custom-ca-bundle.pem:ro \
+          percona/pmm-client:3
+        ```
 
-    Mount your custom CA certificate file and set the `SSL_CERT_FILE` environment variable:
+### Creating CA bundle files
 
-    ```sh
-    PMM_SERVER=X.X.X.X:443
-    docker run \
-    --rm \
-    --name pmm-client \
-    -e PMM_AGENT_SERVER_ADDRESS=${PMM_SERVER} \
-    -e PMM_AGENT_SERVER_USERNAME=admin \
-    -e PMM_AGENT_SERVER_PASSWORD=admin \
-    -e PMM_AGENT_SETUP=1 \
-    -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
-    -e SSL_CERT_FILE=/etc/ssl/certs/custom-ca.pem \
-    -v /path/to/your/custom-ca.pem:/etc/ssl/certs/custom-ca.pem \
-    percona/pmm-client:3
-    ```
+The CA bundle file should contain one or more PEM-encoded certificate authority certificates:
 
-    **Option 2: Mount to standard certificate directory**
+```sh
+# Single CA certificate
+cp /path/to/your-ca.pem /etc/ssl/certs/custom-ca-bundle.pem
 
-    Mount certificates to the standard certificate directory `/etc/pki/tls/certs`:
+# Multiple CA certificates
+cat /path/to/custom-ca1.pem /path/to/custom-ca2.pem > /etc/ssl/certs/custom-ca-bundle.pem
 
-    ```sh
-    PMM_SERVER=X.X.X.X:443
-    docker run \
-    --rm \
-    --name pmm-client \
-    -e PMM_AGENT_SERVER_ADDRESS=${PMM_SERVER} \
-    -e PMM_AGENT_SERVER_USERNAME=admin \
-    -e PMM_AGENT_SERVER_PASSWORD=admin \
-    -e PMM_AGENT_SETUP=1 \
-    -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
-    -v /your_directory_with/certs:/etc/pki/tls/certs \
-    percona/pmm-client:3
-    ```
+# Include system CAs plus custom CAs
+cat /etc/ssl/certs/ca-certificates.crt \
+    /path/to/your-custom-ca.pem > /etc/ssl/certs/custom-ca-bundle.pem
+```
 
-    !!! tip "Container certificate management"
-        When using containers, Option 1 with `SSL_CERT_FILE` gives you more precise control over which CA certificate is used, while Option 2 automatically trusts all certificates in the mounted directory.
+### Testing the connection
 
-!!! info "When to use SSL_CERT_FILE"
-    The `SSL_CERT_FILE` environment variable is particularly useful when:
-    
-    - Your organization uses internal CA certificates
-    - You cannot or don't want to modify the system's certificate trust store
-    - You need a quick solution for testing with custom certificates
-    - You want to specify a single CA file instead of adding it to the system-wide certificate store
+Verify your SSL configuration works correctly:
 
+```sh
+# Test certificate validation
+export SSL_CERT_FILE=/etc/ssl/certs/custom-ca-bundle.pem
+curl -v https://<server-hostname>/ping
+
+# Test pmm-admin connection
+pmm-admin status
+```
+
+!!! warning "Important considerations"
+    - The `SSL_CERT_FILE` environment variable affects **all** SSL/TLS connections made by the pmm-agent process
+    - Ensure the CA bundle file is readable by the user running pmm-agent: `chmod 644 /path/to/ca-bundle.pem`
+    - Use the server's **hostname** (not IP address) in URLs to match the certificate
