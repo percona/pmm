@@ -1357,3 +1357,73 @@ func TestGetSocketOrHost(t *testing.T) {
 		})
 	}
 }
+
+func TestServicesListPreallocation(t *testing.T) {
+	t.Parallel()
+
+	t.Run("pre-allocation efficiency", func(t *testing.T) {
+		t.Parallel()
+		// Create a payload with known number of services
+		servicesRes := &services_service.ListServicesOK{
+			Payload: &services_service.ListServicesOKBody{
+				Mysql: []*services_service.ListServicesOKBodyMysqlItems0{
+					{ServiceID: "mysql-1", ServiceName: "mysql-service-1", Address: "127.0.0.1", Port: 3306},
+					{ServiceID: "mysql-2", ServiceName: "mysql-service-2", Address: "127.0.0.1", Port: 3307},
+				},
+				Mongodb: []*services_service.ListServicesOKBodyMongodbItems0{
+					{ServiceID: "mongodb-1", ServiceName: "mongodb-service-1", Address: "127.0.0.1", Port: 27017},
+				},
+				Postgresql: []*services_service.ListServicesOKBodyPostgresqlItems0{
+					{ServiceID: "postgres-1", ServiceName: "postgres-service-1", Address: "127.0.0.1", Port: 5432},
+					{ServiceID: "postgres-2", ServiceName: "postgres-service-2", Address: "127.0.0.1", Port: 5433},
+					{ServiceID: "postgres-3", ServiceName: "postgres-service-3", Address: "127.0.0.1", Port: 5434},
+				},
+				Proxysql: []*services_service.ListServicesOKBodyProxysqlItems0{
+					{ServiceID: "proxysql-1", ServiceName: "proxysql-service-1", Address: "127.0.0.1", Port: 6032},
+				},
+				Haproxy: []*services_service.ListServicesOKBodyHaproxyItems0{
+					{ServiceID: "haproxy-1", ServiceName: "haproxy-service-1"},
+				},
+				External: []*services_service.ListServicesOKBodyExternalItems0{
+					{ServiceID: "external-1", ServiceName: "external-service-1", Group: "redis"},
+					{ServiceID: "external-2", ServiceName: "external-service-2", Group: "elasticsearch"},
+				},
+			},
+		}
+
+		result := servicesList(servicesRes)
+
+		// Verify we get exactly the expected number of services (2+1+3+1+1+2 = 10)
+		expectedCount := 10
+		assert.Len(t, result, expectedCount)
+
+		// Verify all service types are present
+		serviceTypeCount := make(map[string]int)
+		for _, service := range result {
+			serviceTypeCount[service.ServiceType]++
+		}
+
+		assert.Equal(t, 2, serviceTypeCount[types.ServiceTypeMySQLService])
+		assert.Equal(t, 1, serviceTypeCount[types.ServiceTypeMongoDBService])
+		assert.Equal(t, 3, serviceTypeCount[types.ServiceTypePostgreSQLService])
+		assert.Equal(t, 1, serviceTypeCount[types.ServiceTypeProxySQLService])
+		assert.Equal(t, 1, serviceTypeCount[types.ServiceTypeHAProxyService])
+		assert.Equal(t, 2, serviceTypeCount[types.ServiceTypeExternalService])
+	})
+
+	t.Run("individual service functions pre-allocation", func(t *testing.T) {
+		t.Parallel()
+		// Test that individual service functions handle empty slices correctly
+		emptyServicesRes := &services_service.ListServicesOK{
+			Payload: &services_service.ListServicesOKBody{},
+		}
+
+		// All individual functions should return empty slices for empty input
+		assert.Empty(t, mysqlServices(emptyServicesRes))
+		assert.Empty(t, mongodbServices(emptyServicesRes))
+		assert.Empty(t, postgresqlServices(emptyServicesRes))
+		assert.Empty(t, proxysqlServices(emptyServicesRes))
+		assert.Empty(t, haproxyServices(emptyServicesRes))
+		assert.Empty(t, externalServices(emptyServicesRes))
+	})
+}

@@ -164,7 +164,10 @@ func getSocketOrHost(socket, address string, port int64) string {
 }
 
 func servicesList(servicesRes *services.ListServicesOK) []listResultService {
-	servicesList := []listResultService{}
+	// Pre-allocate with exact capacity to avoid reallocations
+	totalServices := len(servicesRes.Payload.Mysql) + len(servicesRes.Payload.Mongodb) + len(servicesRes.Payload.Postgresql) +
+		len(servicesRes.Payload.Proxysql) + len(servicesRes.Payload.Haproxy) + len(servicesRes.Payload.External)
+	servicesList := make([]listResultService, 0, totalServices)
 
 	servicesList = append(servicesList, mysqlServices(servicesRes)...)
 	servicesList = append(servicesList, mongodbServices(servicesRes)...)
@@ -177,7 +180,7 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 }
 
 func mysqlServices(servicesRes *services.ListServicesOK) []listResultService {
-	var servicesList []listResultService
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.Mysql))
 	for _, s := range servicesRes.Payload.Mysql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeMySQLService,
@@ -190,7 +193,7 @@ func mysqlServices(servicesRes *services.ListServicesOK) []listResultService {
 }
 
 func mongodbServices(servicesRes *services.ListServicesOK) []listResultService {
-	var servicesList []listResultService
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.Mongodb))
 	for _, s := range servicesRes.Payload.Mongodb {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeMongoDBService,
@@ -203,7 +206,7 @@ func mongodbServices(servicesRes *services.ListServicesOK) []listResultService {
 }
 
 func postgresqlServices(servicesRes *services.ListServicesOK) []listResultService {
-	var servicesList []listResultService
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.Postgresql))
 	for _, s := range servicesRes.Payload.Postgresql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypePostgreSQLService,
@@ -216,7 +219,7 @@ func postgresqlServices(servicesRes *services.ListServicesOK) []listResultServic
 }
 
 func proxysqlServices(servicesRes *services.ListServicesOK) []listResultService {
-	var servicesList []listResultService
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.Proxysql))
 	for _, s := range servicesRes.Payload.Proxysql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeProxySQLService,
@@ -229,7 +232,7 @@ func proxysqlServices(servicesRes *services.ListServicesOK) []listResultService 
 }
 
 func haproxyServices(servicesRes *services.ListServicesOK) []listResultService {
-	var servicesList []listResultService
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.Haproxy))
 	for _, s := range servicesRes.Payload.Haproxy {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeHAProxyService,
@@ -241,7 +244,7 @@ func haproxyServices(servicesRes *services.ListServicesOK) []listResultService {
 }
 
 func externalServices(servicesRes *services.ListServicesOK) []listResultService {
-	var servicesList []listResultService
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.External))
 	for _, s := range servicesRes.Payload.External {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeExternalService,
