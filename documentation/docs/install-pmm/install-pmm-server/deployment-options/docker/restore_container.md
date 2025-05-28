@@ -81,7 +81,7 @@ Before proceeding with restoration, ensure you have one of the following:
 
     4. Verify that your PMM v2 instance is running correctly and all your data is accessible.
 
-## Finding your backup volume name
+## Find your backup volume name
 
 If you're restoring from an automated migration backup and don't know the volume name:
 

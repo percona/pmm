@@ -4,6 +4,7 @@
 ## Supported Linux Distributions
 
 PMM Client supports collecting system metrics from various Linux distributions:
+
 - Red Hat/CentOS/Oracle Linux 8 and 9
 - Amazon Linux 2023 (native support added in PMM 3.2.0)
 - Debian 11 (Bullseye) and 12 (Bookworm)
@@ -35,14 +36,14 @@ To view collected Linux metrics:
 1. Go to the **Operating System (OS) > Overview** dashboard.
 2. Select your node from the **Node Names** dropdown menu.
 3. Explore additional OS-specific dashboards for more detailed metrics:
-   - **OS > Node Summary**
-   - **OS > CPU Utilization Details**
-   - **OS > Disk Details**
-   - **OS > Memory Details**
-   - **OS > Network Details**
-   - **OS > Node Temperature Details**
-   - **OS > NUMA Details**
-   - **OS > Processes Details**
+    - **OS > Node Summary**
+    - **OS > CPU Utilization Details**
+    - **OS > Disk Details**
+    - **OS > Memory Details**
+    - **OS > Network Details**
+    - **OS > Node Temperature Details**
+    - **OS > NUMA Details**
+    - **OS > Processes Details**
 
 ## Related topics
 

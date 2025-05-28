@@ -3,26 +3,39 @@
 Easily connect your MySQL databases—whether self-hosted or running on AWS EC2—to Percona Monitoring and Management (PMM) for in-depth performance insights.
 
 ## Quick setup
-Get your MySQL instance connected to PMM in just a few steps, create PMM user and add service
 
-```sql
--- Create PMM user with required permissions
-CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'StrongPassword123!' WITH MAX_USER_CONNECTIONS 10;
-GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
+Get your MySQL instance connected to PMM in just a few steps:
+{.power-number}
 
-```
+1. Create a dedicated MySQL user with the required permissions:
 
-```sh
-# Add MySQL service to PMM
-pmm-admin add mysql \
-  --username=pmm \
-  --password=StrongPassword123! \
-  --host=localhost \
-  --port=3306 \
-  --query-source=slowlog \
-  --environment=production \
-  MySQL-Primary
-```
+    ```sql
+    -- Create PMM user with required permissions
+    CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'StrongPassword123!' WITH MAX_USER_CONNECTIONS 10;
+    GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
+    FLUSH PRIVILEGES;
+    ```
+
+2. Register your MySQL instance with PMM:
+
+    ```sh
+    # Add MySQL service to PMM
+    pmm-admin add mysql \
+      --username=pmm \
+      --password=StrongPassword123! \
+      --host=localhost \
+      --port=3306 \
+      --query-source=slowlog \
+      --environment=production \
+      MySQL-Primary
+    ```
+
+3. Verify the connection is working:
+
+    ```sh
+    pmm-admin status
+    ```
+
 That's it! Your MySQL instance should now appear in PMM dashboards. For advanced configuration options, continue reading below.
 
 ## Advanced configuration
@@ -307,6 +320,7 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
     This feature is not available in current Percona Server 8.0. Use this information only if you are using Percona Server 5.7 through our Post-EOL support program, where it remains actively supported.
 
 Supported versions:
+
     - **Percona Server for MySQL**: 5.7 (available through Post-EOL support program)
     - **NOT** available in Percona Server for MySQL 8.0 ([removed features][PS_FEATURES_REMOVED])
     - **MariaDB**: 10.0.4
@@ -376,7 +390,8 @@ After creating your PMM database user, you can quickly add your MySQL service to
 === "Using the PMM user interface"
 
     To add the service from the user interface:
-
+    {.power-number}
+    
     1. Go to **PMM Configuration > PMM Inventory > Add Service**.
     
     2. Select **MySQL** service type.
@@ -391,11 +406,8 @@ After creating your PMM database user, you can quickly add your MySQL service to
         - **PMM Agent**: Select which PMM agent should monitor this instance
     
     4. Click **Add Service**.
-    
-    ![MySQL Service Addition Screen](../../../../images/PMM_Add_Instance_MySQL.jpg)
 
-    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information.
-    
+    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information. 
     ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.jpg)
 
 === "Using the command line"

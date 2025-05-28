@@ -152,17 +152,17 @@ nav:
             - install-pmm/install-pmm-server/deployment-options/docker/index.md
             - install-pmm/install-pmm-server/deployment-options/docker/easy-install.md
             - Storage setup:
-              - Recommended storage setup: install-pmm/install-pmm-server/deployment-options/docker/run_with_vol.md
-              - Alternative storage methods (Not recommended): install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.md
-              - Configuration:
-                - install-pmm/install-pmm-server/deployment-options/docker/env_var.md
-                - install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.md
-                - install-pmm/install-pmm-server/deployment-options/docker/isolated_hosts.md
-              - Container management:
-                - install-pmm/install-pmm-server/deployment-options/docker/backup_container.md
-                - install-pmm/install-pmm-server/deployment-options/docker/restore_container.md
-                - install-pmm/install-pmm-server/deployment-options/docker/remove_container.md
-                - install-pmm/install-pmm-server/deployment-options/docker/upgrade_container.md
+              - Docker volumes (recommended): install-pmm/install-pmm-server/deployment-options/docker/run_with_vol.md
+              - Host directory (not recommended): install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.md
+            - Setup and configuration:
+              - Environment variables: install-pmm/install-pmm-server/deployment-options/docker/env_var.md
+              - install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.md
+              - install-pmm/install-pmm-server/deployment-options/docker/isolated_hosts.md
+            - Container settings:
+              - install-pmm/install-pmm-server/deployment-options/docker/backup_container.md
+              - install-pmm/install-pmm-server/deployment-options/docker/restore_container.md
+              - install-pmm/install-pmm-server/deployment-options/docker/remove_container.md
+              - install-pmm/install-pmm-server/deployment-options/docker/upgrade_container.md
           - Install on Podman:
             - install-pmm/install-pmm-server/deployment-options/podman/index.md
             - Setup and configuration:

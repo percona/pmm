@@ -15,7 +15,7 @@ To remove a MySQL service:
 pmm-admin remove mysql mysql-prod-db1
 ```
 
-## Verifying service removal
+## Verify service removal
 After removing a service, you can verify it's no longer being monitored by listing all monitored services:
 
 ```sh

@@ -1,4 +1,4 @@
-# Environment variables for PMM Server configuration
+# Configure environment variables for PMM Server
 Configure PMM Server behavior by setting environment variables when running the Docker container. This allows you to customize performance, storage, features, and other settings without modifying configuration files.
 
 ## Using environment variables
@@ -133,4 +133,4 @@ docker run \
 ```
 
 ## Related topic
-- [Preview environment variables](../docker/preview_env_var.md)
+[Preview environment variables](../docker/preview_env_var.md)

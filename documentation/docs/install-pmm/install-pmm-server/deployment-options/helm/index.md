@@ -37,7 +37,7 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 {.power-number}
 
 1. Create Kubernetes secret to set up `pmm-admin` password:
-    ```sh
+    ```bash
     cat <<EOF | kubectl create -f -
     apiVersion: v1
     kind: Secret
@@ -55,49 +55,53 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 
 2. Verify the secret was created and retrieve the password if needed:
 
-    ```sh
+    ```bash
     kubectl get secret pmm-secret -o jsonpath='{.data.PMM_ADMIN_PASSWORD}' | base64 --decode
     ```
+
 3. Add the Percona repository and check available PMM versions:
-    ```sh
-    helm repo add percona https://percona.github.io/percona-helm-charts/
+
+    ```bash
+    helm repo add percona [https://percona.github.io/percona-helm-charts/](https://percona.github.io/percona-helm-charts/)
     helm repo update
     ```
+
 4. Choose your PMM version by checking available chart versions:
-    ```sh
+
+    ```bash
     helm search repo percona/pmm --versions
     ```
 
     ??? info "Example output"
+        ```text
+        NAME        CHART VERSION   APP VERSION DESCRIPTION
+        percona/pmm 1.4.3           3.1.0       A Helm chart for Percona Monitoring and Managem...
+        percona/pmm 1.4.2           3.1.0       A Helm chart for Percona Monitoring and Managem...
+        percona/pmm 1.4.1           3.0.0       A Helm chart for Percona Monitoring and Managem...
+        percona/pmm 1.4.0           3.0.0       A Helm chart for Percona Monitoring and Managem...
+        percona/pmm 1.3.21          2.44.0      A Helm chart for Percona Monitoring and Managem...
         ```
-        NAME       	CHART VERSION	APP VERSION	DESCRIPTION
-        percona/pmm	1.4.3        	3.1.0      	A Helm chart for Percona Monitoring and Managem...
-        percona/pmm	1.4.2        	3.1.0      	A Helm chart for Percona Monitoring and Managem...
-        percona/pmm	1.4.1        	3.0.0      	A Helm chart for Percona Monitoring and Managem...
-        percona/pmm	1.4.0        	3.0.0      	A Helm chart for Percona Monitoring and Managem...
-        percona/pmm	1.3.21       	2.44.0     	A Helm chart for Percona Monitoring and Managem...
-        ```
-  
+
 5. Deploy PMM Server with your chosen version and secret:
 
-   ```sh
+    ```bash
     # Choose a specific chart version from the list in previous step
     helm install pmm \
     --set secret.create=false \
     --set secret.name=pmm-secret \
     --version 1.4.3 \
     percona/pmm
-   ```
-  
-5. Verify the deployment:
-    ```sh
+    ```
+
+6. Verify the deployment:
+    ```bash
     helm list
     kubectl get pods -l app.kubernetes.io/name=pmm
     ```
 
-6. Access PMM Server:
+7. Access PMM Server:
 
-    ```sh
+    ```bash
     # If using ClusterIP (default)
     kubectl port-forward svc/pmm-service 443:443
 
