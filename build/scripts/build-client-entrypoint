@@ -122,7 +122,7 @@ build_srpm(){
 
 build_rpm(){
   local SRC_RPM RHEL
-  SRC_RPM="$(basename $(find "$CURDIR/srpm" -name "${PACKAGE_NAME}*.src.rpm" | sort | tail -n1) || :)"
+  SRC_RPM="$(basename "$(find "$CURDIR/srpm" -name "${PACKAGE_NAME}*.src.rpm" | sort | tail -n1)" || :)"
   RHEL="$(rpm --eval %rhel)"
 
   if [ -z "$SRC_RPM" ]; then

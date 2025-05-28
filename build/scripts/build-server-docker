@@ -38,8 +38,9 @@ main() {
     DOCKER_TAG=perconalab/pmm-server-fb:${shortcommit}
   fi
 
-  local IMAGE_VERSION=$(echo "$DOCKER_TAG" | cut -d ':' -f2)
-  local BUILD_DATE=$(date -u +'%F %T%z' | sed 's@^.\{22\}@&:@')
+  local IMAGE_VERSION BUILD_DATE
+  IMAGE_VERSION=$(echo "$DOCKER_TAG" | cut -d ':' -f2)
+  BUILD_DATE=$(date -u +'%F %T%z' | sed 's@^.\{22\}@&:@')
   if [ -z "$IMAGE_VERSION" ]; then
     echo "Error: could not detect the docker image version"
     exit 1
