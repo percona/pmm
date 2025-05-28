@@ -59,7 +59,7 @@ check-license:          ## Run license header checks against source files
 	bin/license-eye -c .licenserc.yaml header check
 
 check-all: check-license check    ## Run golangci linter to check for changes against main
-	bin/golangci-lint run -c=.golangci.yml --new-from-rev=main
+	bin/golangci-lint run -c=.golangci.yml --new-from-rev=v3
 
 FILES = $(shell find . -type f -name '*.go')
 
