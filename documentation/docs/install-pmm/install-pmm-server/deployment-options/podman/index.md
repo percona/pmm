@@ -54,7 +54,7 @@ Before installing PMM Server with Podman, ensure you have:
     - grant Watchtower access to the Docker socket to monitor and manage containers effectively, ensuring proper security measures are in place to protect the Docker socket.
     - verify that both Watchtower and PMM Server are on the same network, or ensure PMM Server can connect to Watchtower for communication. This network setup is essential for PMM Server to initiate updates through Watchtower.
 
-## Update mechanism overview
+## Update mechanism
 
 PMM Server updates work differently in Podman compared to Docker due to security policies:
 

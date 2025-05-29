@@ -1,8 +1,7 @@
 # Remove PMM Server Podman container
 Remove the PMM Server Podman container, images, and data when you no longer need this installation or want to perform a complete reinstallation.
 
-
-!!! caution alert alert-warning "Caution"
+!!! danger alert alert-danger "Data loss warning"
     These steps delete the PMM Server Docker image and the associated PMM metrics data.
 
 To completely remove your container and data:

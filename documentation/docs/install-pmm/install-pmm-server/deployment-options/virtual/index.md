@@ -1,4 +1,4 @@
-# PMM Server Virtual Appliance Overview
+# Deploy PMM Server as a Virtual Appliance (OVA)
 
 Deploy PMM Server as a pre-configured virtual machine when you need a standalone monitoring solution with minimal setup. The virtual appliance is ideal for environments where container solutions aren't preferred or for evaluation purposes.
 
