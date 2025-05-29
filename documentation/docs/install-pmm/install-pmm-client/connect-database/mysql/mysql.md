@@ -321,9 +321,9 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
 
 Supported versions:
 
-    - **Percona Server for MySQL**: 5.7 (available through Post-EOL support program)
-    - **NOT** available in Percona Server for MySQL 8.0 ([removed features][PS_FEATURES_REMOVED])
-    - **MariaDB**: 10.0.4
+- **Percona Server for MySQL**: 5.7 (available through Post-EOL support program)
+- **NOT** available in Percona Server for MySQL 8.0 ([removed features][PS_FEATURES_REMOVED])
+- **MariaDB**: 10.0.4
 
 ### Required variable
 

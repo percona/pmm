@@ -70,17 +70,16 @@ If you encounter issues after upgrading:
     docker logs pmm-server
     ```
 2. If the upgrade fails, revert to your previous version:
-    ```sh
-    # Stop and remove the problematic container
-    docker stop pmm-server
-    docker rm pmm-server
-    ```
-    # Restore the backup
-    docker rename pmm-server-backup pmm-server
-    docker start pmm-server
-    ```
-
-## Automated Upgrades with Watchtower
+   ```sh
+   # Stop and remove the problematic container
+   docker stop pmm-server
+   docker rm pmm-server
+   
+   # Restore the backup
+   docker rename pmm-server-backup pmm-server
+   docker start pmm-server
+   ```
+## Automated upgrades with Watchtower
 If you installed [PMM Server with Watchtower](../docker/index.md#install-pmm-server--watchtower), you can u[pgrade directly from the PMM UI](../../../../pmm-upgrade/ui_upgrade.md). This method handles the entire upgrade process automatically, including pulling the new image and restarting the container.
 
 ## Related topics

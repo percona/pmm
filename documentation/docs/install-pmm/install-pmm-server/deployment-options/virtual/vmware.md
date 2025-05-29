@@ -11,22 +11,6 @@ Import the PMM Server OVA file into VMware products including ESXi, vSphere, Wor
 
 ## Import OVA file
 
-=== "OVA file downloaded using WMware UI"
-    To import the OVA file using the VMware user interface:
-    {.power-number}
-
-    1. Select **File > Import**.
-    2. Click **Choose file** (wording may vary depending on VMware product).
-    3. Navigate to the downloaded `.ova` file and open it.
-    6. In the **Save as** dialog:
-
-        -  (Optional) Change the directory or virtual machine name.
-        -  Click **Save**.
-    7. Choose one of:
-
-        - Click **Finish** to complete the import and start the virtual machine.
-        - (Recommended) Click **Customize Settings** to open the VM's settings page before starting the machine.
-
 === "OVA file downloaded via CLI"
     To import downloaded file using the command-line interface:
     {.power-number}
@@ -49,6 +33,21 @@ Import the PMM Server OVA file into VMware products including ESXi, vSphere, Wor
             pmm-server-{{release}}.ova \
             pmm-server.vmx
             ```
+=== "OVA file downloaded using WMware UI"
+    To import the OVA file using the VMware user interface:
+    {.power-number}
+
+    1. Select **File > Import**.
+    2. Click **Choose file** (wording may vary depending on VMware product).
+    3. Navigate to the downloaded `.ova` file and open it.
+    6. In the **Save as** dialog:
+
+        -  (Optional) Change the directory or virtual machine name.
+        -  Click **Save**.
+    7. Choose one of:
+
+        - Click **Finish** to complete the import and start the virtual machine.
+        - (Recommended) Click **Customize Settings** to open the VM's settings page before starting the machine.
 
 ## Configure network settings
 
@@ -63,7 +62,7 @@ To configure VM network settings using the UI:
 
 1. If the VM is running, shut it down first.
 2. In the VMware main window, select the imported virtual machine.
-3. Click **Virtual Machine** → **Settings...**.
+3. Click **Virtual Machine** → **Settings**.
 4. Click **Network Adapter** in the hardware list.
 5. Select the appropriate networking mode:
     - **Bridged Networking**: Recommended for production (direct network access)
@@ -71,37 +70,41 @@ To configure VM network settings using the UI:
 6. If using bridged networking, select **Autodetect** or choose a specific network adapter.
 7. Click **OK** to save changes.
 
-### Start the VM and obtain IP address (UI method)
+### Start the VM and obtain IP address 
 
-To start the VM and find its IP address using the VMware UI:
-{.power-number}
+=== "Via command line"
 
-1. In the VMware main window, select the imported PMM Server virtual machine.
-2. Click the play button <i class="uil uil-caret-right"></i> or select **Virtual Machine** → **Start Up**.
-3. Wait for the VM to boot completely (this may take 2-5 minutes).
-4. Look for the IP address displayed in the VM console window.
+    To start the VM and get its IP address using the command line:
+    {.power-number}
 
-### Start the VM and obtain IP address (CLI method)
+    1. Start the virtual machine in GUI mode to view the console:
 
-To start the VM and get its IP address using the command line:
-{.power-number}
+        ```sh
+        vmrun -gu root -gp percona start \
+        pmm-server.vmx gui
+        ```
 
-1. Start the virtual machine in GUI mode to view the console:
+    2. Wait for the boot process to complete and note the IP address displayed in the VM console.
 
-    ```sh
-    vmrun -gu root -gp percona start \
-    pmm-server.vmx gui
-    ```
+    3. Optional: After noting the IP address, you can stop and restart the VM in headless mode:
 
-2. Wait for the boot process to complete and note the IP address displayed in the VM console.
+        ```sh
+        vmrun stop pmm-server.vmx
+        ```
+        ```sh
+        vmrun -gu root -gp percona start \
+        pmm-server.vmx nogui
+        ```
 
-3. Optional: After noting the IP address, you can stop and restart the VM in headless mode:
+=== "Via UI"
 
-    ```sh
-    vmrun stop pmm-server.vmx
-    vmrun -gu root -gp percona start \
-    pmm-server.vmx nogui
-    ```
+    To start the VM and find its IP address using the VMware UI:
+    {.power-number}
+
+    1. In the VMware main window, select the imported PMM Server virtual machine.
+    2. Click the play button <i class="uil uil-caret-right"></i> or select **Virtual Machine** → **Start Up**.
+    3. Wait for the VM to boot completely (this may take 2-5 minutes).
+    4. Look for the IP address displayed in the VM console window.
 
 ## Next steps
 
