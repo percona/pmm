@@ -78,7 +78,6 @@ func mysqldExporterConfig(
 		"--exporter.max-idle-conns=3",
 		"--exporter.max-open-conns=3",
 		"--exporter.conn-max-lifetime=55s",
-		"--exporter.global-conn-pool",
 		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
