@@ -150,10 +150,6 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/server/logs.zip": admin,
 	} {
 		for _, role := range []role{viewer, editor, admin} {
-			uri := uri
-			minRole := minRole
-			role := role
-
 			t.Run(fmt.Sprintf("uri=%s,minRole=%s,role=%s", uri, minRole, role), func(t *testing.T) {
 				t.Parallel()
 
@@ -314,11 +310,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 			"/prometheus/api/v1/":      true,
 			"/prometheus/api/v1/query": true,
 		} {
-			uri := uri
-			shallAdd := shallAdd
-
 			for _, userID := range []int{0, 1337, 1338} {
-				userID := userID
 				t.Run(fmt.Sprintf("uri=%s userID=%d", uri, userID), func(t *testing.T) {
 					t.Parallel()
 					rw := httptest.NewRecorder()
@@ -334,9 +326,9 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 					headerString := rw.Header().Get(vmProxyHeaderName)
 
 					if shallAdd {
-						require.True(t, len(headerString) > 0)
+						require.NotEmpty(t, headerString)
 					} else {
-						require.Equal(t, headerString, "")
+						require.Empty(t, headerString)
 					}
 				})
 			}
@@ -353,7 +345,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		require.NoError(t, err)
 
 		headerString := rw.Header().Get(vmProxyHeaderName)
-		require.True(t, len(headerString) > 0)
+		require.NotEmpty(t, headerString)
 
 		filters, err := base64.StdEncoding.DecodeString(headerString)
 		require.NoError(t, err)
@@ -361,9 +353,9 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		err = json.Unmarshal(filters, &parsed)
 		require.NoError(t, err)
 
-		require.Equal(t, len(parsed), 2)
-		require.Equal(t, parsed[0], "filter A")
-		require.Equal(t, parsed[1], "filter B")
+		require.Len(t, parsed, 2)
+		require.Equal(t, "filter A", parsed[0])
+		require.Equal(t, "filter B", parsed[1])
 	})
 
 	//nolint:paralleltest
@@ -376,7 +368,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		require.NoError(t, err)
 
 		headerString := rw.Header().Get(vmProxyHeaderName)
-		require.Equal(t, len(headerString), 0)
+		require.Empty(t, headerString)
 	})
 }
 
@@ -401,7 +393,6 @@ func Test_cleanPath(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.path, func(t *testing.T) {
 			t.Parallel()
 			cleanedPath, err := cleanPath(tt.path)

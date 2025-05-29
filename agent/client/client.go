@@ -17,7 +17,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"path/filepath"
 	"strconv"
@@ -419,7 +418,7 @@ LOOP:
 				logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
 				responsePayload = &agentv1.AgentLogsResponse{
 					Logs:                     logs,
-					AgentConfigLogLinesCount: uint32(configLogLinesCount),
+					AgentConfigLogLinesCount: uint32(configLogLinesCount), //nolint:gosec // log lines count is not expected to overflow uint32
 				}
 			default:
 				c.l.Errorf("Unhandled server request: %v.", req)
@@ -970,7 +969,7 @@ func argListFromMongoDBParams(pParams *agentv1.StartActionRequest_PTMongoDBSumma
 
 	if pParams.Password != "" {
 		// TODO change this line when pt-mongodb-summary is updated
-		args = append(args, fmt.Sprintf("--password=%s", pParams.Password))
+		args = append(args, "--password="+pParams.Password)
 	}
 
 	if pParams.Host != "" {

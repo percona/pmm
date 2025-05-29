@@ -244,12 +244,12 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 		var err error
 		agentType := models.PMMAgentType
 
-		agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{AgentType: &agentType})
+		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: &agentType})
 		if err != nil {
 			return err
 		}
 
-		nodes, err := models.FindNodes(s.db.Querier, models.NodeFilters{})
+		nodes, err := models.FindNodes(tx.Querier, models.NodeFilters{})
 		if err != nil {
 			return err
 		}
@@ -277,7 +277,7 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 			agentVersion, err := version.Parse(pointer.GetString(agent.Version))
 			if err != nil {
 				// We don't want to fail the whole request if we can't parse the agent version.
-				s.l.Warnf(errors.Wrap(err, fmt.Sprintf("could not parse the client version %s for agent %s", pointer.GetString(agent.Version), agent.AgentID)).Error())
+				s.l.WithError(err).Warnf("could not parse the client version %s for agent %s", pointer.GetString(agent.Version), agent.AgentID)
 				continue
 			}
 

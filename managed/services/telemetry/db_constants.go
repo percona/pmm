@@ -13,25 +13,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package main
+package telemetry
 
-import (
-	"testing"
+import "time"
 
-	"github.com/stretchr/testify/require"
-
-	"github.com/percona/pmm/vmproxy/proxy"
+const (
+	defaultConnMaxIdleTime = 30 * time.Second
+	defaultConnMaxLifetime = 180 * time.Second
+	defaultMaxIdleConns    = 1
+	defaultMaxOpenConns    = 1
 )
-
-func TestProxy(t *testing.T) {
-	t.Parallel()
-
-	t.Run("shall run proxy with no error", func(t *testing.T) {
-		t.Parallel()
-		err := runProxy(flags{}, func(_ proxy.Config) error {
-			return nil
-		})
-
-		require.NoError(t, err)
-	})
-}
