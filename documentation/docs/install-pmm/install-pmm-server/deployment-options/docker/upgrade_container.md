@@ -47,7 +47,7 @@ To upgrade the container:
     docker run \
     --detach \
     --restart always \
-    --publish 443:443 \
+    --publish 443:8443 \
     --volumes-from pmm-data \
     --name pmm-server \
     percona/pmm-server:3
