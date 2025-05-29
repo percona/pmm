@@ -507,7 +507,7 @@ After adding your MySQL service to PMM, it's important to verify that it's prope
        pmm-admin status
        ```
 
-=== "Via web interface"
+=== "Via web UI"
     To verify your service in the web interface:
     {.power-number}
 

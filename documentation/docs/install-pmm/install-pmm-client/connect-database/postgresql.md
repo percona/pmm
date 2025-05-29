@@ -229,7 +229,7 @@ After configuring your database server with the appropriate extension, you need 
     Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. 
     See PostgreSQL documentation on [Secure TCP/IP Connections with SSL].
 
-=== "Via the command line"
+=== "Via command line"
 
     === "Basic setup"
     
@@ -295,17 +295,17 @@ After configuring your database server with the appropriate extension, you need 
         - `USER`: Database user allowed to connect via TLS (should match the CN in the client certificate)
         - `SERVICE-NAME`: Name to give to the service within PMM
 
-### Auto-discovery configuration
+### Configure auto-discovery
 
 Auto-discovery dynamically identifies all databases in your PostgreSQL instance. This feature helps balance comprehensive monitoring with resource efficiency.
 
-!!! caution "Performance Impact"
+!!! caution "Performance impact"
     Limiting auto-discovery may result in fewer metrics being captured from the non-primary databases. Ensure that you set the limit appropriately:
 
     - **High limits** may impact performance by creating too many connections
     - **Low limits** may result in missing metrics from non-primary databases
 
-=== "Command line configuration"
+=== "Via command line"
 
     The `pmm-admin` flag controls Auto-discovery behavior:
     
@@ -331,7 +331,7 @@ Auto-discovery dynamically identifies all databases in your PostgreSQL instance.
     
     If your PostgreSQL instance has 11 databases, automatic discovery will be disabled.
 
-=== "UI configuration"
+=== "Via web UI"
 
     By default, **Auto-discovery** is enabled with a server-defined limit of 10 databases.
     
@@ -349,7 +349,7 @@ Auto-discovery dynamically identifies all databases in your PostgreSQL instance.
 
 After adding a PostgreSQL service, verify that it's properly connected and sending data to PMM.
 
-=== "Using command line"
+=== "Via command line"
 
     Run this command to view all services:
     
@@ -365,7 +365,7 @@ After adding a PostgreSQL service, verify that it's properly connected and sendi
     
     Look for your PostgreSQL service in the output and verify that its status is "RUNNING".
 
-=== "Using the PMM user interface"
+=== "Via web UI"
 
     Use the UI to confirm that your service was added and is actively monitored:
     {.power-number}

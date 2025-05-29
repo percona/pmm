@@ -38,7 +38,7 @@ Compare the available deployment methods to choose what works best for your setu
 
 ### 1. Install PMM Server
 
-Install and run at least one PMM Server using one of the following deployment methods: 
+Install and run at least one PMM Server using one of the following deployment methods. If you're not sure which deployment method is best for your environment, check out this [Choose a PMM deployment strategy](../install-pmm/plan-pmm-installation/choose-deployment.md) topic for a comparison of your options.
 
 === ":material-docker: Docker"
     Run PMM Server as a Docker container
@@ -65,8 +65,6 @@ Install and run at least one PMM Server using one of the following deployment me
     
     [**Get started with AWS deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) -->
 
-If you're not sure which deployment method is best for your environment, check out this [Choose a PMM deployment strategy](../install-pmm/plan-pmm-installation/choose-deployment.md) topic for a comparison of your options.
-
 ### 2. Install PMM Client
 
 Install and run PMM Client on every node where there is a service you want to monitor. Choose the installation method that best fits your environment:
@@ -92,14 +90,14 @@ After installing PMM Client, configure the nodes and services you want to monito
 
 PMM supports monitoring across the following database technologies, cloud services, proxy services, and system metrics:
 
-=== ":material-database: Database Services"
+=== ":material-database: Database services"
     Monitor relational and NoSQL database instances:
 
     - [MySQL](../install-pmm/install-pmm-client/connect-database/mysql/mysql.md) and variants (Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
     - [MongoDB](../install-pmm/install-pmm-client/connect-database/mongodb.md)
     - [PostgreSQL](../install-pmm/install-pmm-client/connect-database/postgresql.md)
 
-=== ":material-cloud: Cloud Services"
+=== ":material-cloud: Cloud services"
 
     Monitor cloud-hosted database services and platforms:
 
@@ -107,7 +105,7 @@ PMM supports monitoring across the following database technologies, cloud servic
     - [Google Cloud Platform](../install-pmm/install-pmm-client/connect-database/google.md)
     - [Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md) 
 
-=== ":material-server-network: System & Infrastructure"
+=== ":material-server-network: System & infrastructure"
 
     Monitor system resources and infrastructure components:
 
@@ -115,7 +113,7 @@ PMM supports monitoring across the following database technologies, cloud servic
     - [Remote instances](../install-pmm/install-pmm-client/connect-database/remote.md)
     - [External services](../install-pmm/install-pmm-client/connect-database/external.md)
 
-    === ":material-router-network: Proxy Services"
+=== ":material-router-network: Proxy services"
 
     Monitor database proxy and load balancing services:
 

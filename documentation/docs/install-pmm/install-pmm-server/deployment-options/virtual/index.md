@@ -82,13 +82,12 @@ See [Network and firewall requirements](../../../plan-pmm-installation/network_a
 
 ## Default users
 
-| Username | Default password |
-|----------|------------------|
-| `root` | `percona` |
-| `admin` | `admin` |
+PMM Server comes with two pre-configured user accounts that you must secure immediately after installation:
 
-!!! warning "Security best practice"
-    Always change the default passwords immediately after first login to prevent unauthorized access.
+- **admin** (default password: `admin`)
+- **root** (default password: `percona`)
+
+Change these default passwords to strong, unique passwords during your first login to prevent unauthorized access.
 
 ## Next steps
 

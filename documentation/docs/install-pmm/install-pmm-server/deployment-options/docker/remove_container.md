@@ -3,14 +3,10 @@
 Completely remove PMM Server from your Docker environment when you want to uninstall PMM Server, free up resources, or prepare for a clean installation.
 
 
-!!! danger alert alert-danger "Warning: Data loss"
-    These steps will permanently delete your PMM Server container, all stored metrics data, and configuration. This action cannot be undone unless you have a backup.
+!!! danger "Warning: Data loss"
+    These steps will permanently delete your PMM Server container, Docker image, all stored metrics data, and configuration. This action cannot be undone unless you have a backup.
 
-    Consider [creating a backup](backup_container.md) before proceeding if you might need the data in the future.
-
-
-!!! caution alert alert-warning "Caution"
-    These steps delete the PMM Server Docker image and any accumulated PMM metrics data.
+    Consider [creating a backup](backup_container.md) first if you might need the data in the future.
 
 To completely remove the container from your system:
 {.power-number}
@@ -41,7 +37,7 @@ To completely remove the container from your system:
 
 ## Verification
 
-Verify that all PMM Server components have been removed:
+Verify that all PMM Server components have been removed. If you successfully removed everything, these commands should return no results:
 
 ```sh
 # Check if the container is gone
@@ -54,30 +50,28 @@ docker volume ls | grep pmm-data
 docker images | grep percona/pmm-server
 ```
 
-If the removal was successful, no results should be displayed for any of these commands. 
-
 ## Selective removal options
 
 If you need to remove only specific components:
 
-### Remove container but keep data
+=== "Remove container but keep data"
 
-This allows for future reinstallation without losing historical data:
+    This allows for future reinstallation without losing historical data:
 
-```sh
-docker stop pmm-server
-docker rm pmm-server
-# Do NOT remove the volume
-```
+    ```sh
+    docker stop pmm-server
+    docker rm pmm-server
+    # Do NOT remove the volume
+    ```
 
-### Remove container and image but keep data
+=== "Remove container and image but keep data"
 
-```sh
-docker stop pmm-server
-docker rm pmm-server
-docker rmi $(docker images | grep "percona/pmm-server" | awk '{print $3}')
-# Do NOT remove the volume
-```
+    ```sh
+    docker stop pmm-server
+    docker rm pmm-server
+    docker rmi $(docker images | grep "percona/pmm-server" | awk '{print $3}')
+    # Do NOT remove the volume
+    ```
 
 ## Related topics
 

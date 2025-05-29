@@ -84,7 +84,6 @@ Based on the scale and environment of your monitoring needs, we recommend differ
 
 === "Cloud-based database monitoring"
 
-    <!-- **PMM Server**: AWS Marketplace (for AWS) or Kubernetes (for other clouds) -->
     - **PMM Client**: Package Manager or automated cloud deployment
     - **PMM Remote**: For monitoring cloud database services (RDS, Azure DB, Cloud SQL)
     - **Implementation tips**:
@@ -92,6 +91,9 @@ Based on the scale and environment of your monitoring needs, we recommend differ
         - leverage auto-scaling groups for handling variable loads
         - consider network costs when planning your architecture
     - **Ideal for**: Cloud-native companies, hybrid cloud environments
+    
+<!-- **PMM Server**: AWS Marketplace (for AWS) or Kubernetes (for other clouds) -->
+
 
 ## Deployment planning checklist
 

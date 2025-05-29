@@ -28,12 +28,10 @@ To back up your PMM Server container:
 
 2. Wait for the container to fully stop:
 
-    <div hidden>
     ```sh
     podman wait --condition=stopped pmm-server || true
     sleep 30
     ```
-    </div>
 
 3. Export the data volume to a backup file. If you changed the default name in the `PMM_VOLUME_NAME` environment variable, use that name after export instead of `pmm-server ` (which is the default volume name):
 
