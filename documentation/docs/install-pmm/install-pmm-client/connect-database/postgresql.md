@@ -211,7 +211,7 @@ For a more detailed comparison of extensions, see the [pg_stat_monitor documenta
 
 After configuring your database server with the appropriate extension, you need to add it as a service to PMM. You can do this either through the PMM user interface or via the command line.
 
-=== "Using the PMM user interface"
+=== "Via web UI"
 
     To add the service from the user interface:
     {.power-number}
@@ -229,7 +229,7 @@ After configuring your database server with the appropriate extension, you need 
     Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. 
     See PostgreSQL documentation on [Secure TCP/IP Connections with SSL].
 
-=== "Using the command line"
+=== "Via the command line"
 
     === "Basic setup"
     

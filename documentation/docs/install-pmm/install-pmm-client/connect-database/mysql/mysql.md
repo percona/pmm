@@ -314,16 +314,14 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
 
 **Query time distribution** is a chart in the [**Details** tab of Query Analytics](../../../../use/qan/panels/details.md#details-tab) showing the proportion of query time spent on various activities. It is enabled with the `query_response_time_stats` variable and associated plugins.
 
-#### Applicable versions
-
-!!! warning "Limited version support"   
-    This feature is not available in current Percona Server 8.0. Use this information only if you are using Percona Server 5.7 through our Post-EOL support program, where it remains actively supported.
-
-Supported versions:
+#### Supported versions
 
 - **Percona Server for MySQL**: 5.7 (available through Post-EOL support program)
 - **NOT** available in Percona Server for MySQL 8.0 ([removed features][PS_FEATURES_REMOVED])
 - **MariaDB**: 10.0.4
+
+!!! warning "Limited version support"   
+    This feature is not available in current Percona Server 8.0. Use this information only if you are using Percona Server 5.7 through our Post-EOL support program, where it remains actively supported.
 
 ### Required variable
 

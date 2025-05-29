@@ -41,15 +41,24 @@ Service ID  : f69df379-6584-4db5-a896-f35ae8c97573
 Service name: ubuntu-proxysql
 ```
 
-## Positional arguments
+## Configuration options
 
-Beside positional arguments shown above you can specify service name and
-service address with the following flags: `--service-name`, and `--host` (the
-hostname or IP address of the service) and `--port` (the port number of the
-service), or `--socket` (the UNIX socket path). If both flag and positional argument are present, flag gains higher
-priority. Here is the previous example modified to use these flags for both host/port or socket connections:
+You can customize the ProxySQL service configuration using command-line flags. These flags provide more control than positional arguments and take higher priority when both are specified.
 
+### Service identification flags
+
+- `--service-name`: Custom name for the ProxySQL service in PMM
+- `--host`: Hostname or IP address of the ProxySQL instance  
+- `--port`: Port number for ProxySQL admin interface
+- `--socket`: UNIX socket path (alternative to host/port)
+
+### Connection examples
+
+**TCP connection with custom service name:**
 ```sh
-pmm-admin add proxysql --username=pmm --password=pmm --service-name=my-new-proxysql --host=127.0.0.1 --port=6032
-pmm-admin add proxysql --username=pmm --password=pmm --service-name=my-new-proxysql --socket=/tmp/proxysql_admin.sock
-```
+pmm-admin add proxysql \
+  --username=pmm \
+  --password=pmm \
+  --service-name=my-new-proxysql \
+  --host=127.0.0.1 \
+  --port=6032
