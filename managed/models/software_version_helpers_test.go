@@ -179,7 +179,7 @@ func TestSoftwareVersions(t *testing.T) {
 		require.NoError(t, models.DeleteServiceSoftwareVersions(q, serviceID2))
 		actual, err = models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{}, models.SoftwareVersionsOrderByNextCheckAt)
 		require.NoError(t, err)
-		require.Len(t, actual, 0)
+		require.Empty(t, actual)
 	})
 
 	t.Run("update", func(t *testing.T) {
@@ -299,8 +299,6 @@ func TestSoftwareVersionsParamsValidation(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		test := test
-
 		t.Run(test.name, func(t *testing.T) {
 			tx, err := db.Begin()
 			require.NoError(t, err)

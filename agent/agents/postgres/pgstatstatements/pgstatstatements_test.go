@@ -182,7 +182,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.Equal(t, mSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum)
+		assert.InEpsilon(t, mSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
@@ -378,6 +378,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		var waitGroup sync.WaitGroup
 		n := 1000
+		errChan := make(chan error, 1)
 		for i := 0; i < n; i++ {
 			id := i
 			waitGroup.Add(1)
@@ -385,10 +386,23 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				defer waitGroup.Done()
 				_, err := db.Exec(
 					fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id))
-				require.NoError(t, err)
+				if err != nil {
+					errChan <- err
+				}
 			}()
 		}
-		waitGroup.Wait()
+		go func() {
+			waitGroup.Wait()
+			close(errChan)
+		}()
+
+		for {
+			err, more := <-errChan
+			require.NoError(t, err)
+			if !more {
+				break
+			}
+		}
 
 		buckets, err := m.getNewBuckets(context.Background(), time.Date(2020, 5, 25, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
@@ -400,7 +414,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MSharedBlkReadTimeSum+actual.Postgresql.MSharedBlkWriteTimeSum)
-		assert.Equal(t, float32(n), actual.Postgresql.MSharedBlkReadTimeCnt+actual.Postgresql.MSharedBlkWriteTimeCnt)
+		assert.InEpsilon(t, float32(n), actual.Postgresql.MSharedBlkReadTimeCnt+actual.Postgresql.MSharedBlkWriteTimeCnt, 0.0001)
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
