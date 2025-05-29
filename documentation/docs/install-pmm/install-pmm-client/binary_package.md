@@ -8,6 +8,10 @@ Installing from binaries offers these advantages:
 - Allows installation without root permissions (unique to this method)
 - Provides complete control over the installation location
 
+
+!!! note "Version information"
+The commands shown below are for the latest PMM release. If you want to install a different release, make sure to update the commands with your required version number.
+
 ## Choose your installation path
 
 Select the appropriate instructions based on your access level:

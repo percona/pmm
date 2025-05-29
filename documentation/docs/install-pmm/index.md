@@ -34,8 +34,6 @@ Compare the available deployment methods to choose what works best for your setu
 | [Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) | Security-conscious environments | • Rootless by default<br>• Enhanced security<br>• Docker-compatible commands<br>• No daemon required | • Requires Podman installation<br>• Less common than Docker |
 <!---| [Amazon AWS](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) | 1. Wizard-driven install. <br>  2. Rootless| Paid, incurs infrastructure costs. --->
 
-
-
 ## Installation steps 
 
 ### 1. Install PMM Server
@@ -67,7 +65,7 @@ Install and run at least one PMM Server using one of the following deployment me
     
     [**Get started with AWS deployment** :material-arrow-right:](../install-pmm/install-pmm-server/deployment-options/aws/aws.md) -->
 
-If you're sure which deployment method is best for your environment, check out this [Choose a PMM deployment strategy](../install-pmm/plan-pmm-installation/choose-deployment.md) topic for a comparison of your options.
+If you're not sure which deployment method is best for your environment, check out this [Choose a PMM deployment strategy](../install-pmm/plan-pmm-installation/choose-deployment.md) topic for a comparison of your options.
 
 ### 2. Install PMM Client
 
