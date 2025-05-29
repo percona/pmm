@@ -83,7 +83,7 @@ Modify your startup command or configuration file to use the new parameters:
 === "Podman"
     ```bash
     podman run -d \
-      -p 443:443 \
+      -p 443:8443 \
       -v pmm-data:/srv \
       -e GF_DATABASE_USER=your_user \
       -e GF_DATABASE_PASSWORD=your_password \
