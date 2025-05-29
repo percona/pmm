@@ -261,10 +261,6 @@
          <lastmod>2025-05-29</lastmod>
     </url>
     <url>
-         <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/aws.html</loc>
-         <lastmod>2025-05-29</lastmod>
-    </url>
-    <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/azure.html</loc>
          <lastmod>2025-05-29</lastmod>
     </url>
@@ -314,34 +310,6 @@
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/prerequisites.html</loc>
-         <lastmod>2025-05-29</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/aws.html</loc>
-         <lastmod>2025-05-29</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/back_pmm_server.html</loc>
-         <lastmod>2025-05-29</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/limit_access.html</loc>
-         <lastmod>2025-05-29</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/remove_pmm_server.html</loc>
-         <lastmod>2025-05-29</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/restore_pmm_server.html</loc>
-         <lastmod>2025-05-29</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/run.html</loc>
-         <lastmod>2025-05-29</lastmod>
-    </url>
-    <url>
-         <loc>https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/settings.html</loc>
          <lastmod>2025-05-29</lastmod>
     </url>
     <url>
@@ -473,6 +441,10 @@
          <lastmod>2025-05-29</lastmod>
     </url>
     <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/external_postgres_pmm_upgrade.html</loc>
+         <lastmod>2025-05-29</lastmod>
+    </url>
+    <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/migrating_from_pmm_2.html</loc>
          <lastmod>2025-05-29</lastmod>
     </url>
@@ -521,6 +493,10 @@
          <lastmod>2025-05-29</lastmod>
     </url>
     <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/nomad.html</loc>
+         <lastmod>2025-05-29</lastmod>
+    </url>
+    <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/personal_data_handling.html</loc>
          <lastmod>2025-05-29</lastmod>
     </url>
@@ -562,6 +538,10 @@
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-memory-details.html</loc>
+         <lastmod>2025-05-29</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-PBM-details.html</loc>
          <lastmod>2025-05-29</lastmod>
     </url>
     <url>
@@ -814,6 +794,10 @@
     </url>
     <url>
          <loc>https://docs.percona.com/percona-monitoring-and-management/3/release-notes/3.1.0.html</loc>
+         <lastmod>2025-05-29</lastmod>
+    </url>
+    <url>
+         <loc>https://docs.percona.com/percona-monitoring-and-management/3/release-notes/3.2.0.html</loc>
          <lastmod>2025-05-29</lastmod>
     </url>
     <url>

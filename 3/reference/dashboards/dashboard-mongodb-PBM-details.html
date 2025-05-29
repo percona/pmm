@@ -7,34 +7,34 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="To install Percona Monitoring and Management (PMM) Server from AWS Marketplace:">
+        <meta name="description" content="The MongoDB PBM Details dashboard offers an integrated view of your Percona Backup for MongoDB (PBM) environment directly within Percona Monitoring and Management (PMM).">
       
       
         <meta name="author" content="Percona LLC">
       
       
-        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/aws.html">
+        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-PBM-details.html">
       
       
-        <link rel="prev" href="../helm/restore_container_helm.html">
+        <link rel="prev" href="dashboard-mongodb-wiredtiger-details.html">
       
       
-        <link rel="next" href="limit_access.html">
+        <link rel="next" href="dashboard-postgresql-instances-overview.html">
       
       
-      <link rel="icon" href="../../../../assets/pmm-fav.svg">
+      <link rel="icon" href="../../assets/pmm-fav.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Install PMM Server from AWS Marketplace - Percona Monitoring and Management</title>
+        <title>MongoDB PBM Details dashboard - Percona Monitoring and Management</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -57,17 +57,17 @@
     
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
     
-      <link rel="stylesheet" href="../../../../css/nocopy.css">
+      <link rel="stylesheet" href="../../css/nocopy.css">
     
-      <link rel="stylesheet" href="../../../../css/design.css">
+      <link rel="stylesheet" href="../../css/design.css">
     
-      <link rel="stylesheet" href="../../../../css/osano.css">
+      <link rel="stylesheet" href="../../css/osano.css">
     
-      <link rel="stylesheet" href="../../../../css/pmm.css">
+      <link rel="stylesheet" href="../../css/pmm.css">
     
-      <link rel="stylesheet" href="../../../../css/extra.css">
+      <link rel="stylesheet" href="../../css/extra.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -90,7 +90,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Install PMM Server from AWS Marketplace" />
+                 <meta property="og:title" content="Percona Monitoring and Management - MongoDB PBM Details dashboard" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -113,7 +113,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#install-pmm-server-from-aws-marketplace" class="md-skip">
+        <a href="#mongodb-pbm-details-dashboard" class="md-skip">
           Skip to content
         </a>
       
@@ -160,14 +160,14 @@
 
     <!-- Link to home -->
     <a
-      href="../../../../index.html"
+      href="../../index.html"
       title="Percona Monitoring and Management"
       class="md-header__button md-logo"
       aria-label="Percona Monitoring and Management"
       data-md-component="logo"
     >
       
-  <img src="../../../../assets/pmm-mark.svg" alt="logo">
+  <img src="../../assets/pmm-mark.svg" alt="logo">
 
     </a>
 
@@ -180,7 +180,7 @@
     <!-- Header title -->
     <div class="md-header__title">
       <div class="md-header__ellipsis">
-        <a href="../../../../index.html" class="md-header__topic">
+        <a href="../../index.html" class="md-header__topic">
           <span class="md-ellipsis">
             Percona Monitoring and Management
           </span>
@@ -188,7 +188,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Install PMM Server from AWS Marketplace
+              MongoDB PBM Details dashboard
             
           </span>
         </div>
@@ -327,9 +327,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../../index.html" title="Percona Monitoring and Management" class="md-nav__button md-logo" aria-label="Percona Monitoring and Management" data-md-component="logo">
+    <a href="../../index.html" title="Percona Monitoring and Management" class="md-nav__button md-logo" aria-label="Percona Monitoring and Management" data-md-component="logo">
       
-  <img src="../../../../assets/pmm-mark.svg" alt="logo">
+  <img src="../../assets/pmm-mark.svg" alt="logo">
 
     </a>
     Percona Monitoring and Management
@@ -356,7 +356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../index.html" class="md-nav__link">
+      <a href="../../index.html" class="md-nav__link">
         
   
   
@@ -378,7 +378,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../get-help.html" class="md-nav__link">
+      <a href="../../get-help.html" class="md-nav__link">
         
   
   
@@ -438,7 +438,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../discover-pmm/why-pmm.html" class="md-nav__link">
+      <a href="../../discover-pmm/why-pmm.html" class="md-nav__link">
         
   
   
@@ -461,7 +461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../discover-pmm/features.html" class="md-nav__link">
+      <a href="../../discover-pmm/features.html" class="md-nav__link">
         
   
   
@@ -491,7 +491,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../quickstart/quickstart.html" class="md-nav__link">
+      <a href="../../quickstart/quickstart.html" class="md-nav__link">
         
   
   
@@ -510,20 +510,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
@@ -539,7 +537,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             Install
@@ -553,7 +551,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../index.html" class="md-nav__link">
+      <a href="../../install-pmm/index.html" class="md-nav__link">
         
   
   
@@ -614,7 +612,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plan-pmm-installation/hardware_and_system.html" class="md-nav__link">
+      <a href="../../install-pmm/plan-pmm-installation/hardware_and_system.html" class="md-nav__link">
         
   
   
@@ -637,7 +635,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plan-pmm-installation/network_and_firewall.html" class="md-nav__link">
+      <a href="../../install-pmm/plan-pmm-installation/network_and_firewall.html" class="md-nav__link">
         
   
   
@@ -665,20 +663,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
         
           
           <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
@@ -694,7 +690,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_3">
             <span class="md-nav__icon md-icon"></span>
             Install PMM Server
@@ -708,7 +704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/index.html" class="md-nav__link">
         
   
   
@@ -731,7 +727,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../prerequisites.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/prerequisites.html" class="md-nav__link">
         
   
   
@@ -751,20 +747,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3" >
         
           
           <label class="md-nav__link" for="__nav_5_3_3" id="__nav_5_3_3_label" tabindex="0">
@@ -780,7 +774,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_3_3">
             <span class="md-nav__icon md-icon"></span>
             Deployment options
@@ -832,7 +826,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/index.html" class="md-nav__link">
         
   
   
@@ -855,7 +849,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/easy-install.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/easy-install.html" class="md-nav__link">
         
   
   
@@ -916,7 +910,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/run_with_vol.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/run_with_vol.html" class="md-nav__link">
         
   
   
@@ -939,7 +933,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/run_with_host_dir.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.html" class="md-nav__link">
         
   
   
@@ -962,7 +956,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/env_var.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/env_var.html" class="md-nav__link">
         
   
   
@@ -985,7 +979,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/preview_env_var.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.html" class="md-nav__link">
         
   
   
@@ -1008,7 +1002,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/isolated_hosts.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/isolated_hosts.html" class="md-nav__link">
         
   
   
@@ -1077,7 +1071,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/backup_container.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/backup_container.html" class="md-nav__link">
         
   
   
@@ -1100,7 +1094,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/restore_container.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/restore_container.html" class="md-nav__link">
         
   
   
@@ -1123,7 +1117,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/remove_container.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/remove_container.html" class="md-nav__link">
         
   
   
@@ -1146,7 +1140,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/upgrade_container.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/upgrade_container.html" class="md-nav__link">
         
   
   
@@ -1223,7 +1217,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../podman/index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/podman/index.html" class="md-nav__link">
         
   
   
@@ -1284,7 +1278,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../podman/backup_container_podman.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.html" class="md-nav__link">
         
   
   
@@ -1307,7 +1301,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../podman/restore_container_podman.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/podman/restore_container_podman.html" class="md-nav__link">
         
   
   
@@ -1330,7 +1324,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../podman/remove_container_podman.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/podman/remove_container_podman.html" class="md-nav__link">
         
   
   
@@ -1407,7 +1401,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/index.html" class="md-nav__link">
         
   
   
@@ -1468,7 +1462,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/download_ova.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/download_ova.html" class="md-nav__link">
         
   
   
@@ -1491,7 +1485,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/vmware.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/vmware.html" class="md-nav__link">
         
   
   
@@ -1514,7 +1508,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/virtualbox.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.html" class="md-nav__link">
         
   
   
@@ -1537,7 +1531,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/login_UI.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/login_UI.html" class="md-nav__link">
         
   
   
@@ -1606,7 +1600,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/remove_virtual_machine.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.html" class="md-nav__link">
         
   
   
@@ -1683,7 +1677,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../helm/index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/helm/index.html" class="md-nav__link">
         
   
   
@@ -1744,7 +1738,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../helm/backup_container_helm.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.html" class="md-nav__link">
         
   
   
@@ -1767,382 +1761,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../helm/restore_container_helm.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/helm/restore_container_helm.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     Restore Helm chart
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_5" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_5_3_3_5" id="__nav_5_3_3_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Install on AWS Marketplace
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_5_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_3_3_5">
-            <span class="md-nav__icon md-icon"></span>
-            Install on AWS Marketplace
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Install PMM Server from AWS Marketplace
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="aws.html" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    Install PMM Server from AWS Marketplace
-    
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#security-consideration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Security consideration
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#service-costs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Service costs
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#disk-space-consumption" class="md-nav__link">
-    <span class="md-ellipsis">
-      Disk space consumption
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_5_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_3_3_5_2" id="__nav_5_3_3_5_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Setup and configuration
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_5_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_5_2">
-            <span class="md-nav__icon md-icon"></span>
-            Setup and configuration
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="limit_access.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Limit Access to an AWS instance
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="settings.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Applying settings
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="run.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Launch PMM Server on AWS
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_5_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_3_3_5_3" id="__nav_5_3_3_5_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Maintenance
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_5_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_5_3">
-            <span class="md-nav__icon md-icon"></span>
-            Maintenance
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="back_pmm_server.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Backup PMM Server
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="restore_pmm_server.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Restore PMM Server from a backup
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="remove_pmm_server.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Remove PMM Server from AWS
     
   </span>
   
@@ -2230,7 +1854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/index.html" class="md-nav__link">
         
   
   
@@ -2253,7 +1877,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/prerequisites.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/prerequisites.html" class="md-nav__link">
         
   
   
@@ -2314,7 +1938,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/package_manager.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/package_manager.html" class="md-nav__link">
         
   
   
@@ -2337,7 +1961,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/docker.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/docker.html" class="md-nav__link">
         
   
   
@@ -2360,7 +1984,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/binary_package.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/binary_package.html" class="md-nav__link">
         
   
   
@@ -2429,7 +2053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../register-client-node/index.html" class="md-nav__link">
+      <a href="../../install-pmm/register-client-node/index.html" class="md-nav__link">
         
   
   
@@ -2490,7 +2114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/index.html" class="md-nav__link">
         
   
   
@@ -2551,7 +2175,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/mysql.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/mysql.html" class="md-nav__link">
         
   
   
@@ -2574,7 +2198,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/mongodb.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/mongodb.html" class="md-nav__link">
         
   
   
@@ -2597,7 +2221,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/postgresql.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/postgresql.html" class="md-nav__link">
         
   
   
@@ -2666,30 +2290,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/aws.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    AWS
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/azure.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/azure.html" class="md-nav__link">
         
   
   
@@ -2712,7 +2313,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/google.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/google.html" class="md-nav__link">
         
   
   
@@ -2781,7 +2382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/linux.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/linux.html" class="md-nav__link">
         
   
   
@@ -2804,7 +2405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/remote.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/remote.html" class="md-nav__link">
         
   
   
@@ -2873,7 +2474,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/haproxy.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/haproxy.html" class="md-nav__link">
         
   
   
@@ -2896,7 +2497,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/proxysql.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/proxysql.html" class="md-nav__link">
         
   
   
@@ -2965,7 +2566,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/external.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/external.html" class="md-nav__link">
         
   
   
@@ -3042,7 +2643,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/remove-services/index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/remove-services/index.html" class="md-nav__link">
         
   
   
@@ -3172,7 +2773,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/index.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/index.html" class="md-nav__link">
         
   
   
@@ -3195,12 +2796,35 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/ui_upgrade.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/ui_upgrade.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     Upgrade PMM v3 Server from the UI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pmm-upgrade/external_postgres_pmm_upgrade.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Migrate external PostgreSQL configuration for PMM 3.2.0+ upgrades
     
   </span>
   
@@ -3226,10 +2850,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_4" >
         
           
-          <label class="md-nav__link" for="__nav_6_1_3" id="__nav_6_1_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_1_4" id="__nav_6_1_4_label" tabindex="0">
             
   
   
@@ -3242,8 +2866,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_1_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1_4">
             <span class="md-nav__icon md-icon"></span>
             Manual upgrade
           </label>
@@ -3256,7 +2880,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_docker.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/upgrade_docker.html" class="md-nav__link">
         
   
   
@@ -3279,7 +2903,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_podman.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/upgrade_podman.html" class="md-nav__link">
         
   
   
@@ -3318,10 +2942,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_5" >
         
           
-          <label class="md-nav__link" for="__nav_6_1_4" id="__nav_6_1_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_1_5" id="__nav_6_1_5_label" tabindex="0">
             
   
   
@@ -3334,8 +2958,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_1_4">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1_5">
             <span class="md-nav__icon md-icon"></span>
             Upgrade PMM Server in K8s
           </label>
@@ -3348,7 +2972,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_helm.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/upgrade_helm.html" class="md-nav__link">
         
   
   
@@ -3379,7 +3003,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/migrating_from_pmm_2.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/migrating_from_pmm_2.html" class="md-nav__link">
         
   
   
@@ -3402,7 +3026,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
         
   
   
@@ -3471,7 +3095,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_client.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/upgrade_client.html" class="md-nav__link">
         
   
   
@@ -3585,7 +3209,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/index.html" class="md-nav__link">
+      <a href="../../uninstall-pmm/index.html" class="md-nav__link">
         
   
   
@@ -3608,7 +3232,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/uninstall_docker.html" class="md-nav__link">
+      <a href="../../uninstall-pmm/uninstall_docker.html" class="md-nav__link">
         
   
   
@@ -3631,7 +3255,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/uninstall_helm.html" class="md-nav__link">
+      <a href="../../uninstall-pmm/uninstall_helm.html" class="md-nav__link">
         
   
   
@@ -3654,7 +3278,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/uninstall_package_manager.html" class="md-nav__link">
+      <a href="../../uninstall-pmm/uninstall_package_manager.html" class="md-nav__link">
         
   
   
@@ -3685,7 +3309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/unregister_client.html" class="md-nav__link">
+      <a href="../../uninstall-pmm/unregister_client.html" class="md-nav__link">
         
   
   
@@ -3753,7 +3377,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/using-pmm.html" class="md-nav__link">
+      <a href="../../use/using-pmm.html" class="md-nav__link">
         
   
   
@@ -3814,7 +3438,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/ui/ui_components.html" class="md-nav__link">
+      <a href="../ui/ui_components.html" class="md-nav__link">
         
   
   
@@ -3837,7 +3461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/ui/log_in.html" class="md-nav__link">
+      <a href="../ui/log_in.html" class="md-nav__link">
         
   
   
@@ -3860,7 +3484,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/ui/timezone.html" class="md-nav__link">
+      <a href="../ui/timezone.html" class="md-nav__link">
         
   
   
@@ -3891,7 +3515,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboard-inventory.html" class="md-nav__link">
+      <a href="../../use/dashboard-inventory.html" class="md-nav__link">
         
   
   
@@ -3952,7 +3576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/monitor.html" class="md-nav__link">
+      <a href="../../use/monitor.html" class="md-nav__link">
         
   
   
@@ -4013,7 +3637,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/metrics/index.html" class="md-nav__link">
+      <a href="../../use/metrics/index.html" class="md-nav__link">
         
   
   
@@ -4036,7 +3660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/metrics/extend_metrics.html" class="md-nav__link">
+      <a href="../../use/metrics/extend_metrics.html" class="md-nav__link">
         
   
   
@@ -4105,7 +3729,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../optimize/improve_perf.html" class="md-nav__link">
+      <a href="../../optimize/improve_perf.html" class="md-nav__link">
         
   
   
@@ -4128,7 +3752,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../optimize/disable_table_stats.html" class="md-nav__link">
+      <a href="../../optimize/disable_table_stats.html" class="md-nav__link">
         
   
   
@@ -4151,7 +3775,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../optimize/change_number_tables.html" class="md-nav__link">
+      <a href="../../optimize/change_number_tables.html" class="md-nav__link">
         
   
   
@@ -4220,7 +3844,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/index.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/index.html" class="md-nav__link">
         
   
   
@@ -4281,7 +3905,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/manage-dashboards/create-folders.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/manage-dashboards/create-folders.html" class="md-nav__link">
         
   
   
@@ -4304,7 +3928,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/manage-dashboards/manage-folders.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/manage-dashboards/manage-folders.html" class="md-nav__link">
         
   
   
@@ -4327,7 +3951,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/manage-dashboards/set-custom-dashboard.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/manage-dashboards/set-custom-dashboard.html" class="md-nav__link">
         
   
   
@@ -4358,7 +3982,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/share-dashboards/share_dashboard.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/share-dashboards/share_dashboard.html" class="md-nav__link">
         
   
   
@@ -4381,7 +4005,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/annotate/annotate.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/annotate/annotate.html" class="md-nav__link">
         
   
   
@@ -4458,7 +4082,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/index.html" class="md-nav__link">
+      <a href="../../use/qan/index.html" class="md-nav__link">
         
   
   
@@ -4481,7 +4105,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/qan_mongo.html" class="md-nav__link">
+      <a href="../../use/qan/qan_mongo.html" class="md-nav__link">
         
   
   
@@ -4504,7 +4128,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/share_link.html" class="md-nav__link">
+      <a href="../../use/qan/share_link.html" class="md-nav__link">
         
   
   
@@ -4565,7 +4189,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/panels/overview.html" class="md-nav__link">
+      <a href="../../use/qan/panels/overview.html" class="md-nav__link">
         
   
   
@@ -4588,7 +4212,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/panels/filters.html" class="md-nav__link">
+      <a href="../../use/qan/panels/filters.html" class="md-nav__link">
         
   
   
@@ -4611,7 +4235,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/panels/details.html" class="md-nav__link">
+      <a href="../../use/qan/panels/details.html" class="md-nav__link">
         
   
   
@@ -4688,7 +4312,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/advisors.html" class="md-nav__link">
+      <a href="../../advisors/advisors.html" class="md-nav__link">
         
   
   
@@ -4711,7 +4335,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/advisor-details.html" class="md-nav__link">
+      <a href="../../advisors/advisor-details.html" class="md-nav__link">
         
   
   
@@ -4734,7 +4358,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/develop-advisor-checks.html" class="md-nav__link">
+      <a href="../../advisors/develop-advisor-checks.html" class="md-nav__link">
         
   
   
@@ -4803,7 +4427,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../alert/index.html" class="md-nav__link">
+      <a href="../../alert/index.html" class="md-nav__link">
         
   
   
@@ -4826,7 +4450,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../alert/alert_rules.html" class="md-nav__link">
+      <a href="../../alert/alert_rules.html" class="md-nav__link">
         
   
   
@@ -4849,7 +4473,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../alert/contact_points.html" class="md-nav__link">
+      <a href="../../alert/contact_points.html" class="md-nav__link">
         
   
   
@@ -4872,7 +4496,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../alert/templates_list.html" class="md-nav__link">
+      <a href="../../alert/templates_list.html" class="md-nav__link">
         
   
   
@@ -4895,7 +4519,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../alert/silence_alerts.html" class="md-nav__link">
+      <a href="../../alert/silence_alerts.html" class="md-nav__link">
         
   
   
@@ -4918,7 +4542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../alert/disable_alerts.html" class="md-nav__link">
+      <a href="../../alert/disable_alerts.html" class="md-nav__link">
         
   
   
@@ -4987,7 +4611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/index.html" class="md-nav__link">
+      <a href="../../backup/index.html" class="md-nav__link">
         
   
   
@@ -5010,7 +4634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/prepare_storage_location.html" class="md-nav__link">
+      <a href="../../backup/prepare_storage_location.html" class="md-nav__link">
         
   
   
@@ -5071,7 +4695,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/backup_mongo.html" class="md-nav__link">
+      <a href="../../backup/mongodb-backup/backup_mongo.html" class="md-nav__link">
         
   
   
@@ -5094,7 +4718,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/mongo_prerequisites.html" class="md-nav__link">
+      <a href="../../backup/mongodb-backup/mongo_prerequisites.html" class="md-nav__link">
         
   
   
@@ -5117,7 +4741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/create_mongo_on_demand.html" class="md-nav__link">
+      <a href="../../backup/mongodb-backup/create_mongo_on_demand.html" class="md-nav__link">
         
   
   
@@ -5140,7 +4764,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/create_PITR_mongo.html" class="md-nav__link">
+      <a href="../../backup/mongodb-backup/create_PITR_mongo.html" class="md-nav__link">
         
   
   
@@ -5163,7 +4787,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/restore_MongoDB_backups.html" class="md-nav__link">
+      <a href="../../backup/mongodb-backup/restore_MongoDB_backups.html" class="md-nav__link">
         
   
   
@@ -5186,7 +4810,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/mongodb_limitations.html" class="md-nav__link">
+      <a href="../../backup/mongodb-backup/mongodb_limitations.html" class="md-nav__link">
         
   
   
@@ -5255,7 +4879,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mysql-backup/mysql_prerequisites.html" class="md-nav__link">
+      <a href="../../backup/mysql-backup/mysql_prerequisites.html" class="md-nav__link">
         
   
   
@@ -5278,7 +4902,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mysql-backup/backup_mysql.html" class="md-nav__link">
+      <a href="../../backup/mysql-backup/backup_mysql.html" class="md-nav__link">
         
   
   
@@ -5301,7 +4925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mysql-backup/create_mysql_backup.html" class="md-nav__link">
+      <a href="../../backup/mysql-backup/create_mysql_backup.html" class="md-nav__link">
         
   
   
@@ -5324,7 +4948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mysql-backup/restore_mysql_backup.html" class="md-nav__link">
+      <a href="../../backup/mysql-backup/restore_mysql_backup.html" class="md-nav__link">
         
   
   
@@ -5355,7 +4979,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/edit_scheduled.html" class="md-nav__link">
+      <a href="../../backup/edit_scheduled.html" class="md-nav__link">
         
   
   
@@ -5378,7 +5002,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/delete_a_backup.html" class="md-nav__link">
+      <a href="../../backup/delete_a_backup.html" class="md-nav__link">
         
   
   
@@ -5447,7 +5071,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/commands/index.html" class="md-nav__link">
+      <a href="../../use/commands/index.html" class="md-nav__link">
         
   
   
@@ -5470,7 +5094,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/commands/pmm-admin.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-admin.html" class="md-nav__link">
         
   
   
@@ -5493,7 +5117,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/commands/pmm-agent.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-agent.html" class="md-nav__link">
         
   
   
@@ -5569,7 +5193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/configure.html" class="md-nav__link">
+      <a href="../../configure-pmm/configure.html" class="md-nav__link">
         
   
   
@@ -5592,7 +5216,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/metrics_res.html" class="md-nav__link">
+      <a href="../../configure-pmm/metrics_res.html" class="md-nav__link">
         
   
   
@@ -5615,7 +5239,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/advanced_settings.html" class="md-nav__link">
+      <a href="../../configure-pmm/advanced_settings.html" class="md-nav__link">
         
   
   
@@ -5638,7 +5262,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/ssh.html" class="md-nav__link">
+      <a href="../../configure-pmm/ssh.html" class="md-nav__link">
         
   
   
@@ -5699,7 +5323,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/security/index.html" class="md-nav__link">
+      <a href="../../admin/security/index.html" class="md-nav__link">
         
   
   
@@ -5722,7 +5346,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/security/ssl_encryption.html" class="md-nav__link">
+      <a href="../../admin/security/ssl_encryption.html" class="md-nav__link">
         
   
   
@@ -5745,7 +5369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/security/grafana_cookies.html" class="md-nav__link">
+      <a href="../../admin/security/grafana_cookies.html" class="md-nav__link">
         
   
   
@@ -5768,7 +5392,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/security/data_encryption.html" class="md-nav__link">
+      <a href="../../admin/security/data_encryption.html" class="md-nav__link">
         
   
   
@@ -5837,7 +5461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/percona_platform/integrate_with_percona_platform.html" class="md-nav__link">
+      <a href="../../configure-pmm/percona_platform/integrate_with_percona_platform.html" class="md-nav__link">
         
   
   
@@ -5860,7 +5484,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/percona_platform/check_percona_platform.html" class="md-nav__link">
+      <a href="../../configure-pmm/percona_platform/check_percona_platform.html" class="md-nav__link">
         
   
   
@@ -5883,7 +5507,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/percona_platform/account-info.html" class="md-nav__link">
+      <a href="../../configure-pmm/percona_platform/account-info.html" class="md-nav__link">
         
   
   
@@ -5959,7 +5583,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/index.html" class="md-nav__link">
+      <a href="../../admin/index.html" class="md-nav__link">
         
   
   
@@ -6020,7 +5644,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/manage-users/index.html" class="md-nav__link">
+      <a href="../../admin/manage-users/index.html" class="md-nav__link">
         
   
   
@@ -6043,7 +5667,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/manage-users/add_users.html" class="md-nav__link">
+      <a href="../../admin/manage-users/add_users.html" class="md-nav__link">
         
   
   
@@ -6066,7 +5690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/manage-users/edit_users.html" class="md-nav__link">
+      <a href="../../admin/manage-users/edit_users.html" class="md-nav__link">
         
   
   
@@ -6089,7 +5713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/manage-users/delete_users.html" class="md-nav__link">
+      <a href="../../admin/manage-users/delete_users.html" class="md-nav__link">
         
   
   
@@ -6158,7 +5782,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/index.html" class="md-nav__link">
+      <a href="../../admin/roles/index.html" class="md-nav__link">
         
   
   
@@ -6219,7 +5843,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/intro.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/intro.html" class="md-nav__link">
         
   
   
@@ -6242,7 +5866,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/labels.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/labels.html" class="md-nav__link">
         
   
   
@@ -6265,7 +5889,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/config_access_cntrl.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/config_access_cntrl.html" class="md-nav__link">
         
   
   
@@ -6288,7 +5912,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/create_roles.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/create_roles.html" class="md-nav__link">
         
   
   
@@ -6311,7 +5935,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/manage_roles.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/manage_roles.html" class="md-nav__link">
         
   
   
@@ -6334,7 +5958,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/assign_roles.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/assign_roles.html" class="md-nav__link">
         
   
   
@@ -6357,7 +5981,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/usecase.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/usecase.html" class="md-nav__link">
         
   
   
@@ -6441,7 +6065,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/index.html" class="md-nav__link">
+      <a href="../../troubleshoot/index.html" class="md-nav__link">
         
   
   
@@ -6464,7 +6088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/checklist.html" class="md-nav__link">
+      <a href="../../troubleshoot/checklist.html" class="md-nav__link">
         
   
   
@@ -6487,7 +6111,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/upgrade_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/upgrade_issues.html" class="md-nav__link">
         
   
   
@@ -6510,7 +6134,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/config_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/config_issues.html" class="md-nav__link">
         
   
   
@@ -6533,7 +6157,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/alerting_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/alerting_issues.html" class="md-nav__link">
         
   
   
@@ -6556,7 +6180,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/qan_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/qan_issues.html" class="md-nav__link">
         
   
   
@@ -6579,7 +6203,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/plugin_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/plugin_issues.html" class="md-nav__link">
         
   
   
@@ -6602,7 +6226,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/pmm_dump.html" class="md-nav__link">
+      <a href="../../troubleshoot/pmm_dump.html" class="md-nav__link">
         
   
   
@@ -6625,7 +6249,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/data_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/data_issues.html" class="md-nav__link">
         
   
   
@@ -6693,7 +6317,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/index.html" class="md-nav__link">
+      <a href="../../release-notes/index.html" class="md-nav__link">
         
   
   
@@ -6716,7 +6340,30 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.1.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.2.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PMM 3.2.0 (2025-05-29)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.1.0.html" class="md-nav__link">
         
   
   
@@ -6739,7 +6386,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.0.0_1.html" class="md-nav__link">
+      <a href="../../release-notes/3.0.0_1.html" class="md-nav__link">
         
   
   
@@ -6762,7 +6409,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.0.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.0.0.html" class="md-nav__link">
         
   
   
@@ -6789,18 +6436,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
         
           
           <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
@@ -6816,7 +6465,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_13">
             <span class="md-nav__icon md-icon"></span>
             Reference
@@ -6868,7 +6517,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/index.html" class="md-nav__link">
+      <a href="../index.html" class="md-nav__link">
         
   
   
@@ -6929,7 +6578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/third-party/victoria.html" class="md-nav__link">
+      <a href="../third-party/victoria.html" class="md-nav__link">
         
   
   
@@ -6952,12 +6601,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/third-party/clickhouse.html" class="md-nav__link">
+      <a href="../third-party/clickhouse.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    ClickHouse
+    Use external ClickHouse with PMM
     
   </span>
   
@@ -6975,12 +6624,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/third-party/postgresql.html" class="md-nav__link">
+      <a href="../third-party/postgresql.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    PostgreSQL
+    Configure PMM with external PostgreSQL
     
   </span>
   
@@ -7006,7 +6655,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/pmm_components_and_versions.html" class="md-nav__link">
+      <a href="../pmm_components_and_versions.html" class="md-nav__link">
         
   
   
@@ -7029,7 +6678,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/personal_data_handling.html" class="md-nav__link">
+      <a href="../personal_data_handling.html" class="md-nav__link">
         
   
   
@@ -7090,7 +6739,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/index.html" class="md-nav__link">
+      <a href="../../api/index.html" class="md-nav__link">
         
   
   
@@ -7113,7 +6762,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/authentication.html" class="md-nav__link">
+      <a href="../../api/authentication.html" class="md-nav__link">
         
   
   
@@ -7149,18 +6798,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2" checked>
         
           
           <label class="md-nav__link" for="__nav_13_2" id="__nav_13_2_label" tabindex="0">
@@ -7176,7 +6827,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_13_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_13_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_13_2">
             <span class="md-nav__icon md-icon"></span>
             PMM dashboards
@@ -7228,7 +6879,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-home.html" class="md-nav__link">
+      <a href="dashboard-home.html" class="md-nav__link">
         
   
   
@@ -7251,7 +6902,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-advanced-data-exploration.html" class="md-nav__link">
+      <a href="dashboard-advanced-data-exploration.html" class="md-nav__link">
         
   
   
@@ -7274,7 +6925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-victoriametrics.html" class="md-nav__link">
+      <a href="dashboard-victoriametrics.html" class="md-nav__link">
         
   
   
@@ -7297,7 +6948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-victoriametrics-agents-overview.html" class="md-nav__link">
+      <a href="dashboard-victoriametrics-agents-overview.html" class="md-nav__link">
         
   
   
@@ -7366,7 +7017,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-env-overview.html" class="md-nav__link">
+      <a href="dashboard-env-overview.html" class="md-nav__link">
         
   
   
@@ -7389,7 +7040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-environment-summary.html" class="md-nav__link">
+      <a href="dashboard-environment-summary.html" class="md-nav__link">
         
   
   
@@ -7458,7 +7109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/kubernetes_cluster_summary.html" class="md-nav__link">
+      <a href="kubernetes_cluster_summary.html" class="md-nav__link">
         
   
   
@@ -7481,7 +7132,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/kubernetes_monitor_operators.html" class="md-nav__link">
+      <a href="kubernetes_monitor_operators.html" class="md-nav__link">
         
   
   
@@ -7504,7 +7155,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/kubernetes_monitor_db_clusters_managed.html" class="md-nav__link">
+      <a href="kubernetes_monitor_db_clusters_managed.html" class="md-nav__link">
         
   
   
@@ -7573,7 +7224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-cpu-utilization-details.html" class="md-nav__link">
+      <a href="dashboard-cpu-utilization-details.html" class="md-nav__link">
         
   
   
@@ -7596,7 +7247,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-disk-details.html" class="md-nav__link">
+      <a href="dashboard-disk-details.html" class="md-nav__link">
         
   
   
@@ -7619,7 +7270,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-network-details.html" class="md-nav__link">
+      <a href="dashboard-network-details.html" class="md-nav__link">
         
   
   
@@ -7642,7 +7293,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-memory-details.html" class="md-nav__link">
+      <a href="dashboard-memory-details.html" class="md-nav__link">
         
   
   
@@ -7665,7 +7316,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-node-temperature-details.html" class="md-nav__link">
+      <a href="dashboard-node-temperature-details.html" class="md-nav__link">
         
   
   
@@ -7688,7 +7339,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-nodes-compare.html" class="md-nav__link">
+      <a href="dashboard-nodes-compare.html" class="md-nav__link">
         
   
   
@@ -7711,7 +7362,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-nodes-overview.html" class="md-nav__link">
+      <a href="dashboard-nodes-overview.html" class="md-nav__link">
         
   
   
@@ -7734,7 +7385,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-node-summary.html" class="md-nav__link">
+      <a href="dashboard-node-summary.html" class="md-nav__link">
         
   
   
@@ -7757,7 +7408,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-numa-details.html" class="md-nav__link">
+      <a href="dashboard-numa-details.html" class="md-nav__link">
         
   
   
@@ -7780,7 +7431,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-processes-details.html" class="md-nav__link">
+      <a href="dashboard-processes-details.html" class="md-nav__link">
         
   
   
@@ -7849,7 +7500,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-prometheus-exporter-status.html" class="md-nav__link">
+      <a href="dashboard-prometheus-exporter-status.html" class="md-nav__link">
         
   
   
@@ -7872,7 +7523,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-prometheus-exporters-overview.html" class="md-nav__link">
+      <a href="dashboard-prometheus-exporters-overview.html" class="md-nav__link">
         
   
   
@@ -7941,7 +7592,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-amazon-aurora-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-amazon-aurora-details.html" class="md-nav__link">
         
   
   
@@ -7964,7 +7615,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-command-handler-counters-compare.html" class="md-nav__link">
+      <a href="dashboard-mysql-command-handler-counters-compare.html" class="md-nav__link">
         
   
   
@@ -7987,7 +7638,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-innodb-compression-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-innodb-compression-details.html" class="md-nav__link">
         
   
   
@@ -8010,7 +7661,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-innodb-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-innodb-details.html" class="md-nav__link">
         
   
   
@@ -8033,7 +7684,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-myisam-aria-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-myisam-aria-details.html" class="md-nav__link">
         
   
   
@@ -8056,7 +7707,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-myrocks-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-myrocks-details.html" class="md-nav__link">
         
   
   
@@ -8079,7 +7730,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-instance-summary.html" class="md-nav__link">
+      <a href="dashboard-mysql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -8102,7 +7753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-instances-compare.html" class="md-nav__link">
+      <a href="dashboard-mysql-instances-compare.html" class="md-nav__link">
         
   
   
@@ -8125,7 +7776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-instances-overview.html" class="md-nav__link">
+      <a href="dashboard-mysql-instances-overview.html" class="md-nav__link">
         
   
   
@@ -8148,7 +7799,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-wait-event-analyses-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-wait-event-analyses-details.html" class="md-nav__link">
         
   
   
@@ -8171,7 +7822,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-performance-schema-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-performance-schema-details.html" class="md-nav__link">
         
   
   
@@ -8194,7 +7845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-query-response-time-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-query-response-time-details.html" class="md-nav__link">
         
   
   
@@ -8217,7 +7868,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-replication-summary.html" class="md-nav__link">
+      <a href="dashboard-mysql-replication-summary.html" class="md-nav__link">
         
   
   
@@ -8240,7 +7891,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-group-replication-summary.html" class="md-nav__link">
+      <a href="dashboard-mysql-group-replication-summary.html" class="md-nav__link">
         
   
   
@@ -8263,7 +7914,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-table-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-table-details.html" class="md-nav__link">
         
   
   
@@ -8286,7 +7937,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-user-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-user-details.html" class="md-nav__link">
         
   
   
@@ -8309,7 +7960,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-tokudb-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-tokudb-details.html" class="md-nav__link">
         
   
   
@@ -8337,18 +7988,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2_7" checked>
         
           
           <label class="md-nav__link" for="__nav_13_2_7" id="__nav_13_2_7_label" tabindex="0">
@@ -8364,7 +8017,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_13_2_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_13_2_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_13_2_7">
             <span class="md-nav__icon md-icon"></span>
             MongoDB dashboards
@@ -8378,7 +8031,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-experimental_collection_overview.html" class="md-nav__link">
+      <a href="dashboard-mongodb-experimental_collection_overview.html" class="md-nav__link">
         
   
   
@@ -8401,7 +8054,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-experimental_collection_details.html" class="md-nav__link">
+      <a href="dashboard-mongodb-experimental_collection_details.html" class="md-nav__link">
         
   
   
@@ -8424,7 +8077,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
         
   
   
@@ -8447,7 +8100,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-cluster-summary.html" class="md-nav__link">
+      <a href="dashboard-mongodb-cluster-summary.html" class="md-nav__link">
         
   
   
@@ -8470,7 +8123,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-instance-summary.html" class="md-nav__link">
+      <a href="dashboard-mongodb-instance-summary.html" class="md-nav__link">
         
   
   
@@ -8493,7 +8146,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-instances-overview.html" class="md-nav__link">
+      <a href="dashboard-mongodb-instances-overview.html" class="md-nav__link">
         
   
   
@@ -8516,7 +8169,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-instances-compare.html" class="md-nav__link">
+      <a href="dashboard-mongodb-instances-compare.html" class="md-nav__link">
         
   
   
@@ -8539,7 +8192,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-replset-summary.html" class="md-nav__link">
+      <a href="dashboard-mongodb-replset-summary.html" class="md-nav__link">
         
   
   
@@ -8562,7 +8215,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-router-summary.html" class="md-nav__link">
+      <a href="dashboard-mongodb-router-summary.html" class="md-nav__link">
         
   
   
@@ -8585,7 +8238,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-inmemory-details.html" class="md-nav__link">
+      <a href="dashboard-mongodb-inmemory-details.html" class="md-nav__link">
         
   
   
@@ -8608,7 +8261,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-mmapv1-details.html" class="md-nav__link">
+      <a href="dashboard-mongodb-mmapv1-details.html" class="md-nav__link">
         
   
   
@@ -8631,7 +8284,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-wiredtiger-details.html" class="md-nav__link">
+      <a href="dashboard-mongodb-wiredtiger-details.html" class="md-nav__link">
         
   
   
@@ -8642,6 +8295,134 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    MongoDB PBM Details dashboard
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="dashboard-mongodb-PBM-details.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    MongoDB PBM Details dashboard
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#backup-configured" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backup Configured
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pitr-enabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      PITR Enabled
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Agent Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#size-bytes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Size Bytes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#duration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Duration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backup History
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#last-successful-backup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Last Successful Backup
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -8700,7 +8481,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
+      <a href="dashboard-postgresql-instances-overview.html" class="md-nav__link">
         
   
   
@@ -8723,7 +8504,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-instance-summary.html" class="md-nav__link">
+      <a href="dashboard-postgresql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -8746,7 +8527,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-instances-compare.html" class="md-nav__link">
+      <a href="dashboard-postgresql-instances-compare.html" class="md-nav__link">
         
   
   
@@ -8769,7 +8550,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.html" class="md-nav__link">
+      <a href="dashboard-postgresql-vacuum-monitoring-experimental.html" class="md-nav__link">
         
   
   
@@ -8838,7 +8619,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-proxysql-instance-summary.html" class="md-nav__link">
+      <a href="dashboard-proxysql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -8907,7 +8688,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-pxc-galera-node-summary.html" class="md-nav__link">
+      <a href="dashboard-pxc-galera-node-summary.html" class="md-nav__link">
         
   
   
@@ -8930,7 +8711,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+      <a href="dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
         
   
   
@@ -8953,7 +8734,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.html" class="md-nav__link">
+      <a href="dashboard-pxc-galera-cluster-summary-experimental.html" class="md-nav__link">
         
   
   
@@ -8976,7 +8757,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-pxc-galera-nodes-compare.html" class="md-nav__link">
+      <a href="dashboard-pxc-galera-nodes-compare.html" class="md-nav__link">
         
   
   
@@ -8999,7 +8780,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
+      <a href="dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
   
@@ -9038,7 +8819,30 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/glossary.html" class="md-nav__link">
+      <a href="../nomad.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Nomad
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../glossary.html" class="md-nav__link">
         
   
   
@@ -9061,7 +8865,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/faq.html" class="md-nav__link">
+      <a href="../faq.html" class="md-nav__link">
         
   
   
@@ -9084,7 +8888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/trademark-policy.html" class="md-nav__link">
+      <a href="../trademark-policy.html" class="md-nav__link">
         
   
   
@@ -9107,7 +8911,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/copyright.html" class="md-nav__link">
+      <a href="../copyright.html" class="md-nav__link">
         
   
   
@@ -9163,27 +8967,63 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#security-consideration" class="md-nav__link">
+  <a href="#backup-configured" class="md-nav__link">
     <span class="md-ellipsis">
-      Security consideration
+      Backup Configured
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#service-costs" class="md-nav__link">
+  <a href="#pitr-enabled" class="md-nav__link">
     <span class="md-ellipsis">
-      Service costs
+      PITR Enabled
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#disk-space-consumption" class="md-nav__link">
+  <a href="#agent-status" class="md-nav__link">
     <span class="md-ellipsis">
-      Disk space consumption
+      Agent Status
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#size-bytes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Size Bytes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#duration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Duration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      Backup History
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#last-successful-backup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Last Successful Backup
     </span>
   </a>
   
@@ -9220,7 +9060,7 @@
 
 
   
-    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/install-pmm/install-pmm-server/deployment-options/aws/aws.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/reference/dashboards/dashboard-mongodb-PBM-details.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -9229,44 +9069,41 @@
     
       
     
-    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/install-pmm/install-pmm-server/deployment-options/aws/aws.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/reference/dashboards/dashboard-mongodb-PBM-details.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="install-pmm-server-from-aws-marketplace">Install PMM Server from AWS Marketplace<a class="headerlink" href="#install-pmm-server-from-aws-marketplace" title="Permanent link">&para;</a></h1>
-<p class="power-number">To install Percona Monitoring and Management (PMM) Server from AWS Marketplace:</p>
-<ol>
-<li>
-<p>Go to <a href="https://aws.amazon.com/marketplace">AWS Marketplace</a> and search for <strong>Percona Monitoring and Management Server</strong> or <a href="https://aws.amazon.com/marketplace/pp/prodview-uww55ejutsnom?sr=0-1&amp;ref_=beagle&amp;applicationId=AWSMPContessa">access the PMM Server listing</a> directly.</p>
-</li>
-<li>
-<p>Click <strong>Continue to Subscribe</strong> on the PMM Server listing page, review the terms and conditions, then click <strong>Continue to Configuration</strong>.</p>
-</li>
-<li>
-<p>Select the latest version (recommended), choose the AWS region where you want to deploy PMM, then click <strong>Continue to Launch</strong>.</p>
-</li>
-<li>Choose <strong>Launch from Website</strong> to configure and launch directly from the AWS Marketplace or <strong>Launch through EC2</strong> if you prefer launching via the EC2 Management Console for more customization.</li>
-<li>In the <strong>EC2 Instance Type</strong> field, select an appropriate instance type based on your monitoring needs and anticipated load. </li>
-<li>In the <strong>VPC Settings</strong> field, choose an existing VPC or create a new one to host your PMM Server.</li>
-<li>In the <strong>Subnet Settings</strong> field, select an existing subnet or create a new one within your VPC.</li>
-<li>In the <strong>Security Group Settings</strong> field, choose an existing security group or create a new one based on the default settings provided by the seller.</li>
-<li>In the <strong>Key Pair Settings</strong> field, select an existing key pair for SSH access, or create a new one if necessary.</li>
-<li>Click <strong>Launch</strong> to deploy the PMM Server.</li>
-<li>Once the instance is launched, it will appear in the EC2 console.</li>
-</ol>
-<p>Make sure to assign a meaningful name to the instance to help distinguish it from others in your environment.</p>
-<h2 id="security-consideration">Security consideration<a class="headerlink" href="#security-consideration" title="Permanent link">&para;</a></h2>
-<p>Ensure that your security group allows inbound traffic on ports <strong>22</strong> (SSH) and <strong>443</strong> (HTTPS).</p>
-<h2 id="service-costs">Service costs<a class="headerlink" href="#service-costs" title="Permanent link">&para;</a></h2>
-<p>While PMM Server itself is provided at no cost, be aware that you will incur AWS infrastructure costs based on the EC2 instance type, storage, and data transfer.</p>
-<h2 id="disk-space-consumption">Disk space consumption<a class="headerlink" href="#disk-space-consumption" title="Permanent link">&para;</a></h2>
-<p>The disk space required by PMM Server depends on the number of monitored hosts and the retention period for the data.</p>
-<p>As a reference, the <a href="https://pmmdemo.percona.com/">PMM Demo</a> site consumes approximately 230 MB per host per day, which totals around 6.9 GB per host over a 30-day retention period.
-Tip: You can estimate your disk space needs based on the number of hosts and the desired retention period.</p>
-<p>For more information, see our blog post <a href="https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/">How much disk space should I allocate for Percona Monitoring and Management</a>.</p>
+<h1 id="mongodb-pbm-details-dashboard">MongoDB PBM Details dashboard<a class="headerlink" href="#mongodb-pbm-details-dashboard" title="Permanent link">&para;</a></h1>
+<p>The MongoDB PBM Details dashboard offers an integrated view of your Percona Backup for MongoDB (PBM) environment directly within Percona Monitoring and Management (PMM).</p>
+<p>The dashboard consolidates key information—such as backup configuration, status, performance metrics, and agent health—into a single, easy-to-use interface.</p>
+<p>By accessing PBM insights directly from PMM, you can efficiently monitor and manage your MongoDB backups without switching between tools.</p>
+<p><img alt="PBM dashboard" src="../../images/PBM_Dashboard.png" /></p>
+<h2 id="backup-configured">Backup Configured<a class="headerlink" href="#backup-configured" title="Permanent link">&para;</a></h2>
+<p>Shows whether backups are properly configured for your MongoDB environment. A green &ldquo;Yes&rdquo; indicates that PBM is properly set up and functioning, while a <strong>No</strong> in red signals that backups are not configured. </p>
+<h2 id="pitr-enabled">PITR Enabled<a class="headerlink" href="#pitr-enabled" title="Permanent link">&para;</a></h2>
+<p>Displays whether Point-in-Time Recovery (PITR) is enabled for your MongoDB environment. A green <strong>Yes</strong> confirms PITR is active, while a <strong>No</strong> in red indicates this feature is not currently enabled.</p>
+<p>PITR allows for more granular recovery options, enabling restoration to any point in time rather than just to specific backup points. </p>
+<h2 id="agent-status">Agent Status<a class="headerlink" href="#agent-status" title="Permanent link">&para;</a></h2>
+<p>This panel monitors the operational status of each PBM agent connected to your MongoDB cluster nodes using a color-coded timeline visualization.</p>
+<p>Each replica set node (e.g., <code>rs101:27017</code>, <code>rs102:27017</code>, <code>rs103:27017</code>) is shown with an <strong>OK</strong> status in green when the PBM agent is functioning correctly. This allows you to quickly identify any agents that may be experiencing issues and potentially affecting backup operations.</p>
+<p>Arbiter nodes, whether in replica sets or sharded clusters, will appear with a <strong>Fail</strong> status. This is because arbiters are designed only to participate in elections and do not store data, so they do not and cannot run PBM agents. In future updates, this status will be clarified with a message such as &ldquo;Arbiter node is not supported&rdquo;.</p>
+<h2 id="size-bytes">Size Bytes<a class="headerlink" href="#size-bytes" title="Permanent link">&para;</a></h2>
+<p>Displays the size of your MongoDB backups in a bar chart format. </p>
+<p>The panel shows the exact size of each backup (e.g., 10.7 MB), helping you track storage requirements and identify any unusual changes in backup size that might indicate problems with your data or backup process.</p>
+<h2 id="duration">Duration<a class="headerlink" href="#duration" title="Permanent link">&para;</a></h2>
+<p>Shows how long each backup operation takes to complete, displayed in seconds.</p>
+<p>By monitoring backup times, you can quickly pinpoint any backups that are taking an unusually long time to complete, which may signal underlying performance problems within your MongoDB setup.</p>
+<h2 id="backup-history">Backup History<a class="headerlink" href="#backup-history" title="Permanent link">&para;</a></h2>
+<p>Provides a tabular view of recent backup operations with columns for <strong>Name</strong> (timestamp of the backup) and <strong>Status</strong> (Done, Error, etc.). </p>
+<p>This historical record helps you verify that scheduled backups are running successfully and lets you quickly identify any failed backup operations that may require attention.</p>
+<p>The current status reporting in this panel may not yet capture the full range of error states available in PBM&rsquo;s native tools (including &ldquo;stuck&rdquo; or &ldquo;incompatible&rdquo; backups). This will be improved with an upcoming release to provide a more complete picture of your backup status.</p>
+<h2 id="last-successful-backup">Last Successful Backup<a class="headerlink" href="#last-successful-backup" title="Permanent link">&para;</a></h2>
+<p>Shows details of the most recent successful backup operation, including its timestamp. This gives you confidence in your recovery capabilities by confirming when your last good backup was taken, ensuring you know your current recovery point objective (RPO) status.</p>
+<p>This dashboard works with both replica sets and sharded clusters, providing unified visibility into your MongoDB backup infrastructure. </p>
+<p>To use it effectively, select the appropriate environments, clusters, and replica sets using the filters at the top of the dashboard.</p>
 
 
 
@@ -9287,7 +9124,7 @@ Tip: You can estimate your disk space needs based on the number of hosts and the
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-03-31
+    2025-05-29
   </span>
 
     
@@ -9400,18 +9237,18 @@ Tip: You can estimate your disk space needs based on the number of hosts and the
     
     
       
-      <script id="__config" type="application/json">{"base": "../../../..", "features": ["search.highlight", "navigation.top", "content.tabs.link", "content.code.copy", "navigation.tracking", "content.action.edit", "content.action.view"], "search": "../../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["search.highlight", "navigation.top", "content.tabs.link", "content.code.copy", "navigation.tracking", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 
-      <script src="../../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
-        <script src="../../../../js/promptremover.js"></script>
+        <script src="../../js/promptremover.js"></script>
       
-        <script src="../../../../js/consent.js"></script>
+        <script src="../../js/consent.js"></script>
       
-        <script src="../../../../js/version-select.js"></script>
+        <script src="../../js/version-select.js"></script>
       
     
 
