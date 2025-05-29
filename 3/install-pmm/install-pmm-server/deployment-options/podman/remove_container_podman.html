@@ -8776,6 +8776,10 @@
 <li>
 <p>Stop the PMM Server service:</p>
 <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>--user<span class="w"> </span>stop<span class="w"> </span>pmm-server
+
+<span class="c1"># Wait for container to stop completely</span>
+podman<span class="w"> </span><span class="nb">wait</span><span class="w"> </span>--condition<span class="o">=</span>stopped<span class="w"> </span>pmm-server<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+sleep<span class="w"> </span><span class="m">10</span>
 </code></pre></div>
 </li>
 <li>
@@ -8785,12 +8789,6 @@
 </li>
 <li>
 <p>Remove the PMM data volume:</p>
-<p><div hidden>
-<div class="highlight"><pre><span></span><code><span class="c1">#wait for container to stop</span>
-podman<span class="w"> </span><span class="nb">wait</span><span class="w"> </span>--condition<span class="o">=</span>stopped<span class="w"> </span>pmm-server<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
-sleep<span class="w"> </span><span class="m">10</span>
-</code></pre></div>
-</div></p>
 <div class="highlight"><pre><span></span><code>podman<span class="w"> </span>volume<span class="w"> </span>rm<span class="w"> </span>--force<span class="w"> </span>pmm-server
 </code></pre></div>
 </li>
