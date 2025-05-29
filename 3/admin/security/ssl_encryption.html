@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Valid and trusted SSL certificates are needed to encrypt traffic between the client and server.  Certificates can be purchased online from various sources, or some organizations generate their own trusted certificates.  Regardless of which path you choose for enabling maximum security, the process to secure PMM consists of the following components:">
+        <meta name="description" content="Securing your PMM deployment with SSL/TLS encryption protects sensitive database metrics and authentication credentials in transit. This guide walks you through configuring SSL certificates for both PMM Server and PMM Clients.">
       
       
         <meta name="author" content="Percona LLC">
@@ -556,7 +556,7 @@
   
   
   <span class="md-ellipsis">
-    About PMM installation
+    PMM installation overview
     
   </span>
   
@@ -604,6 +604,29 @@
             Plan your PMM installation
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/plan-pmm-installation/choose-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Choose a PMM deployment strategy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -709,30 +732,7 @@
   
   
   <span class="md-ellipsis">
-    About PMM Server installation
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-server/prerequisites.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Prerequisites
+    Server installation overview
     
   </span>
   
@@ -758,10 +758,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3" id="__nav_5_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2" id="__nav_5_3_2_label" tabindex="0">
             
   
   
@@ -774,8 +774,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2">
             <span class="md-nav__icon md-icon"></span>
             Deployment options
           </label>
@@ -796,10 +796,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_1" id="__nav_5_3_3_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_1" id="__nav_5_3_2_1_label" tabindex="0">
             
   
   
@@ -812,8 +812,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_1">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_1">
             <span class="md-nav__icon md-icon"></span>
             Install on Docker
           </label>
@@ -831,7 +831,7 @@
   
   
   <span class="md-ellipsis">
-    Install PMM Server with Docker container
+    Install PMM Server with Docker
     
   </span>
   
@@ -880,15 +880,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_1_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_1_3" id="__nav_5_3_3_1_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_1_3" id="__nav_5_3_2_1_3_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Setup and configuration
+    Storage setup
     
   </span>
   
@@ -896,10 +896,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_1_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_1_3">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_1_3">
             <span class="md-nav__icon md-icon"></span>
-            Setup and configuration
+            Storage setup
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -915,7 +915,7 @@
   
   
   <span class="md-ellipsis">
-    Run Docker with volume
+    Docker volumes (recommended)
     
   </span>
   
@@ -938,7 +938,7 @@
   
   
   <span class="md-ellipsis">
-    Run Docker with the host directory
+    Host directory (not recommended)
     
   </span>
   
@@ -948,6 +948,52 @@
   
 
               
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3_2_1_4" id="__nav_5_3_2_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setup and configuration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            Setup and configuration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -961,7 +1007,7 @@
   
   
   <span class="md-ellipsis">
-    Environment variables in PMM
+    Environment variables
     
   </span>
   
@@ -1007,7 +1053,7 @@
   
   
   <span class="md-ellipsis">
-    Isolated hosts
+    Install PMM Server in isolated environments
     
   </span>
   
@@ -1041,15 +1087,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_1_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_1_4" id="__nav_5_3_3_1_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_1_5" id="__nav_5_3_2_1_5_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Maintenance
+    Container settings
     
   </span>
   
@@ -1057,10 +1103,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_1_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_1_4">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_1_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_1_5">
             <span class="md-nav__icon md-icon"></span>
-            Maintenance
+            Container settings
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1076,7 +1122,7 @@
   
   
   <span class="md-ellipsis">
-    Backup container
+    Back up PMM Server Docker container
     
   </span>
   
@@ -1099,7 +1145,7 @@
   
   
   <span class="md-ellipsis">
-    Restore Docker container
+    Restore PMM Server Docker container
     
   </span>
   
@@ -1122,7 +1168,7 @@
   
   
   <span class="md-ellipsis">
-    Remove container
+    Remove PMM Server Docker container
     
   </span>
   
@@ -1145,7 +1191,7 @@
   
   
   <span class="md-ellipsis">
-    Upgrade container
+    Upgrade PMM Server Docker container
     
   </span>
   
@@ -1187,10 +1233,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_2" id="__nav_5_3_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_2" id="__nav_5_3_2_2_label" tabindex="0">
             
   
   
@@ -1203,8 +1249,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_2">
             <span class="md-nav__icon md-icon"></span>
             Install on Podman
           </label>
@@ -1222,7 +1268,7 @@
   
   
   <span class="md-ellipsis">
-    Install PMM Server with Podman on Docker image
+    Install PMM Server with Podman
     
   </span>
   
@@ -1248,15 +1294,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_2_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_2_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_2_2" id="__nav_5_3_3_2_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_2_2" id="__nav_5_3_2_2_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Maintenance
+    Setup and configuration
     
   </span>
   
@@ -1264,10 +1310,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_2_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_2_2">
             <span class="md-nav__icon md-icon"></span>
-            Maintenance
+            Setup and configuration
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1283,7 +1329,7 @@
   
   
   <span class="md-ellipsis">
-    Backup podman container
+    Back up PMM Server Podman container
     
   </span>
   
@@ -1306,7 +1352,7 @@
   
   
   <span class="md-ellipsis">
-    Restore podman container
+    Restore PMM Server Podman container
     
   </span>
   
@@ -1329,7 +1375,7 @@
   
   
   <span class="md-ellipsis">
-    Remove podman container
+    Remove PMM Server Podman container
     
   </span>
   
@@ -1371,10 +1417,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_3" id="__nav_5_3_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_3" id="__nav_5_3_2_3_label" tabindex="0">
             
   
   
@@ -1387,8 +1433,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_3">
             <span class="md-nav__icon md-icon"></span>
             Install on Virtual Appliance
           </label>
@@ -1406,7 +1452,7 @@
   
   
   <span class="md-ellipsis">
-    Install PMM Server on the virtual machine
+    Deploy PMM Server as a Virtual Appliance (OVA)
     
   </span>
   
@@ -1432,15 +1478,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_3_2" id="__nav_5_3_3_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_3_2" id="__nav_5_3_2_3_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Setup
+    Setup and configuration
     
   </span>
   
@@ -1448,10 +1494,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_3_2">
             <span class="md-nav__icon md-icon"></span>
-            Setup
+            Setup and configuration
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1490,7 +1536,7 @@
   
   
   <span class="md-ellipsis">
-    VMware - Import OVA file
+    Deploy PMM Server on VMware
     
   </span>
   
@@ -1513,7 +1559,7 @@
   
   
   <span class="md-ellipsis">
-    VirtualBox - Import OVA file
+    Deploy PMM Server on VirtualBox
     
   </span>
   
@@ -1536,7 +1582,7 @@
   
   
   <span class="md-ellipsis">
-    Log into user interface
+    Access the PMM Server Virtual Appliance web interface
     
   </span>
   
@@ -1546,52 +1592,6 @@
   
 
               
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_3_3_3_3" id="__nav_5_3_3_3_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Maintenance
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3_3">
-            <span class="md-nav__icon md-icon"></span>
-            Maintenance
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -1605,7 +1605,7 @@
   
   
   <span class="md-ellipsis">
-    Remove virtual machine from UI
+    Remove PMM Server Virtual Appliance
     
   </span>
   
@@ -1647,15 +1647,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_4" id="__nav_5_3_3_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_4" id="__nav_5_3_2_4_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Install on Helm
+    Install on Kubernetes
     
   </span>
   
@@ -1663,10 +1663,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_4">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_4">
             <span class="md-nav__icon md-icon"></span>
-            Install on Helm
+            Install on Kubernetes
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1708,15 +1708,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_4_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_4_2" id="__nav_5_3_3_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_4_2" id="__nav_5_3_2_4_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Maintenance
+    Backup & maintenance
     
   </span>
   
@@ -1724,10 +1724,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_4_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_4_2">
             <span class="md-nav__icon md-icon"></span>
-            Maintenance
+            Backup & maintenance
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1743,7 +1743,7 @@
   
   
   <span class="md-ellipsis">
-    Back up Helm charts
+    Back up PMM Server Helm deployment
     
   </span>
   
@@ -1859,7 +1859,7 @@
   
   
   <span class="md-ellipsis">
-    About PMM Client installation
+    Client installation overview
     
   </span>
   
@@ -1882,7 +1882,7 @@
   
   
   <span class="md-ellipsis">
-    Prerequisites for PMM Client
+    Prerequisites
     
   </span>
   
@@ -1961,12 +1961,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/docker.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/binary_package.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Install on Docker
+    Install from binaries
     
   </span>
   
@@ -1984,12 +1984,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/binary_package.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/docker.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Install from binaries
+    Install on Docker
     
   </span>
   
@@ -2007,44 +2007,6 @@
   
 
               
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_4_4" id="__nav_5_4_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Configuration
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4">
-            <span class="md-nav__icon md-icon"></span>
-            Configuration
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -2084,10 +2046,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2" id="__nav_5_4_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5" id="__nav_5_4_5_label" tabindex="0">
             
   
   
@@ -2100,35 +2062,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5">
             <span class="md-nav__icon md-icon"></span>
             Configure monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    About connecting services for monitoring
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
             
               
                 
@@ -2145,15 +2084,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_1" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_2" id="__nav_5_4_4_2_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_1" id="__nav_5_4_5_1_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Databases
+    Database monitoring
     
   </span>
   
@@ -2161,10 +2100,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_1">
             <span class="md-nav__icon md-icon"></span>
-            Databases
+            Database monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2175,7 +2114,30 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/mysql.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/install-pmm-client/connect-database/mysql/mysql.html" class="md-nav__link">
         
   
   
@@ -2260,15 +2222,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_3" id="__nav_5_4_4_2_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_2" id="__nav_5_4_5_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Cloud services
+    Cloud services monitoring
     
   </span>
   
@@ -2276,12 +2238,35 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_3">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_2">
             <span class="md-nav__icon md-icon"></span>
-            Cloud services
+            Cloud services monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/install-pmm-client/connect-database/aws.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AWS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -2352,10 +2337,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_4" id="__nav_5_4_4_2_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_3" id="__nav_5_4_5_3_label" tabindex="0">
             
   
   
@@ -2368,8 +2353,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_4">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_3">
             <span class="md-nav__icon md-icon"></span>
             System monitoring
           </label>
@@ -2444,15 +2429,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_5" id="__nav_5_4_4_2_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_4" id="__nav_5_4_5_4_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Proxy services
+    Proxy services monitoring
     
   </span>
   
@@ -2460,10 +2445,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_5">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_4">
             <span class="md-nav__icon md-icon"></span>
-            Proxy services
+            Proxy services monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2536,15 +2521,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_6" id="__nav_5_4_4_2_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_5" id="__nav_5_4_5_5_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    External services
+    External services monitoring
     
   </span>
   
@@ -2552,10 +2537,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_6">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_5">
             <span class="md-nav__icon md-icon"></span>
-            External services
+            External services monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2604,44 +2589,6 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_4_4_3" id="__nav_5_4_4_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Maintenance
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_4_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_3">
-            <span class="md-nav__icon md-icon"></span>
-            Maintenance
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
       <a href="../../install-pmm/install-pmm-client/connect-database/remove-services/index.html" class="md-nav__link">
         
@@ -2654,22 +2601,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -3009,29 +2940,6 @@
   
   <span class="md-ellipsis">
     Migrate PMM 2 to PMM 3
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Upgrade PMM Server on AWS
     
   </span>
   
@@ -3707,7 +3615,7 @@
   
   
   <span class="md-ellipsis">
-    Optimize
+    Dashboards
     
   </span>
   
@@ -3717,121 +3625,6 @@
         
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_4_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8_4_3">
-            <span class="md-nav__icon md-icon"></span>
-            Optimize
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../optimize/improve_perf.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Improve PMM performance
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../optimize/disable_table_stats.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Disable per-table statistics
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../optimize/change_number_tables.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Change the number of tables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_4_4" id="__nav_8_4_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Dashboards
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_4_4">
             <span class="md-nav__icon md-icon"></span>
             Dashboards
           </label>
@@ -3875,10 +3668,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_8_4_4_2" id="__nav_8_4_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8_4_3_2" id="__nav_8_4_3_2_label" tabindex="0">
             
   
   
@@ -3891,8 +3684,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_8_4_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_4_4_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_8_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_4_3_2">
             <span class="md-nav__icon md-icon"></span>
             Manage dashboards
           </label>
@@ -5026,121 +4819,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_9" id="__nav_8_9_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    PMM commands
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            PMM commands
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../use/commands/index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    About PMM commands
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../use/commands/pmm-admin.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    pmm-admin - PMM Administration Tool
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../use/commands/pmm-agent.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    pmm-agent - PMM Client agent
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -5400,29 +5078,137 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#mounting-certificates" class="md-nav__link">
+  <a href="#configure-ssl-encryption" class="md-nav__link">
     <span class="md-ellipsis">
-      Mounting certificates
+      Configure SSL encryption
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configure SSL encryption">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#certificate-storage-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      Certificate storage location
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-server-side-certificates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure server-side certificates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configure server-side certificates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-certificate-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required certificate files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mount-certificates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mount certificates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#copy-certificates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Copy certificates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apply-certificate-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Apply certificate changes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#client-side-certificate-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Client-side certificate configuration
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#copying-certificates" class="md-nav__link">
+  <a href="#use-custom-ca-certificates-with-pmm-client" class="md-nav__link">
     <span class="md-ellipsis">
-      Copying certificates
+      Use custom CA certificates with PMM Client
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use custom CA certificates with PMM Client">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#set-ssl_cert_file-for-pmm-admin-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Set SSL_CERT_FILE for pmm-admin commands
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#use-trusted-ssl-when-connecting-pmm-client-to-pmm-server" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#persistent-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      Use trusted SSL when connecting PMM Client to PMM Server
+      Persistent configuration
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-ca-bundle-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create CA bundle files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verify-ca-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify CA bundle
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -6839,6 +6625,121 @@
   
   <span class="md-ellipsis">
     Service accounts authentication
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_1_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_13_1_6" id="__nav_13_1_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    PMM commands
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_13_1_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13_1_6">
+            <span class="md-nav__icon md-icon"></span>
+            PMM commands
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/commands/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    About PMM commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/commands/pmm-admin.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    pmm-admin - PMM Administration Tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/commands/pmm-agent.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    pmm-agent - PMM Client agent
     
   </span>
   
@@ -8929,29 +8830,137 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#mounting-certificates" class="md-nav__link">
+  <a href="#configure-ssl-encryption" class="md-nav__link">
     <span class="md-ellipsis">
-      Mounting certificates
+      Configure SSL encryption
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configure SSL encryption">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#certificate-storage-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      Certificate storage location
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-server-side-certificates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure server-side certificates
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configure server-side certificates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-certificate-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required certificate files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mount-certificates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mount certificates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#copy-certificates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Copy certificates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apply-certificate-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Apply certificate changes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#client-side-certificate-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Client-side certificate configuration
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#copying-certificates" class="md-nav__link">
+  <a href="#use-custom-ca-certificates-with-pmm-client" class="md-nav__link">
     <span class="md-ellipsis">
-      Copying certificates
+      Use custom CA certificates with PMM Client
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Use custom CA certificates with PMM Client">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#set-ssl_cert_file-for-pmm-admin-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Set SSL_CERT_FILE for pmm-admin commands
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#use-trusted-ssl-when-connecting-pmm-client-to-pmm-server" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#persistent-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      Use trusted SSL when connecting PMM Client to PMM Server
+      Persistent configuration
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-ca-bundle-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create CA bundle files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verify-ca-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verify CA bundle
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -9003,63 +9012,231 @@
 
 
 <h1 id="ssl-encryption">SSL encryption<a class="headerlink" href="#ssl-encryption" title="Permanent link">&para;</a></h1>
-<p class="power-number">Valid and trusted SSL certificates are needed to encrypt traffic between the client and server.  Certificates can be purchased online from various sources, or some organizations generate their own trusted certificates.  Regardless of which path you choose for enabling maximum security, the process to secure PMM consists of the following components:</p>
-<ol>
-<li>
-<p>Staging the files in the proper locations:</p>
+<p>Securing your PMM deployment with SSL/TLS encryption protects sensitive database metrics and authentication credentials in transit. This guide walks you through configuring SSL certificates for both PMM Server and PMM Clients.</p>
+<p>You have several certificate options:</p>
 <ul>
-<li>You can <a href="#mounting-certificates">directly mount</a> to a local directory containing the required certificates or</li>
-<li>You can <a href="#copying-certificates">copy the files</a> to the appropriate directory in your Container|AMI|OVF</li>
+<li><strong>Commercial certificates</strong> from public CAs (automatically trusted by all systems)</li>
+<li><strong>Internal CA certificates</strong> from your organization&rsquo;s certificate authority  </li>
+<li><strong>Self-signed certificates</strong> for testing and development environments</li>
+</ul>
+<h2 id="configure-ssl-encryption">Configure SSL encryption<a class="headerlink" href="#configure-ssl-encryption" title="Permanent link">&para;</a></h2>
+<p class="power-number">Configure both the Server and Client to implement SSL/TLS encryption in your PMM environment. The Server needs proper certificates installed, while Clients must be able to verify those certificates:</p>
+<ol>
+<li><strong>Prepare your certificates</strong>: Choose one method to provide certificates to PMM Server:<ul>
+<li><a href="#mount-certificates">Mount certificates</a> from a local directory on the host</li>
+<li><a href="#copy-certificates">Copy certificates</a> directly into the PMM Server container</li>
 </ul>
 </li>
-<li>
-<p>Restarting PMM.</p>
+<li><strong>Restart PMM Server</strong> to apply the new certificates</li>
+<li><strong>Configure client trust</strong>: Ensure PMM Clients can verify the server certificate:<ul>
+<li>Add the CA certificate to the system trust store (<a href="https://ubuntu.com/server/docs/install-a-root-ca-certificate-in-the-trust-store">Ubuntu guide</a> | <a href="https://www.redhat.com/sysadmin/configure-ca-trust-list">Red Hat guide</a>)</li>
+<li><strong>Or use the <code>SSL_CERT_FILE</code> environment variable</strong> for <a href="#use-custom-ca-certificates-with-pmm-client">custom CA certificates</a></li>
+</ul>
 </li>
-<li>Ensuring the Clients trust the certificate issuer (<a href="https://ubuntu.com/server/docs/install-a-root-ca-certificate-in-the-trust-store">Ubuntu</a> | <a href="https://www.redhat.com/sysadmin/configure-ca-trust-list">RedHat</a> can get you started but this is somewhat OS specific)</li>
 </ol>
-<p>With our Docker, OVF and AMI images, certificates are stored in <code>/srv/nginx</code> and our self-signed certificates are staged there by default.</p>
-<h3 id="mounting-certificates">Mounting certificates<a class="headerlink" href="#mounting-certificates" title="Permanent link">&para;</a></h3>
-<p>For container-based installation, if your certificates are in a directory called <code>/etc/pmm-certs</code> on the container host, run the following to mount that directory in the proper location so that PMM can find it when the container starts:</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-p<span class="w"> </span><span class="m">443</span>:443<span class="w"> </span>--volumes-from<span class="w"> </span>pmm-data<span class="w"> </span><span class="se">\</span>
+<h3 id="certificate-storage-location">Certificate storage location<a class="headerlink" href="#certificate-storage-location" title="Permanent link">&para;</a></h3>
+<p>With Docker, OVF, and AMI deployments, certificates are stored in <code>/srv/nginx</code> where self-signed certificates are placed by default.</p>
+<h2 id="configure-server-side-certificates">Configure server-side certificates<a class="headerlink" href="#configure-server-side-certificates" title="Permanent link">&para;</a></h2>
+<h3 id="required-certificate-files">Required certificate files<a class="headerlink" href="#required-certificate-files" title="Permanent link">&para;</a></h3>
+<p>PMM Server requires these certificate files in <code>/srv/nginx</code>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>certificate.crt</code></td>
+<td>Server certificate (may include intermediate certificates)</td>
+</tr>
+<tr>
+<td><code>certificate.key</code></td>
+<td>Private key for the server certificate</td>
+</tr>
+<tr>
+<td><code>ca-certs.pem</code></td>
+<td>Certificate Authority bundle</td>
+</tr>
+<tr>
+<td><code>dhparam.pem</code></td>
+<td>Diffie-Hellman parameters for enhanced security</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mount-certificates">Mount certificates<a class="headerlink" href="#mount-certificates" title="Permanent link">&para;</a></h3>
+<p>For container-based installation, mount your certificate directory to <code>/srv/nginx</code>:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-p<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span>--volumes-from<span class="w"> </span>pmm-data<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--name<span class="w"> </span>pmm-server<span class="w"> </span>-v<span class="w"> </span>/etc/pmm-certs:/srv/nginx<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--restart<span class="w"> </span>always<span class="w"> </span>percona/pmm-server:3
 </code></pre></div>
-<div class="admonition note alert alert-primary">
+<div class="admonition warning">
+<p class="admonition-title">Certificate requirements</p>
+<p>Before mounting certificates, make sure to configure them correctly:</p>
 <ul>
-<li>All certificates must be owned by root. You can do this with: <code>chown 0:0 /etc/pmm-certs/*</code></li>
-<li>The mounted certificate directory (<code>/etc/pmm-certs</code> in this example) must contain the files named <code>certificate.crt</code>, <code>certificate.key</code>, <code>ca-certs.pem</code>, and <code>dhparam.pem</code>.</li>
-<li>For SSL encryption, the container should publish on port 443 instead of 80.</li>
+<li>All certificates must be owned by root: <code>chown 0:0 /etc/pmm-certs/*</code></li>
+<li>Set proper permissions: <code>chmod 644 /etc/pmm-certs/*.crt /etc/pmm-certs/*.pem &amp;&amp; chmod 600 /etc/pmm-certs/*.key</code></li>
+<li>The certificate directory must contain all four required files</li>
+<li>Use port <code>443</code> for SSL encryption instead of port <code>80</code></li>
 </ul>
 </div>
-<h3 id="copying-certificates">Copying certificates<a class="headerlink" href="#copying-certificates" title="Permanent link">&para;</a></h3>
-<p>If PMM Server is running as a Docker image, use <code>docker cp</code> to copy certificates. This example copies certificate files from the current working directory to a running PMM Server docker container.</p>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>cp<span class="w"> </span>certificate.crt<span class="w"> </span>pmm-server:/srv/nginx/certificate.crt
+<h3 id="copy-certificates">Copy certificates<a class="headerlink" href="#copy-certificates" title="Permanent link">&para;</a></h3>
+<p>If PMM Server is already running, copy certificates directly into the container:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Copy certificate files</span>
+docker<span class="w"> </span>cp<span class="w"> </span>certificate.crt<span class="w"> </span>pmm-server:/srv/nginx/certificate.crt
 docker<span class="w"> </span>cp<span class="w"> </span>certificate.key<span class="w"> </span>pmm-server:/srv/nginx/certificate.key
 docker<span class="w"> </span>cp<span class="w"> </span>ca-certs.pem<span class="w"> </span>pmm-server:/srv/nginx/ca-certs.pem
 docker<span class="w"> </span>cp<span class="w"> </span>dhparam.pem<span class="w"> </span>pmm-server:/srv/nginx/dhparam.pem
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>pmm-server<span class="w"> </span>chown<span class="w"> </span>pmm:pmm<span class="w"> </span>/srv/nginx/*
+
+<span class="c1"># Set proper ownership and permissions</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>pmm-server<span class="w"> </span>chown<span class="w"> </span>root:root<span class="w"> </span>/srv/nginx/*
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>pmm-server<span class="w"> </span>chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span>/srv/nginx/*.crt<span class="w"> </span>/srv/nginx/*.pem
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>pmm-server<span class="w"> </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>/srv/nginx/*.key
 </code></pre></div>
-<h3 id="use-trusted-ssl-when-connecting-pmm-client-to-pmm-server">Use trusted SSL when connecting PMM Client to PMM Server<a class="headerlink" href="#use-trusted-ssl-when-connecting-pmm-client-to-pmm-server" title="Permanent link">&para;</a></h3>
-<p>For the new trusted certificates to take effect, you&rsquo;ll just need to restart the PMM Server (or advanced users can restart just nginx from a shell: supervisorctl restart nginx). </p>
-<p>You can now register clients to the PMM Server using the following:
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-url<span class="o">=</span>https://&lt;user&gt;:&lt;password&gt;@&lt;server<span class="w"> </span>IP&gt;
+<h3 id="apply-certificate-changes">Apply certificate changes<a class="headerlink" href="#apply-certificate-changes" title="Permanent link">&para;</a></h3>
+<p>Restart PMM Server to load the new certificates:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Full container restart (recommended)</span>
+docker<span class="w"> </span>restart<span class="w"> </span>pmm-server
+
+<span class="c1"># Or restart only nginx (advanced users)</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>pmm-server<span class="w"> </span>supervisorctl<span class="w"> </span>restart<span class="w"> </span>nginx
+</code></pre></div>
+<p>Verify the certificates are working:
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-I<span class="w"> </span>https://&lt;server-hostname&gt;:443
 </code></pre></div></p>
-<div class="admonition hint alert alert-success">
-<p class="admonition-title">Remember</p>
-<p>Your client machine(s) must trust the issuer of the certificate, or you will still see &ldquo;untrusted connections&rdquo; messages when accessing the web interface. Thus, your client will need the <code>--server-insecure-tls</code> parameter when running the <code>pmm-admin config</code> command. Follow the instructions on your operating system to install the issuer certificate (ca-certs.pem). </p>
+<h2 id="client-side-certificate-configuration">Client-side certificate configuration<a class="headerlink" href="#client-side-certificate-configuration" title="Permanent link">&para;</a></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Basic client connection</label><label for="__tabbed_1_2">System-wide certificate trust</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Register PMM Clients using the HTTPS URL:</p>
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-url<span class="o">=</span>https://&lt;user&gt;:&lt;password&gt;@&lt;server-hostname&gt;
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">For successful connection</p>
+<ul>
+<li>Use the server&rsquo;s <strong>hostname</strong> (not IP address) to match the certificate</li>
+<li>Ensure that client system time is synchronized</li>
+<li>Test the connection: <code>curl -I https://&lt;server-hostname&gt;</code></li>
+</ul>
 </div>
-<p>In case of PMM Client running in the container, mount certificates to <code>/etc/pki/tls/certs</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">PMM_SERVER</span><span class="o">=</span>X.X.X.X:443
-docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
---rm<span class="w"> </span><span class="se">\</span>
---name<span class="w"> </span>pmm-client<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_ADDRESS</span><span class="o">=</span><span class="si">${</span><span class="nv">PMM_SERVER</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_USERNAME</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_PASSWORD</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
--e<span class="w"> </span><span class="nv">PMM_AGENT_CONFIG_FILE</span><span class="o">=</span>config/pmm-agent.yaml<span class="w"> </span><span class="se">\</span>
--v<span class="w"> </span>/your_directory_with/certs:/etc/pki/tls/certs<span class="w"> </span><span class="se">\</span>
-percona/pmm-client:3
+</div>
+<div class="tabbed-block">
+<p>For production environments, install CA certificates in the system trust store:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Ubuntu/Debian</label><label for="__tabbed_2_2">Red Hat/CentOS/Fedora</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="c1"># Install CA certificate</span>
+sudo<span class="w"> </span>cp<span class="w"> </span>custom-ca.pem<span class="w"> </span>/usr/local/share/ca-certificates/custom-ca.crt
+sudo<span class="w"> </span>update-ca-certificates
+
+<span class="c1"># Verify installation</span>
+sudo<span class="w"> </span>update-ca-certificates<span class="w"> </span>--verbose
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="c1"># Install CA certificate  </span>
+sudo<span class="w"> </span>cp<span class="w"> </span>custom-ca.pem<span class="w"> </span>/etc/pki/ca-trust/source/anchors/custom-ca.pem
+sudo<span class="w"> </span>update-ca-trust
+
+<span class="c1"># Verify installation</span>
+sudo<span class="w"> </span>update-ca-trust<span class="w"> </span>check
+</code></pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<h2 id="use-custom-ca-certificates-with-pmm-client">Use custom CA certificates with PMM Client<a class="headerlink" href="#use-custom-ca-certificates-with-pmm-client" title="Permanent link">&para;</a></h2>
+<p>The <code>SSL_CERT_FILE</code> environment variable specifies the path to a custom certificate chain file that pmm-agent uses for <strong>all</strong> SSL/TLS connections. This approach is ideal when:</p>
+<ul>
+<li>PMM Server uses certificates signed by an internal/custom certificate authority</li>
+<li>You want to avoid modifying system-wide certificate settings  </li>
+<li>Running in containerized or restricted environments</li>
+<li>Testing with different CA configurations</li>
+</ul>
+<h3 id="set-ssl_cert_file-for-pmm-admin-commands">Set SSL_CERT_FILE for pmm-admin commands<a class="headerlink" href="#set-ssl_cert_file-for-pmm-admin-commands" title="Permanent link">&para;</a></h3>
+<p>Export the <code>SSL_CERT_FILE</code> environment variable before running <code>pmm-admin</code> commands:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">SSL_CERT_FILE</span><span class="o">=</span>/path/to/custom-ca-bundle.pem
+pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-url<span class="o">=</span>https://&lt;user&gt;:&lt;password&gt;@&lt;server-hostname&gt;
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Testing first</p>
+<p>Before configuring pmm-admin, test the connection with curl: <code>curl -v https://&lt;server-hostname&gt;/ping</code></p>
+</div>
+<h3 id="persistent-configuration">Persistent configuration<a class="headerlink" href="#persistent-configuration" title="Permanent link">&para;</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Shell profile</label><label for="__tabbed_3_2">Systemd service</label><label for="__tabbed_3_3">Docker container</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Add to your shell profile (.bashrc, .zshrc, etc.):
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">SSL_CERT_FILE</span><span class="o">=</span>/etc/ssl/certs/custom-ca-bundle.pem
+</code></pre></div>
+Then reload: <code>source ~/.bashrc</code></p>
+</div>
+<div class="tabbed-block">
+<p>For pmm-agent running as a systemd service:
+<div class="highlight"><pre><span></span><code><span class="k">[Unit]</span>
+<span class="na">Description</span><span class="o">=</span><span class="s">PMM Agent</span>
+<span class="na">After</span><span class="o">=</span><span class="s">network.target</span>
+
+<span class="k">[Service]</span>
+<span class="na">Type</span><span class="o">=</span><span class="s">simple</span>
+<span class="na">User</span><span class="o">=</span><span class="s">pmm-agent</span>
+<span class="na">Environment</span><span class="o">=</span><span class="s">&quot;SSL_CERT_FILE=/etc/ssl/certs/custom-ca-bundle.pem&quot;</span>
+<span class="na">ExecStart</span><span class="o">=</span><span class="s">/usr/local/bin/pmm-agent --config-file=/etc/pmm-agent.yaml</span>
+<span class="na">Restart</span><span class="o">=</span><span class="s">always</span>
+
+<span class="k">[Install]</span>
+<span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
+</code></pre></div></p>
+</div>
+<div class="tabbed-block">
+<p>When running pmm-client in a container:
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--rm<span class="w"> </span>--name<span class="w"> </span>pmm-client<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_ADDRESS</span><span class="o">=</span>&lt;server-hostname&gt;:443<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_USERNAME</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SERVER_PASSWORD</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">PMM_AGENT_SETUP</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">SSL_CERT_FILE</span><span class="o">=</span>/etc/ssl/certs/custom-ca-bundle.pem<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/path/to/ca-bundle.pem:/etc/ssl/certs/custom-ca-bundle.pem:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>percona/pmm-client:3
+</code></pre></div></p>
+</div>
+</div>
+</div>
+<h3 id="create-ca-bundle-files">Create CA bundle files<a class="headerlink" href="#create-ca-bundle-files" title="Permanent link">&para;</a></h3>
+<div class="admonition note">
+<p class="admonition-title">File permissions</p>
+<p>Ensure the CA bundle file is readable by the user running pmm-agent.</p>
+</div>
+<p>The CA bundle file should contain one or more PEM-encoded certificate authority certificates:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Single CA certificate</span>
+cp<span class="w"> </span>/path/to/your-ca.pem<span class="w"> </span>/etc/ssl/certs/custom-ca-bundle.pem
+
+<span class="c1"># Multiple CA certificates</span>
+cat<span class="w"> </span>/path/to/root-ca.pem<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/path/to/intermediate-ca.pem<span class="w"> </span>&gt;<span class="w"> </span>/etc/ssl/certs/custom-ca-bundle.pem
+
+<span class="c1"># Include system CAs plus custom CAs</span>
+cat<span class="w"> </span>/etc/ssl/certs/ca-certificates.crt<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/path/to/your-custom-ca.pem<span class="w"> </span>&gt;<span class="w"> </span>/etc/ssl/certs/custom-ca-bundle.pem
+
+<span class="c1"># Set proper file permissions</span>
+chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span>/etc/ssl/certs/custom-ca-bundle.pem
+</code></pre></div>
+<h3 id="verify-ca-bundle">Verify CA bundle<a class="headerlink" href="#verify-ca-bundle" title="Permanent link">&para;</a></h3>
+<p>To test your SSL configuration:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Test certificate validation</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SSL_CERT_FILE</span><span class="o">=</span>/etc/ssl/certs/custom-ca-bundle.pem
+openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>&lt;server-hostname&gt;:443<span class="w"> </span>-CAfile<span class="w"> </span>/etc/ssl/certs/custom-ca-bundle.pem<span class="w"> </span>-verify_return_error
+
+<span class="c1"># Test HTTP connection</span>
+curl<span class="w"> </span>-v<span class="w"> </span>https://&lt;server-hostname&gt;/ping
+
+<span class="c1"># Test pmm-admin connection</span>
+pmm-admin<span class="w"> </span>status
 </code></pre></div>
 
 
@@ -9081,7 +9258,7 @@ percona/pmm-client:3
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-03-26
+    2025-05-29
   </span>
 
     

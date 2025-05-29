@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="This section explains how to install PMM Server as a Docker container. While PMM Server runs independently, we highly recommend installing Watchtower alongside it to enable convenient PMM Server upgrades through the PMM user interface.">
+        <meta name="description" content="Deploy PMM Server as a Docker container for a fast, flexible and isolated setup.">
       
       
         <meta name="author" content="Percona LLC">
@@ -16,7 +16,7 @@
         <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/docker/index.html">
       
       
-        <link rel="prev" href="../../prerequisites.html">
+        <link rel="prev" href="../../index.html">
       
       
         <link rel="next" href="easy-install.html">
@@ -27,7 +27,7 @@
     
     
       
-        <title>Install PMM Server with Docker container - Percona Monitoring and Management</title>
+        <title>Install PMM Server with Docker - Percona Monitoring and Management</title>
       
     
     
@@ -90,7 +90,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Install PMM Server with Docker container" />
+                 <meta property="og:title" content="Percona Monitoring and Management - Install PMM Server with Docker" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -113,7 +113,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#install-pmm-server-with-docker-container" class="md-skip">
+        <a href="#install-pmm-server-with-docker" class="md-skip">
           Skip to content
         </a>
       
@@ -188,7 +188,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Install PMM Server with Docker container
+              Install PMM Server with Docker
             
           </span>
         </div>
@@ -558,7 +558,7 @@
   
   
   <span class="md-ellipsis">
-    About PMM installation
+    PMM installation overview
     
   </span>
   
@@ -606,6 +606,29 @@
             Plan your PMM installation
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../plan-pmm-installation/choose-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Choose a PMM deployment strategy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -713,30 +736,7 @@
   
   
   <span class="md-ellipsis">
-    About PMM Server installation
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../prerequisites.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Prerequisites
+    Server installation overview
     
   </span>
   
@@ -764,10 +764,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_5_3_3" id="__nav_5_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2" id="__nav_5_3_2_label" tabindex="0">
             
   
   
@@ -780,8 +780,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_3_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_3_2">
             <span class="md-nav__icon md-icon"></span>
             Deployment options
           </label>
@@ -804,10 +804,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_1" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1" checked>
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_1" id="__nav_5_3_3_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_1" id="__nav_5_3_2_1_label" tabindex="0">
             
   
   
@@ -820,8 +820,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_1_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_3_3_1">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_3_2_1">
             <span class="md-nav__icon md-icon"></span>
             Install on Docker
           </label>
@@ -848,7 +848,7 @@
   
   
   <span class="md-ellipsis">
-    Install PMM Server with Docker container
+    Install PMM Server with Docker
     
   </span>
   
@@ -861,7 +861,7 @@
   
   
   <span class="md-ellipsis">
-    Install PMM Server with Docker container
+    Install PMM Server with Docker
     
   </span>
   
@@ -890,6 +890,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#watchtower-security-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Watchtower security requirements
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -899,12 +914,102 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Installation options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#container-setup-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Container setup summary
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-pmm-server-watchtower" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install PMM Server + Watchtower
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-docker-container" class="md-nav__link">
+  <a href="#configuration-options" class="md-nav__link">
     <span class="md-ellipsis">
-      Run Docker container
+      Configuration options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#storage-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Storage configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment variables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#access-pmm-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access PMM Server
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#security-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security options
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next steps
     </span>
   </a>
   
@@ -957,15 +1062,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_1_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_1_3" id="__nav_5_3_3_1_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_1_3" id="__nav_5_3_2_1_3_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Setup and configuration
+    Storage setup
     
   </span>
   
@@ -973,10 +1078,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_1_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_1_3">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_1_3">
             <span class="md-nav__icon md-icon"></span>
-            Setup and configuration
+            Storage setup
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -992,7 +1097,7 @@
   
   
   <span class="md-ellipsis">
-    Run Docker with volume
+    Docker volumes (recommended)
     
   </span>
   
@@ -1015,7 +1120,7 @@
   
   
   <span class="md-ellipsis">
-    Run Docker with the host directory
+    Host directory (not recommended)
     
   </span>
   
@@ -1025,6 +1130,52 @@
   
 
               
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3_2_1_4" id="__nav_5_3_2_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setup and configuration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            Setup and configuration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -1038,7 +1189,7 @@
   
   
   <span class="md-ellipsis">
-    Environment variables in PMM
+    Environment variables
     
   </span>
   
@@ -1084,7 +1235,7 @@
   
   
   <span class="md-ellipsis">
-    Isolated hosts
+    Install PMM Server in isolated environments
     
   </span>
   
@@ -1118,15 +1269,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_1_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_1_4" id="__nav_5_3_3_1_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_1_5" id="__nav_5_3_2_1_5_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Maintenance
+    Container settings
     
   </span>
   
@@ -1134,10 +1285,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_1_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_1_4">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_1_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_1_5">
             <span class="md-nav__icon md-icon"></span>
-            Maintenance
+            Container settings
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1153,7 +1304,7 @@
   
   
   <span class="md-ellipsis">
-    Backup container
+    Back up PMM Server Docker container
     
   </span>
   
@@ -1176,7 +1327,7 @@
   
   
   <span class="md-ellipsis">
-    Restore Docker container
+    Restore PMM Server Docker container
     
   </span>
   
@@ -1199,7 +1350,7 @@
   
   
   <span class="md-ellipsis">
-    Remove container
+    Remove PMM Server Docker container
     
   </span>
   
@@ -1222,7 +1373,7 @@
   
   
   <span class="md-ellipsis">
-    Upgrade container
+    Upgrade PMM Server Docker container
     
   </span>
   
@@ -1264,10 +1415,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_2" id="__nav_5_3_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_2" id="__nav_5_3_2_2_label" tabindex="0">
             
   
   
@@ -1280,8 +1431,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_2">
             <span class="md-nav__icon md-icon"></span>
             Install on Podman
           </label>
@@ -1299,7 +1450,7 @@
   
   
   <span class="md-ellipsis">
-    Install PMM Server with Podman on Docker image
+    Install PMM Server with Podman
     
   </span>
   
@@ -1325,15 +1476,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_2_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_2_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_2_2" id="__nav_5_3_3_2_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_2_2" id="__nav_5_3_2_2_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Maintenance
+    Setup and configuration
     
   </span>
   
@@ -1341,10 +1492,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_2_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_2_2">
             <span class="md-nav__icon md-icon"></span>
-            Maintenance
+            Setup and configuration
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1360,7 +1511,7 @@
   
   
   <span class="md-ellipsis">
-    Backup podman container
+    Back up PMM Server Podman container
     
   </span>
   
@@ -1383,7 +1534,7 @@
   
   
   <span class="md-ellipsis">
-    Restore podman container
+    Restore PMM Server Podman container
     
   </span>
   
@@ -1406,7 +1557,7 @@
   
   
   <span class="md-ellipsis">
-    Remove podman container
+    Remove PMM Server Podman container
     
   </span>
   
@@ -1448,10 +1599,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_3" id="__nav_5_3_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_3" id="__nav_5_3_2_3_label" tabindex="0">
             
   
   
@@ -1464,8 +1615,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_3">
             <span class="md-nav__icon md-icon"></span>
             Install on Virtual Appliance
           </label>
@@ -1483,7 +1634,7 @@
   
   
   <span class="md-ellipsis">
-    Install PMM Server on the virtual machine
+    Deploy PMM Server as a Virtual Appliance (OVA)
     
   </span>
   
@@ -1509,15 +1660,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_3_2" id="__nav_5_3_3_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_3_2" id="__nav_5_3_2_3_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Setup
+    Setup and configuration
     
   </span>
   
@@ -1525,10 +1676,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_3_2">
             <span class="md-nav__icon md-icon"></span>
-            Setup
+            Setup and configuration
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1567,7 +1718,7 @@
   
   
   <span class="md-ellipsis">
-    VMware - Import OVA file
+    Deploy PMM Server on VMware
     
   </span>
   
@@ -1590,7 +1741,7 @@
   
   
   <span class="md-ellipsis">
-    VirtualBox - Import OVA file
+    Deploy PMM Server on VirtualBox
     
   </span>
   
@@ -1613,7 +1764,7 @@
   
   
   <span class="md-ellipsis">
-    Log into user interface
+    Access the PMM Server Virtual Appliance web interface
     
   </span>
   
@@ -1623,52 +1774,6 @@
   
 
               
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_3_3_3_3" id="__nav_5_3_3_3_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Maintenance
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3_3">
-            <span class="md-nav__icon md-icon"></span>
-            Maintenance
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -1682,7 +1787,7 @@
   
   
   <span class="md-ellipsis">
-    Remove virtual machine from UI
+    Remove PMM Server Virtual Appliance
     
   </span>
   
@@ -1724,15 +1829,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_4" id="__nav_5_3_3_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_4" id="__nav_5_3_2_4_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Install on Helm
+    Install on Kubernetes
     
   </span>
   
@@ -1740,10 +1845,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_4">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_4">
             <span class="md-nav__icon md-icon"></span>
-            Install on Helm
+            Install on Kubernetes
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1785,15 +1890,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_4_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_4_2" id="__nav_5_3_3_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_4_2" id="__nav_5_3_2_4_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Maintenance
+    Backup & maintenance
     
   </span>
   
@@ -1801,10 +1906,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_4_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_4_2">
             <span class="md-nav__icon md-icon"></span>
-            Maintenance
+            Backup & maintenance
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1820,7 +1925,7 @@
   
   
   <span class="md-ellipsis">
-    Back up Helm charts
+    Back up PMM Server Helm deployment
     
   </span>
   
@@ -1936,7 +2041,7 @@
   
   
   <span class="md-ellipsis">
-    About PMM Client installation
+    Client installation overview
     
   </span>
   
@@ -1959,7 +2064,7 @@
   
   
   <span class="md-ellipsis">
-    Prerequisites for PMM Client
+    Prerequisites
     
   </span>
   
@@ -2038,12 +2143,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/docker.html" class="md-nav__link">
+      <a href="../../../install-pmm-client/binary_package.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Install on Docker
+    Install from binaries
     
   </span>
   
@@ -2061,12 +2166,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/binary_package.html" class="md-nav__link">
+      <a href="../../../install-pmm-client/docker.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Install from binaries
+    Install on Docker
     
   </span>
   
@@ -2084,44 +2189,6 @@
   
 
               
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_4_4" id="__nav_5_4_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Configuration
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4">
-            <span class="md-nav__icon md-icon"></span>
-            Configuration
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -2161,10 +2228,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2" id="__nav_5_4_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5" id="__nav_5_4_5_label" tabindex="0">
             
   
   
@@ -2177,35 +2244,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5">
             <span class="md-nav__icon md-icon"></span>
             Configure monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    About connecting services for monitoring
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
             
               
                 
@@ -2222,15 +2266,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_1" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_2" id="__nav_5_4_4_2_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_1" id="__nav_5_4_5_1_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Databases
+    Database monitoring
     
   </span>
   
@@ -2238,10 +2282,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_1">
             <span class="md-nav__icon md-icon"></span>
-            Databases
+            Database monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2252,7 +2296,30 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/mysql.html" class="md-nav__link">
+      <a href="../../../install-pmm-client/connect-database/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../install-pmm-client/connect-database/mysql/mysql.html" class="md-nav__link">
         
   
   
@@ -2337,15 +2404,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_3" id="__nav_5_4_4_2_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_2" id="__nav_5_4_5_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Cloud services
+    Cloud services monitoring
     
   </span>
   
@@ -2353,12 +2420,35 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_3">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_2">
             <span class="md-nav__icon md-icon"></span>
-            Cloud services
+            Cloud services monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../install-pmm-client/connect-database/aws.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AWS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -2429,10 +2519,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_4" id="__nav_5_4_4_2_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_3" id="__nav_5_4_5_3_label" tabindex="0">
             
   
   
@@ -2445,8 +2535,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_4">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_3">
             <span class="md-nav__icon md-icon"></span>
             System monitoring
           </label>
@@ -2521,15 +2611,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_5" id="__nav_5_4_4_2_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_4" id="__nav_5_4_5_4_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Proxy services
+    Proxy services monitoring
     
   </span>
   
@@ -2537,10 +2627,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_5">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_4">
             <span class="md-nav__icon md-icon"></span>
-            Proxy services
+            Proxy services monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2613,15 +2703,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_6" id="__nav_5_4_4_2_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_5" id="__nav_5_4_5_5_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    External services
+    External services monitoring
     
   </span>
   
@@ -2629,10 +2719,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_6">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_5">
             <span class="md-nav__icon md-icon"></span>
-            External services
+            External services monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2681,44 +2771,6 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_4_4_3" id="__nav_5_4_4_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Maintenance
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_4_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_3">
-            <span class="md-nav__icon md-icon"></span>
-            Maintenance
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
       <a href="../../../install-pmm-client/connect-database/remove-services/index.html" class="md-nav__link">
         
@@ -2731,22 +2783,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -3086,29 +3122,6 @@
   
   <span class="md-ellipsis">
     Migrate PMM 2 to PMM 3
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Upgrade PMM Server on AWS
     
   </span>
   
@@ -3784,7 +3797,7 @@
   
   
   <span class="md-ellipsis">
-    Optimize
+    Dashboards
     
   </span>
   
@@ -3794,121 +3807,6 @@
         
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_4_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8_4_3">
-            <span class="md-nav__icon md-icon"></span>
-            Optimize
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../optimize/improve_perf.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Improve PMM performance
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../optimize/disable_table_stats.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Disable per-table statistics
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../optimize/change_number_tables.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Change the number of tables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_4_4" id="__nav_8_4_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Dashboards
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_4_4">
             <span class="md-nav__icon md-icon"></span>
             Dashboards
           </label>
@@ -3952,10 +3850,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_8_4_4_2" id="__nav_8_4_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8_4_3_2" id="__nav_8_4_3_2_label" tabindex="0">
             
   
   
@@ -3968,8 +3866,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_8_4_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_4_4_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_8_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_4_3_2">
             <span class="md-nav__icon md-icon"></span>
             Manage dashboards
           </label>
@@ -5085,121 +4983,6 @@
   
   <span class="md-ellipsis">
     Delete a backup
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_9" id="__nav_8_9_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    PMM commands
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            PMM commands
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/commands/index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    About PMM commands
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/commands/pmm-admin.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    pmm-admin - PMM Administration Tool
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/commands/pmm-agent.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    pmm-agent - PMM Client agent
     
   </span>
   
@@ -6843,6 +6626,121 @@
   
   <span class="md-ellipsis">
     Service accounts authentication
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_1_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_13_1_6" id="__nav_13_1_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    PMM commands
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_13_1_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13_1_6">
+            <span class="md-nav__icon md-icon"></span>
+            PMM commands
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../use/commands/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    About PMM commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../use/commands/pmm-admin.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    pmm-admin - PMM Administration Tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../use/commands/pmm-agent.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    pmm-agent - PMM Client agent
     
   </span>
   
@@ -8939,6 +8837,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#watchtower-security-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Watchtower security requirements
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -8948,12 +8861,102 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Installation options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#container-setup-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Container setup summary
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#install-pmm-server-watchtower" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install PMM Server + Watchtower
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-docker-container" class="md-nav__link">
+  <a href="#configuration-options" class="md-nav__link">
     <span class="md-ellipsis">
-      Run Docker container
+      Configuration options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#storage-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Storage configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment variables
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#access-pmm-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access PMM Server
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#security-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security options
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next steps
     </span>
   </a>
   
@@ -9006,27 +9009,40 @@
   
 
 
-<h1 id="install-pmm-server-with-docker-container">Install PMM Server with Docker container<a class="headerlink" href="#install-pmm-server-with-docker-container" title="Permanent link">&para;</a></h1>
-<p>This section explains how to install PMM Server as a Docker container. While PMM Server runs independently, we highly recommend installing <a href="https://containrrr.dev/watchtower/">Watchtower</a> alongside it to enable convenient <a href="../../../../pmm-upgrade/ui_upgrade.html">PMM Server upgrades</a> through the PMM user interface. </p>
-<p>With Watchtower, you can upgrade PMM Server directly from the <strong>Upgrade</strong> page or by clicking the <strong>Upgrade Now</strong> button on the <strong>Home</strong> dashboard.</p>
+<h1 id="install-pmm-server-with-docker">Install PMM Server with Docker<a class="headerlink" href="#install-pmm-server-with-docker" title="Permanent link">&para;</a></h1>
+<p>Deploy PMM Server as a Docker container for a fast, flexible and isolated setup. </p>
+<p>While PMM Server runs independently, we highly recommend that you streamline <a href="../../../../pmm-upgrade/ui_upgrade.html">upgrades via the PMM user interface</a> by installing <a href="https://containrrr.dev/watchtower/">Watchtower</a> alongside PMM Server. </p>
+<p>With Watchtower installed, you can easily update PMM Server directly from the <strong>Upgrade</strong> page or by clicking the <strong>Upgrade Now</strong> button on the <strong>Home</strong> dashboard.</p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<p>Before starting the installation:</p>
+<p>Before installation, ensure you have:</p>
 <ul>
-<li>Install Docker version 17.03 or higher</li>
-<li>Ensure your CPU supports <code>x86-64-v2</code></li>
-<li>
-<p>Security requirements for Watchtower:</p>
-<ul>
-<li>restrict Watchtower access to Docker network or localhost</li>
-<li>configure network to expose only PMM Server externally</li>
-<li>secure Docker socket access for Watchtower</li>
-<li>place both Watchtower and PMM Server on the same network</li>
+<li>Docker version 17.03 or higher</li>
+<li>CPU with <code>x86-64-v2</code> support</li>
+<li><a href="../../../plan-pmm-installation/hardware_and_system.html">Sufficient system resources</a> (recommended: 2+ CPU cores, 4+ GB RAM, 100+ GB disk space)</li>
 </ul>
-</li>
+<h3 id="watchtower-security-requirements">Watchtower security requirements<a class="headerlink" href="#watchtower-security-requirements" title="Permanent link">&para;</a></h3>
+<p>To ensure a secure setup when using Watchtower:</p>
+<ul>
+<li>Limit Watchtower&rsquo; access to Docker network or localhost</li>
+<li>Configure network to ensure only PMM Server is exposed externally</li>
+<li>Secure Docker socket access for Watchtower</li>
+<li>Place both Watchtower and PMM Server on the same Docker network</li>
 </ul>
 <h2 id="installation-options">Installation options<a class="headerlink" href="#installation-options" title="Permanent link">&para;</a></h2>
-<p>You can install PMM Server with Watchtower in two ways:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Easy-install script</label><label for="__tabbed_1_2">Manual installation</label></div>
+<h3 id="container-setup-summary">Container setup summary<a class="headerlink" href="#container-setup-summary" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Container setup at a glance</p>
+<ul>
+<li><strong>Pull the Docker image</strong>: <code>docker pull percona/pmm-server:3</code></li>
+<li><strong>Choose storage</strong>: Docker volumes (recommended) or host directory</li>
+<li><strong>Run the container</strong>: Using the appropriate <code>docker run</code> command</li>
+<li><strong>Access the UI</strong>: Navigate to <code>https://SERVER_IP_ADDRESS</code> in your browser</li>
+<li><strong>Log in</strong>: Default credentials <code>admin</code> / <code>admin</code></li>
+</ul>
+</div>
+<h3 id="install-pmm-server-watchtower">Install PMM Server + Watchtower<a class="headerlink" href="#install-pmm-server-watchtower" title="Permanent link">&para;</a></h3>
+<p>You can install PMM Server with Watchtower using one of two methods:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Easy-install script (Recommended for simplicity)</label><label for="__tabbed_1_2">Manual installation (For customization)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>The <a href="easy-install.html">Easy-install script</a> simplifies setup by including Watchtower commands, enabling a one-step installation of PMM with Watchtower. Run the following command:</p>
@@ -9042,8 +9058,8 @@
 </code></pre></div></p>
 </li>
 <li>
-<p class="power-number">(Optional) Install Watchtower to enable PMM Server upgrades via the UI.</p>
-<ol>
+<p>(Optional but recommended) Install Watchtower to enable PMM Server upgrades via the UI:</p>
+<ul>
 <li>
 <p>Create a user-defined token to secure Watchtower&rsquo;s HTTP API. You can use any value or generate a secure token using <code>openssl</code> or another method. Ensure the same token is used in both the Watchtower and PMM Server configurations:</p>
 <div class="highlight"><pre><span></span><code>openssl<span class="w"> </span>rand<span class="w"> </span>-hex<span class="w"> </span><span class="m">16</span>
@@ -9063,7 +9079,7 @@ e09541c81e672bf0e48dbc72d4f92790
 percona/watchtower:latest
 </code></pre></div>
 </li>
-</ol>
+</ul>
 </li>
 <li>
 <p>Run PMM Server with Docker based on your preferred data storage method:</p>
@@ -9076,33 +9092,106 @@ percona/watchtower:latest
 </div>
 </div>
 </div>
-<h2 id="run-docker-container">Run Docker container<a class="headerlink" href="#run-docker-container" title="Permanent link">&para;</a></h2>
-<details class="info">
-<summary>Summary</summary>
-<div class="admonition summary alert alert-info">
+<h2 id="configuration-options">Configuration options<a class="headerlink" href="#configuration-options" title="Permanent link">&para;</a></h2>
+<h3 id="storage-configuration">Storage configuration<a class="headerlink" href="#storage-configuration" title="Permanent link">&para;</a></h3>
+<p>You can choose either of two storage options offered by PMM Server:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Suitable for</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="run_with_vol.html">Docker volumes</a> (Recommended)</td>
+<td>Production environments</td>
+<td><code>--volume pmm-data:/srv</code></td>
+</tr>
+<tr>
+<td><a href="run_with_host_dir.html">Host directory</a></td>
+<td>Development/testing</td>
+<td><code>--volume /path/on/host:/srv</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<p>Configure PMM Server&rsquo;s behavior using environment variables:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_DATA_RETENTION</span><span class="o">=</span>720h<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_DEBUG</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>percona/pmm-server:3
+</code></pre></div>
+<p>Common variables:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PMM_DATA_RETENTION</code></td>
+<td><code>30d</code></td>
+<td>Duration to retain metrics data</td>
+</tr>
+<tr>
+<td><code>PMM_METRICS_RESOLUTION</code></td>
+<td><code>1s</code></td>
+<td>Base metrics collection interval</td>
+</tr>
+<tr>
+<td><code>PMM_ENABLE_UPDATES</code></td>
+<td><code>true</code></td>
+<td>Allow version checks and UI updates</td>
+</tr>
+<tr>
+<td><code>PMM_ENABLE_TELEMETRY</code></td>
+<td><code>true</code></td>
+<td>Send usage statistics</td>
+</tr>
+</tbody>
+</table>
+<p>For a complete list, see the <a href="env_var.html">environment variables</a>.</p>
+<h2 id="access-pmm-server">Access PMM Server<a class="headerlink" href="#access-pmm-server" title="Permanent link">&para;</a></h2>
+<p class="power-number">After installation:</p>
+<ol>
+<li>
+<p>Access the PMM interface in your browser: <code>https://SERVER_IP_ADDRESS</code> (replace with your server&rsquo;s address)</p>
+</li>
+<li>
+<p>Log in with default credentials: <code>admin</code> / <code>admin</code>. </p>
+</li>
+<li>
+<p>Change the default password on first login.</p>
+</li>
+</ol>
+<h2 id="advanced-configuration">Advanced configuration<a class="headerlink" href="#advanced-configuration" title="Permanent link">&para;</a></h2>
+<p>After basic installation, you may want to customize your PMM Server setup:</p>
+<h3 id="security-options">Security options<a class="headerlink" href="#security-options" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Pull the Docker image.</li>
-<li>Choose how you want to store data.</li>
-<li>Run the image.</li>
-<li>Open the PMM UI in a browser.</li>
+<li>Configure a <a href="../../../../admin/security/ssl_encryption.html">trusted SSL certificate</a> to remove browser warnings.</li>
+<li>
+<p>Disable the upgrade panel if needed:</p>
+<ul>
+<li><strong>via Docker</strong>:  add <code>-e PMM_ENABLE_UPDATES=false</code> to the <code>docker run</code> command (for the life of the container)</li>
+<li><strong>via UI</strong>: go to <strong>PMM Configuration &gt; Settings &gt; Advanced Settings</strong> and disable <strong>Check for Updates</strong> (can be turned back on by any admin in the UI)</li>
 </ul>
+</li>
+<li>
+<p>Enable HTTP (insecure, NOT recommended): add <code>--publish 80:8080</code> to the <code>docker run</code> command.</p>
+</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Warning</p>
+<p>PMM Client requires a secure (TLS-encrypted) connection and will only communicate with PMM Server over HTTPS.</p>
 </div>
-<hr />
-</details>
-<details class="info">
-<summary>Key points</summary>
+<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
-<li>
-<p>To disable the Home Dashboard <strong>PMM Upgrade</strong> panel you can either add <code>-e PMM_ENABLE_UPDATES=false</code> to the <code>docker run</code> command (for the life of the container) or navigate to <strong>PMM Configuration &gt; Settings &gt; Advanced Settings</strong> and disable <strong>Check for Updates</strong> (can be turned back on by any admin in the UI).</p>
-</li>
-<li>
-<p>Eliminate browser certificate warnings by configuring a <a href="../../../../admin/security/ssl_encryption.html">trusted certificate</a></p>
-</li>
-<li>
-<p>You can optionally enable an (insecure) HTTP connection by adding <code>--publish 80:8080</code> to the <code>docker run</code> command. However, running PMM insecure is not recommended. You should also note that PMM Client <em>requires</em> TLS to communicate with the server, only working on a secure port.</p>
-</li>
+<li><a href="../../../install-pmm-client/index.html">Install PMM Client on hosts you want to monitor</a></li>
+<li><a href="../../../register-client-node/index.html">Register Client nodes with your PMM Server</a></li>
+<li><a href="../../../install-pmm-client/connect-database/index.html">Connect databases for monitoring</a></li>
 </ul>
-</details>
 
 
 
@@ -9123,7 +9212,7 @@ percona/watchtower:latest
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-02-20
+    2025-05-29
   </span>
 
     

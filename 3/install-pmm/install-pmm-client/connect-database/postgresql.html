@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="How to set up PMM to monitor a PostgreSQL or Percona Distribution for PostgreSQL database instance.">
+        <meta name="description" content="Connect your PostgreSQL databases—whether self-hosted or running in the cloud—to Percona Monitoring and Management (PMM) for comprehensive performance monitoring and analysis.">
       
       
         <meta name="author" content="Percona LLC">
@@ -19,7 +19,7 @@
         <link rel="prev" href="mongodb.html">
       
       
-        <link rel="next" href="azure.html">
+        <link rel="next" href="aws.html">
       
       
       <link rel="icon" href="../../../assets/pmm-fav.svg">
@@ -113,7 +113,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#connect-postgresql-instance" class="md-skip">
+        <a href="#connect-postgresql-databases-to-pmm" class="md-skip">
           Skip to content
         </a>
       
@@ -558,7 +558,7 @@
   
   
   <span class="md-ellipsis">
-    About PMM installation
+    PMM installation overview
     
   </span>
   
@@ -606,6 +606,29 @@
             Plan your PMM installation
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plan-pmm-installation/choose-deployment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Choose a PMM deployment strategy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -711,30 +734,7 @@
   
   
   <span class="md-ellipsis">
-    About PMM Server installation
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../install-pmm-server/prerequisites.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Prerequisites
+    Server installation overview
     
   </span>
   
@@ -760,10 +760,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3" id="__nav_5_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2" id="__nav_5_3_2_label" tabindex="0">
             
   
   
@@ -776,8 +776,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2">
             <span class="md-nav__icon md-icon"></span>
             Deployment options
           </label>
@@ -798,10 +798,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_1" id="__nav_5_3_3_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_1" id="__nav_5_3_2_1_label" tabindex="0">
             
   
   
@@ -814,8 +814,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_1">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_1">
             <span class="md-nav__icon md-icon"></span>
             Install on Docker
           </label>
@@ -833,7 +833,7 @@
   
   
   <span class="md-ellipsis">
-    Install PMM Server with Docker container
+    Install PMM Server with Docker
     
   </span>
   
@@ -882,15 +882,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_1_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_1_3" id="__nav_5_3_3_1_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_1_3" id="__nav_5_3_2_1_3_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Setup and configuration
+    Storage setup
     
   </span>
   
@@ -898,10 +898,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_1_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_1_3">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_1_3">
             <span class="md-nav__icon md-icon"></span>
-            Setup and configuration
+            Storage setup
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -917,7 +917,7 @@
   
   
   <span class="md-ellipsis">
-    Run Docker with volume
+    Docker volumes (recommended)
     
   </span>
   
@@ -940,7 +940,7 @@
   
   
   <span class="md-ellipsis">
-    Run Docker with the host directory
+    Host directory (not recommended)
     
   </span>
   
@@ -950,6 +950,52 @@
   
 
               
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3_2_1_4" id="__nav_5_3_2_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Setup and configuration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            Setup and configuration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -963,7 +1009,7 @@
   
   
   <span class="md-ellipsis">
-    Environment variables in PMM
+    Environment variables
     
   </span>
   
@@ -1009,7 +1055,7 @@
   
   
   <span class="md-ellipsis">
-    Isolated hosts
+    Install PMM Server in isolated environments
     
   </span>
   
@@ -1043,15 +1089,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_1_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_1_4" id="__nav_5_3_3_1_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_1_5" id="__nav_5_3_2_1_5_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Maintenance
+    Container settings
     
   </span>
   
@@ -1059,10 +1105,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_1_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_1_4">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_1_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_1_5">
             <span class="md-nav__icon md-icon"></span>
-            Maintenance
+            Container settings
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1078,7 +1124,7 @@
   
   
   <span class="md-ellipsis">
-    Backup container
+    Back up PMM Server Docker container
     
   </span>
   
@@ -1101,7 +1147,7 @@
   
   
   <span class="md-ellipsis">
-    Restore Docker container
+    Restore PMM Server Docker container
     
   </span>
   
@@ -1124,7 +1170,7 @@
   
   
   <span class="md-ellipsis">
-    Remove container
+    Remove PMM Server Docker container
     
   </span>
   
@@ -1147,7 +1193,7 @@
   
   
   <span class="md-ellipsis">
-    Upgrade container
+    Upgrade PMM Server Docker container
     
   </span>
   
@@ -1189,10 +1235,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_2" id="__nav_5_3_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_2" id="__nav_5_3_2_2_label" tabindex="0">
             
   
   
@@ -1205,8 +1251,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_2">
             <span class="md-nav__icon md-icon"></span>
             Install on Podman
           </label>
@@ -1224,7 +1270,7 @@
   
   
   <span class="md-ellipsis">
-    Install PMM Server with Podman on Docker image
+    Install PMM Server with Podman
     
   </span>
   
@@ -1250,15 +1296,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_2_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_2_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_2_2" id="__nav_5_3_3_2_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_2_2" id="__nav_5_3_2_2_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Maintenance
+    Setup and configuration
     
   </span>
   
@@ -1266,10 +1312,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_2_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_2_2">
             <span class="md-nav__icon md-icon"></span>
-            Maintenance
+            Setup and configuration
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1285,7 +1331,7 @@
   
   
   <span class="md-ellipsis">
-    Backup podman container
+    Back up PMM Server Podman container
     
   </span>
   
@@ -1308,7 +1354,7 @@
   
   
   <span class="md-ellipsis">
-    Restore podman container
+    Restore PMM Server Podman container
     
   </span>
   
@@ -1331,7 +1377,7 @@
   
   
   <span class="md-ellipsis">
-    Remove podman container
+    Remove PMM Server Podman container
     
   </span>
   
@@ -1373,10 +1419,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_3" id="__nav_5_3_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_3" id="__nav_5_3_2_3_label" tabindex="0">
             
   
   
@@ -1389,8 +1435,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_3">
             <span class="md-nav__icon md-icon"></span>
             Install on Virtual Appliance
           </label>
@@ -1408,7 +1454,7 @@
   
   
   <span class="md-ellipsis">
-    Install PMM Server on the virtual machine
+    Deploy PMM Server as a Virtual Appliance (OVA)
     
   </span>
   
@@ -1434,15 +1480,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_3_2" id="__nav_5_3_3_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_3_2" id="__nav_5_3_2_3_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Setup
+    Setup and configuration
     
   </span>
   
@@ -1450,10 +1496,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_3_2">
             <span class="md-nav__icon md-icon"></span>
-            Setup
+            Setup and configuration
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1492,7 +1538,7 @@
   
   
   <span class="md-ellipsis">
-    VMware - Import OVA file
+    Deploy PMM Server on VMware
     
   </span>
   
@@ -1515,7 +1561,7 @@
   
   
   <span class="md-ellipsis">
-    VirtualBox - Import OVA file
+    Deploy PMM Server on VirtualBox
     
   </span>
   
@@ -1538,7 +1584,7 @@
   
   
   <span class="md-ellipsis">
-    Log into user interface
+    Access the PMM Server Virtual Appliance web interface
     
   </span>
   
@@ -1548,52 +1594,6 @@
   
 
               
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_3_3_3_3" id="__nav_5_3_3_3_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Maintenance
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3_3">
-            <span class="md-nav__icon md-icon"></span>
-            Maintenance
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -1607,7 +1607,7 @@
   
   
   <span class="md-ellipsis">
-    Remove virtual machine from UI
+    Remove PMM Server Virtual Appliance
     
   </span>
   
@@ -1649,15 +1649,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_4" id="__nav_5_3_3_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_4" id="__nav_5_3_2_4_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Install on Helm
+    Install on Kubernetes
     
   </span>
   
@@ -1665,10 +1665,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_4">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_4">
             <span class="md-nav__icon md-icon"></span>
-            Install on Helm
+            Install on Kubernetes
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1710,15 +1710,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_4_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_3_4_2" id="__nav_5_3_3_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_2_4_2" id="__nav_5_3_2_4_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Maintenance
+    Backup & maintenance
     
   </span>
   
@@ -1726,10 +1726,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_4_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_2_4_2">
             <span class="md-nav__icon md-icon"></span>
-            Maintenance
+            Backup & maintenance
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1745,7 +1745,7 @@
   
   
   <span class="md-ellipsis">
-    Back up Helm charts
+    Back up PMM Server Helm deployment
     
   </span>
   
@@ -1863,7 +1863,7 @@
   
   
   <span class="md-ellipsis">
-    About PMM Client installation
+    Client installation overview
     
   </span>
   
@@ -1886,7 +1886,7 @@
   
   
   <span class="md-ellipsis">
-    Prerequisites for PMM Client
+    Prerequisites
     
   </span>
   
@@ -1965,12 +1965,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker.html" class="md-nav__link">
+      <a href="../binary_package.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Install on Docker
+    Install from binaries
     
   </span>
   
@@ -1988,12 +1988,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../binary_package.html" class="md-nav__link">
+      <a href="../docker.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Install from binaries
+    Install on Docker
     
   </span>
   
@@ -2011,46 +2011,6 @@
   
 
               
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_5_4_4" id="__nav_5_4_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Configuration
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_4_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_4_4">
-            <span class="md-nav__icon md-icon"></span>
-            Configuration
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -2092,10 +2052,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2" id="__nav_5_4_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5" id="__nav_5_4_5_label" tabindex="0">
             
   
   
@@ -2108,35 +2068,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_4_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_4_4_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_4_5">
             <span class="md-nav__icon md-icon"></span>
             Configure monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    About connecting services for monitoring
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
             
               
                 
@@ -2155,15 +2092,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_1" checked>
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_2" id="__nav_5_4_4_2_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_1" id="__nav_5_4_5_1_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Databases
+    Database monitoring
     
   </span>
   
@@ -2171,10 +2108,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_4_4_2_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_4_5_1">
             <span class="md-nav__icon md-icon"></span>
-            Databases
+            Database monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2185,7 +2122,30 @@
   
   
     <li class="md-nav__item">
-      <a href="mysql.html" class="md-nav__link">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mysql/mysql.html" class="md-nav__link">
         
   
   
@@ -2296,41 +2256,13 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#choose-and-configure-an-extension" class="md-nav__link">
-    <span class="md-ellipsis">
-      Choose and configure an extension
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Choose and configure an extension">
+    <nav class="md-nav" aria-label="Create a database account for PMM">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pg_stat_statements" class="md-nav__link">
+  <a href="#configure-authentication" class="md-nav__link">
     <span class="md-ellipsis">
-      pg_stat_statements
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="pg_stat_statements">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#install" class="md-nav__link">
-    <span class="md-ellipsis">
-      Install
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#configure" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configure
+      Configure authentication
     </span>
   </a>
   
@@ -2340,30 +2272,31 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#pg_stat_monitor" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#choose-a-monitoring-extension" class="md-nav__link">
     <span class="md-ellipsis">
-      pg_stat_monitor
+      Choose a monitoring extension
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="pg_stat_monitor">
+    <nav class="md-nav" aria-label="Choose a monitoring extension">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#install_1" class="md-nav__link">
+  <a href="#configure-monitoring-extension" class="md-nav__link">
     <span class="md-ellipsis">
-      Install
+      Configure monitoring extension
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="Configure monitoring extension">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#configure_1" class="md-nav__link">
+  <a href="#about-bucket-based-aggregation" class="md-nav__link">
     <span class="md-ellipsis">
-      Configure
+      About bucket-based aggregation
     </span>
   </a>
   
@@ -2380,63 +2313,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#add-service" class="md-nav__link">
+  <a href="#add-service-to-pmm" class="md-nav__link">
     <span class="md-ellipsis">
-      Add service
+      Add service to PMM
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Add service">
+    <nav class="md-nav" aria-label="Add service to PMM">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#with-the-user-interface" class="md-nav__link">
+  <a href="#configure-auto-discovery" class="md-nav__link">
     <span class="md-ellipsis">
-      With the user interface
+      Configure auto-discovery
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#auto-discovery-limit" class="md-nav__link">
-    <span class="md-ellipsis">
-      Auto-discovery limit
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#on-the-command-line" class="md-nav__link">
-    <span class="md-ellipsis">
-      On the command line
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="On the command line">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#connecting-via-ssltls" class="md-nav__link">
-    <span class="md-ellipsis">
-      Connecting via SSL/TLS
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#automatic-discovery-limit-via-cli" class="md-nav__link">
-    <span class="md-ellipsis">
-      Automatic discovery limit via CLI
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -2456,33 +2347,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#check-service-pmm-user-interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      Check service - PMM user interface
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#check-service-command-line" class="md-nav__link">
-    <span class="md-ellipsis">
-      Check service - Command line
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#check-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Check data
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#running-custom-queries" class="md-nav__link">
     <span class="md-ellipsis">
       Running custom queries
@@ -2493,6 +2357,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-topics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related topics
+    </span>
+  </a>
   
 </li>
       
@@ -2528,15 +2401,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_3" id="__nav_5_4_4_2_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_2" id="__nav_5_4_5_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Cloud services
+    Cloud services monitoring
     
   </span>
   
@@ -2544,12 +2417,35 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_3">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_2">
             <span class="md-nav__icon md-icon"></span>
-            Cloud services
+            Cloud services monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="aws.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AWS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -2620,10 +2516,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_4" id="__nav_5_4_4_2_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_3" id="__nav_5_4_5_3_label" tabindex="0">
             
   
   
@@ -2636,8 +2532,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_4">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_3">
             <span class="md-nav__icon md-icon"></span>
             System monitoring
           </label>
@@ -2712,15 +2608,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_5" id="__nav_5_4_4_2_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_4" id="__nav_5_4_5_4_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    Proxy services
+    Proxy services monitoring
     
   </span>
   
@@ -2728,10 +2624,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_5">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_4">
             <span class="md-nav__icon md-icon"></span>
-            Proxy services
+            Proxy services monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2804,15 +2700,15 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_4_2_6" id="__nav_5_4_4_2_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_5_5" id="__nav_5_4_5_5_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
-    External services
+    External services monitoring
     
   </span>
   
@@ -2820,10 +2716,10 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_2_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_2_6">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_5_5">
             <span class="md-nav__icon md-icon"></span>
-            External services
+            External services monitoring
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2872,44 +2768,6 @@
   
   
   
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_4_4_3" id="__nav_5_4_4_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Maintenance
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_4_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_4_3">
-            <span class="md-nav__icon md-icon"></span>
-            Maintenance
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
       <a href="remove-services/index.html" class="md-nav__link">
         
@@ -2922,22 +2780,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -3277,29 +3119,6 @@
   
   <span class="md-ellipsis">
     Migrate PMM 2 to PMM 3
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Upgrade PMM Server on AWS
     
   </span>
   
@@ -3975,7 +3794,7 @@
   
   
   <span class="md-ellipsis">
-    Optimize
+    Dashboards
     
   </span>
   
@@ -3985,121 +3804,6 @@
         
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_4_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8_4_3">
-            <span class="md-nav__icon md-icon"></span>
-            Optimize
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../optimize/improve_perf.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Improve PMM performance
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../optimize/disable_table_stats.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Disable per-table statistics
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../optimize/change_number_tables.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Change the number of tables
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_4_4" id="__nav_8_4_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Dashboards
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_4_4">
             <span class="md-nav__icon md-icon"></span>
             Dashboards
           </label>
@@ -4143,10 +3847,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_8_4_4_2" id="__nav_8_4_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8_4_3_2" id="__nav_8_4_3_2_label" tabindex="0">
             
   
   
@@ -4159,8 +3863,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_8_4_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_4_4_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_8_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_4_3_2">
             <span class="md-nav__icon md-icon"></span>
             Manage dashboards
           </label>
@@ -5276,121 +4980,6 @@
   
   <span class="md-ellipsis">
     Delete a backup
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_9" id="__nav_8_9_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    PMM commands
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_9">
-            <span class="md-nav__icon md-icon"></span>
-            PMM commands
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../use/commands/index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    About PMM commands
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../use/commands/pmm-admin.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    pmm-admin - PMM Administration Tool
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../use/commands/pmm-agent.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    pmm-agent - PMM Client agent
     
   </span>
   
@@ -7034,6 +6623,121 @@
   
   <span class="md-ellipsis">
     Service accounts authentication
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_1_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_13_1_6" id="__nav_13_1_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    PMM commands
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_13_1_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13_1_6">
+            <span class="md-nav__icon md-icon"></span>
+            PMM commands
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../use/commands/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    About PMM commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../use/commands/pmm-admin.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    pmm-admin - PMM Administration Tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../use/commands/pmm-agent.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    pmm-agent - PMM Client agent
     
   </span>
   
@@ -9139,41 +8843,13 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#choose-and-configure-an-extension" class="md-nav__link">
-    <span class="md-ellipsis">
-      Choose and configure an extension
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Choose and configure an extension">
+    <nav class="md-nav" aria-label="Create a database account for PMM">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pg_stat_statements" class="md-nav__link">
+  <a href="#configure-authentication" class="md-nav__link">
     <span class="md-ellipsis">
-      pg_stat_statements
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="pg_stat_statements">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#install" class="md-nav__link">
-    <span class="md-ellipsis">
-      Install
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#configure" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configure
+      Configure authentication
     </span>
   </a>
   
@@ -9183,30 +8859,31 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#pg_stat_monitor" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#choose-a-monitoring-extension" class="md-nav__link">
     <span class="md-ellipsis">
-      pg_stat_monitor
+      Choose a monitoring extension
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="pg_stat_monitor">
+    <nav class="md-nav" aria-label="Choose a monitoring extension">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#install_1" class="md-nav__link">
+  <a href="#configure-monitoring-extension" class="md-nav__link">
     <span class="md-ellipsis">
-      Install
+      Configure monitoring extension
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="Configure monitoring extension">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#configure_1" class="md-nav__link">
+  <a href="#about-bucket-based-aggregation" class="md-nav__link">
     <span class="md-ellipsis">
-      Configure
+      About bucket-based aggregation
     </span>
   </a>
   
@@ -9223,63 +8900,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#add-service" class="md-nav__link">
+  <a href="#add-service-to-pmm" class="md-nav__link">
     <span class="md-ellipsis">
-      Add service
+      Add service to PMM
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Add service">
+    <nav class="md-nav" aria-label="Add service to PMM">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#with-the-user-interface" class="md-nav__link">
+  <a href="#configure-auto-discovery" class="md-nav__link">
     <span class="md-ellipsis">
-      With the user interface
+      Configure auto-discovery
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#auto-discovery-limit" class="md-nav__link">
-    <span class="md-ellipsis">
-      Auto-discovery limit
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#on-the-command-line" class="md-nav__link">
-    <span class="md-ellipsis">
-      On the command line
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="On the command line">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#connecting-via-ssltls" class="md-nav__link">
-    <span class="md-ellipsis">
-      Connecting via SSL/TLS
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#automatic-discovery-limit-via-cli" class="md-nav__link">
-    <span class="md-ellipsis">
-      Automatic discovery limit via CLI
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -9299,33 +8934,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#check-service-pmm-user-interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      Check service - PMM user interface
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#check-service-command-line" class="md-nav__link">
-    <span class="md-ellipsis">
-      Check service - Command line
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#check-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Check data
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#running-custom-queries" class="md-nav__link">
     <span class="md-ellipsis">
       Running custom queries
@@ -9336,6 +8944,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-topics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related topics
+    </span>
+  </a>
   
 </li>
       
@@ -9386,22 +9003,24 @@
   
 
 
-<h1 id="connect-postgresql-instance">Connect PostgreSQL instance<a class="headerlink" href="#connect-postgresql-instance" title="Permanent link">&para;</a></h1>
-<p>How to set up PMM to monitor a <a href="https://www.postgresql.org/">PostgreSQL</a> or <a href="https://www.percona.com/software/postgresql-distribution">Percona Distribution for PostgreSQL</a> database instance.</p>
-<details class="info">
-<summary>Summary</summary>
-<div class="admonition summary alert alert-info">
+<h1 id="connect-postgresql-databases-to-pmm">Connect PostgreSQL databases to PMM<a class="headerlink" href="#connect-postgresql-databases-to-pmm" title="Permanent link">&para;</a></h1>
+<p>Connect your PostgreSQL databases—whether self-hosted or running in the cloud—to Percona Monitoring and Management (PMM) for comprehensive performance monitoring and analysis.</p>
+<p>PMM Client supports collecting metrics from PostgreSQL-based database systems:</p>
 <ul>
-<li><a href="#create-a-database-account-for-pmm">Create PMM account and set permissions.</a></li>
-<li><a href="#choose-and-configure-an-extension">Choose, install and configure an extension</a>:<ul>
-<li><a href="#pg_stat_statements"><code>pg_stat_statements</code></a>, or,</li>
-<li><a href="#pg_stat_monitor"><code>pg_stat_monitor</code></a>.</li>
+<li><a href="https://www.postgresql.org/">PostgreSQL</a></li>
+<li><a href="https://www.percona.com/software/postgresql-distribution">Percona Distribution for PostgreSQL</a></li>
 </ul>
-</li>
-<li><a href="#add-service">Add service.</a></li>
-<li><a href="#check-the-service">Check the service</a>.</li>
-</ul>
-</div>
+<p>For monitoring Amazon RDS PostgreSQL instances, see <a href="aws.html">Connect Amazon RDS instance</a>.</p>
+<details class="info">
+<summary>Setup process at a glance</summary>
+<p class="power-number">These are the high-level steps for configuring PostgreSQL monitoring in PMM:</p>
+<ol>
+<li><a href="#before-you-start">Prerequisites</a>: Ensure PMM Server is running and PMM Client is installed</li>
+<li><a href="#create-a-database-account-for-pmm">Create PMM user</a>: <code>CREATE USER pmm WITH SUPERUSER ENCRYPTED PASSWORD 'StrongPassword'</code></li>
+<li><a href="#choose-a-monitoring-extension">Configure extension</a>: Set up <code>pg_stat_statements</code> or <code>pg_stat_monitor</code></li>
+<li><a href="#add-service-to-pmm">Add service</a>: Use PMM UI or command line to add the PostgreSQL instance</li>
+<li><a href="#check-the-service">Verify connection</a>: Check PMM Inventory and dashboards for data. </li>
+</ol>
 </details>
 <h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">&para;</a></h2>
 <p>Check that:</p>
@@ -9411,114 +9030,182 @@
 <li>You have superuser (root) access on the client host.</li>
 <li>You have superuser access to any database servers that you want to monitor.</li>
 </ul>
-<p>(PMM follows <a href="https://www.postgresql.org/support/versioning/">PostgreSQL&rsquo;s end-of-life policy</a>. For specific details on supported platforms and versions, see <a href="https://www.percona.com/services/policies/percona-software-platform-lifecycle/">Percona’s Software Platform Lifecycle page</a>.)</p>
+<p>PMM follows <a href="https://www.postgresql.org/support/versioning/">PostgreSQL&rsquo;s end-of-life policy</a>. For specific details on supported platforms and versions, see <a href="https://www.percona.com/services/policies/percona-software-platform-lifecycle/">Percona&rsquo;s Software Platform Lifecycle page</a>.</p>
 <h2 id="create-a-database-account-for-pmm">Create a database account for PMM<a class="headerlink" href="#create-a-database-account-for-pmm" title="Permanent link">&para;</a></h2>
-<p class="power-number">We recommend creating a PMM database account that can connect to the <code>postgres</code> database with the <code>SUPERUSER</code> role.</p>
+<p>PMM requires a dedicated database account with appropriate permissions to collect metrics effectively. We recommend creating a PMM database account that can connect to the postgres database with the SUPERUSER role.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Standard PostgreSQL</label><label for="__tabbed_1_2">Amazon RDS/Aurora PostgreSQL</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p class="power-number">To create a user with the SUPERUSER role:</p>
 <ol>
 <li>
-<p>Create a user. This example uses <code>pmm</code>. (Replace <code>******</code> with a strong password of your choice.)</p>
-<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">pmm</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="n">SUPERUSER</span><span class="w"> </span><span class="k">ENCRYPTED</span><span class="w"> </span><span class="n">PASSWORD</span><span class="w"> </span><span class="s1">&#39;******&#39;</span><span class="p">;</span>
-</code></pre></div>
-<p>If your database runs on Amazon RDS / Aurora PostgreSQL, The SUPERUSER cannot be assigned.<br />
-So we have to create the user first and then grant the <code>rds_superuser</code> role to it.</p>
-<p><div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">pmm</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="k">ENCRYPTED</span><span class="w"> </span><span class="n">PASSWORD</span><span class="w"> </span><span class="s1">&#39;******&#39;</span><span class="p">;</span>
-<span class="k">GRANT</span><span class="w"> </span><span class="n">rds_superuser</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">pmm</span><span class="p">;</span>
-</code></pre></div>
-Optionally, you can also set up a connection limit (only if the user is not a SUPERUSER):</p>
-<div class="highlight"><pre><span></span><code><span class="k">ALTER</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">pmm</span><span class="w"> </span><span class="k">CONNECTION</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<p>Create a user with SUPERUSER role:</p>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">pmm</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="n">SUPERUSER</span><span class="w"> </span><span class="k">ENCRYPTED</span><span class="w"> </span><span class="n">PASSWORD</span><span class="w"> </span><span class="s1">&#39;strong_password&#39;</span><span class="p">;</span>
 </code></pre></div>
 </li>
 <li>
-<p>PMM must be able to log in locally as this user to the PostgreSQL instance. To enable this, edit the <code>pg_hba.conf</code> file. If not already enabled by an existing rule, add:</p>
+<p>Edit the <code>pg_hba.conf</code> file to enable local login:</p>
 <div class="highlight"><pre><span></span><code>local   all             pmm                                md5
 # TYPE  DATABASE        USER        ADDRESS                METHOD
 </code></pre></div>
-<p>(Ignore the second line. It is a comment to show field alignment.)</p>
+</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<p class="power-number">For RDS instances where SUPERUSER cannot be assigned directly:</p>
+<ol>
+<li>
+<p>Create the user:</p>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">pmm</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="k">ENCRYPTED</span><span class="w"> </span><span class="n">PASSWORD</span><span class="w"> </span><span class="s1">&#39;strong_password&#39;</span><span class="p">;</span>
+</code></pre></div>
 </li>
 <li>
-<p>Reload the configuration:</p>
+<p>Grant the <code>rds_superuser</code> role:</p>
+<div class="highlight"><pre><span></span><code><span class="k">GRANT</span><span class="w"> </span><span class="n">rds_superuser</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">pmm</span><span class="p">;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Optionally, set a connection limit (only if the user is not a SUPERUSER):</p>
+<div class="highlight"><pre><span></span><code><span class="k">ALTER</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">pmm</span><span class="w"> </span><span class="k">CONNECTION</span><span class="w"> </span><span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+</code></pre></div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<h3 id="configure-authentication">Configure authentication<a class="headerlink" href="#configure-authentication" title="Permanent link">&para;</a></h3>
+<p class="power-number">After creating the database user, complete the configuration:</p>
+<ol>
+<li>
+<p>Reload the PostgreSQL configuration:</p>
 <div class="highlight"><pre><span></span><code>su<span class="w"> </span>-<span class="w"> </span>postgres
 psql<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;select pg_reload_conf()&quot;</span>
 </code></pre></div>
 </li>
 <li>
-<p>Check local login.</p>
+<p>Verify the PMM user can connect locally:</p>
 <div class="highlight"><pre><span></span><code>psql<span class="w"> </span>postgres<span class="w"> </span>pmm<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;\conninfo&quot;</span>
 </code></pre></div>
 </li>
 <li>
-<p>Enter the password for the <code>pmm</code> user when prompted.</p>
+<p>Enter the password for the pmm user when prompted:</p>
 </li>
 </ol>
-<h2 id="choose-and-configure-an-extension">Choose and configure an extension<a class="headerlink" href="#choose-and-configure-an-extension" title="Permanent link">&para;</a></h2>
-<p class="power-number">Decide which database extension to use, and configure your database server for it. The choices are:</p>
-<ol>
-<li>
-<p><a href="#pg_stat_statements"><code>pg_stat_statements</code></a>, the original extension created by PostgreSQL, part of the <code>postgresql-contrib</code> package available on Linux.</p>
-</li>
-<li>
-<p><a href="#pg_stat_monitor"><code>pg_stat_monitor</code></a> is a new extension created by Percona. <code>pg_stat_monitor</code> has all the features of <code>pg_stat_statements</code> but adds <em>bucket-based data aggregation</em>, provides more accurate data, and can expose Query Examples.</p>
-</li>
-</ol>
-<p>Here are the benefits and drawbacks of each.</p>
+<h2 id="choose-a-monitoring-extension">Choose a monitoring extension<a class="headerlink" href="#choose-a-monitoring-extension" title="Permanent link">&para;</a></h2>
+<p>Decide which  PostgreSQL monitoring extensions to use, and configure your database server for it. </p>
+<p>Choose:</p>
+<ul>
+<li><code>pg_stat_monitor</code> when you need comprehensive monitoring capabilities with more detailed insights into query performance:</li>
+<li><code>pg_stat_statements</code> when you need a lightweight, built-in solution with minimal overhead</li>
+</ul>
 <table>
 <thead>
 <tr>
-<th></th>
-<th><i class="uil uil-thumbs-up"></i> Benefits</th>
-<th><i class="uil uil-thumbs-down"></i> Drawbacks</th>
+<th>Aspect</th>
+<th><strong>pg_stat_statements</strong></th>
+<th><strong>pg_stat_monitor</strong></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>pg_stat_statements</code></td>
-<td>1. Part of official <code>postgresql-contrib</code> package.</td>
-<td>1. No aggregated statistics or histograms.<br>2. No Query Examples.</td>
+<td><strong>Origin &amp; packaging</strong></td>
+<td>• Official PostgreSQL extension<br>• Part of <code>postgresql-contrib</code> package on Linux</td>
+<td>• Developed by Percona<br>• Requires separate installation</td>
 </tr>
 <tr>
-<td><code>pg_stat_monitor</code></td>
-<td>1. Builds on <code>pg_stat_monitor</code> features.<br>2. Bucket-based aggregation.</td>
-<td></td>
+<td><strong>Key features</strong></td>
+<td>✔ Basic query statistics<br>✔ Simple aggregation<br>✔ Minimal overhead<br>✔ Query timing and execution counts</td>
+<td>✔ Enhanced metrics collection<br>✔ Bucket-based aggregation<br>✔ Query examples<br>✔ Histogram data<br>✔ Includes all pg_stat_statements features</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>✔ Development environments<br>✔ Simple monitoring needs<br>✔ Resource-constrained servers</td>
+<td>✔ Production environments<br>✔ Detailed query analysis<br>✔ Performance tuning</td>
+</tr>
+<tr>
+<td><strong>Installation complexity</strong></td>
+<td>⚠ Low</td>
+<td>⚠ Medium</td>
+</tr>
+<tr>
+<td><strong>Benefits</strong></td>
+<td>• Part of official PostgreSQL<br>• Minimal overhead<br>• Simple to set up and use</td>
+<td>• Builds on pg_stat_statements features<br>• Bucket-based time-series analysis<br>• Query examples for troubleshooting<br>• More accurate performance data</td>
+</tr>
+<tr>
+<td><strong>Drawbacks</strong></td>
+<td>• No aggregated statistics or histograms<br>• No Query Examples<br>• Limited metrics collection</td>
+<td>• Slightly higher resource overhead<br>• Requires separate installation<br>• More complex configuration</td>
 </tr>
 </tbody>
 </table>
-<p>For a more detailed comparison of extensions, follow <a href="https://docs.percona.com/pg-stat-monitor/user_guide.html">pg_stat monitor User Guide</a></p>
-<div class="admonition note alert alert-primary">
-<p class="admonition-title">Bucket-based data aggregation</p>
-<p><code>pg_stat_monitor</code> collects statistics and aggregates data in a data collection unit called a <em>bucket</em>. These are linked together to form a <em>bucket chain</em>.</p>
-<p>You can specify:</p>
-<ul>
-<li>the number of buckets (the length of the chain);</li>
-<li>how much space is available for all buckets;</li>
-<li>a time limit for each bucket&rsquo;s data collection (the <em>bucket expiry</em>).</li>
-</ul>
-<p>When a bucket&rsquo;s expiration time is reached, accumulated statistics are reset and data is stored in the next available bucket in the chain.</p>
-<p>When all buckets in the chain have been used, the first bucket is reused and its contents are overwritten.</p>
-<p>If a bucket fills before its expiration time is reached, data is discarded.</p>
-</div>
-<h3 id="pg_stat_statements"><code>pg_stat_statements</code><a class="headerlink" href="#pg_stat_statements" title="Permanent link">&para;</a></h3>
-<h4 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h4>
-<ul>
-<li>
-<p>Debian/Ubuntu</p>
-<div class="admonition hint">
-<p class="admonition-title">Root permissions</p>
-<div class="highlight"><pre><span></span><code>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>postgresql-contrib
-</code></pre></div>
-</div>
-</li>
-<li>
-<p>Red Hat/CentOS</p>
-<div class="admonition hint">
-<p class="admonition-title">Root permissions</p>
-<div class="highlight"><pre><span></span><code>yum<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>postgresql-contrib
-</code></pre></div>
-</div>
-</li>
-</ul>
-<h4 id="configure">Configure<a class="headerlink" href="#configure" title="Permanent link">&para;</a></h4>
-<p class="power-number">To configure the extension:</p>
+<p>For a more detailed comparison of extensions, see the <a href="https://docs.percona.com/pg-stat-monitor/user_guide.html">pg_stat_monitor documentation</a>.</p>
+<h3 id="configure-monitoring-extension">Configure monitoring extension<a class="headerlink" href="#configure-monitoring-extension" title="Permanent link">&para;</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">pg_stat_monitor</label><label for="__tabbed_2_2">pg_stat_statements</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p class="power-number">pg_stat_monitor is Percona’s advanced PostgreSQL monitoring extension that enhances observability with detailed query metrics and improved aggregation. It is compatible with PostgreSQL and Percona Distribution for PostgreSQL versions 11 through 15.</p>
 <ol>
+<li>
+<p>Install the extension:</p>
+<ul>
+<li>For <a href="https://www.percona.com/doc/postgresql/LATEST/installing.html">Percona Distribution for PostgreSQL</a>: Install via your Linux package manager after setting up the Percona repository, making sure to use the command with your actual PostgreSQL version: <code>apt install -y pg-stat-monitor-15</code>                    </li>
+<li>For <a href="https://github.com/percona/pg_stat_monitor#installation">Standard PostgreSQL</a>: Download and compile from source code.</li>
+</ul>
+</li>
+<li>
+<p>Configure PostgreSQL settings in <code>postgresql.conf</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Add to shared libraries</span>
+<span class="na">shared_preload_libraries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;pg_stat_monitor&#39;</span>
+
+<span class="c1"># Required for PMM</span>
+<span class="na">pg_stat_monitor.pgsm_query_max_len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2048</span>
+
+<span class="c1"># Recommended settings</span>
+<span class="na">pg_stat_monitor.pgsm_normalized_query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
+</code></pre></div>
+<div class="admonition caution">
+<p class="admonition-title">Using both extensions?</p>
+<p>If using with pg_stat_statements, list it first:
+<div class="highlight"><pre><span></span><code><span class="na">shared_preload_libraries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;pg_stat_statements, pg_stat_monitor&#39;</span>
+</code></pre></div></p>
+</div>
+</li>
+<li>
+<p>Restart your PostgreSQL instance:</p>
+<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>restart<span class="w"> </span>postgresql
+</code></pre></div>
+</li>
+<li>
+<p>Create the extension:</p>
+<div class="highlight"><pre><span></span><code><span class="n">psql</span><span class="w"> </span><span class="o">-</span><span class="n">d</span><span class="w"> </span><span class="n">postgres</span><span class="w"> </span><span class="o">-</span><span class="k">c</span><span class="w"> </span><span class="ss">&quot;CREATE EXTENSION pg_stat_monitor;&quot;</span>
+</code></pre></div>
+</li>
+<li>
+<p>Verify the installation:</p>
+<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">pg_stat_monitor_version</span><span class="p">();</span>
+</code></pre></div>
+</li>
+</ol>
+<h4 id="about-bucket-based-aggregation">About bucket-based aggregation<a class="headerlink" href="#about-bucket-based-aggregation" title="Permanent link">&para;</a></h4>
+<p><code>pg_stat_monitor</code> uses buckets to collect and aggregate statistics:</p>
+<ul>
+<li>Each bucket collects data for a configurable time period</li>
+<li>When a bucket expires, data moves to the next bucket in the chain</li>
+<li>When all buckets are full, the oldest bucket is reused</li>
+<li>If a bucket fills before expiring, excess data is discarded</li>
+</ul>
+</div>
+<div class="tabbed-block">
+<p class="power-number">pg_stat_statements is the built-in PostgreSQL extension for tracking query performance, available as part of the postgresql-contrib package.</p>
+<ol>
+<li>
+<p>Install the required package:</p>
+<ul>
+<li>Debian/Ubuntu: <code>apt install -y postgresql-contrib</code></li>
+<li>Red Hat/CentOS: <code>yum install -y postgresql-contrib</code></li>
+</ul>
+</li>
 <li>
 <p>Add these lines to your <code>postgresql.conf</code> file:</p>
 <div class="highlight"><pre><span></span><code>shared_preload_libraries = &#39;pg_stat_statements&#39;
@@ -9528,146 +9215,63 @@ track_io_timing = on             # Capture read/write stats
 </code></pre></div>
 </li>
 <li>
-<p>Restart the database server. After the restart, the extension starts capturing statistics from every database.</p>
+<p>Restart the PostgreSQL server:</p>
+<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>restart<span class="w"> </span>postgresql
+</code></pre></div>
 </li>
 <li>
-<p>Install the extension. </p>
+<p>Create the extension:</p>
 <div class="highlight"><pre><span></span><code>psql<span class="w"> </span>postgres<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;CREATE EXTENSION pg_stat_statements SCHEMA public&quot;</span>
 </code></pre></div>
-<p>This command creates the view where you can access the collected statistics.</p>
+<div class="admonition note">
+<p class="admonition-title">Best practice</p>
+<p>Create the extension in the <code>postgres</code> database to access statistics from all databases without configuring each one individually.</p>
+</div>
 </li>
 </ol>
-<div class="admonition note alert alert-primary">
-<p>We recommend that you create the extension for the <code>postgres</code> database. In this case, you receive access to the statistics collected from every database.    </p>
 </div>
-<p>You can now <a href="#add-service">add the service</a>.</p>
-<h3 id="pg_stat_monitor"><code>pg_stat_monitor</code><a class="headerlink" href="#pg_stat_monitor" title="Permanent link">&para;</a></h3>
-<p><code>pg_stat_monitor</code> has been tested with:</p>
-<ul>
-<li>PostgreSQL versions 11, 12, 13, 14, 15.</li>
-<li>Percona Distribution for PostgreSQL versions 11, 12, 13, 14, 15.</li>
-</ul>
-<h4 id="install_1">Install<a class="headerlink" href="#install_1" title="Permanent link">&para;</a></h4>
-<p class="power-number">To install the extension:</p>
-<ul>
-<li>
-<p>If you use <em>Percona Distribution for PostgreSQL</em>, you can install the extension with your Linux package manager. See <a href="https://www.percona.com/doc/postgresql/LATEST/installing.html">Installing Percona Distribution for PostgreSQL</a>.</p>
-</li>
-<li>
-<p>If you use <em>PostgreSQL</em> you can install by downloading and compiling the source code. See <a href="https://github.com/percona/pg_stat_monitor#installation">Installing <code>pg_stat_monitor</code></a>.</p>
-</li>
-</ul>
-<h4 id="configure_1">Configure<a class="headerlink" href="#configure_1" title="Permanent link">&para;</a></h4>
-<p class="power-number">To configure the extension:</p>
+</div>
+</div>
+<h2 id="add-service-to-pmm">Add service to PMM<a class="headerlink" href="#add-service-to-pmm" title="Permanent link">&para;</a></h2>
+<p>After configuring your database server with the appropriate extension, you need to add it as a service to PMM. You can do this either through the PMM user interface or via the command line.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Via web UI</label><label for="__tabbed_3_2">Via command line</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p class="power-number">To add the service from the user interface:</p>
 <ol>
 <li>
-<p>Set or change the value for <code>shared_preload_library</code>.</p>
-<p>In your <code>postgresql.conf</code> file:</p>
-<div class="highlight"><pre><span></span><code><span class="na">shared_preload_libraries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;pg_stat_monitor&#39;</span>
-</code></pre></div>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Caution</p>
-<p>If you use both <code>pg_stat_statements</code> and <code>pg_stat_monitor</code>, set <code>pg_stat_monitor</code> <strong>after</strong> <code>pg_stat_statements</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="na">shared_preload_libraries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;pg_stat_statements, pg_stat_monitor&#39;</span>
-</code></pre></div>
-</div>
-</li>
-<li>
-<p>Set configuration values.</p>
-<p>In your <code>postgresql.conf</code> file:
-<div class="highlight"><pre><span></span><code><span class="na">pg_stat_monitor.pgsm_query_max_len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2048</span>
-</code></pre></div></p>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Caution</p>
-<p>It is important to set maximal length of query to 2048 characters or more for PMM to work properly.</p>
-</div>
-<p>You can get a list of other available settings with <code>SELECT * FROM pg_stat_monitor_settings;</code>.</p>
-<p>Other important parameters are:
-<div class="highlight"><pre><span></span><code><span class="na">pg_stat_monitor.pgsm_normalized_query</span>
-</code></pre></div>
-and
-<div class="highlight"><pre><span></span><code><span class="na">pg_stat_monitor.pgsm_enable_query_plan</span>
-</code></pre></div></p>
-<p>If the value for <code>pg_stat_monitor.pgsm_normalized_query</code> is set to 1, the actual query values are replaced by placeholders. If the value is 0, the examples are given in QAN. Examples can be found in QAN details tab example.</p>
-<p>If <code>pg_stat_monitor.pgsm_enable_query_plan</code> is enabled, the query plans are captured and will be available in the <code>Plan</code> tab on the Query Analytics dashboard.</p>
-<div class="admonition note alert alert-primary">
-<p>See <a href="https://docs.percona.com/pg-stat-monitor/configuration.html"><code>pg_stat_monitor</code> online documentation</a> for details about available parameters.</p>
-</div>
-</li>
-<li>
-<p>Start or restart your PostgreSQL instance. The extension starts capturing statistics from every database.</p>
-</li>
-<li>
-<p>In a <code>psql</code> session:</p>
-<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="n">pg_stat_monitor</span><span class="p">;</span>
-</code></pre></div>
-<p>This command creates the view where you can access the collected statistics.</p>
-<div class="admonition note alert alert-primary">
-<p>We recommend that you create the extension for the <code>postgres</code> database. In this case, you receive the access to the statistics, collected from every database.</p>
-</div>
-</li>
-<li>
-<p>Check the version.</p>
-<div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="n">pg_stat_monitor_version</span><span class="p">();</span>
-</code></pre></div>
-</li>
-</ol>
-<h2 id="add-service">Add service<a class="headerlink" href="#add-service" title="Permanent link">&para;</a></h2>
-<p>When you have configured your database server, you can add a PostgreSQL service with the user interface or on the command line.</p>
-<h3 id="with-the-user-interface">With the user interface<a class="headerlink" href="#with-the-user-interface" title="Permanent link">&para;</a></h3>
-<p class="power-number">To add the service With the user interface:</p>
-<ol>
-<li>
-<p>Go to  <strong>PMM Configuration  &gt; Add Service &gt; PostgreSQL</strong>.</p>
+<p>Go to  <strong>PMM Configuration &gt; Add Service &gt; PostgreSQL</strong>.</p>
 </li>
 <li>
 <p>Enter or select values for the fields.</p>
 </li>
 <li>
-<p>Click <strong>Add service</strong>.</p>
+<p>Click <strong>Add service</strong>.
+<img alt="!" src="../../../images/PMM_Add_Instance_PostgreSQL.jpg" /></p>
+</li>
+<li>
+<p>If using TLS, check <strong>Use TLS for database connections</strong> and fill in your TLS certificates and key.      <br />
+For TLS connection, make sure SSL is configured in your PostgreSQL instance. </p>
 </li>
 </ol>
-<p><img alt="!" src="../../../images/PMM_Add_Instance_PostgreSQL.jpg" /></p>
-<p>If your PostgreSQL instance is configured to use TLS, click on the <em>Use TLS for database connections</em> check box and fill in your TLS certificates and key.</p>
-<p><img alt="!" src="../../../images/PMM_Add_Instance_PostgreSQL_TLS.jpg" /></p>
-<div class="admonition hint alert alert-success">
-<p class="admonition-title">Note</p>
-<p>For TLS connection to work SSL needs to be configured in your PostgreSQL instance. Make sure SSL is enabled in the server configuration file <code>postgresql.conf</code>, and that hosts are allowed to connect in the client authentication configuration file <code>pg_hba.conf</code>. (See PostgreSQL documentation on <a href="https://www.postgresql.org/docs/current/ssl-tcp.html">Secure TCP/IP Connections with SSL</a>.)</p>
+<p>Make sure SSL is enabled in the server configuration file <code>postgresql.conf</code>, and that hosts are allowed to connect in the client authentication configuration file <code>pg_hba.conf</code>. 
+See PostgreSQL documentation on <a href="https://www.postgresql.org/docs/current/ssl-tcp.html">Secure TCP/IP Connections with SSL</a>.</p>
 </div>
-<h3 id="auto-discovery-limit">Auto-discovery limit<a class="headerlink" href="#auto-discovery-limit" title="Permanent link">&para;</a></h3>
-<p>Limit for <strong>Auto-discovery</strong> in PostgreSQL is a feature that dynamically discovers all databases in your PostgreSQL instance. </p>
-<p>Limiting <strong>Auto-discovery</strong> reduces connections and prevents high CPU and RAM usage caused by multiple databases.</p>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Caution</p>
-<p>Limiting auto-discovery may result in fewer metrics being captured from the non-primary databases.  Ensure that you set the limit appropriately:</p>
-<ul>
-<li>Setting a high limit may impact performance adversely.</li>
-<li>Setting a low limit might result in some missing metrics due to Auto-discovery being disabled.</li>
-</ul>
-</div>
-<p>By default, <strong>Auto-discovery</strong> is enabled (server defined with a limit 10). </p>
-<p><img alt="!" src="../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_enabled.png" /></p>
-<p>When you select <strong>Disabled</strong>, the <strong>Auto-discovery limit</strong> will be set to <code>-1</code>.</p>
-<p><img alt="!" src="../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_disabled.png" /></p>
-<p>For a custom value, select <strong>Custom</strong> and enter or choose your preferred value from the <strong>Auto-discovery limit</strong> field.</p>
-<p><img alt="!" src="../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_custom.png" /></p>
-<h3 id="on-the-command-line">On the command line<a class="headerlink" href="#on-the-command-line" title="Permanent link">&para;</a></h3>
-<p>Add the database server as a service using one of these example commands. If successful, PMM Client will print <code>PostgreSQL Service added</code> with the service&rsquo;s ID and name. Use the <code>--environment</code> and <code>-custom-labels</code> options to set tags for the service to help identify them.</p>
-<details class="info">
-<summary>Examples</summary>
-<p>Add instance with default node (<code>&lt;node&gt;-postgresql</code>).</p>
+<div class="tabbed-block">
+<div class="tabbed-set tabbed-alternate" data-tabs="4:4"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><input id="__tabbed_4_3" name="__tabbed_4" type="radio" /><input id="__tabbed_4_4" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Basic setup</label><label for="__tabbed_4_2">Custom service name</label><label for="__tabbed_4_3">UNIX socket connection</label><label for="__tabbed_4_4">TLS connection</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Add an instance with default node name:</p>
 <div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>postgresql<span class="w"> </span><span class="se">\</span>
 --username<span class="o">=</span>pmm<span class="w"> </span><span class="se">\</span>
 --password<span class="o">=</span>password<span class="w"> </span><span class="se">\</span>
 --server-url<span class="o">=</span>https://admin:admin@X.X.X.X:443<span class="w"> </span><span class="se">\</span>
 --server-insecure-tls
 </code></pre></div>
-<ul>
-<li><code>&lt;user name&gt;</code>: The PostgreSQL PMM user</li>
-<li><code>&lt;password&gt;</code>: The PostgreSQL user credentials.</li>
-</ul>
-<p>The service name will be automatically chosen.</p>
-<p>Add instance with specified service name.</p>
+<p>The service name will be automatically generated based on the node name.</p>
+</div>
+<div class="tabbed-block">
+<p>Add an instance with a specified service name:</p>
 <div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>postgresql<span class="w"> </span><span class="se">\</span>
 --username<span class="o">=</span>pmm<span class="w"> </span><span class="se">\</span>
 --password<span class="o">=</span>password<span class="w"> </span><span class="se">\</span>
@@ -9675,13 +9279,18 @@ and
 --server-insecure-tls<span class="w"> </span><span class="se">\</span>
 --service-name<span class="o">=</span>SERVICE-NAME
 </code></pre></div>
-<p>Add instance to connect with a UNIX socket.</p>
+</div>
+<div class="tabbed-block">
+<p>Add an instance using a UNIX socket:</p>
 <div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>postgresql<span class="w"> </span>--socket<span class="o">=</span>/var/run/postgresql
 </code></pre></div>
-<p>where:
-- <code>SOCKET</code>: directory containing the socket</p>
-</details>
-<h4 id="connecting-via-ssltls">Connecting via SSL/TLS<a class="headerlink" href="#connecting-via-ssltls" title="Permanent link">&para;</a></h4>
+<p>Where:</p>
+<ul>
+<li><code>/var/run/postgresql</code>: Directory containing the socket</li>
+</ul>
+</div>
+<div class="tabbed-block">
+<p>Add an instance with TLS security:</p>
 <div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>postgresql<span class="w"> </span>--tls<span class="w"> </span><span class="se">\</span>
 --tls-cert-file<span class="o">=</span>PATHTOCERT<span class="w"> </span><span class="se">\</span>
 --tls-ca-file<span class="o">=</span>PATHTOCACERT<span class="w"> </span><span class="se">\</span>
@@ -9693,90 +9302,209 @@ and
 </code></pre></div>
 <p>where:</p>
 <ul>
-<li><code>PATHTOCERT</code>: Path to client certificate file.</li>
-<li><code>PATHTOCACERT</code>: Path to certificate authority file.</li>
-<li><code>PATHTOKEY</code>: Path to client key file.</li>
-<li><code>HOST</code>: Instance hostname or IP.</li>
-<li><code>PORT</code>: PostgreSQL service port number.</li>
-<li><code>USER</code>: Database user allowed to connect via TLS. Should match the common name (CN) used in the client certificate.</li>
-<li><code>SERVICE</code>: Name to give to the service within PMM.</li>
+<li><code>PATHTOCERT</code>: Path to client certificate file</li>
+<li><code>PATHTOCACERT</code>: Path to certificate authority file</li>
+<li><code>PATHTOKEY</code>: Path to client key file</li>
+<li><code>HOST</code>: Instance hostname or IP</li>
+<li><code>PORT</code>: PostgreSQL service port number</li>
+<li><code>USER</code>: Database user allowed to connect via TLS (should match the CN in the client certificate)</li>
+<li><code>SERVICE-NAME</code>: Name to give to the service within PMM</li>
 </ul>
-<h4 id="automatic-discovery-limit-via-cli">Automatic discovery limit via CLI<a class="headerlink" href="#automatic-discovery-limit-via-cli" title="Permanent link">&para;</a></h4>
-<p>The <code>pmm-admin</code> flag limits Auto-discovery:</p>
-<p><code>--auto-discovery-limit=XXX</code></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<h3 id="configure-auto-discovery">Configure auto-discovery<a class="headerlink" href="#configure-auto-discovery" title="Permanent link">&para;</a></h3>
+<p>Auto-discovery dynamically identifies all databases in your PostgreSQL instance. This feature helps balance comprehensive monitoring with resource efficiency.</p>
+<div class="admonition caution">
+<p class="admonition-title">Performance impact</p>
+<p>Limiting auto-discovery may result in fewer metrics being captured from the non-primary databases. Ensure that you set the limit appropriately:</p>
 <ul>
-<li>If number of databases &gt; Auto-discovery limit, then auto discovery is <strong>OFF</strong></li>
-<li>If number of databases &lt;= Auto-discovery limit, then auto discovery is <strong>ON</strong></li>
-<li>If the Auto-discovery limit is not defined, it takes the default value, which is 0 (server defined with limit 10), and Auto-discovery is <strong>ON</strong>(if you do not have more than 10 databases).</li>
-<li>If Auto-discovery limit &lt; 0 then auto discovery is <strong>OFF</strong>.</li>
+<li><strong>High limits</strong> may impact performance by creating too many connections</li>
+<li><strong>Low limits</strong> may result in missing metrics from non-primary databases</li>
 </ul>
-<details class="info">
-<summary>Example</summary>
-<p>If you set the limit to 10 and your PostgreSQL instance has 11 databases, automatic discovery will be disabled.</p>
-<p><code>pmm-admin add postgresql --username="pmm-agent" --password="pmm-agent-password" --auto-discovery-limit=10</code></p>
-</details>
+</div>
+<div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">Via command line</label><label for="__tabbed_5_2">Via web UI</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>The <code>pmm-admin</code> flag controls Auto-discovery behavior:</p>
+<div class="highlight"><pre><span></span><code>--auto-discovery-limit<span class="o">=</span>XXX
+</code></pre></div>
+<p>How the limit works:</p>
+<ul>
+<li>If number of databases &gt; Auto-discovery limit: Auto-discovery is <strong>OFF</strong></li>
+<li>If number of databases &lt;= Auto-discovery limit: Auto-discovery is <strong>ON</strong></li>
+<li>If Auto-discovery limit is not defined: Default value is 0 (server-defined with limit 10)</li>
+<li>If Auto-discovery limit &lt; 0: Auto-discovery is <strong>OFF</strong></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>postgresql<span class="w"> </span><span class="se">\</span>
+--username<span class="o">=</span><span class="s2">&quot;pmm&quot;</span><span class="w"> </span><span class="se">\</span>
+--password<span class="o">=</span><span class="s2">&quot;password&quot;</span><span class="w"> </span><span class="se">\</span>
+--auto-discovery-limit<span class="o">=</span><span class="m">10</span>
+</code></pre></div>
+<p>If your PostgreSQL instance has 11 databases, automatic discovery will be disabled.</p>
+</div>
+<div class="tabbed-block">
+<p>By default, <strong>Auto-discovery</strong> is enabled with a server-defined limit of 10 databases.</p>
+<p><img alt="Auto-discovery Enabled" src="../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_enabled.png" /></p>
+<p>When you select <strong>Disabled</strong>, the <strong>Auto-discovery limit</strong> will be set to <code>-1</code>.</p>
+<p><img alt="Auto-discovery Disabled" src="../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_disabled.png" /></p>
+<p>For a custom value, select <strong>Custom</strong> and enter your preferred limit.</p>
+<p><img alt="Auto-discovery Custom" src="../../../images/PMM_Add_Instance_PostgreSQL_autodiscovery_custom.png" /></p>
+</div>
+</div>
+</div>
 <h2 id="check-the-service">Check the service<a class="headerlink" href="#check-the-service" title="Permanent link">&para;</a></h2>
-<h3 id="check-service-pmm-user-interface">Check service - PMM user interface<a class="headerlink" href="#check-service-pmm-user-interface" title="Permanent link">&para;</a></h3>
-<p class="power-number">To check the service from the PMM UI:</p>
-<ol>
-<li>Select <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97s-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1s.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64z"/></svg></span> <strong>Configuration</strong> → <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1M7 7h10V5h2v14H5V5h2zm5 10v-2h5v2zm0-6V9h5v2zm-4 1V9H7V8h2v4zm1.25 2c.41 0 .75.34.75.75 0 .2-.08.39-.21.52L8.12 17H10v1H7v-.92L9 15H7v-1z"/></svg></span> <strong>Inventory</strong>.</li>
-<li>In the <strong>Services</strong> tab, verify the <strong>Service name</strong>, <strong>Address</strong> and any other relevant details.</li>
-<li>In the <strong>Options</strong> column, expand the <strong>Details</strong> section and check that the Agents are using the desired data source.</li>
-</ol>
-<h3 id="check-service-command-line">Check service - Command line<a class="headerlink" href="#check-service-command-line" title="Permanent link">&para;</a></h3>
-<p>Look for your service in the output of this command.</p>
+<p>After adding a PostgreSQL service, verify that it&rsquo;s properly connected and sending data to PMM.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="6:3"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><input id="__tabbed_6_3" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">Via command line</label><label for="__tabbed_6_2">Via web UI</label><label for="__tabbed_6_3">Check the dashboard data</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Run this command to view all services:</p>
 <div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>inventory<span class="w"> </span>list<span class="w"> </span>services
 </code></pre></div>
-<div class="admonition hint alert alert-success">
-<p>If using Docker, use <code>docker exec pmm-client pmm-admin inventory list services</code></p>
+<div class="admonition hint">
+<p class="admonition-title">Docker environments</p>
+<p>If using Docker, use: 
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>pmm-client<span class="w"> </span>pmm-admin<span class="w"> </span>inventory<span class="w"> </span>list<span class="w"> </span>services
+</code></pre></div></p>
 </div>
-<h3 id="check-data">Check data<a class="headerlink" href="#check-data" title="Permanent link">&para;</a></h3>
-<p class="power-number">To check the data:</p>
+<p>Look for your PostgreSQL service in the output and verify that its status is &ldquo;RUNNING&rdquo;.</p>
+</div>
+<div class="tabbed-block">
+<p class="power-number">Use the UI to confirm that your service was added and is actively monitored:</p>
+<ol>
+<li>
+<p>Select <strong>Configuration &gt; Inventory</strong>.</p>
+</li>
+<li>
+<p>In the <strong>Services</strong> tab, verify that <strong>Service name</strong> matches what you configured, <strong>Address</strong> points to your PostgreSQL instance and <strong>Status</strong> shows as &ldquo;Active&rdquo;.</p>
+</li>
+<li>
+<p>In the <strong>Options</strong> column, expand the <strong>Details</strong> section to check that agents are properly registered and that the expected data source is being used.</p>
+</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<p class="power-number">Ensure PostgreSQL metrics are flowing and visualized correctly:</p>
 <ol>
 <li>
 <p>Open the <strong>PostgreSQL Instance Summary</strong> dashboard.</p>
 </li>
 <li>
-<p>Set the <strong>Service Name</strong> to the newly-added service.</p>
+<p>Select your service name from the dropdown.</p>
+</li>
+<li>
+<p>Verify that metrics are being displayed.</p>
+</li>
+<li>
+<p>Check that the graphs are updating with current data.</p>
 </li>
 </ol>
+</div>
+</div>
+</div>
 <h3 id="running-custom-queries">Running custom queries<a class="headerlink" href="#running-custom-queries" title="Permanent link">&para;</a></h3>
-<p>The PostgreSQL exporter can run custom queries to add new metrics not provided by default.<br />
-Those custom queries must be defined in the <code>/usr/local/percona/pmm/collectors/custom-queries/postgresql</code> in the same host where the exporter is
-running. There are 3 directories inside it:
-    - high-resolution/   - every 5 seconds
-    - medium-resolution/ - every 10 seconds
-    - low-resolution/ - every 60 seconds</p>
-<p>Depending on the desired resolution for your custom queries, you can place a file with the queries definition.
-The file is a yaml where each query can have these fields:</p>
-<div class="highlight"><pre><span></span><code>query_name:
-   query: the query definition
-   master: boolean to specify if the query should be executed only in the master
-   metrics:
-     - metric name:
-         usage: GAUGE, LABEL, COUNTER, MAPPEDMETRIC or DURATION
-         description: a human readable description
+<p>The PostgreSQL exporter can execute custom queries to collect additional metrics beyond what PMM provides by default.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="7:3"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><input id="__tabbed_7_3" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">Configuration basics</label><label for="__tabbed_7_2">Query definition format</label><label for="__tabbed_7_3">Metric types</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Custom queries must be defined in this directory on the host where the exporter is running:
+<div class="highlight"><pre><span></span><code>/usr/local/percona/pmm/collectors/custom-queries/postgresql
+</code></pre></div></p>
+<p>Three resolution directories are available:</p>
+<table>
+<thead>
+<tr>
+<th>Directory</th>
+<th>Execution Frequency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>high-resolution/</code></td>
+<td>Every 5 seconds</td>
+</tr>
+<tr>
+<td><code>medium-resolution/</code></td>
+<td>Every 10 seconds</td>
+</tr>
+<tr>
+<td><code>low-resolution/</code></td>
+<td>Every 60 seconds</td>
+</tr>
+</tbody>
+</table>
+<p>Choose the appropriate directory based on how frequently you need the data.</p>
+</div>
+<div class="tabbed-block">
+<p>Create YAML files in the appropriate resolution directory with this structure:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">query_name</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;SELECT</span><span class="nv"> </span><span class="s">statement</span><span class="nv"> </span><span class="s">goes</span><span class="nv"> </span><span class="s">here&quot;</span>
+<span class="w">  </span><span class="nt">master</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true|false</span><span class="w">  </span><span class="c1"># Whether to run only on the master</span>
+<span class="w">  </span><span class="nt">metrics</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">metric_name</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">usage</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;GAUGE|COUNTER|LABEL|MAPPEDMETRIC|DURATION&quot;</span>
+<span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Human-readable</span><span class="nv"> </span><span class="s">description</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">metric&quot;</span>
 </code></pre></div>
-<details class="info">
-<summary>Example</summary>
-<div class="highlight"><pre><span></span><code>pg_postmaster_uptime:
-query: &quot;select extract(epoch from current_timestamp - pg_postmaster_start_time()) as seconds&quot;
-master: true
-metrics:
-    - seconds:
-        usage: &quot;GAUGE&quot;
-        description: &quot;Service uptime&quot;
+<p><strong>Example</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">pg_postmaster_uptime</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;select</span><span class="nv"> </span><span class="s">extract(epoch</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">current_timestamp</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">pg_postmaster_start_time())</span><span class="nv"> </span><span class="s">as</span><span class="nv"> </span><span class="s">seconds&quot;</span>
+<span class="w">  </span><span class="nt">master</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">metrics</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">seconds</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">usage</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;GAUGE&quot;</span>
+<span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;PostgreSQL</span><span class="nv"> </span><span class="s">service</span><span class="nv"> </span><span class="s">uptime</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">seconds&quot;</span>
 </code></pre></div>
-</details>
-<p>Check the see also section for a more detailed description on MySQL custom queries with more examples about how to use custom queries in dashboards.</p>
-<div class="admonition seealso alert alert-info">
-<p class="admonition-title">See also</p>
+</div>
+<div class="tabbed-block">
+<table>
+<thead>
+<tr>
+<th>Metric Type</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GAUGE</code></td>
+<td>A value that can go up or down</td>
+<td>Memory usage, connection count</td>
+</tr>
+<tr>
+<td><code>COUNTER</code></td>
+<td>A cumulative value that only increases</td>
+<td>Total queries, bytes transferred</td>
+</tr>
+<tr>
+<td><code>LABEL</code></td>
+<td>A string value used for labeling</td>
+<td>Database name, table name</td>
+</tr>
+<tr>
+<td><code>MAPPEDMETRIC</code></td>
+<td>Maps a query result to a numeric value</td>
+<td>State conversion (e.g., &ldquo;on&rdquo;=1, &ldquo;off&rdquo;=0)</td>
+</tr>
+<tr>
+<td><code>DURATION</code></td>
+<td>A time duration</td>
+<td>Query execution time, lock wait time</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<h2 id="related-topics">Related topics<a class="headerlink" href="#related-topics" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../../../use/commands/pmm-admin.html#postgresql"><code>pmm-admin</code> man page for <code>pmm-admin add postgresql</code></a></li>
 <li><a href="https://www.percona.com/doc/percona-repo-config/percona-release.html">Configuring Percona Repositories with percona-release</a></li>
 <li><a href="https://www.percona.com/blog/2020/06/10/running-custom-queries-in-percona-monitoring-and-management/">Percona Blog &ndash; Running Custom MySQL Queries in Percona Monitoring and Management</a></li>
 </ul>
-</div>
 
 
 
@@ -9797,7 +9525,7 @@ metrics:
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-02-17
+    2025-05-29
   </span>
 
     
