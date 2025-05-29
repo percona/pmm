@@ -11,6 +11,10 @@ To completely remove your container and data:
 
     ```sh
     systemctl --user stop pmm-server
+
+    # Wait for container to stop completely
+    podman wait --condition=stopped pmm-server || true
+    sleep 10
     ```
 
 2. If you're using Watchtower for UI upgrades, stop it too:
@@ -20,14 +24,6 @@ To completely remove your container and data:
     ```
 
 3. Remove the PMM data volume:
-
-    <div hidden>
-    ```sh
-    #wait for container to stop
-    podman wait --condition=stopped pmm-server || true
-    sleep 10
-    ```
-    </div>
 
     ```sh
     podman volume rm --force pmm-server
