@@ -435,6 +435,7 @@ func TestRemoveNode(t *testing.T) {
 			Mysql:      make([]*services.ListServicesOKBodyMysqlItems0, 0),
 			Mongodb:    make([]*services.ListServicesOKBodyMongodbItems0, 0),
 			Postgresql: make([]*services.ListServicesOKBodyPostgresqlItems0, 0),
+			Valkey:     make([]*services.ListServicesOKBodyValkeyItems0, 0),
 			Proxysql:   make([]*services.ListServicesOKBodyProxysqlItems0, 0),
 			Haproxy:    make([]*services.ListServicesOKBodyHaproxyItems0, 0),
 			External:   make([]*services.ListServicesOKBodyExternalItems0, 0),

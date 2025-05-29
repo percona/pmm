@@ -165,7 +165,7 @@ func (c *Channel) Send(resp *AgentResponse) {
 // If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancelation.
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) { //nolint:ireturn
+func (c *Channel) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) { //nolint:ireturn,nolintlint
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
 

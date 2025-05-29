@@ -969,7 +969,7 @@ func TestServices(t *testing.T) {
 
 			labels, err := service.GetCustomLabels()
 			assert.NoError(t, err)
-			assert.Equal(t, len(labels), 2)
+			assert.Len(t, labels, 2)
 			assert.Equal(t, labels["newKey"], "newValue")
 			assert.Equal(t, labels["newKey2"], "newValue2")
 		})
@@ -1013,7 +1013,7 @@ func TestServices(t *testing.T) {
 
 			labels, err := service.GetCustomLabels()
 			assert.NoError(t, err)
-			assert.Equal(t, len(labels), 2)
+			assert.Len(t, labels, 2)
 			assert.Equal(t, labels["newKey"], "newValue")
 			assert.Equal(t, labels["newKey2"], "newValue-replaced")
 		})
@@ -1063,7 +1063,7 @@ func TestServices(t *testing.T) {
 
 			labels, err := service.GetCustomLabels()
 			assert.NoError(t, err)
-			assert.Equal(t, len(labels), 1)
+			assert.Len(t, labels, 1)
 			assert.Equal(t, labels["newKey3"], "newValue3")
 		})
 	})

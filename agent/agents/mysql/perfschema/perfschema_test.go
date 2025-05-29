@@ -15,7 +15,6 @@
 package perfschema
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -117,7 +116,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 			},
 		}
 		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
-		require.Len(t, actual, 0)
+		require.Empty(t, actual)
 	})
 
 	t.Run("Truncate", func(t *testing.T) {
@@ -131,7 +130,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 		}
 		current := make(map[string]*eventsStatementsSummaryByDigest)
 		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
-		require.Len(t, actual, 0)
+		require.Empty(t, actual)
 	})
 
 	t.Run("TruncateAndNew", func(t *testing.T) {
@@ -195,7 +194,7 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 
 	p, err := newPerfSchema(newParams)
 	require.NoError(t, err)
-	require.NoError(t, p.refreshHistoryCache())
+	require.NoError(t, p.refreshHistoryCache(t.Context()))
 	return p
 }
 
@@ -283,8 +282,7 @@ func TestPerfSchema(t *testing.T) {
 	tests.LogTable(t, structs)
 
 	var rowsExamined float32
-	ctx := context.Background()
-	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, db.WithTag("pmm-agent-tests:MySQLVersion"))
+	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(t.Context(), db.WithTag("pmm-agent-tests:MySQLVersion"))
 	t.Logf("MySQL version: %s, vendor: %s", mySQLVersion, mySQLVendor)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
@@ -370,7 +368,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err := db.Exec("SELECT /* Sleep controller='test' */ sleep(0.1)")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
@@ -417,7 +415,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err := db.Exec("SELECT /* AllCities controller='test' */ * FROM city")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
@@ -472,7 +470,7 @@ func TestPerfSchema(t *testing.T) {
 			require.NoError(t, err)
 		}()
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
@@ -539,7 +537,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err = db.Exec("SELECT /* t1 controller='test' */ * FROM t1 where col1='Bu\xf1rk'")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 		var example string
 		switch {
 		// Perf schema truncates queries with non-utf8 characters.
@@ -606,7 +604,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err = db.Exec("SELECT 1, 2, 3, 4, id FROM city WHERE id = 1")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)

@@ -226,7 +226,7 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 
 // ChangeAgent allows to change some Agent attributes.
 func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeAgentRequest) (*inventoryv1.ChangeAgentResponse, error) {
-	agentID := req.GetAgentId() //nolint:typecheck
+	agentID := req.GetAgentId()
 
 	switch req.Agent.(type) {
 	case *inventoryv1.ChangeAgentRequest_NodeExporter:

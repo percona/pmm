@@ -22,6 +22,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	maxIdleConns = 10
+	maxOpenConns = 10
+)
+
 // GetTestMySQLDSN returns DNS for MySQL test database.
 func GetTestMySQLDSN(tb testing.TB) string {
 	tb.Helper()
@@ -54,8 +59,8 @@ func OpenTestMySQL(tb testing.TB) *sql.DB {
 	db, err := sql.Open("mysql", GetTestMySQLDSN(tb))
 	require.NoError(tb, err)
 
-	db.SetMaxIdleConns(10)
-	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(maxIdleConns)
+	db.SetMaxOpenConns(maxOpenConns)
 	db.SetConnMaxLifetime(0)
 
 	waitForTestDataLoad(tb, db)

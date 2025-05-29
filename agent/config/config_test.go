@@ -70,8 +70,8 @@ func TestLoadFromFile(t *testing.T) {
 
 		cfg, err := loadFromFile(name)
 		require.IsType(t, (*os.PathError)(nil), err)
-		assert.Equal(t, "open", err.(*os.PathError).Op)                    //nolint:errorlint
-		assert.EqualError(t, err.(*os.PathError).Err, `permission denied`) //nolint:errorlint
+		assert.Equal(t, "open", err.(*os.PathError).Op)                     //nolint:errorlint
+		require.EqualError(t, err.(*os.PathError).Err, "permission denied") //nolint:errorlint
 		assert.Nil(t, cfg)
 	})
 
@@ -82,7 +82,7 @@ func TestLoadFromFile(t *testing.T) {
 
 		cfg, err := loadFromFile(name)
 		require.IsType(t, (*yaml.TypeError)(nil), err)
-		assert.EqualError(t, err, "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `not YAML` into config.Config")
+		require.EqualError(t, err, "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `not YAML` into config.Config")
 		assert.Nil(t, cfg)
 	})
 }

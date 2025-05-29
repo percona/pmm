@@ -59,7 +59,7 @@ func GetLatestVersion(ctx context.Context) (string, error) {
 	}
 
 	cl := &http.Client{ //nolint:exhaustruct
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
 		Timeout: 10 * time.Second,
