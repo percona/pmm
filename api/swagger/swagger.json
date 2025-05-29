@@ -21280,6 +21280,19 @@
                       "description": "TLS Certificate Key.",
                       "type": "string",
                       "x-order": 22
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 23
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-order": 24
                     }
                   },
                   "x-order": 7
