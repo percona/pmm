@@ -90,7 +90,7 @@ func TestDropOldPartition(t *testing.T) {
 			&partitions,
 			query)
 		require.NoError(t, err, "Unexpected error in selecting metrics partition")
-		require.Equal(t, 2, len(partitions), "No one partition were truncated. Partition %+v, days %d", partitions, days)
+		require.Len(t, partitions, 2, "No one partition were truncated. Partition %+v, days %d", partitions, days)
 		assert.Equal(t, "20190101", partitions[0], "Newest partition was not truncated")
 		assert.Equal(t, "20190102", partitions[1], "Oldest partition was not truncated")
 	})
@@ -103,7 +103,7 @@ func TestDropOldPartition(t *testing.T) {
 			&partitions,
 			query)
 		require.NoError(t, err, "Unexpected error in selecting metrics partition")
-		require.Equal(t, 1, len(partitions), "Only one partition should left. Partition %+v, days %d", partitions, days)
+		require.Len(t, partitions, 1, "Only one partition should left. Partition %+v, days %d", partitions, days)
 		assert.Equal(t, "20190102", partitions[0], "Newest partition was not truncated")
 	})
 	cleanup()
@@ -118,8 +118,8 @@ func TestCreateDbIfNotExists(t *testing.T) {
 			dsn = "clickhouse://127.0.0.1:19000/pmm_created_db"
 		}
 
-		db := createDB(dsn)
+		err := createDB(dsn)
 
-		require.Nil(t, db, "Check connection after we create database")
+		require.NoError(t, err, "Check connection after we create database")
 	})
 }

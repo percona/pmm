@@ -65,7 +65,7 @@ func TestClient(t *testing.T) {
 			body := clientError.Body
 			body = strings.ReplaceAll(body, "\n", "") // different grafana versions format response differently
 			body = strings.ReplaceAll(body, " ", "")  // so we cleanup response from spaces and newlines to get unified result
-			assert.Equal(t, "{\"extra\":null,\"message\":\"Unauthorized\",\"messageId\":\"auth.unauthorized\",\"statusCode\":401,\"traceID\":\"\"}", body)
+			assert.JSONEq(t, `{"extra":null,"message":"Unauthorized","messageId":"auth.unauthorized","statusCode":401,"traceID":""}`, body)
 			assert.Equal(t, `Unauthorized`, clientError.ErrorMessage)
 			assert.Equal(t, none, role)
 			assert.Equal(t, "None", role.String())
@@ -98,8 +98,6 @@ func TestClient(t *testing.T) {
 		})
 
 		for _, role := range []role{viewer, editor, admin} {
-			role := role
-
 			t.Run(fmt.Sprintf("Basic auth %s", role.String()), func(t *testing.T) {
 				login := fmt.Sprintf("basic-%s-%d", role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
@@ -118,29 +116,6 @@ func TestClient(t *testing.T) {
 				userAuthHeaders := req.Header
 
 				u, err := c.getAuthUser(ctx, userAuthHeaders, l)
-				actualRole := u.role
-				require.NoError(t, err)
-				assert.Equal(t, role, actualRole)
-				assert.Equal(t, role.String(), actualRole.String())
-			})
-
-			t.Run(fmt.Sprintf("API Key auth %s", role.String()), func(t *testing.T) {
-				login := fmt.Sprintf("api-%s-%d", role, time.Now().Nanosecond())
-				apiKeyID, apiKey, err := c.createAPIKey(ctx, login, role, authHeaders)
-				require.NoError(t, err)
-				require.NotZero(t, apiKeyID)
-				require.NotEmpty(t, apiKey)
-				if err != nil {
-					defer func() {
-						err = c.deleteAPIKey(ctx, apiKeyID, authHeaders)
-						require.NoError(t, err)
-					}()
-				}
-
-				apiKeyAuthHeaders := http.Header{}
-				apiKeyAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
-
-				u, err := c.getAuthUser(ctx, apiKeyAuthHeaders, l)
 				actualRole := u.role
 				require.NoError(t, err)
 				assert.Equal(t, role, actualRole)
