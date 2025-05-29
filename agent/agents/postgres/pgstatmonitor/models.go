@@ -21,7 +21,7 @@ import "fmt"
 // pgStatDatabase represents a row in pg_stat_database view.
 //
 //reform:pg_catalog.pg_stat_database
-type pgStatDatabase struct {
+type pgStatDatabase struct { //nolint:recvcheck
 	DatID   int64   `reform:"datid"`
 	DatName *string `reform:"datname"`
 }
@@ -29,7 +29,7 @@ type pgStatDatabase struct {
 // pgUser represents a row in pg_user view.
 //
 //reform:pg_catalog.pg_user
-type pgUser struct {
+type pgUser struct { //nolint:recvcheck
 	UserID   int64   `reform:"usesysid"`
 	UserName *string `reform:"usename"`
 }
@@ -37,7 +37,7 @@ type pgUser struct {
 // pgStatMonitorSettings represents a row in pg_stat_monitor_settings view before 1.0.0-rc.2.
 //
 //reform:pg_stat_monitor_settings
-type pgStatMonitorSettings struct {
+type pgStatMonitorSettings struct { //nolint:recvcheck
 	Name  string `reform:"name"`
 	Value int64  `reform:"value"`
 }
@@ -45,7 +45,7 @@ type pgStatMonitorSettings struct {
 // pgStatMonitorSettingsTextValue represents a row in pg_stat_monitor_settings view from 1.0.0-rc.2 until 2.0.0-dev (2.0.0.-dev excluded).
 //
 //reform:pg_stat_monitor_settings
-type pgStatMonitorSettingsTextValue struct {
+type pgStatMonitorSettingsTextValue struct { //nolint:recvcheck
 	Name  string `reform:"name"`
 	Value string `reform:"value"`
 }

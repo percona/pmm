@@ -26,7 +26,7 @@ import (
 func TestMain(m *testing.M) {
 	// replace hash func with stub because of high cyclomatic complexity
 	// of bcrypt's internals. This allows much faster -race test runs.
-	models.HashPassword = func(password, salt string) (string, error) {
+	models.HashPassword = func(password, _ string) (string, error) {
 		return password, nil
 	}
 

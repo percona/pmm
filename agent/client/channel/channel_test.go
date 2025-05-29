@@ -157,7 +157,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 
 func TestAgentRequest(t *testing.T) {
 	const count = 50
-	require.True(t, count > serverRequestsCap)
+	require.Greater(t, count, serverRequestsCap)
 
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		for i := uint32(1); i <= count; i++ {
@@ -221,7 +221,7 @@ pmm_agent_channel_messages_sent_total 50
 
 func TestServerRequest(t *testing.T) {
 	const count = 50
-	require.True(t, count > serverRequestsCap)
+	require.Greater(t, count, serverRequestsCap)
 
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		for i := uint32(1); i <= count; i++ {

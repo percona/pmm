@@ -32,6 +32,15 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+const (
+	defaultNodeEventChanSize = 5
+	defaultRaftRetries       = 3
+	defaultTransportTimeout  = 10 * time.Second
+	defaultLeaveTimeout      = 5 * time.Second
+	defaultTickerInterval    = 5 * time.Second
+	defaultApplyTimeout      = 3 * time.Second
+)
+
 // Service represents the high-availability service.
 type Service struct {
 	params           *models.HAParams
@@ -60,7 +69,7 @@ func (s *Service) Apply(logEntry *raft.Log) interface{} {
 
 // Snapshot returns a snapshot of the high-availability service.
 func (s *Service) Snapshot() (raft.FSMSnapshot, error) { //nolint:ireturn
-	return nil, nil
+	return nil, nil //nolint:nilnil
 }
 
 // Restore restores the high availability service to a previous state.
@@ -74,7 +83,7 @@ func New(params *models.HAParams) *Service {
 		params:           params,
 		bootstrapCluster: params.Bootstrap,
 		services:         newServices(),
-		nodeCh:           make(chan memberlist.NodeEvent, 5),
+		nodeCh:           make(chan memberlist.NodeEvent, defaultNodeEventChanSize),
 		leaderCh:         make(chan raft.Observation),
 		receivedMessages: make(chan []byte),
 		l:                logrus.WithField("component", "ha"),
@@ -117,7 +126,7 @@ func (s *Service) Run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	raftTrans, err := raft.NewTCPTransport(net.JoinHostPort("0.0.0.0", strconv.Itoa(s.params.RaftPort)), raa, 3, 10*time.Second, nil)
+	raftTrans, err := raft.NewTCPTransport(net.JoinHostPort("0.0.0.0", strconv.Itoa(s.params.RaftPort)), raa, defaultRaftRetries, defaultTransportTimeout, nil)
 	if err != nil {
 		return err
 	}
@@ -154,7 +163,7 @@ func (s *Service) Run(ctx context.Context) error {
 		return fmt.Errorf("failed to create memberlist: %w", err)
 	}
 	defer func() {
-		err := s.memberlist.Leave(5 * time.Second)
+		err := s.memberlist.Leave(defaultLeaveTimeout)
 		if err != nil {
 			s.l.Errorf("couldn't leave memberlist cluster: %q", err)
 		}
@@ -206,7 +215,7 @@ func (s *Service) Run(ctx context.Context) error {
 }
 
 func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
-	t := time.NewTicker(5 * time.Second)
+	t := time.NewTicker(defaultTickerInterval)
 
 	for {
 		select {
@@ -265,7 +274,7 @@ func (s *Service) addMemberlistNodeToRaft(node *memberlist.Node) {
 }
 
 func (s *Service) runLeaderObserver(ctx context.Context) {
-	t := time.NewTicker(5 * time.Second)
+	t := time.NewTicker(defaultTickerInterval)
 	for {
 		s.rw.RLock()
 		node := s.raftNode
@@ -309,7 +318,7 @@ func (s *Service) BroadcastMessage(message []byte) {
 	if s.params.Enabled {
 		s.rw.RLock()
 		defer s.rw.RUnlock()
-		s.raftNode.Apply(message, 3*time.Second)
+		s.raftNode.Apply(message, defaultApplyTimeout)
 	} else {
 		s.receivedMessages <- message
 	}

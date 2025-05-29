@@ -114,7 +114,7 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 	// l is closed by runGRPCServer
 
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(2) //nolint:mnd
 	go func() {
 		defer wg.Done()
 		s.runGRPCServer(serverCtx, l)
@@ -200,7 +200,7 @@ func (s *Server) Reload(ctx context.Context, req *agentlocal.ReloadRequest) (*ag
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
-func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) {
+func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) { //nolint:contextcheck
 	l := s.l.WithField("component", "local-server/gRPC")
 	l.Debugf("Starting gRPC server on http://%s/ ...", listener.Addr().String())
 
@@ -288,7 +288,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 		ErrorHandling: promhttp.ContinueOnError,
 	}))
 
-	debugPageHandler := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+	debugPageHandler := http.HandlerFunc(func(rw http.ResponseWriter, _ *http.Request) {
 		if _, err := rw.Write(debugPage.Bytes()); err != nil {
 			l.Warn(err)
 		}

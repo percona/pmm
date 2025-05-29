@@ -27,6 +27,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -150,7 +151,7 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 
 	addData(zipW, "client/pmm-admin-version.txt", now, bytes.NewReader([]byte(version.FullInfo())))
 
-	host := net.JoinHostPort(agentlocal.Localhost, fmt.Sprintf("%d", agentlocal.DefaultPMMAgentListenPort))
+	host := net.JoinHostPort(agentlocal.Localhost, strconv.FormatInt(agentlocal.DefaultPMMAgentListenPort, 10))
 	err = downloadFile(ctx, zipW, fmt.Sprintf("http://%s/logs.zip", host), "client/pmm-agent")
 	if err != nil {
 		logrus.Warnf("%s", err)
@@ -197,7 +198,7 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 
 	for _, agent := range agentsInfo {
 		if pointer.GetString(agent.AgentType) == types.AgentTypeVMAgent {
-			host := net.JoinHostPort(agentlocal.Localhost, fmt.Sprintf("%d", agent.ListenPort))
+			host := net.JoinHostPort(agentlocal.Localhost, strconv.FormatInt(agent.ListenPort, 10))
 			b, err := getURL(ctx, fmt.Sprintf("http://%s/api/v1/targets", host))
 			if err != nil {
 				logrus.Debugf("%s", err)
@@ -212,7 +213,7 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 				addData(zipW, "client/vmagent-targets.html", now, bytes.NewReader([]byte(err.Error())))
 				return
 			}
-			req.Header.Set("accept", "text/html")
+			req.Header.Set("Accept", "text/html")
 			res, err := http.DefaultClient.Do(req)
 			if err != nil {
 				logrus.Debugf("%s", err)
@@ -304,12 +305,12 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, global
 		},
 	}
 
-	host := net.JoinHostPort(agentlocal.Localhost, fmt.Sprintf("%d", globals.PMMAgentListenPort))
+	host := net.JoinHostPort(agentlocal.Localhost, strconv.FormatUint(uint64(globals.PMMAgentListenPort), 10))
 	sources := map[string]string{
 		"client/pprof/pmm-agent": fmt.Sprintf("http://%s/debug/pprof", host),
 	}
 
-	isRunOnPmmServer, _ := helpers.IsOnPmmServer() //nolint:contextcheck
+	isRunOnPmmServer, _ := helpers.IsOnPmmServer()
 
 	if !skipServer && isRunOnPmmServer {
 		sources["server/pprof/qan-api2"] = fmt.Sprintf("http://%s/debug/pprof", net.JoinHostPort(agentlocal.Localhost, "9933"))
