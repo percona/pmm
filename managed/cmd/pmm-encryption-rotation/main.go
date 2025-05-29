@@ -69,7 +69,7 @@ func setupParams() models.SetupDBParams {
 	kong.Parse(
 		&opts,
 		kong.Name("encryption-rotation"),
-		kong.Description(fmt.Sprintf("Version %s", version.Version)),
+		kong.Description(fmt.Sprintf("Version %s", version.Version)), //nolint:perfsprint
 		kong.UsageOnError(),
 		kong.ConfigureHelp(kong.HelpOptions{
 			Compact:             true,
