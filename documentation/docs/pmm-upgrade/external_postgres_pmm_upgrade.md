@@ -102,7 +102,7 @@ Modify your startup command or configuration file to use the new parameters:
       pmm-server:
         image: percona/pmm-server:3.2.0
         ports:
-          - "443:443"
+          - "443:8443"
         volumes:
           - pmm-data:/srv
         environment:
