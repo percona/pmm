@@ -19,8 +19,6 @@ package validators
 import (
 	"fmt"
 	"time"
-
-	"github.com/aws/aws-sdk-go/aws/endpoints"
 )
 
 const (
@@ -82,14 +80,14 @@ func ValidateDataRetention(value time.Duration) (time.Duration, error) {
 
 // ValidateAWSPartitions validates AWS partitions list.
 func ValidateAWSPartitions(partitions []string) error {
-	if len(partitions) > len(endpoints.DefaultPartitions()) {
+	if len(partitions) > len(AWSPartitions()) {
 		return fmt.Errorf("aws_partitions: list is too long")
 	}
 
 	for _, p := range partitions {
 		var valid bool
-		for _, vp := range endpoints.DefaultPartitions() {
-			if p == vp.ID() {
+		for _, partition := range AWSPartitions() {
+			if p == partition {
 				valid = true
 				break
 			}
@@ -100,4 +98,12 @@ func ValidateAWSPartitions(partitions []string) error {
 	}
 
 	return nil
+}
+
+func AWSPartitions() []string {
+	return []string{
+		"aws",        // Standard commercial AWS
+		"aws-cn",     // China regions
+		"aws-us-gov", // U.S. GovCloud regions
+	}
 }

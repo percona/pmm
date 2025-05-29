@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/google/uuid"
@@ -227,9 +227,9 @@ func TestRDSService(t *testing.T) {
 
 				creds := credentials.NewStaticCredentials(accessKey, secretKey, "")
 				cfg := &aws.Config{
-					CredentialsChainVerboseErrors: aws.Bool(true),
-					Credentials:                   creds,
-					HTTPClient:                    &http.Client{},
+					//CredentialsChainVerboseErrors: aws.Bool(true), TODO debugging in test
+					Credentials: creds,
+					HTTPClient:  &http.Client{},
 				}
 				sess, err := session.NewSession(cfg)
 				require.NoError(t, err)
