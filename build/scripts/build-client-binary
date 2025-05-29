@@ -48,12 +48,12 @@ gobuild_component() {
     fi
     
     archive=$(ls "${source_dir}" | grep -e "${parent_component}-\w*\.tar\.gz")
-    git_dir=$(git -C "${root_dir}" config -f .gitmodules "submodule.${parent_component}.path" )
 
     if [[ "${component}" =~ pmm-admin|pmm-agent ]]; then
         build_command="cd /tmp/go/src/${extract_path}/${component_path} && make release"
     elif [ "${component}" = mongodb_exporter ]; then
-        component_version=$(git -C "${git_dir}" describe --tags --abbrev=0 --always)
+        git_dir=$(git -C "${root_dir}" config -f .gitmodules "submodule.${parent_component}.path")
+        component_version=$(git -C "${root_dir}/${git_dir}" describe --tags --abbrev=0 --always)
         build_command="cd /tmp/go/src/${extract_path} && COMPONENT_VERSION=${component_version} make build"        
     elif [[ "${component}" =~ (node|mysqld|proxysql|rds|postgres|azure_metrics)_exporter ]]; then
         build_command="cd /tmp/go/src/${extract_path} && make release"
