@@ -357,7 +357,7 @@ Before installing the plugins, ensure you have the necessary plugin files and ru
 
 Some table metrics are automatically disabled when the number of tables exceeds a default limit of 1000 tables. This prevents PMM Client from affecting the performance of your database server.
 
-You can change the limit [when configuring MySQL performance improvements](https://pmm-doc-3-pr-3855.onrender.com/install-pmm/install-pmm-client/connect-database/mysql/improve_perf.html) with the two `pmm-admin` options:
+You can change the limit [when configuring MySQL performance improvements](../mysql/improve_perf.md) with the following options:
 
 | `pmm-admin` option             | Description
 |--------------------------------|--------------------------------------------------------------------------
