@@ -76,8 +76,8 @@ jobs:
         continue-on-error: true
         run: docker exec -t pmm-server supervisorctl status
 
-      - name: Refresh dnf cache for tests
-        run: docker exec -i pmm-server dnf --verbose info updates pmm-managed || echo '1'
+      - name: Display info on dnf cache
+        run: docker exec -i pmm-server dnf --verbose info || true
 
       - name: Run tests
         run: docker exec -i pmm-server make -C managed test-cover
