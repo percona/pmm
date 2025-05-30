@@ -29,7 +29,7 @@ type agentServer struct {
 }
 
 // NewAgentServer creates new agent server.
-func NewAgentServer(r *agents.Handler) agentv1.AgentServiceServer { //nolint:ireturn
+func NewAgentServer(r *agents.Handler) agentv1.AgentServiceServer { //nolint:ireturn,nolintlint
 	return &agentServer{
 		handler: r,
 	}

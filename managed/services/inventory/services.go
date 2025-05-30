@@ -300,7 +300,7 @@ func (ss *ServicesService) AddExternalService(ctx context.Context, params *model
 // Removes Service with the Agents if force == true.
 // Returns an error if force == false and Service has Agents.
 func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) error {
-	pmmAgentIds := make(map[string]struct{})
+	pmmAgentIDs := make(map[string]struct{})
 
 	if e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		service, err := models.FindServiceByID(tx.Querier, id)
@@ -318,7 +318,7 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 			}
 
 			for _, agent := range agents {
-				pmmAgentIds[agent.AgentID] = struct{}{}
+				pmmAgentIDs[agent.AgentID] = struct{}{}
 			}
 		}
 
@@ -341,11 +341,11 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 				}
 				for _, agent := range agents {
 					if agent.PMMAgentID != nil {
-						pmmAgentIds[pointer.GetString(agent.PMMAgentID)] = struct{}{}
+						pmmAgentIDs[pointer.GetString(agent.PMMAgentID)] = struct{}{}
 					}
 				}
 
-				if len(pmmAgentIds) <= 1 {
+				if len(pmmAgentIDs) <= 1 {
 					if err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade); err != nil {
 						return err
 					}
@@ -358,7 +358,7 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 		return e
 	}
 
-	for pmmAgentID := range pmmAgentIds {
+	for pmmAgentID := range pmmAgentIDs {
 		ss.state.RequestStateUpdate(ctx, pmmAgentID)
 	}
 
@@ -371,7 +371,7 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 }
 
 // ChangeService changes service configuration.
-func (ss *ServicesService) ChangeService(ctx context.Context, labels *models.ChangeStandardLabelsParams, custom *commonv1.StringMap) (inventoryv1.Service, error) { //nolint:ireturn,lll
+func (ss *ServicesService) ChangeService(ctx context.Context, labels *models.ChangeStandardLabelsParams, custom *commonv1.StringMap) (inventoryv1.Service, error) { //nolint:ireturn,lll,nolintlint
 	var service *models.Service
 
 	if err := ss.ms.RemoveScheduledTasks(ctx, ss.db, labels); err != nil {

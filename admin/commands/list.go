@@ -156,18 +156,32 @@ func (cmd *ListCommand) RunCmd() (Result, error) {
 	}, nil
 }
 
-func servicesList(servicesRes *services.ListServicesOK) []listResultService {
-	getSocketOrHost := func(socket, address string, port int64) string {
-		if socket != "" {
-			return socket
-		}
-		return net.JoinHostPort(address, strconv.FormatInt(port, 10))
+func getSocketOrHost(socket, address string, port int64) string {
+	if socket != "" {
+		return socket
 	}
+	return net.JoinHostPort(address, strconv.FormatInt(port, 10))
+}
 
-	l := len(servicesRes.Payload.Mysql) + len(servicesRes.Payload.Mongodb) + len(servicesRes.Payload.Postgresql)
-	l += len(servicesRes.Payload.Proxysql) + len(servicesRes.Payload.Haproxy) + len(servicesRes.Payload.External)
-	servicesList := make([]listResultService, 0, l)
+func servicesList(servicesRes *services.ListServicesOK) []listResultService {
+	// Pre-allocate with exact capacity to avoid reallocations
+	totalServices := len(servicesRes.Payload.Mysql) + len(servicesRes.Payload.Mongodb) + len(servicesRes.Payload.Postgresql) +
+		len(servicesRes.Payload.Proxysql) + len(servicesRes.Payload.Haproxy) + len(servicesRes.Payload.External)
+	servicesList := make([]listResultService, 0, totalServices)
 
+	servicesList = append(servicesList, mysqlServices(servicesRes)...)
+	servicesList = append(servicesList, mongodbServices(servicesRes)...)
+	servicesList = append(servicesList, postgresqlServices(servicesRes)...)
+	servicesList = append(servicesList, valkeyServices(servicesRes)...)
+	servicesList = append(servicesList, proxysqlServices(servicesRes)...)
+	servicesList = append(servicesList, haproxyServices(servicesRes)...)
+	servicesList = append(servicesList, externalServices(servicesRes)...)
+
+	return servicesList
+}
+
+func mysqlServices(servicesRes *services.ListServicesOK) []listResultService {
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.Mysql))
 	for _, s := range servicesRes.Payload.Mysql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeMySQLService,
@@ -176,6 +190,11 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
+	return servicesList
+}
+
+func mongodbServices(servicesRes *services.ListServicesOK) []listResultService {
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.Mongodb))
 	for _, s := range servicesRes.Payload.Mongodb {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeMongoDBService,
@@ -184,6 +203,11 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
+	return servicesList
+}
+
+func postgresqlServices(servicesRes *services.ListServicesOK) []listResultService {
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.Postgresql))
 	for _, s := range servicesRes.Payload.Postgresql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypePostgreSQLService,
@@ -192,6 +216,11 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
+	return servicesList
+}
+
+func valkeyServices(servicesRes *services.ListServicesOK) []listResultService {
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.Valkey))
 	for _, s := range servicesRes.Payload.Valkey {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeValkeyService,
@@ -200,6 +229,11 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
+	return servicesList
+}
+
+func proxysqlServices(servicesRes *services.ListServicesOK) []listResultService {
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.Proxysql))
 	for _, s := range servicesRes.Payload.Proxysql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeProxySQLService,
@@ -208,6 +242,11 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
 		})
 	}
+	return servicesList
+}
+
+func haproxyServices(servicesRes *services.ListServicesOK) []listResultService {
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.Haproxy))
 	for _, s := range servicesRes.Payload.Haproxy {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeHAProxyService,
@@ -215,6 +254,11 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 			ServiceName: s.ServiceName,
 		})
 	}
+	return servicesList
+}
+
+func externalServices(servicesRes *services.ListServicesOK) []listResultService {
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.External))
 	for _, s := range servicesRes.Payload.External {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeExternalService,
@@ -223,27 +267,51 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 			Group:       s.Group,
 		})
 	}
-
 	return servicesList
 }
 
-func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent { //nolint:cyclop
-	getStatus := func(s *string) string {
-		res, _ := strings.CutPrefix(pointer.GetString(s), "AGENT_STATUS_")
-		if res == "" {
-			res = "unknown"
-		}
-		return strings.ToUpper(res)
+func getStatus(s *string) string {
+	res, _ := strings.CutPrefix(pointer.GetString(s), "AGENT_STATUS_")
+	if res == "" {
+		res = "unknown"
 	}
-	getMetricsMode := func(s bool) string {
-		if s {
-			return "push"
-		}
+	return strings.ToUpper(res)
+}
 
-		return "pull"
+func getMetricsMode(s bool) string {
+	if s {
+		return "push"
 	}
+
+	return "pull"
+}
+
+func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent {
 	pmmAgentIDs := make(map[string]struct{})
 	agentsList := []listResultAgent{}
+
+	agentsList = append(agentsList, pmmAgents(agentsRes, nodeID, pmmAgentIDs)...)
+	agentsList = append(agentsList, nodeExporters(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, mysqldExporters(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, mongodbExporters(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, postgresExporters(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, valkeyExporters(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, proxysqlExporters(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, rdsExporters(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, qanMysqlPerfschemaAgents(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, qanMysqlSlowlogAgents(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, qanMongodbProfilerAgents(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, qanPostgresqlPgstatementsAgents(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, qanPostgresqlPgstatmonitorAgents(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, externalExporters(agentsRes, nodeID)...)
+	agentsList = append(agentsList, vmAgents(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, nomadAgents(agentsRes, pmmAgentIDs)...)
+
+	return agentsList
+}
+
+func pmmAgents(agentsRes *agents.ListAgentsOK, nodeID string, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.PMMAgent {
 		if a.RunsOnNodeID == nodeID {
 			pmmAgentIDs[a.AgentID] = struct{}{}
@@ -259,31 +327,11 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
-	for _, a := range agentsRes.Payload.NodeExporter {
-		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
-			agentsList = append(agentsList, listResultAgent{
-				AgentType:   types.AgentTypeNodeExporter,
-				AgentID:     a.AgentID,
-				Status:      getStatus(a.Status),
-				Disabled:    a.Disabled,
-				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
-				Port:        a.ListenPort,
-			})
-		}
-	}
-	for _, a := range agentsRes.Payload.MysqldExporter {
-		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
-			agentsList = append(agentsList, listResultAgent{
-				AgentType:   types.AgentTypeMySQLdExporter,
-				AgentID:     a.AgentID,
-				ServiceID:   a.ServiceID,
-				Status:      getStatus(a.Status),
-				Disabled:    a.Disabled,
-				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
-				Port:        a.ListenPort,
-			})
-		}
-	}
+	return agentsList
+}
+
+func mongodbExporters(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.MongodbExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
@@ -297,6 +345,11 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	return agentsList
+}
+
+func postgresExporters(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.PostgresExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
@@ -310,6 +363,11 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	return agentsList
+}
+
+func valkeyExporters(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.ValkeyExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
@@ -323,6 +381,11 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	return agentsList
+}
+
+func proxysqlExporters(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.ProxysqlExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
@@ -336,6 +399,11 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	return agentsList
+}
+
+func rdsExporters(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.RDSExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
@@ -348,6 +416,11 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	return agentsList
+}
+
+func qanMysqlPerfschemaAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.QANMysqlPerfschemaAgent {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
@@ -359,6 +432,11 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	return agentsList
+}
+
+func qanMysqlSlowlogAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.QANMysqlSlowlogAgent {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
@@ -370,6 +448,11 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	return agentsList
+}
+
+func qanMongodbProfilerAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.QANMongodbProfilerAgent {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
@@ -381,6 +464,11 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	return agentsList
+}
+
+func qanPostgresqlPgstatementsAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.QANPostgresqlPgstatementsAgent {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
@@ -392,6 +480,11 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	return agentsList
+}
+
+func qanPostgresqlPgstatmonitorAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.QANPostgresqlPgstatmonitorAgent {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
@@ -403,6 +496,11 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	return agentsList
+}
+
+func externalExporters(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.ExternalExporter {
 		if a.RunsOnNodeID == nodeID {
 			agentsList = append(agentsList, listResultAgent{
@@ -416,6 +514,11 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	return agentsList
+}
+
+func vmAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.VMAgent {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
@@ -427,6 +530,11 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	return agentsList
+}
+
+func nomadAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.NomadAgent {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
@@ -438,6 +546,40 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 			})
 		}
 	}
+	return agentsList
+}
 
+func mysqldExporters(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
+	for _, a := range agentsRes.Payload.MysqldExporter {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType:   types.AgentTypeMySQLdExporter,
+				AgentID:     a.AgentID,
+				ServiceID:   a.ServiceID,
+				Status:      getStatus(a.Status),
+				Disabled:    a.Disabled,
+				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
+				Port:        a.ListenPort,
+			})
+		}
+	}
+	return agentsList
+}
+
+func nodeExporters(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
+	for _, a := range agentsRes.Payload.NodeExporter {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType:   types.AgentTypeNodeExporter,
+				AgentID:     a.AgentID,
+				Status:      getStatus(a.Status),
+				Disabled:    a.Disabled,
+				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
+				Port:        a.ListenPort,
+			})
+		}
+	}
 	return agentsList
 }
