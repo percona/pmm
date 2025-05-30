@@ -2,3 +2,5 @@ apiVersion: 1
 
 apps:
   - type: pmm-app
+# Don't enable by default until new navigation is ready
+#  - type: pmm-compat-app
