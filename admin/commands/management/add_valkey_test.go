@@ -36,7 +36,6 @@ func TestAddValkey(t *testing.T) {
 Valkey Service added.
 Service ID  : uuid-valkey
 Service name: myhost-valkey
-Node ID     : node-valkey
 `)
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
 	})
