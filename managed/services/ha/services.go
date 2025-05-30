@@ -85,12 +85,10 @@ func (s *services) StopRunningServices() {
 	defer s.rw.Unlock()
 
 	for id, service := range s.running {
-		id := id
-		ls := service
 		go func() {
 			defer s.wg.Done()
-			s.l.Infoln("Stopping", ls.ID())
-			ls.Stop()
+			s.l.Infoln("Stopping ", service)
+			service.Stop()
 			s.rw.Lock()
 			defer s.rw.Unlock()
 			delete(s.running, id)

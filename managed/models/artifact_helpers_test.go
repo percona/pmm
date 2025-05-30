@@ -208,7 +208,7 @@ func TestArtifacts(t *testing.T) {
 
 		actual3, err := models.FindArtifacts(q, models.ArtifactFilters{})
 		require.NoError(t, err)
-		require.Equal(t, 3, len(actual3))
+		require.Len(t, actual3, 3)
 
 		for _, a := range actual3 {
 			assert.Contains(t, []models.Artifact{*a1, *a2, *a3}, *a)
@@ -292,7 +292,7 @@ func TestArtifacts(t *testing.T) {
 
 		err = a.MetadataRemoveFirstN(q, 10)
 		require.NoError(t, err)
-		assert.Equal(t, 0, len(a.MetadataList))
+		assert.Empty(t, a.MetadataList)
 	})
 }
 
@@ -425,8 +425,6 @@ func TestArtifactValidation(t *testing.T) {
 	}
 
 	for _, test := range testCases {
-		test := test
-
 		t.Run(test.name, func(t *testing.T) {
 			tx, err := db.Begin()
 			require.NoError(t, err)
