@@ -138,6 +138,14 @@ func TestListJSONOutput(t *testing.T) {
 						Port:        3306,
 					},
 				},
+				Valkey: []*services_service.ListServicesOKBodyValkeyItems0{
+					{
+						ServiceID:   "b9983cb2-7705-4fdc-9df6-9ec4e9f34251",
+						ServiceName: "valkey-service",
+						Address:     "127.0.0.1",
+						Port:        6379,
+					},
+				},
 			},
 		}
 		agents := &agents_service.ListAgentsOK{
@@ -157,6 +165,16 @@ func TestListJSONOutput(t *testing.T) {
 						Status:             pointer.ToString("RUNNING"),
 						PushMetricsEnabled: false,
 						ListenPort:         3306,
+					},
+				},
+				ValkeyExporter: []*agents_service.ListAgentsOKBodyValkeyExporterItems0{
+					{
+						AgentID:            "8b732ac3-8256-40b0-a98b-0fd5fa9a1198",
+						PMMAgentID:         "8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
+						ServiceID:          "b9983cb2-7705-4fdc-9df6-9ec4e9f34251",
+						Status:             pointer.ToString("RUNNING"),
+						PushMetricsEnabled: false,
+						ListenPort:         6379,
 					},
 				},
 			},
