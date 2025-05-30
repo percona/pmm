@@ -1,28 +1,41 @@
 import { Link, LinkProps } from '@mui/material';
-import { PMM_HOME_URL } from 'lib/constants';
+import { PMM_HOME_URL, PMM_NEW_NAV_PATH } from 'lib/constants';
 import { useUpdates } from 'contexts/updates';
 import { FC, useMemo, useState } from 'react';
 import { UpdateStatus } from 'types/updates.types';
 import { ClientsModal } from './clients-modal';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link as RouterLink } from 'react-router-dom';
 
 export const HomeLink: FC<LinkProps> = ({ children, sx, ...props }) => {
   const { status, areClientsUpToDate } = useUpdates();
   const [modalOpen, setModalOpen] = useState(false);
   const location = useLocation();
   const isOnClientsPage = useMemo(
-    () => location.pathname.startsWith('/updates/clients'),
+    () => location.pathname.endsWith('/updates/clients'),
     [location]
   );
-  const homeLinkProps =
-    (status === UpdateStatus.UpdateClients || !areClientsUpToDate) &&
-    isOnClientsPage
-      ? {
-          onClick: () => setModalOpen(true),
-        }
-      : {
-          href: PMM_HOME_URL,
-        };
+  const homeLinkProps = useMemo(() => {
+    if (
+      status === UpdateStatus.UpdateClients &&
+      !areClientsUpToDate &&
+      !isOnClientsPage
+    ) {
+      return {
+        onClick: () => setModalOpen(true),
+      };
+    }
+
+    if (location.pathname.includes(PMM_NEW_NAV_PATH)) {
+      return {
+        to: PMM_NEW_NAV_PATH,
+        component: RouterLink,
+      };
+    }
+
+    return {
+      href: PMM_HOME_URL,
+    };
+  }, [status, areClientsUpToDate, isOnClientsPage]);
 
   return (
     <>
