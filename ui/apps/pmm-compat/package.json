@@ -14,8 +14,8 @@
     "sign": "npx --yes @grafana/sign-plugin@latest",
     "clean": "rm -rf dist"
   },
-  "author": "PMM",
-  "license": "",
+  "author": "Percona",
+  "license": "AGPLv3",
   "devDependencies": {
     "@grafana/eslint-config": "^8.0.0",
     "@grafana/plugin-e2e": "^1.17.1",

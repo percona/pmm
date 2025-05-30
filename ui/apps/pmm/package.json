@@ -3,6 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "author": "Percona",
+  "license": "AGPLv3",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

@@ -72,6 +72,9 @@ export const SidebarItem: FC<{ item: NavItem }> = ({ item }) => {
   );
 };
 
+/**
+ * TODO currently just mostly a placeholder until the "real" menu is in place
+ */
 export const Sidebar: FC = () => {
   const { navTree } = useNavigation();
 

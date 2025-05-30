@@ -6,12 +6,12 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --fix",
     "test": "jest",
     "test:watch": "jest --watch",
-    "format": "prettier .  --write"
+    "format": "prettier . --write"
   },
   "private": "true",
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Percona",
+  "license": "AGPLv3",
   "type": "module",
   "types": "dist/index.d.ts",
   "main": "dist/esm/index.js",
