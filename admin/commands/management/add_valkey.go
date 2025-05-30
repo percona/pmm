@@ -40,8 +40,6 @@ func (res *addValkeyResult) String() string {
 }
 
 // AddValkeyCommand is used by Kong for CLI flags and commands.
-//
-//nolint:lll
 type AddValkeyCommand struct {
 	ServiceName         string            `name:"name" arg:"" default:"${hostname}-valkey" help:"Service name (autodetected default: ${hostname}-valkey)"`
 	Address             string            `arg:"" optional:"" help:"Valkey address and port (default: 127.0.0.1:6379)"`
