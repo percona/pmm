@@ -39,7 +39,7 @@ Tablestat collectors  : {{ .TablestatStatus }}
 `)
 
 type addAgentValkeyExporterResult struct {
-	Agent      *agents.AddAgentOKBodyValkeyExporter `json:"Valkey_exporter"`
+	Agent      *agents.AddAgentOKBodyValkeyExporter `json:"valkey_exporter"`
 	TableCount int32                                `json:"table_count,omitempty"`
 }
 
