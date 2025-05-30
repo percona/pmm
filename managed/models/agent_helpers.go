@@ -1012,8 +1012,8 @@ type ChangeAgentParams struct {
 	ListenPort    *uint32 // for external exporter
 }
 
-// ChangeAgentByType changes agent parameters based on agent type.
-func ChangeAgentByType(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) {
+// ChangeAgent changes agent parameters based on agent type.
+func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) {
 	row, err := FindAgentByID(q, agentID)
 	if err != nil {
 		return nil, err

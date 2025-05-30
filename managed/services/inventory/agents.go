@@ -1597,7 +1597,7 @@ func convertMetricsResolutions(mrs *common.MetricsResolutions) *models.ChangeMet
 func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams) (inventoryv1.Agent, error) {
 	var agent inventoryv1.Agent
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		row, err := models.ChangeAgentByType(tx.Querier, agentID, params)
+		row, err := models.ChangeAgent(tx.Querier, agentID, params)
 		if err != nil {
 			return err
 		}
