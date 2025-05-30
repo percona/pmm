@@ -10,7 +10,7 @@ Choose your preferred method to enable this feature:
     ```sh
     docker run -d \
       --name pmm-server \
-      -p 443:443 \
+      -p 443:8443 \
       -e PMM_ENABLE_ACCESS_CONTROL=1 \
       percona/pmm-server:latest
     ```
