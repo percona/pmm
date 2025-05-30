@@ -24,7 +24,7 @@ Choose your preferred method to enable this feature:
       pmm-server:
         image: percona/pmm-server:latest
         ports:
-          - "443:443"
+          - "443:8443"
         environment:
           - PMM_ENABLE_ACCESS_CONTROL=1
         volumes:
