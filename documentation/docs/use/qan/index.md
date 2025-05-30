@@ -1,4 +1,4 @@
-# About query analytics (QAN)
+# About Query Analytics (QAN)
 
 The *Query Analytics* dashboard shows how queries are executed and where they spend their time.  It helps you analyze database queries over time, optimize database performance, and find and remedy the source of problems.
 
