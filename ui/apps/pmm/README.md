@@ -9,38 +9,4 @@ PMM helps users to:
 
 See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) for more information.
 
-## Pre-Requisites
-
-Make sure you have the following installed:
-
-- [node 18](https://nodejs.org/en) (you can also use [nvm](https://github.com/nvm-sh/nvm) to manage node versions)
-- [yarn](https://yarnpkg.com/)
-
-## Stack
-
-This repo uses the following stack across its packages:
-
-- Yarn to manage packages (https://yarnpkg.com/)
-- Typescript (https://www.typescriptlang.org/);
-- React (https://react.dev/);
-- Rollup to bundle the different common packages (https://rollupjs.org/);
-- Vite for development (https://vitejs.dev/);
-- Vitest for unit tests (https://vitest.dev/);
-
-## Install dependencies
-
-```bash
-make setup
-```
-
-## Run in development mode
-
-```bash
-make dev
-```
-
-## Build application for production
-
-```bash
-make build
-```
+See detailed information about prerequisites and setup [here](../../README.md)

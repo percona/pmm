@@ -3,7 +3,7 @@ import { merge } from 'webpack-merge';
 import grafanaConfig from './.config/webpack/webpack.config';
 import path from 'path';
 
-const config = async (env): Promise<Configuration> => {
+const config = async (env: any): Promise<Configuration> => {
   const baseConfig = await grafanaConfig(env);
 
   return merge(baseConfig, {
