@@ -161,11 +161,11 @@ func TestServiceHelpers(t *testing.T) {
 
 		services, err := models.FindServices(q, models.ServiceFilters{})
 		assert.NoError(t, err)
-		assert.Len(t, len(services), 9)
+		assert.Len(t, services, 9)
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1"})
 		assert.NoError(t, err)
-		assert.Len(t, len(services), 4)
+		assert.Len(t, services, 4)
 		assert.Equal(t, services, []*models.Service{{
 			ServiceID:   "S1",
 			ServiceType: models.MongoDBServiceType,
