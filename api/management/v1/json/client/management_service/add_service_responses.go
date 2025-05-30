@@ -10822,6 +10822,12 @@ type AddServiceParamsBodyValkey struct {
 	// TLS Certificate Key.
 	TLSKey string `json:"tls_key,omitempty"`
 
+	// List of collector names to disable in this exporter.
+	DisableCollectors []string `json:"disable_collectors"`
+
+	// Custom password for exporter endpoint /metrics.
+	AgentPassword string `json:"agent_password,omitempty"`
+
 	// add node
 	AddNode *AddServiceParamsBodyValkeyAddNode `json:"add_node,omitempty"`
 }
