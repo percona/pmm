@@ -30,11 +30,11 @@ Before installing PMM Server with Podman, ensure you have:
   ```sh
   podman volume create pmm-data
   ```
-3. Create the Podman network for PMM:
+4. Create the Podman network for PMM:
   ```sh
   podman network create pmm_default
   ```
-4. Set up required system configurations:
+5. Set up required system configurations:
     ```sh
     # Allow non-root users to bind to privileged ports (required for port 443)
     sudo sysctl -w net.ipv4.ip_unprivileged_port_start=443
@@ -43,11 +43,16 @@ Before installing PMM Server with Podman, ensure you have:
     echo "net.ipv4.ip_unprivileged_port_start=443" | sudo tee /etc/sysctl.d/99-pmm.conf
     sudo sysctl -p /etc/sysctl.d/99-pmm.conf
     ```
-5. Create the Podman network for PMM:
+6. Enable the Podman socket (required for Watchtower integration):
+    ```sh
+    systemctl --user enable --now podman.socket
+    ```
+
+7. Create the Podman network for PMM:
     ```sh
     podman network create pmm_default
     ```
-6. Configure Watchtower (if using UI updates) with these security considerations:
+8. Configure Watchtower (if using UI updates) with these security considerations:
 
     - ensure Watchtower is only accessible from within the Podman network or local host to prevent unauthorized access and enhance container security.
     - configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Podman network.
