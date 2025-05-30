@@ -25,6 +25,10 @@ export const applyCustomStyles = () => {
               [class*="canvas-wrapper"] > div {
                 top: 57px;
               }
+
+              #pageContent {
+                margin-top: 16px;
+              }
               `;
   document.head.appendChild(style);
 };
