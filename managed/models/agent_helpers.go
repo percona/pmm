@@ -906,14 +906,6 @@ func trimUnicodeNilsInCertFiles(agent Agent) Agent {
 	return agent
 }
 
-// ChangeCommonAgentParams contains parameters that can be changed for all Agents.
-type ChangeCommonAgentParams struct {
-	Enabled            *bool              // true - enable, false - disable, nil - no change
-	CustomLabels       *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
-	EnablePushMetrics  *bool
-	MetricsResolutions ChangeMetricsResolutionsParams
-}
-
 // ChangeMetricsResolutionsParams contains metrics resolutions for change.
 type ChangeMetricsResolutionsParams struct {
 	HR *time.Duration
@@ -921,24 +913,115 @@ type ChangeMetricsResolutionsParams struct {
 	LR *time.Duration
 }
 
-// ChangeAgent changes common parameters for given Agent.
-func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentParams) (*Agent, error) {
+// ChangeExporterOptions contains ExporterOptions fields that can be changed.
+type ChangeExporterOptions struct {
+	PushMetrics        *bool
+	DisabledCollectors []string // nil = no change, empty = clear, populated = set
+	ExposeExporter     *bool
+	MetricsScheme      *string
+	MetricsPath        *string
+	MetricsResolutions *ChangeMetricsResolutionsParams
+}
+
+// ChangeQANOptions contains QANOptions fields that can be changed.
+type ChangeQANOptions struct {
+	MaxQueryLength          *int32
+	QueryExamplesDisabled   *bool
+	CommentsParsingDisabled *bool
+	MaxQueryLogSize         *int64
+}
+
+// ChangeAWSOptions contains AWSOptions fields that can be changed.
+type ChangeAWSOptions struct {
+	AWSAccessKey               *string
+	AWSSecretKey               *string
+	RDSBasicMetricsDisabled    *bool
+	RDSEnhancedMetricsDisabled *bool
+}
+
+// ChangeAzureOptions contains AzureOptions fields that can be changed.
+type ChangeAzureOptions struct {
+	SubscriptionID *string
+	ClientID       *string
+	ClientSecret   *string
+	TenantID       *string
+	ResourceGroup  *string
+}
+
+// ChangeMongoDBOptions contains MongoDBOptions fields that can be changed.
+type ChangeMongoDBOptions struct {
+	TLSCertificateKey             *string
+	TLSCertificateKeyFilePassword *string
+	TLSCa                         *string
+	AuthenticationMechanism       *string
+	AuthenticationDatabase        *string
+	StatsCollections              []string // nil = no change, empty = clear, populated = set
+	CollectionsLimit              *int32
+	EnableAllCollectors           *bool
+}
+
+// ChangeMySQLOptions contains MySQLOptions fields that can be changed.
+type ChangeMySQLOptions struct {
+	TLSCa                          *string
+	TLSCert                        *string
+	TLSKey                         *string
+	TableCountTablestatsGroupLimit *int32
+}
+
+// ChangePostgreSQLOptions contains PostgreSQLOptions fields that can be changed.
+type ChangePostgreSQLOptions struct {
+	SSLCa                  *string
+	SSLCert                *string
+	SSLKey                 *string
+	AutoDiscoveryLimit     *int32
+	MaxExporterConnections *int32
+}
+
+// ChangeValkeyOptions contains ValkeyOptions fields that can be changed.
+type ChangeValkeyOptions struct {
+	SSLCa   *string
+	SSLCert *string
+	SSLKey  *string
+}
+
+// ChangeAgentParams contains parameters that can be changed for all Agent types.
+type ChangeAgentParams struct {
+	// Common fields for all agents
+	Enabled      *bool              // true - enable, false - disable, nil - no change
+	CustomLabels *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
+
+	// Database connection fields
+	Username      *string
+	Password      *string
+	AgentPassword *string
+
+	// Structured change options
+	ExporterOptions   *ChangeExporterOptions
+	QANOptions        *ChangeQANOptions
+	AWSOptions        *ChangeAWSOptions
+	AzureOptions      *ChangeAzureOptions
+	MongoDBOptions    *ChangeMongoDBOptions
+	MySQLOptions      *ChangeMySQLOptions
+	PostgreSQLOptions *ChangePostgreSQLOptions
+	ValkeyOptions     *ChangeValkeyOptions
+
+	// Simple fields that don't fit into options structs
+	LogLevel      *string
+	TLS           *bool
+	TLSSkipVerify *bool
+	ListenPort    *uint32 // for external exporter
+}
+
+// ChangeAgentByType changes agent parameters based on agent type.
+func ChangeAgentByType(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) {
 	row, err := FindAgentByID(q, agentID)
 	if err != nil {
 		return nil, err
 	}
 
+	// Handle common fields first
 	if params.Enabled != nil {
 		row.Disabled = !(*params.Enabled)
-	}
-
-	if params.EnablePushMetrics != nil {
-		row.ExporterOptions.PushMetrics = *params.EnablePushMetrics
-		if row.AgentType == ExternalExporterType {
-			if err := updateExternalExporterParams(q, row); err != nil {
-				return nil, errors.Wrap(err, "failed to update External exporterParams for PushMetrics")
-			}
-		}
 	}
 
 	if params.CustomLabels != nil {
@@ -956,19 +1039,202 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 	if row.ExporterOptions.MetricsResolutions == nil {
 		row.ExporterOptions.MetricsResolutions = &MetricsResolutions{}
 	}
-	if params.MetricsResolutions.LR != nil {
-		row.ExporterOptions.MetricsResolutions.LR = *params.MetricsResolutions.LR
-	}
-	if params.MetricsResolutions.MR != nil {
-		row.ExporterOptions.MetricsResolutions.MR = *params.MetricsResolutions.MR
-	}
-	if params.MetricsResolutions.HR != nil {
-		row.ExporterOptions.MetricsResolutions.HR = *params.MetricsResolutions.HR
+	if params.ExporterOptions != nil && params.ExporterOptions.MetricsResolutions != nil {
+		if params.ExporterOptions.MetricsResolutions.LR != nil {
+			row.ExporterOptions.MetricsResolutions.LR = *params.ExporterOptions.MetricsResolutions.LR
+		}
+		if params.ExporterOptions.MetricsResolutions.MR != nil {
+			row.ExporterOptions.MetricsResolutions.MR = *params.ExporterOptions.MetricsResolutions.MR
+		}
+		if params.ExporterOptions.MetricsResolutions.HR != nil {
+			row.ExporterOptions.MetricsResolutions.HR = *params.ExporterOptions.MetricsResolutions.HR
+		}
 	}
 
 	// If all resolutions are empty, then drop whole MetricsResolution field.
 	if row.ExporterOptions.MetricsResolutions.HR == 0 && row.ExporterOptions.MetricsResolutions.MR == 0 && row.ExporterOptions.MetricsResolutions.LR == 0 {
 		row.ExporterOptions.MetricsResolutions = nil
+	}
+
+	// Update ExporterOptions fields
+	if params.ExporterOptions != nil {
+		if params.ExporterOptions.PushMetrics != nil {
+			row.ExporterOptions.PushMetrics = *params.ExporterOptions.PushMetrics
+			if row.AgentType == ExternalExporterType {
+				if err := updateExternalExporterParams(q, row); err != nil {
+					return nil, errors.Wrap(err, "failed to update External exporterParams for PushMetrics")
+				}
+			}
+		}
+		if params.ExporterOptions.DisabledCollectors != nil {
+			row.ExporterOptions.DisabledCollectors = params.ExporterOptions.DisabledCollectors
+		}
+		if params.ExporterOptions.ExposeExporter != nil {
+			row.ExporterOptions.ExposeExporter = *params.ExporterOptions.ExposeExporter
+		}
+		if params.ExporterOptions.MetricsScheme != nil {
+			row.ExporterOptions.MetricsScheme = *params.ExporterOptions.MetricsScheme
+		}
+		if params.ExporterOptions.MetricsPath != nil {
+			row.ExporterOptions.MetricsPath = *params.ExporterOptions.MetricsPath
+		}
+	}
+
+	// Update database connection fields
+	if params.Username != nil {
+		row.Username = params.Username
+	}
+	if params.Password != nil {
+		row.Password = params.Password
+	}
+	if params.AgentPassword != nil {
+		row.AgentPassword = params.AgentPassword
+	}
+
+	// Update ValkeyOptions fields
+	if params.ValkeyOptions != nil {
+		if params.ValkeyOptions.SSLCa != nil {
+			row.ValkeyOptions.SSLCa = *params.ValkeyOptions.SSLCa
+		}
+		if params.ValkeyOptions.SSLCert != nil {
+			row.ValkeyOptions.SSLCert = *params.ValkeyOptions.SSLCert
+		}
+		if params.ValkeyOptions.SSLKey != nil {
+			row.ValkeyOptions.SSLKey = *params.ValkeyOptions.SSLKey
+		}
+	}
+
+	// Update QANOptions fields
+	if params.QANOptions != nil {
+		if params.QANOptions.MaxQueryLength != nil {
+			row.QANOptions.MaxQueryLength = *params.QANOptions.MaxQueryLength
+		}
+		if params.QANOptions.QueryExamplesDisabled != nil {
+			row.QANOptions.QueryExamplesDisabled = *params.QANOptions.QueryExamplesDisabled
+		}
+		if params.QANOptions.CommentsParsingDisabled != nil {
+			row.QANOptions.CommentsParsingDisabled = *params.QANOptions.CommentsParsingDisabled
+		}
+		if params.QANOptions.MaxQueryLogSize != nil {
+			row.QANOptions.MaxQueryLogSize = *params.QANOptions.MaxQueryLogSize
+		}
+	}
+
+	// Update AWSOptions fields
+	if params.AWSOptions != nil {
+		if params.AWSOptions.AWSAccessKey != nil {
+			row.AWSOptions.AWSAccessKey = *params.AWSOptions.AWSAccessKey
+		}
+		if params.AWSOptions.AWSSecretKey != nil {
+			row.AWSOptions.AWSSecretKey = *params.AWSOptions.AWSSecretKey
+		}
+		if params.AWSOptions.RDSBasicMetricsDisabled != nil {
+			row.AWSOptions.RDSBasicMetricsDisabled = *params.AWSOptions.RDSBasicMetricsDisabled
+		}
+		if params.AWSOptions.RDSEnhancedMetricsDisabled != nil {
+			row.AWSOptions.RDSEnhancedMetricsDisabled = *params.AWSOptions.RDSEnhancedMetricsDisabled
+		}
+	}
+
+	// Update AzureOptions fields
+	if params.AzureOptions != nil {
+		if params.AzureOptions.SubscriptionID != nil {
+			row.AzureOptions.SubscriptionID = *params.AzureOptions.SubscriptionID
+		}
+		if params.AzureOptions.ClientID != nil {
+			row.AzureOptions.ClientID = *params.AzureOptions.ClientID
+		}
+		if params.AzureOptions.ClientSecret != nil {
+			row.AzureOptions.ClientSecret = *params.AzureOptions.ClientSecret
+		}
+		if params.AzureOptions.TenantID != nil {
+			row.AzureOptions.TenantID = *params.AzureOptions.TenantID
+		}
+		if params.AzureOptions.ResourceGroup != nil {
+			row.AzureOptions.ResourceGroup = *params.AzureOptions.ResourceGroup
+		}
+	}
+
+	// Update MySQLOptions fields
+	if params.MySQLOptions != nil {
+		if params.MySQLOptions.TLSCa != nil {
+			row.MySQLOptions.TLSCa = *params.MySQLOptions.TLSCa
+		}
+		if params.MySQLOptions.TLSCert != nil {
+			row.MySQLOptions.TLSCert = *params.MySQLOptions.TLSCert
+		}
+		if params.MySQLOptions.TLSKey != nil {
+			row.MySQLOptions.TLSKey = *params.MySQLOptions.TLSKey
+		}
+		if params.MySQLOptions.TableCountTablestatsGroupLimit != nil {
+			row.MySQLOptions.TableCountTablestatsGroupLimit = *params.MySQLOptions.TableCountTablestatsGroupLimit
+		}
+	}
+
+	// Update PostgreSQLOptions fields
+	if params.PostgreSQLOptions != nil {
+		if params.PostgreSQLOptions.SSLCa != nil {
+			row.PostgreSQLOptions.SSLCa = *params.PostgreSQLOptions.SSLCa
+		}
+		if params.PostgreSQLOptions.SSLCert != nil {
+			row.PostgreSQLOptions.SSLCert = *params.PostgreSQLOptions.SSLCert
+		}
+		if params.PostgreSQLOptions.SSLKey != nil {
+			row.PostgreSQLOptions.SSLKey = *params.PostgreSQLOptions.SSLKey
+		}
+		if params.PostgreSQLOptions.AutoDiscoveryLimit != nil {
+			row.PostgreSQLOptions.AutoDiscoveryLimit = params.PostgreSQLOptions.AutoDiscoveryLimit
+		}
+		if params.PostgreSQLOptions.MaxExporterConnections != nil {
+			row.PostgreSQLOptions.MaxExporterConnections = *params.PostgreSQLOptions.MaxExporterConnections
+		}
+	}
+
+	// Update MongoDBOptions fields
+	if params.MongoDBOptions != nil {
+		if params.MongoDBOptions.TLSCertificateKey != nil {
+			row.MongoDBOptions.TLSCertificateKey = *params.MongoDBOptions.TLSCertificateKey
+		}
+		if params.MongoDBOptions.TLSCertificateKeyFilePassword != nil {
+			row.MongoDBOptions.TLSCertificateKeyFilePassword = *params.MongoDBOptions.TLSCertificateKeyFilePassword
+		}
+		if params.MongoDBOptions.TLSCa != nil {
+			row.MongoDBOptions.TLSCa = *params.MongoDBOptions.TLSCa
+		}
+		if params.MongoDBOptions.AuthenticationMechanism != nil {
+			row.MongoDBOptions.AuthenticationMechanism = *params.MongoDBOptions.AuthenticationMechanism
+		}
+		if params.MongoDBOptions.AuthenticationDatabase != nil {
+			row.MongoDBOptions.AuthenticationDatabase = *params.MongoDBOptions.AuthenticationDatabase
+		}
+		if params.MongoDBOptions.StatsCollections != nil {
+			row.MongoDBOptions.StatsCollections = params.MongoDBOptions.StatsCollections
+		}
+		if params.MongoDBOptions.CollectionsLimit != nil {
+			row.MongoDBOptions.CollectionsLimit = *params.MongoDBOptions.CollectionsLimit
+		}
+		if params.MongoDBOptions.EnableAllCollectors != nil {
+			row.MongoDBOptions.EnableAllCollectors = *params.MongoDBOptions.EnableAllCollectors
+		}
+	}
+
+	// Update TLS fields
+	if params.TLS != nil {
+		row.TLS = *params.TLS
+	}
+	if params.TLSSkipVerify != nil {
+		row.TLSSkipVerify = *params.TLSSkipVerify
+	}
+
+	// Update ListenPort for external exporter
+	if params.ListenPort != nil {
+		port := uint16(*params.ListenPort)
+		row.ListenPort = &port
+	}
+
+	// Update LogLevel
+	if params.LogLevel != nil {
+		row.LogLevel = params.LogLevel
 	}
 
 	if err = q.Update(row); err != nil {

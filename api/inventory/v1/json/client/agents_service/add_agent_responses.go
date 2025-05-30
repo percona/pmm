@@ -2529,7 +2529,7 @@ type AddAgentOKBodyMongodbExporter struct {
 	// is less than this value. 0: no limit
 	CollectionsLimit int32 `json:"collections_limit,omitempty"`
 
-	// Enable All collectors.
+	// Enable all collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
 	// Path to exec process.
@@ -6108,6 +6108,9 @@ type AddAgentParamsBodyMongodbExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Enable all collectors.
+	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 }
 
 // Validate validates this add agent params body mongodb exporter
@@ -6984,7 +6987,7 @@ type AddAgentParamsBodyQANMysqlPerfschemaAgent struct {
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
 
-	// Limit query length in QAN (default: server-defined; -1: no limit)
+	// Limit query length in QAN (default: server-defined; -1: no limit).
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// Disable query examples.

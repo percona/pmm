@@ -18,6 +18,7 @@ package inventory
 
 import (
 	"context"
+	"strings"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -55,13 +56,6 @@ func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater,
 	}
 }
 
-type commonAgentParams struct {
-	Enable             *bool
-	EnablePushMetrics  *bool
-	CustomLabels       *common.StringMap
-	MetricsResolutions *common.MetricsResolutions
-}
-
 func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegistry) (inventoryv1.Agent, error) { //nolint:ireturn
 	agent, err := services.ToAPIAgent(q, row)
 	if err != nil {
@@ -72,42 +66,6 @@ func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegis
 		agent.(*inventoryv1.PMMAgent).Connected = registry.IsConnected(row.AgentID) //nolint:forcetypeassert
 	}
 	return agent, nil
-}
-
-// changeAgent changes common parameters for given Agent.
-func (as *AgentsService) changeAgent(ctx context.Context, agentID string, common *commonAgentParams) (inventoryv1.Agent, error) { //nolint:ireturn
-	var agent inventoryv1.Agent
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		params := &models.ChangeCommonAgentParams{
-			Enabled:           common.Enable,
-			EnablePushMetrics: common.EnablePushMetrics,
-		}
-		if common.CustomLabels != nil {
-			params.CustomLabels = &common.CustomLabels.Values
-		}
-
-		if mrs := common.MetricsResolutions; mrs != nil {
-			if hr := mrs.GetHr(); hr != nil {
-				params.MetricsResolutions.HR = pointer.ToDuration(hr.AsDuration())
-			}
-
-			if mr := mrs.GetMr(); mr != nil {
-				params.MetricsResolutions.MR = pointer.ToDuration(mr.AsDuration())
-			}
-
-			if lr := mrs.GetLr(); lr != nil {
-				params.MetricsResolutions.LR = pointer.ToDuration(lr.AsDuration())
-			}
-		}
-
-		row, err := models.ChangeAgent(tx.Querier, agentID, params)
-		if err != nil {
-			return err
-		}
-		agent, err = toInventoryAgent(tx.Querier, row, as.r)
-		return err
-	})
-	return agent, e
 }
 
 // List selects all Agents in a stable order for a given service.
@@ -240,23 +198,32 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 
 // ChangeNodeExporter updates node_exporter Agent with given parameters.
 func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeNodeExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:      p.Enable,
+		CustomLabels: convertCustomLabels(p.CustomLabels),
+		LogLevel:     convertLogLevel(p.LogLevel),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		DisabledCollectors: p.DisableCollectors,
+		ExposeExporter:     p.ExposeExporter,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.NodeExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	nodeExporter := agent.(*inventoryv1.NodeExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, nodeExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_NodeExporter{
-			NodeExporter: agent,
+			NodeExporter: nodeExporter,
 		},
 	}
 
@@ -331,23 +298,45 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 
 // ChangeMySQLdExporter updates mysqld_exporter Agent with given parameters.
 func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeMySQLdExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		AgentPassword: p.AgentPassword,
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		LogLevel:      convertLogLevel(p.LogLevel),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set MySQLOptions
+	params.MySQLOptions = &models.ChangeMySQLOptions{
+		TLSCa:                          p.TlsCa,
+		TLSCert:                        p.TlsCert,
+		TLSKey:                         p.TlsKey,
+		TableCountTablestatsGroupLimit: p.TablestatsGroupTableLimit,
+	}
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		DisabledCollectors: p.DisableCollectors,
+		ExposeExporter:     p.ExposeExporter,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	mysqldExporter := agent.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, mysqldExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_MysqldExporter{
-			MysqldExporter: agent,
+			MysqldExporter: mysqldExporter,
 		},
 	}
 
@@ -416,24 +405,50 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 }
 
 // ChangeMongoDBExporter updates mongo_exporter Agent with given parameters.
-func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeMongoDBExporterParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeMongoDBExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		AgentPassword: p.AgentPassword,
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		LogLevel:      convertLogLevel(p.LogLevel),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set MongoDBOptions
+	params.MongoDBOptions = &models.ChangeMongoDBOptions{
+		TLSCertificateKey:             p.TlsCertificateKey,
+		TLSCertificateKeyFilePassword: p.TlsCertificateKeyFilePassword,
+		TLSCa:                         p.TlsCa,
+		AuthenticationMechanism:       p.AuthenticationMechanism,
+		AuthenticationDatabase:        p.AuthenticationDatabase,
+		StatsCollections:              p.StatsCollections,
+		CollectionsLimit:              p.CollectionsLimit,
+		EnableAllCollectors:           p.EnableAllCollectors,
+	}
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		DisabledCollectors: p.DisableCollectors,
+		ExposeExporter:     p.ExposeExporter,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	mongodbExporter := agent.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, mongodbExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_MongodbExporter{
-			MongodbExporter: agent,
+			MongodbExporter: mongodbExporter,
 		},
 	}
 
@@ -498,23 +513,48 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 
 // ChangeQANMySQLPerfSchemaAgent updates MySQL PerfSchema QAN Agent with given parameters.
 func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMySQLPerfSchemaAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		LogLevel:      convertLogLevel(p.LogLevel),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set QANOptions
+	params.QANOptions = &models.ChangeQANOptions{
+		MaxQueryLength:          p.MaxQueryLength,
+		QueryExamplesDisabled:   p.DisableQueryExamples,
+		CommentsParsingDisabled: p.DisableCommentsParsing,
+	}
+
+	// Set MySQLOptions
+	params.MySQLOptions = &models.ChangeMySQLOptions{
+		TLSCa:   p.TlsCa,
+		TLSCert: p.TlsCert,
+		TLSKey:  p.TlsKey,
+	}
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	qanAgent := agent.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, qanAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_QanMysqlPerfschemaAgent{
-			QanMysqlPerfschemaAgent: agent,
+			QanMysqlPerfschemaAgent: qanAgent,
 		},
 	}
 	return res, nil
@@ -585,23 +625,49 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 
 // ChangeQANMySQLSlowlogAgent updates MySQL Slowlog QAN Agent with given parameters.
 func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMySQLSlowlogAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		LogLevel:      convertLogLevel(p.LogLevel),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set QANOptions
+	params.QANOptions = &models.ChangeQANOptions{
+		MaxQueryLength:          p.MaxQueryLength,
+		QueryExamplesDisabled:   p.DisableQueryExamples,
+		CommentsParsingDisabled: p.DisableCommentsParsing,
+		MaxQueryLogSize:         p.MaxSlowlogFileSize,
+	}
+
+	// Set MySQLOptions
+	params.MySQLOptions = &models.ChangeMySQLOptions{
+		TLSCa:   p.TlsCa,
+		TLSCert: p.TlsCert,
+		TLSKey:  p.TlsKey,
+	}
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.QANMySQLSlowlogAgent) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	qanAgent := agent.(*inventoryv1.QANMySQLSlowlogAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, qanAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_QanMysqlSlowlogAgent{
-			QanMysqlSlowlogAgent: agent,
+			QanMysqlSlowlogAgent: qanAgent,
 		},
 	}
 	return res, nil
@@ -670,23 +736,43 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 
 // ChangePostgresExporter updates postgres_exporter Agent with given parameters.
 func (as *AgentsService) ChangePostgresExporter(ctx context.Context, agentID string, p *inventoryv1.ChangePostgresExporterParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		AgentPassword: p.AgentPassword,
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		LogLevel:      convertLogLevel(p.LogLevel),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set PostgreSQLOptions
+	params.PostgreSQLOptions = &models.ChangePostgreSQLOptions{
+		MaxExporterConnections: p.MaxExporterConnections,
+		AutoDiscoveryLimit:     p.AutoDiscoveryLimit,
+	}
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		DisabledCollectors: p.DisableCollectors,
+		ExposeExporter:     p.ExposeExporter,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	postgresExporter := agent.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, postgresExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_PostgresExporter{
-			PostgresExporter: agent,
+			PostgresExporter: postgresExporter,
 		},
 	}
 	return res, nil
@@ -752,23 +838,48 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 //
 //nolint:lll,dupl
 func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMongoDBProfilerAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		LogLevel:      convertLogLevel(p.LogLevel),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set QANOptions
+	params.QANOptions = &models.ChangeQANOptions{
+		MaxQueryLength: p.MaxQueryLength,
+	}
+
+	// Set MongoDBOptions
+	params.MongoDBOptions = &models.ChangeMongoDBOptions{
+		TLSCertificateKey:             p.TlsCertificateKey,
+		TLSCertificateKeyFilePassword: p.TlsCertificateKeyFilePassword,
+		TLSCa:                         p.TlsCa,
+		AuthenticationMechanism:       p.AuthenticationMechanism,
+		AuthenticationDatabase:        p.AuthenticationDatabase,
+	}
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	mongodbProfilerAgent := agent.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, mongodbProfilerAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_QanMongodbProfilerAgent{
-			QanMongodbProfilerAgent: agent,
+			QanMongodbProfilerAgent: mongodbProfilerAgent,
 		},
 	}
 	return res, nil
@@ -836,23 +947,37 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 
 // ChangeProxySQLExporter updates proxysql_exporter Agent with given parameters.
 func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeProxySQLExporterParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		AgentPassword: p.AgentPassword,
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		LogLevel:      convertLogLevel(p.LogLevel),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		DisabledCollectors: p.DisableCollectors,
+		ExposeExporter:     p.ExposeExporter,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	proxysqlExporter := agent.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, proxysqlExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_ProxysqlExporter{
-			ProxysqlExporter: agent,
+			ProxysqlExporter: proxysqlExporter,
 		},
 	}
 	return res, nil
@@ -915,23 +1040,47 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 
 // ChangeQANPostgreSQLPgStatementsAgent updates PostgreSQL Pg stat statements QAN Agent with given parameters.
 func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		LogLevel:      convertLogLevel(p.LogLevel),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set QANOptions
+	params.QANOptions = &models.ChangeQANOptions{
+		MaxQueryLength:          p.MaxQueryLength,
+		CommentsParsingDisabled: p.DisableCommentsParsing,
+	}
+
+	// Set PostgreSQLOptions
+	params.PostgreSQLOptions = &models.ChangePostgreSQLOptions{
+		SSLCa:   p.TlsCa,
+		SSLCert: p.TlsCert,
+		SSLKey:  p.TlsKey,
+	}
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	pgStatementsAgent := agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, pgStatementsAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_QanPostgresqlPgstatementsAgent{
-			QanPostgresqlPgstatementsAgent: agent,
+			QanPostgresqlPgstatementsAgent: pgStatementsAgent,
 		},
 	}
 	return res, nil
@@ -995,23 +1144,48 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context,
 
 // ChangeQANPostgreSQLPgStatMonitorAgent updates PostgreSQL Pg stat monitor QAN Agent with given parameters.
 func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		LogLevel:      convertLogLevel(p.LogLevel),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set QANOptions
+	params.QANOptions = &models.ChangeQANOptions{
+		MaxQueryLength:          p.MaxQueryLength,
+		QueryExamplesDisabled:   p.DisableQueryExamples,
+		CommentsParsingDisabled: p.DisableCommentsParsing,
+	}
+
+	// Set PostgreSQLOptions
+	params.PostgreSQLOptions = &models.ChangePostgreSQLOptions{
+		SSLCa:   p.TlsCa,
+		SSLCert: p.TlsCert,
+		SSLKey:  p.TlsKey,
+	}
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	pgStatMonitorAgent := agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, pgStatMonitorAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_QanPostgresqlPgstatmonitorAgent{
-			QanPostgresqlPgstatmonitorAgent: agent,
+			QanPostgresqlPgstatmonitorAgent: pgStatMonitorAgent,
 		},
 	}
 	return res, nil
@@ -1069,23 +1243,38 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 
 // ChangeRDSExporter updates rds_exporter Agent with given parameters.
 func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeRDSExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:      p.Enable,
+		CustomLabels: convertCustomLabels(p.CustomLabels),
+		LogLevel:     convertLogLevel(p.LogLevel),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set AWSOptions
+	params.AWSOptions = &models.ChangeAWSOptions{
+		AWSAccessKey:               p.AwsAccessKey,
+		AWSSecretKey:               p.AwsSecretKey,
+		RDSBasicMetricsDisabled:    p.DisableBasicMetrics,
+		RDSEnhancedMetricsDisabled: p.DisableEnhancedMetrics,
+	}
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.RDSExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	rdsExporter := agent.(*inventoryv1.RDSExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, rdsExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_RdsExporter{
-			RdsExporter: agent,
+			RdsExporter: rdsExporter,
 		},
 	}
 	return res, nil
@@ -1144,13 +1333,23 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 
 // ChangeExternalExporter updates external-exporter Agent with given parameters.
 func (as *AgentsService) ChangeExternalExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeExternalExporterParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:      p.Enable,
+		Username:     p.Username,
+		ListenPort:   p.ListenPort,
+		CustomLabels: convertCustomLabels(p.CustomLabels),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		MetricsScheme:      p.Scheme,
+		MetricsPath:        p.MetricsPath,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1158,14 +1357,14 @@ func (as *AgentsService) ChangeExternalExporter(ctx context.Context, agentID str
 	// It's required to regenerate victoriametrics config file.
 	as.vmdb.RequestConfigurationUpdate()
 
-	agent := ag.(*inventoryv1.ExternalExporter) //nolint:forceTypeAssert
+	externalExporter := agent.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, externalExporter.RunsOnNodeId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_ExternalExporter{
-			ExternalExporter: agent,
+			ExternalExporter: externalExporter,
 		},
 	}
-
 	return res, nil
 }
 
@@ -1216,23 +1415,39 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 	agentID string,
 	p *inventoryv1.ChangeAzureDatabaseExporterParams,
 ) (*inventoryv1.ChangeAgentResponse, error) {
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:      p.Enable,
+		CustomLabels: convertCustomLabels(p.CustomLabels),
+		LogLevel:     convertLogLevel(p.LogLevel),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set AzureOptions
+	params.AzureOptions = &models.ChangeAzureOptions{
+		SubscriptionID: p.AzureSubscriptionId,
+		ClientID:       p.AzureClientId,
+		ClientSecret:   p.AzureClientSecret,
+		TenantID:       p.AzureTenantId,
+		ResourceGroup:  p.AzureResourceGroup,
+	}
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.AzureDatabaseExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	azureDatabaseExporter := agent.(*inventoryv1.AzureDatabaseExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, azureDatabaseExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_AzureDatabaseExporter{
-			AzureDatabaseExporter: agent,
+			AzureDatabaseExporter: azureDatabaseExporter,
 		},
 	}
 	return res, nil
@@ -1240,18 +1455,67 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 
 // ChangeNomadAgent updates Nomad Agent with given parameters.
 func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, params *inventoryv1.ChangeNomadAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
-	common := &commonAgentParams{
-		Enable: params.Enable,
+	// Convert protobuf parameters to model parameters
+	changeParams := &models.ChangeAgentParams{
+		Enabled: params.Enable,
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	agent, err := as.executeAgentChange(ctx, agentID, changeParams)
 	if err != nil {
 		return nil, err
 	}
-	agent := ag.(*inventoryv1.NomadAgent) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	nomadAgent := agent.(*inventoryv1.NomadAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, nomadAgent.PmmAgentId)
+
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_NomadAgent{
-			NomadAgent: agent,
+			NomadAgent: nomadAgent,
+		},
+	}
+	return res, nil
+}
+
+// ChangeValkeyExporter updates valkey_exporter Agent with given parameters.
+func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeValkeyExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		AgentPassword: p.AgentPassword,
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		LogLevel:      convertLogLevel(p.LogLevel),
+	}
+
+	// Set ValkeyOptions
+	params.ValkeyOptions = &models.ChangeValkeyOptions{
+		SSLCa:   p.TlsCa,
+		SSLCert: p.TlsCert,
+		SSLKey:  p.TlsKey,
+	}
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		DisabledCollectors: p.DisableCollectors,
+		ExposeExporter:     p.ExposeExporter,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
+	if err != nil {
+		return nil, err
+	}
+
+	valkeyExporter := agent.(*inventoryv1.ValkeyExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, valkeyExporter.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_ValkeyExporter{
+			ValkeyExporter: valkeyExporter,
 		},
 	}
 	return res, nil
@@ -1286,4 +1550,60 @@ func (as *AgentsService) Remove(ctx context.Context, id string, force bool) erro
 	}
 
 	return nil
+}
+
+// Helper function to convert custom labels from protobuf to model format
+func convertCustomLabels(customLabels *common.StringMap) *map[string]string {
+	if customLabels != nil {
+		return &customLabels.Values
+	}
+	return nil
+}
+
+// Helper function to convert log level from protobuf to model format
+func convertLogLevel(logLevel *inventoryv1.LogLevel) *string {
+	if logLevel != nil {
+		// Convert from "LOG_LEVEL_DEBUG" to "debug"
+		fullName := logLevel.String()
+		if strings.HasPrefix(fullName, "LOG_LEVEL_") {
+			simplified := strings.ToLower(strings.TrimPrefix(fullName, "LOG_LEVEL_"))
+			return &simplified
+		}
+		return &fullName
+	}
+	return nil
+}
+
+// Helper function to convert metrics resolutions from protobuf to model format
+func convertMetricsResolutions(mrs *common.MetricsResolutions) *models.ChangeMetricsResolutionsParams {
+	if mrs == nil {
+		return nil
+	}
+
+	result := &models.ChangeMetricsResolutionsParams{}
+	if hr := mrs.GetHr(); hr != nil {
+		result.HR = pointer.ToDuration(hr.AsDuration())
+	}
+	if mr := mrs.GetMr(); mr != nil {
+		result.MR = pointer.ToDuration(mr.AsDuration())
+	}
+	if lr := mrs.GetLr(); lr != nil {
+		result.LR = pointer.ToDuration(lr.AsDuration())
+	}
+	return result
+}
+
+// Helper function to execute agent change and build response
+func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams) (inventoryv1.Agent, error) {
+	var agent inventoryv1.Agent
+	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		row, err := models.ChangeAgentByType(tx.Querier, agentID, params)
+		if err != nil {
+			return err
+		}
+
+		agent, err = toInventoryAgent(tx.Querier, row, as.r)
+		return err
+	})
+	return agent, err
 }

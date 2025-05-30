@@ -449,4 +449,269 @@ func TestExternalExporter(t *testing.T) {
 			},
 		}, changeExternalExporterOK.Payload)
 	})
+
+	t.Run("ChangePassword_PasswordRotation", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
+
+		service := addService(t, services.AddServiceBody{
+			External: &services.AddServiceParamsBodyExternal{
+				NodeID:      genericNodeID,
+				ServiceName: pmmapitests.TestString(t, "External Service for External Exporter field changes test"),
+				Group:       "external",
+			},
+		})
+		serviceID := service.External.ServiceID
+		defer pmmapitests.RemoveServices(t, serviceID)
+
+		// Create External Exporter with initial configuration (Note: External Exporter ChangeAgent API doesn't support password changes)
+		ExternalExporter := addAgent(t, agents.AddAgentBody{
+			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
+				RunsOnNodeID: genericNodeID,
+				ServiceID:    serviceID,
+				Username:     "initial-external-user",
+				Password:     "initial-external-password",
+				Scheme:       "https",
+				MetricsPath:  "/metrics",
+				ListenPort:   9090,
+				CustomLabels: map[string]string{
+					"environment": "test",
+				},
+			},
+		})
+		agentID := ExternalExporter.ExternalExporter.AgentID
+		defer pmmapitests.RemoveAgents(t, agentID)
+
+		// Test changing username (External Exporter ChangeAgent doesn't support password changes)
+		changeExternalExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
+					Username: pointer.ToString("rotated-external-user"),
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "rotated-external-user", changeExternalExporterOK.Payload.ExternalExporter.Username)
+		assert.False(t, changeExternalExporterOK.Payload.ExternalExporter.Disabled)
+
+		// Test changing scheme and metrics path
+		changeExternalExporterOK, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
+					Scheme:      pointer.ToString("http"),
+					MetricsPath: pointer.ToString("/new-metrics"),
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		// Get agent to verify changes took effect
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "rotated-external-user", getAgentRes.Payload.ExternalExporter.Username)
+		assert.Equal(t, "http", getAgentRes.Payload.ExternalExporter.Scheme)
+		assert.Equal(t, "/new-metrics", getAgentRes.Payload.ExternalExporter.MetricsPath)
+		assert.False(t, getAgentRes.Payload.ExternalExporter.Disabled)
+	})
+
+	t.Run("ChangeOnlySpecifiedFields_KeepOthersUnchanged", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
+
+		service := addService(t, services.AddServiceBody{
+			External: &services.AddServiceParamsBodyExternal{
+				NodeID:      genericNodeID,
+				ServiceName: pmmapitests.TestString(t, "External Service for External Exporter partial update test"),
+				Group:       "external",
+			},
+		})
+		serviceID := service.External.ServiceID
+		defer pmmapitests.RemoveServices(t, serviceID)
+
+		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
+		pmmAgentID := pmmAgent.PMMAgent.AgentID
+		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+
+		// Create External Exporter with comprehensive initial configuration
+		ExternalExporter := addAgent(t, agents.AddAgentBody{
+			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
+				RunsOnNodeID: genericNodeID,
+				ServiceID:    serviceID,
+				Username:     "initial-external-user",
+				Password:     "initial-external-password",
+				Scheme:       "https",
+				MetricsPath:  "/custom-metrics",
+				ListenPort:   8080,
+				CustomLabels: map[string]string{
+					"environment": "staging",
+					"team":        "monitoring",
+					"region":      "us-west",
+				},
+				PushMetrics: true,
+			},
+		})
+		agentID := ExternalExporter.ExternalExporter.AgentID
+		defer pmmapitests.RemoveAgents(t, agentID)
+
+		// Change only username, verify all other fields remain unchanged
+		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
+					Username: pointer.ToString("changed-external-user"),
+					// Note: custom labels, scheme, metrics path, push metrics are NOT specified
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		// Verify only the specified field changed
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		agent := getAgentRes.Payload.ExternalExporter
+		// Username should be changed
+		assert.Equal(t, "changed-external-user", agent.Username)
+
+		// Everything else should remain unchanged
+		assert.Equal(t, "https", agent.Scheme)
+		assert.Equal(t, "/custom-metrics", agent.MetricsPath)
+		assert.Equal(t, int64(8080), agent.ListenPort)
+		assert.True(t, agent.PushMetricsEnabled)
+		assert.Equal(t, map[string]string{
+			"environment": "staging",
+			"team":        "monitoring",
+			"region":      "us-west",
+		}, agent.CustomLabels)
+		assert.False(t, agent.Disabled)
+	})
+
+	t.Run("ChangeAllAvailableFields", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
+
+		service := addService(t, services.AddServiceBody{
+			External: &services.AddServiceParamsBodyExternal{
+				NodeID:      genericNodeID,
+				ServiceName: pmmapitests.TestString(t, "External Service for External Exporter change all fields test"),
+				Group:       "external",
+			},
+		})
+		serviceID := service.External.ServiceID
+		defer pmmapitests.RemoveServices(t, serviceID)
+
+		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
+		pmmAgentID := pmmAgent.PMMAgent.AgentID
+		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+
+		// Create External Exporter with initial configuration
+		ExternalExporter := addAgent(t, agents.AddAgentBody{
+			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
+				RunsOnNodeID: genericNodeID,
+				ServiceID:    serviceID,
+				Username:     "initial-external-user",
+				Password:     "initial-external-password",
+				Scheme:       "http",
+				MetricsPath:  "/metrics",
+				ListenPort:   9090,
+				CustomLabels: map[string]string{
+					"environment": "staging",
+					"version":     "1.0",
+				},
+				PushMetrics: false,
+			},
+		})
+		agentID := ExternalExporter.ExternalExporter.AgentID
+		defer pmmapitests.RemoveAgents(t, agentID)
+
+		// Change ALL available fields at once (External Exporter ChangeAgent doesn't support password changes)
+		changeExternalExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
+					Username:    pointer.ToString("changed-external-user"),
+					Scheme:      pointer.ToString("https"),
+					MetricsPath: pointer.ToString("/new-metrics"),
+					ListenPort:  pointer.ToInt64(8080),
+					CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCustomLabels{
+						Values: map[string]string{
+							"environment": "production",
+							"version":     "2.0",
+							"team":        "infrastructure",
+						},
+					},
+					EnablePushMetrics: pointer.ToBool(true),
+					Enable:            pointer.ToBool(false), // disable the agent
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		// Verify all fields were changed correctly
+		expectedAgent := &agents.ChangeAgentOKBodyExternalExporter{
+			AgentID:            agentID,
+			ServiceID:          serviceID,
+			RunsOnNodeID:       genericNodeID,
+			Username:           "changed-external-user",
+			Scheme:             "https",
+			MetricsPath:        "/new-metrics",
+			ListenPort:         8080,
+			Disabled:           true, // agent was disabled
+			PushMetricsEnabled: true,
+			CustomLabels: map[string]string{
+				"environment": "production",
+				"version":     "2.0",
+				"team":        "infrastructure",
+			},
+		}
+
+		assert.Equal(t, expectedAgent, changeExternalExporterOK.Payload.ExternalExporter)
+
+		// Also verify by getting the agent independently
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		expectedGetAgent := &agents.GetAgentOKBodyExternalExporter{
+			AgentID:            agentID,
+			ServiceID:          serviceID,
+			RunsOnNodeID:       genericNodeID,
+			Username:           "changed-external-user",
+			Scheme:             "https",
+			MetricsPath:        "/new-metrics",
+			ListenPort:         8080,
+			Disabled:           true,
+			PushMetricsEnabled: true,
+			CustomLabels: map[string]string{
+				"environment": "production",
+				"version":     "2.0",
+				"team":        "infrastructure",
+			},
+		}
+
+		assert.Equal(t, expectedGetAgent, getAgentRes.Payload.ExternalExporter)
+	})
 }

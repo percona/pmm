@@ -1988,7 +1988,7 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 	// is less than this value. 0: no limit
 	CollectionsLimit int32 `json:"collections_limit,omitempty"`
 
-	// Enable All collectors.
+	// Enable all collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
 	// Path to exec process.

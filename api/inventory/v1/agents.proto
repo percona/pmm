@@ -219,7 +219,7 @@ message MongoDBExporter {
   // Collections limit. Only get Databases and collection stats if the total number of collections in the server
   // is less than this value. 0: no limit
   int32 collections_limit = 23;
-  // Enable All collectors.
+  // Enable all collectors.
   bool enable_all_collectors = 24;
   // Path to exec process.
   string process_exec_path = 25;
@@ -877,6 +877,12 @@ message ChangeNodeExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 5;
+  // Log level for exporter.
+  optional LogLevel log_level = 6;
+  // Expose the node_exporter process on all public interfaces.
+  optional bool expose_exporter = 7;
 }
 
 // Add/Change MySQLdExporter
@@ -929,6 +935,32 @@ message ChangeMySQLdExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // MySQL username for scraping metrics.
+  optional string username = 5;
+  // MySQL password for scraping metrics.
+  optional string password = 6;
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // Certificate Authority certificate chain.
+  optional string tls_ca = 9;
+  // Client certificate.
+  optional string tls_cert = 10;
+  // Password for decrypting tls_cert.
+  optional string tls_key = 11;
+  // Tablestats group collectors will be disabled if there are more than that number of tables.
+  optional int32 tablestats_group_table_limit = 12;
+  // Skip connection check.
+  optional bool skip_connection_check = 13;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 14;
+  // Custom password for exporter endpoint /metrics.
+  optional string agent_password = 15;
+  // Log level for exporter.
+  optional LogLevel log_level = 16;
+  // Optionally expose the exporter process on all public interfaces.
+  optional bool expose_exporter = 17;
 }
 
 // Add/Change MongoDBExporter
@@ -977,6 +1009,8 @@ message AddMongoDBExporterParams {
   LogLevel log_level = 19;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 20;
+  // Enable all collectors.
+  bool enable_all_collectors = 21;
 }
 
 message ChangeMongoDBExporterParams {
@@ -988,6 +1022,40 @@ message ChangeMongoDBExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // MongoDB username for scraping metrics.
+  optional string username = 5;
+  // MongoDB password for scraping metrics.
+  optional string password = 6;
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // Client certificate and key.
+  optional string tls_certificate_key = 9;
+  // Password for decrypting tls_certificate_key.
+  optional string tls_certificate_key_file_password = 10;
+  // Certificate Authority certificate chain.
+  optional string tls_ca = 11;
+  // Skip connection check.
+  optional bool skip_connection_check = 12;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 13;
+  // Authentication mechanism.
+  optional string authentication_mechanism = 14;
+  // Authentication database.
+  optional string authentication_database = 15;
+  // Custom password for exporter endpoint /metrics.
+  optional string agent_password = 16;
+  // List of collections to get stats from. Can use *
+  repeated string stats_collections = 17;
+  // Collections limit. Only get Databases and collection stats if the total number of collections in the server is less than this value. 0: no limit
+  optional int32 collections_limit = 18;
+  // Enable all collectors.
+  optional bool enable_all_collectors = 19;
+  // Log level for exporter.
+  optional LogLevel log_level = 20;
+  // Optionally expose the exporter process on all public interfaces.
+  optional bool expose_exporter = 21;
 }
 
 // Add/Change PostgresExporter
@@ -1040,6 +1108,34 @@ message ChangePostgresExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // PostgreSQL username for scraping metrics.
+  optional string username = 5;
+  // PostgreSQL password for scraping metrics.
+  optional string password = 6;
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // Skip connection check.
+  optional bool skip_connection_check = 9;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 10;
+  // TLS CA certificate.
+  optional string tls_ca = 11;
+  // TLS Certificate.
+  optional string tls_cert = 12;
+  // TLS Certificate Key.
+  optional string tls_key = 13;
+  // Custom password for exporter endpoint /metrics.
+  optional string agent_password = 14;
+  // Log level for exporter.
+  optional LogLevel log_level = 15;
+  // Limit of databases for auto-discovery.
+  optional int32 auto_discovery_limit = 16;
+  // Optionally expose the exporter process on all public interfaces.
+  optional bool expose_exporter = 17;
+  // Maximum number of connections that exporter can open to the database instance.
+  optional int32 max_exporter_connections = 18;
 }
 
 // Add/Change ProxySQLExporter
@@ -1082,6 +1178,22 @@ message ChangeProxySQLExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // ProxySQL username for scraping metrics.
+  optional string username = 5;
+  // ProxySQL password for scraping metrics.
+  optional string password = 6;
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 9;
+  // Custom password for exporter endpoint /metrics.
+  optional string agent_password = 10;
+  // Log level for exporter.
+  optional LogLevel log_level = 11;
+  // Optionally expose the exporter process on all public interfaces.
+  optional bool expose_exporter = 12;
 }
 
 // Add/Change QANMySQLPerfSchemaAgent
@@ -1105,7 +1217,7 @@ message AddQANMySQLPerfSchemaAgentParams {
   string tls_cert = 8;
   // Password for decrypting tls_cert.
   string tls_key = 9;
-  // Limit query length in QAN (default: server-defined; -1: no limit)
+  // Limit query length in QAN (default: server-defined; -1: no limit).
   int32 max_query_length = 10;
   // Disable query examples.
   bool disable_query_examples = 11;
@@ -1128,6 +1240,30 @@ message ChangeQANMySQLPerfSchemaAgentParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // MySQL username for getting performance data.
+  optional string username = 5;
+  // MySQL password for getting performance data.
+  optional string password = 6;
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // Certificate Authority certificate chain.
+  optional string tls_ca = 9;
+  // Client certificate.
+  optional string tls_cert = 10;
+  // Password for decrypting tls_cert.
+  optional string tls_key = 11;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  optional int32 max_query_length = 12;
+  // Disable query examples.
+  optional bool disable_query_examples = 13;
+  // Skip connection check.
+  optional bool skip_connection_check = 14;
+  // Disable parsing comments from queries and showing them in QAN.
+  optional bool disable_comments_parsing = 15;
+  // Log level for exporter.
+  optional LogLevel log_level = 16;
 }
 
 // Add/Change QANMySQLSlowlogAgent
@@ -1177,6 +1313,32 @@ message ChangeQANMySQLSlowlogAgentParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // MySQL username for getting slowlog data.
+  optional string username = 5;
+  // MySQL password for getting slowlog data.
+  optional string password = 6;
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // Certificate Authority certificate chain.
+  optional string tls_ca = 9;
+  // Client certificate.
+  optional string tls_cert = 10;
+  // Password for decrypting tls_cert.
+  optional string tls_key = 11;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  optional int32 max_query_length = 12;
+  // Disable query examples.
+  optional bool disable_query_examples = 13;
+  // Rotate slowlog file at this size if > 0.
+  optional int64 max_slowlog_file_size = 14;
+  // Skip connection check.
+  optional bool skip_connection_check = 15;
+  // Disable parsing comments from queries and showing them in QAN.
+  optional bool disable_comments_parsing = 16;
+  // Log level for exporter.
+  optional LogLevel log_level = 17;
 }
 
 // Add/Change QANMongoDBProfilerAgent
@@ -1225,6 +1387,28 @@ message ChangeQANMongoDBProfilerAgentParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // MongoDB username for getting profile data.
+  optional string username = 5;
+  // MongoDB password for getting profile data.
+  optional string password = 6;
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // Client certificate and key.
+  optional string tls_certificate_key = 9;
+  // Password for decrypting tls_certificate_key.
+  optional string tls_certificate_key_file_password = 10;
+  // Certificate Authority certificate chain.
+  optional string tls_ca = 11;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  optional int32 max_query_length = 12;
+  // Authentication mechanism.
+  optional string authentication_mechanism = 13;
+  // Authentication database.
+  optional string authentication_database = 14;
+  // Log level for exporter.
+  optional LogLevel log_level = 15;
 }
 
 // Add/Change QANPostgreSQLPgStatementsAgent
@@ -1269,6 +1453,26 @@ message ChangeQANPostgreSQLPgStatementsAgentParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // PostgreSQL username for getting pg stat statements data.
+  optional string username = 5;
+  // PostgreSQL password for getting pg stat statements data.
+  optional string password = 6;
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // Disable parsing comments from queries and showing them in QAN.
+  optional bool disable_comments_parsing = 9;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  optional int32 max_query_length = 10;
+  // TLS CA certificate.
+  optional string tls_ca = 11;
+  // TLS Certificate.
+  optional string tls_cert = 12;
+  // TLS Certificate Key.
+  optional string tls_key = 13;
+  // Log level for exporter.
+  optional LogLevel log_level = 14;
 }
 
 // Add/Change QANPostgreSQLPgStatMonitorAgent
@@ -1315,6 +1519,28 @@ message ChangeQANPostgreSQLPgStatMonitorAgentParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // PostgreSQL username for getting pg stat monitor data.
+  optional string username = 5;
+  // PostgreSQL password for getting pg stat monitor data.
+  optional string password = 6;
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  optional int32 max_query_length = 9;
+  // Disable query examples.
+  optional bool disable_query_examples = 10;
+  // Disable parsing comments from queries and showing them in QAN.
+  optional bool disable_comments_parsing = 11;
+  // TLS CA certificate.
+  optional string tls_ca = 12;
+  // TLS Certificate.
+  optional string tls_cert = 13;
+  // TLS Certificate Key.
+  optional string tls_key = 14;
+  // Log level for exporter.
+  optional LogLevel log_level = 15;
 }
 
 // Add/Change RDSExporter
@@ -1351,6 +1577,16 @@ message ChangeRDSExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // AWS Access Key.
+  optional string aws_access_key = 5;
+  // AWS Secret Key.
+  optional string aws_secret_key = 6;
+  // Disable basic metrics.
+  optional bool disable_basic_metrics = 7;
+  // Disable enhanced metrics.
+  optional bool disable_enhanced_metrics = 8;
+  // Log level for exporter.
+  optional LogLevel log_level = 9;
 }
 
 // Add/Change ExternalExporter
@@ -1388,6 +1624,14 @@ message ChangeExternalExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // HTTP basic auth username for collecting metrics.
+  optional string username = 5;
+  // Scheme to generate URI to exporter metrics endpoints.
+  optional string scheme = 6;
+  // Path under which metrics are exposed, used to generate URI.
+  optional string metrics_path = 7;
+  // Listen port for scraping metrics.
+  optional uint32 listen_port = 8;
 }
 
 // Add/Change AzureDatabaseExporter
@@ -1428,6 +1672,18 @@ message ChangeAzureDatabaseExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // Azure client ID
+  optional string azure_client_id = 5;
+  // Azure client secret
+  optional string azure_client_secret = 6;
+  // Azure tenant ID
+  optional string azure_tenant_id = 7;
+  // Azure subscription ID
+  optional string azure_subscription_id = 8;
+  // Azure resource group.
+  optional string azure_resource_group = 9;
+  // Log level for exporter.
+  optional LogLevel log_level = 11;
 }
 
 message ChangeNomadAgentParams {
@@ -1481,6 +1737,28 @@ message ChangeValkeyExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // Valkey username for scraping metrics.
+  optional string username = 5;
+  // Valkey password for scraping metrics.
+  optional string password = 6;
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 9;
+  // TLS CA certificate.
+  optional string tls_ca = 10;
+  // TLS Certificate.
+  optional string tls_cert = 11;
+  // TLS Certificate Key.
+  optional string tls_key = 12;
+  // Custom password for exporter endpoint /metrics.
+  optional string agent_password = 13;
+  // Log level for exporter.
+  optional LogLevel log_level = 14;
+  // Optionally expose the exporter process on all public interfaces
+  optional bool expose_exporter = 15;
 }
 
 // Remove
