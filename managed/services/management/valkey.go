@@ -44,7 +44,7 @@ func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.Add
 			Cluster:        req.Cluster,
 			ReplicationSet: req.ReplicationSet,
 			Address:        pointer.ToStringOrNil(req.Address),
-			Port:           pointer.ToUint16OrNil(uint16(req.Port)),
+			Port:           pointer.ToUint16OrNil(uint16(req.Port)), //nolint:gosec
 			Socket:         pointer.ToStringOrNil(req.Socket),
 			CustomLabels:   req.CustomLabels,
 		})
