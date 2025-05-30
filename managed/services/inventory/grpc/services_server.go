@@ -199,7 +199,7 @@ func (s *servicesServer) addValkeyService(ctx context.Context, params *inventory
 		Cluster:        params.Cluster,
 		ReplicationSet: params.ReplicationSet,
 		Address:        pointer.ToStringOrNil(params.Address),
-		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)), //nolint:gosec // port is not expected to overflow uint16
 		Socket:         pointer.ToStringOrNil(params.Socket),
 		CustomLabels:   params.CustomLabels,
 	})
@@ -223,7 +223,7 @@ func (s *servicesServer) addMongoDBService(ctx context.Context, params *inventor
 		Cluster:        params.Cluster,
 		ReplicationSet: params.ReplicationSet,
 		Address:        pointer.ToStringOrNil(params.Address),
-		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)), //nolint:gosec // port is not expected to overflow uint16
 		Socket:         pointer.ToStringOrNil(params.Socket),
 		CustomLabels:   params.CustomLabels,
 	})
@@ -247,7 +247,7 @@ func (s *servicesServer) addPostgreSQLService(ctx context.Context, params *inven
 		Cluster:        params.Cluster,
 		ReplicationSet: params.ReplicationSet,
 		Address:        pointer.ToStringOrNil(params.Address),
-		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)), //nolint:gosec // port is not expected to overflow uint16
 		Socket:         pointer.ToStringOrNil(params.Socket),
 		CustomLabels:   params.CustomLabels,
 	})
@@ -271,7 +271,7 @@ func (s *servicesServer) addProxySQLService(ctx context.Context, params *invento
 		Cluster:        params.Cluster,
 		ReplicationSet: params.ReplicationSet,
 		Address:        pointer.ToStringOrNil(params.Address),
-		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)), //nolint:gosec // port is not expected to overflow uint16
 		Socket:         pointer.ToStringOrNil(params.Socket),
 		CustomLabels:   params.CustomLabels,
 	})
