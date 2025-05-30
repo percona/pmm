@@ -195,6 +195,13 @@ func TestListJSONOutput(t *testing.T) {
 					"service_name": "mysql-service",
 					"address_port": "127.0.0.1:3306",
 					"external_group": ""
+				},
+				{
+					"service_type": "SERVICE_TYPE_VALKEY_SERVICE",
+					"service_id": "b9983cb2-7705-4fdc-9df6-9ec4e9f34251",
+					"service_name": "valkey-service",
+					"address_port": "127.0.0.1:6379",
+					"external_group": ""
 				}
 			],
 			"agent": [
@@ -214,6 +221,15 @@ func TestListJSONOutput(t *testing.T) {
 					"disabled": false,
 					"push_metrics_enabled": "pull",
 					"port": 3306
+				},
+				{
+					"agent_type": "AGENT_TYPE_VALKEY_EXPORTER",
+					"agent_id": "8b732ac3-8256-40b0-a98b-0fd5fa9a1198",
+					"service_id": "b9983cb2-7705-4fdc-9df6-9ec4e9f34251",
+					"status": "RUNNING",
+					"disabled": false,
+					"push_metrics_enabled": "pull",
+					"port": 6379
 				}
 			]
 		}
