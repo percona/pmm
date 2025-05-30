@@ -13,7 +13,7 @@ message AddValkeyServiceParams {
   // Node identifier on which the service is running.
   // Only one of these parameters should be present: node_id, node_name, add_node.
   string node_id = 1 [(validate.rules).string = {
-    uuid: true
+    min_len: 1
     ignore_empty: true
   }];
   // Node name on which a service is running.
