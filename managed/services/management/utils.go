@@ -23,6 +23,8 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+var IDRegex = regexp.MustCompile(`[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
+
 // IsNodeAgent checks if agent runs on the same node as the service (e.g. pmm-agent).
 func IsNodeAgent(agent *models.Agent, service *models.Service) bool {
 	return agent.ServiceID == nil && pointer.GetString(agent.RunsOnNodeID) == service.NodeID
@@ -40,6 +42,5 @@ func IsServiceAgent(agent *models.Agent, service *models.Service) bool {
 
 // LooksLikeID checks if a string contains a UUID substring in it.
 func LooksLikeID(serviceID string) bool {
-	r := regexp.MustCompile(`[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
-	return r.MatchString(serviceID)
+	return IDRegex.MatchString(serviceID)
 }
