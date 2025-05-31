@@ -39,7 +39,7 @@ message AddValkeyServiceParams {
   // The "pmm-agent" identifier which should run agents. Required.
   string pmm_agent_id = 8 [(validate.rules).string.min_len = 1];
   // Valkey username for scraping metrics.
-  string username = 9 [(validate.rules).string.min_len = 1];
+  string username = 9;
   // Valkey password for scraping metrics.
   string password = 10;
   // Environment name.

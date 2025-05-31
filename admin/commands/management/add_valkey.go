@@ -46,7 +46,7 @@ type AddValkeyCommand struct {
 	Socket              string            `help:"Path to Valkey socket"`
 	NodeID              string            `help:"Node ID (default is autodetected)"`
 	PMMAgentID          string            `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
-	Username            string            `default:"root" help:"Valkey username"`
+	Username            string            `help:"Valkey username"`
 	Password            string            `help:"Valkey password"`
 	AgentPassword       string            `help:"Custom password for /metrics endpoint"`
 	Environment         string            `help:"Environment name"`
