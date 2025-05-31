@@ -36,6 +36,8 @@ var (
 )
 
 // pgStatMonitor represents a row in pg_stat_monitor view.
+//
+//nolint:recvcheck
 type pgStatMonitor struct {
 	// PGSM < 0.6.0
 	DBID   int64

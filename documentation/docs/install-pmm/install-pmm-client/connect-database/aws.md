@@ -122,7 +122,7 @@ To create an IAM role open the IAM console and click **Roles** on the navigation
 
 8. Fill the role name and description.
 
-9. Click the **Create role** button
+9. Click the **Create role** button.
 
 After the role is created EC2 instances running PMM will have permissions to discover RDS DB instances.
 

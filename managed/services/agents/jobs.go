@@ -172,7 +172,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 
 func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentv1.JobResult) { //nolint:cyclop
 	var scheduleID string
-	if errTx := s.db.InTransaction(func(t *reform.TX) error {
+	if errTx := s.db.InTransaction(func(t *reform.TX) error { //nolint:contextcheck
 		job, err := models.FindJobByID(t.Querier, result.JobId)
 		if err != nil {
 			return err
@@ -386,7 +386,7 @@ func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time
 		User:     dbConfig.User,
 		Password: dbConfig.Password,
 		Address:  dbConfig.Address,
-		Port:     int32(dbConfig.Port),
+		Port:     int32(dbConfig.Port), //nolint:gosec // port is uint16
 		Socket:   dbConfig.Socket,
 		Folder:   folder,
 	}

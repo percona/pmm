@@ -50,7 +50,7 @@ type supervisor interface {
 	ClearChangesChannel()
 	Changes() <-chan *agentv1.StateChangedRequest
 	QANRequests() <-chan *agentv1.QANCollectRequest
-	SetState(*agentv1.SetStateRequest) //nolint:inamedparam
+	SetState(*agentv1.SetStateRequest)
 	RestartAgents()
 	AgentLogByID(string) ([]string, uint)
 	AgentsList() []*agentlocal.AgentInfo

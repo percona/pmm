@@ -1,9 +1,9 @@
 export PACKER_CACHE_DIR := .cache
-export PACKER_VERSION := 1.9.4
-export BOX_VERSION := 202407.23.0
+export PACKER_VERSION := 1.11.2
+# check available versions at https://vagrantcloud.com/api/v2/vagrant/bento/oraclelinux-9
+export BOX_VERSION := 202502.21.0
 export PMM_SERVER_IMAGE ?= docker.io/perconalab/pmm-server:3-dev-latest
 export WATCHTOWER_IMAGE ?= docker.io/perconalab/watchtower:dev-latest
-export CENTOS_ISO := 2004.01
 
 ## ----------------- PACKER ------------------
 fetch:
@@ -11,15 +11,6 @@ fetch:
 	test -f ${PACKER_CACHE_DIR}/id_rsa_vagrant \
 		|| curl -L https://raw.githubusercontent.com/hashicorp/vagrant/master/keys/vagrant -o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
-
-	# test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
-	# 		|| curl -fL https://pmm-build-cache.s3.us-east-2.amazonaws.com/VBOXES/oracle9-202407.23.0.box -o ${PACKER_CACHE_DIR}/box/oracle9.ova
-
-	# test -f ${PACKER_CACHE_DIR}/box/box.ovf \
-	# 		|| tar -C ${PACKER_CACHE_DIR}/box -xvf ${PACKER_CACHE_DIR}/box/oracle9.ova
-
-	# test -f ${PACKER_CACHE_DIR}/box/box.ovf \
-	# 	|| cp -rp ${PACKER_CACHE_DIR}/box/boxes/bento-VAGRANTSLASH-oraclelinux-9/${BOX_VERSION}/amd64/virtualbox/* ${PACKER_CACHE_DIR}/box
 
 	# Add the box using Vagrant
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
@@ -54,6 +45,6 @@ pmm-ami:
 
 check:
 	echo "TODO: Since update.yml has been deprecated, see if other playbooks need to be linted"
-	# ansible-playbook --syntax-check ansible/pmm-docker/update.yml
-	# ansible-playbook --check ansible/pmm-docker/update.yml
-	# ansible-lint ansible/pmm-docker/update.yml
+	# ansible-playbook --syntax-check ansible/pmm-docker/main.yml
+	# ansible-playbook --check ansible/pmm-docker/main.yml
+	# ansible-lint ansible/pmm-docker/main.yml

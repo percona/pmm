@@ -70,7 +70,6 @@ func TestGetPostgreSQLVersion(t *testing.T) {
 	}
 	column := []string{"version"}
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -90,7 +89,7 @@ func TestGetPostgreSQLVersion(t *testing.T) {
 			if tc.wantError {
 				assert.Error(t, err)
 			} else {
-				assert.Equal(t, tc.wantVersion.Float(), version.Float())
+				assert.InEpsilon(t, tc.wantVersion.Float(), version.Float(), 0.0001)
 				assert.Equal(t, tc.wantVersion.String(), version.String())
 				assert.NoError(t, err)
 			}

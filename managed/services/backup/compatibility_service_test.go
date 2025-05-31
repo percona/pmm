@@ -293,7 +293,7 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 		t.Run("empty db version", func(t *testing.T) {
 			t.Parallel()
 			res := cSvc.findCompatibleServiceIDs(&models.Artifact{Vendor: "mysql", DBVersion: ""}, testSet)
-			assert.Equal(t, 0, len(res))
+			assert.Empty(t, res)
 		})
 		t.Run("matches several", func(t *testing.T) {
 			t.Parallel()
@@ -308,7 +308,7 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 		t.Run("artifact version greater then existing services", func(t *testing.T) {
 			t.Parallel()
 			res := cSvc.findCompatibleServiceIDs(&models.Artifact{Vendor: "mysql", DBVersion: "8.0.30"}, testSet)
-			assert.Equal(t, 0, len(res))
+			assert.Empty(t, res)
 		})
 	})
 
@@ -363,7 +363,7 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 		t.Run("empty db version", func(t *testing.T) {
 			t.Parallel()
 			res := cSvc.findCompatibleServiceIDs(&models.Artifact{Vendor: "mongodb", DBVersion: ""}, testSet)
-			assert.Equal(t, 0, len(res))
+			assert.Empty(t, res)
 		})
 		t.Run("matches several", func(t *testing.T) {
 			t.Parallel()
