@@ -2,12 +2,12 @@
 
 The Filters panel on the left hand side of the [QAN dashboard](../../qan/index.md) helps you narrow down query data to focus on specific metrics, database instances, or performance issues.
 
-
 ![!image](../../../images/PMM_Query_Analytics_Panels_Filters.jpg)
 
 ## Understanding filters
 
 - The **Filter** panel lists the filters grouped by category. It also shows the percentage of the main metrics (explained below). If you select a different metric, the percentages on the left panel will change as per this metric. When you select a metric, it reduces the overview list as per the matching filter.
+- When [label-based access control (LBAC)](../../../admin/roles/access-control/intro.md) is enabled, filter options are automatically limited to match your role's permissions. You will only see databases, services, and environments you have access to.
 - The first five of each category are shown. If there are more, the list is expanded by clicking **Show all** beside the category name, and collapsed again with **Show top 5**.
 - Applying a filter may make other filters inapplicable. These become grayed out and inactive.
 - Click the chart symbol <i class="uil uil-graph-bar"></i> to navigate directly to an item's associated dashboard.
