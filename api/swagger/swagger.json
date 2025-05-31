@@ -6069,25 +6069,10 @@
                         "type": "string",
                         "x-order": 12
                       },
-                      "log_level": {
-                        "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                        "type": "string",
-                        "title": "Log level for exporters",
-                        "default": "LOG_LEVEL_UNSPECIFIED",
-                        "enum": [
-                          "LOG_LEVEL_UNSPECIFIED",
-                          "LOG_LEVEL_FATAL",
-                          "LOG_LEVEL_ERROR",
-                          "LOG_LEVEL_WARN",
-                          "LOG_LEVEL_INFO",
-                          "LOG_LEVEL_DEBUG"
-                        ],
-                        "x-order": 13
-                      },
                       "expose_exporter": {
                         "type": "boolean",
                         "title": "Optionally expose the exporter process on all public interfaces",
-                        "x-order": 14
+                        "x-order": 13
                       },
                       "metrics_resolutions": {
                         "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -6109,7 +6094,7 @@
                             "x-order": 2
                           }
                         },
-                        "x-order": 15
+                        "x-order": 14
                       }
                     }
                   },
@@ -7430,25 +7415,10 @@
                       "type": "string",
                       "x-order": 13
                     },
-                    "log_level": {
-                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                      "type": "string",
-                      "title": "Log level for exporters",
-                      "default": "LOG_LEVEL_UNSPECIFIED",
-                      "enum": [
-                        "LOG_LEVEL_UNSPECIFIED",
-                        "LOG_LEVEL_FATAL",
-                        "LOG_LEVEL_ERROR",
-                        "LOG_LEVEL_WARN",
-                        "LOG_LEVEL_INFO",
-                        "LOG_LEVEL_DEBUG"
-                      ],
-                      "x-order": 14
-                    },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 15
+                      "x-order": 14
                     }
                   },
                   "x-order": 14
@@ -9146,25 +9116,10 @@
                       "type": "string",
                       "x-order": 12
                     },
-                    "log_level": {
-                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                      "type": "string",
-                      "title": "Log level for exporters",
-                      "default": "LOG_LEVEL_UNSPECIFIED",
-                      "enum": [
-                        "LOG_LEVEL_UNSPECIFIED",
-                        "LOG_LEVEL_FATAL",
-                        "LOG_LEVEL_ERROR",
-                        "LOG_LEVEL_WARN",
-                        "LOG_LEVEL_INFO",
-                        "LOG_LEVEL_DEBUG"
-                      ],
-                      "x-order": 13
-                    },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -9186,7 +9141,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 15
+                      "x-order": 14
                     }
                   },
                   "x-order": 14
@@ -11026,25 +10981,10 @@
                       "type": "string",
                       "x-order": 12
                     },
-                    "log_level": {
-                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                      "type": "string",
-                      "title": "Log level for exporters",
-                      "default": "LOG_LEVEL_UNSPECIFIED",
-                      "enum": [
-                        "LOG_LEVEL_UNSPECIFIED",
-                        "LOG_LEVEL_FATAL",
-                        "LOG_LEVEL_ERROR",
-                        "LOG_LEVEL_WARN",
-                        "LOG_LEVEL_INFO",
-                        "LOG_LEVEL_DEBUG"
-                      ],
-                      "x-order": 13
-                    },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -11066,7 +11006,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 15
+                      "x-order": 14
                     }
                   },
                   "x-order": 16
@@ -13616,25 +13556,10 @@
                       "type": "string",
                       "x-order": 12
                     },
-                    "log_level": {
-                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                      "type": "string",
-                      "title": "Log level for exporters",
-                      "default": "LOG_LEVEL_UNSPECIFIED",
-                      "enum": [
-                        "LOG_LEVEL_UNSPECIFIED",
-                        "LOG_LEVEL_FATAL",
-                        "LOG_LEVEL_ERROR",
-                        "LOG_LEVEL_WARN",
-                        "LOG_LEVEL_INFO",
-                        "LOG_LEVEL_DEBUG"
-                      ],
-                      "x-order": 13
-                    },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -13656,7 +13581,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 15
+                      "x-order": 14
                     }
                   },
                   "x-order": 14
@@ -24019,25 +23944,10 @@
                           "type": "string",
                           "x-order": 12
                         },
-                        "log_level": {
-                          "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                          "type": "string",
-                          "title": "Log level for exporters",
-                          "default": "LOG_LEVEL_UNSPECIFIED",
-                          "enum": [
-                            "LOG_LEVEL_UNSPECIFIED",
-                            "LOG_LEVEL_FATAL",
-                            "LOG_LEVEL_ERROR",
-                            "LOG_LEVEL_WARN",
-                            "LOG_LEVEL_INFO",
-                            "LOG_LEVEL_DEBUG"
-                          ],
-                          "x-order": 13
-                        },
                         "expose_exporter": {
                           "type": "boolean",
                           "title": "Optionally expose the exporter process on all public interfaces",
-                          "x-order": 14
+                          "x-order": 13
                         },
                         "metrics_resolutions": {
                           "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -24059,7 +23969,7 @@
                               "x-order": 2
                             }
                           },
-                          "x-order": 15
+                          "x-order": 14
                         }
                       },
                       "x-order": 1

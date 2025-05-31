@@ -74,7 +74,6 @@ func (s *ManagementService) addValkey(ctx context.Context, req *managementv1.Add
 				ExposeExporter: req.ExposeExporter,
 				PushMetrics:    isPushMode(req.MetricsMode),
 			},
-			LogLevel:      services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 			ValkeyOptions: models.ValkeyOptionsFromRequest(req),
 		})
 		if err != nil {

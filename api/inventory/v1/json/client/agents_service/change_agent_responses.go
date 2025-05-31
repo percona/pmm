@@ -5659,12 +5659,6 @@ type ChangeAgentOKBodyValkeyExporter struct {
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
@@ -5677,10 +5671,6 @@ func (o *ChangeAgentOKBodyValkeyExporter) Validate(formats strfmt.Registry) erro
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -5748,60 +5738,6 @@ func (o *ChangeAgentOKBodyValkeyExporter) validateStatus(formats strfmt.Registry
 
 	// value enum
 	if err := o.validateStatusEnum("changeAgentOk"+"."+"valkey_exporter"+"."+"status", "body", *o.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var changeAgentOkBodyValkeyExporterTypeLogLevelPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		changeAgentOkBodyValkeyExporterTypeLogLevelPropEnum = append(changeAgentOkBodyValkeyExporterTypeLogLevelPropEnum, v)
-	}
-}
-
-const (
-
-	// ChangeAgentOKBodyValkeyExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	ChangeAgentOKBodyValkeyExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
-
-	// ChangeAgentOKBodyValkeyExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	ChangeAgentOKBodyValkeyExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
-
-	// ChangeAgentOKBodyValkeyExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	ChangeAgentOKBodyValkeyExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
-
-	// ChangeAgentOKBodyValkeyExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	ChangeAgentOKBodyValkeyExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
-
-	// ChangeAgentOKBodyValkeyExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	ChangeAgentOKBodyValkeyExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
-
-	// ChangeAgentOKBodyValkeyExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	ChangeAgentOKBodyValkeyExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
-)
-
-// prop value enum
-func (o *ChangeAgentOKBodyValkeyExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, changeAgentOkBodyValkeyExporterTypeLogLevelPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ChangeAgentOKBodyValkeyExporter) validateLogLevel(formats strfmt.Registry) error {
-	if swag.IsZero(o.LogLevel) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateLogLevelEnum("changeAgentOk"+"."+"valkey_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

@@ -531,7 +531,6 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
 			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}

@@ -1208,8 +1208,6 @@ func (m *ValkeyExporter) validate(all bool) error {
 
 	// no validation rules for ProcessExecPath
 
-	// no validation rules for LogLevel
-
 	// no validation rules for ExposeExporter
 
 	if all {
@@ -11945,8 +11943,6 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 	// no validation rules for TlsKey
 
 	// no validation rules for AgentPassword
-
-	// no validation rules for LogLevel
 
 	// no validation rules for ExposeExporter
 

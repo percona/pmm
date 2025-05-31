@@ -7860,12 +7860,6 @@ type AddServiceOKBodyValkeyValkeyExporter struct {
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
@@ -7878,10 +7872,6 @@ func (o *AddServiceOKBodyValkeyValkeyExporter) Validate(formats strfmt.Registry)
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -7949,60 +7939,6 @@ func (o *AddServiceOKBodyValkeyValkeyExporter) validateStatus(formats strfmt.Reg
 
 	// value enum
 	if err := o.validateStatusEnum("addServiceOk"+"."+"valkey"+"."+"valkey_exporter"+"."+"status", "body", *o.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var addServiceOkBodyValkeyValkeyExporterTypeLogLevelPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addServiceOkBodyValkeyValkeyExporterTypeLogLevelPropEnum = append(addServiceOkBodyValkeyValkeyExporterTypeLogLevelPropEnum, v)
-	}
-}
-
-const (
-
-	// AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
-
-	// AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
-
-	// AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
-
-	// AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
-
-	// AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
-
-	// AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddServiceOKBodyValkeyValkeyExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
-)
-
-// prop value enum
-func (o *AddServiceOKBodyValkeyValkeyExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addServiceOkBodyValkeyValkeyExporterTypeLogLevelPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddServiceOKBodyValkeyValkeyExporter) validateLogLevel(formats strfmt.Registry) error {
-	if swag.IsZero(o.LogLevel) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateLogLevelEnum("addServiceOk"+"."+"valkey"+"."+"valkey_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

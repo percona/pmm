@@ -113,7 +113,6 @@ func (cmd *AddAgentValkeyExporterCommand) RunCmd() (commands.Result, error) {
 				PushMetrics:         cmd.PushMetrics,
 				ExposeExporter:      cmd.ExposeExporter,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:            cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

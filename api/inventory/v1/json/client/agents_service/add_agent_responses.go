@@ -5578,12 +5578,6 @@ type AddAgentOKBodyValkeyExporter struct {
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
@@ -5596,10 +5590,6 @@ func (o *AddAgentOKBodyValkeyExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -5667,60 +5657,6 @@ func (o *AddAgentOKBodyValkeyExporter) validateStatus(formats strfmt.Registry) e
 
 	// value enum
 	if err := o.validateStatusEnum("addAgentOk"+"."+"valkey_exporter"+"."+"status", "body", *o.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var addAgentOkBodyValkeyExporterTypeLogLevelPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addAgentOkBodyValkeyExporterTypeLogLevelPropEnum = append(addAgentOkBodyValkeyExporterTypeLogLevelPropEnum, v)
-	}
-}
-
-const (
-
-	// AddAgentOKBodyValkeyExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddAgentOKBodyValkeyExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
-
-	// AddAgentOKBodyValkeyExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddAgentOKBodyValkeyExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
-
-	// AddAgentOKBodyValkeyExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddAgentOKBodyValkeyExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
-
-	// AddAgentOKBodyValkeyExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddAgentOKBodyValkeyExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
-
-	// AddAgentOKBodyValkeyExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddAgentOKBodyValkeyExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
-
-	// AddAgentOKBodyValkeyExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddAgentOKBodyValkeyExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
-)
-
-// prop value enum
-func (o *AddAgentOKBodyValkeyExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addAgentOkBodyValkeyExporterTypeLogLevelPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddAgentOKBodyValkeyExporter) validateLogLevel(formats strfmt.Registry) error {
-	if swag.IsZero(o.LogLevel) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateLogLevelEnum("addAgentOk"+"."+"valkey_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -7710,81 +7646,12 @@ type AddAgentParamsBodyValkeyExporter struct {
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
 
-	// Log level for exporters
-	//
-	// - LOG_LEVEL_UNSPECIFIED: Auto
-	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
-	LogLevel *string `json:"log_level,omitempty"`
-
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this add agent params body valkey exporter
 func (o *AddAgentParamsBodyValkeyExporter) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateLogLevel(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var addAgentParamsBodyValkeyExporterTypeLogLevelPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addAgentParamsBodyValkeyExporterTypeLogLevelPropEnum = append(addAgentParamsBodyValkeyExporterTypeLogLevelPropEnum, v)
-	}
-}
-
-const (
-
-	// AddAgentParamsBodyValkeyExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddAgentParamsBodyValkeyExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
-
-	// AddAgentParamsBodyValkeyExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddAgentParamsBodyValkeyExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
-
-	// AddAgentParamsBodyValkeyExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddAgentParamsBodyValkeyExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
-
-	// AddAgentParamsBodyValkeyExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddAgentParamsBodyValkeyExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
-
-	// AddAgentParamsBodyValkeyExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddAgentParamsBodyValkeyExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
-
-	// AddAgentParamsBodyValkeyExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddAgentParamsBodyValkeyExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
-)
-
-// prop value enum
-func (o *AddAgentParamsBodyValkeyExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addAgentParamsBodyValkeyExporterTypeLogLevelPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddAgentParamsBodyValkeyExporter) validateLogLevel(formats strfmt.Registry) error {
-	if swag.IsZero(o.LogLevel) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateLogLevelEnum("body"+"."+"valkey_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
-		return err
-	}
-
 	return nil
 }
 

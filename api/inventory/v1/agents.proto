@@ -350,12 +350,10 @@ message ValkeyExporter {
   uint32 listen_port = 21;
   // Path to exec process.
   string process_exec_path = 22;
-  // Log level for exporter.
-  LogLevel log_level = 23;
   // Optionally expose the exporter process on all public interfaces
-  bool expose_exporter = 24;
+  bool expose_exporter = 23;
   // Metrics resolution for this agent.
-  common.MetricsResolutions metrics_resolutions = 25;
+  common.MetricsResolutions metrics_resolutions = 24;
 }
 
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -1466,10 +1464,8 @@ message AddValkeyExporterParams {
   string tls_key = 13;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 14;
-  // Log level for exporter.
-  LogLevel log_level = 15;
   // Optionally expose the exporter process on all public interfaces
-  bool expose_exporter = 16;
+  bool expose_exporter = 15;
 }
 
 message ChangeValkeyExporterParams {
