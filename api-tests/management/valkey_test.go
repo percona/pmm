@@ -99,7 +99,6 @@ func TestAddValkey(t *testing.T) {
 				Status:             &AgentStatusUnknown,
 				CustomLabels:       make(map[string]string),
 				DisabledCollectors: []string{},
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, listAgents.Payload.ValkeyExporter)
 		defer removeAllAgentsInList(t, listAgents)
@@ -175,7 +174,6 @@ func TestAddValkey(t *testing.T) {
 				Status:             &AgentStatusUnknown,
 				DisabledCollectors: []string{},
 				CustomLabels:       make(map[string]string),
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, listAgents.Payload.ValkeyExporter)
 	})

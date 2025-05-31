@@ -88,7 +88,6 @@ func TestValkeyExporter(t *testing.T) {
 						"custom_label": "test",
 					},
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 					Status:             &AgentStatusUnknown,
 				},
 			},
@@ -118,7 +117,6 @@ func TestValkeyExporter(t *testing.T) {
 					Status:             &AgentStatusUnknown,
 					CustomLabels:       map[string]string{},
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeValkeyExporterOK)
@@ -152,7 +150,6 @@ func TestValkeyExporter(t *testing.T) {
 					},
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeValkeyExporterOK)
@@ -343,7 +340,6 @@ func TestValkeyExporter(t *testing.T) {
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -372,7 +368,6 @@ func TestValkeyExporter(t *testing.T) {
 					},
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeValkeyExporterOK)
@@ -401,7 +396,6 @@ func TestValkeyExporter(t *testing.T) {
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
 					DisabledCollectors: make([]string, 0),
-					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeValkeyExporterOK)
