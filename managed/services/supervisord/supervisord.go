@@ -569,7 +569,7 @@ redirect_stderr = true
 [program:qan-api2]
 priority = 13
 command =
-	/usr/sbin/percona-qan-api2
+	/usr/sbin/pmm-qan-api
 		--data-retention={{ .DataRetentionDays }}
 environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
