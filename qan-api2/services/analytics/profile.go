@@ -34,7 +34,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 	periodStartFromSec := in.PeriodStartFrom.Seconds
 	periodStartToSec := in.PeriodStartTo.Seconds
 	if periodStartFromSec > periodStartToSec {
-		return nil, fmt.Errorf("from-date %s cannot be bigger then to-date %s", in.PeriodStartFrom, in.PeriodStartTo)
+		return nil, fmt.Errorf("from-date %s cannot be later then to-date %s", in.PeriodStartFrom, in.PeriodStartTo)
 	}
 	periodDurationSec := periodStartToSec - periodStartFromSec
 
@@ -52,7 +52,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
-		if isDimension(label.Key) {
+		if models.IsDimension(label.Key) {
 			dimensions[label.Key] = label.Value
 			continue
 		}
@@ -61,7 +61,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 
 	var columns []string //nolint:prealloc
 	for _, col := range in.Columns {
-		// TODO: remove when UI will use num_queries instead.
+		// TODO: remove when UI starts using num_queries instead.
 		if col == "count" {
 			col = "num_queries"
 		}

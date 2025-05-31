@@ -1,6 +1,6 @@
 # qan-api2
 
-QAN API for PMM 2.x.
+QAN API for PMM 3.x.
 
 ## Get Report
 
