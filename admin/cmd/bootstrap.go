@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 
 	"github.com/alecthomas/kong"
@@ -154,7 +155,7 @@ func getDefaultKongOptions(appName string) []kong.Option {
 			NoExpandSubcommands: true,
 		}),
 		kong.Vars{
-			"defaultListenPort":            fmt.Sprintf("%d", agentlocal.DefaultPMMAgentListenPort),
+			"defaultListenPort":            strconv.Itoa(agentlocal.DefaultPMMAgentListenPort),
 			"nodeIp":                       nodeinfo.PublicAddress,
 			"nodeTypeDefault":              nodeTypeDefault,
 			"hostname":                     hostname,
