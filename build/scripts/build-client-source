@@ -58,6 +58,7 @@ main() {
   prepare_tarball azure_metrics_exporter
   prepare_tarball percona-toolkit
 
+  # shellcheck disable=SC2155
   local noxattrs=$(uname -s | grep -qi "Darwin" && echo "--no-xattrs" || echo "")
 
   tar -C "$(dirname "${source_dir}")" "${noxattrs}" -zcpf "${source_tarball}" "$(basename "${source_dir}")"
