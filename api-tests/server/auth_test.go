@@ -119,10 +119,11 @@ func TestSwagger(t *testing.T) {
 				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
-				resp, _ := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
-
+				resp, err := http.DefaultClient.Do(req)
 				require.NoError(t, err)
-				assert.Equal(t, 200, resp.StatusCode)
+				defer resp.Body.Close() //nolint:errcheck
+
+				assert.Equal(t, 401, resp.StatusCode)
 			})
 
 			t.Run("Auth", func(t *testing.T) {
@@ -135,9 +136,10 @@ func TestSwagger(t *testing.T) {
 				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
-				resp, _ := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
-
+				resp, err := http.DefaultClient.Do(req)
 				require.NoError(t, err)
+				defer resp.Body.Close() //nolint:errcheck
+
 				assert.Equal(t, 200, resp.StatusCode)
 			})
 		})
