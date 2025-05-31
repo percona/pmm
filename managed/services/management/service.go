@@ -83,12 +83,13 @@ func NewManagementService(
 
 // A map to check if the service is supported.
 // NOTE: known external services appear to match the vendor names,
-// (e.g. "mysql", "mongodb", "postgresql", "proxysql", "haproxy"),
+// (e.g. "mysql", "mongodb", "postgresql", "valkey", "proxysql", "haproxy"),
 // which is why ServiceType_EXTERNAL_SERVICE is not part of this map.
 var supportedServices = map[string]inventoryv1.ServiceType{
 	string(models.MySQLServiceType):      inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 	string(models.MongoDBServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 	string(models.PostgreSQLServiceType): inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
+	string(models.ValkeyServiceType):     inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
 	string(models.ProxySQLServiceType):   inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 	string(models.HAProxyServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 }

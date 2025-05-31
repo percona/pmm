@@ -669,6 +669,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Right), tdp.Right)
 
 		return dsn
+
 	case ValkeyExporterType:
 		urlScheme := "redis"
 		if s.TLS {
