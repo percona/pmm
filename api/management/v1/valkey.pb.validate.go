@@ -144,16 +144,7 @@ func (m *AddValkeyServiceParams) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddValkeyServiceParamsValidationError{
-			field:  "Username",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Username
 
 	// no validation rules for Password
 
