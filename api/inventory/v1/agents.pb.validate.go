@@ -1208,8 +1208,6 @@ func (m *ValkeyExporter) validate(all bool) error {
 
 	// no validation rules for ProcessExecPath
 
-	// no validation rules for LogLevel
-
 	// no validation rules for ExposeExporter
 
 	if all {
@@ -11892,11 +11890,10 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 
 	var errors []error
 
-	if err := m._validateUuid(m.GetPmmAgentId()); err != nil {
-		err = AddValkeyExporterParamsValidationError{
+	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
+		err := AddValkeyExporterParamsValidationError{
 			field:  "PmmAgentId",
-			reason: "value must be a valid UUID",
-			cause:  err,
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err
@@ -11946,8 +11943,6 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 	// no validation rules for TlsKey
 
 	// no validation rules for AgentPassword
-
-	// no validation rules for LogLevel
 
 	// no validation rules for ExposeExporter
 

@@ -531,15 +531,12 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
 			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
-			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-
 		return exporter, nil
-
 	default:
-		panic(fmt.Errorf("unhandled Agent type %s", agent.AgentType))
+		panic(fmt.Errorf("cannot convert unknown agent type %s", agent.AgentType))
 	}
 }
 
@@ -602,6 +599,7 @@ var ServiceTypes = map[inventoryv1.ServiceType]models.ServiceType{
 	inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
 	inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:    models.HAProxyServiceType,
 	inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE:   models.ExternalServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE:     models.ValkeyServiceType,
 }
 
 // ProtoToModelServiceType converts a ServiceType from protobuf to model.

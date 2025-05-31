@@ -360,9 +360,9 @@ message AddPostgreSQLServiceParams {
 
 message AddValkeyServiceParams {
   // Unique across all Services user-defined name. Required.
-  string service_name = 1 [(validate.rules).string.uuid = true];
+  string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
-  string node_id = 2 [(validate.rules).string.uuid = true];
+  string node_id = 2 [(validate.rules).string.min_len = 1];
   // Access address (DNS name or IP).
   // Address (and port) or socket is required.
   string address = 3;

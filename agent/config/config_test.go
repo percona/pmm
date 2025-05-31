@@ -114,6 +114,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/usr/local/percona/pmm/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
+				ValkeyExporter:   "/usr/local/percona/pmm/exporters/valkey_exporter",
 				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
 				TempDir:          "/usr/local/percona/pmm/tmp",
 				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
@@ -176,6 +177,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/usr/local/percona/pmm/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
+				ValkeyExporter:   "/usr/local/percona/pmm/exporters/valkey_exporter",
 				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
 				TempDir:          "/usr/local/percona/pmm/tmp",
 				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
@@ -237,6 +239,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/usr/local/percona/pmm/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
+				ValkeyExporter:   "/usr/local/percona/pmm/exporters/valkey_exporter",
 				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
 				TempDir:          "/foo/bar/tmp",
 				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
@@ -306,6 +309,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/base/pro_exporter",     // respect relative value from config file
 				RDSExporter:      "/base/rds_exporter",     // default value
 				AzureExporter:    "/base/azure_exporter",   // default value
+				ValkeyExporter:   "/base/valkey_exporter",  // default value
 				VMAgent:          "/base/vmagent",          // default value
 				TempDir:          "/usr/local/percona/pmm/tmp",
 				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
@@ -373,6 +377,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/base/exporters/pro_exporter",       // respect relative value from config file
 				RDSExporter:      "/base/exporters/rds_exporter",       // default value
 				AzureExporter:    "/base/exporters/azure_exporter",     // default value
+				ValkeyExporter:   "/base/exporters/valkey_exporter",    // default value
 				VMAgent:          "/base/exporters/vmagent",            // default value
 				TempDir:          "/base/tmp",
 				NomadDataDir:     "/base/data/nomad",
@@ -438,6 +443,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/foo/exporters/proxysql_exporter", // default value
 				RDSExporter:      "/foo/exporters/rds_exporter",      // default value
 				AzureExporter:    "/foo/exporters/azure_exporter",    // default value
+				ValkeyExporter:   "/foo/exporters/valkey_exporter",   // default value
 				VMAgent:          "/foo/exporters/vmagent",           // default value
 				TempDir:          "/foo/tmp",
 				NomadDataDir:     "/base/data/nomad",
@@ -488,6 +494,7 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/usr/local/percona/pmm/exporters/proxysql_exporter",
 				RDSExporter:      "/usr/local/percona/pmm/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm/exporters/azure_exporter",
+				ValkeyExporter:   "/usr/local/percona/pmm/exporters/valkey_exporter",
 				VMAgent:          "/usr/local/percona/pmm/exporters/vmagent",
 				TempDir:          "/usr/local/percona/pmm/tmp",
 				NomadDataDir:     "/usr/local/percona/pmm/data/nomad",
