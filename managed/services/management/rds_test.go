@@ -24,8 +24,8 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -122,7 +122,8 @@ func TestRDSService(t *testing.T) {
 				"us-west-1",
 				"us-west-2",
 			}
-			actual := listRegions([]string{"aws", "aws-cn", "aws-us-gov", "aws-iso", "aws-iso-b"})
+			actual, err := listRegions(context.Background(), []string{"aws", "aws-cn", "aws-us-gov", "aws-iso", "aws-iso-b"})
+			require.NoError(t, err)
 			assert.Equal(t, expected, actual)
 		})
 
@@ -225,20 +226,43 @@ func TestRDSService(t *testing.T) {
 				ctx := logger.Set(context.Background(), t.Name())
 				accessKey, secretKey := tests.GetAWSKeys(t)
 
-				creds := credentials.NewStaticCredentials(accessKey, secretKey, "")
-				cfg := &aws.Config{
-					//CredentialsChainVerboseErrors: aws.Bool(true), TODO debugging in test
-					Credentials: creds,
-					HTTPClient:  &http.Client{},
+				creds := credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")
+				// cfg := &aws.Config{
+				// 	CredentialsChainVerboseErrors: aws.Bool(true),
+				// 	Credentials:                   creds,
+				// 	HTTPClient:                    &http.Client{},
+				// }
+				// if l.Logger.GetLevel() >= logrus.DebugLevel {
+				// 	cfg.LogLevel = aws.LogLevel(aws.LogDebug)
+				// }
+				// sess, err := session.NewSession(cfg)
+				// if err != nil {
+				// 	return nil, errors.WithStack(err)
+				// }
+
+				opts := []func(*config.LoadOptions) error{
+					config.WithCredentialsProvider(creds),
+					config.WithHTTPClient(&http.Client{}),
 				}
-				sess, err := session.NewSession(cfg)
+
+				// Enable verbose credentials chain errors equivalent in v2 (no direct flag, but can debug via logs)
+				// Enable logging if log level is debug or higher
+				opts = append(opts, config.WithClientLogMode(aws.LogRetries|aws.LogRequestWithBody|aws.LogResponseWithBody))
+				cfg, err := config.LoadDefaultConfig(ctx, opts...)
 				require.NoError(t, err)
+
+				// creds := credentials.NewStaticCredentials(accessKey, secretKey, "")
+				// cfg := &aws.Config{
+				// 	//CredentialsChainVerboseErrors: aws.Bool(true), TODO debugging in test
+				// 	Credentials: creds,
+				// 	HTTPClient:  &http.Client{},
+				// }
 
 				// do not break our API if some AWS region is slow or down
 				ctx, cancel := context.WithTimeout(ctx, awsDiscoverTimeout)
 				defer cancel()
 
-				instances, err := discoverRDSRegion(ctx, sess, tt.region)
+				instances, err := discoverRDSRegion(ctx, cfg, tt.region)
 
 				require.NoError(t, err)
 				require.Equal(t, len(tt.instances), len(instances), "Should have two instances")

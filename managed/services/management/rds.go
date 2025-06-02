@@ -25,9 +25,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/aws/aws-sdk-go-v2/service/rds/types"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/smithy-go"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -105,28 +105,32 @@ func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]ty
 }
 
 // listRegions returns a list of AWS regions for given partitions.
-func listRegions(partitions []string) []string {
-	set := make(map[string]struct{})
-	for _, p := range partitions {
-		for _, partition := range endpoints.DefaultPartitions() {
-			if p != partition.ID() {
-				continue
-			}
+func listRegions(ctx context.Context, partitions []string) ([]string, error) {
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-			for r := range partition.Services()[EndpointsID].Regions() {
-				set[r] = struct{}{}
-			}
-			break
+	client := ec2.NewFromConfig(cfg)
+	output, err := client.DescribeRegions(ctx, &ec2.DescribeRegionsInput{})
+	if err != nil {
+		return nil, err
+	}
+
+	set := make(map[string]struct{})
+	for _, region := range output.Regions {
+		if region.RegionName != nil {
+			set[*region.RegionName] = struct{}{}
 		}
 	}
 
-	slice := make([]string, 0, len(set))
+	regions := make([]string, 0, len(set))
 	for r := range set {
-		slice = append(slice, r)
+		regions = append(regions, r)
 	}
-	sort.Strings(slice)
+	sort.Strings(regions)
 
-	return slice
+	return regions, nil
 }
 
 // DiscoverRDS discovers RDS instances.
@@ -178,7 +182,11 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	var wg errgroup.Group
 	instances := make(chan *managementv1.DiscoverRDSInstance)
 
-	for _, region := range listRegions(settings.AWSPartitions) {
+	regions, err := listRegions(ctx, settings.AWSPartitions)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	for _, region := range regions {
 		region := region
 		wg.Go(func() error {
 			regInstances, err := discoverRDSRegion(ctx, cfg, region)
@@ -247,7 +255,6 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	// 		return res, status.Error(codes.Unknown, e.Error())
 	// 	}
 	// }
-
 	if err != nil {
 		var apiErr *smithy.GenericAPIError
 		if errors.As(err, &apiErr) {
