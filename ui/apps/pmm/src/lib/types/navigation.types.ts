@@ -5,4 +5,5 @@ export interface NavItem {
   url: string;
   children?: NavItem[];
   isActive?: boolean;
+  target?: HTMLAnchorElement['target'];
 }

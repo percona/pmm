@@ -21,6 +21,15 @@ export const SidebarItem: FC<{ item: NavItem }> = ({ item }) => {
   const active = isActive(item, location.pathname);
   const [open, setIsOpen] = useState(active);
   const to = useLinkWithVariables(item.url);
+  const linkProps = !item.target
+    ? {
+        LinkComponent: Link,
+        to: to,
+      }
+    : {
+        href: item.url,
+        target: item.target,
+      };
 
   useEffect(() => {
     if (active) {
@@ -63,8 +72,7 @@ export const SidebarItem: FC<{ item: NavItem }> = ({ item }) => {
       <ListItemButton
         disableGutters
         sx={{ px: 4, fontWeight: active ? 'bold' : '' }}
-        LinkComponent={Link}
-        to={to}
+        {...linkProps}
       >
         {item.text}
       </ListItemButton>

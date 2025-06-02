@@ -1,4 +1,8 @@
-import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
+import {
+  PMM_BASE_PATH,
+  PMM_NEW_NAV_GRAFANA_PATH,
+  PMM_NEW_NAV_PATH,
+} from 'lib/constants';
 import { NavItem } from 'lib/types';
 
 export const PMM_NAV_OS: NavItem = {
@@ -424,6 +428,195 @@ const PMM_ADVISORS: NavItem = {
   ],
 };
 
+export const GRAFANA_ADMINISTRATION: NavItem = {
+  id: 'cfg',
+  text: 'Administration',
+  icon: 'cog',
+  url: '/admin',
+  children: [
+    {
+      id: 'cfg/general',
+      text: 'General',
+      icon: 'shield',
+      url: '/admin/general',
+      children: [
+        {
+          id: 'upgrading',
+          text: 'Stats and license',
+          icon: 'unlock',
+          url: PMM_NEW_NAV_PATH + '/graph/admin/upgrading',
+        },
+        {
+          id: 'org-settings',
+          text: 'Default preferences',
+          icon: 'sliders-v-alt',
+          url: PMM_NEW_NAV_PATH + '/graph/org',
+        },
+        {
+          id: 'server-settings',
+          text: 'Settings',
+          icon: 'sliders-v-alt',
+          url: PMM_NEW_NAV_PATH + '/graph/admin/settings',
+        },
+        {
+          id: 'global-orgs',
+          text: 'Organizations',
+          icon: 'building',
+          url: PMM_NEW_NAV_PATH + '/graph/admin/orgs',
+        },
+      ],
+    },
+    {
+      id: 'cfg/plugins',
+      text: 'Plugins and data',
+      icon: 'shield',
+      url: '/admin/plugins',
+      children: [
+        {
+          id: 'plugins',
+          text: 'Plugins',
+          icon: 'plug',
+          url: PMM_NEW_NAV_PATH + '/graph/plugins',
+        },
+        {
+          id: 'correlations',
+          text: 'Correlations',
+          icon: 'gf-glue',
+          url: PMM_NEW_NAV_PATH + '/graph/datasources/correlations',
+        },
+        {
+          id: 'extensions',
+          text: 'Extensions',
+          icon: 'plug',
+          url: PMM_NEW_NAV_PATH + '/graph/admin/extensions',
+        },
+      ],
+    },
+    {
+      id: 'cfg/access',
+      text: 'Users and access',
+      icon: 'shield',
+      url: '/admin/access',
+      children: [
+        {
+          id: 'global-users',
+          text: 'Users',
+          icon: 'user',
+          url: PMM_NEW_NAV_PATH + '/graph/admin/users',
+        },
+        {
+          id: 'teams',
+          text: 'Teams',
+          icon: 'users-alt',
+          url: PMM_NEW_NAV_PATH + '/graph/org/teams',
+        },
+        {
+          id: 'serviceaccounts',
+          text: 'Service accounts',
+          icon: 'gf-service-account',
+          url: PMM_NEW_NAV_PATH + '/graph/org/serviceaccounts',
+        },
+      ],
+    },
+    {
+      id: 'authentication',
+      text: 'Authentication',
+      icon: 'signin',
+      url: PMM_NEW_NAV_PATH + '/graph/admin/authentication',
+    },
+  ],
+};
+
+export const PROFILE: NavItem = {
+  id: 'profile',
+  text: 'Account',
+  url: PMM_NEW_NAV_PATH + '/graph/profile',
+  children: [
+    {
+      id: 'profile/settings',
+      text: 'Profile',
+      icon: 'sliders-v-alt',
+      url: PMM_NEW_NAV_PATH + '/graph/profile',
+    },
+    {
+      id: 'profile/notifications',
+      text: 'Notification history',
+      icon: 'bell',
+      url: PMM_NEW_NAV_PATH + '/graph/profile/notifications',
+    },
+    {
+      id: 'profile/password',
+      text: 'Change password',
+      icon: 'lock',
+      url: PMM_NEW_NAV_PATH + '/graph/profile/password',
+    },
+    {
+      id: 'sign-out',
+      text: 'Sign out',
+      icon: 'arrow-from-right',
+      url: PMM_BASE_PATH + '/graph/logout',
+      target: '_self',
+    },
+  ],
+};
+
+const PMM_ALERTING: NavItem = {
+  id: 'alerting',
+  text: 'Alerting',
+  icon: 'bell',
+  url: PMM_NEW_NAV_PATH + '/graph/alerting',
+  children: [
+    {
+      id: 'integrated-alerting-alerts',
+      text: 'Fired alerts',
+      icon: 'info-circle',
+      url: PMM_NEW_NAV_PATH + '/graph/alerting/alerts',
+    },
+    {
+      id: 'integrated-alerting-templates',
+      text: 'Alert rule templates',
+      icon: 'brackets-curly',
+      url: PMM_NEW_NAV_PATH + '/graph/alerting/alert-rule-templates',
+    },
+    {
+      id: 'alert-list',
+      text: 'Alert rules',
+      icon: 'list-ul',
+      url: PMM_NEW_NAV_PATH + '/graph/alerting/list',
+    },
+    {
+      id: 'receivers',
+      text: 'Contact points',
+      icon: 'comment-alt-share',
+      url: PMM_NEW_NAV_PATH + '/graph/alerting/notifications',
+    },
+    {
+      id: 'am-routes',
+      text: 'Notification policies',
+      icon: 'sitemap',
+      url: PMM_NEW_NAV_PATH + '/graph/alerting/routes',
+    },
+    {
+      id: 'silences',
+      text: 'Silences',
+      icon: 'bell-slash',
+      url: PMM_NEW_NAV_PATH + '/graph/alerting/silences',
+    },
+    {
+      id: 'groups',
+      text: 'Alert groups',
+      icon: 'layer-group',
+      url: PMM_NEW_NAV_PATH + '/graph/alerting/groups',
+    },
+    {
+      id: 'alerting-admin',
+      text: 'Settings',
+      icon: 'cog',
+      url: PMM_NEW_NAV_PATH + '/graph/alerting/admin',
+    },
+  ],
+};
+
 export const INITIAL_ITEMS: NavItem[] = [
   {
     id: 'home-page',
@@ -437,14 +630,12 @@ export const INITIAL_ITEMS: NavItem[] = [
   PMM_NAV_PROXYSQL,
   PMM_NAV_HAPROXY,
   PMM_NAV_QAN,
+  PMM_ALERTING,
   PMM_ADVISORS,
   PMM_BACKUP_PAGE,
   PMM_CONFIGURATION,
-  {
-    id: 'alerts',
-    text: 'Alerts',
-    url: PMM_NEW_NAV_PATH + '/graph/alerting/alerts',
-  },
+  GRAFANA_ADMINISTRATION,
+  PROFILE,
   {
     id: 'help',
     text: 'Help',
