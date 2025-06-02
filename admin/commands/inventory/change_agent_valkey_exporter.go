@@ -220,7 +220,7 @@ func (cmd *ChangeAgentValkeyExporterCommand) RunCmd() (commands.Result, error) {
 		changes = append(changes, fmt.Sprintf("changed log level to %s", *cmd.LogLevel))
 	}
 	if customLabels != nil {
-		if len(*customLabels) > 0 {
+		if len(*customLabels) != 0 {
 			changes = append(changes, "updated custom labels")
 		} else {
 			changes = append(changes, "custom labels are removed")

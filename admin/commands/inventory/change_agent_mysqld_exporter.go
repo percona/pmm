@@ -142,7 +142,7 @@ func (cmd *ChangeAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 		LogLevel:                  convertLogLevelPtr(cmd.LogLevel),
 	}
 
-	if customLabels != nil && len(*customLabels) > 0 {
+	if customLabels != nil {
 		body.CustomLabels = &agents.ChangeAgentParamsBodyMysqldExporterCustomLabels{
 			Values: *customLabels,
 		}
@@ -224,8 +224,12 @@ func (cmd *ChangeAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 	if cmd.LogLevel != nil {
 		changes = append(changes, fmt.Sprintf("changed log level to %s", *cmd.LogLevel))
 	}
-	if customLabels != nil && len(*customLabels) > 0 {
-		changes = append(changes, "updated custom labels")
+	if customLabels != nil {
+		if len(*customLabels) != 0 {
+			changes = append(changes, "updated custom labels")
+		} else {
+			changes = append(changes, "custom labels are removed")
+		}
 	}
 
 	return &changeAgentMysqldExporterResult{

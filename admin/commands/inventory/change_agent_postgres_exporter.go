@@ -144,7 +144,7 @@ func (cmd *ChangeAgentPostgresExporterCommand) RunCmd() (commands.Result, error)
 		LogLevel:               convertLogLevelPtr(cmd.LogLevel),
 	}
 
-	if customLabels != nil && len(*customLabels) > 0 {
+	if customLabels != nil {
 		body.CustomLabels = &agents.ChangeAgentParamsBodyPostgresExporterCustomLabels{
 			Values: *customLabels,
 		}

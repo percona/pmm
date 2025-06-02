@@ -134,7 +134,7 @@ func (cmd *ChangeAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result,
 		LogLevel:               convertLogLevelPtr(cmd.LogLevel),
 	}
 
-	if customLabels != nil && len(*customLabels) > 0 {
+	if customLabels != nil {
 		body.CustomLabels = &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCustomLabels{
 			Values: *customLabels,
 		}
@@ -210,8 +210,12 @@ func (cmd *ChangeAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result,
 	if cmd.LogLevel != nil {
 		changes = append(changes, fmt.Sprintf("changed log level to %s", *cmd.LogLevel))
 	}
-	if customLabels != nil && len(*customLabels) > 0 {
-		changes = append(changes, "updated custom labels")
+	if customLabels != nil {
+		if len(*customLabels) != 0 {
+			changes = append(changes, "updated custom labels")
+		} else {
+			changes = append(changes, "custom labels are removed")
+		}
 	}
 
 	return &changeAgentQANMySQLPerfSchemaAgentResult{
