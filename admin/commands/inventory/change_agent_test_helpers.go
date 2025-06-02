@@ -69,14 +69,12 @@ func setupChangeAgentTestServer(t *testing.T, agentID string, responseJSON strin
 		require.NoError(t, err)
 	}))
 
-	// Setup client to use test server
-	serverURL, _ := url.Parse(server.URL)
-	originalClient := client.Default
-	transport := httptransport.New(serverURL.Host, serverURL.Path, []string{serverURL.Scheme})
-	c := client.New(transport, nil)
-	// Lock the client mutex to avoid race conditions, hack to make it work with parallel tests
+	// Setup client to use test server - all operations under mutex to avoid race conditions
 	clientMutex.Lock()
-	client.Default = c
+	originalClient := client.Default
+	serverURL, _ := url.Parse(server.URL)
+	transport := httptransport.New(serverURL.Host, serverURL.Path, []string{serverURL.Scheme})
+	client.Default = client.New(transport, nil)
 
 	cleanup := func() {
 		server.Close()
