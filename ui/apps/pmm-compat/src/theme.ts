@@ -3,7 +3,7 @@ import { config, getAppEvents, ThemeChangedEvent } from '@grafana/runtime';
 
 /**
  * Changes theme to the provided one
- * 
+ *
  * Based on public/app/core/services/theme.ts in Grafana
  * @param themeId
  */

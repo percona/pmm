@@ -49,10 +49,7 @@ export const UpdateInProgressCard: FC<UpdateInProgressCardProps> = ({
             }
           >
             {status === UpdateStatus.Completed && (
-              <Button
-                variant="contained"
-                onClick={() => navigate('clients')}
-              >
+              <Button variant="contained" onClick={() => navigate('clients')}>
                 {Messages.next}
               </Button>
             )}
