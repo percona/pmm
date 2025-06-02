@@ -22,11 +22,11 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
+	"github.com/alecthomas/kong"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/alecthomas/kong"
 	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 )
