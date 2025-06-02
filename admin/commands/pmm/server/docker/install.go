@@ -155,7 +155,7 @@ func (c *InstallCommand) pullImage(ctx context.Context, globals *flags.GlobalFla
 		if err != nil {
 			logrus.Error(err)
 		}
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	}
 
 	return c.startProgressProgram(reader)
@@ -183,5 +183,5 @@ func (c *InstallCommand) startProgressProgram(reader io.Reader) (commands.Result
 		return nil, err
 	}
 
-	return nil, nil
+	return nil, nil //nolint:nilnil
 }

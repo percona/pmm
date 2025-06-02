@@ -39,7 +39,7 @@ func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32) 
 	}
 
 	i := 0
-	result := braceletsMultiformRegexp.ReplaceAllStringFunc(digestText, func(s string) string {
+	result := braceletsMultiformRegexp.ReplaceAllStringFunc(digestText, func(_ string) string {
 		c := contents[i]
 		i++
 		return c

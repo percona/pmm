@@ -210,7 +210,7 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 					InstanceId:    *db.DBInstanceIdentifier,
 					NodeModel:     *db.DBInstanceClass,
 					Address:       *db.Endpoint.Address,
-					Port:          uint32(*db.Endpoint.Port),
+					Port:          uint32(*db.Endpoint.Port), //nolint:gosec // port is not expected to overflow uint32
 					Engine:        rdsEngines[*db.Engine],
 					EngineVersion: *db.EngineVersion,
 				}
@@ -368,7 +368,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ReplicationSet: req.ReplicationSet,
 				CustomLabels:   req.CustomLabels,
 				Address:        &req.Address,
-				Port:           pointer.ToUint16(uint16(req.Port)),
+				Port:           pointer.ToUint16(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
 			})
 			if err != nil {
 				return err
@@ -448,7 +448,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ReplicationSet: req.ReplicationSet,
 				CustomLabels:   req.CustomLabels,
 				Address:        &req.Address,
-				Port:           pointer.ToUint16(uint16(req.Port)),
+				Port:           pointer.ToUint16(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
 				Database:       req.Database,
 			})
 			if err != nil {

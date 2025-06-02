@@ -29,6 +29,7 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+//nolint:lll
 var statusResultT = ParseTemplate(`
 Agent ID : {{ .PMMAgentStatus.AgentID }}
 Node ID  : {{ .PMMAgentStatus.NodeID }}
