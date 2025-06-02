@@ -20,10 +20,10 @@ require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/alecthomas/kong v1.11.0
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b
+	github.com/aws/aws-sdk-go v1.55.7
 	github.com/aws/aws-sdk-go-v2 v1.36.3
 	github.com/aws/aws-sdk-go-v2/config v1.29.14
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.67
-	github.com/aws/aws-sdk-go-v2/service/ec2 v1.224.0
 	github.com/aws/aws-sdk-go-v2/service/rds v1.96.0
 	github.com/aws/smithy-go v1.22.2
 	github.com/blang/semver v3.5.1+incompatible

@@ -25,9 +25,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/aws/aws-sdk-go-v2/service/rds/types"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/smithy-go"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -46,7 +46,6 @@ import (
 const (
 	// Maximum time for AWS discover APIs calls.
 	awsDiscoverTimeout = 7 * time.Second
-	EndpointsID        = "rds"
 )
 
 var (
@@ -105,32 +104,28 @@ func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]ty
 }
 
 // listRegions returns a list of AWS regions for given partitions.
-func listRegions(ctx context.Context, partitions []string) ([]string, error) {
-	cfg, err := config.LoadDefaultConfig(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	client := ec2.NewFromConfig(cfg)
-	output, err := client.DescribeRegions(ctx, &ec2.DescribeRegionsInput{})
-	if err != nil {
-		return nil, err
-	}
-
+func listRegions(ctx context.Context, partitions []string) []string {
 	set := make(map[string]struct{})
-	for _, region := range output.Regions {
-		if region.RegionName != nil {
-			set[*region.RegionName] = struct{}{}
+	for _, p := range partitions {
+		for _, partition := range endpoints.DefaultPartitions() {
+			if p != partition.ID() {
+				continue
+			}
+
+			for r := range partition.Services()["aws"].Regions() {
+				set[r] = struct{}{}
+			}
+			break
 		}
 	}
 
-	regions := make([]string, 0, len(set))
+	slice := make([]string, 0, len(set))
 	for r := range set {
-		regions = append(regions, r)
+		slice = append(slice, r)
 	}
-	sort.Strings(regions)
+	sort.Strings(slice)
 
-	return regions, nil
+	return slice
 }
 
 // DiscoverRDS discovers RDS instances.
@@ -182,11 +177,7 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	var wg errgroup.Group
 	instances := make(chan *managementv1.DiscoverRDSInstance)
 
-	regions, err := listRegions(ctx, settings.AWSPartitions)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	for _, region := range regions {
+	for _, region := range listRegions(ctx, settings.AWSPartitions) {
 		region := region
 		wg.Go(func() error {
 			regInstances, err := discoverRDSRegion(ctx, cfg, region)
