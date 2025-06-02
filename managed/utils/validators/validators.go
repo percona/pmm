@@ -100,6 +100,7 @@ func ValidateAWSPartitions(partitions []string) error {
 	return nil
 }
 
+// AWSPartitions contains standart AWS partitions.
 func AWSPartitions() []string {
 	return []string{
 		"aws",        // Standard commercial AWS
