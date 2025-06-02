@@ -2,7 +2,7 @@ import { wrapWithUpdatesProvider } from 'utils/testUtils';
 import { HomeLink } from './HomeLink';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { UpdateStatus } from 'types/updates.types';
-import { PMM_HOME_URL } from 'lib/constants';
+import { PMM_HOME_URL, PMM_NEW_NAV_PATH } from 'lib/constants';
 import { MemoryRouter } from 'react-router-dom';
 
 describe('HomeLink', () => {
@@ -21,6 +21,26 @@ describe('HomeLink', () => {
     expect(screen.getByTestId('home-link')).toHaveAttribute(
       'href',
       PMM_HOME_URL
+    );
+  });
+
+  it('navigates to PMM Home if client update is not pending on new UI', () => {
+    render(
+      wrapWithUpdatesProvider(
+        <MemoryRouter
+          initialEntries={[{ pathname: PMM_NEW_NAV_PATH + '/updates/clients' }]}
+        >
+          <HomeLink data-testid="home-link" />
+        </MemoryRouter>,
+        {
+          status: UpdateStatus.UpToDate,
+        }
+      )
+    );
+
+    expect(screen.getByTestId('home-link')).toHaveAttribute(
+      'href',
+      PMM_NEW_NAV_PATH
     );
   });
 

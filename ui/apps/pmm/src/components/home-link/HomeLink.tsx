@@ -18,7 +18,7 @@ export const HomeLink: FC<LinkProps> = ({ children, sx, ...props }) => {
     if (
       status === UpdateStatus.UpdateClients &&
       !areClientsUpToDate &&
-      !isOnClientsPage
+      isOnClientsPage
     ) {
       return {
         onClick: () => setModalOpen(true),
