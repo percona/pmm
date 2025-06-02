@@ -653,7 +653,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, customLabels, persistedLabels)
 
 			// Clear custom labels
-			emptyLabels := map[string]string{}
+			emptyLabels := make(map[string]string)
 			agent, err = models.ChangeAgent(q, "A2", &models.ChangeAgentParams{
 				CustomLabels: &emptyLabels,
 			})
