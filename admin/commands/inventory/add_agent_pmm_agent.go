@@ -46,12 +46,13 @@ type AddPMMAgentCommand struct {
 
 // RunCmd executes the AddPMMAgentCommand and returns the result.
 func (cmd *AddPMMAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
+
 	params := &agents.AddAgentParams{
 		Body: agents.AddAgentBody{
 			PMMAgent: &agents.AddAgentParamsBodyPMMAgent{
 				RunsOnNodeID: cmd.RunsOnNodeID,
-				CustomLabels: customLabels,
+				CustomLabels: *customLabels,
 			},
 		},
 		Context: commands.Ctx,

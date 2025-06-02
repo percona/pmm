@@ -81,7 +81,7 @@ func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
@@ -116,7 +116,7 @@ func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 				Environment:         cmd.Environment,
 				Cluster:             cmd.Cluster,
 				ReplicationSet:      cmd.ReplicationSet,
-				CustomLabels:        customLabels,
+				CustomLabels:        *customLabels,
 				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 			},

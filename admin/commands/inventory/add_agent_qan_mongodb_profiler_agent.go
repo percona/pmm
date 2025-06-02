@@ -67,7 +67,7 @@ type AddAgentQANMongoDBProfilerAgentCommand struct {
 
 // RunCmd executes the AddAgentQANMongoDBProfilerAgentCommand and returns the result.
 func (cmd *AddAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
 	if err != nil {
@@ -85,7 +85,7 @@ func (cmd *AddAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, er
 				ServiceID:                     cmd.ServiceID,
 				Username:                      cmd.Username,
 				Password:                      cmd.Password,
-				CustomLabels:                  customLabels,
+				CustomLabels:                  *customLabels,
 				SkipConnectionCheck:           cmd.SkipConnectionCheck,
 				MaxQueryLength:                cmd.MaxQueryLength,
 				TLS:                           cmd.TLS,

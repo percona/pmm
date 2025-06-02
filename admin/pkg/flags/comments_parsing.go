@@ -23,3 +23,21 @@ type CommentsParsingFlags struct {
 func (c CommentsParsingFlags) CommentsParsingEnabled() bool {
 	return c.CommentsParsing == "on"
 }
+
+// CommentsParsingChangeFlags contains flags for comments parsing in change commands.
+// This struct doesn't have a default value to avoid sending unnecessary fields in API requests.
+type CommentsParsingChangeFlags struct {
+	CommentsParsing *string `enum:"on,off" help:"Enable/disable parsing comments from queries. One of: [${enum}]"`
+}
+
+// CommentsParsingDisabled returns the value for use with DisableCommentsParsing API field.
+// Returns nil if the flag was not provided, otherwise returns true if comments parsing should be disabled.
+func (c CommentsParsingChangeFlags) CommentsParsingDisabled() *bool {
+	if c.CommentsParsing == nil {
+		return nil
+	}
+
+	// Return true (disabled) if "off", false (enabled) if "on"
+	disabled := *c.CommentsParsing == "off"
+	return &disabled
+}

@@ -60,7 +60,7 @@ type AddNodeContainerCommand struct {
 
 // RunCmd executes the AddNodeContainerCommand and returns the result.
 func (cmd *AddNodeContainerCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 	params := &nodes.AddNodeParams{
 		Body: nodes.AddNodeBody{
 			Container: &nodes.AddNodeParamsBodyContainer{
@@ -69,7 +69,7 @@ func (cmd *AddNodeContainerCommand) RunCmd() (commands.Result, error) {
 				ContainerID:   cmd.ContainerID,
 				ContainerName: cmd.ContainerName,
 				Address:       cmd.Address,
-				CustomLabels:  customLabels,
+				CustomLabels:  *customLabels,
 
 				Region:    cmd.Region,
 				Az:        cmd.Az,

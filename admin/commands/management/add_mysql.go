@@ -147,7 +147,7 @@ func (cmd *AddMySQLCommand) GetSocket() string {
 
 // RunCmd runs the command for AddMySQLCommand.
 func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 
 	if cmd.CreateUser {
 		return nil, errors.New("Unrecognized option. To create a user, see " +
@@ -218,7 +218,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				Username:       cmd.Username,
 				Password:       cmd.Password,
 				AgentPassword:  cmd.AgentPassword,
-				CustomLabels:   customLabels,
+				CustomLabels:   *customLabels,
 
 				QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
 				QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,

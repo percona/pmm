@@ -66,7 +66,7 @@ type AddAgentQANPostgreSQLPgStatementsAgentCommand struct {
 
 // RunCmd executes the AddAgentQANPostgreSQLPgStatementsAgentCommand and returns the result.
 func (cmd *AddAgentQANPostgreSQLPgStatementsAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 
 	var (
 		err                    error
@@ -96,7 +96,7 @@ func (cmd *AddAgentQANPostgreSQLPgStatementsAgentCommand) RunCmd() (commands.Res
 				ServiceID:              cmd.ServiceID,
 				Username:               cmd.Username,
 				Password:               cmd.Password,
-				CustomLabels:           customLabels,
+				CustomLabels:           *customLabels,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
 				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
 				MaxQueryLength:         cmd.MaxQueryLength,

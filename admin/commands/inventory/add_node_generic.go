@@ -59,7 +59,7 @@ type AddNodeGenericCommand struct {
 
 // RunCmd executes the AddNodeGenericCommand and returns the result.
 func (cmd *AddNodeGenericCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 	params := &nodes.AddNodeParams{
 		Body: nodes.AddNodeBody{
 			Generic: &nodes.AddNodeParamsBodyGeneric{
@@ -67,7 +67,7 @@ func (cmd *AddNodeGenericCommand) RunCmd() (commands.Result, error) {
 				MachineID:    cmd.MachineID,
 				Distro:       cmd.Distro,
 				Address:      cmd.Address,
-				CustomLabels: customLabels,
+				CustomLabels: *customLabels,
 
 				Region:    cmd.Region,
 				Az:        cmd.Az,

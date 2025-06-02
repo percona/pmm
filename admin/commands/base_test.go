@@ -124,20 +124,26 @@ func TestParseCustomLabel(t *testing.T) {
 	t.Parallel()
 	for _, tt := range []struct {
 		name     string
-		input    map[string]string
-		expected map[string]string
+		input    *map[string]string
+		expected *map[string]string
 	}{
-		{"simple label", map[string]string{"foo": "bar"}, map[string]string{"foo": "bar"}},
-		{"two labels", map[string]string{"foo": "bar", "bar": "foo"}, map[string]string{"foo": "bar", "bar": "foo"}},
-		{"no value", map[string]string{"foo": ""}, make(map[string]string)},
-		{"trim spaces", map[string]string{"foo": " bar "}, map[string]string{"foo": "bar"}},
-		{"PMM-4078 hyphen", map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, map[string]string{"region": "us-east1", "mylabel": "mylab-22"}},
+		{"simple label", &map[string]string{"foo": "bar"}, &map[string]string{"foo": "bar"}},
+		{"two labels", &map[string]string{"foo": "bar", "bar": "foo"}, &map[string]string{"foo": "bar", "bar": "foo"}},
+		{"no value", &map[string]string{"foo": ""}, &map[string]string{}},
+		{"trim spaces", &map[string]string{"foo": " bar "}, &map[string]string{"foo": "bar"}},
+		{"PMM-4078 hyphen", &map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, &map[string]string{"region": "us-east1", "mylabel": "mylab-22"}},
+		{"empty map", &map[string]string{}, &map[string]string{}},
+		{"nil input", nil, nil},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			customLabels := ParseCustomLabels(tt.input)
-			assert.Equal(t, tt.expected, customLabels)
+			if tt.expected == nil {
+				assert.Nil(t, customLabels)
+			} else {
+				assert.Equal(t, *tt.expected, *customLabels)
+			}
 		})
 	}
 }

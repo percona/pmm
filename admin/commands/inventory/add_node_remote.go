@@ -53,13 +53,13 @@ type AddNodeRemoteCommand struct {
 
 // RunCmd executes the AddNodeRemoteCommand and returns the result.
 func (cmd *AddNodeRemoteCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 	params := &nodes.AddNodeParams{
 		Body: nodes.AddNodeBody{
 			Remote: &nodes.AddNodeParamsBodyRemote{
 				NodeName:     cmd.NodeName,
 				Address:      cmd.Address,
-				CustomLabels: customLabels,
+				CustomLabels: *customLabels,
 
 				Region: cmd.Region,
 				Az:     cmd.Az,

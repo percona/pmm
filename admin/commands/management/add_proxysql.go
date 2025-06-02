@@ -102,7 +102,7 @@ func (cmd *AddProxySQLCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddProxySQLCommand.
 func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 
 	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
@@ -145,7 +145,7 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 				Password:       cmd.Password,
 				AgentPassword:  cmd.AgentPassword,
 
-				CustomLabels:        customLabels,
+				CustomLabels:        *customLabels,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLS:                 cmd.TLS,
 				TLSSkipVerify:       cmd.TLSSkipVerify,
