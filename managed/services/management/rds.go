@@ -27,7 +27,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/aws/aws-sdk-go-v2/service/rds/types"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/smithy-go"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -106,14 +105,33 @@ func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]ty
 
 // listRegions returns a list of AWS regions for given partitions.
 func listRegions(partitions []string) []string {
+	partitionServices := map[string]map[string][]string{
+		"aws": {
+			"rds": {
+				"us-east-1", "us-east-2", "us-west-1", "us-west-2",
+				"eu-central-1", "eu-west-1", "ap-southeast-1", "ap-northeast-1",
+			},
+		},
+		"aws-cn": {
+			"rds": {
+				"cn-north-1", "cn-northwest-1",
+			},
+		},
+		"aws-us-gov": {
+			"rds": {
+				"us-gov-west-1", "us-gov-east-1",
+			},
+		},
+	}
+
 	set := make(map[string]struct{})
 	for _, p := range partitions {
-		for _, partition := range endpoints.DefaultPartitions() {
-			if p != partition.ID() {
+		for name, partition := range partitionServices {
+			if p != name {
 				continue
 			}
 
-			for r := range partition.Services()[rdsEndpointsID].Regions() {
+			for _, r := range partition[rdsEndpointsID] {
 				set[r] = struct{}{}
 			}
 			break
