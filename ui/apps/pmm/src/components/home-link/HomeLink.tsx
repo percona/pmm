@@ -35,7 +35,7 @@ export const HomeLink: FC<LinkProps> = ({ children, sx, ...props }) => {
     return {
       href: PMM_HOME_URL,
     };
-  }, [status, areClientsUpToDate, isOnClientsPage]);
+  }, [location.pathname, status, areClientsUpToDate, isOnClientsPage]);
 
   return (
     <>
