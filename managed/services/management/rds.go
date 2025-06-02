@@ -46,6 +46,7 @@ import (
 const (
 	// Maximum time for AWS discover APIs calls.
 	awsDiscoverTimeout = 7 * time.Second
+	rdsEndpointsID     = "rds"
 )
 
 var (
@@ -112,7 +113,7 @@ func listRegions(partitions []string) []string {
 				continue
 			}
 
-			for r := range partition.Services()["aws"].Regions() {
+			for r := range partition.Services()[rdsEndpointsID].Regions() {
 				set[r] = struct{}{}
 			}
 			break
