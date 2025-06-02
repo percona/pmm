@@ -104,7 +104,7 @@ func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]ty
 }
 
 // listRegions returns a list of AWS regions for given partitions.
-func listRegions(ctx context.Context, partitions []string) []string {
+func listRegions(partitions []string) []string {
 	set := make(map[string]struct{})
 	for _, p := range partitions {
 		for _, partition := range endpoints.DefaultPartitions() {
@@ -177,7 +177,7 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	var wg errgroup.Group
 	instances := make(chan *managementv1.DiscoverRDSInstance)
 
-	for _, region := range listRegions(ctx, settings.AWSPartitions) {
+	for _, region := range listRegions(settings.AWSPartitions) {
 		region := region
 		wg.Go(func() error {
 			regInstances, err := discoverRDSRegion(ctx, cfg, region)

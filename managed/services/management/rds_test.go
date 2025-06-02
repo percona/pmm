@@ -122,7 +122,7 @@ func TestRDSService(t *testing.T) {
 				"us-west-1",
 				"us-west-2",
 			}
-			actual := listRegions(context.Background(), []string{"aws", "aws-cn", "aws-us-gov", "aws-iso", "aws-iso-b"})
+			actual := listRegions([]string{"aws", "aws-cn", "aws-us-gov", "aws-iso", "aws-iso-b"})
 			assert.Equal(t, expected, actual)
 		})
 
