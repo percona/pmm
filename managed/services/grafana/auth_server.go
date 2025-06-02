@@ -114,14 +114,16 @@ var rules = map[string]role{
 	// "/" is a special case in this code
 }
 
-var vmProxyPrefixes = []string{
-	"/graph/api/datasources/proxy/1/api/v1/",
+var lbacPrefixes = []string{
+	"/graph/api/datasources/uid",
 	"/graph/api/ds/query",
-	"/graph/api/v1/labels",
+	// "/graph/api/v1/labels", // Note: this path appears not to be used in Grafana
 	"/prometheus/api/v1/",
+	"/v1/qan/",
+	"/graph/api/datasources/proxy/1/api/v1/", // https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
 }
 
-const vmProxyHeaderName = "X-Proxy-Filter"
+const lbacHeaderName = "X-Proxy-Filter"
 
 // nginx auth_request directive supports only 401 and 403 - every other code results in 500.
 // Our APIs can return codes.PermissionDenied which maps to 403 / http.StatusForbidden.
@@ -244,7 +246,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		userID = authUser.userID
 	}
 
-	if err := s.maybeAddVMProxyFilters(ctx, rw, req, userID, l); err != nil {
+	if err := s.maybeAddLBACFilters(ctx, rw, req, userID, l); err != nil {
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
 		m := map[string]any{
 			"code":    int(codes.Internal),
@@ -270,10 +272,10 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *
 	}
 }
 
-// maybeAddVMProxyFilters adds extra filters to requests proxied through VMProxy.
+// maybeAddLBACFilters adds extra filters to requests proxied through VMProxy.
 // In case the request is not proxied through VMProxy, this is a no-op.
-func (s *AuthServer) maybeAddVMProxyFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
-	if !s.shallAddVMProxyFilters(req) {
+func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
+	if !s.shallAddLBACFilters(req) {
 		return nil
 	}
 
@@ -295,7 +297,7 @@ func (s *AuthServer) maybeAddVMProxyFilters(ctx context.Context, rw http.Respons
 		return ErrInvalidUserID
 	}
 
-	filters, err := s.getFiltersForVMProxy(userID)
+	filters, err := s.getLBACFilters(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -309,28 +311,28 @@ func (s *AuthServer) maybeAddVMProxyFilters(ctx context.Context, rw http.Respons
 		return errors.WithStack(err)
 	}
 
-	rw.Header().Set(vmProxyHeaderName, base64.StdEncoding.EncodeToString(jsonFilters))
+	rw.Header().Set(lbacHeaderName, base64.StdEncoding.EncodeToString(jsonFilters))
 
 	return nil
 }
 
-func (s *AuthServer) shallAddVMProxyFilters(req *http.Request) bool {
-	addFilters := false
-	for _, p := range vmProxyPrefixes {
-		if strings.HasPrefix(req.URL.Path, p) {
-			addFilters = true
-			break
-		}
-	}
-
-	if !addFilters {
+// shallAddLBACFilters decides if LBAC filters must be added to the outgoing request.
+func (s *AuthServer) shallAddLBACFilters(req *http.Request) bool {
+	if !s.accessControl.isEnabled() {
 		return false
 	}
 
-	return s.accessControl.isEnabled()
+	for _, p := range lbacPrefixes {
+		if strings.HasPrefix(req.URL.Path, p) {
+			return true
+		}
+	}
+
+	return false
 }
 
-func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
+// getLBACFilters retrieves LBAC filters for the user.
+func (s *AuthServer) getLBACFilters(ctx context.Context, userID int) ([]string, error) {
 	roles, err := models.GetUserRoles(s.db.Querier, userID)
 	if err != nil {
 		return nil, err
@@ -339,7 +341,7 @@ func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
 	// We may see this user for the first time.
 	// If the role is not defined, we automatically assign a default role.
 	if len(roles) == 0 {
-		err := s.db.InTransaction(func(tx *reform.TX) error {
+		err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 			s.l.Infof("Assigning default role to user ID %d", userID)
 			return models.AssignDefaultRole(tx, userID)
 		})
