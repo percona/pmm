@@ -119,8 +119,8 @@ func prepareRequest(req *http.Request, target *url.URL, headerName string) {
 		req.URL.RawQuery = q.Encode()
 
 		logrus.Debugf(
-			"Received filters: %s, Parsed filters: %#v, Query: %s, Target URL: %s, Time spent: %s",
-			filters, parsed, req.URL.RawQuery, req.URL, time.Since(now))
+			"Parsed filters: %#v, Target URL: %s, Time spent: %s",
+			parsed, req.URL, time.Since(now))
 	}
 
 	// Do not trust the client

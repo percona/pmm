@@ -1,9 +1,22 @@
 # Install PMM Client manually using binaries
+This method allows you to install PMM Client using pre-compiled binary packages on a wide range of Linux distributions, for both x86_64 and ARM64 architectures.
 
-Choose your installation instructions based on whether you have root permissions:
+Installing from binaries offers these advantages:
 
+- Supports Linux distributions not covered by package managers
+- Doesn't require package managers
+- Allows installation without root permissions (unique to this method)
+- Provides complete control over the installation location
+
+
+!!! note "Version information"
+    The commands below are for the latest PMM release. If you want to install a different release, make sure to update the commands with your required version number.
+
+## Choose your installation path
+
+Select the appropriate instructions based on your access level:
 === "With root permissions"
-    To install PMM Client with **binary** package with root permissions:
+    To install with root/administrator privileges:
     {.power-number}
 
     1. Download the PMM Client package for your architecture:
@@ -18,7 +31,7 @@ Choose your installation instructions based on whether you have root permissions
             wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz
             ```
 
-    2. Download the corresponding checksum file:
+    2. Download the corresponding checksum file to verify integrity:
 
         === "For x86_64 (AMD64)"
             ```sh
@@ -92,7 +105,7 @@ Choose your installation instructions based on whether you have root permissions
 
 === "Without root permissions"
 
-    To install PMM Client with **binary** package without root permissions:
+    Follow these steps for environments where you don't have root access:
     {.power-number}
 
     1. Download the PMM Client package for your architecture:
@@ -107,7 +120,7 @@ Choose your installation instructions based on whether you have root permissions
             wget https://downloads.percona.com/downloads/pmm3/{{release}}/binary/tarball/pmm-client-{{release}}-aarch64.tar.gz
             ```
 
-    2. Download the corresponding checksum file:
+    2. Download the corresponding checksum file to verify integrity:
 
         === "For x86_64 (AMD64)"
             ```sh
@@ -181,9 +194,18 @@ Choose your installation instructions based on whether you have root permissions
         pmm-admin status
         ```
         
-!!! hint alert alert-success "Tips"
-    - Download tar.gz with pmm-client.
-    - Extract it.
-    - Run `./install_tarball script `with the `-u` flag.
+!!! hint alert alert-success "Tip for quick installation"
+    For a quick installation:
 
-The configuration file will be overwritten if you do not provide the -`u` flag while the pmm-agent is updated.
+    - Download the PMM Client tar.gz file
+    - Extract it
+    - Run `./install_tarbal`l (or with `-u` flag to preserve existing config during upgrades)
+
+## Related topics
+
+- [Prerequisites for PMM Client](prerequisites.md)
+- [Register client node](../register-client-node/index.md) 
+- [Connect databases for monitoring](connect-database/index.md)
+- [Uninstall PMM Client](../../uninstall-pmm/unregister_client.md)
+- [Docker installation option](../install-pmm-client/docker.md) 
+- [Package manager installation](package_manager.md) 

@@ -66,91 +66,93 @@ Modify your startup command or configuration file to use the new parameters:
 !!! note "Version Upgrade"
     This step will upgrade your PMM instance to version 3.2.0 and apply the new database configuration. 
 
-
 === "Docker"
-   ```bash
-   docker run -d \
-     -p 443:443 \
-     -v pmm-data:/srv \
-     -e GF_DATABASE_USER=your_user \
-     -e GF_DATABASE_PASSWORD=your_password \
-     -e GF_DATABASE_HOST=your_host:your_port \
-     -e GF_DATABASE_NAME=your_db_name \
-     -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
-     --name pmm-server \
-     percona/pmm-server:3.2.0
-   ```
+    ```bash
+    docker run -d \
+      -p 443:8443 \
+      -v pmm-data:/srv \
+      -e GF_DATABASE_USER=your_user \
+      -e GF_DATABASE_PASSWORD=your_password \
+      -e GF_DATABASE_HOST=your_host:your_port \
+      -e GF_DATABASE_NAME=your_db_name \
+      -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
+      --name pmm-server \
+      percona/pmm-server:3.2.0
+    ```
 
 === "Podman"
-   ```bash
-   podman run -d \
-     -p 443:443 \
-     -v pmm-data:/srv \
-     -e GF_DATABASE_USER=your_user \
-     -e GF_DATABASE_PASSWORD=your_password \
-     -e GF_DATABASE_HOST=your_host:your_port \
-     -e GF_DATABASE_NAME=your_db_name \
-     -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
-     --name pmm-server \
-     percona/pmm-server:3.2.0
-   ```
+    ```bash
+    podman run -d \
+      -p 443:8443 \
+      -v pmm-data:/srv \
+      -e GF_DATABASE_USER=your_user \
+      -e GF_DATABASE_PASSWORD=your_password \
+      -e GF_DATABASE_HOST=your_host:your_port \
+      -e GF_DATABASE_NAME=your_db_name \
+      -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
+      --name pmm-server \
+      percona/pmm-server:3.2.0
+    ```
 
 === "Docker Compose"
-   Update your `docker-compose.yml` file to include both PMM and Grafana database configuration variables `PMM_POSTGRES_*` is required for PMM's internal components and `GF_DATABASE_*` for Grafana. For details, see the [Configure PMM with external PostgreSQL](../reference/third-party/postgresql.md#environment-variables) topic.
+    Update your `docker-compose.yml` file to include both PMM and Grafana database configuration variables. `PMM_POSTGRES_*` is required for PMM's internal components and `GF_DATABASE_*` for Grafana. For details, see the [Configure PMM with external PostgreSQL](../reference/third-party/postgresql.md#environment-variables) topic.
 
-   ```yaml
-   services:
-     pmm-server:
-       image: percona/pmm-server:3.2.0
-       ports:
-         - "443:443"
-       volumes:
-         - pmm-data:/srv
-       environment:
-         # PMM PostgreSQL connection variables
-         - PMM_POSTGRES_ADDR=your_host:your_port
-         - PMM_POSTGRES_DBNAME=your_pmm_db_name
-         - PMM_POSTGRES_USERNAME=your_pmm_user
-         - PMM_POSTGRES_DBPASSWORD=your_pmm_password
-         # Grafana PostgreSQL connection variables (for PMM 3.2.0+)
-         - GF_DATABASE_USER=your_grafana_user
-         - GF_DATABASE_PASSWORD=your_grafana_password
-         - GF_DATABASE_HOST=your_host:your_port
-         - GF_DATABASE_NAME=your_grafana_db_name
-         # Disable built-in PostgreSQL
-         - PMM_DISABLE_BUILTIN_POSTGRES=1
-       restart: always
-   
-   volumes:
-     pmm-data:
-   ```
-   Then restart:
-   ```bash
-   docker-compose up -d
-   ```
+    ```yaml
+    services:
+      pmm-server:
+        image: percona/pmm-server:3.2.0
+        ports:
+          - "443:8443"
+        volumes:
+          - pmm-data:/srv
+        environment:
+          # PMM PostgreSQL connection variables
+          - PMM_POSTGRES_ADDR=your_host:your_port
+          - PMM_POSTGRES_DBNAME=your_pmm_db_name
+          - PMM_POSTGRES_USERNAME=your_pmm_user
+          - PMM_POSTGRES_DBPASSWORD=your_pmm_password
+          # Grafana PostgreSQL connection variables (for PMM 3.2.0+)
+          - GF_DATABASE_USER=your_grafana_user
+          - GF_DATABASE_PASSWORD=your_grafana_password
+          - GF_DATABASE_HOST=your_host:your_port
+          - GF_DATABASE_NAME=your_grafana_db_name
+          # Disable built-in PostgreSQL
+          - PMM_DISABLE_BUILTIN_POSTGRES=1
+        restart: always
+
+    volumes:
+      pmm-data:
+    ```
+
+    Then restart:
+    ```bash
+    docker-compose up -d
+    ```
 
 === "Kubernetes/Helm"
-   Update your values file to include the new parameters:
-   ```yaml
-   env:
-     - name: GF_DATABASE_USER
-       value: your_user
-     - name: GF_DATABASE_PASSWORD
-       value: your_password
-     - name: GF_DATABASE_HOST
-       value: your_host:your_port
-     - name: GF_DATABASE_NAME
-       value: your_db_name
-     - name: PMM_DISABLE_BUILTIN_POSTGRES
-       value: "1"
-   ```
-   Then upgrade or restart:
-   ```bash
-   helm upgrade pmm percona/pmm-server -n <namespace> -f values.yaml
-   # Or scale back up if you scaled down earlier
-   kubectl scale deployment pmm-server --replicas=1 -n <namespace>
-   ```
+    Update your values file to include the new parameters:
 
+    ```yaml
+    env:
+      - name: GF_DATABASE_USER
+        value: your_user
+      - name: GF_DATABASE_PASSWORD
+        value: your_password
+      - name: GF_DATABASE_HOST
+        value: your_host:your_port
+      - name: GF_DATABASE_NAME
+        value: your_db_name
+      - name: PMM_DISABLE_BUILTIN_POSTGRES
+        value: "1"
+    ```
+
+    Then upgrade or restart:
+    ```bash
+    helm upgrade pmm percona/pmm-server -n <namespace> -f values.yaml
+    # Or scale back up if you scaled down earlier
+    kubectl scale deployment pmm-server --replicas=1 -n <namespace>
+    ```
+    
 ### 5. Verify the upgrade
 After completing the upgrade, check that PMM Server is functioning correctly and your external PostgreSQL database is properly connected:
 {.power-number}

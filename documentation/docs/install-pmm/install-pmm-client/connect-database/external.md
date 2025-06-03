@@ -1,4 +1,4 @@
-# Connect an external instance
+# Connect an external instance to PMM
 
 ## Add general external services
 
