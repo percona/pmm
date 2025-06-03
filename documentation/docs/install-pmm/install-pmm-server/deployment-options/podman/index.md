@@ -36,9 +36,7 @@ Before installing PMM Server with Podman, ensure you have:
   ```
 5. Set up required system configurations:
     ```sh
-    # Allow non-root users to bind to privileged ports (required for port 443)
-    sudo sysctl -w net.ipv4.ip_unprivileged_port_start=443
-        
+    # Allow non-root users to bind to privileged ports (required for port 443)        
     # Make the setting persistent
     echo "net.ipv4.ip_unprivileged_port_start=443" | sudo tee /etc/sysctl.d/99-pmm.conf
     sudo sysctl -p /etc/sysctl.d/99-pmm.conf
@@ -47,12 +45,7 @@ Before installing PMM Server with Podman, ensure you have:
     ```sh
     systemctl --user enable --now podman.socket
     ```
-
-7. Create the Podman network for PMM:
-    ```sh
-    podman network create pmm_default
-    ```
-8. Configure Watchtower (if using UI updates) with these security considerations:
+7. Configure Watchtower (if using UI updates) with these security considerations:
 
     - ensure Watchtower is only accessible from within the Podman network or local host to prevent unauthorized access and enhance container security.
     - configure network settings to expose only the PMM Server container to the external network, keeping Watchtower isolated within the Podman network.
@@ -71,7 +64,6 @@ When you initiate an update in the UI with Podman:
 - PMM Server updates its image reference in the environment file
 - Watchtower detects the change and pulls the new image
 - Systemd handles container replacement automatically
-
 
 ## Installation options
 
@@ -92,9 +84,9 @@ On the other hand, the manual method offers a simpler setup with complete contro
     1. Create directories for configuration files if they don't exist:
 
         ```sh
-        mkdir -p %h/.config/systemd/user/
+        mkdir -p ~/.config/systemd/user/
         ```
-    2. Create PMM Server service file at `%h/.config/systemd/user/pmm-server.service`:
+    2. Create PMM Server service file at `~/.config/systemd/user/pmm-server.service`:
 
         ```sh
         [Unit]
@@ -106,11 +98,12 @@ On the other hand, the manual method offers a simpler setup with complete contro
         [Service]
         EnvironmentFile=%h/.config/systemd/user/pmm-server.env
         Environment=PMM_VOLUME_NAME=%N
+        TimeoutStartSec=480
         Restart=on-failure
         RestartSec=20
         ExecStart=/usr/bin/podman run \
             --volume %h/.config/systemd/user/:/home/pmm/update/ \
-            --volume=${PMM_VOLUME_NAME}:/srv
+            --volume=${PMM_VOLUME_NAME}:/srv \
             --rm --replace=true --name %N \
             --env-file=%h/.config/systemd/user/pmm-server.env \
             --net pmm_default \
@@ -122,19 +115,15 @@ On the other hand, the manual method offers a simpler setup with complete contro
         WantedBy=default.target
         ```
 
-    3. Create the environment file at `%h/.config/systemd/user/pmm-server.env`. If current user is `root`, modify permissions as well:
+    3. Create the environment file at `~/.config/systemd/user/pmm-server.env`:
    
         ```sh
         PMM_WATCHTOWER_HOST=http://watchtower:8080
-        PMM_WATCHTOWER_TOKEN=123
+        PMM_WATCHTOWER_TOKEN=your_token
         PMM_IMAGE=docker.io/percona/pmm-server:3
         ```
 
-        ```
-        chmod 777 %h/.config/systemd/user/pmm-server.env  # Only if current user is root
-        ```
-
-    4. Create or update the Watchtower service file at `%h/.config/systemd/user/watchtower.service`:
+    4. Create or update the Watchtower service file at `~/.config/systemd/user/watchtower.service`:
    
         ```sh
         [Unit]
@@ -144,13 +133,14 @@ On the other hand, the manual method offers a simpler setup with complete contro
         After=nss-user-lookup.target nss-lookup.target
         After=time-sync.target
         [Service]
-        EnvironmentFile=/home/pmm/watchtower.env
+        EnvironmentFile=%h/.config/systemd/user/watchtower.service`
         Restart=on-failure
         RestartSec=20
         ExecStart=/usr/bin/podman run --rm --replace=true --name %N \
             -v ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock \
             --env-file=%h/.config/systemd/user/watchtower.env \
             --net pmm_default \
+            --security-opt label=type:container_runtime_t \
             --cap-add=net_admin,net_raw \
             ${WATCHTOWER_IMAGE}
         ExecStop=/usr/bin/podman stop -t 10 %N
@@ -158,17 +148,13 @@ On the other hand, the manual method offers a simpler setup with complete contro
         WantedBy=default.target
         ```
 
-    5. Create the environment file for Watchtower at `%h/.config/systemd/user/watchtower.env`. If current user is `root`, modify permissions as well:
+    5. Create the environment file for Watchtower at `~/.config/systemd/user/watchtower.env`:
    
         ```sh
         WATCHTOWER_HTTP_API_UPDATE=1
-        WATCHTOWER_HTTP_API_TOKEN=123
+        WATCHTOWER_HTTP_API_TOKEN=your_token
         WATCHTOWER_NO_RESTART=1
         WATCHTOWER_IMAGE=docker.io/percona/watchtower:latest
-        ```
-
-        ```
-        chmod 777 %h/.config/systemd/user/watchtower.env  # Only if current user is root
         ```
     
     6. Start the PMM Server and Watchtower services:
@@ -180,7 +166,7 @@ On the other hand, the manual method offers a simpler setup with complete contro
 
     7. Go to `https://localhost:443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
 
-=== "Installation with manual updates"
+    === "Installation with manual updates"
 
     The installation with manual updates offers a straightforward setup with direct control over updates, without relying on additional services. 
     
@@ -190,10 +176,10 @@ On the other hand, the manual method offers a simpler setup with complete contro
     1. Create directories for configuration files if they don't exist:
 
         ```sh
-        mkdir -p %h/.config/systemd/user/
+        mkdir -p ~/.config/systemd/user/
         ``` 
     
-    2. Create PMM Server service file at `%h/.config/systemd/user/pmm-server.service`:
+    2. Create PMM Server service file at `~/.config/systemd/user/pmm-server.service`:
    
         ```sh
         [Unit]
@@ -205,10 +191,11 @@ On the other hand, the manual method offers a simpler setup with complete contro
         [Service]
         EnvironmentFile=%h/.config/systemd/user/pmm-server.env
         Environment=PMM_VOLUME_NAME=%N
+        TimeoutStartSec=480
         Restart=on-failure
         RestartSec=20
         ExecStart=/usr/bin/podman run \
-            --volume=${PMM_VOLUME_NAME}:/srv
+            --volume=${PMM_VOLUME_NAME}:/srv \
             --rm --replace=true --name %N \
             --env-file=%h/.config/systemd/user/pmm-server.env \
             --net pmm_default \
@@ -220,7 +207,7 @@ On the other hand, the manual method offers a simpler setup with complete contro
         WantedBy=default.target
         ```
 
-    3. Create the environment file at `%h/.config/systemd/user/pmm-server.env`:
+    3. Create the environment file at `~/.config/systemd/user/pmm-server.env`:
    
         ```sh
         PMM_IMAGE=docker.io/percona/pmm-server:3
