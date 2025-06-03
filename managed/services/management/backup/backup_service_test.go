@@ -378,7 +378,7 @@ func TestScheduledBackups(t *testing.T) {
 			})
 
 			assert.NoError(t, err)
-			assert.Len(t, artifacts, 0)
+			assert.Empty(t, artifacts)
 		})
 	})
 

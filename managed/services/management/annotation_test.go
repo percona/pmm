@@ -170,10 +170,11 @@ func TestAnnotations(t *testing.T) {
 		expectedTags := []string{"pmm_annotation"}
 		expectedText := "Some text"
 		grafanaClient.On("CreateAnnotation", ctx, expectedTags, mock.Anything, expectedText, authorization).Return("", nil)
-		_, err := s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
+		resp, err := s.AddAnnotation(ctx, &managementv1.AddAnnotationRequest{
 			Text: "Some text",
 		})
 		require.NoError(t, err)
+		require.NotNil(t, resp)
 
 		grafanaClient.AssertExpectations(t)
 	})

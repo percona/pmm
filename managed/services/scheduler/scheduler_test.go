@@ -141,7 +141,7 @@ func TestService(t *testing.T) {
 
 		err = scheduler.Remove(dbTask.ID)
 		require.NoError(t, err)
-		assert.Len(t, scheduler.scheduler.Jobs(), 0)
+		assert.Empty(t, scheduler.scheduler.Jobs())
 
 		_, err = models.FindScheduledTaskByID(scheduler.db.Querier, dbTask.ID)
 		assert.ErrorIs(t, err, models.ErrNotFound)
