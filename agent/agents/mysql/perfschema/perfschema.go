@@ -327,26 +327,37 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 		b.Common.PeriodLengthSecs = periodLengthSecs
 
 		//nolint:nestif
+		fmt.Println("-------------------------")
+		fmt.Println("iterate")
+		fmt.Println(b.Common.Fingerprint)
 		if esh := history[b.Common.Queryid]; esh != nil {
+			fmt.Println("history found")
 			// TODO test if we really need that
 			// If we don't need it, we can avoid polling events_statements_history completely
 			// if query examples are disabled.
+			fmt.Println(b.Common.Schema)
 			if b.Common.Schema == "" {
 				b.Common.Schema = pointer.GetString(esh.CurrentSchema)
 			}
 
+			fmt.Println(*esh.SQLText)
 			if esh.SQLText != nil && *esh.SQLText != "" {
+				fmt.Println("preparing")
 				explainFingerprint, placeholdersCount := queryparser.GetMySQLFingerprintPlaceholders(*esh.SQLText, *esh.DigestText)
 				explainFingerprint, truncated := truncate.Query(explainFingerprint, m.maxQueryLength, truncate.GetDefaultMaxQueryLength())
 				if truncated {
+					fmt.Println("truncated")
 					b.Common.IsTruncated = truncated
 				}
 				b.Common.ExplainFingerprint = explainFingerprint
 				b.Common.PlaceholdersCount = placeholdersCount
 
 				if !m.disableQueryExamples {
+					fmt.Println("example")
 					example, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength, truncate.GetDefaultMaxQueryLength())
+					fmt.Println(example)
 					if truncated {
+						fmt.Println("truncated")
 						b.Common.IsTruncated = truncated
 					}
 					b.Common.Example = example
@@ -354,6 +365,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 				}
 
 				if !m.disableCommentsParsing {
+					fmt.Println("comments")
 					comments, err := queryparser.MySQLComments(*esh.SQLText)
 					if err != nil {
 						m.l.Infof("cannot parse comments from query: %s", *esh.SQLText)
@@ -362,7 +374,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 				}
 			}
 		}
-
+		fmt.Println("done")
 		buckets[i] = b
 	}
 
@@ -408,6 +420,7 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 
 		count := inc(currentESS.CountStar, prevESS.CountStar)
 		fingerprint, isTruncated := truncate.Query(*currentESS.DigestText, maxQueryLength, truncate.GetDefaultMaxQueryLength())
+		fmt.Printf("\n\n CAPTURED: %s \n %s truncated? %t \n\n", fingerprint, *currentESS.DigestText, isTruncated)
 		mb := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
 				Schema:                 pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?
