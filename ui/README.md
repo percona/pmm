@@ -49,7 +49,7 @@ make build
 ## Apps
 
 - **pmm** - main PMM UI application
-- **pmm-compat** - grafana plugin that handles communication between grafana and PMM UI
+- **pmm-compat** - Grafana plugin that handles communication between Grafana and PMM UI
 
 ## Packages
 

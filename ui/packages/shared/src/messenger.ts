@@ -56,10 +56,6 @@ export class CrossFrameMessenger {
       return;
     }
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log(this.source, 'received', message);
-    }
-
     this.listeners.forEach((listener) => {
       if (listener.type === message.type) {
         listener.onMessage(message);
@@ -74,10 +70,6 @@ export class CrossFrameMessenger {
       source: this.source,
       id: message.id || uuidv4(),
     };
-
-    if (process.env.NODE_ENV === 'development') {
-      console.log(this.source, 'sending', msg);
-    }
 
     this.getWindow()?.postMessage(msg, this.targetOrigin!);
   }

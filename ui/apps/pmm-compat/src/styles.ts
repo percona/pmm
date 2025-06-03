@@ -1,6 +1,4 @@
 export const applyCustomStyles = () => {
-  console.log('applying custom styles');
-
   const style = document.createElement('style');
   style.innerText = `
               #mega-menu-toggle,

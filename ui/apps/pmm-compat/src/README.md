@@ -2,4 +2,4 @@
 
 This plugin provides a compatibility layer between Grafana and PMM UI.
 
-It servers as a messaging channel to sync state and communicate between a Grafana in an embedded iframe and a outer PMM UI shell.
+It servers as a messaging channel to sync state and communicate between an instance of Grafana embedded in an iframe and an outer PMM UI shell.

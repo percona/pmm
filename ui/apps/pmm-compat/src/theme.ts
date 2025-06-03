@@ -19,7 +19,6 @@ export const changeTheme = async (themeId: 'light' | 'dark'): Promise<void> => {
     const newCssLink = document.createElement('link');
     newCssLink.rel = 'stylesheet';
     newCssLink.href = config.bootData.assets[newTheme.colors.mode];
-    console.log(newCssLink.href);
     newCssLink.onload = () => {
       // Remove old css file
       const bodyLinks = document.getElementsByTagName('link');
