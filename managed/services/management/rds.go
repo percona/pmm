@@ -120,6 +120,16 @@ func listRegions(partitions []string) []string {
 				"cn-north-1", "cn-northwest-1",
 			},
 		},
+		"aws-iso": {
+			"rds": {
+				"us-iso-east-1", "us-iso-west-1",
+			},
+		},
+		"aws-isob": {
+			"rds": {
+				"us-isob-east-1",
+			},
+		},
 		"aws-us-gov": {
 			"rds": {
 				"us-gov-west-1", "us-gov-east-1",
