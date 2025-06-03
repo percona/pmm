@@ -43,7 +43,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 			Cluster:        req.Cluster,
 			ReplicationSet: req.ReplicationSet,
 			Address:        pointer.ToStringOrNil(req.Address),
-			Port:           pointer.ToUint16OrNil(uint16(req.Port)),
+			Port:           pointer.ToUint16OrNil(uint16(req.Port)), //nolint:gosec // port is a uint16
 			Socket:         pointer.ToStringOrNil(req.Socket),
 			CustomLabels:   req.CustomLabels,
 		})
@@ -57,7 +57,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 		}
 		mongodb.Service = invService.(*inventoryv1.MongoDBService) //nolint:forcetypeassert
 
-		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
+		req.MetricsMode, err = supportedMetricsMode(req.MetricsMode, req.PmmAgentId)
 		if err != nil {
 			return err
 		}

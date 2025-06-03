@@ -17,7 +17,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"path/filepath"
 	"strconv"
@@ -378,7 +377,6 @@ LOOP:
 			case *agentv1.StartActionRequest:
 				responsePayload = &agentv1.StartActionResponse{}
 				if err := c.handleStartActionRequest(p); err != nil {
-					responsePayload = nil
 					status = convertAgentErrorToGrpcStatus(err)
 					break
 				}
@@ -420,7 +418,7 @@ LOOP:
 				logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
 				responsePayload = &agentv1.AgentLogsResponse{
 					Logs:                     logs,
-					AgentConfigLogLinesCount: uint32(configLogLinesCount),
+					AgentConfigLogLinesCount: uint32(configLogLinesCount), //nolint:gosec // log lines count is not expected to overflow uint32
 				}
 			default:
 				c.l.Errorf("Unhandled server request: %v.", req)
@@ -563,7 +561,7 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 		action = actions.NewProcessAction(p.ActionId, timeout, "systemctl", []string{"restart", service})
 
 	default:
-		return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid action type request: %T", params)
+		return errors.Wrapf(agenterrors.ErrActionUnimplemented, "invalid action type request: %T", params)
 	}
 
 	if err != nil {
@@ -693,8 +691,9 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 }
 
 func (c *Client) getMongoDSN(dsn string, files *agentv1.TextFiles, jobID string) (string, error) {
-	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.Replace(jobID, "/", "_", -1)) //nolint:gocritic
+	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.ReplaceAll(jobID, "/", "_"))
 	res, err := templates.RenderDSN(dsn, files, tempDir)
+	defer templates.CleanupTempDir(tempDir, c.l)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
@@ -970,7 +969,7 @@ func argListFromMongoDBParams(pParams *agentv1.StartActionRequest_PTMongoDBSumma
 
 	if pParams.Password != "" {
 		// TODO change this line when pt-mongodb-summary is updated
-		args = append(args, fmt.Sprintf("--password=%s", pParams.Password))
+		args = append(args, "--password="+pParams.Password)
 	}
 
 	if pParams.Host != "" {
@@ -994,8 +993,10 @@ func convertAgentErrorToGrpcStatus(agentErr error) *grpcstatus.Status {
 		status = grpcstatus.New(codes.InvalidArgument, agentErr.Error())
 	case errors.Is(agentErr, agenterrors.ErrActionQueueOverflow):
 		status = grpcstatus.New(codes.ResourceExhausted, agentErr.Error())
-	default:
+	case errors.Is(agentErr, agenterrors.ErrActionUnimplemented):
 		status = grpcstatus.New(codes.Unimplemented, agentErr.Error())
+	default:
+		status = grpcstatus.New(codes.Internal, agentErr.Error())
 	}
 	return status
 }

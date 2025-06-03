@@ -1,4 +1,4 @@
-# Connect MongoDB instance
+# Connect MongoDB databases to PMM
 
 Connect a MongoDB instance to PMM to monitor a [MongoDB] or [Percona Server for MongoDB] database server.
 
@@ -104,7 +104,7 @@ Create or update a user with the minimum required privileges for monitoring by a
 === "MongoDB <8.0"
 
     ```javascript
-    db.getSiblingDB("admin").({
+    db.getSiblingDB("admin").createUser({
         "user": "pmm",
         "pwd": "pmm",
         "roles": [
@@ -147,17 +147,17 @@ Choose one of the following methods to enable profiling:
 
         ```yml
         operationProfiling:
-        mode: all             
-        slowOpThresholdMs: 200
-        rateLimit: 100        
+            mode: all             
+            slowOpThresholdMs: 200
+            rateLimit: 100        
         ```
-      These settings control the following:
-        
+        These settings control the following:
+
         - `mode: all` - Collects data for all operations.
         - `slowOpThresholdMs: 200` - Marks operations exceeding 200ms as "slow."
         - `rateLimit: 100` -  Limits profiling sampling rate (Percona Server for MongoDB only).
-            
-      For more information about profiling configuration options, see the [MongoDB documentation][MONGODB_CONFIG_OP_PROF] and the [Percona Server for MongoDB documentation][PSMDB_RATELIMIT].
+                
+        For more information about profiling configuration options, see the [MongoDB documentation][MONGODB_CONFIG_OP_PROF] and the [Percona Server for MongoDB documentation][PSMDB_RATELIMIT].
 
     3. Restart the `mongod` service using the appropriate command for your system. For example, for `systemd`:
 
@@ -239,7 +239,7 @@ After configuring your database server, add a MongoDB service using either the u
         - You can also use the `--replication-set` option to specify a replication set. For instance, you can use `--replication-set config` for your config servers; `--replication-set rs1` for your servers in the first replica set, `--replication-set rs2` for your servers in the second replica set, and so on.
         - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
 
-=== "Via UI"
+=== "Via web UI"
 
     To add a service with the UI:
     {.power-number}
@@ -260,14 +260,14 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
 
 1. Check service registration:
 
-    === "Via CLI"
+    === "Via command line"
         Look for your service in the output of this command:
 
         ```sh
         pmm-admin list
         ```
 
-    === "Via UI"
+    === "Via web UI"
         To check the service from the UI:
 
         - Select **PMM Configuration > Inventory > Services**. 
@@ -290,14 +290,14 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
 
 If you need to remove MongoDB service from PMM, follow these steps:
 
-=== "Via CLI"
+=== "Via command line"
     Replace `SERVICE_NAME` with the name you used when adding the service. You can list all services with `pmm-admin`:
 
     ```sh
     pmm-admin remove mongodb SERVICE_NAME
     ```
 
-=== "Via UI"
+=== "Via web UI"
     To remove the services through the PMM interface:
     {.power-number}
 

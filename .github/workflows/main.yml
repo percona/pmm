@@ -24,13 +24,13 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Go release
-        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
 
       - name: Enable Go build cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -39,7 +39,7 @@ jobs:
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
@@ -110,7 +110,7 @@ jobs:
           fail_level: error
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v1.62.0 # Version should match specified in Makefile
+          golangci_lint_version: v1.64.8 # Version should match specified in Makefile
 
       - name: Run go-consistent
         env:
@@ -147,7 +147,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Check spelling of md files
-        uses: crate-ci/typos@7bc041cbb7ca9167c9e0e4ccbb26f48eb0f9d4e0 # v1.30.2
+        uses: crate-ci/typos@0f0ccba9ed1df83948f0c15026e4f5ccfce46109 # v1.32.0
         with:
           files: "**/*.md ./documentation/**/*.md"
 
@@ -182,7 +182,7 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@c33737706dea87cd7784c687dadc9adf1be59990 # v2.3.2
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
 
   workflow_failure:
     if: ${{ failure() }}
@@ -200,4 +200,4 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@c33737706dea87cd7784c687dadc9adf1be59990 # v2.3.2
+        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3

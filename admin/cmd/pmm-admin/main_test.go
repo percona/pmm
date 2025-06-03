@@ -17,7 +17,6 @@ package main
 import (
 	"encoding/json"
 	"os/exec"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -30,8 +29,8 @@ func TestPackages(t *testing.T) {
 	require.NoError(t, err, "%s", b)
 
 	out := string(b)
-	assert.False(t, strings.Contains(out, "httptest.serve"), `pmm-admin should not import package "net/http/httptest"`)
-	assert.False(t, strings.Contains(out, "test.run"), `pmm-admin should not import package "testing"`)
+	assert.NotContains(t, out, "httptest.serve", `pmm-admin should not import package "net/http/httptest"`)
+	assert.NotContains(t, out, "test.run", `pmm-admin should not import package "testing"`)
 }
 
 func TestVersionPlain(t *testing.T) {
@@ -40,7 +39,7 @@ func TestVersionPlain(t *testing.T) {
 	require.NoError(t, err, "%s", b)
 
 	out := string(b)
-	assert.True(t, strings.Contains(out, `Version:`), `--version output is incorrect"`)
+	assert.Contains(t, out, `Version:`, `--version output is incorrect`)
 }
 
 func TestVersionJson(t *testing.T) {

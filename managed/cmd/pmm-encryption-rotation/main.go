@@ -45,10 +45,12 @@ func main() {
 		os.Exit(codeDBConnectionFailed)
 	}
 
-	statusCode := encryptionService.RotateEncryptionKey(sqlDB, "pmm-managed")
+	statusCode, err := encryptionService.RotateEncryptionKey(sqlDB, "pmm-managed")
 	sqlDB.Close() //nolint:errcheck
-
-	os.Exit(statusCode)
+	if err != nil {
+		logrus.Error(err)
+		os.Exit(statusCode)
+	}
 }
 
 type flags struct {
@@ -67,7 +69,7 @@ func setupParams() models.SetupDBParams {
 	kong.Parse(
 		&opts,
 		kong.Name("encryption-rotation"),
-		kong.Description(fmt.Sprintf("Version %s", version.Version)),
+		kong.Description(fmt.Sprintf("Version %s", version.Version)), //nolint:perfsprint
 		kong.UsageOnError(),
 		kong.ConfigureHelp(kong.HelpOptions{
 			Compact:             true,

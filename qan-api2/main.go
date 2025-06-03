@@ -25,6 +25,7 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof" //nolint:gosec
+	"net/url"
 	"os"
 	"os/signal"
 	"strings"
@@ -46,10 +47,11 @@ import (
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	qanpb "github.com/percona/pmm/api/qan/v1"
+	qanv1 "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 	aservice "github.com/percona/pmm/qan-api2/services/analytics"
 	rservice "github.com/percona/pmm/qan-api2/services/receiver"
@@ -62,7 +64,7 @@ import (
 
 const (
 	shutdownTimeout = 3 * time.Second
-	defaultDsnF     = "clickhouse://%s/%s"
+	defaultDsnF     = "clickhouse://%s:%s@%s/%s"
 	maxIdleConns    = 5
 	maxOpenConns    = 10
 )
@@ -93,8 +95,8 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 	)
 
 	aserv := aservice.NewService(rm, mm)
-	qanpb.RegisterCollectorServiceServer(grpcServer, rservice.NewService(mbm))
-	qanpb.RegisterQANServiceServer(grpcServer, aserv)
+	qanv1.RegisterCollectorServiceServer(grpcServer, rservice.NewService(mbm))
+	qanv1.RegisterQANServiceServer(grpcServer, aserv)
 	reflection.Register(grpcServer)
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
@@ -148,13 +150,15 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	}
 
 	proxyMux := grpc_gateway.NewServeMux(
+		grpc_gateway.WithIncomingHeaderMatcher(customMatcher),
+		grpc_gateway.WithMetadata(gatewayAnnotator),
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
 		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler))
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
 	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
-		qanpb.RegisterQANServiceHandlerFromEndpoint,
+		qanv1.RegisterQANServiceHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, grpcBindF, opts); err != nil {
 			l.Panic(err)
@@ -221,7 +225,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 	if err != nil {
 		l.Panic(err)
 	}
-	http.HandleFunc("/debug", func(rw http.ResponseWriter, req *http.Request) {
+	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
 		rw.Write(buf.Bytes()) //nolint:errcheck
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugBindF, strings.Join(handlers, "\n\t"))
@@ -255,9 +259,11 @@ func main() {
 	jsonBindF := kingpin.Flag("json-bind", "JSON bind address and port").Default("127.0.0.1:9922").String()
 	debugBindF := kingpin.Flag("listen-debug-addr", "Debug server listen address").Default("127.0.0.1:9933").String()
 	dataRetentionF := kingpin.Flag("data-retention", "QAN data Retention (in days)").Default("30").Uint()
-	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN. Can be override with database/host/port options").Default(defaultDsnF).String()
-	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
-	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
+	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN. Can be overridden with database/host/port options").Default(defaultDsnF).String()
+	clickhouseDatabaseF := kingpin.Flag("clickhouse-name", "ClickHouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
+	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "ClickHouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
+	clickhouseUserF := kingpin.Flag("clickhouse-user", "ClickHouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
+	clickhousePasswordF := kingpin.Flag("clickhouse-password", "ClickHouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
 
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
@@ -285,12 +291,18 @@ func main() {
 
 	var dsn string
 	if *dsnF == defaultDsnF {
-		dsn = fmt.Sprintf(defaultDsnF, *clickhouseAddrF, *clickHouseDatabaseF)
+		dsn = fmt.Sprintf(defaultDsnF, *clickhouseUserF, *clickhousePasswordF, *clickhouseAddrF, *clickhouseDatabaseF)
 	} else {
 		dsn = *dsnF
 	}
 
-	l.Info("DSN: ", dsn)
+	u, err := url.Parse(dsn)
+	if err != nil {
+		l.Error("Failed to parse DSN: ", err)
+	} else {
+		l.Info("DSN: ", u.Redacted())
+	}
+
 	db := NewDB(dsn, maxIdleConns, maxOpenConns)
 
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
@@ -345,7 +357,7 @@ func main() {
 		defer wg.Done()
 		for {
 			// Drop old partitions once in 24h.
-			DropOldPartition(db, *clickHouseDatabaseF, *dataRetentionF)
+			DropOldPartition(db, *clickhouseDatabaseF, *dataRetentionF)
 			select {
 			case <-ctx.Done():
 				return
@@ -356,4 +368,24 @@ func main() {
 	}()
 
 	wg.Wait()
+}
+
+// customMatcher allows to pass custom headers to the backend gRPC server.
+func customMatcher(key string) (string, bool) {
+	switch key {
+	case models.LBACHeaderName:
+		return key, true
+	default:
+		return grpc_gateway.DefaultHeaderMatcher(key)
+	}
+}
+
+// gatewayAnnotator is used to annotate the gRPC request with metadata from the HTTP request.
+func gatewayAnnotator(_ context.Context, req *http.Request) metadata.MD {
+	md := metadata.MD{}
+	if filters := req.Header.Get(models.LBACHeaderName); filters != "" {
+		md.Set(strings.ToLower(models.LBACHeaderName), filters)
+		return md
+	}
+	return nil
 }

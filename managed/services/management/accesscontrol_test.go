@@ -70,7 +70,7 @@ func TestAccessControlService(t *testing.T) {
 				Filter: "filter",
 			})
 			require.NoError(t, err)
-			assert.True(t, res.RoleId > 0)
+			assert.Positive(t, res.RoleId)
 		})
 	})
 
@@ -123,7 +123,7 @@ func TestAccessControlService(t *testing.T) {
 
 			roles, err := s.ListRoles(ctx, &rolev1beta1.ListRolesRequest{})
 			require.NoError(t, err)
-			assert.Equal(t, len(roles.Roles), 1)
+			assert.Len(t, roles.Roles, 1)
 			assert.Equal(t, roles.Roles[0].Title, "Role A")
 		})
 
@@ -168,7 +168,7 @@ func TestAccessControlService(t *testing.T) {
 
 			res, err := s.ListRoles(ctx, &rolev1beta1.ListRolesRequest{})
 			require.NoError(t, err)
-			assert.Equal(t, len(res.Roles), 2)
+			assert.Len(t, res.Roles, 2)
 		})
 	})
 
@@ -193,7 +193,7 @@ func TestAccessControlService(t *testing.T) {
 
 			roles, err := models.GetUserRoles(db.Querier, 1337)
 			require.NoError(t, err)
-			assert.Equal(t, len(roles), 1)
+			assert.Len(t, roles, 1)
 			assert.Equal(t, roles[0].ID, roleIDA)
 		})
 
@@ -210,7 +210,7 @@ func TestAccessControlService(t *testing.T) {
 
 			roles, err := models.GetUserRoles(db.Querier, 1337)
 			require.NoError(t, err)
-			assert.Equal(t, len(roles), 2)
+			assert.Len(t, roles, 2)
 			assert.Equal(t, roles[0].ID, roleIDA)
 			assert.Equal(t, roles[1].ID, roleIDB)
 		})

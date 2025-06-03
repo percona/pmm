@@ -7,9 +7,9 @@ plugins:
     version_selector: false
   # https://github.com/orzih/mkdocs-with-pdf
   with-pdf:
-    output_path: "pdf/PerconaMonitoringAndManagement-3.0.0.pdf"
+    output_path: "pdf/PerconaMonitoringAndManagement-3.1.0.pdf"
     cover_title: "Percona Monitoring and Management Documentation"
-    cover_subtitle: 3.0.0 (January 30, 2025)
+    cover_subtitle: 3.2.0 (May 25, 2025)
     author: "Percona Technical Documentation Team"
     cover_logo: docs/images/Percona_Logo_Color.png
     custom_template_path: resources/templates

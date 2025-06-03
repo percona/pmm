@@ -45,7 +45,7 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 			Cluster:        req.Cluster,
 			ReplicationSet: req.ReplicationSet,
 			Address:        pointer.ToStringOrNil(req.Address),
-			Port:           pointer.ToUint16OrNil(uint16(req.Port)),
+			Port:           pointer.ToUint16OrNil(uint16(req.Port)), //nolint:gosec // port is uint16
 			Socket:         pointer.ToStringOrNil(req.Socket),
 			CustomLabels:   req.CustomLabels,
 		})
@@ -59,7 +59,7 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 		}
 		postgres.Service = invService.(*inventoryv1.PostgreSQLService) //nolint:forcetypeassert
 
-		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
+		req.MetricsMode, err = supportedMetricsMode(req.MetricsMode, req.PmmAgentId)
 		if err != nil {
 			return err
 		}

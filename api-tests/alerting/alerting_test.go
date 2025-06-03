@@ -452,7 +452,7 @@ func TestTemplatesAPI(t *testing.T) {
 
 			templateNames := make(map[string]struct{})
 
-			for i := 0; i < templatesCount; i++ {
+			for range templatesCount {
 				name := uuid.New().String()
 				expr := uuid.New().String()
 				_, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, expr, "%", "s"))
@@ -481,7 +481,7 @@ func TestTemplatesAPI(t *testing.T) {
 			require.NoError(t, err)
 
 			assert.GreaterOrEqual(t, len(listAllTemplates.Payload.Templates), templatesCount)
-			assert.Equal(t, int32(len(listAllTemplates.Payload.Templates)), listAllTemplates.Payload.TotalItems)
+			assert.Equal(t, int32(len(listAllTemplates.Payload.Templates)), listAllTemplates.Payload.TotalItems) //nolint:gosec // Templates is an int32
 			assert.Equal(t, int32(1), listAllTemplates.Payload.TotalPages)
 
 			assertFindTemplate := func(list []*alerting.ListTemplatesOKBodyTemplatesItems0, name string) func() bool {
@@ -503,7 +503,7 @@ func TestTemplatesAPI(t *testing.T) {
 			// last iteration checks that there is no elements for inexistent page.
 			for pageIndex := 0; pageIndex <= len(listAllTemplates.Payload.Templates); pageIndex++ {
 				listOneTemplate, err := client.ListTemplates(&alerting.ListTemplatesParams{
-					PageIndex: pointer.ToInt32(int32(pageIndex)),
+					PageIndex: pointer.ToInt32(int32(pageIndex)), //nolint:gosec // pageIndex is an int32
 					PageSize:  pointer.ToInt32(1),
 					Context:   pmmapitests.Context,
 				})
@@ -516,7 +516,7 @@ func TestTemplatesAPI(t *testing.T) {
 					require.Len(t, listOneTemplate.Payload.Templates, 1)
 					assert.Equal(t, listAllTemplates.Payload.Templates[pageIndex].Name, listOneTemplate.Payload.Templates[0].Name)
 				} else {
-					assert.Len(t, listOneTemplate.Payload.Templates, 0)
+					assert.Empty(t, listOneTemplate.Payload.Templates)
 				}
 			}
 		})
@@ -599,7 +599,7 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 
 	expectedYAML, err := alert.ToYAML([]alert.Template{expectedTemplate})
 	require.NoError(t, err)
-	assert.Equal(t, expectedYAML, tmpl.Yaml)
+	assert.YAMLEq(t, expectedYAML, tmpl.Yaml)
 
 	assert.NotEmpty(t, tmpl.CreatedAt)
 }

@@ -21,7 +21,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -62,7 +61,6 @@ func TestParserGolden(t *testing.T) {
 	files, err := filepath.Glob(filepath.FromSlash("./testdata/*.log"))
 	require.NoError(t, err)
 	for _, file := range files {
-		file := file
 		goldenFile := strings.TrimSuffix(file, ".log") + ".json"
 		name := strings.TrimSuffix(filepath.Base(file), ".log")
 		t.Run(name, func(t *testing.T) {
@@ -273,9 +271,9 @@ func TestParseMetrics(t *testing.T) {
 				}
 			case Rate:
 				if actualEvent.RateLimit != tc.expected.RateLimit || actualEvent.RateType != tc.expected.RateType {
-					t.Fatalf("expected %s and %s got: %s and %s for input: %s",
-						strconv.Itoa(int(tc.expected.RateLimit)), tc.expected.RateType,
-						strconv.Itoa(int(actualEvent.RateLimit)), actualEvent.RateType, tc.input)
+					t.Fatalf("expected %d and %s got: %d and %s for input: %s",
+						tc.expected.RateLimit, tc.expected.RateType,
+						actualEvent.RateLimit, actualEvent.RateType, tc.input)
 				}
 			}
 		})
