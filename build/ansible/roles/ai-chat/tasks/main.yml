@@ -24,10 +24,8 @@
   register: node_version
   ignore_errors: yes
 
-- name: Install Node.js
-  dnf:
-    name: nodejs:20
-    state: present
+  - name: Add NodeJS repository
+    shell: "curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -"
 
 - name: Install pnpm globally
   npm:
