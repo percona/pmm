@@ -224,38 +224,14 @@ func TestRDSService(t *testing.T) {
 			t.Run(fmt.Sprintf("discoverRDSRegion %s", tt.region), func(t *testing.T) {
 				ctx := logger.Set(context.Background(), t.Name())
 				accessKey, secretKey := tests.GetAWSKeys(t)
-
 				creds := credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")
-				// cfg := &aws.Config{
-				// 	CredentialsChainVerboseErrors: aws.Bool(true),
-				// 	Credentials:                   creds,
-				// 	HTTPClient:                    &http.Client{},
-				// }
-				// if l.Logger.GetLevel() >= logrus.DebugLevel {
-				// 	cfg.LogLevel = aws.LogLevel(aws.LogDebug)
-				// }
-				// sess, err := session.NewSession(cfg)
-				// if err != nil {
-				// 	return nil, errors.WithStack(err)
-				// }
-
 				opts := []func(*config.LoadOptions) error{
 					config.WithCredentialsProvider(creds),
 					config.WithHTTPClient(&http.Client{}),
 				}
-
-				// Enable verbose credentials chain errors equivalent in v2 (no direct flag, but can debug via logs)
-				// Enable logging if log level is debug or higher
 				opts = append(opts, config.WithClientLogMode(aws.LogRetries|aws.LogRequestWithBody|aws.LogResponseWithBody))
 				cfg, err := config.LoadDefaultConfig(ctx, opts...)
 				require.NoError(t, err)
-
-				// creds := credentials.NewStaticCredentials(accessKey, secretKey, "")
-				// cfg := &aws.Config{
-				// 	//CredentialsChainVerboseErrors: aws.Bool(true), TODO debugging in test
-				// 	Credentials: creds,
-				// 	HTTPClient:  &http.Client{},
-				// }
 
 				// do not break our API if some AWS region is slow or down
 				ctx, cancel := context.WithTimeout(ctx, awsDiscoverTimeout)

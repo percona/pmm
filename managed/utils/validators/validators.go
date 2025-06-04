@@ -105,6 +105,7 @@ func AWSPartitions() []string {
 	return []string{
 		"aws",        // Standard commercial AWS
 		"aws-cn",     // China regions
+		"aws-iso",    // Isolated
 		"aws-us-gov", // U.S. GovCloud regions
 	}
 }

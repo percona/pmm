@@ -75,8 +75,6 @@ var (
 //nolint:interfacer
 func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]types.DBInstance, error) {
 	var res []types.DBInstance
-
-	// Create RDS client scoped to the region
 	client := rds.NewFromConfig(cfg, func(o *rds.Options) {
 		o.Region = region
 	})
@@ -91,7 +89,6 @@ func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]ty
 	}
 
 	paginator := rds.NewDescribeDBInstancesPaginator(client, input)
-
 	for paginator.HasMorePages() {
 		page, err := paginator.NextPage(ctx)
 		if err != nil {
@@ -169,26 +166,11 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	if req.AwsAccessKey != "" && req.AwsSecretKey != "" {
 		creds = credentials.NewStaticCredentialsProvider(req.AwsAccessKey, req.AwsSecretKey, "")
 	}
-	// cfg := &aws.Config{
-	// 	CredentialsChainVerboseErrors: aws.Bool(true),
-	// 	Credentials:                   creds,
-	// 	HTTPClient:                    &http.Client{},
-	// }
-	// if l.Logger.GetLevel() >= logrus.DebugLevel {
-	// 	cfg.LogLevel = aws.LogLevel(aws.LogDebug)
-	// }
-	// sess, err := session.NewSession(cfg)
-	// if err != nil {
-	// 	return nil, errors.WithStack(err)
-	// }
 
 	opts := []func(*config.LoadOptions) error{
 		config.WithCredentialsProvider(creds),
 		config.WithHTTPClient(&http.Client{}),
 	}
-
-	// Enable verbose credentials chain errors equivalent in v2 (no direct flag, but can debug via logs)
-	// Enable logging if log level is debug or higher
 	if l.Logger != nil && l.Logger.Level >= logrus.DebugLevel {
 		opts = append(opts, config.WithClientLogMode(aws.LogRetries|aws.LogRequestWithBody|aws.LogResponseWithBody))
 	}
@@ -263,16 +245,6 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 
 	// return better gRPC errors in typical cases
 	err = wg.Wait()
-	// if e, ok := errors.Cause(err).(awserr.Error); ok { //nolint:errorlint
-	// 	switch {
-	// 	case e.Code() == "InvalidClientTokenId":
-	// 		return res, status.Error(codes.InvalidArgument, e.Message())
-	// 	case errors.Is(e.OrigErr(), context.Canceled) || errors.Is(e.OrigErr(), context.DeadlineExceeded):
-	// 		return res, status.Error(codes.DeadlineExceeded, "Request timeout.")
-	// 	default:
-	// 		return res, status.Error(codes.Unknown, e.Error())
-	// 	}
-	// }
 	if err != nil {
 		var apiErr *smithy.GenericAPIError
 		if errors.As(err, &apiErr) {
@@ -288,12 +260,11 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 			}
 		}
 
-		// If not an AWS API error, but maybe a context error:
+		// If not an AWS API error, but maybe a context error.
 		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 			return res, status.Error(codes.DeadlineExceeded, "Request timeout.")
 		}
 
-		// Fallback unknown error:
 		return res, status.Error(codes.Unknown, err.Error())
 	}
 
