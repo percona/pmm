@@ -97,7 +97,7 @@ On the other hand, the manual method offers a simpler setup with complete contro
         After=time-sync.target
         [Service]
         EnvironmentFile=%h/.config/systemd/user/pmm-server.env
-        Environment=PMM_VOLUME_NAME=%N
+        Environment=PMM_VOLUME_NAME=pmm-data
         TimeoutStartSec=480
         Restart=on-failure
         RestartSec=20
@@ -133,7 +133,7 @@ On the other hand, the manual method offers a simpler setup with complete contro
         After=nss-user-lookup.target nss-lookup.target
         After=time-sync.target
         [Service]
-        EnvironmentFile=%h/.config/systemd/user/watchtower.service`
+        EnvironmentFile=%h/.config/systemd/user/watchtower.env
         Restart=on-failure
         RestartSec=20
         ExecStart=/usr/bin/podman run --rm --replace=true --name %N \
@@ -190,7 +190,7 @@ On the other hand, the manual method offers a simpler setup with complete contro
         After=time-sync.target
         [Service]
         EnvironmentFile=%h/.config/systemd/user/pmm-server.env
-        Environment=PMM_VOLUME_NAME=%N
+        Environment=PMM_VOLUME_NAME=pmm-data
         TimeoutStartSec=480
         Restart=on-failure
         RestartSec=20
