@@ -24,23 +24,10 @@
   register: node_version
   ignore_errors: yes
 
-- name: Install Node.js if not present
-  block:
-    - name: Download Node.js setup script
-      get_url:
-        url: https://deb.nodesource.com/setup_18.x
-        dest: /tmp/nodejs_setup.sh
-        mode: '0755'
-    
-    - name: Run Node.js setup script
-      command: bash /tmp/nodejs_setup.sh
-      become: yes
-    
-    - name: Install Node.js
-      package:
-        name: nodejs
-        state: present
-  when: node_version.rc != 0
+- name: Install Node.js
+  dnf:
+    name: nodejs:20
+    state: present
 
 - name: Install pnpm globally
   npm:
