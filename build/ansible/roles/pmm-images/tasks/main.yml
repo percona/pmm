@@ -122,6 +122,10 @@
   include_role:
     name: pmm-client
 
+- name: Install AI Chat with MCP support
+  include_role:
+    name: ai-chat
+
 - name: Create a backup directory
   file:
     path: /srv/backup

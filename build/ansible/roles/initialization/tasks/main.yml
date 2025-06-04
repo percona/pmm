@@ -25,6 +25,9 @@
   set_fact:
     need_upgrade: "{{ pmm_current_version is version(pmm_image_version, '<') }}"
 
+- name: Include AI chat variables
+  include_vars: "{{ playbook_dir }}/roles/ai-chat/vars/main.yml"
+
 - name: Print PMM distribution
   debug:
     msg: "PMM distribution: {{ pmm_distribution }}, Is AMI: {{ is_ami }}"
@@ -77,6 +80,100 @@
           state: present
         when: not ansible_check_mode
     when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and need_initialization
+
+  - name: Create AI Chat DB
+    block:
+      - name: Create AI chat database user
+        postgresql_user:
+          name: ai_chat_user
+          password: ai_chat_secure_password
+          role_attr_flags: CREATEDB,LOGIN
+          login_user: postgres
+          state: present
+
+      - name: Create AI chat database in postgres
+        postgresql_db:
+          name: ai_chat
+          owner: ai_chat_user
+          encoding: UTF8
+          login_user: postgres
+          state: present
+
+      - name: Grant privileges to AI chat user
+        postgresql_privs:
+          database: ai_chat
+          roles: ai_chat_user
+          type: database
+          privs: ALL
+          login_user: postgres
+          state: present
+        when: not ansible_check_mode
+
+  - name: Setup AI Chat authentication
+    block:
+      - name: Create AI chat data directory
+        file:
+          path: "{{ ai_chat_data_dir }}"
+          state: directory
+          owner: "{{ ai_chat_user }}"
+          group: "{{ ai_chat_group }}"
+          mode: '0755'
+
+      - name: Check if BETTER_AUTH_SECRET already exists
+        stat:
+          path: "{{ ai_chat_data_dir }}/.auth_secret"
+        register: auth_secret_file
+
+      - name: Check if npx is available
+        command: which npx
+        register: npx_available
+        ignore_errors: yes
+        when: not auth_secret_file.stat.exists
+
+      - name: Generate BETTER_AUTH_SECRET using better-auth CLI
+        shell: npx @better-auth/cli@latest secret
+        register: generated_auth_secret
+        when: not auth_secret_file.stat.exists and npx_available.rc == 0
+
+      - name: Read existing BETTER_AUTH_SECRET
+        slurp:
+          src: "{{ ai_chat_data_dir }}/.auth_secret"
+        register: existing_auth_secret
+        when: auth_secret_file.stat.exists
+
+      - name: Set final auth secret variable
+        set_fact:
+          final_auth_secret: "{{ generated_auth_secret.stdout if not auth_secret_file.stat.exists else existing_auth_secret.content | b64decode | trim }}"
+
+      - name: Store BETTER_AUTH_SECRET in file
+        copy:
+          content: "{{ generated_auth_secret.stdout }}"
+          dest: "{{ ai_chat_data_dir }}/.auth_secret"
+          owner: "{{ ai_chat_user }}"
+          group: "{{ ai_chat_group }}"
+          mode: '0600'
+        when: not auth_secret_file.stat.exists
+
+      - name: Update AI chat environment file with auth secret
+        lineinfile:
+          path: "{{ ai_chat_dir }}/mcp-client-chatbot/.env"
+          regexp: '^BETTER_AUTH_SECRET='
+          line: "BETTER_AUTH_SECRET={{ final_auth_secret }}"
+          create: yes
+          owner: "{{ ai_chat_user }}"
+          group: "{{ ai_chat_group }}"
+          mode: '0600'
+
+      - name: Run AI chat database migrations
+        command: pnpm db:migrate
+        args:
+          chdir: "{{ ai_chat_dir }}/mcp-client-chatbot"
+        become_user: "{{ ai_chat_user }}"
+        environment:
+          POSTGRES_URL: "postgres://ai_chat_user:{{ ai_chat_db_password }}@localhost:5432/ai_chat"
+          NODE_ENV: production
+        ignore_errors: yes
+    when: need_initialization
 
   - name: Upgrade/Install dashboards
     include_role:

@@ -1,0 +1,124 @@
+---
+# Main tasks for AI Chat integration with MCP support
+- name: Include variables
+  include_vars: ../vars/main.yml
+
+- name: Create AI chat application directory
+  file:
+    path: "{{ ai_chat_dir }}"
+    state: directory
+    owner: "{{ ai_chat_user }}"
+    group: "{{ ai_chat_group }}"
+    mode: '0755'
+
+- name: Create AI chat data directory
+  file:
+    path: "{{ ai_chat_data_dir }}"
+    state: directory
+    owner: "{{ ai_chat_user }}"
+    group: "{{ ai_chat_group }}"
+    mode: '0755'
+
+- name: Check if Node.js is installed
+  command: node --version
+  register: node_version
+  ignore_errors: yes
+
+- name: Install Node.js if not present
+  block:
+    - name: Download Node.js setup script
+      get_url:
+        url: https://deb.nodesource.com/setup_18.x
+        dest: /tmp/nodejs_setup.sh
+        mode: '0755'
+    
+    - name: Run Node.js setup script
+      command: bash /tmp/nodejs_setup.sh
+      become: yes
+    
+    - name: Install Node.js
+      package:
+        name: nodejs
+        state: present
+  when: node_version.rc != 0
+
+- name: Install pnpm globally
+  npm:
+    name: pnpm
+    global: yes
+    state: present
+
+# Install uv for MCP servers
+- name: Check if uv is installed
+  command: uv --version
+  register: uv_version
+  ignore_errors: yes
+
+- name: Install uv Python package manager
+  shell: curl -LsSf https://astral.sh/uv/install.sh | sh
+  when: uv_version.rc != 0
+
+- name: Add uv to PATH for all users
+  lineinfile:
+    path: /etc/environment
+    line: 'PATH="/root/.cargo/bin:$PATH"'
+    create: yes
+  when: uv_version.rc != 0
+
+- name: Clone AI chat application repository
+  git:
+    repo: "{{ ai_chat_repo_url }}"
+    dest: "{{ ai_chat_dir }}/mcp-client-chatbot"
+    version: "{{ ai_chat_version }}"
+    force: yes
+  become_user: "{{ ai_chat_user }}"
+
+- name: Install AI chat dependencies
+  command: pnpm install
+  args:
+    chdir: "{{ ai_chat_dir }}/mcp-client-chatbot"
+  become_user: "{{ ai_chat_user }}"
+
+# Set database connection URL (database is created during initialization)
+- name: Set postgres_url for AI chat
+  set_fact:
+    postgres_url: "postgres://ai_chat_user:{{ ai_chat_db_password }}@localhost:5432/ai_chat"
+
+- name: Create environment configuration
+  template:
+    src: env.j2
+    dest: "{{ ai_chat_dir }}/mcp-client-chatbot/.env"
+    owner: "{{ ai_chat_user }}"
+    group: "{{ ai_chat_group }}"
+    mode: '0600'
+
+# MCP Configuration
+- name: Create MCP configuration file
+  template:
+    src: mcp-config.json.j2
+    dest: "{{ ai_chat_dir }}/mcp-client-chatbot/mcp-config.json"
+    owner: "{{ ai_chat_user }}"
+    group: "{{ ai_chat_group }}"
+    mode: '0644'
+
+- name: Build AI chat application
+  command: pnpm build:local
+  args:
+    chdir: "{{ ai_chat_dir }}/mcp-client-chatbot"
+  become_user: "{{ ai_chat_user }}"
+  environment:
+    POSTGRES_URL: "{{ postgres_url }}"
+    NODE_ENV: production
+
+- name: Create supervisord configuration for AI chat
+  template:
+    src: ai-chat.ini.j2
+    dest: /etc/supervisord.d/ai-chat.ini
+    owner: pmm
+    group: pmm
+    mode: '0644'
+
+- name: Ensure supervisord is running
+  supervisorctl:
+    name: all
+    state: reloaded 
