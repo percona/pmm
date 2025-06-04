@@ -65,163 +65,150 @@ When you initiate an update in the UI with Podman:
 - Watchtower detects the change and pulls the new image
 - Systemd handles container replacement automatically
 
-## Installation options
-
-You can install PMM with either automated UI-based updates or a manual update method, depending on your preferences.
-
-The UI-based method, using Watchtower, enables direct updates from the web interface without requiring command-line access and automates the process. 
-
-On the other hand, the manual method offers a simpler setup with complete control over updates and no need for additional services, but it requires command-line access and manual intervention to track and apply updates.
-
 === "Installation with UI updates"
+This method enables updates through the PMM web interface using Watchtower and systemd services. When you initiate an update in the UI, PMM Server updates its image reference, prompting Watchtower to pull the new image. 
 
-    This method enables updates through the PMM web interface using Watchtower and systemd services. When you initiate an update in the UI, PMM Server updates its image reference, prompting Watchtower to pull the new image. 
-    
-    Watchtower then stops the existing container, and systemd automatically restarts it with the updated image.
-    {.power-number}
+Watchtower then stops the existing container, and systemd automatically restarts it with the updated image.
 
+1. Create directories for configuration files if they don't exist:
 
-    1. Create directories for configuration files if they don't exist:
+    ```sh
+    mkdir -p ~/.config/systemd/user/
+    ```
 
-        ```sh
-        mkdir -p ~/.config/systemd/user/
-        ```
-    2. Create PMM Server service file at `~/.config/systemd/user/pmm-server.service`:
+2. Create PMM Server service file at `~/.config/systemd/user/pmm-server.service`:
 
-        ```sh
-        [Unit]
-        Description=pmm-server
-        Wants=network-online.target
-        After=network-online.target
-        After=nss-user-lookup.target nss-lookup.target
-        After=time-sync.target
-        [Service]
-        EnvironmentFile=%h/.config/systemd/user/pmm-server.env
-        Environment=PMM_VOLUME_NAME=pmm-data
-        TimeoutStartSec=480
-        Restart=on-failure
-        RestartSec=20
-        ExecStart=/usr/bin/podman run \
-            --volume %h/.config/systemd/user/:/home/pmm/update/ \
-            --volume=${PMM_VOLUME_NAME}:/srv \
-            --rm --replace=true --name %N \
-            --env-file=%h/.config/systemd/user/pmm-server.env \
-            --net pmm_default \
-            --cap-add=net_admin,net_raw \
-            --userns=keep-id:uid=1000,gid=1000 \
-            -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
-        ExecStop=/usr/bin/podman stop -t 10 %N
-        [Install]
-        WantedBy=default.target
-        ```
+    ```sh
+    [Unit]
+    Description=pmm-server
+    Wants=network-online.target
+    After=network-online.target
+    After=nss-user-lookup.target nss-lookup.target
+    After=time-sync.target
+    [Service]
+    EnvironmentFile=%h/.config/systemd/user/pmm-server.env
+    Environment=PMM_VOLUME_NAME=pmm-data
+    TimeoutStartSec=480
+    Restart=on-failure
+    RestartSec=20
+    ExecStart=/usr/bin/podman run \
+        --volume %h/.config/systemd/user/:/home/pmm/update/ \
+        --volume=${PMM_VOLUME_NAME}:/srv \
+        --rm --replace=true --name %N \
+        --env-file=%h/.config/systemd/user/pmm-server.env \
+        --net pmm_default \
+        --cap-add=net_admin,net_raw \
+        --userns=keep-id:uid=1000,gid=1000 \
+        -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
+    ExecStop=/usr/bin/podman stop -t 10 %N
+    [Install]
+    WantedBy=default.target
+    ```
 
-    3. Create the environment file at `~/.config/systemd/user/pmm-server.env`:
-   
-        ```sh
-        PMM_WATCHTOWER_HOST=http://watchtower:8080
-        PMM_WATCHTOWER_TOKEN=your_token
-        PMM_IMAGE=docker.io/percona/pmm-server:3
-        ```
+3. Create the environment file at `~/.config/systemd/user/pmm-server.env`:
 
-    4. Create or update the Watchtower service file at `~/.config/systemd/user/watchtower.service`:
-   
-        ```sh
-        [Unit]
-        Description=watchtower
-        Wants=network-online.target
-        After=network-online.target
-        After=nss-user-lookup.target nss-lookup.target
-        After=time-sync.target
-        [Service]
-        EnvironmentFile=%h/.config/systemd/user/watchtower.env
-        Restart=on-failure
-        RestartSec=20
-        ExecStart=/usr/bin/podman run --rm --replace=true --name %N \
-            -v ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock \
-            --env-file=%h/.config/systemd/user/watchtower.env \
-            --net pmm_default \
-            --security-opt label=type:container_runtime_t \
-            --cap-add=net_admin,net_raw \
-            ${WATCHTOWER_IMAGE}
-        ExecStop=/usr/bin/podman stop -t 10 %N
-        [Install]
-        WantedBy=default.target
-        ```
+    ```sh
+    PMM_WATCHTOWER_HOST=http://watchtower:8080
+    PMM_WATCHTOWER_TOKEN=your_token
+    PMM_IMAGE=docker.io/percona/pmm-server:3
+    ```
 
-    5. Create the environment file for Watchtower at `~/.config/systemd/user/watchtower.env`:
-   
-        ```sh
-        WATCHTOWER_HTTP_API_UPDATE=1
-        WATCHTOWER_HTTP_API_TOKEN=your_token
-        WATCHTOWER_NO_RESTART=1
-        WATCHTOWER_IMAGE=docker.io/percona/watchtower:latest
-        ```
-    
-    6. Start the PMM Server and Watchtower services:
-   
-        ```sh
-        systemctl --user enable --now pmm-server
-        systemctl --user enable --now watchtower
-        ```
+4. Create or update the Watchtower service file at `~/.config/systemd/user/watchtower.service`:
 
-    7. Go to `https://localhost:443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
+    ```sh
+    [Unit]
+    Description=watchtower
+    Wants=network-online.target
+    After=network-online.target
+    After=nss-user-lookup.target nss-lookup.target
+    After=time-sync.target
+    [Service]
+    EnvironmentFile=%h/.config/systemd/user/watchtower.env
+    Restart=on-failure
+    RestartSec=20
+    ExecStart=/usr/bin/podman run --rm --replace=true --name %N \
+        -v ${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock \
+        --env-file=%h/.config/systemd/user/watchtower.env \
+        --net pmm_default \
+        --security-opt label=type:container_runtime_t \
+        --cap-add=net_admin,net_raw \
+        ${WATCHTOWER_IMAGE}
+    ExecStop=/usr/bin/podman stop -t 10 %N
+    [Install]
+    WantedBy=default.target
+    ```
 
-    === "Installation with manual updates"
+5. Create the environment file for Watchtower at `~/.config/systemd/user/watchtower.env`:
 
-    The installation with manual updates offers a straightforward setup with direct control over updates, without relying on additional services. 
-    
-    In this approach, you manually update the `PMM_IMAGE` in the environment file and restart the PMM Server service. Systemd then automatically manages the container replacement.
-    {.power-number}
+    ```sh
+    WATCHTOWER_HTTP_API_UPDATE=1
+    WATCHTOWER_HTTP_API_TOKEN=your_token
+    WATCHTOWER_NO_RESTART=1
+    WATCHTOWER_IMAGE=docker.io/percona/watchtower:latest
+    ```
 
-    1. Create directories for configuration files if they don't exist:
+6. Start the PMM Server and Watchtower services:
 
-        ```sh
-        mkdir -p ~/.config/systemd/user/
-        ``` 
-    
-    2. Create PMM Server service file at `~/.config/systemd/user/pmm-server.service`:
-   
-        ```sh
-        [Unit]
-        Description=pmm-server
-        Wants=network-online.target
-        After=network-online.target
-        After=nss-user-lookup.target nss-lookup.target
-        After=time-sync.target
-        [Service]
-        EnvironmentFile=%h/.config/systemd/user/pmm-server.env
-        Environment=PMM_VOLUME_NAME=pmm-data
-        TimeoutStartSec=480
-        Restart=on-failure
-        RestartSec=20
-        ExecStart=/usr/bin/podman run \
-            --volume=${PMM_VOLUME_NAME}:/srv \
-            --rm --replace=true --name %N \
-            --env-file=%h/.config/systemd/user/pmm-server.env \
-            --net pmm_default \
-            --cap-add=net_admin,net_raw \
-            --userns=keep-id:uid=1000,gid=1000 \
-            -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
-        ExecStop=/usr/bin/podman stop -t 10 %N
-        [Install]
-        WantedBy=default.target
-        ```
+    ```sh
+    systemctl --user enable --now pmm-server
+    systemctl --user enable --now watchtower
+    ```
 
-    3. Create the environment file at `~/.config/systemd/user/pmm-server.env`:
-   
-        ```sh
-        PMM_IMAGE=docker.io/percona/pmm-server:3
-        ```
+7. Go to `https://localhost:443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
+=== "Installation with manual updates"
+The installation with manual updates offers a straightforward setup with direct control over updates, without relying on additional services. 
 
-    4. Enable and start the PMM Server service:
-   
-        ```sh
-        systemctl --user enable --now pmm-server
-        ```
+In this approach, you manually update the `PMM_IMAGE` in the environment file and restart the PMM Server service. Systemd then automatically manages the container replacement.
 
-    5. Go to `https://localhost:443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
+1. Create directories for configuration files if they don't exist:
 
-    For information on manually upgrading, see [Upgrade PMM Server using Podman](../../../../pmm-upgrade/upgrade_podman.md).
+    ```sh
+    mkdir -p ~/.config/systemd/user/
+    ``` 
+
+2. Create PMM Server service file at `~/.config/systemd/user/pmm-server.service`:
+
+    ```sh
+    [Unit]
+    Description=pmm-server
+    Wants=network-online.target
+    After=network-online.target
+    After=nss-user-lookup.target nss-lookup.target
+    After=time-sync.target
+    [Service]
+    EnvironmentFile=%h/.config/systemd/user/pmm-server.env
+    Environment=PMM_VOLUME_NAME=pmm-data
+    TimeoutStartSec=480
+    Restart=on-failure
+    RestartSec=20
+    ExecStart=/usr/bin/podman run \
+        --volume=${PMM_VOLUME_NAME}:/srv \
+        --rm --replace=true --name %N \
+        --env-file=%h/.config/systemd/user/pmm-server.env \
+        --net pmm_default \
+        --cap-add=net_admin,net_raw \
+        --userns=keep-id:uid=1000,gid=1000 \
+        -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
+    ExecStop=/usr/bin/podman stop -t 10 %N
+    [Install]
+    WantedBy=default.target
+    ```
+
+3. Create the environment file at `~/.config/systemd/user/pmm-server.env`:
+
+    ```sh
+    PMM_IMAGE=docker.io/percona/pmm-server:3
+    ```
+
+4. Enable and start the PMM Server service:
+
+    ```sh
+    systemctl --user enable --now pmm-server
+    ```
+
+5. Go to `https://localhost:443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
+
+For information on manually upgrading, see [Upgrade PMM Server using Podman](../../../../pmm-upgrade/upgrade_podman.md).
 
 
 ## Related topics
