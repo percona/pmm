@@ -66,9 +66,9 @@ When you initiate an update in the UI with Podman:
 - Systemd handles container replacement automatically
 
 === "Installation with UI updates"
-This method enables updates through the PMM web interface using Watchtower and systemd services. When you initiate an update in the UI, PMM Server updates its image reference, prompting Watchtower to pull the new image. 
+    This method enables updates through the PMM web interface using Watchtower and systemd services. When you initiate an update in the UI, PMM Server updates its image reference, prompting Watchtower to pull the new image. 
 
-Watchtower then stops the existing container, and systemd automatically restarts it with the updated image.
+    Watchtower then stops the existing container, and systemd automatically restarts it with the updated image.
 
     1. Create directories for configuration files if they don't exist:
 
@@ -155,10 +155,11 @@ Watchtower then stops the existing container, and systemd automatically restarts
         ```
 
     7. Go to `https://localhost:443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
-=== "Installation with manual updates"
-The installation with manual updates offers a straightforward setup with direct control over updates, without relying on additional services. 
 
-In this approach, you manually update the `PMM_IMAGE` in the environment file and restart the PMM Server service. Systemd then automatically manages the container replacement.
+=== "Installation with manual updates"
+    The installation with manual updates offers a straightforward setup with direct control over updates, without relying on additional services. 
+
+    In this approach, you manually update the `PMM_IMAGE` in the environment file and restart the PMM Server service. Systemd then automatically manages the container replacement.
 
     1. Create directories for configuration files if they don't exist:
 
