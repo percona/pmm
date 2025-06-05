@@ -433,6 +433,8 @@ message CheckConnectionRequest {
   TextFiles text_files = 4;
   // TLS certificate wont be verified.
   bool tls_skip_verify = 5;
+  // If true, use TLS for database connections.
+  bool tls = 6;
 }
 
 // CheckConnectionResponse is an AgentMessage containing the result of a connection check.
@@ -458,6 +460,8 @@ message ServiceInfoRequest {
   TextFiles text_files = 4;
   // TLS certificate wont be verified.
   bool tls_skip_verify = 5;
+  // If true, use TLS for database connections.
+  bool tls = 6;
 }
 
 // ServiceInfoResponse is an AgentMessage containing information gathered from a service.

@@ -50,7 +50,7 @@ jobs:
       - name: Launch PMM Server (see docker-compose.yml)
         run: |
           make env-compose-up # the container workdir is /root/go/src/github.com/percona/pmm
-          docker exec -t pmm-server id -Z || :
+          docker exec -t pmm-server id || :
           docker logs pmm-server
 
       - name: Mark the root directory of pmm as safe
@@ -75,9 +75,6 @@ jobs:
       - name: Check the status of components
         continue-on-error: true
         run: docker exec -t pmm-server supervisorctl status
-
-      - name: Refresh yum cache for tests
-        run: docker exec -i pmm-server yum --verbose info updates pmm-managed || echo '1'
 
       - name: Run tests
         run: docker exec -i pmm-server make -C managed test-cover
