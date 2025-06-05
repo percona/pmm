@@ -56,6 +56,7 @@ const (
 	templatesDir              = "/srv/alerting/templates"
 	portalRequestTimeout      = 2 * time.Minute // time limit to get templates list from the portal
 	defaultEvaluationInterval = time.Minute
+	prometheusDatasourceUID   = "prometheus"
 
 	dirPerm = os.FileMode(0o775)
 )
@@ -697,11 +698,6 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, status.Error(codes.InvalidArgument, "Rule group name should be specified.")
 	}
 
-	metricsDatasourceUID, err := s.grafanaClient.GetDatasourceUIDByID(ctx, 1) // 1 - it's id of Metrics datasource in PMM
-	if err != nil {
-		return nil, err
-	}
-
 	template, ok := s.GetTemplates()[req.TemplateName]
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)
@@ -778,7 +774,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 			Data: []services.Data{
 				{
 					RefID:         "A",
-					DatasourceUID: metricsDatasourceUID,
+					DatasourceUID: prometheusDatasourceUID,
 					// TODO: https://community.grafana.com/t/grafana-requires-time-range-for-alert-rule-creation-with-instant-promql-quieriy/70919
 					RelativeTimeRange: services.RelativeTimeRange{From: 600, To: 0},
 					Model: services.Model{
