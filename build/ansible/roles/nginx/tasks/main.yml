@@ -33,7 +33,7 @@
   copy:
     src: "{{ item }}"
     dest: "/etc/nginx/{{ item }}"
-    mode: 0644
+    mode: 0664
   loop:
     - "nginx.conf"
     - "conf.d/pmm-ssl.conf"
@@ -94,4 +94,4 @@
     dest: /usr/share/pmm-server/static/
     group: pmm
     owner: pmm
-    mode: 0644
+    mode: 0666

@@ -34,7 +34,7 @@
     force: yes
     group: pmm
     owner: pmm
-    mode: 0644
+    mode: 0666
 
 - name: Create Postgres data dir
   file:
@@ -42,7 +42,7 @@
     state: directory
     owner: pmm
     group: pmm
-    mode: 0700
+    mode: 0750
 
 - name: Initialize Postgres database
   command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust

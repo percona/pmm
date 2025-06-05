@@ -62,6 +62,7 @@
     state: directory
     owner: pmm
     group: pmm
+    mode: 0775
   loop:
     - /srv # otherwise it's owned by root
     - /srv/prometheus/rules
@@ -136,6 +137,7 @@
     state: directory
     owner: pmm
     group: pmm
+    mode: 0775
 
 - name: Create an empty configuration file for VictoriaMetrics
   file:
@@ -143,6 +145,7 @@
     state: touch
     owner: pmm
     group: pmm
+    mode: 0666
 
 # Launch pmm-managed-init first as it may update supervisord configuration on start
 - name: Generate new supervisor config
