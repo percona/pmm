@@ -27,7 +27,6 @@ import (
 
 	"github.com/google/tink/go/tink"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"github.com/tink-crypto/tink-go/aead"
 	"github.com/tink-crypto/tink-go/insecurecleartextkeyset"
 	"github.com/tink-crypto/tink-go/keyset"
@@ -40,7 +39,7 @@ var (
 	// ErrEncryptionNotInitialized is error in case of encryption is not initialized.
 	ErrEncryptionNotInitialized = errors.New("encryption is not initialized")
 	// DefaultEncryption is the default implementation of encryption.
-	DefaultEncryption    = New()
+	DefaultEncryption, _ = New()
 	defaultEncryptionMtx sync.Mutex
 )
 
@@ -85,7 +84,7 @@ func isTest() bool {
 }
 
 // New creates an encryption; if key on path doesn't exist, it will be generated.
-func New() *Encryption {
+func New() (*Encryption, error) {
 	e := &Encryption{}
 	customKeyPath := os.Getenv(CustomEncryptionKeyPathEnvVar)
 	if customKeyPath != "" {
@@ -103,21 +102,22 @@ func New() *Encryption {
 	case os.IsNotExist(err):
 		err = e.generateKey()
 		if err != nil {
-			logrus.Panicf("Encryption: %v", err)
+			return nil, err
 		}
+
 	case err != nil:
-		logrus.Panicf("Encryption: %v", err)
+		return nil, err
 	default:
 		e.Key = string(bytes)
 	}
 
 	primitive, err := e.getPrimitive()
 	if err != nil {
-		logrus.Panicf("Encryption: %v", err)
+		return nil, err
 	}
 	e.Primitive = primitive
 
-	return e
+	return e, nil
 }
 
 // RotateEncryptionKey is a wrapper around DefaultEncryption.RotateEncryptionKey.
@@ -128,10 +128,9 @@ func RotateEncryptionKey() error {
 	}
 
 	defaultEncryptionMtx.Lock()
-	DefaultEncryption = New()
-	defaultEncryptionMtx.Unlock()
-
-	return nil
+	defer defaultEncryptionMtx.Unlock()
+	DefaultEncryption, err = New()
+	return err
 }
 
 // RestoreOldEncryptionKey is a wrapper around DefaultEncryption.RestoreOldEncryptionKey.
