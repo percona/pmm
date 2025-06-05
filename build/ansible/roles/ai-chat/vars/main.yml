@@ -1,0 +1,18 @@
+# Variables for AI Chat integration
+ai_chat_user: pmm
+ai_chat_group: pmm
+ai_chat_dir: /opt/ai-chat
+ai_chat_data_dir: /srv/ai-chat/data
+ai_chat_port: 3001
+ai_chat_repo_url: https://github.com/cgoinglove/mcp-client-chatbot.git
+ai_chat_version: main
+
+# Database configuration
+ai_chat_db_password: ai_chat_secure_password
+
+# MCP Configuration
+file_based_mcp_config: true
+
+# Nginx configuration
+ai_chat_server_name: "{{ ansible_fqdn }}"
+ai_chat_location: /ai-chat 
