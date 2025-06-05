@@ -1348,15 +1348,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#installation-options" class="md-nav__link">
-    <span class="md-ellipsis">
-      Installation options
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#related-topics" class="md-nav__link">
     <span class="md-ellipsis">
       Related topics
@@ -8771,15 +8762,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#installation-options" class="md-nav__link">
-    <span class="md-ellipsis">
-      Installation options
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#related-topics" class="md-nav__link">
     <span class="md-ellipsis">
       Related topics
@@ -8863,15 +8845,13 @@
   <div class="highlight"><pre><span></span><code>podman<span class="w"> </span>network<span class="w"> </span>create<span class="w"> </span>pmm_default
 </code></pre></div></li>
 <li>Set up required system configurations:
-    <div class="highlight"><pre><span></span><code><span class="c1"># Allow non-root users to bind to privileged ports (required for port 443)</span>
-sudo<span class="w"> </span>sysctl<span class="w"> </span>-w<span class="w"> </span>net.ipv4.ip_unprivileged_port_start<span class="o">=</span><span class="m">443</span>
-
+    <div class="highlight"><pre><span></span><code><span class="c1"># Allow non-root users to bind to privileged ports (required for port 443)        </span>
 <span class="c1"># Make the setting persistent</span>
 <span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;net.ipv4.ip_unprivileged_port_start=443&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>tee<span class="w"> </span>/etc/sysctl.d/99-pmm.conf
 sudo<span class="w"> </span>sysctl<span class="w"> </span>-p<span class="w"> </span>/etc/sysctl.d/99-pmm.conf
 </code></pre></div></li>
-<li>Create the Podman network for PMM:
-    <div class="highlight"><pre><span></span><code>podman<span class="w"> </span>network<span class="w"> </span>create<span class="w"> </span>pmm_default
+<li>Enable the Podman socket (required for Watchtower integration):
+    <div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>--user<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>podman.socket
 </code></pre></div></li>
 <li>
 <p>Configure Watchtower (if using UI updates) with these security considerations:</p>
@@ -8895,23 +8875,19 @@ sudo<span class="w"> </span>sysctl<span class="w"> </span>-p<span class="w"> </s
 <li>Watchtower detects the change and pulls the new image</li>
 <li>Systemd handles container replacement automatically</li>
 </ul>
-<h2 id="installation-options">Installation options<a class="headerlink" href="#installation-options" title="Permanent link">&para;</a></h2>
-<p>You can install PMM with either automated UI-based updates or a manual update method, depending on your preferences.</p>
-<p>The UI-based method, using Watchtower, enables direct updates from the web interface without requiring command-line access and automates the process. </p>
-<p>On the other hand, the manual method offers a simpler setup with complete control over updates and no need for additional services, but it requires command-line access and manual intervention to track and apply updates.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Installation with UI updates</label><label for="__tabbed_1_2">Installation with manual updates</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>This method enables updates through the PMM web interface using Watchtower and systemd services. When you initiate an update in the UI, PMM Server updates its image reference, prompting Watchtower to pull the new image. </p>
-<p class="power-number">Watchtower then stops the existing container, and systemd automatically restarts it with the updated image.</p>
+<p>Watchtower then stops the existing container, and systemd automatically restarts it with the updated image.</p>
 <ol>
 <li>
 <p>Create directories for configuration files if they don&rsquo;t exist:</p>
-<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>%h/.config/systemd/user/
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>~/.config/systemd/user/
 </code></pre></div>
 </li>
 <li>
-<p>Create PMM Server service file at <code>%h/.config/systemd/user/pmm-server.service</code>:</p>
+<p>Create PMM Server service file at <code>~/.config/systemd/user/pmm-server.service</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="o">[</span>Unit<span class="o">]</span>
 <span class="nv">Description</span><span class="o">=</span>pmm-server
 <span class="nv">Wants</span><span class="o">=</span>network-online.target
@@ -8920,12 +8896,13 @@ sudo<span class="w"> </span>sysctl<span class="w"> </span>-p<span class="w"> </s
 <span class="nv">After</span><span class="o">=</span>time-sync.target
 <span class="o">[</span>Service<span class="o">]</span>
 <span class="nv">EnvironmentFile</span><span class="o">=</span>%h/.config/systemd/user/pmm-server.env
-<span class="nv">Environment</span><span class="o">=</span><span class="nv">PMM_VOLUME_NAME</span><span class="o">=</span>%N
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">PMM_VOLUME_NAME</span><span class="o">=</span>pmm-data
+<span class="nv">TimeoutStartSec</span><span class="o">=</span><span class="m">480</span>
 <span class="nv">Restart</span><span class="o">=</span>on-failure
 <span class="nv">RestartSec</span><span class="o">=</span><span class="m">20</span>
 <span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/podman<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--volume<span class="w"> </span>%h/.config/systemd/user/:/home/pmm/update/<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--volume<span class="o">=</span><span class="si">${</span><span class="nv">PMM_VOLUME_NAME</span><span class="si">}</span>:/srv
+<span class="w">    </span>--volume<span class="o">=</span><span class="si">${</span><span class="nv">PMM_VOLUME_NAME</span><span class="si">}</span>:/srv<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--rm<span class="w"> </span>--replace<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--name<span class="w"> </span>%N<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--env-file<span class="o">=</span>%h/.config/systemd/user/pmm-server.env<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--net<span class="w"> </span>pmm_default<span class="w"> </span><span class="se">\</span>
@@ -8938,16 +8915,14 @@ sudo<span class="w"> </span>sysctl<span class="w"> </span>-p<span class="w"> </s
 </code></pre></div>
 </li>
 <li>
-<p>Create the environment file at <code>%h/.config/systemd/user/pmm-server.env</code>. If current user is <code>root</code>, modify permissions as well:</p>
+<p>Create the environment file at <code>~/.config/systemd/user/pmm-server.env</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">PMM_WATCHTOWER_HOST</span><span class="o">=</span>http://watchtower:8080
-<span class="nv">PMM_WATCHTOWER_TOKEN</span><span class="o">=</span><span class="m">123</span>
+<span class="nv">PMM_WATCHTOWER_TOKEN</span><span class="o">=</span>your_token
 <span class="nv">PMM_IMAGE</span><span class="o">=</span>docker.io/percona/pmm-server:3
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>chmod 777 %h/.config/systemd/user/pmm-server.env  # Only if current user is root
 </code></pre></div>
 </li>
 <li>
-<p>Create or update the Watchtower service file at <code>%h/.config/systemd/user/watchtower.service</code>:</p>
+<p>Create or update the Watchtower service file at <code>~/.config/systemd/user/watchtower.service</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="o">[</span>Unit<span class="o">]</span>
 <span class="nv">Description</span><span class="o">=</span>watchtower
 <span class="nv">Wants</span><span class="o">=</span>network-online.target
@@ -8955,13 +8930,14 @@ sudo<span class="w"> </span>sysctl<span class="w"> </span>-p<span class="w"> </s
 <span class="nv">After</span><span class="o">=</span>nss-user-lookup.target<span class="w"> </span>nss-lookup.target
 <span class="nv">After</span><span class="o">=</span>time-sync.target
 <span class="o">[</span>Service<span class="o">]</span>
-<span class="nv">EnvironmentFile</span><span class="o">=</span>/home/pmm/watchtower.env
+<span class="nv">EnvironmentFile</span><span class="o">=</span>%h/.config/systemd/user/watchtower.env
 <span class="nv">Restart</span><span class="o">=</span>on-failure
 <span class="nv">RestartSec</span><span class="o">=</span><span class="m">20</span>
 <span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/podman<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--replace<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--name<span class="w"> </span>%N<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-v<span class="w"> </span><span class="si">${</span><span class="nv">XDG_RUNTIME_DIR</span><span class="si">}</span>/podman/podman.sock:/var/run/docker.sock<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--env-file<span class="o">=</span>%h/.config/systemd/user/watchtower.env<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--net<span class="w"> </span>pmm_default<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--security-opt<span class="w"> </span><span class="nv">label</span><span class="o">=</span>type:container_runtime_t<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--cap-add<span class="o">=</span>net_admin,net_raw<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="si">${</span><span class="nv">WATCHTOWER_IMAGE</span><span class="si">}</span>
 <span class="nv">ExecStop</span><span class="o">=</span>/usr/bin/podman<span class="w"> </span>stop<span class="w"> </span>-t<span class="w"> </span><span class="m">10</span><span class="w"> </span>%N
@@ -8970,13 +8946,11 @@ sudo<span class="w"> </span>sysctl<span class="w"> </span>-p<span class="w"> </s
 </code></pre></div>
 </li>
 <li>
-<p>Create the environment file for Watchtower at <code>%h/.config/systemd/user/watchtower.env</code>. If current user is <code>root</code>, modify permissions as well:</p>
+<p>Create the environment file for Watchtower at <code>~/.config/systemd/user/watchtower.env</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">WATCHTOWER_HTTP_API_UPDATE</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">WATCHTOWER_HTTP_API_TOKEN</span><span class="o">=</span><span class="m">123</span>
+<span class="nv">WATCHTOWER_HTTP_API_TOKEN</span><span class="o">=</span>your_token
 <span class="nv">WATCHTOWER_NO_RESTART</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">WATCHTOWER_IMAGE</span><span class="o">=</span>docker.io/percona/watchtower:latest
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>chmod 777 %h/.config/systemd/user/watchtower.env  # Only if current user is root
 </code></pre></div>
 </li>
 <li>
@@ -8992,15 +8966,15 @@ systemctl<span class="w"> </span>--user<span class="w"> </span><span class="nb">
 </div>
 <div class="tabbed-block">
 <p>The installation with manual updates offers a straightforward setup with direct control over updates, without relying on additional services. </p>
-<p class="power-number">In this approach, you manually update the <code>PMM_IMAGE</code> in the environment file and restart the PMM Server service. Systemd then automatically manages the container replacement.</p>
+<p>In this approach, you manually update the <code>PMM_IMAGE</code> in the environment file and restart the PMM Server service. Systemd then automatically manages the container replacement.</p>
 <ol>
 <li>
 <p>Create directories for configuration files if they don&rsquo;t exist:</p>
-<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>%h/.config/systemd/user/
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>~/.config/systemd/user/
 </code></pre></div>
 </li>
 <li>
-<p>Create PMM Server service file at <code>%h/.config/systemd/user/pmm-server.service</code>:</p>
+<p>Create PMM Server service file at <code>~/.config/systemd/user/pmm-server.service</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="o">[</span>Unit<span class="o">]</span>
 <span class="nv">Description</span><span class="o">=</span>pmm-server
 <span class="nv">Wants</span><span class="o">=</span>network-online.target
@@ -9009,11 +8983,12 @@ systemctl<span class="w"> </span>--user<span class="w"> </span><span class="nb">
 <span class="nv">After</span><span class="o">=</span>time-sync.target
 <span class="o">[</span>Service<span class="o">]</span>
 <span class="nv">EnvironmentFile</span><span class="o">=</span>%h/.config/systemd/user/pmm-server.env
-<span class="nv">Environment</span><span class="o">=</span><span class="nv">PMM_VOLUME_NAME</span><span class="o">=</span>%N
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">PMM_VOLUME_NAME</span><span class="o">=</span>pmm-data
+<span class="nv">TimeoutStartSec</span><span class="o">=</span><span class="m">480</span>
 <span class="nv">Restart</span><span class="o">=</span>on-failure
 <span class="nv">RestartSec</span><span class="o">=</span><span class="m">20</span>
 <span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/podman<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--volume<span class="o">=</span><span class="si">${</span><span class="nv">PMM_VOLUME_NAME</span><span class="si">}</span>:/srv
+<span class="w">    </span>--volume<span class="o">=</span><span class="si">${</span><span class="nv">PMM_VOLUME_NAME</span><span class="si">}</span>:/srv<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--rm<span class="w"> </span>--replace<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--name<span class="w"> </span>%N<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--env-file<span class="o">=</span>%h/.config/systemd/user/pmm-server.env<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--net<span class="w"> </span>pmm_default<span class="w"> </span><span class="se">\</span>
@@ -9026,7 +9001,7 @@ systemctl<span class="w"> </span>--user<span class="w"> </span><span class="nb">
 </code></pre></div>
 </li>
 <li>
-<p>Create the environment file at <code>%h/.config/systemd/user/pmm-server.env</code>:</p>
+<p>Create the environment file at <code>~/.config/systemd/user/pmm-server.env</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nv">PMM_IMAGE</span><span class="o">=</span>docker.io/percona/pmm-server:3
 </code></pre></div>
 </li>
@@ -9039,10 +9014,10 @@ systemctl<span class="w"> </span>--user<span class="w"> </span><span class="nb">
 <p>Go to <code>https://localhost:443</code> to access the PMM user interface in a web browser. If you are accessing the host remotely, replace <code>localhost</code> with the IP or server name of the host.</p>
 </li>
 </ol>
+</div>
+</div>
+</div>
 <p>For information on manually upgrading, see <a href="../../../../pmm-upgrade/upgrade_podman.html">Upgrade PMM Server using Podman</a>.</p>
-</div>
-</div>
-</div>
 <h2 id="related-topics">Related topics<a class="headerlink" href="#related-topics" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../docker/index.html">Docker installation alternative</a> </li>
@@ -9054,7 +9029,7 @@ systemctl<span class="w"> </span>--user<span class="w"> </span><span class="nb">
 <li><a href="../../../install-pmm-client/index.html">Install PMM Client</a> </li>
 </ul>
 <div hidden>
-<div class="highlight"><pre><span></span><code><span class="c1">#first pull can take time</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># first pull can take time</span>
 sleep<span class="w"> </span><span class="m">80</span>
 timeout<span class="w"> </span><span class="m">60</span><span class="w"> </span>podman<span class="w"> </span><span class="nb">wait</span><span class="w"> </span>--condition<span class="o">=</span>running<span class="w"> </span>pmm-server
 </code></pre></div>
@@ -9079,7 +9054,7 @@ timeout<span class="w"> </span><span class="m">60</span><span class="w"> </span>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-05-29
+    2025-06-05
   </span>
 
     
