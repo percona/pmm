@@ -4094,7 +4094,7 @@
                           "x-order": 13
                         },
                         "enable_all_collectors": {
-                          "description": "Enable All collectors.",
+                          "description": "Enable all collectors.",
                           "type": "boolean",
                           "x-order": 14
                         },

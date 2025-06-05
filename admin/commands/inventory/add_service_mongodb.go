@@ -62,7 +62,7 @@ type AddServiceMongoDBCommand struct {
 
 // RunCmd executes the AddServiceMongoDBCommand and returns the result.
 func (cmd *AddServiceMongoDBCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 	params := &services.AddServiceParams{
 		Body: services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
@@ -74,7 +74,7 @@ func (cmd *AddServiceMongoDBCommand) RunCmd() (commands.Result, error) {
 				Environment:    cmd.Environment,
 				Cluster:        cmd.Cluster,
 				ReplicationSet: cmd.ReplicationSet,
-				CustomLabels:   customLabels,
+				CustomLabels:   *customLabels,
 			},
 		},
 		Context: commands.Ctx,

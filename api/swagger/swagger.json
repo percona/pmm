@@ -4710,7 +4710,7 @@
                         "x-order": 13
                       },
                       "enable_all_collectors": {
-                        "description": "Enable All collectors.",
+                        "description": "Enable all collectors.",
                         "type": "boolean",
                         "x-order": 14
                       },
@@ -6467,6 +6467,11 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 19
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable all collectors.",
+                      "type": "boolean",
+                      "x-order": 20
                     }
                   },
                   "x-order": 3
@@ -6924,9 +6929,9 @@
                       "x-order": 8
                     },
                     "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
-                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
                       "x-order": 9
                     },
                     "disable_query_examples": {
@@ -7871,7 +7876,7 @@
                       "x-order": 13
                     },
                     "enable_all_collectors": {
-                      "description": "Enable All collectors.",
+                      "description": "Enable all collectors.",
                       "type": "boolean",
                       "x-order": 14
                     },
@@ -9703,7 +9708,7 @@
                       "x-order": 13
                     },
                     "enable_all_collectors": {
-                      "description": "Enable All collectors.",
+                      "description": "Enable all collectors.",
                       "type": "boolean",
                       "x-order": 14
                     },
@@ -11179,6 +11184,36 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 4
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "expose_exporter": {
+                      "description": "Expose the node_exporter process on all public interfaces.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
                     }
                   },
                   "x-order": 0
@@ -11234,6 +11269,97 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "MySQL username for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "MySQL password for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "tablestats_group_table_limit": {
+                      "description": "Tablestats group collectors will be disabled if there are more than that number of tables.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 13
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 14
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 15
+                    },
+                    "expose_exporter": {
+                      "description": "Optionally expose the exporter process on all public interfaces.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 1
@@ -11289,6 +11415,123 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "MongoDB password for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_certificate_key": {
+                      "description": "Client certificate and key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_certificate_key_file_password": {
+                      "description": "Password for decrypting tls_certificate_key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "authentication_mechanism": {
+                      "description": "Authentication mechanism.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "authentication_database": {
+                      "description": "Authentication database.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 14
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 15
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of collections to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 16
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server is less than this value. 0: no limit",
+                      "x-nullable": true,
+                      "x-order": 17
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable all collectors.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 18
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 19
+                    },
+                    "expose_exporter": {
+                      "description": "Optionally expose the exporter process on all public interfaces.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 20
                     }
                   },
                   "x-order": 2
@@ -11344,6 +11587,104 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 14
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 15
+                    },
+                    "expose_exporter": {
+                      "description": "Optionally expose the exporter process on all public interfaces.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 16
+                    },
+                    "max_exporter_connections": {
+                      "description": "Maximum number of connections that exporter can open to the database instance.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 17
                     }
                   },
                   "x-order": 3
@@ -11399,6 +11740,66 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "ProxySQL username for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "ProxySQL password for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "expose_exporter": {
+                      "description": "Optionally expose the exporter process on all public interfaces.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 11
                     }
                   },
                   "x-order": 4
@@ -11454,6 +11855,31 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "HTTP basic auth username for collecting metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "scheme": {
+                      "description": "Scheme to generate URI to exporter metrics endpoints.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "metrics_path": {
+                      "description": "Path under which metrics are exposed, used to generate URI.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-nullable": true,
+                      "x-order": 7
                     }
                   },
                   "x-order": 5
@@ -11509,6 +11935,46 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "aws_access_key": {
+                      "description": "AWS Access Key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "aws_secret_key": {
+                      "description": "AWS Secret Key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "disable_basic_metrics": {
+                      "description": "Disable basic metrics.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "disable_enhanced_metrics": {
+                      "description": "Disable enhanced metrics.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 8
                     }
                   },
                   "x-order": 6
@@ -11564,6 +12030,52 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "azure_client_id": {
+                      "type": "string",
+                      "title": "Azure client ID",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "azure_client_secret": {
+                      "type": "string",
+                      "title": "Azure client secret",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "azure_tenant_id": {
+                      "type": "string",
+                      "title": "Azure tenant ID",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "azure_subscription_id": {
+                      "type": "string",
+                      "title": "Azure subscription ID",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "azure_resource_group": {
+                      "description": "Azure resource group.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 9
                     }
                   },
                   "x-order": 7
@@ -11619,6 +12131,89 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "MySQL username for getting performance data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "MySQL password for getting performance data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "disable_query_examples": {
+                      "description": "Disable query examples.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 14
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 8
@@ -11674,6 +12269,96 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "MySQL username for getting slowlog data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "MySQL password for getting slowlog data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "disable_query_examples": {
+                      "description": "Disable query examples.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "max_slowlog_file_size": {
+                      "description": "Rotate slowlog file at this size if \u003e 0.",
+                      "type": "string",
+                      "format": "int64",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 14
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 9
@@ -11729,6 +12414,83 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profile data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "MongoDB password for getting profile data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_certificate_key": {
+                      "description": "Client certificate and key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_certificate_key_file_password": {
+                      "description": "Password for decrypting tls_certificate_key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "authentication_mechanism": {
+                      "description": "Authentication mechanism.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "authentication_database": {
+                      "description": "Authentication database.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 14
                     }
                   },
                   "x-order": 10
@@ -11784,6 +12546,77 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat statements data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for getting pg stat statements data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 13
                     }
                   },
                   "x-order": 11
@@ -11839,6 +12672,83 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat monitor data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for getting pg stat monitor data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "disable_query_examples": {
+                      "description": "Disable query examples.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 14
                     }
                   },
                   "x-order": 12
@@ -11906,6 +12816,84 @@
                         }
                       },
                       "x-order": 3
+                    },
+                    "username": {
+                      "description": "Valkey username for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "Valkey password for scraping metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-nullable": true,
+                      "x-order": 14
                     }
                   },
                   "x-order": 14
@@ -12293,7 +13281,7 @@
                       "x-order": 13
                     },
                     "enable_all_collectors": {
-                      "description": "Enable All collectors.",
+                      "description": "Enable all collectors.",
                       "type": "boolean",
                       "x-order": 14
                     },
@@ -21729,7 +22717,7 @@
                           "x-order": 13
                         },
                         "enable_all_collectors": {
-                          "description": "Enable All collectors.",
+                          "description": "Enable all collectors.",
                           "type": "boolean",
                           "x-order": 14
                         },

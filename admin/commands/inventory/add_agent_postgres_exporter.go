@@ -50,29 +50,30 @@ func (res *addAgentPostgresExporterResult) String() string {
 //
 //nolint:lll
 type AddAgentPostgresExporterCommand struct {
-	PMMAgentID          string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
-	ServiceID           string            `arg:"" help:"Service identifier"`
-	Username            string            `arg:"" optional:"" help:"PostgreSQL username for scraping metrics"`
-	Password            string            `help:"PostgreSQL password for scraping metrics"`
-	AgentPassword       string            `help:"Custom password for /metrics endpoint"`
-	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-	SkipConnectionCheck bool              `help:"Skip connection check"`
-	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
-	ExposeExporter      bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
-	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	TLS                 bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
-	TLSCAFile           string            `help:"TLS CA certificate file"`
-	TLSCertFile         string            `help:"TLS certificate file"`
-	TLSKeyFile          string            `help:"TLS certificate key file"`
-	AutoDiscoveryLimit  int32             `default:"0" placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
+	PMMAgentID             string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID              string            `arg:"" help:"Service identifier"`
+	Username               string            `arg:"" optional:"" help:"PostgreSQL username for scraping metrics"`
+	Password               string            `help:"PostgreSQL password for scraping metrics"`
+	AgentPassword          string            `help:"Custom password for /metrics endpoint"`
+	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	SkipConnectionCheck    bool              `help:"Skip connection check"`
+	PushMetrics            bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	ExposeExporter         bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
+	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	TLS                    bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
+	TLSCAFile              string            `help:"TLS CA certificate file"`
+	TLSCertFile            string            `help:"TLS certificate file"`
+	TLSKeyFile             string            `help:"TLS certificate key file"`
+	AutoDiscoveryLimit     int32             `default:"0" placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
+	MaxExporterConnections int32             `default:"0" placeholder:"NUMBER" help:"Maximum number of connections that exporter can make to PostgreSQL instance (default: server-defined)"`
 
 	flags.LogLevelNoFatalFlags
 }
 
 // RunCmd executes the AddAgentPostgresExporterCommand and returns the result.
 func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 
 	var (
 		err                    error
@@ -98,17 +99,18 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 	params := &agents.AddAgentParams{
 		Body: agents.AddAgentBody{
 			PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
-				PMMAgentID:          cmd.PMMAgentID,
-				ServiceID:           cmd.ServiceID,
-				Username:            cmd.Username,
-				Password:            cmd.Password,
-				AgentPassword:       cmd.AgentPassword,
-				CustomLabels:        customLabels,
-				SkipConnectionCheck: cmd.SkipConnectionCheck,
-				PushMetrics:         cmd.PushMetrics,
-				ExposeExporter:      cmd.ExposeExporter,
-				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-				AutoDiscoveryLimit:  cmd.AutoDiscoveryLimit,
+				PMMAgentID:             cmd.PMMAgentID,
+				ServiceID:              cmd.ServiceID,
+				Username:               cmd.Username,
+				Password:               cmd.Password,
+				AgentPassword:          cmd.AgentPassword,
+				CustomLabels:           *customLabels,
+				SkipConnectionCheck:    cmd.SkipConnectionCheck,
+				PushMetrics:            cmd.PushMetrics,
+				ExposeExporter:         cmd.ExposeExporter,
+				DisableCollectors:      commands.ParseDisableCollectors(cmd.DisableCollectors),
+				AutoDiscoveryLimit:     cmd.AutoDiscoveryLimit,
+				MaxExporterConnections: cmd.MaxExporterConnections,
 
 				TLS:           cmd.TLS,
 				TLSSkipVerify: cmd.TLSSkipVerify,

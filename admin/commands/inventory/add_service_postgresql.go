@@ -62,7 +62,7 @@ type AddServicePostgreSQLCommand struct {
 
 // RunCmd executes the AddServicePostgreSQLCommand and returns the result.
 func (cmd *AddServicePostgreSQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 
 	params := &services.AddServiceParams{
 		Body: services.AddServiceBody{
@@ -75,7 +75,7 @@ func (cmd *AddServicePostgreSQLCommand) RunCmd() (commands.Result, error) {
 				Environment:    cmd.Environment,
 				Cluster:        cmd.Cluster,
 				ReplicationSet: cmd.ReplicationSet,
-				CustomLabels:   customLabels,
+				CustomLabels:   *customLabels,
 			},
 		},
 		Context: commands.Ctx,

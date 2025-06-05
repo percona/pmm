@@ -59,7 +59,7 @@ func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 
 	params := &services.AddServiceParams{
 		Body: services.AddServiceBody{
@@ -69,7 +69,7 @@ func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
 				Environment:    cmd.Environment,
 				Cluster:        cmd.Cluster,
 				ReplicationSet: cmd.ReplicationSet,
-				CustomLabels:   customLabels,
+				CustomLabels:   *customLabels,
 			},
 		},
 		Context: commands.Ctx,

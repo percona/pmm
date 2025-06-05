@@ -67,7 +67,7 @@ type RegisterCommand struct {
 
 // RunCmd runs the command for RegisterCommand.
 func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 
 	params := &mservice.RegisterNodeParams{
 		Body: mservice.RegisterNodeBody{
@@ -80,7 +80,7 @@ func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
 			NodeModel:     cmd.NodeModel,
 			Region:        cmd.Region,
 			Az:            cmd.Az,
-			CustomLabels:  customLabels,
+			CustomLabels:  *customLabels,
 			Address:       cmd.Address,
 			AgentPassword: cmd.AgentPassword,
 
