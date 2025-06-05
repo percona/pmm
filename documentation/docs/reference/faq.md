@@ -144,20 +144,20 @@ PMM protects an exporter's output from unauthorized access by adding an authoriz
 
 ## How to provision PMM Server with non-default admin password?
 
-Currently, there is no API available to change the `admin` password. If you're deploying through Docker, you can use the following code snippet to change the password after starting the Docker container:
+Currently, there is no API available to change the `admin` password at deployment time. If you're deploying through Docker, you can use the following code snippet to change the password right after starting the Docker container:
 
 ```sh
 PMM_PASSWORD="mypassword"
 echo "Waiting for PMM to initialize to set password..."
 until [ "`docker inspect -f {% raw %}{{.State.Health.Status}}{% endraw %} pmm-server`" = "healthy" ]; do sleep 1; done
-docker exec -t pmm-server bash -c  "grafana-cli --homepath /usr/share/grafana admin reset-admin-password $PMM_PASSWORD"
+docker exec -t pmm-server bash -c  "grafana cli --homepath /usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password $PMM_PASSWORD"
 ```
 
 (This example assumes your Docker container is named `pmm-server`.)
 
-## How to change the PMM password for a default admin user?
+## How to change the PMM password for the default admin user?
 
-If you're deploying through Docker, you can change the default password for an admin user after starting the Docker container:
+If you're deploying through Docker, you can change the default password for the admin user after starting the Docker container using either the above method or the following helper script:
 
     ```sh
     docker exec -t pmm-server change-admin-password your_secure_password123
