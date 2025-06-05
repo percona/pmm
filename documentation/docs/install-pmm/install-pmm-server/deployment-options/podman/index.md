@@ -155,7 +155,6 @@ Watchtower then stops the existing container, and systemd automatically restarts
         ```
 
     7. Go to `https://localhost:443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
-
 === "Installation with manual updates"
 The installation with manual updates offers a straightforward setup with direct control over updates, without relying on additional services. 
 
