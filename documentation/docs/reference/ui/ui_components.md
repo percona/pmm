@@ -1,8 +1,8 @@
 # UI components
 
-Percona Monitoring and Management (PMM) provides a web-based user interface (UI), built on [Grafana](https://grafana.com/docs/grafana/latest/), for monitoring and managing your database environments.
+This section explains how to access the interface, navigate the layout, and use the various controls within PMM.
 
-Here's how the UI is laid out, and what the controls do: 
+Here's how the UI is laid out, and what the controls do:
 
 ![PMM Interface with numbered components](../../images/PMM_Home_Dashboard_Numbered.png)
 
@@ -23,8 +23,8 @@ You'll find these options in the left-side menu:
 | <i class="uil uil-star"></i> | Starred | Mark important dashboards as favorites. Starred dashboards can be set as your home page and are visible to all users, helping teams identify important monitoring views. |
 | <i class="uil uil-apps"></i> | Dashboards | Create and organize dashboards, create [folders](../../use/dashboards-panels/manage-dashboards/create-folders.md), import dashboards, create playlists, and manage snapshots. |
 | <i class="uil uil-desktop"></i> | Operating System (OS) | Monitor server-level metrics including CPU, memory, disk, and network performance. |
-| <i class="uil uil-database"></i> | MySQL | View specialized dashboards for MySQL database performance monitoring. |
-| <i class="uil uil-database"></i> | PostgreSQL | Access PostgreSQL-specific monitoring dashboards and metrics. |
+| :simple-mysql:                  | MySQL | View specialized dashboards for MySQL database performance monitoring. |
+| :simple-postgresql:             | PostgreSQL | Access PostgreSQL-specific monitoring dashboards and metrics. |
 | <i class="uil uil-chart"></i> | Query Analytics (QAN) | Analyze database queries over time, identify slow queries, optimize performance, and troubleshoot issues. |
 | <i class="uil uil-compass"></i> | Explore | Run ad-hoc queries with [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) to investigate specific metrics without creating dashboards. |
 | <i class="uil uil-screw"></i> | Drilldown | Run detailed analysis with specialized views for database metrics. This enables you to dive deeper into specific metrics by clicking through related data points and exploring underlying patterns. Learn more about drilling down into metrics in the [Grafana documentation](https://grafana.com/docs/grafana/latest/explore/simplified-exploration/metrics/drill-down-metrics/). |
