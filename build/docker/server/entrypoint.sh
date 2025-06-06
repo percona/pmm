@@ -20,6 +20,60 @@ if [ ! -w /srv ]; then
     exit 1
 fi
 
+if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "1000" ]; then
+    echo "Running as UID:GID $CURRENT_UID:$CURRENT_GID, setting up for arbitrary UID..."
+
+    # Try NSS wrapper first if available
+    NSS_WRAPPER_LIB=""
+    for lib_path in "/usr/lib64/libnss_wrapper.so" "/usr/lib/x86_64-linux-gnu/libnss_wrapper.so" "/usr/lib/libnss_wrapper.so"; do
+        if [ -f "$lib_path" ]; then
+            NSS_WRAPPER_LIB="$lib_path"
+            break
+        fi
+    done
+    
+    if [ -n "$NSS_WRAPPER_LIB" ]; then
+        echo "Setting up NSS wrapper..."
+        # Set up NSS wrapper for arbitrary UID support
+        export NSS_WRAPPER_PASSWD=$(mktemp)
+        export NSS_WRAPPER_GROUP=$(mktemp)
+        
+        # Copy existing passwd and group entries
+        cat /etc/passwd > $NSS_WRAPPER_PASSWD
+        cat /etc/group > $NSS_WRAPPER_GROUP
+        
+        # Add current user if not exists
+        if ! getent passwd $CURRENT_UID > /dev/null 2>&1; then
+            echo "pmm:x:${CURRENT_UID}:${CURRENT_GID}:PMM User:/srv:/bin/bash" >> $NSS_WRAPPER_PASSWD
+        fi
+        
+        # Add current group if not exists  
+        if ! getent group $CURRENT_GID > /dev/null 2>&1; then
+            echo "pmm:x:${CURRENT_GID}:" >> $NSS_WRAPPER_GROUP
+        fi
+        
+        export LD_PRELOAD="${NSS_WRAPPER_LIB}:${LD_PRELOAD:-}"
+        echo "NSS wrapper enabled with $NSS_WRAPPER_LIB"
+    else
+        echo "NSS wrapper not available, using fallback approach..."
+        # Fallback: just ensure the UID can access necessary directories
+        # Most applications don't actually need user resolution to work
+    fi
+    
+    # Fix ownership of PostgreSQL directories if needed
+    if [ -d "/srv/postgres14" ]; then
+        chown -R "$CURRENT_UID:$CURRENT_GID" /srv/postgres14 2>/dev/null || true
+    fi
+    if [ -d "/run/postgresql" ]; then
+        chown -R "$CURRENT_UID:$CURRENT_GID" /run/postgresql 2>/dev/null || true
+    fi
+
+    # Fix permissions
+    if [ -d "/srv/postgres14" ]; then
+        chmod 700 /srv/postgres14 2>/dev/null || true
+    fi
+fi
+
 # Initialize /srv if empty
 DIST_FILE=/srv/pmm-distribution
 if [ ! -f $DIST_FILE ]; then

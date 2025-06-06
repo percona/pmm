@@ -31,6 +31,7 @@
       - python3-pip
       - rsync
       - iproute
+      - nss_wrapper
     state: latest
 
 - name: Create groups
@@ -62,7 +63,7 @@
     state: directory
     owner: pmm
     group: pmm
-    mode: 0775
+    mode: 0777
   loop:
     - /srv # otherwise it's owned by root
     - /srv/prometheus/rules
