@@ -502,7 +502,6 @@ command =
 		--http.pathPrefix=/prometheus
 		--envflag.enable
 		--envflag.prefix=VM_
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -530,7 +529,6 @@ command =
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}
 {{- end }}
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -552,7 +550,6 @@ command =
       --listen-port=8430
       --listen-address={{ .InterfaceToBind }}
       --header-name=X-Proxy-Filter
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -578,7 +575,6 @@ environment =
 	PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
 
 
-user = pmm
 autorestart = true
 autostart = true
 startretries = 1000
@@ -634,7 +630,6 @@ environment =
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_PEERS="{{ .HANodes }}"
     {{- end}}
-user = pmm
 directory = /usr/share/grafana
 autorestart = true
 autostart = true
@@ -652,7 +647,6 @@ redirect_stderr = true
 [program:nomad-server]
 priority = 5
 command = /usr/local/percona/pmm/tools/nomad agent -config /srv/nomad/nomad-server-{{ .PMMServerHost }}.hcl
-user = pmm
 autorestart = {{ .NomadEnabled }}
 autostart = {{ .NomadEnabled }}
 startretries = 10
