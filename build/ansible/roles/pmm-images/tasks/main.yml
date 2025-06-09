@@ -57,7 +57,7 @@
     - { name: nginx, uid: 1001, comment: "Nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
     - { name: clickhouse, uid: 1002, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/dev/null", group: clickhouse, }
 
-- name: Create directories (mask 022)
+- name: Create directories with permissive mode for OpenShift compatibility
   file: 
     path: "{{ item }}"
     state: directory

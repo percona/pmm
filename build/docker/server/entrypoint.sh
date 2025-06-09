@@ -44,12 +44,12 @@ if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "1000" ]; then
         
         # Add current user if not exists
         if ! getent passwd $CURRENT_UID > /dev/null 2>&1; then
-            echo "pmm:x:${CURRENT_UID}:${CURRENT_GID}:PMM User:/srv:/bin/bash" >> $NSS_WRAPPER_PASSWD
+            echo "${CURRENT_USER}:x:${CURRENT_UID}:${CURRENT_GID}:PMM User:/srv:/bin/bash" >> $NSS_WRAPPER_PASSWD
         fi
         
         # Add current group if not exists  
         if ! getent group $CURRENT_GID > /dev/null 2>&1; then
-            echo "pmm:x:${CURRENT_GID}:" >> $NSS_WRAPPER_GROUP
+            echo "${CURRENT_USER}:x:${CURRENT_GID}:" >> $NSS_WRAPPER_GROUP
         fi
         
         export LD_PRELOAD="${NSS_WRAPPER_LIB}:${LD_PRELOAD:-}"
@@ -111,7 +111,7 @@ if [ ! -f $DIST_FILE ]; then
     echo "unix_socket_directories = '/usr/share/pmm-server/postgresql'" >> /srv/postgres14/postgresql.conf
     
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
-    /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o '-c logging_collector=off'
+    /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
     /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
     /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
 fi

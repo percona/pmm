@@ -34,7 +34,7 @@
     force: yes
     group: pmm
     owner: pmm
-    mode: 0666
+    mode: 0644  # Read-only for others, or 0664 if group write is needed
 
 - name: Create Postgres data dir
   file:
