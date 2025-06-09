@@ -157,13 +157,13 @@ docker run -d --name pmm-server \
 
 Once PMM has started, you can use either of the following to change the password  (assuming your container is named `pmm-server`):
 
-A helper script `change-admin-password`:
+- a helper script `change-admin-password`:
 
 ```sh
 docker exec -t pmm-server change-admin-password your_secure_password
 ```
 
-or a code snippet:
+- or a code snippet:
 
 ```sh
 PMM_PASSWORD="mypassword"
@@ -181,7 +181,6 @@ If you configure the PMM agent to use a non-default listen-port, for pmm-admin t
 ```
 
 Example: To use the listen-port 8000
-
 
 ```sh
 pmm-admin --pmm-agent-listen-port=8000 add postgresql --username=pmm-agent --password=pmm-agent-password --query-source=pgstatmonitor nameofpostgres
@@ -210,4 +209,4 @@ If you are trying to log into PMM via a third-party authentication provider whic
   - set the `oauth_allow_insecure_email_lookup` config key in the auth section of the `grafana.ini` file. Keep in mind that any changes you make to this file are lost when upgrading PMM, so make sure to manually update this file after each upgrade.
 
 !!! caution alert alert-warning "Important"
-We do not recommend using the above workaround for an extended period. Instead, ensure user uniqueness across multiple identity providers, while also encouraging your identity provider to support a unique ID field, or choose a provider who does.
+    We do not recommend using the above workaround for an extended period. Instead, ensure user uniqueness across multiple identity providers, while also encouraging your identity provider to support a unique ID field, or choose a provider who does.
