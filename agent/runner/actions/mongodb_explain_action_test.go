@@ -294,8 +294,9 @@ func TestMongoDBExplain(t *testing.T) {
 			want["maxIndexedAndSolutionsReached"] = false
 			want["maxIndexedOrSolutionsReached"] = false
 			want["maxScansToExplodeReached"] = false
-		case mongoDBVersion.Major == 7:
-			want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
+			if mongoDBVersion.Major == 7 {
+				want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
+			}
 		case mongoDBVersion.Major == 8:
 			want["maxIndexedAndSolutionsReached"] = false
 			want["maxIndexedOrSolutionsReached"] = false
