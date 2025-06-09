@@ -107,6 +107,9 @@ if [ ! -f $DIST_FILE ]; then
     echo "Initializing Postgres..."
     /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust --username=postgres
     
+    echo "Configuring PostgreSQL socket directory..."
+    echo "unix_socket_directories = '/usr/share/pmm-server/postgresql'" >> /srv/postgres14/postgresql.conf
+    
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
     /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o '-c logging_collector=off'
     /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'

@@ -50,6 +50,16 @@
   become_user: pmm
   become_method: su
 
+- name: Configure PostgreSQL socket directory in postgresql.conf
+  lineinfile:
+    path: /srv/postgres14/postgresql.conf
+    regexp: '^#?unix_socket_directories\s*='
+    line: "unix_socket_directories = '/usr/share/pmm-server/postgresql'"
+    create: yes
+    owner: pmm
+    group: pmm
+    mode: 0600
+
 - name: Start Postgres database without supervisor
   command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
   become: true
