@@ -168,7 +168,7 @@ docker exec -t pmm-server change-admin-password your_secure_password
 ```sh
 PMM_PASSWORD="mypassword"
 echo "Waiting for PMM to initialize to set password..."
-until [ "`docker inspect -f '{{.State.Health.Status}}' pmm-server`" = "healthy" ]; do sleep 1; done
+until [ "`docker inspect -f {{.State.Health.Status}} pmm-server`" = "healthy" ]; do sleep 1; done
 docker exec -t pmm-server bash -c  "grafana cli --homepath /usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password $PMM_PASSWORD"
 ```
 
