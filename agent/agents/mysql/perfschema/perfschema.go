@@ -346,7 +346,6 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 
 				if !m.disableQueryExamples {
 					example, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength, truncate.GetDefaultMaxQueryLength())
-					fmt.Println(example)
 					if truncated {
 						b.Common.IsTruncated = truncated
 					}
