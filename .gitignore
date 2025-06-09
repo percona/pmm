@@ -1,9 +1,9 @@
 .idea/
 .vscode/
-*.sw[o,p]
 
 # System Files
 .DS_Store
+*.sw[o,p]
 
 # development
 .modules

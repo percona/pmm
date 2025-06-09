@@ -29,8 +29,8 @@ def install_packages():
             mc psmisc procps lsof which iproute diffutils \
             man man-pages \
             openssl-devel \
-            wget \
-            krb5-devel",
+            krb5-devel \
+            wget",
         
         "dnf install -y ansible-lint glibc-static --enablerepo=ol9_codeready_builder"
 
@@ -87,7 +87,7 @@ def setup():
 def main():
     install_packages()
     install_go()
-    make_init()
+    # make_init()
 
     # do basic setup
     setup()
