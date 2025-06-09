@@ -26,11 +26,13 @@
         name: pmm-managed
         force: true
         state: absent
+        login_unix_socket: /usr/share/pmm-server/postgresql
 
     - name: Remove pmm-managed role from PostgreSQL database
       postgresql_user:
         name: pmm-managed
         state: absent
+        login_unix_socket: /usr/share/pmm-server/postgresql
 
     - name: Stop supervisord service
       command: supervisorctl shutdown
