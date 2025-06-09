@@ -144,7 +144,26 @@ PMM protects an exporter's output from unauthorized access by adding an authoriz
 
 ## How to provision PMM Server with non-default admin password?
 
-Currently, there is no API available to change the `admin` password at deployment time. If you're deploying through Docker, you can use the following code snippet to change the password right after starting the Docker container:
+Currently, there is no API available to change the `admin` password at deployment time. However, you can use the `GF_SECURITY_ADMIN_PASSWORD` environment variable to set the password for the default `admin` user.
+
+```sh
+docker run -d --name pmm-server \
+  -e GF_SECURITY_ADMIN_PASSWORD="your_secure_password" \
+  -p 443:8443 \
+  percona/pmm-server:latest
+```
+
+## How to change the PMM password for the default admin user?
+
+Once PMM has started, you can use either of the following to change the password  (assuming your container is named `pmm-server`):
+
+A helper script:
+
+```sh
+docker exec -t pmm-server change-admin-password your_secure_password
+```
+
+or a code snippet:
 
 ```sh
 PMM_PASSWORD="mypassword"
@@ -152,16 +171,6 @@ echo "Waiting for PMM to initialize to set password..."
 until [ "`docker inspect -f {% raw %}{{.State.Health.Status}}{% endraw %} pmm-server`" = "healthy" ]; do sleep 1; done
 docker exec -t pmm-server bash -c  "grafana cli --homepath /usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password $PMM_PASSWORD"
 ```
-
-(This example assumes your Docker container is named `pmm-server`.)
-
-## How to change the PMM password for the default admin user?
-
-If you're deploying through Docker, you can change the default password for the admin user after starting the Docker container using either the above method or the following helper script:
-
-    ```sh
-    docker exec -t pmm-server change-admin-password your_secure_password123
-    ```
 
 ## How to use a non-default listen-port for pmm-admin?
 
@@ -177,6 +186,7 @@ Example: To use the listen-port 8000
 ```sh
 pmm-admin --pmm-agent-listen-port=8000 add postgresql --username=pmm-agent --password=pmm-agent-password --query-source=pgstatmonitor nameofpostgres
 ```
+
 If you are using OVF/AMI, you can change the default password through SSH by using the following command:
 
 ```sh
