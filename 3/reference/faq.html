@@ -8743,9 +8743,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-change-the-pmm-password-for-a-default-admin-user" class="md-nav__link">
+  <a href="#how-to-change-the-pmm-password-for-the-default-admin-user" class="md-nav__link">
     <span class="md-ellipsis">
-      How to change the PMM password for a default admin user?
+      How to change the PMM password for the default admin user?
     </span>
   </a>
   
@@ -9017,9 +9017,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-to-change-the-pmm-password-for-a-default-admin-user" class="md-nav__link">
+  <a href="#how-to-change-the-pmm-password-for-the-default-admin-user" class="md-nav__link">
     <span class="md-ellipsis">
-      How to change the PMM password for a default admin user?
+      How to change the PMM password for the default admin user?
     </span>
   </a>
   
@@ -9241,27 +9241,35 @@ pmm-admin<span class="w"> </span>add<span class="w"> </span>mysql<span class="w"
 <p><a href="../use/commands/pmm-admin.html#information-commands"><code>pmm-admin list</code></a></p>
 </div>
 <h2 id="how-to-provision-pmm-server-with-non-default-admin-password">How to provision PMM Server with non-default admin password?<a class="headerlink" href="#how-to-provision-pmm-server-with-non-default-admin-password" title="Permanent link">&para;</a></h2>
-<p>Currently, there is no API available to change the <code>admin</code> password. If you&rsquo;re deploying through Docker, you can use the following code snippet to change the password after starting the Docker container:</p>
+<p>Currently, there is no API available to change the <code>admin</code> password at deployment time. However, you can use the <code>GF_SECURITY_ADMIN_PASSWORD</code> environment variable to set the password for the default <code>admin</code> user.</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>--name<span class="w"> </span>pmm-server<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">GF_SECURITY_ADMIN_PASSWORD</span><span class="o">=</span><span class="s2">&quot;your_secure_password&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span><span class="m">443</span>:8443<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>percona/pmm-server:latest
+</code></pre></div>
+<h2 id="how-to-change-the-pmm-password-for-the-default-admin-user">How to change the PMM password for the default admin user?<a class="headerlink" href="#how-to-change-the-pmm-password-for-the-default-admin-user" title="Permanent link">&para;</a></h2>
+<p>Once PMM has started, you can use either of the following to change the password  (assuming your container is named <code>pmm-server</code>):</p>
+<ul>
+<li>a helper script <code>change-admin-password</code>:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-server<span class="w"> </span>change-admin-password<span class="w"> </span>your_secure_password
+</code></pre></div>
+<ul>
+<li>or a code snippet:</li>
+</ul>
 <div class="highlight"><pre><span></span><code><span class="nv">PMM_PASSWORD</span><span class="o">=</span><span class="s2">&quot;mypassword&quot;</span>
 <span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Waiting for PMM to initialize to set password...&quot;</span>
-<span class="k">until</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;`docker inspect -f {{.State.Health.Status}} pmm-server`&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;healthy&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>sleep<span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-server<span class="w"> </span>bash<span class="w"> </span>-c<span class="w">  </span><span class="s2">&quot;grafana-cli --homepath /usr/share/grafana admin reset-admin-password </span><span class="nv">$PMM_PASSWORD</span><span class="s2">&quot;</span>
-</code></pre></div>
-<p>(This example assumes your Docker container is named <code>pmm-server</code>.)</p>
-<h2 id="how-to-change-the-pmm-password-for-a-default-admin-user">How to change the PMM password for a default admin user?<a class="headerlink" href="#how-to-change-the-pmm-password-for-a-default-admin-user" title="Permanent link">&para;</a></h2>
-<p>If you&rsquo;re deploying through Docker, you can change the default password for an admin user after starting the Docker container:</p>
-<div class="highlight"><pre><span></span><code>```sh
-docker exec -t pmm-server change-admin-password your_secure_password123
-```
+<span class="k">until</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="k">$(</span>docker<span class="w"> </span>inspect<span class="w"> </span>-f<span class="w"> </span><span class="s1">&#39;{{.State.Health.Status}}&#39;</span><span class="w"> </span>pmm-server<span class="k">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;healthy&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>sleep<span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-server<span class="w"> </span>bash<span class="w"> </span>-c<span class="w">  </span><span class="s2">&quot;grafana cli --homepath /usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password </span><span class="nv">$PMM_PASSWORD</span><span class="s2">&quot;</span>
 </code></pre></div>
 <h2 id="how-to-use-a-non-default-listen-port-for-pmm-admin">How to use a non-default listen-port for pmm-admin?<a class="headerlink" href="#how-to-use-a-non-default-listen-port-for-pmm-admin" title="Permanent link">&para;</a></h2>
 <p>If you configure the PMM agent to use a non-default listen-port, for pmm-admin to communicate with the agent, use the global flag <code>--pmm-agent-listen-port=LISTEN_PORT</code>.</p>
 <div class="highlight"><pre><span></span><code>--pmm-agent-listen-port<span class="o">=</span>LISTEN_PORT
 </code></pre></div>
 <p>Example: To use the listen-port 8000</p>
-<p><div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>--pmm-agent-listen-port<span class="o">=</span><span class="m">8000</span><span class="w"> </span>add<span class="w"> </span>postgresql<span class="w"> </span>--username<span class="o">=</span>pmm-agent<span class="w"> </span>--password<span class="o">=</span>pmm-agent-password<span class="w"> </span>--query-source<span class="o">=</span>pgstatmonitor<span class="w"> </span>nameofpostgres
+<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>--pmm-agent-listen-port<span class="o">=</span><span class="m">8000</span><span class="w"> </span>add<span class="w"> </span>postgresql<span class="w"> </span>--username<span class="o">=</span>pmm-agent<span class="w"> </span>--password<span class="o">=</span>pmm-agent-password<span class="w"> </span>--query-source<span class="o">=</span>pgstatmonitor<span class="w"> </span>nameofpostgres
 </code></pre></div>
-If you are using OVF/AMI, you can change the default password through SSH by using the following command:</p>
+<p>If you are using OVF/AMI, you can change the default password through SSH by using the following command:</p>
 <div class="highlight"><pre><span></span><code>change-admin-password<span class="w"> </span>&lt;new_password&gt;
 </code></pre></div>
 <h2 id="how-does-pmm-handle-personal-and-confidential-data">How does PMM handle personal and confidential data?<a class="headerlink" href="#how-does-pmm-handle-personal-and-confidential-data" title="Permanent link">&para;</a></h2>
@@ -9277,8 +9285,8 @@ If you are using OVF/AMI, you can change the default password through SSH by usi
 </ul>
 <div class="admonition caution alert alert-warning">
 <p class="admonition-title">Important</p>
-</div>
 <p>We do not recommend using the above workaround for an extended period. Instead, ensure user uniqueness across multiple identity providers, while also encouraging your identity provider to support a unique ID field, or choose a provider who does.</p>
+</div>
 
 
 
@@ -9299,7 +9307,7 @@ If you are using OVF/AMI, you can change the default password through SSH by usi
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-05-29
+    2025-06-09
   </span>
 
     
