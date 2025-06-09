@@ -5,8 +5,15 @@
     state: directory
     owner: pmm
     group: pmm
+    mode: 0777
   loop:
     - /usr/share/pmm-server/static/
+    - /usr/share/pmm-server/nginx/
+    - /usr/share/pmm-server/nginx/client_temp/
+    - /usr/share/pmm-server/nginx/proxy_temp/
+    - /usr/share/pmm-server/nginx/fastcgi_temp/
+    - /usr/share/pmm-server/nginx/uwsgi_temp/
+    - /usr/share/pmm-server/nginx/scgi_temp/
     - /etc/nginx/conf.d/
     - /etc/nginx/ssl/
 
@@ -69,8 +76,6 @@
     owner: pmm
     recurse: yes
   loop:
-    - /var/lib/nginx
-    - /var/log/nginx
     - /etc/nginx
     - /srv/nginx
 
@@ -81,7 +86,7 @@
     group: pmm
     owner: pmm
   loop:
-    - /run/nginx.pid
+    - /usr/share/pmm-server/nginx.pid
     - /srv/logs/nginx.log
 
 - name: Check nginx configuration

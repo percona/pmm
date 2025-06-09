@@ -114,6 +114,7 @@ command =
         -c pg_stat_statements.track=all
         -c pg_stat_statements.save=off
         -c logging_collector=off
+        -c unix_socket_directories='/usr/share/pmm-server/postgresql'
 autorestart = true
 autostart = true
 startretries = 10
@@ -179,7 +180,7 @@ redirect_stderr = true
 
 [program:pmm-agent]
 priority = 15
-command = /usr/sbin/pmm-agent --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml --paths-nomad-data-dir=/srv/nomad/data
+command = /usr/sbin/pmm-agent --config-file=/usr/share/pmm-server/pmm-agent.yaml --paths-tempdir=/srv/pmm-agent/tmp --paths-nomad-data-dir=/srv/nomad/data
 autorestart = true
 autostart = false
 startretries = 1000

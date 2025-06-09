@@ -56,22 +56,39 @@ if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "1000" ]; then
         echo "NSS wrapper enabled with $NSS_WRAPPER_LIB"
     else
         echo "NSS wrapper not available, using fallback approach..."
-        # Fallback: just ensure the UID can access necessary directories
-        # Most applications don't actually need user resolution to work
     fi
-    
-    # Fix ownership of PostgreSQL directories if needed
-    if [ -d "/srv/postgres14" ]; then
-        chown -R "$CURRENT_UID:$CURRENT_GID" /srv/postgres14 2>/dev/null || true
-    fi
-    if [ -d "/run/postgresql" ]; then
-        chown -R "$CURRENT_UID:$CURRENT_GID" /run/postgresql 2>/dev/null || true
-    fi
+fi
 
-    # Fix permissions
-    if [ -d "/srv/postgres14" ]; then
-        chmod 700 /srv/postgres14 2>/dev/null || true
-    fi
+# Check and create /usr/share/pmm-server directories on every start
+echo "Checking /usr/share/pmm-server directory..."
+if [ -z "$(ls -A /usr/share/pmm-server 2>/dev/null)" ]; then
+    echo "Creating PMM server directories (directory is empty)..."
+    echo "Creating PostgreSQL socket directory..."
+    mkdir -p /usr/share/pmm-server/postgresql
+    echo "Creating nginx temp directories..."
+    mkdir -p /usr/share/pmm-server/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp}
+    
+    echo "Setting up pmm-agent configuration..."
+    # Create pmm-agent temp directory with proper permissions
+    mkdir -p /srv/pmm-agent/tmp
+    chmod 777 /srv/pmm-agent/tmp
+    
+    # Set up pmm-agent configuration file in /usr/share/pmm-server/
+    pmm-agent setup \
+        --config-file=/usr/share/pmm-server/pmm-agent.yaml \
+        --skip-registration \
+        --id=pmm-server \
+        --server-address=127.0.0.1:8443 \
+        --server-insecure-tls \
+        --paths-tempdir=/srv/pmm-agent/tmp
+    
+    # Make pmm-agent.yaml readable by any user for OpenShift compatibility
+    chmod 660 /usr/share/pmm-server/pmm-agent.yaml
+else
+    echo "PMM server directory is not empty, skipping directory creation..."
+    # Still ensure critical directories exist, but don't create empty ones
+    [ ! -d "/usr/share/pmm-server/postgresql" ] && mkdir -p /usr/share/pmm-server/postgresql
+    [ ! -d "/usr/share/pmm-server/nginx" ] && mkdir -p /usr/share/pmm-server/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp}
 fi
 
 # Initialize /srv if empty

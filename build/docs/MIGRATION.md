@@ -55,8 +55,8 @@ The following sections describe the migration steps for individual components. T
 
 2. Backup the databases
 ```
-  /usr/pgsql-14/bin/pg_dump --host=/run/postgresql --username=postgres --file=/srv/backup/grafana.sql --dbname grafana
-  /usr/pgsql-14/bin/pg_dump --host=/run/postgresql --username=postgres --file=/srv/backup/pmm-managed.sql --dbname pmm-managed
+  /usr/pgsql-14/bin/pg_dump --host=/usr/share/pmm-server/postgresql --username=postgres --file=/srv/backup/grafana.sql --dbname grafana
+  /usr/pgsql-14/bin/pg_dump --host=/usr/share/pmm-server/postgresql --username=postgres --file=/srv/backup/pmm-managed.sql --dbname pmm-managed
 ```
 
 3. Move the database directory to /srv/backup/posgres14
@@ -66,7 +66,7 @@ The following sections describe the migration steps for individual components. T
 
 4. Recreate the following files or directories setting the ownership to `pmm` user:
     - /srv/postgres14 (0700)
-    - /run/postgresql (0755)
+    - /usr/share/pmm-server/postgresql (0755)
     - /srv/logs/postgresql14.log (0744)
 
 5. Start a v3 instance
@@ -80,8 +80,8 @@ Remember to pass the data volume to the instance so it can bootstrap the databas
 
 7. Restore the databases from the backup
 ```
-  /usr/pgsql-14/bin/pg_restore --host=/run/postgresql --username=postgres --file=/srv/backup/postgres.sql -S postgres
-  /usr/pgsql-14/bin/pg_restore --host=/run/postgresql --username=postgres --file=/srv/backup/grafana.sql -S postgres
+  /usr/pgsql-14/bin/pg_restore --host=/usr/share/pmm-server/postgresql --username=postgres --file=/srv/backup/postgres.sql -S postgres
+  /usr/pgsql-14/bin/pg_restore --host=/usr/share/pmm-server/postgresql --username=postgres --file=/srv/backup/grafana.sql -S postgres
 ```
 
 8. Start the following processes:

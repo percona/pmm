@@ -18,14 +18,7 @@
         owner: pmm
         group: pmm
 
-    - name: Set up pmm-agent
-      command: >
-        pmm-agent setup
-        --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml
-        --skip-registration
-        --id=pmm-server
-        --server-address=127.0.0.1:8443
-        --server-insecure-tls
+
 
     - name: Remove pmm-managed database from PostgreSQL
       postgresql_db:
@@ -48,6 +41,20 @@
     - name: Cleanup dnf cache
       command: dnf clean all
 
+    - name: Remove all files from supervisord.d directory
+      find:
+        paths: /etc/supervisord.d
+        patterns: "*"
+        file_type: file
+      register: supervisord_files
+
+    - name: Delete supervisord.d files
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ supervisord_files.files }}"
+      when: supervisord_files.files is defined
+
     - name: Cleanup build logs, data and package cache
       file:
         path: "{{ item }}"
@@ -58,11 +65,11 @@
         - /var/log/secure
         - /var/log/wtmp
         - /var/log/clickhouse-server
-        - /var/log/nginx
         - /var/lib/pgsql
         - /var/cache/dnf
         - /var/cache/yum
         - /srv/pmm-encryption.key
+        - /srv/pmm-agent/tmp
 
     - name: Remove users created by installers
       user:
@@ -101,11 +108,4 @@
         group: pmm
         mode: 0775
 
-    # nginx needs to be able to write to /var/lib/nginx, but it's owned by root.
-    - name: Change ownership of nginx dirs
-      file:
-        path: /var/lib/nginx
-        state: directory
-        group: pmm
-        owner: pmm
-        recurse: yes
+

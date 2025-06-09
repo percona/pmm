@@ -70,6 +70,15 @@
     - /etc/grafana
     - /srv/clickhouse
 
+- name: Create pmm-server directory with write access for any user
+  file:
+    path: /usr/share/pmm-server
+    state: directory
+    owner: pmm
+    group: pmm
+    mode: 0777
+    recurse: yes
+
 # Note a special mode required mainly by nginx
 - name: Create a directory for logs
   file:
