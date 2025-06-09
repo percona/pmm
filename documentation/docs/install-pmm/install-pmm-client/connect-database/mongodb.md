@@ -1,4 +1,4 @@
-# Connect MongoDB instance
+# Connect MongoDB databases to PMM
 
 Connect a MongoDB instance to PMM to monitor a [MongoDB] or [Percona Server for MongoDB] database server.
 
@@ -232,36 +232,14 @@ After configuring your database server, add a MongoDB service using either the u
         --authentication-database=$external      # For X.509 authentication
         ```
 
-    === "GSSAPI/Kerberos authentication"
-
-        ```sh
-        pmm-admin add mongodb \
-        --username=your_kerberos_principal \
-        --authentication-mechanism=GSSAPI \
-        --authentication-database=$external \
-        --gssapi-service-name=mongodb \  # Default is "mongodb"
-        --gssapi-host-name=your.mongodb.server.com \
-        --gssapi-service-realm=YOUR.REALM  # Optional: your Kerberos realm
-        ```
-
-        To use GSSAPI (Kerberos) authentication:
-    
-        - Ensure you have a valid Kerberos ticket before running the `pmm-admin add mongodb` command (using `kinit`)
-        - The PMM Client must be installed on a system configured for Kerberos authentication
-        - Appropriate Kerberos libraries must be installed on the system where PMM Client runs
-        - The MongoDB server must be configured to use GSSAPI authentication
-
-        For detailed setup instructions, see the [MongoDB Kerberos documentation](https://www.mongodb.com/docs/manual/tutorial/control-access-to-mongodb-with-kerberos-authentication/) and [Percona Server for MongoDB documentation](https://docs.percona.com/percona-server-for-mongodb/8.0/).
-
     When successful, PMM Client will print `MongoDB Service added` with the service's ID and name. Use the `--environment` and `--custom-labels` options to set tags for the service to help identify them.
 
     !!! hint alert alert-success "Tips"
         - When adding nodes to a sharded cluster, ensure to add each node separately using the `--cluster mycluster` option. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard to populate correctly. 
         - You can also use the `--replication-set` option to specify a replication set. For instance, you can use `--replication-set config` for your config servers; `--replication-set rs1` for your servers in the first replica set, `--replication-set rs2` for your servers in the second replica set, and so on.
         - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
-        
 
-=== "Via UI"
+=== "Via web UI"
 
     To add a service with the UI:
     {.power-number}
@@ -282,14 +260,14 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
 
 1. Check service registration:
 
-    === "Via CLI"
+    === "Via command line"
         Look for your service in the output of this command:
 
         ```sh
         pmm-admin list
         ```
 
-    === "Via UI"
+    === "Via web UI"
         To check the service from the UI:
 
         - Select **PMM Configuration > Inventory > Services**. 
@@ -312,14 +290,14 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
 
 If you need to remove MongoDB service from PMM, follow these steps:
 
-=== "Via CLI"
+=== "Via command line"
     Replace `SERVICE_NAME` with the name you used when adding the service. You can list all services with `pmm-admin`:
 
     ```sh
     pmm-admin remove mongodb SERVICE_NAME
     ```
 
-=== "Via UI"
+=== "Via web UI"
     To remove the services through the PMM interface:
     {.power-number}
 
