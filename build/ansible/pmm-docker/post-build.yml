@@ -106,4 +106,28 @@
         group: pmm
         mode: 0775
 
+    - name: Set ownership for Grafana plugins directory
+      file:
+        path: /srv/grafana/plugins
+        owner: pmm
+        group: pmm
+        recurse: yes
+        state: directory
+        mode: 0775
+
+    - name: Set ownership for backup directory
+      file:
+        path: /srv/backup
+        owner: pmm
+        group: pmm
+        state: directory
+        mode: 0775
+
+    - name: Set ownership for Grafana dashboards version file
+      file:
+        path: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+        owner: pmm
+        group: pmm
+        state: file
+
 

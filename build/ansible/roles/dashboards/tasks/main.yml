@@ -21,8 +21,6 @@
   file:
     path: /srv/grafana/plugins
     state: directory
-    owner: pmm
-    group: pmm
     mode: 0775
     recurse: yes
 
@@ -30,8 +28,6 @@
   copy:
     src: /usr/share/percona-dashboards/VERSION
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
-    owner: pmm
-    group: pmm
     mode: 0644
     remote_src: yes
 
