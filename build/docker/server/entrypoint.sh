@@ -105,6 +105,7 @@ if [ ! -f $DIST_FILE ]; then
     bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
     
     echo "Initializing Postgres..."
+    chmod 700 /srv/postgres14
     /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust --username=postgres
     
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
