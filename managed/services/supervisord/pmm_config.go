@@ -88,7 +88,7 @@ username = dummy
 password = dummy
 
 [program:pmm-init]
-command = /usr/bin/ansible-playbook /opt/ansible/pmm-docker/init.yml
+command = /usr/bin/ansible-playbook --config /opt/ansible/ansible.cfg /opt/ansible/pmm-docker/init.yml
 directory = /
 autorestart = unexpected
 priority=-1

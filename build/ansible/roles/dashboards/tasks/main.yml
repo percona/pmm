@@ -37,9 +37,6 @@
 
 - name: Restart Grafana service with new plugins 
   shell: "supervisorctl {{ item }} grafana"
-  become: true
-  become_user: pmm
-  become_method: su
   loop:
     - stop
     - remove
