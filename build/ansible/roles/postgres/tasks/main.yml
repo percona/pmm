@@ -21,7 +21,7 @@
 
 - name: Create a socket directory for Postgres
   file:
-    path: /usr/share/pmm-server/postgresql
+    path: /run/postgresql
     state: directory
     owner: pmm
     group: pmm
@@ -50,16 +50,6 @@
   become_user: pmm
   become_method: su
 
-- name: Configure PostgreSQL socket directory in postgresql.conf
-  lineinfile:
-    path: /srv/postgres14/postgresql.conf
-    regexp: '^#?unix_socket_directories\s*='
-    line: "unix_socket_directories = '/usr/share/pmm-server/postgresql'"
-    create: yes
-    owner: pmm
-    group: pmm
-    mode: 0600
-
 - name: Start Postgres database without supervisor
   command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
   become: true
@@ -67,16 +57,15 @@
   become_method: su
 
 - name: Create postgres user
-  shell: /usr/pgsql-14/bin/createuser --echo --superuser --host=/usr/share/pmm-server/postgresql --no-password postgres
+  shell: /usr/pgsql-14/bin/createuser --echo --superuser --no-password postgres
   become: true
   become_user: pmm
-  become_method: su      
+  become_method: su
 
 - name: Create pmm-managed database
   postgresql_db:
     name: pmm-managed
     state: present
-    login_unix_socket: /usr/share/pmm-server/postgresql
 
 - name: Create pmm-managed user
   postgresql_user:
@@ -86,20 +75,17 @@
     priv: "ALL"
     expires: infinity
     state: present
-    login_unix_socket: /usr/share/pmm-server/postgresql
 
 - name: Create pg_stat_statements extension
   postgresql_ext:
     db: postgres
     name: pg_stat_statements
     schema: public
-    login_unix_socket: /usr/share/pmm-server/postgresql
 
 - name: Create grafana database in postgres
   postgresql_db:
     name: grafana
     state: present
-    login_unix_socket: /usr/share/pmm-server/postgresql
 
 - name: Create grafana user in postgres
   postgresql_user:
@@ -109,7 +95,6 @@
     priv: 'ALL'
     expires: infinity
     state: present
-    login_unix_socket: /usr/share/pmm-server/postgresql
   when: not ansible_check_mode
 
 - name: Upgrade grafana database to the latest schema

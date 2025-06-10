@@ -42,14 +42,12 @@
       name: pmm-managed
       state: restore
       target: /srv/postgres14/pmm-managed.sql
-      login_unix_socket: /usr/share/pmm-server/postgresql
 
   - name: Restore grafana database
     postgresql_db:
       name: grafana
       state: restore
       target: /srv/postgres14/grafana.sql
-      login_unix_socket: /usr/share/pmm-server/postgresql
     when: not is_ha
 
   - name: Check pg_stat_statements extension
@@ -57,7 +55,6 @@
       db: postgres
       name: pg_stat_statements
       schema: public
-      login_unix_socket: /usr/share/pmm-server/postgresql
 
   - name: Stop Postgres database without supervisor
     command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14

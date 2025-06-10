@@ -18,21 +18,17 @@
         owner: pmm
         group: pmm
 
-
-
     - name: Remove pmm-managed database from PostgreSQL
       postgresql_db:
         login_user: postgres
         name: pmm-managed
         force: true
         state: absent
-        login_unix_socket: /usr/share/pmm-server/postgresql
 
     - name: Remove pmm-managed role from PostgreSQL database
       postgresql_user:
         name: pmm-managed
         state: absent
-        login_unix_socket: /usr/share/pmm-server/postgresql
 
     - name: Stop supervisord service
       command: supervisorctl shutdown
@@ -84,6 +80,11 @@
 
     - name: Clean Clickhouse dir
       shell: find /srv/clickhouse -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
+
+    - name: Remove /run/postgresql directory
+      file:
+        path: /run/postgresql
+        state: absent
 
     # This step is required because of a change between VictoriaMetrics 1.77.1 and 1.82.1.
     # VictoriaMetrics tries to atomically rename directories in this folder on startup.

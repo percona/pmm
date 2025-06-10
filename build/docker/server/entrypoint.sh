@@ -64,7 +64,7 @@ echo "Checking /usr/share/pmm-server directory..."
 if [ -z "$(ls -A /usr/share/pmm-server 2>/dev/null)" ]; then
     echo "Creating PMM server directories (directory is empty)..."
     echo "Creating PostgreSQL socket directory..."
-    mkdir -p /usr/share/pmm-server/postgresql
+    mkdir -p /run/postgresql
     echo "Creating nginx temp directories..."
     mkdir -p /usr/share/pmm-server/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp}
     
@@ -87,7 +87,7 @@ if [ -z "$(ls -A /usr/share/pmm-server 2>/dev/null)" ]; then
 else
     echo "PMM server directory is not empty, skipping directory creation..."
     # Still ensure critical directories exist, but don't create empty ones
-    [ ! -d "/usr/share/pmm-server/postgresql" ] && mkdir -p /usr/share/pmm-server/postgresql
+    [ ! -d "/run/postgresql" ] && mkdir -p /run/postgresql
     [ ! -d "/usr/share/pmm-server/nginx" ] && mkdir -p /usr/share/pmm-server/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp}
 fi
 
@@ -106,9 +106,6 @@ if [ ! -f $DIST_FILE ]; then
     
     echo "Initializing Postgres..."
     /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust --username=postgres
-    
-    echo "Configuring PostgreSQL socket directory..."
-    echo "unix_socket_directories = '/usr/share/pmm-server/postgresql'" >> /srv/postgres14/postgresql.conf
     
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
     /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14

@@ -42,14 +42,12 @@
       name: pmm-managed
       state: dump
       target: /srv/backup/pmm-managed.sql
-      login_unix_socket: /usr/share/pmm-server/postgresql
 
   - name: Dump grafana database
     postgresql_db:
       name: grafana
       state: dump
       target: /srv/backup/grafana.sql
-      login_unix_socket: /usr/share/pmm-server/postgresql
     when: not is_ha
 
   - name: Stop Postgres database without supervisor

@@ -65,7 +65,6 @@
           name: grafana
           login_user: postgres
           state: present
-          login_unix_socket: /usr/share/pmm-server/postgresql
 
       - name: Create grafana user in postgres
         postgresql_user:
@@ -76,7 +75,6 @@
           expires: infinity
           login_user: postgres
           state: present
-          login_unix_socket: /usr/share/pmm-server/postgresql
         when: not ansible_check_mode
     when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and need_initialization
 
