@@ -18,6 +18,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -65,7 +66,7 @@ func getHistoryRows(rows *sql.Rows, q *reform.Querier) (historyMap, error) {
 		if err = q.NextRow(&esh, rows); err != nil {
 			break
 		}
-		res[*esh.Digest] = &esh
+		res[queryIDWithSchema(pointer.GetString(esh.CurrentSchema), *esh.Digest)] = &esh
 	}
 	if !errors.Is(err, reform.ErrNoRows) {
 		return nil, errors.Wrap(err, "failed to fetch events_statements_history")

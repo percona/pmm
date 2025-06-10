@@ -327,7 +327,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 		b.Common.PeriodLengthSecs = periodLengthSecs
 
 		//nolint:nestif
-		if esh := history[b.Common.Queryid]; esh != nil {
+		if esh := history[queryIDWithSchema(b.Common.Schema, b.Common.Queryid)]; esh != nil {
 			// TODO test if we really need that
 			// If we don't need it, we can avoid polling events_statements_history completely
 			// if query examples are disabled.
@@ -335,7 +335,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 				b.Common.Schema = pointer.GetString(esh.CurrentSchema)
 			}
 
-			if esh.SQLText != nil {
+			if esh.SQLText != nil && *esh.SQLText != "" {
 				explainFingerprint, placeholdersCount := queryparser.GetMySQLFingerprintPlaceholders(*esh.SQLText, *esh.DigestText)
 				explainFingerprint, truncated := truncate.Query(explainFingerprint, m.maxQueryLength, truncate.GetDefaultMaxQueryLength())
 				if truncated {
@@ -362,7 +362,6 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 				}
 			}
 		}
-
 		buckets[i] = b
 	}
 
