@@ -1,15 +1,15 @@
 # Launch PMM Server on AWS
 
-After [installing PMM Server from AWS Marketplace](../aws/aws.md): 
+After [installing PMM Server from AWS Marketplace](../aws/aws.md), access your PMM Server:
 {.power-number}
 
-1. Wait until the AWS console reports that the instance is running. 
-2. Select your instance and open its IP address in a web browser. You can find the IP address in the **IPv4 Public IP** column or at the top of the **Properties** panel under the **Public IP** field:
+1. Wait until the AWS console shows the instance is in "Running" state.
+2. In the EC2 console, select your instance and copy its **IPv4 Public IP** in the instance details or the **Public IP** field from the **Properties** panel:
    
-    ![Public IP field](../../../../images/aws-marketplace.pmm.ec2.properties.png)
+    ![Public IP field](../../../../images/aws-marketplace.pmm.ec2.properties)
 3. Open the IP address in a web browser and log into PMM using the default credentials:
-     - Username: `admin`
-     - Password: `your instance ID`
+     - username: `admin`
+     - password: `your instance ID`
     ![PMM Login](../../../../images/PMM_Login.png)
 4. Change the default credentials then use the new ones on the PMM Server home page:
 
