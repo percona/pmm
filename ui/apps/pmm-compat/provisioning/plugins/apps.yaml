@@ -2,6 +2,7 @@ apiVersion: 1
 
 apps:
   - type: 'pmm-compat-app'
+    uid: pmm-compat-app
     org_id: 1
     org_name: 'pmm'
     disabled: false
