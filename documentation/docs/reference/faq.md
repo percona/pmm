@@ -144,24 +144,33 @@ PMM protects an exporter's output from unauthorized access by adding an authoriz
 
 ## How to provision PMM Server with non-default admin password?
 
-Currently, there is no API available to change the `admin` password. If you're deploying through Docker, you can use the following code snippet to change the password after starting the Docker container:
+Currently, there is no API available to change the `admin` password at deployment time. However, you can use the `GF_SECURITY_ADMIN_PASSWORD` environment variable to set the password for the default `admin` user.
+
+```sh
+docker run -d --name pmm-server \
+  -e GF_SECURITY_ADMIN_PASSWORD="your_secure_password" \
+  -p 443:8443 \
+  percona/pmm-server:latest
+```
+
+## How to change the PMM password for the default admin user?
+
+Once PMM has started, you can use either of the following to change the password  (assuming your container is named `pmm-server`):
+
+- a helper script `change-admin-password`:
+
+```sh
+docker exec -t pmm-server change-admin-password your_secure_password
+```
+
+- or a code snippet:
 
 ```sh
 PMM_PASSWORD="mypassword"
 echo "Waiting for PMM to initialize to set password..."
-until [ "`docker inspect -f {% raw %}{{.State.Health.Status}}{% endraw %} pmm-server`" = "healthy" ]; do sleep 1; done
-docker exec -t pmm-server bash -c  "grafana-cli --homepath /usr/share/grafana admin reset-admin-password $PMM_PASSWORD"
+until [ $(docker inspect -f {% raw %}'{{.State.Health.Status}}'{% endraw %} pmm-server) = "healthy" ]; do sleep 1; done
+docker exec -t pmm-server bash -c  "grafana cli --homepath /usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password $PMM_PASSWORD"
 ```
-
-(This example assumes your Docker container is named `pmm-server`.)
-
-## How to change the PMM password for a default admin user?
-
-If you're deploying through Docker, you can change the default password for an admin user after starting the Docker container:
-
-    ```sh
-    docker exec -t pmm-server change-admin-password your_secure_password123
-    ```
 
 ## How to use a non-default listen-port for pmm-admin?
 
@@ -173,10 +182,10 @@ If you configure the PMM agent to use a non-default listen-port, for pmm-admin t
 
 Example: To use the listen-port 8000
 
-
 ```sh
 pmm-admin --pmm-agent-listen-port=8000 add postgresql --username=pmm-agent --password=pmm-agent-password --query-source=pgstatmonitor nameofpostgres
 ```
+
 If you are using OVF/AMI, you can change the default password through SSH by using the following command:
 
 ```sh
@@ -200,4 +209,4 @@ If you are trying to log into PMM via a third-party authentication provider whic
   - set the `oauth_allow_insecure_email_lookup` config key in the auth section of the `grafana.ini` file. Keep in mind that any changes you make to this file are lost when upgrading PMM, so make sure to manually update this file after each upgrade.
 
 !!! caution alert alert-warning "Important"
-We do not recommend using the above workaround for an extended period. Instead, ensure user uniqueness across multiple identity providers, while also encouraging your identity provider to support a unique ID field, or choose a provider who does.
+    We do not recommend using the above workaround for an extended period. Instead, ensure user uniqueness across multiple identity providers, while also encouraging your identity provider to support a unique ID field, or choose a provider who does.
