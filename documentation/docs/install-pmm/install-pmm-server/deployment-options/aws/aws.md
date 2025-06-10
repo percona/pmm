@@ -56,7 +56,7 @@ Required ports:
 
 PMM Server software is free, but expect AWS infrastructure costs depending on your instance size and storage needs.
 
-Use the [AWS Pricing Calculator](https://calculator.aws/#/) to estimate monthly costs based on your planned configuration.
+Use the [AWS pricing calculator](https://calculator.aws/#/) to estimate monthly costs based on your planned configuration.
 
 ## Deploy PMM Server
 
@@ -79,9 +79,9 @@ To install Percona Monitoring and Management (PMM) Server from AWS Marketplace:
 ## Next steps
 
 
-[Configure PMM Clients](../../../install-pmm-client/index.md) to start monitoring your infrastructure
-[Register Client nodes](../../../register-client-node/index.md) with your PMM Server
-[Configure SSL certificates](../../../../admin/security/ssl_encryption.md) for production use
-[Set up monitoring alerts](../../../../alert/index.md)for proactive monitoring
+- [Configure PMM Clients](../../../install-pmm-client/index.md) to start monitoring your infrastructure
+- [Register Client nodes](../../../register-client-node/index.md) with your PMM Server
+- [Configure SSL certificates](../../../../admin/security/ssl_encryption.md) for production use
+- [Set up monitoring alerts](../../../../alert/index.md)for proactive monitoring
 
 

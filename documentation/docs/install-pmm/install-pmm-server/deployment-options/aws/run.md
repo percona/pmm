@@ -5,7 +5,6 @@ After [installing PMM Server from AWS Marketplace](../aws/aws.md), access your P
 
 1. Wait until the AWS console shows the instance is in "Running" state.
 2. In the EC2 console, select your instance and copy its **IPv4 Public IP** in the instance details or the **Public IP** field from the **Properties** panel:
-   
     ![Public IP field](../../../../images/aws-marketplace.pmm.ec2.properties)
 3. Open the IP address in a web browser and log into PMM using the default credentials:
      - username: `admin`
@@ -68,4 +67,4 @@ To increase available disk space:
 {.power-number}
 
 1. Your AWS instance comes with a predefined size which can become a limitation. To make more disk space available to your instance, increase the size of the EBS volume as needed. For instructions, see [Modifying the Size, IOPS, or Type of an EBS Volume on Linux](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modify-volume.html).
-2. After updating the EBS volume, PMM Server will auto-detect changes within approximately 5 minutes and reconfigure itself.4
+2. After updating the EBS volume, PMM Server will auto-detect changes within approximately 5 minutes and reconfigure itself.
