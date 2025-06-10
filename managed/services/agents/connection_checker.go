@@ -104,6 +104,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		models.HAProxyServiceType,
 		models.PostgreSQLServiceType,
 		models.MongoDBServiceType,
+		models.ValkeyServiceType,
 		models.ProxySQLServiceType:
 		// nothing yet
 
@@ -196,6 +197,20 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 			Dsn:     exporterURL,
 			Timeout: durationpb.New(3 * time.Second),
+		}
+	case models.ValkeyServiceType:
+		tdp := agent.TemplateDelimiters(service)
+		request = &agentv1.CheckConnectionRequest{
+			Type: inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+			Tls:  agent.TLS,
+			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second},
+				nil, pmmAgentVersion),
+			Timeout: durationpb.New(3 * time.Second),
+			TextFiles: &agentv1.TextFiles{
+				Files:              agent.Files(),
+				TemplateLeftDelim:  tdp.Left,
+				TemplateRightDelim: tdp.Right,
+			},
 		}
 	default:
 		return nil, errors.Errorf("unhandled Service type %s", service.ServiceType)

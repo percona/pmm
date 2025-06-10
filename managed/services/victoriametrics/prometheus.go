@@ -160,6 +160,16 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 				metricsResolution: &mr,
 			})
 
+		case models.ValkeyExporterType:
+			scfgs, err = scrapeConfigForValkeyExporter(&scrapeConfigParams{
+				host:              paramsHost,
+				node:              paramsNode,
+				service:           paramsService,
+				agent:             agent,
+				streamParse:       true,
+				metricsResolution: &mr,
+			})
+
 		case models.ProxySQLExporterType:
 			scfgs, err = scrapeConfigsForProxySQLExporter(&scrapeConfigParams{
 				host:              paramsHost,
