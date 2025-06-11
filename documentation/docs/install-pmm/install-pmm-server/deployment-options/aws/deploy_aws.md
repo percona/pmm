@@ -51,10 +51,15 @@ Configure security settings to restrict access to your PMM Server instance using
 
    ![AWS Key Pair](../../../../images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png)
 
-
-3.Ensure the security group allows communication via the following ports:
+3. Ensure the security group allows communication via the following ports:
 
    ![Security Group Settings](../../../../images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png)
+
+   !!! note "Required ports"
+       - **Port 22 (SSH)**: Administrative access to the instance
+       - **Port 80 (HTTP)**: Initial PMM web interface access
+       - **Port 443 (HTTPS)**: Secure PMM web interface access
+       - **Port 3306 (MySQL)**: If monitoring RDS instances directly
 
 ### Required ports
 - Port 22 (SSH): Administrative access to the instance
