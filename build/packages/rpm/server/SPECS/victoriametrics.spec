@@ -1,17 +1,10 @@
-%undefine _missing_build_ids_terminate_build
-
-%define copying() \
-%if 0%{?fedora} >= 21 || 0%{?rhel} >= 7 \
-%license %{*} \
-%else \
-%doc %{*} \
-%endif
+%global _missing_build_ids_terminate_build 0
 
 %global repo            VictoriaMetrics
 %global provider        github.com/VictoriaMetrics/%{repo}
 %global commit          pmm-6401-v1.114.0
 
-Name:           percona-victoriametrics
+Name:           pmm-victoriametrics
 Version:        1.114.0
 Release:        1%{?dist}
 Summary:        VictoriaMetrics monitoring solution and time series database
@@ -52,6 +45,9 @@ install -D -p -m 0755 ./bin/vmalert-pure %{buildroot}%{_sbindir}/vmalert
 %changelog
 * Mon Apr 7 2025 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 1.114.0-1
 - upgrade victoriametrics to 1.114.0 release
+
+* Mon Apr 1 2024 Alex Demidoff <alexander.demidoff@percona.com> - 1.93.4-2
+- PMM-12899 Use module and build cache
 
 * Thu Sep 14 2023 Alex Tymchuk <alexander.tymchuk@percona.com> - 1.93.4-1
 - upgrade victoriametrics to 1.93.4 release
