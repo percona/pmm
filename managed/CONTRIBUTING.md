@@ -82,7 +82,7 @@ go test -timeout=30s -p 1 ./...
 
 - Setup the devcontainer using `make env-up` and run your changes inside by running `make env` and then `make run`.
 - Follow the steps described in [Add Instances for Monitoring](#add-instances-for-monitoring) to set up instances for monitoring.
-- TODO(idoqo): describe how advisors are executed (frequency, automatically, etc.)
+- TODO(idoqo): describe how advisors are executed (frequency, automatically, triggering manual runs, etc.)
 - Any failed Advisor checks will produce check results on the dashboard.
 
 ## Contributing to Advisors

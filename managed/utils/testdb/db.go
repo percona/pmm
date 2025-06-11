@@ -38,7 +38,7 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 	tb.Helper()
 
 	setupParams := models.SetupDBParams{
-		Address:  "127.0.0.1:5432",
+		Address:  "127.0.0.1:15432",
 		Username: username,
 		Password: password,
 	}

@@ -50,6 +50,8 @@ install -d -p %{buildroot}%{_bindir}
 install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_datadir}/%{name}
 install -d -p %{buildroot}%{_datadir}/pmm-ui
+install -d -p %{buildroot}/usr/local/percona/pmm/advisors
+install -d -p %{buildroot}/usr/local/percona/pmm/checks
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation %{buildroot}%{_sbindir}/pmm-encryption-rotation
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
@@ -58,6 +60,8 @@ install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-
 cd src/github.com/percona/pmm
 cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
 cp -pa ./ui/dist/. %{buildroot}%{_datadir}/pmm-ui
+cp -pa ./managed/data/advisors/*.yaml %{buildroot}/usr/local/percona/pmm/advisors/
+cp -pa ./managed/data/checks/*.yaml %{buildroot}/usr/local/percona/pmm/checks/
 
 %files
 %license src/%{provider}/LICENSE
@@ -68,8 +72,13 @@ cp -pa ./ui/dist/. %{buildroot}%{_datadir}/pmm-ui
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
 %{_datadir}/pmm-ui
+%{buildroot}/local/percona/pmm/advisors/*.yaml
+%{buildroot}/local/percona/pmm/checks/*.yaml
 
 %changelog
+* Wed Jun 11 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0-1
+- PMM-14009 bundle advisors with PMM.
+
 * Mon Sep 23 2024 Jiri Ctvrtka <jiri.ctvrtka@ext.percona.com> - 3.0.0-1
 - PMM-13132 add PMM encryption rotation tool
 
