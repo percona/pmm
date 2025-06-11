@@ -114,6 +114,9 @@ if [ ! -f $DIST_FILE ]; then
     /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
 fi
 
+# Ensure /srv/postgres14 has the correct permissions
+chmod 700 /srv/postgres14 || true
+
 # pmm-managed-init validates environment variables.
 pmm-managed-init
 
