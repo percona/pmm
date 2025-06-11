@@ -1,10 +1,8 @@
 # Deploy PMM Server on AWS
 
-Deploy PMM Server from AWS Marketplace to a running, accessible instance.
+Deploy Percona Monitoring and Management (PMM) Server from AWS Marketplace to a running, accessible instance.
 
-## Deploy PMM server
-
-To install Percona Monitoring and Management (PMM) Server from AWS Marketplace:
+To install  PMM Server from AWS Marketplace:
 {.power-number}
 
 1. Go to [AWS Marketplace](https://aws.amazon.com/marketplace) and search for **Percona Monitoring and Management Server** or [access the PMM Server listing](https://aws.amazon.com/marketplace/pp/prodview-uww55ejutsnom) directly.
@@ -33,19 +31,36 @@ To install Percona Monitoring and Management (PMM) Server from AWS Marketplace:
 
 ## Limit access to the instance
 
-In the **Security Group** section, which acts like a firewall, you may use the preselected option `Create new based on seller settings` to create a security group with recommended settings.
+Configure security settings to restrict access to your PMM Server instance using AWS security groups and key pairs.
+{.power-number}
 
-In the **Key Pair** select an already set up EC2 key pair to limit access to your instance,
+1. In the **Security Group** section, which acts like a firewall, choose how you want to configure security group settings:
 
-The security group should allow communication via the following ports: **22**, **80**, and **443**. PMM should also be able to access port **3306** on the RDS that uses the instance:
+   === "Create new based on seller settings (recommended)"
+       - Select the preselected option `Create new based on seller settings`
+       - This creates a security group with recommended baseline settings
+       - You can modify the rules after deployment as needed
+       - Good starting point for most deployments
 
-![Security Group Settings](../../../../images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png)
+   === "Use existing security group"
+       - Select an existing security group from your account
+       - Ensure it includes the required ports listed below
+       - Useful for integrating with existing security policies
+
+2. In the **Key Pair** section, select an already set up EC2 key pair to enable secure SSH access to your instance. Without a valid key pair, you won't be able to SSH into your instance for administrative tasks. Ensure you have access to the private key file.
+
+   ![AWS Key Pair](../../../../images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png)
+
+
+3.Ensure the security group allows communication via the following ports:
+
+   ![Security Group Settings](../../../../images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png)
 
 ### Required ports
 - Port 22 (SSH): Administrative access to the instance
 - Port 80 (HTTP): Initial PMM web interface access
-- **Port 443 (HTTPS)**: Secure PMM web interface access
-- **Port 3306 (MySQL)**: If monitoring RDS instances directly
+- Port 443 (HTTPS): Secure PMM web interface access
+- Port 3306 (MySQL): If monitoring RDS instances directly
 
 ## Apply settings
 
@@ -54,7 +69,7 @@ Review your configuration, deploy the instance, and complete the initial setup i
 
 1. Scroll to the top of the page to review all your instance settings.
 
-2. Click the **Launch with 1 click** button to deploy your PMM instance with the configured settings. The launch button may be labeled as **Accept Software Terms & Launch with 1-Click** depending on your AWS Marketplace view.
+2. Click the **Launch with 1 click** button to deploy your PMM instance with the configured settings. Depending on your AWS Marketplace view, the launch button may be labeled as **Accept Software Terms & Launch with 1-Click**.
 
 ### Configure your instance in EC2 console
 

@@ -32,12 +32,11 @@ Store the new credentials securely as you'll need them when configuring PMM Clie
 Replace the self-signed certificate with a proper SSL certificate for production use.
 
 === "Let's Encrypt certificate (free)"
-    **Prerequisites:**
+    {.power-number}
 
-    - Domain name pointing to your PMM Server IP
-    - Port 80 temporarily open for certificate validation
-
-    **Install and configure:**
+    1. Make sure that the domain name pointing to your PMM Server IP.
+    2. Check that port 80 temporarily open for certificate validation.
+    3. Install and configure:
     ```bash
     # Install certbot
     sudo apt update
@@ -63,13 +62,13 @@ Replace the self-signed certificate with a proper SSL certificate for production
     If you have a commercial SSL certificate:
     {.power-number}
 
-    1. **Upload certificate files:**
+    1. Upload certificate files:
        ```bash
        scp -i /path/to/your-key.pem certificate.crt admin@<instance-ip>:/tmp/
        scp -i /path/to/your-key.pem private.key admin@<instance-ip>:/tmp/
        ```
 
-    2. **Install certificates:**
+    2. Install certificates:
        ```bash
        sudo mv /tmp/certificate.crt /srv/pmm-certs/
        sudo mv /tmp/private.key /srv/pmm-certs/certificate.key
@@ -78,9 +77,7 @@ Replace the self-signed certificate with a proper SSL certificate for production
        sudo docker restart pmm-server
        ```
 
-### User account management
-
-**Create additional users:**
+### Create additional users
 {.power-number}
 
 1. Access **PMM > Configuration > User Management**.
@@ -93,9 +90,7 @@ Replace the self-signed certificate with a proper SSL certificate for production
 
 Use the principle of least privilege when assigning user roles. Most users only need Viewer access to see dashboards and metrics.
 
-## Security configuration
-
-### Firewall configuration
+## Firewall configuration
 
 Configure the OS-level firewall:
 
@@ -109,9 +104,7 @@ sudo ufw allow 443/tcp   # HTTPS PMM interface
 sudo ufw --force enable
 ```
 
-### API security
-
-**Generate API keys for automation:**
+## Generate API keys for automation
 {.power-number}
 
 1. Navigate to **PMM Configuration > API Keys**.
@@ -144,13 +137,13 @@ PMM Client authentication uses the same credentials you set for the web interfac
 pmm-admin config --server-insecure-tls --server-url=https://admin:your-password@<pmm-server-ip>:443
 ```
 
-#### Security considerations:
+#### Security considerations
 
 - Use the web interface credentials you created
 - Consider creating dedicated API users for client authentication
 - Avoid putting passwords in command history (use environment variables)
 
-### Connection testing
+### Test connection
 
 Test PMM Client connectivity:
 
@@ -168,7 +161,7 @@ curl -k -u admin:your-password https://<pmm-server-ip>:443/v1/readyz
 
 ### RDS monitoring setup
 
-**Configure security groups for RDS access:**
+To configure security groups for RDS access:
 {.power-number}
 
 1. Modify your RDS security group to add inbound rule: MySQL/Aurora (3306) from PMM security group
@@ -181,7 +174,7 @@ curl -k -u admin:your-password https://<pmm-server-ip>:443/v1/readyz
 
 ### CloudWatch integration
 
-**Configure CloudWatch metrics export:**
+To configure CloudWatch metrics export:
 {.power-number}
 
 1. Go to **PMM Configuration > Settings > Advanced Settings**.
@@ -191,11 +184,9 @@ curl -k -u admin:your-password https://<pmm-server-ip>:443/v1/readyz
 !!! note "IAM permissions"
     Ensure your PMM instance has an IAM role with CloudWatch permissions for metrics export and integration.
 
-## Performance optimization
+## Optimize memory allocation
 
-### Memory allocation
-
-**Optimize memory allocation based on instance size:**
+To optimize memory allocation based on instance size:
 
 ```bash
 # Check current memory usage
@@ -206,16 +197,15 @@ docker stats pmm-server
 # Prometheus: 1GB, ClickHouse: 1GB, Grafana: 512MB
 ```
 Scale memory allocations proportionally for larger instances.
-### Monitoring setup
 
-#### Enable PMM server self-monitoring:
+## Enable PMM Server self-monitoring
 {.power-number}
 
 1. Go to **PMM Configuration > Settings > Advanced Settings**.
 2. Enable Internal Monitoring with 30-day retention
 3. Monitor CPU, memory, disk I/O, and PMM service health
 
-#### Set up CloudWatch alarms
+## Set up CloudWatch alarms
 
 ```bash
 # High CPU usage alarm
@@ -227,9 +217,8 @@ aws cloudwatch put-metric-alarm \
     --threshold 80 \
     --comparison-operator GreaterThanThreshold
 ```
-## Maintenance operations
 
-### PMM Server updates
+## Update PMM Server
 
 Always create a backup before updating PMM Server. Test updates in a development environment first.
 
@@ -247,9 +236,7 @@ sudo docker run -d -p 80:80 -p 443:443 --volumes-from pmm-data --name pmm-server
 curl -k https://localhost:443/v1/version
 ```
 
-### Backup operations
-
-#### Create manual backup
+## Create manual backup
 
 ```bash
 # Get volume ID and create snapshot
@@ -263,7 +250,7 @@ aws ec2 create-snapshot \
 ![AWS Marketplace](../../../../images/aws-marketplace.png)
 
 
-### Restore from backup
+## Restore from backup
 
 To restore PMM Server from a backup:
 {.power-number}
@@ -287,7 +274,7 @@ To restore PMM Server from a backup:
 !!! note "Recovery time"
     The restore process typically takes 5-15 minutes depending on volume size and AWS region performance.
 
-### Terminate instance
+## Terminate instance
 
 {.power-number}
 
