@@ -1,0 +1,56 @@
+---
+### MongoDB Platform Advisors Replica Set Topology
+checks:
+  - version: 1
+    name: mongodb_replication_lag
+    summary: MongoDB Replication Lag
+    description: This check returns warnings if the Replica Set member is more than 10 sec behind the primary
+    type: MONGODB_REPLSETGETSTATUS
+    advisor: performance_replication
+    #family: mongodb
+    #author: Ivan Groenewold
+    interval: standard
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def check(docs):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(docs, context)
+
+      def check_context(docs, context):
+          """
+          This check returns warnings if the Replica Set member is more than 10 sec behind the primary
+          """
+
+          if len(docs) != 1:
+              return "Unexpected number of documents"
+
+          results = []
+
+          set_name = docs[0]["set"]
+
+          for member in docs[0]["members"]:
+              if member["state"] == 1:
+                  pri_last_opt_t = member["optimeDate"]
+
+          for member in docs[0]["members"]:
+              if "self" in member.keys():
+                  this_name = member["name"]
+                  this_last_opt_t = member["optimeDate"]
+
+          if not pri_last_opt_t or not this_last_opt_t:
+              return "Cannot determine the last operation times"
+
+          this_lag = pri_last_opt_t - this_last_opt_t
+          if (this_lag > 10):
+              results.append({
+                  "summary": "MongoDB Replica Set member more than 10 sec behind the primary",
+                  "description": "Member {this_name} is {this_lag} sec behind the primary of Replica Set {set_name}".format(set_name=set_name, this_name=this_name, this_lag=this_lag),
+                  "read_more_url": read_url.format("mongo-replication-lag"),
+                  "severity": "warning",
+              })
+
+          return results

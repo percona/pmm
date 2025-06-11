@@ -1,0 +1,43 @@
+---
+checks:
+  - version: 2
+    name: mysql_security_user_ssl
+    summary: User(s) not using secure SSL protocol to connect
+    description: User(s) not using secure SSL protocol to connect.
+    interval: standard
+    advisor: security_authentication
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@version version,@@hostname service /*!80001, count(user) found,group_concat( concat(user,'@',host) separator'; ') user  from mysql.user where ssl_type='' and user not in ('root','mysql.pxc.internal.session', 'mysql.pxc.sst.role', 'mysql.session','mysql.infoschema','mysql.pxc.sst.user','mysql.sys','pmm')*/;"
+    script: |
+      def check_ssl(doc,read_url):
+          for row in doc:
+            version = row["version"]
+            service = row["service"]
+            user = row["user"]
+            found = row["found"]
+
+            if found > 0 :
+               return {
+                 "summary": "User(s) not using secure SSL protocol to connect",
+                 "description": "User(s) not using secure SSL protocol to connect. User list = {} ;".format(user),
+                 "severity": "notice",
+                 "read_more_url": read_url.format("security-user-not-using-ssl-protocol"),
+                 "labels": {
+                    "mysql_version": "{}".format(version),
+                     "service": "{}".format(service),
+                    }
+               }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          result1 = check_ssl(docs[0],read_url)
+          if result1:
+            results.append(result1)
+
+          return results

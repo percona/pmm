@@ -1,0 +1,43 @@
+---
+checks:
+  - version: 2
+    name: mysql_config_slave_parallel_workers
+    summary: Replication is single threaded
+    description: Identify if a replication is single threaded.
+    interval: standard
+    advisor: configuration_replication
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@version version,@@hostname service, @@global.slave_parallel_workers as slave_parallel_workers, count(1) as repl_conf_count  from performance_schema.replication_connection_configuration;"
+    script: |
+      def check_slave_parallel_workers(doc,read_url):
+          for row in doc:
+            version = row["version"]
+            service = row["service"]
+            slave_parallel_workers = row["slave_parallel_workers"]
+            repl_conf_count = row["repl_conf_count"]
+
+            if slave_parallel_workers < 2 and repl_conf_count > 0:
+               return {
+                 "summary": "Load data in file active",
+                 "description": "Replication is single threaded. Current settings = {} ;".format(slave_parallel_workers),
+                 "severity": "warning",
+                 "read_more_url": read_url.format("sql-processing-not-multi-threaded"),
+                 "labels": {
+                    "mysql_version": "{}".format(version),
+                     "service": "{}".format(service),
+                    }
+               }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          result1 = check_slave_parallel_workers(docs[0],read_url)
+          if result1:
+            results.append(result1)
+
+          return results

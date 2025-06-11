@@ -1,0 +1,28 @@
+---
+checks:
+  - version: 2
+    name: postgresql_tmpfiles_check
+    summary: PostgreSQL temporary file statistics
+    description: This check reports the number of temporary files and number of bytes written to disk since last stats reset.
+    #author: Jorge Torralba
+    advisor: performance_generic
+    interval: standard
+    family: POSTGRESQL
+    category: configuration
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: datname, temp_files, PG_SIZE_PRETTY(temp_bytes) AS temp_bytes, TO_CHAR( AGE(stats_reset), 'MM "Months" DD "Days"') AS age FROM pg_stat_database
+    script: |
+      def check_context(rows, context):
+         results = []
+         read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+         for row in rows[0]:
+             db, tempfiles, tempbytes, age = row["datname"], row["temp_files"], row["temp_bytes"], row["age"]
+             if tempfiles > 100:
+                 results.append({
+                     "summary": "temporary file statististics",
+                     "read_more_url":read_url.format("postgresql-tmpfiles-check"),
+                     "description": "Database {} has generated {} temporary files. This has resulted in {} written to disk over the past  {}.".format(db, tempfiles, tempbytes, age),
+                     "severity": "warning",
+                 })
+         return results

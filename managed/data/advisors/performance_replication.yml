@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: performance_replication
+    summary: Replication Performance
+    description: Checks efficient replication usage of your database.
+    category: performance

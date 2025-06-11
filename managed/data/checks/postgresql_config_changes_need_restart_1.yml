@@ -1,0 +1,43 @@
+---
+checks:
+  - version: 1
+    name: postgresql_config_changes_need_restart_1
+    summary: Configuration change requires restart/reload.
+    description: This check returns a warning if there is any setting/configuration that was changed and needs a server restart/reload.
+    type: POSTGRESQL_SELECT
+    #family: postgresql
+    #author: Charly Batista
+    advisor: performance_generic
+    interval: standard
+    query: name, setting, short_desc, reset_val FROM pg_settings WHERE pending_restart IS true
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      # pg_advisor
+      def check(rows):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(rows, context)
+
+      def check_context(rows, context):
+          """
+          This check returns a warning if there are settings/configuration that were changed and need a server restart/reload.
+          """
+          settings = []
+          for row in rows:
+              settings.append("{} - NEW Value: {} | Default: {} - ".format(row["name"], row["setting"], row["reset_val"], row["short_desc"]))
+          count = len(settings)
+          if count:
+              desc = "1 setting"
+              if count > 1:
+                  desc = "{} settings\n".format(count)
+              return [{
+                  "summary": "Change(s) that require a server reload/restart found",
+                  "description": "{} {}".format(desc, settings),
+                  "read_more_url": read_url.format("configuration-pg-settings-changed"),
+                  "severity": "warning"
+              }]
+          return []

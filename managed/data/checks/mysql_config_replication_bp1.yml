@@ -1,0 +1,62 @@
+---
+checks:
+  - version: 2
+    name: mysql_config_replication_bp1
+    summary: Checks for basic best practices when setting a replica node.
+    description: Identify if a replica node is in read-only mode and if checksum.
+    interval: standard
+    advisor: configuration_replication
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@version version,@@hostname service, count(1) as repl_conf_count, @@global.read_only as read_only, @@slave_sql_verify_checksum as slave_sql_verify_checksum from performance_schema.replication_connection_configuration;"
+    script: |
+      def check_replication_bp1_RO(doc,read_url):
+          for row in doc:
+             version = row["version"]
+             service = row["service"]
+             repl_conf_count = row["repl_conf_count"]
+             read_only = row["read_only"]
+          if repl_conf_count > 0:
+              if read_only != 1:
+                  return {
+                      "summary": "Read only flag not set for replica",
+                      "description": "The value of read_only is not 1, and this instance is configured as a replica. Current settings = {};".format(read_only),
+                      "severity": "error",
+                      "read_more_url": read_url.format("configuration-check-replica-not-read-only"),
+                      "labels": {
+                          "mysql_version": "{}".format(version),
+                          "service": "{}".format(service),
+                      }
+                  }
+      def check_replication_bp1_CK(doc,read_url):
+          for row in doc:
+             version = row["version"]
+             service = row["service"]
+             repl_conf_count = row["repl_conf_count"]
+             slave_sql_verify_checksum = row["slave_sql_verify_checksum"]
+          if repl_conf_count > 0:
+              if slave_sql_verify_checksum != 1:
+                  return {
+                      "summary": "Replica's SQL thread is not verifying checksums",
+                      "description": "The slave_sql_verify_checksum variable is not set to 1. Current settings = {};".format(slave_sql_verify_checksum),
+                      "severity": "error",
+                      "read_more_url": read_url.format("configuration-check-replica-verifying-checksum"),
+                      "labels": {
+                          "mysql_version": "{}".format(version),
+                          "service": "{}".format(service),
+                      }
+                  }
+      def check_context(docs, context):
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+          result1 = check_replication_bp1_RO(docs[0],read_url)
+          if result1:
+            results.append(result1)
+
+          result2 = check_replication_bp1_CK(docs[0],read_url)
+          if result2:
+            results.append(result2)
+
+          return results

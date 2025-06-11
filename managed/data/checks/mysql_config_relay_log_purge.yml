@@ -1,0 +1,44 @@
+---
+checks:
+  - version: 2
+    name: mysql_config_relay_log_purge
+    summary: Automatic relay log purging is off
+    description: Identify if a replica node has relay-logs purge set.
+    interval: standard
+    advisor: configuration_replication
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@version version,@@hostname service, count(1) as repl_conf_count, @@global.relay_log_purge as relay_log_purge from performance_schema.replication_connection_configuration;"
+    script: |
+      def check_relay_log_purge(doc,read_url):
+          for row in doc:
+             version = row["version"]
+             service = row["service"]
+             repl_conf_count = row["repl_conf_count"]
+             relay_log_purge = row["relay_log_purge"]
+
+          if repl_conf_count > 0:
+              if relay_log_purge != 1:
+                  return {
+                      "summary": "Automatic relay log purging is off",
+                      "description": "The relay_log_purge variable is not set to 1. Current settings = {};".format(relay_log_purge),
+                      "severity": "warning",
+                      "read_more_url": read_url.format("configuration-check-relay-log-purge"),
+                      "labels": {
+                          "mysql_version": "{}".format(version),
+                          "service": "{}".format(service),
+                      }
+                  }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          result1 = check_relay_log_purge(docs[0],read_url)
+          if result1:
+            results.append(result1)
+
+          return results

@@ -1,0 +1,71 @@
+---
+checks:
+  - version: 1
+    name: mongodb_cpucores
+    summary: MongoDB CPU cores
+    description: This check returns warnings if the number of CPU cores does not meet the minimum recommended requirements according to best practices.
+    type: MONGODB_GETDIAGNOSTICDATA
+    #family: MONGODB
+    #author: Parag Bhayani
+    advisor: configuration_resources
+    interval: standard
+    script: |
+      PROD_NOTES = {
+          "mongodb_url": {
+              "4.0": "https://www.mongodb.com/docs/v4.0/administration/production-notes/#std-label-prod-notes-ram",
+              "4.2": "https://www.mongodb.com/docs/v4.2/administration/production-notes/#std-label-prod-notes-ram",
+              "4.4": "https://www.mongodb.com/docs/v4.4/administration/production-notes/#std-label-prod-notes-ram",
+              "5.0": "https://www.mongodb.com/docs/v5.0/administration/production-notes/#std-label-prod-notes-ram",
+              "6.0": "https://www.mongodb.com/docs/v6.0/administration/production-notes/#std-label-prod-notes-ram",
+          },
+         }
+
+      def check(docs):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(docs, context)
+
+      def check_context(docs, context):
+          """
+          This check returns warnings if the number of CPU cores does not meet the minimum requirements according to best practices.
+          """
+
+          format_version_num = context.get("format_version_num", fail)
+          parse_version = context.get("parse_version", fail)
+
+          if len(docs) != 1:
+              return "Unexpected number of documents"
+
+          print(repr(docs[0]))
+          data = docs[0]["data"]
+          results = []
+          # Checking MongoDB version
+          version = parse_version(data["serverStatus"]["version"])
+          print("version =", repr(version))
+          num = version["num"]
+          mm = "{}.{}".format(version["major"], version["minor"])
+          # Checking no. of cores
+          print(repr(data))
+          if data.get("systemMetrics", {}):
+              systemMetrics = data.get("systemMetrics", {})
+              print(repr(systemMetrics))
+              if systemMetrics.get("cpu", {}):
+                  cpu = systemMetrics.get("cpu", {})
+                  print(repr(cpu))
+                  if cpu:
+                      numcpu = int(cpu.get("num_cpus", fail))
+                      print("No. of CPU core:")
+                      print(numcpu)
+                      if numcpu < 4:
+                          results.append({
+                              "summary": "MongoDB node as configured does not have the recommended number of CPU cores - {}".format(numcpu),
+                              "description": "The returned number of cores is lower than recommended. To avoid performance issues, see the following documentation to determine the number of CPU cores required for your environment",
+                              "read_more_url": PROD_NOTES["mongodb_url"][mm],
+                              "severity": "warning",
+                          })
+                      # noresults = "no maxS result"
+                      # print(results if results else noresults)
+                      return results

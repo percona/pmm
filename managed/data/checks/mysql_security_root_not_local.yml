@@ -1,0 +1,43 @@
+---
+checks:
+  - version: 2
+    name: mysql_security_root_not_local
+    summary: Root user can connect from non local location
+    description: Root user has host definition that is not 127.0.0.1 or localhost.
+    interval: standard
+    advisor: security_authentication
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@version version,@@hostname service, count(user) found,group_concat( concat(user,'@',host) separator'; ') user from mysql.user where user like 'root' AND host NOT IN ('localhost', '127.0.0.1') group by version, service;"
+    script: |
+      def check_root_user(doc,read_url):
+          for row in doc:
+            version = row["version"]
+            service = row["service"]
+            user = row["user"]
+            found = row["found"]
+
+            if found > 0 :
+               return {
+                 "summary": "Root can login remotely",
+                 "description": "Root user has host definition that is not 127.0.0.1 or localhost. User list = {} ;".format(user),
+                 "severity": "warning",
+                 "read_more_url": read_url.format("root-account-can-login-remotely"),
+                 "labels": {
+                    "mysql_version": "{}".format(version),
+                     "service": "{}".format(service),
+                    }
+               }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          result1 = check_root_user(docs[0],read_url)
+          if result1:
+            results.append(result1)
+
+          return results

@@ -1,0 +1,43 @@
+---
+checks:
+  - version: 2
+    name: mysql_config_general_log
+    summary: General Log is enabled
+    description: Check if the general log is enabled.
+    interval: standard
+    advisor: configuration_generic
+    #subcategory: generic
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@global.general_log as general_log, @@version version,@@hostname service;"
+    script: |
+      def check_general_log(doc,read_url):
+          for row in doc:
+             general_log = row["general_log"]
+             version = row["version"]
+             service = row["service"]
+
+          if general_log != 0:
+              return {
+                  "summary": "General log is enabled",
+                  "description": "The general log contains every query that is hitting the database, this can have significant impact on performance. General Log {} instead of 0.".format(general_log),
+                  "severity": "warning",
+                  "read_more_url": read_url.format("configuration-check-general-log"),
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  }
+              }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          in_result = check_general_log(docs[0],read_url)
+          if in_result:
+            results.append(in_result)
+
+          return results

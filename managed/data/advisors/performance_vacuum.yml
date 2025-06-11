@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: performance_vacuum
+    summary: Vacuum Performance
+    description: Helps improve the efficiency and execution speed of database Vacuum operations.
+    category: configuration

@@ -1,0 +1,38 @@
+---
+checks:
+  - version: 1
+    name: postgresql_table_autovac_settings
+    summary: Check whether there is any table level autovacuum settings
+    description: This check returns those tables where autovacuum paramters are specified along with autovacuum settings specified
+    type: POSTGRESQL_SELECT
+    #family: postgresql
+    #author: Jobin Augustine
+    advisor: configuration_vacuum
+    interval: standard
+    query: " * FROM (SELECT c.relname, pg_catalog.array_to_string(c.reloptions || array(select 'toast.' || x from pg_catalog.unnest(tc.reloptions) x), ', ')  as opts FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_class tc ON (c.reltoastrelid = tc.oid) ) AS tabopts WHERE opts like '%vacuum%'"
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      # pg_advisor
+      # thresholds
+      # RECOMMENDED_MAX_VALUE="on"
+
+      def check(rows):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(rows, context)
+
+      def check_context(rows, context):
+          results = []
+          for row in rows:
+              tabname, opts = row["relname"], row["opts"]
+              results.append({
+                  "summary": "Table level autovacuum settings are existing",
+                  "description": "Table {} has autovacuum settings {}".format(tabname, opts),
+                  "read_more_url": read_url.format("postgresql-tables-per-table-vacuum-settings"),
+                  "severity": "notice"
+              })
+          return results

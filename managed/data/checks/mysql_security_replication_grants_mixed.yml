@@ -1,0 +1,40 @@
+---
+checks:
+  - version: 2
+    name: mysql_security_replication_grants_mixed
+    summary: Replication privileges
+    description: Check if replication privileges is mixed with more elevated privileges
+    interval: standard
+    #author: The Grinch
+    advisor: security_replication
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@hostname service_name,version,count(user) nuser, group_concat(user SEPARATOR '; ')users, reason from(select @@version version, 1 found, concat(user,'@',host) user,plugin, 1 reason from mysql.user where Repl_slave_priv='Y'AND (Select_priv = 'Y' OR Insert_priv  = 'Y' OR Update_priv = 'Y' OR Delete_priv = 'Y' OR Create_priv = 'Y' OR Drop_priv = 'Y' OR Reload_priv = 'Y' OR Shutdown_priv = 'Y' OR Process_priv = 'Y' OR File_priv = 'Y' OR Grant_priv = 'Y' OR References_priv = 'Y' OR Index_priv = 'Y' OR Alter_priv = 'Y' OR Show_db_priv = 'Y' OR Super_priv = 'Y' OR Create_tmp_table_priv = 'Y' OR Lock_tables_priv = 'Y' OR Execute_priv = 'Y' OR Repl_client_priv = 'Y' OR Create_view_priv = 'Y' OR Show_view_priv = 'Y' OR Create_routine_priv = 'Y' OR Alter_routine_priv = 'Y' OR Create_user_priv = 'Y' OR Event_priv = 'Y' OR Trigger_priv = 'Y' OR Create_tablespace_priv = 'Y')) as tt group by reason,service_name,version  order by reason;"
+      - type: MYSQL_SELECT
+        query: "user,host,IF(channel_name='','NA',channel_name) as channel from performance_schema.replication_connection_configuration;"
+    script: |
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+          whois = "This instance is a SOURCE"
+          results = []
+
+          #Then we check if is SOURCE or REPLICA and what user is connected
+          for row in docs[1]:
+              REP_USER, HOST, CHANNEL = row["user"], row["host"], row["channel"]
+              whois = "This instance is a REPLICA using user: {}, connected to host: {}, for channel: {}".format(REP_USER, HOST, CHANNEL)
+          #Finally we process the result set for users with mixed grants
+          for row in docs[0]:
+             results.append({
+                 "summary": "Replication privileges Mixed with more elevated grants",
+                 "description": "{}. This instance has #{} occurrence(s) of users with mixed privileges {} ".format(whois, row.get("nuser"), row.get("users")),
+                 "severity": "warning",
+                 "read_more_url":read_url.format("mysql-replication-privileges"),
+                 "labels": {
+                      "mysql_version": "{}".format(row.get("version")),
+                      "service": "{}".format(row.get("service_name")),
+                  },
+             })
+             return results

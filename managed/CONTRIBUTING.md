@@ -82,12 +82,51 @@ go test -timeout=30s -p 1 ./...
 
 - Setup the devcontainer using `make env-up` and run your changes inside by running `make env` and then `make run`.
 - Follow the steps described in [Add Instances for Monitoring](#add-instances-for-monitoring) to set up instances for monitoring.
-- Go to the PMM dashboard and enable Advisors in `PMM -> PMM Settings -> Advanced Settings` which will make managed download Advisor checks from Percona Platform and execute them.
+- TODO(idoqo): describe how advisors are executed (frequency, automatically, etc.)
 - Any failed Advisor checks will produce check results on the dashboard.
+
+## Contributing to Advisors
+
+Advisors are located in the `data/advisors` folder. If you want to change Advisor names and descriptions, please make changes to the files in this folder and submit a pull request.
+You can read more about the [Advisors file format in our documentation](https://docs.percona.com/percona-monitoring-and-management/details/develop-checks/index.html) (TODO (idoqo): fix link).
+
+If there is a need to change the logic of Advisor checks (actual logic executed in advisors), then it's in the `checks` folder in `data/checks`. Please make changes to the files in this folder and submit a pull request.
+
+Changes to Advisors will be most visible in the list of all advisors by categories, such as https://pmmdemo.percona.com/graph/advisors/configuration.
+
+<img width="1024" alt="image" src="https://github.com/percona/checked/assets/25495422/6b369cd6-f080-49aa-a132-72db5fbdf046">
+
+``advisors.summary`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/advisors/example.yml.example#L4
+
+``advisors.description`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/advisors/example.yml.example#L6
+
+### Advisor Checks
+
+Advisors checks refer to the list of Advisors categorized by specific topics available on https://pmmdemo.percona.com/graph/advisors/configuration. It provides detailed information in the Insights section, which can be accessed by expanding the Advisor.
+
+<img width="1024" alt="image" src="https://github.com/percona/checked/assets/25495422/7ec59008-f888-4c98-9be9-3eeb39dd6c0e">
+
+``checks.summary`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L5
+``chcks.description`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L6
+
+
+When an Advisor check identifies an issue in the user's infrastructure, it displays insights on the https://pmmdemo.percona.com/graph/advisors/insights page.
+<img width="1024" alt="image" src="https://github.com/percona/checked/assets/25495422/b44089e0-7c1f-46b2-96d2-43d205e1c3fe">
+``results.summary`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L51
+``results.descrioption`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L52
+
+Please note, there might be several results[] in one check file.
+
 
 ## Working with Percona Alerting
 
 Please go through the Percona Alerting section in our [user documentation](https://docs.percona.com/percona-monitoring-and-management/get-started/alerting.html).
+
+## Contributing to Percona Alerting Templates
+
+Alert Templates are located in the `data/templates` folder. If you want to contribute to this section, please make changes to the files in this folder and submit a pull request.
+You can read more about the [Alert Templates format in our documentation](https://docs.percona.com/percona-monitoring-and-management/details/develop-checks/index.html) (TODO (idoqo): fix link)A
+
 
 # Internals
 

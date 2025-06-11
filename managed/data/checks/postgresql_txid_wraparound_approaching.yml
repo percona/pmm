@@ -1,0 +1,56 @@
+---
+checks:
+  - version: 1
+    name: postgresql_txid_wraparound_approaching
+    summary: PostgreSQL Transaction ID Wraparound approaching
+    description: This check verifies databases age and alert if the transaction ID wraparound issue is near
+    type: POSTGRESQL_SELECT
+    #family: postgresql
+    #author: David Gonzalez
+    advisor: configuration_vacuum
+    interval: standard
+    query: |
+      datname, age(datfrozenxid), (age(datfrozenxid)::numeric/1000000000*100)::numeric(4,2) AS wraparound_risk_perc
+      FROM pg_database
+      WHERE (age(datfrozenxid)::numeric/1000000000*100)::numeric(4,2) >= 20.0::numeric(4,2)
+      ORDER BY 2 DESC
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      # pg_advisor
+      def check(rows):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(rows, context)
+
+      def check_context(rows, context):
+          # `rows` is a frozen (deeply immutable) list of dicts where each dict represents a single row in SQL result.
+          # `context` is a dict with additional functions.
+          #
+          # Global `print` and `fail` functions are available.
+          #
+          # `check_context` function is expected to return a list of dicts that are then converted to alerts;
+          # in particular, that list can be empty.
+          # Any other value (for example, string) is treated as script execution failure
+          # (Starlark does not support Python exceptions);
+          # it is recommended to use global function `fail` for that instead.
+          """
+          This check verifies all the databases txid age and notifies if any is approaching to the wraparound limit.
+          There is no need to run this command more than once per database cluster.
+          This check returns warning if there is any database with txid age towards wraparound by 20% or more.
+          Error is returned if for any reason there are no results from query.
+          """
+          results = []
+          # extract information from variables
+          for row in rows:
+              datname, age, wraparound_risk_perc = row["datname"], row["age"], row["wraparound_risk_perc"]
+              results.append({
+                  "summary": "Database Transaction ID Wraparound is approaching",
+                  "description": "Database {} txid age is {} which is {}% towards transaction ID wraparound. VACCUM FREEZE actions are recommended.".format(datname, age, wraparound_risk_perc),
+                  "read_more_url": read_url.format("postgresql-transaction-id-wraparound-is-approaching"),
+                  "severity": "warning"
+              })
+          return results

@@ -1,0 +1,41 @@
+---
+checks:
+  - version: 1
+    name: mongodb_loglevel
+    summary: MongoDB Non-Default Log Level
+    description: This check returns warnings if MongoDB is not using the default log level.
+    type: MONGODB_GETCMDLINEOPTS
+    #family: mongodb
+    #author: Vinicius Grippa
+    advisor: configuration_generic
+    interval: standard
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def check(docs):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(docs, context)
+      def check_context(docs, context):
+          """
+          This check returns warnings if MongoDB authentication is disabled.
+          """
+          if len(docs) != 1:
+              return "Unexpected number of documents"
+          results = []
+          parsed = docs[0]["parsed"]
+          print("1inicio do debug")
+          setParameter = parsed.get("setParameter", {})
+          logLevel = (setParameter.get("logLevel") != "0")
+          print("11Log level below")
+          print(logLevel)
+          if logLevel:
+              results.append({
+                  "summary": "MongoDB is not using the default log level.",
+                  "description": "To avoid high disk usage, see the following to set it to default",
+                  "read_more_url": read_url.format("mongodb-log-messages"),
+                  "severity": "warning",
+              })
+          return results

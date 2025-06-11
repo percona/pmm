@@ -1,0 +1,128 @@
+---
+checks:
+  - version: 1
+    name: mongodb_cve_version
+    summary: MongoDB CVE Version
+    description: This check returns errors if MongoDB or Percona Server for MongoDB version is less than the latest one with CVE fixes.
+    type: MONGODB_BUILDINFO
+    #family: mongodb
+    advisor: security_cve
+    interval: standard
+    script: |
+      LATEST_VERSIONS = {
+          "mongodb": {
+              "3.6": 30618,  # https://docs.mongodb.com/manual/release-notes/3.6/
+              "4.0": 40015,  # https://docs.mongodb.com/manual/release-notes/4.0/
+              "4.2": 40203,  # https://docs.mongodb.com/manual/release-notes/4.2/
+              "4.4": 40402,  # https://docs.mongodb.com/manual/release-notes/4.4/
+          },
+          "mongodb_url": {
+              "3.6": "https://docs.mongodb.com/manual/release-notes/3.6/#3.6.18---may-1--2020",
+              "4.0": "https://docs.mongodb.com/manual/release-notes/4.0/#4.0.15---jan-27--2020",
+              "4.2": "https://docs.mongodb.com/manual/release-notes/4.2/#4.2.3---jan-27--2020",
+              "4.4": "https://docs.mongodb.com/manual/release-notes/4.4/#4.4.2---nov-18--2020",
+          },
+          "percona": {
+              "3.6": 30619008,  # https://www.percona.com/doc/percona-server-for-mongodb/3.6/release_notes/index.html
+              "4.0": 40020014,  # https://www.percona.com/doc/percona-server-for-mongodb/4.0/release_notes/index.html
+              "4.2": 40209010,  # https://www.percona.com/doc/percona-server-for-mongodb/4.2/release_notes/index.html
+              "4.4": 40401003,  # https://www.percona.com/doc/percona-server-for-mongodb/4.4/release_notes/index.html
+          },
+          "percona_url": {
+              "3.6": "https://www.percona.com/doc/percona-server-for-mongodb/3.6/release_notes/3.6.19-8.0.html",
+              "4.0": "https://www.percona.com/doc/percona-server-for-mongodb/4.0/release_notes/4.0.20-14.html",
+              "4.2": "https://www.percona.com/doc/percona-server-for-mongodb/4.2/release_notes/4.2.9-10.html",
+              "4.4": "https://www.percona.com/doc/percona-server-for-mongodb/4.4/release_notes/4.4.1-3.html",
+          },
+      }
+
+
+      def check(docs):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(docs, context)
+
+
+      def check_context(docs, context):
+          # `docs` is a frozen (deeply immutable) list of dicts where each dict represents a single document in result set.
+          # `context` is a dict with additional functions.
+          #
+          # Global `print` and `fail` functions are available.
+          #
+          # `check_context` function is expected to return a list of dicts that are then converted to alerts;
+          # in particular, that list can be empty.
+          # Any other value (for example, string) is treated as script execution failure
+          # (Starlark does not support Python exceptions);
+          # it is recommended to use global function `fail` for that instead.
+
+          """
+          This check returns warnings if MongoDB or Percona Server for MongoDB version is not the latest one.
+          """
+
+          format_version_num = context.get("format_version_num", fail)
+          parse_version = context.get("parse_version", fail)
+
+          if len(docs) != 1:
+              return "Unexpected number of documents"
+
+          info = docs[0]
+
+          # extract information
+          is_percona = 'psmdbVersion' in info
+
+          # parse_version returns a dict with keys: major, minor, patch, rest, num, numrest
+          version = parse_version(info["version"])
+          print("version =", repr(version))
+          num = version["num"]
+          if version.get("numrest"):
+              numcve = version["num"] * 1000 + version["numrest"]
+          mm = "{}.{}".format(version["major"], version["minor"])
+
+          results = []
+
+          if is_percona:
+              # Skip this check on older than 2.17.0 PMM versions
+              if not version.get("numrest"):
+                  results.append({
+                      "summary": "MongoDB CVE Version check is available for Percona Server since PMM 2.17.0",
+                      "description": "",
+                      "read_more_url": "https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/index.html",
+                      "severity": "notice",
+                      "labels": {},
+                  })
+
+                  return results
+
+              latest = LATEST_VERSIONS["percona"][mm]
+              if latest > numcve:
+                  results.append({
+                      "summary": "Newer version of Percona Server with CVE fixes for MongoDB is available",
+                      "description": "Current version is {}, latest available version with CVE fixes is {}.".format(format_version_num(numcve), format_version_num(latest)),
+                      "read_more_url": LATEST_VERSIONS["percona_url"][mm],
+                      "severity": "error",
+                      "labels": {
+                          "current": format_version_num(numcve),
+                          "latest":  format_version_num(latest),
+                      },
+                  })
+
+              return results
+
+          if True:  # MongoDB
+              latest = LATEST_VERSIONS["mongodb"][mm]
+              if latest > num:
+                  results.append({
+                      "summary": "Newer version of MongoDB with CVE fixes is available",
+                      "description": "Current version is {}, latest available version with CVE fixes is {}.".format(format_version_num(num), format_version_num(latest)),
+                      "read_more_url": LATEST_VERSIONS["mongodb_url"][mm],
+                      "severity": "error",
+                      "labels": {
+                          "current": format_version_num(num),
+                          "latest":  format_version_num(latest),
+                      },
+                  })
+
+              return results

@@ -1,0 +1,30 @@
+---
+checks:
+  - version: 2
+    name: mongodb_shard_collection_inconsistent_indexes
+    summary: MongoDB Sharding - Inconsistent Indexes Across Shards.
+    description: This check warns if there are inconsistent indexes across shards for sharded collections. Missing or inconsistent indexes across the shards can have a negative impact on performance.
+    interval: standard
+    family: MONGODB
+    advisor: query_index
+    #author: Parag Bhayani
+    queries:
+      - type: METRICS_INSTANT
+        query: avg by(cl_role,cluster,node_name,rs_state) (mongodb_ss_shardedIndexConsistency_numShardedCollectionsWithInconsistentIndexes{rs_state="1", node_name=~"{{.NodeName}}"})
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          results = []
+
+          for row in docs[0]:
+              cluster = row["metric"]["cluster"]
+              inconsistent_index = int(row["value"][1])
+              if inconsistent_index > 0:
+                  results.append({
+                      "summary": "MongoDB Sharding - Inconsistent Indexes Across Shards",
+                      "description": "Inconsistent indexes detected across shards for {} sharded collections in <{}> cluster. Either the indexes are missing in some shards or an index has inconsistent properties across collection's shards. To get inconsistent index details, kindly refer to Read More documentation.".format(inconsistent_index, cluster),
+                      "read_more_url": read_url.format("mongodb-inconsistent-indexes-across-shards"),
+                      "severity": "warning",
+                  })
+              return results

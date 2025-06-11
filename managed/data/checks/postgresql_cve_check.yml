@@ -1,0 +1,236 @@
+---
+checks:
+  - version: 2
+    name: postgresql_cve_check
+    summary: Check for security vulnerabilities
+    description: Checks to see if the currently installed version has reported security vulnerabilities
+    # author: Jorge Torralba
+    # This dictionary is based on the CVE list on the postgresql.org security website https://www.postgresql.org/support/security/
+    # The key is the CVE reference.
+    # The values are a space separated list of postgresql versions where the CVE has been addressed
+    advisor: security_cve
+    interval: standard
+    family: POSTGRESQL
+    category: configuration
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: "setting, (setting::int / 10000) major  FROM pg_settings WHERE name = 'server_version_num' "
+    script: |
+      cve_fix = {
+          "CVE-2023-39418": "15.4",
+          "CVE-2023-39417": "15.4 14.9 13.12 12.16 11.21",
+          "CVE-2023-2455":  "15.3 14.8 13.11 12.15 11.20",
+          "CVE-2023-2454":  "15.3 14.8 13.11 12.15 11.20",
+          "CVE-2022-41862": "15.2 14.7 13.10 12.14",
+          "CVE-2022-2625":  "14.5 13.8 12.12 11.17",
+          "CVE-2022-1552":  "14.3 13.7 12.11 11.16",
+          "CVE-2021-32029": "13.3 12.7 11.12",
+          "CVE-2021-32028": "13.3 12.7 11.12",
+          "CVE-2021-32027": "13.3 12.7 11.12",
+          "CVE-2021-23222": "14.1 13.5 12.9 11.14",
+          "CVE-2021-23214": "14.1 13.5 12.9 11.14",
+          "CVE-2021-20229": "13.2",
+          "CVE-2021-3677":  "13.4 12.8 11.13",
+          "CVE-2021-3393":  "13.2 12.6 11.11",
+          "CVE-2020-25696": "13.1 12.5 11.10",
+          "CVE-2020-25695": "13.1 12.5 11.10",
+          "CVE-2020-25694": "13.1 12.5 11.10",
+          "CVE-2020-14350": "12.4 11.9",
+          "CVE-2020-14349": "12.4 11.9",
+          "CVE-2020-10733": "12.3 11.8",
+          "CVE-2020-1720":  "12.2 11.7",
+          "CVE-2019-10211": "11.5",
+          "CVE-2019-10210": "11.5",
+          "CVE-2019-10209": "11.5",
+          "CVE-2019-10208": "11.5",
+          "CVE-2019-10164": "11.4",
+          "CVE-2019-10130": "11.3",
+          "CVE-2019-10129": "11.3",
+          "CVE-2019-10128": "11.3",
+          "CVE-2019-10127": "11.3",
+          "CVE-2019-3466":  "12.1 11.6",
+          "CVE-2018-16850": "11.1",
+      }
+
+      # This is the minimum major version number that we support and check for CVE's. This makes life whole lot easier since we do not have
+      # to construct a funky version number for postgres 9 and older.
+
+      minversion = 11
+
+      # The following list CVE's based on Postgres version. For example, if you were checking a Postgres 14 version, there would be 5 CVE's listed
+      # here https://www.postgresql.org/support/security/ that affect postgres 14
+      #
+      # As of Oct 12, 2023 there are no CVE's published for Postgres 16
+
+      CVE11 = ["CVE-2023-39417", "CVE-2023-2455", "CVE-2023-2454", "CVE-2022-2625", "CVE-2022-1552", "CVE-2021-32029", "CVE-2021-32028", "CVE-2021-32027", \
+               "CVE-2021-23222", "CVE-2021-23214", "CVE-2021-3677", "CVE-2021-3393", "CVE-2020-25696", "CVE-2020-25695", "CVE-2020-25694", "CVE-2020-14350", \
+               "CVE-2020-14349", "CVE-2020-10733", "CVE-2020-1720", "CVE-2019-10211", "CVE-2019-10210", "CVE-2019-10209", "CVE-2019-10208", "CVE-2019-10164", \
+               "CVE-2019-10130", "CVE-2019-10129", "CVE-2019-10128", "CVE-2019-10127", "CVE-2019-3466", "CVE-2018-16850" ]
+
+      CVE12 = ["CVE-2022-41862", "CVE-2022-2625", "CVE-2022-1552", "CVE-2021-32029", "CVE-2021-32028", "CVE-2021-32027", "CVE-2021-23222", "CVE-2021-23214", \
+               "CVE-2021-3677", "CVE-2021-3393", "CVE-2020-25696", "CVE-2020-25695", "CVE-2020-25694", "CVE-2020-14350", "CVE-2020-14349", "CVE-2020-10733", \
+               "CVE-2020-1720", "CVE-2019-3466"]
+
+      CVE13 = ["CVE-2022-41862", "CVE-2022-2625", "CVE-2022-1552", "CVE-2021-32029", "CVE-2021-32028", "CVE-2021-32027", "CVE-2021-23222", "CVE-2021-23214", \
+               "CVE-2021-20229", "CVE-2021-3677", "CVE-2021-3393", "CVE-2020-25696", "CVE-2020-25695", "CVE-2020-25694"]
+
+      CVE14 = ["CVE-2023-2454", "CVE-2023-2455", "CVE-2023-39417", "CVE-2022-41862", "CVE-2022-2625", "CVE-2022-1552", "CVE-2021-23222", \
+               "CVE-2021-23214"]
+
+      CVE15 = ["CVE-2022-41862", "CVE-2023-2454", "CVE-2023-2455", "CVE-2023-39417", "CVE-2023-39418"]
+
+
+      # Lets see if we have CVE's for the version of Postgres we are checking
+
+      def check_cve(cveRef, current_version, checkedMajor, checkedVersionFull):
+          msgStr = ""
+          cveFixedInVersion = []
+
+          for numberOfCves in range(len(cveRef)):
+             # get a string containing all the versions where the CVE has been addressed
+             listOfFixedVersions = cve_fix[cveRef[numberOfCves]]
+
+             # now, we get the list of fixed versions and split it into individual versions.
+             fixedVersions = listOfFixedVersions.split()
+
+             # We now go through all the individual versions so we can match against the version being checked
+
+             for numberOfFixedVersions in range(len(fixedVersions)):
+                 shortVersion = fixedVersions[numberOfFixedVersions]
+
+                 # We need to get the major version. This we have to remove the .x so we create another array and the
+                 # first element is the major version of Postgres. Basically, 10.5 yields 10 as the major
+
+                 versionsArray  = shortVersion.split(".")
+
+                 fixedVersionsMajor  = versionsArray[0]
+                 fixedVersionsMinor  = versionsArray[1]
+
+                 # If the major version fix is not the same as the major version being checked, continue. Nothing to report
+
+                 if int(fixedVersionsMajor) != int(checkedMajor):
+                     continue
+
+                 fixedVersionFull = convertShortToFull(shortVersion)
+                 fixedVersionFull = int(fixedVersionFull)
+
+                 # If the version being checked is greater than the fixed version, continue. Nothing to report
+                 # have to cast to float since versions now have a decimal. Otherwise we get an error
+
+                 if checkedVersionFull  >= fixedVersionFull:
+                     continue
+
+                 # If the version being checked is older / less than the fixed version, build a error message indicating issue found
+                 # have to cast to float since versions now have a decimal. Otherwise we get an error
+
+                 if checkedVersionFull  < fixedVersionFull:
+                    cveFull = convertShortToFull(fixedVersions[numberOfFixedVersions])
+                    cveFixedInVersion.append(cveFull)
+                    msgStr = msgStr + " ({}),  ".format(cveRef[numberOfCves])
+
+
+          if len(cveFixedInVersion) == 0 :
+             return ""
+
+          maxVer = max(cveFixedInVersion)
+          fixedInVersion = convertFullToShort(maxVer)
+          msgStr = msgStr + " fixed with Postgres {} ".format(fixedInVersion)
+
+          return msgStr
+
+      # -----------------------------------------------------------------------------------------------------------
+      # All these conversion will work with versions 10 and higher. Version 9 has different major minor construct
+      # and cannot be simplifyed. Lucky for us, we discard anything older than 10 as being too old and unsupported.
+      # -----------------------------------------------------------------------------------------------------------
+
+      # -----------------------------------------------------------------------------------------------------------
+      # using math to determine version diff. That being the case, you really have to take a short version like
+      # 10.4 and convert it to 100004 or 10.10 and convert it to 100010
+      # Why, because 10.1 is older than 10.10 and regular math would treat 10.1 the same as 10.10 So we have to add zeroes
+      # Or even worse, 13.6 is numerically higher than 13.10 but in reality, 13.10 is a newer version than 6.  See where I am going ?
+      # So 130006 vs 130010 would do the trick since 130010 is actually greater than 130006
+      # -----------------------------------------------------------------------------------------------------------
+
+      def convertShortToFull(shortVersions):
+          shortArray  = shortVersions.split(".")
+          major = shortArray[0]
+          minor = shortArray[1]
+          if int(minor) < 10:
+             minor = "0" + str(minor)
+             fullVersion = str(major) + "00" + minor
+             return fullVersion
+          if int(minor) >= 10:
+             fullVersion = str(major) + "00" + minor
+             return fullVersion
+
+      # -----------------------------------------------------------------------------------------------------------
+      # Now we need to sometimes get the full version and convert it to a short. For example 130009
+      # would translate to 13.9
+      # -----------------------------------------------------------------------------------------------------------
+
+      def convertFullToShort(fullVersion):
+          minor = int(fullVersion) % 100
+          major = int(fullVersion) // 10000
+          fmt_version = "{}.{}".format(str(major), str(minor))
+          return fmt_version
+
+
+      def check_context(rows, context):
+           results = []
+           read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+           description = ""
+           for row in rows[0]:
+               ver, major = int(row["setting"]), int(row["major"])
+
+               #hard code for testing
+               #ver = 140008
+               #major = 14
+
+
+               if str(major) == "":
+                  results.append({
+                      "summary": "Could not determine version information",
+                      "description": "Unknown version",
+                      "read_more_url": "",
+                      "severity": "error",
+                      "labels": {},
+                  })
+                  return results
+
+               if major < minversion:
+                  results.append({
+                      "summary": "Unsupported version",
+                      "description": "The checked major version ({}) is too old or no longer supported.".format(major),
+                      "read_more_url": "",
+                      "severity": "error",
+                      "labels": {},
+                  })
+                  return results
+
+               current_version = convertFullToShort(ver)
+
+               vul = ""
+
+               if major == 11:
+                   vul = check_cve(CVE11, current_version, major, ver)
+               elif major == 12:
+                   vul = check_cve(CVE12, current_version, major, ver)
+               elif major == 13:
+                   vul = check_cve(CVE13, current_version, major, ver)
+               elif major == 14:
+                   vul = check_cve(CVE14, current_version, major, ver)
+               elif major == 15:
+                   vul = check_cve(CVE15, current_version, major, ver)
+
+               if vul == "":
+                   return []
+
+           results.append({
+               "summary": "Checking for Postgres CVE's",
+               "description": "Postgres {} has the following CVE's: {}".format( current_version, vul ),
+               "read_more_url":read_url.format("postgresql-cve-check"),
+               "severity": "error",
+               "labels": {},
+           })
+
+           return results

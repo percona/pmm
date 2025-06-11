@@ -1,0 +1,45 @@
+---
+### MongoDB Platform Advisors Replica Set Topology
+checks:
+  - version: 1
+    name: mongodb_replicaset_topology
+    summary: MongoDB Replica Set Topology
+    description: This check returns warnings if the Replica Set has less than 3 data bearing nodes
+    type: MONGODB_REPLSETGETSTATUS
+    #family: mongodb
+    #author: Corrado Pandiani
+    advisor: configuration_replication
+    interval: standard
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def check(docs):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(docs, context)
+
+      def check_context(docs, context):
+          """
+          This check returns warnings if Replica Set has less than 3 data bearing members.
+          """
+
+          if len(docs) != 1:
+              return "Unexpected number of documents"
+
+          results = []
+
+          set_name = docs[0]["set"]
+          members_number = len(docs[0]["members"])
+
+
+          if members_number < 3:
+              results.append({
+                  "summary": "The current MongoDB Replica Set Topology is not recommended",
+                  "description": "The Replica Set {set_name} has {members_number} members. It is recommended to have at least 3 full data bearing nodes for Production use. An ARBITER is not a full data bearing node and does not provide full redundancy and HA capabilities in failover situations (no ARBITER)".format(set_name=set_name, members_number=members_number),
+                  "read_more_url": read_url.format("mongo-check-the-replica-set-topology"),
+                  "severity": "warning",
+              })
+
+          return results

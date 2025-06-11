@@ -1,0 +1,87 @@
+---
+checks:
+  - version: 2
+    name: mongodb_version
+    summary: MongoDB version check
+    description: This check returns information on current MongoDB or Percona Server for MongoDB versions used in your environment. It also provides information on other available minor or major versions to consider for upgrades.
+    interval: standard
+    family: MONGODB
+    advisor: configuration_version
+    #category: version configuration
+    #author: Parag Bhayani
+    queries:
+      - type: MONGODB_BUILDINFO
+    script: |
+      LATEST_VERSIONS = {
+          "version_check": {
+              "4.4": 40429,  # https://www.percona.com/downloads/percona-server-mongodb-4.4/
+              "5.0": 50029,  # https://www.percona.com/downloads/percona-server-mongodb-5.0/
+              "6.0": 60021,  # https://www.percona.com/downloads/percona-server-mongodb-6.0/
+              "7.0": 70018,  # https://www.percona.com/downloads/percona-server-mongodb-7.0/
+              "8.0": 80008,  # https://www.percona.com/downloads/percona-server-mongodb-8.0/
+          },
+          "read_url": "https://docs.percona.com/percona-platform/advisors/checks/{}.html",
+      }
+
+      def check(docs):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(docs, context)
+
+      def check_context(docs, context):
+          """
+          This check returns information on current MongoDB or Percona Server for MongoDB versions used in your environment. It also provides information on other available minor or major versions to consider for upgrades.
+          """
+
+          format_version_num = context.get("format_version_num", fail)
+          parse_version = context.get("parse_version", fail)
+
+          info = docs[0]
+          results = []
+
+          is_version = 'version' in info
+          latest_major = "6.0"
+
+          for row in info:
+              # Checking MongoDB version
+              # parse_version returns a dict with keys: major, minor, patch, rest, num
+              # Eg.: For PSMDB 4.4.8-18 parse_version output - {"major": 4, "minor": 4, "patch": 18, "rest": "-18", "num": 40418, "numrest": 18}
+              version = parse_version(row["version"])
+              print("version =", repr(version))
+              num = version["num"]
+              mm = "{}.{}".format(version["major"], version["minor"])
+
+              latest_current_version = LATEST_VERSIONS["version_check"][mm]
+              current_version = row["version"]
+
+              if is_version == "":
+                  results.append({
+                      "summary": "Not able to determine the version details.",
+                      "description": "Not able to determine the current version details. Please check your mongod instance for availability and details.",
+                      "read_more_url": "",
+                      "severity": "warning",
+                  })
+
+              if mm < "4.4":
+                  description = "Current MongoDB version = {}, Latest Major version = {}. This instance has reached EOL for this MongoDB version. It is highly recommended to perform an upgrade to reach a supported major release version immediately. This upgrade should be performed in a stepped manner without skipping any major version releases.".format(current_version, latest_major)
+
+              if num < latest_current_version and mm < latest_major:
+                  description = "There is a new minor version {} available. Always consider upgrading to the highest minor version in order to take advantage of the latest bug fixes and performance tweaks. There is also an updated Major version {} available. Please consider planning for and implementing the major version upgrade after completing the minor patch upgrade. Current MongoDB version = {}.".format(format_version_num(latest_current_version), latest_major, current_version)
+
+              if num == latest_current_version and mm < latest_major:
+                  description = "The instance is currently running MongoDB version {}. This is the latest minor patch for this version. However there is an updated Major version {} available. Please consider planning for and implementing the upgrade to the latest major version.".format(current_version, latest_major)
+
+              results.append({
+                  "summary": "Newer version of MongoDB is available.",
+                  "description": description,
+                  "read_more_url": LATEST_VERSIONS["read_url"].format("mongodb-version"),
+                  "severity": "notice",
+              })
+
+              if num == latest_current_version and mm == latest_major:
+                  return []
+
+              return results

@@ -434,7 +434,6 @@ func TestFilterChecks(t *testing.T) {
 			Summary:     "MySQL advisor",
 			Description: "Test mySQL advisor",
 			Category:    "test",
-			Tiers:       []common.Tier{common.Anonymous},
 			Checks: []check.Check{
 				{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
 				{Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
@@ -446,7 +445,6 @@ func TestFilterChecks(t *testing.T) {
 			Summary:     "PostgreSQL advisor",
 			Description: "Test postgreSQL advisor",
 			Category:    "test",
-			Tiers:       []common.Tier{common.Anonymous, common.Registered},
 			Checks: []check.Check{
 				{Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
 				{Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
@@ -458,7 +456,6 @@ func TestFilterChecks(t *testing.T) {
 			Summary:     "MongoDB advisor",
 			Description: "Test mongoDB advisor",
 			Category:    "test",
-			Tiers:       []common.Tier{common.Paid},
 			Checks: []check.Check{
 				{Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
 				{Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
@@ -476,7 +473,6 @@ func TestFilterChecks(t *testing.T) {
 			Summary:     "Completely invalid advisor",
 			Description: "Test advisor that contains only unsupported checks",
 			Category:    "test",
-			Tiers:       []common.Tier{common.Anonymous},
 			Checks: []check.Check{
 				{Name: "unsupported version", Version: maxSupportedVersion + 1, Type: check.MySQLShow},
 				{Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
@@ -487,7 +483,6 @@ func TestFilterChecks(t *testing.T) {
 			Summary:     "Partially invalid advisor",
 			Description: "Test advisor that contains some unsupported checks",
 			Category:    "test",
-			Tiers:       []common.Tier{common.Anonymous},
 			Checks: []check.Check{
 				{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
 				{Name: "missing type", Version: 1},

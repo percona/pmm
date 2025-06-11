@@ -1,0 +1,95 @@
+---
+checks:
+  - version: 2
+    name: innodb_redo_logs_not_sized_correctly
+    summary: Checks if InnoDB redo log size is not configured correctly.
+    description: This check reviews InnoDB redo log size and suggests if it is configured too low.
+    family: MYSQL
+    category: performance
+    #subcategory: configuration
+    #author: Kedar Vaijanapurkar
+    advisor: configuration_innodb
+    interval: standard
+    queries:
+      - type: MYSQL_SELECT
+        query: "@@global.version as version, @@global.hostname as service"
+      - type: METRICS_RANGE
+        query: avg by (service_name) (increase(mysql_global_status_innodb_os_log_written{service_name=~"{{.ServiceName}}"}[1h]))
+        parameters:
+          range: 168h
+          step: 5m
+      - type: METRICS_INSTANT
+        query: avg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~"{{.ServiceName}}"} * mysql_global_variables_innodb_log_file_size{service_name=~"{{.ServiceName}}"})
+        parameters:
+          lookback: 5m
+      - type: METRICS_RANGE
+        query: " (avg by (service_name) (max_over_time(mysql_global_status_innodb_checkpoint_age{service_name=~\"{{.ServiceName}}\"}[1h]) or  max_over_time(mysql_global_status_innodb_checkpoint_age{service_name=~\"{{.ServiceName}}\"}[5m]) or max_over_time(mysql_info_schema_innodb_metrics_recovery_log_lsn_checkpoint_age_total{service_name=~\"{{.ServiceName}}\"}[1h]) or max_over_time(mysql_info_schema_innodb_metrics_recovery_log_lsn_checkpoint_age_total{service_name=~\"{{.ServiceName}}\"}[5m]) or max_over_time(mysql_info_schema_innodb_metrics_log_log_lsn_checkpoint_age{service_name=~\"{{.ServiceName}}\"}[1h]) or max_over_time(mysql_info_schema_innodb_metrics_log_log_lsn_checkpoint_age{service_name=~\"{{.ServiceName}}\"}[5m]))) * 100 / (avg by (service_name) (max_over_time(mysql_global_status_innodb_checkpoint_max_age{service_name=~\"{{.ServiceName}}\"}[1h]) or  max_over_time(mysql_global_status_innodb_checkpoint_max_age{service_name=~\"{{.ServiceName}}\"}[5m]) or  max_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_async{service_name=~\"{{.ServiceName}}\"}[1h]) or  max_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_async{service_name=~\"{{.ServiceName}}\"}[5m]) or  max_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_async{service_name=~\"{{.ServiceName}}\"}[1h]) or  max_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_async{service_name=~\"{{.ServiceName}}\"}[5m])))\""
+        parameters:
+          range: 168h
+          step: 5m
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def redo_log_check(docs):
+          for row in docs[0]:
+              version = row["version"]
+              service = row["service"]
+
+          cnt = 0
+          cnt_high = 0
+          sum = 0
+          logs_written_tot = 0
+          logs_written_max = 0
+          logs_written_avg = 0
+          redo_log_size = 0
+          logsWritten = []
+
+          redo_log_size = int(docs[2][0]["value"][1])
+
+          for row in docs[1][0]["values"]:
+              logsWritten.append(row[1])
+              logs_written_tot = int(logs_written_tot) + int(row[1])
+              if logs_written_max < int(row[1]):
+                logs_written_max = int(row[1])
+              cnt = int(cnt) + 1
+              if int(row[1]) > redo_log_size:
+                  cnt_high = int(cnt_high) + 1
+          logs_written_avg = logs_written_tot / int(cnt) / 1024 / 1024
+
+          checkpoint_age_usage_perc = []
+          chkpt_alert = 0
+          for row in docs[3][0]["values"]:
+              checkpoint_age_usage_perc.append(row[1])
+              if float(row[1]) > 80:
+                  chkpt_alert = int(chkpt_alert) + 1
+
+          if chkpt_alert > 1:
+              return {
+                  "summary": "Redo log size check.",
+                  "read_more": "https://percona.com/blog",
+                  "description": "Current total redo log size is {}M. It is noted that the checkpoint age is utilizing more than 80% of maximum checkpoint age. In such cases the blocks are flushed synchronously and can cause the degraded performance. It is important to revise the redo_log_size. The average logs written in past 24h is {}M with spikes above redo_log_size being {}% of total samples with max written redolog size being {}M.".format(int(redo_log_size/1024/1024),int(logs_written_avg), int(cnt_high*100/cnt),int(logs_written_max/1024/1024)),
+                  "severity": "error",
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  },
+                  "read_more_url":read_url.format("innodb_redo_logs_not_sized_correctly")
+              }
+          if int(cnt_high*100/cnt) > 5:
+              return {
+                  "summary": "Redo log size check.",
+                  "read_more": "https://percona.com/blog",
+                  "description": "Current total redo log size is {}M. The relo log written are more than the configured though this hasn't caused system degradation. The average logs written in past 24h is {}M with spikes above redo_log_size being {}% of total samples with max written redolog size being {}M. ".format(int(redo_log_size/1024/1024),int(logs_written_avg), int(cnt_high*100/cnt),int(logs_written_max/1024/1024)),
+                  "severity": "warning",
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  },
+                  "read_more_url":read_url.format("innodb_redo_logs_not_sized_correctly")
+              }
+
+      def check_context(docs,context):
+          results = []
+          tmp_redo_log_check = redo_log_check(docs)
+          if tmp_redo_log_check:
+              results.append(tmp_redo_log_check)
+          return results

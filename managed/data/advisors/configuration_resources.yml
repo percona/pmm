@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: configuration_resources
+    summary: Resources Configuration
+    description: Watches your database and gives you recommendations for efficient management of resources like binaries architecture, CPU number versus DB Configuration, etc.
+    category: configuration

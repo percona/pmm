@@ -1,0 +1,48 @@
+---
+checks:
+  - version: 2
+    name: mongodb_fcv_check
+    summary: MongoDB - FCV mismatch
+    description: This check returns a warning if there is a mismatch between the MongoDB version and the internal FCV parameter setting.
+    interval: standard
+    family: MONGODB
+    advisor: configuration_resources
+    #category: configuration
+    #author: Parag Bhayani
+    queries:
+      - type: MONGODB_BUILDINFO
+      - type: MONGODB_GETPARAMETER
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          """
+          This check returns a warning if there is a mismatch between the MongoDB version and the internal FCV parameter setting.
+          """
+
+          info = docs[0]
+          results = []
+
+          for ver in info:
+              # Checking MongoDB version
+              # parse_version returns a dict with keys: major, minor, patch, rest, num
+              version = parse_version(ver["version"])
+              print("version =", repr(version))
+              num = version["num"]
+              mm = "{}.{}".format(version["major"], version["minor"])
+
+          for fcv in docs[1]:
+              if fcv.get("featureCompatibilityVersion", {}):
+                  fcv_version = fcv["featureCompatibilityVersion"]["version"]
+              if not fcv.get("featureCompatibilityVersion", {}):
+                  return results
+
+          if mm != fcv_version:
+              results.append({
+                  "summary": "FCV version mismatch.",
+                  "description": "There is a mismatch between the MongoDB version and the FCV parameter setting. Please check your parameter settings and set the FCV version to match the mongodb version unless intentionally using different settings (for ex. using older FCV version settings for backwards compatibility during upgrade processes). (Current MongoDB version - {} & FCV - {}). For more information, please check the Read More documentation.".format(mm, fcv_version),
+                  "read_more_url": read_url.format("mongodb-fcv-mismatch"),
+                  "severity": "warning",
+              })
+
+          return results

@@ -1,0 +1,64 @@
+---
+checks:
+  - version: 2
+    name: mysql_performance_temp_ondisk_table_high
+    summary: Too many on disk temporary tables
+    description: This check warns against too many ondisk temporary tables created due to unoptimized query execution.
+    family: MYSQL
+    category: configuration
+    advisor: query_index
+    #subcategory: index
+    #author: Kedar Vaijanapurkar
+    interval: standard
+    queries:
+      - type: MYSQL_SHOW
+        query: "global status where variable_name='Created_tmp_disk_tables' or variable_name='Created_tmp_tables'"
+      - type: MYSQL_SELECT
+        query: "@@global.version as version, @@global.hostname as service"
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      # This advisor check hints about creation of on-disk temp tables due to unoptimized query or low configuration value for tmp_table_size / max_heap_table_size.
+      def check_tmp_table_ondisk(docs):
+          for row in docs[0]:
+              name, value = row["Variable_name"], row["Value"]
+              if name == "Created_tmp_disk_tables":
+                   var_created_tmp_disk_tables = value
+              if name == "Created_tmp_tables":
+                   var_created_tmp_tables = value
+
+          for row in docs[1]:
+              version = row["version"]
+              service = row["service"]
+
+          perc = int(var_created_tmp_disk_tables) * 100  // int(var_created_tmp_tables)
+          if perc > 1 and perc <=5:
+              return {
+                  "summary": "More than {}% of the temporary tables are converted to on disk.".format(perc),
+                  "read_more": "https://percona.com/blog",
+                  "description": "More than {}% of the queries are causing temporary table creation on disk. Query and configuration review is recommended.".format(perc),
+                  "severity": "warning",
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  },
+                  "read_more_url":read_url.format("mysql_performance_temp_ondisk_table_high")
+              }
+          if perc > 5:
+              return {
+                  "summary": "More than {}% of the temporary tables are converted to on disk.".format(perc),
+                  "read_more": "https://percona.com/blog",
+                  "description": "More than {}% of the queries are causing temporary table creation on disk. Query and configuration review is recommended.".format(perc),
+                  "severity": "Error",
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  },
+                  "read_more_url":read_url.format("mysql_performance_temp_ondisk_table_high")
+              }
+      def check_context(docs,context):
+          results = []
+          tmp_table_ondisk_result = check_tmp_table_ondisk(docs)
+          if tmp_table_ondisk_result:
+              results.append(tmp_table_ondisk_result)
+          return results

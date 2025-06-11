@@ -1,0 +1,42 @@
+---
+checks:
+  - version: 2
+    name: mongo_cache_size
+    summary: Mongo Storage Cache
+    description: Mongo wiredtiger cache size is greater then default 50%
+    interval: standard
+    family: MONGODB
+    advisor: configuration_generic
+    queries:
+      - type: METRICS_INSTANT
+        query: mongodb_sys_memory_MemTotal_kb{node_name="{{.NodeName}}"}
+      - type: METRICS_INSTANT
+        query: mongodb_ss_wt_cache_maximum_bytes_configured{node_name=~"{{.NodeName}}"}
+    script: |
+      read_url = "https://www.mongodb.com/docs/manual/reference/configuration-options/#mongodb-setting-storage.wiredTiger.engineConfig.cacheSizeGB"
+
+      def check_context(docs, context):
+
+          results = []
+
+          for row in docs[0]:
+              state1 = row["metric"]["rs_state"]
+              orig = int(int(row["value"][1])/1024)
+              maxValue = int(orig/2)
+              if state1 == "0" or state1 == "7":
+                  return results
+
+          for type in docs[1]:
+              state = type["metric"]["rs_state"]
+              valueB = int(int(type["value"][1])/1024/1024)
+              if state == "0" or state == "7":
+                  return results
+
+          if valueB > maxValue:
+              results.append({
+                  "summary": "MongoDB configured wiredtiger cache size is greater then 50% of instance memory. Please carefully reduce it to avoid memory issues",
+                  "description": "See the following to reduce the wiredtiger cache size size",
+                  "read_more_url": read_url,
+                  "severity": "warning",
+              })
+          return results
