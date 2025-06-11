@@ -70,7 +70,7 @@ func createOriginEncryptionKey(t *testing.T) error {
 	if err != nil {
 		return err
 	}
-	encryption.DefaultEncryption = encryption.New()
+	encryption.DefaultEncryption, _ = encryption.New()
 	return nil
 }
 
