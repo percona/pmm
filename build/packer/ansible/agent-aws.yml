@@ -191,10 +191,7 @@
         name: "{{ item }}"
         source: pull
       loop:
-        - debian:buster
-        - debian:bullseye
         - debian:bookworm
-        - ubuntu:focal
         - ubuntu:jammy
         - ubuntu:noble
         - rockylinux:8
