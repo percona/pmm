@@ -6,17 +6,14 @@ Complete the initial setup, security configuration, and ongoing maintenance for 
 
 ### First-time access and login
 
-Once you've accessed the PMM web interface at `https://<your-instance-ip>`, you'll need to complete the initial login process. The default credentials are:
-
-- username: `admin`
-- password: `your instance ID`
+Once you've accessed the PMM web interface at `https://<your-instance-ip>`, you'll need to complete the initial login process. The default credentials are `admin`/`your instance ID`. 
 
 To find your instance ID:
 {.power-number}
 
-1. In the EC2 console, select your PMM instance
-2. Copy the **Instance ID** from the instance details
-3. Use this as the password for initial login
+1. In the EC2 console, select your PMM instance.
+2. Copy the **Instance ID** from the instance details.
+3. Use this as the password for initial login.
 
 ### Mandatory password change
 
@@ -164,7 +161,7 @@ curl -k -u admin:your-password https://<pmm-server-ip>:443/v1/readyz
 To configure security groups for RDS access:
 {.power-number}
 
-1. Modify your RDS security group to add inbound rule: MySQL/Aurora (3306) from PMM security group
+1. Modify your RDS security group to add inbound rule: MySQL/Aurora (3306) from PMM security group.
 2. Test connectivity:
    ```bash
    # From PMM Server
@@ -202,8 +199,8 @@ Scale memory allocations proportionally for larger instances.
 {.power-number}
 
 1. Go to **PMM Configuration > Settings > Advanced Settings**.
-2. Enable Internal Monitoring with 30-day retention
-3. Monitor CPU, memory, disk I/O, and PMM service health
+2. Enable Internal Monitoring with 30-day retention.
+3. Monitor CPU, memory, disk I/O, and PMM service health.
 
 ## Set up CloudWatch alarms
 
