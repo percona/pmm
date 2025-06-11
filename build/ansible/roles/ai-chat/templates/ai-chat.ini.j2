@@ -1,0 +1,22 @@
+[program:ai-chat]
+priority = 16
+command = 
+    /usr/bin/node
+        {{ ai_chat_dir }}/mcp-client-chatbot/dist/src/server.js
+user = {{ ai_chat_user }}
+directory = {{ ai_chat_dir }}/mcp-client-chatbot
+autorestart = true
+autostart = true
+startretries = 10
+startsecs = 1
+stopsignal = TERM
+stopwaitsecs = 30
+stdout_logfile = /srv/logs/ai-chat.log
+stdout_logfile_maxbytes = 50MB
+stdout_logfile_backups = 2
+redirect_stderr = true
+environment = 
+    POSTGRES_URL="{{ postgres_url }}",
+    FILE_BASED_MCP_CONFIG="true",
+    PORT="{{ ai_chat_port }}",
+    NODE_ENV="production" 
