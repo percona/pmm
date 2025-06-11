@@ -72,8 +72,8 @@ cp -pa ./managed/data/checks/*.yaml %{buildroot}/usr/local/percona/pmm/checks/
 %{_sbindir}/pmm-managed-starlark
 %{_datadir}/%{name}
 %{_datadir}/pmm-ui
-%{buildroot}/local/percona/pmm/advisors/*.yaml
-%{buildroot}/local/percona/pmm/checks/*.yaml
+%{buildroot}/usr/local/percona/pmm/advisors/*.yaml
+%{buildroot}/usr/local/percona/pmm/checks/*.yaml
 
 %changelog
 * Wed Jun 11 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.0-1
