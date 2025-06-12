@@ -7,12 +7,14 @@ Deploy PMM Server with AWS Marketplace when you need quick setup with pre-config
 Before you begin, ensure you have:
 
 - an active AWS account with appropriate permissions
-- IAM permissions to create and manage EC2 instances, storage, and 
-- basic understanding of AWS VPC and security group concepts
+- IAM permissions to create and manage EC2 instances, storage, VPC and security groups
+- understanding of AWS networking concepts (VPC, subnets, security group concepts)
 
-## Choose instance size
+## Choose the right instance size
 
-Select an EC2 instance based on the number of hosts you plan to monitor. Start small and scale as your monitoring needs grow. EC2 instances can be resized with minimal downtime.
+Select an EC2 instance based on the number of hosts you plan to monitor. 
+
+Start small and scale as your monitoring needs grow. EC2 instances can be resized with minimal downtime.
 
 | Monitored hosts | Instance type | vCPUs | Memory | Storage |
 |----------------|---------------|-------|--------|---------|
@@ -52,13 +54,13 @@ Required ports:
 
 ## Estimate costs
 
-PMM Server software is free, but expect AWS infrastructure costs depending on your instance size and storage needs.
+PMM Server software is free, but plan for AWS infrastructure costs depending on your instance size and storage needs.
 
 Use the [AWS pricing calculator](https://calculator.aws/#/) to estimate monthly costs based on your planned configuration.
 
-PMM Server uses a simple backup architecture - all monitoring data is stored in the `/srv` partition, which means you only need to back up one EBS volume to protect all your PMM data. This simplifies your backup strategy and reduces complexity.
-
 ## Plan backups
+
+PMM Server uses a simple backup architecture - all monitoring data is stored in the `/srv` partition, which means you only need to back up one EBS volume to protect all your PMM data. This simplifies your backup strategy and reduces complexity.
 
 When planning your deployment, consider that you'll need to create point-in-time snapshots of the EBS volume containing the `/srv` partition. Plan for snapshot storage costs and determine your backup frequency and retention requirements.
 
