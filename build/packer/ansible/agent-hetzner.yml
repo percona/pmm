@@ -186,7 +186,9 @@
 
     - name: Install Goreleaser
       dnf:
-        name: https://github.com/goreleaser/goreleaser/releases/download/v{{ goreleaser_version }}/goreleaser-{{ goreleaser_version }}-1.{{ ansible_architecture }}.rpm
+        name: >-
+          https://github.com/goreleaser/goreleaser/releases/download/v{{ goreleaser_version }}/
+          goreleaser-{{ goreleaser_version }}-1.{{ ansible_architecture }}.rpm
         state: present
         disable_gpg_check: yes
       when: ansible_architecture == "x86_64"  # Only available for x86_64
@@ -264,7 +266,7 @@
     - name: Increase dirty_expire_centisecs
       sysctl:
         name: vm.dirty_expire_centisecs
-        value: 12000 #120 sec
+        value: 12000  # 120 sec
 
     - name: Increase net.core.somaxconn
       sysctl:
@@ -335,13 +337,13 @@
       sysctl:
         name: kernel.perf_event_max_stack
         value: 1023
-        ignoreerrors: yes
+        ignore_errors: yes
 
     - name: Increase fs.xfs.xfssyncd_centisecs
       sysctl:
         name: fs.xfs.xfssyncd_centisecs
         value: 9000
-        ignoreerrors: yes  # This parameter may not exist on all systems
+        ignore_errors: yes  # This parameter may not exist on all systems
 
     - name: Increase fs.inotify.max_user_watches
       sysctl:
