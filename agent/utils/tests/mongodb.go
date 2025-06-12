@@ -119,7 +119,7 @@ func OpenTestMongoDB(tb testing.TB, dsn string) *mongo.Client {
 }
 
 // MongoDBVersion returns Mongo DB version.
-func MongoDBVersion(tb testing.TB, client *mongo.Client) *version.Parsed {
+func MongoDBVersion(tb testing.TB, client *mongo.Client) (*version.Parsed, bool) {
 	tb.Helper()
 
 	res := client.Database("admin").RunCommand(context.Background(), primitive.M{"buildInfo": 1})
@@ -127,7 +127,8 @@ func MongoDBVersion(tb testing.TB, client *mongo.Client) *version.Parsed {
 		tb.Fatalf("Cannot get buildInfo: %s", res.Err())
 	}
 	bi := struct {
-		Version string
+		Version      string `bson:"version"`
+		PSMDBVersion string `bson:"psmdbVersion"`
 	}{}
 	if err := res.Decode(&bi); err != nil {
 		tb.Fatalf("Cannot decode buildInfo response: %s", err)
@@ -136,5 +137,11 @@ func MongoDBVersion(tb testing.TB, client *mongo.Client) *version.Parsed {
 	if err != nil {
 		tb.Fatalf("Cannot parse version: %s", err)
 	}
-	return parsed
+
+	var isPercona bool
+	if bi.PSMDBVersion != "" {
+		isPercona = true
+	}
+
+	return parsed, isPercona
 }

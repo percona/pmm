@@ -59,7 +59,6 @@ func TestConfig(t *testing.T) {
 		if n == "" {
 			continue
 		}
-		tmpl := tmpl
 		t.Run(tmpl.Name(), func(t *testing.T) {
 			t.Parallel()
 			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini")) //nolint:gosec
@@ -108,7 +107,6 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 			continue
 		}
 
-		tmpl := tmpl
 		t.Run(tmpl.Name(), func(t *testing.T) {
 			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+"_envvars.ini")) //nolint:gosec
 			require.NoError(t, err)

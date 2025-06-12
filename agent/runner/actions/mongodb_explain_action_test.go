@@ -285,7 +285,7 @@ func TestMongoDBExplain(t *testing.T) {
 			"rejectedPlans": []interface{}{},
 			"winningPlan":   map[string]interface{}{"stage": "EOF"},
 		}
-		mongoDBVersion := tests.MongoDBVersion(t, client)
+		mongoDBVersion, isPercona := tests.MongoDBVersion(t, client)
 
 		switch {
 		case mongoDBVersion.Major < 5:
@@ -294,6 +294,9 @@ func TestMongoDBExplain(t *testing.T) {
 			want["maxIndexedAndSolutionsReached"] = false
 			want["maxIndexedOrSolutionsReached"] = false
 			want["maxScansToExplodeReached"] = false
+			if mongoDBVersion.Major == 7 && !isPercona {
+				want["optimizationTimeMillis"] = map[string]interface{}{"$numberInt": "0"}
+			}
 		case mongoDBVersion.Major == 8:
 			want["maxIndexedAndSolutionsReached"] = false
 			want["maxIndexedOrSolutionsReached"] = false
@@ -363,7 +366,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 
 			explainM := make(map[string]interface{})
 			err = json.Unmarshal(res, &explainM)
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 
 			// Just test not empty because different versions and environments return different
 			// explain results
@@ -373,12 +376,12 @@ func TestNewMongoDBExplain(t *testing.T) {
 }
 
 func prepareData(ctx context.Context, client *mongo.Client, database, collection string) error {
-	max := int64(100)
+	limit := int64(100)
 	count, _ := client.Database(database).Collection(collection).CountDocuments(ctx, nil)
 
-	if count < max {
-		for i := int64(0); i < max; i++ {
-			doc := primitive.M{"f1": i, "f2": fmt.Sprintf("text_%5d", max-i)}
+	if count < limit {
+		for i := int64(0); i < limit; i++ {
+			doc := primitive.M{"f1": i, "f2": fmt.Sprintf("text_%5d", limit-i)}
 			if _, err := client.Database(database).Collection(collection).InsertOne(ctx, doc); err != nil {
 				return err
 			}

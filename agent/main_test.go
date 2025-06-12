@@ -235,7 +235,7 @@ func TestImports(t *testing.T) {
 	for _, line := range lines {
 		if _, ok := duplicate[line]; !ok {
 			duplicate[line] = struct{}{}
-			fmt.Fprint(f, line)
+			fmt.Fprint(f, line) //nolint:errcheck
 		}
 	}
 	fmt.Fprintf(f, "}\n")
