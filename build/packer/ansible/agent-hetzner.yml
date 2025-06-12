@@ -69,6 +69,8 @@
           - nodejs
           - chromium
           - packer
+          - xfsprogs # XFS filesystem utilities
+          - xfsdump  # XFS backup utilities
         state: latest
 
     - name: Install Java17
@@ -336,6 +338,12 @@
         name: kernel.perf_event_max_stack
         value: 1023
         ignoreerrors: yes
+
+    - name: Load XFS kernel module
+      modprobe:
+        name: xfs
+        state: present
+      ignore_errors: yes
 
     - name: Increase fs.xfs.xfssyncd_centisecs
       sysctl:
