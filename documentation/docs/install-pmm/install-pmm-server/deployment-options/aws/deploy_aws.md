@@ -80,80 +80,15 @@ For proper PMM Server functionality and access, ensure your security group allow
 
 ### SSH access
 For SSH access instructions, see [Connecting to Your Linux Instance Using SSH](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html).
+
 Replace the user name `ec2-user` with `admin`. You can also add SSH keys later through the **PMM Configuration > Settings > SSH Key** page.
 
-### Configure PMM Server IP settings (Optional)
-
-By default, your EC2 instance will have a private IP for internal VPC network access. You can configure your PMM Server to use only a private IP or a static Elastic IP.
-
-#### To use a private IP only
-
-=== "During EC2 instance creation"
-    To use only the private IP for your EC2 instance during EC2 instance creation:
-    {.power-number}
-
-    1. In the **Network Settings** section, uncheck **Auto-assign public IP**.
-    2. Do not assign an Elastic IP to the instance.
-    3. To access PMM Server using only a private IP, ensure you're connected to your VPC and use the private IP address for access. 
-
-=== "For an existing instance"
-    To use only the private IP for an existing instance:
-    {.power-number}
-
-    1. If a public IP is assigned, remove it by disassociating it in the EC2 console.
-    2. If an Elastic IP is assigned, disassociate it from the instance.
-    3. To access PMM Server using only a private IP, ensure you're connected to your VPC and use the private IP address for access. 
-
-#### To use an Elastic IP (for a static, public-facing IP address)
-
-For a static, public-facing IP address:
-{.power-number}
-
-1. Allocate an Elastic IP address in the EC2 console.
-2. Associate the Elastic IP address with your EC2 instance's network interface ID. 
-
-Associating a new Elastic IP to an instance with an existing Elastic IP will disassociate the old one, but it will remain allocated to your account.
-
-For detailed information on EC2 instance IP addressing, see the [AWS documentation on using instance addressing](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html).
-
-
-
-## Post-deployment tasks
-
-Perform these tasks after your PMM Server is up and running.
-
-### Resize the EBS volume
-
-To increase available disk space:
-{.power-number}
-
-1. Your AWS instance comes with a predefined size which can become a limitation. To increase the size of the EBS volume attached to your instance, see [Modifying the size, IOPS, or type of an EBS volume on Linux](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modify-volume.html).
-
-2. After updating the EBS volume, PMM Server will auto-detect changes within approximately 5 minutes and reconfigure itself.
-
-## Remove PMM server from AWS
-
-To permanently remove your PMM Server instance:
-{.power-number}
-
-1. Find the instance in the EC2 Console:
-
-    ![EC2 Console](../../../../images/aws-marketplace.pmm.ec2.remove1.png)
-
-2. Select **Instance state** menu and **Terminate instance**:
-
-    ![Terminate Instance](../../../../images/aws-marketplace.pmm.ec2.remove2.png)
-
-3. Confirm termination:
-
-    ![Confirm Terminate](../../../../images/aws-marketplace.pmm.ec2.remove3.png)
-
-!!! warning "Data loss warning"
-    Terminating an instance permanently deletes all data stored on the instance. Ensure you have created backups before termination.
-
 ## Next steps
-- [Configure PMM server](../aws/configure_aws.md) for security and authentication
-- [Configure PMM clients](../../../install-pmm-client/index.md) to start monitoring your infrastructure
+
+With your PMM Server deployed and accessible:
+
+- [Configure PMM Server](../aws/configure_aws.md) for security and authentication
+- [Configure PMM Clients](../../../install-pmm-client/index.md) to start monitoring your infrastructure
 - [Register client nodes](../../../register-client-node/index.md) with your PMM Server
 - [Improve PMM EC2 instance resilience using CloudWatch Alarm actions](https://www.percona.com/blog/2021/04/29/improving-percona-monitoring-and-management-ec2-instance-resilience-using-cloudwatch-alarm-actions/)
 - [Simplify use of ENV eariables in PMM AMI](https://www.percona.com/blog/simplify-use-of-env-variables-in-percona-monitoring-and-management-ami/)
