@@ -337,13 +337,13 @@
       sysctl:
         name: kernel.perf_event_max_stack
         value: 1023
-        ignore_errors: yes
+        ignoreerrors: yes
 
     - name: Increase fs.xfs.xfssyncd_centisecs
       sysctl:
         name: fs.xfs.xfssyncd_centisecs
         value: 9000
-        ignore_errors: yes  # This parameter may not exist on all systems
+        ignoreerrors: yes  # This parameter may not exist on all systems
 
     - name: Increase fs.inotify.max_user_watches
       sysctl:
