@@ -42,9 +42,10 @@ source "hcloud" "jenkins-agent" {
   ssh_username  = "root"
   snapshot_name = "Docker Agent v3 Hetzner"
   snapshot_labels = {
-    type = "jenkins-agent"
-    arch = "x86_64"
-    iit-billing-tag = "pmm-worker"
+    type                    = "jenkins-agent"
+    arch                    = "x86_64"
+    iit-billing-tag         = "pmm-worker"
+    "jenkins.io/cloud-name" = "pmm-htz"
   }
   server_name = "packer-pmm-x86-${local.uuid_short}"
   ssh_keys    = var.ssh_key_name == "" ? [] : [var.ssh_key_name]
@@ -61,9 +62,10 @@ source "hcloud" "jenkins-agent-arm" {
   ssh_username  = "root"
   snapshot_name = "Docker Agent ARM v3 Hetzner"
   snapshot_labels = {
-    type = "jenkins-agent"
-    arch = "arm64"
-    iit-billing-tag = "pmm-worker"
+    type                    = "jenkins-agent"
+    arch                    = "arm64"
+    iit-billing-tag         = "pmm-worker"
+    "jenkins.io/cloud-name" = "pmm-htz"
   }
   server_name = "packer-pmm-arm-${local.uuid_short}"
   ssh_keys    = var.ssh_key_name == "" ? [] : [var.ssh_key_name]
