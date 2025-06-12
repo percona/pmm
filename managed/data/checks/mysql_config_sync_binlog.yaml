@@ -1,0 +1,42 @@
+---
+checks:
+  - version: 2
+    name: mysql_config_sync_binlog
+    summary: Sync binlog is disabled
+    description: Check if the binlog synchronized before transaction is committed.
+    interval: standard
+    advisor: configuration_replication
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@global.sync_binlog as sync_binlog, @@version version,@@hostname service;"
+    script: |
+      def check_sync_binlog(sync_binlog,version,service,read_url):
+          if sync_binlog != 1:
+              return {
+                  "summary": "Binlogs are not synced with every transaction",
+                  "description": "The sync_binlog variable has value {} instead of 1.".format(sync_binlog),
+                  "severity": "warning",
+                  "read_more_url": read_url.format("configuration-check-sync-binlog"),
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  }
+              }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          for row in docs[0]:
+             sync_binlog = row["sync_binlog"]
+             version = row["version"]
+             service = row["service"]
+
+             sync_binlog_result = check_sync_binlog(sync_binlog,version,service,read_url)
+             if sync_binlog_result:
+              results.append(sync_binlog_result)
+
+          return results

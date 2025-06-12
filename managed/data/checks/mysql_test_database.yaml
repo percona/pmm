@@ -1,0 +1,36 @@
+---
+checks:
+  - version: 1
+    name: mysql_test_database
+    summary: MySQL test Database
+    description: This check returns a notice if there is database with name 'test' or 'test_%'.
+    type: MYSQL_SHOW
+    #family: mysql
+    advisor: configuration_generic
+    interval: standard
+    query: DATABASES WHERE `Database` = 'test' or `Database` like 'test_%'
+    script: |
+      def check(rows):
+          return check_context(rows, {})
+
+      def check_context(rows, context):
+          """
+          This check returns a notice if database detected with name 'test' or 'test_%'.
+          """
+          dbs = []
+
+          for row in rows:
+              db = row.get("Database")
+              dbs.append(db)
+
+          if dbs:
+              description = "s are"
+              if len(dbs) == 1:
+                  description = " is"
+              return [{
+                  "summary": "Test database{} detected: {}".format(description,dbs),
+                  "description": "Please Improve MySQL Installation Security by running program mysql_secure_installation",
+                  "severity": "notice"
+          }]
+
+          return []

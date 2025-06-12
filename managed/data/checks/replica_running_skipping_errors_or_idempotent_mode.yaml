@@ -1,0 +1,64 @@
+---
+checks:
+  - version: 2
+    name: replica_running_skipping_errors_or_idempotent_mode
+    summary: Checks if replica configured is skipping errors or slave_exec_mode is idempotent.
+    description: This check reviews replication status to review if it is configured to skip errors or if the slave_exec_mode is configured to be idempotent.
+    family: MYSQL
+    #author: Kedar Vaijanapurkar
+    advisor: configuration_replication
+    interval: standard
+    queries:
+      - type: MYSQL_SELECT
+        query: "@@global.version as version, @@global.hostname as service /*!50700 , @@global.slave_exec_mode as slave_exec_mode */  /*!50700 , @@global.slave_skip_errors slave_skip_errors*/ /*!80026 , @@global.replica_exec_mode as replica_exec_mode */ /*!80026 , @@global.replica_skip_errors replica_skip_errors*/ "
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def check_context(docs,context):
+          results = []
+          skip_errors = ""
+          exec_mode = ""
+          prefix = ""
+          for row in docs[0]:
+              version = row["version"]
+              service = row["service"]
+              parsed_version = parse_version(version)
+              version_minor = parsed_version["minor"]
+              version_major = parsed_version["major"]
+              if version_major < 8:
+                skip_errors = row["slave_skip_errors"]
+                exec_mode = row["slave_exec_mode"]
+                prefix = "slave"
+              if version_major == 8 and version_minor >= 26:
+                skip_errors = row["replica_skip_errors"]
+                exec_mode = row["replica_exec_mode"]
+                prefix = "replica"
+              if version_major == 8 and version_minor < 26:
+                skip_errors = row["slave_skip_errors"]
+                exec_mode = row["slave_exec_mode"]
+                prefix = "slave"
+
+          if exec_mode == 'IDEMPOTENT':
+              results.append ({
+                  "summary": "{}_exec_mode is {}.".format(prefix, exec_mode),
+                  "read_more": "https://percona.com/blog",
+                  "description": "The {}_exec_mode supresses the replication errors which can cause data discrepancies between primary and replica instances. It is recommended to review this setting.".format(prefix),
+                  "severity": "error",
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  },
+                  "read_more_url":read_url.format("replica_running_skipping_errors_or_idempotent_mode")
+              })
+          if skip_errors != 'OFF':
+              results.append ({
+                  "summary": "{}_skip_error is configured as {}.".format(prefix, skip_errors, version_minor, version_major, exec_mode),
+                  "read_more": "https://percona.com/blog",
+                  "description": "This option causes the replication SQL thread to continue replication when a statement returns any of the errors listed in the option value. Recommended setting is OFF.",
+                  "severity": "error",
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  },
+                  "read_more_url":read_url.format("replica_running_skipping_errors_or_idempotent_mode")
+              })
+          return results

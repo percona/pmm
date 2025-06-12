@@ -1,0 +1,148 @@
+---
+checks:
+  - version: 2
+    name: mysql_ahi_efficiency_performance_basic_check
+    summary: InnoDB Adaptive Hash Index (AHI) efficiency checker
+    description: Check the efficiency and effectiveness of InnoDB's Adaptive Hash Index (AHI).
+    interval: standard
+    advisor: configuration_innodb
+    family: MYSQL
+    queries:
+      - type: MYSQL_SHOW
+        query: VARIABLES
+      - type: METRICS_RANGE
+        # This query comes from the InnoDB Adaptive Hash Index graph from the MySQL/MySQL InnoDB Details dashboard
+        query: avg by (service_name) (1-((rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~"{{.ServiceName}}"}[1h]))/(rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~"{{.ServiceName}}"}[1h])+rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~"{{.ServiceName}}"}[1h])) or(irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~"{{.ServiceName}}"}[5m]))/(irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~"{{.ServiceName}}"}[5m])+irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~"{{.ServiceName}}"}[5m]))))
+        parameters:
+          #range: 168h
+          range: 5m
+          #step: 5m
+          step: 1m
+      - type: METRICS_RANGE
+        # This query was adjusted from the Performance Schema Waits (Load) graph from the MySQL / MySQL Performance Schema Details dashboard
+        query: avg by (service_name) (rate(mysql_perf_schema_events_waits_seconds_total{service_name=~"{{.ServiceName}}",event_name='wait/synch/sxlock/innodb/btr_search_latch'}[2s])) or avg by (service_name) (irate(mysql_perf_schema_events_waits_seconds_total{service_name=~"{{.ServiceName}}",event_name='wait/synch/sxlock/innodb/btr_search_latch'}[5m]))
+        parameters:
+          #range: 24h
+          range: 15m
+          step: 2s
+      - type: METRICS_INSTANT
+        query: (count(node_cpu_seconds_total{node_name=~"{{.NodeName}}",mode=~"user"}) or (1-absent(node_cpu_seconds_total{node_name=~"{{.NodeName}}",mode=~"user"}))) + sum(rdsosmetrics_General_numVCPUs{node_name=~"{{.NodeName}}"} or up * 0)
+    script: |
+      def check_context(docs, context):
+          # `docs` is a frozen (deeply immutable) list where each item represents single query results. The order of results
+          # matches the order of queries in the check file. Each query result is list of dicts where where each dict represents
+          # a single document in the result set.
+          #
+          # `context` is a dict with additional functions.
+          #
+          # Global `print` and `fail` functions are available.
+          #
+          # `check_context` function is expected to return a list of dicts that are then converted to alerts;
+          # in particular, that list can be empty.
+          # Any other value (for example, string) is treated as script execution failure
+          # (Starlark does not support Python exceptions);
+          # it is recommended to use global function `fail` for that instead.
+
+           results = []
+           ahi_parts = 0
+           read_more = "https://docs.percona.com/percona-platform/advisors/checks/mysql-ahi-efficiency-performance-basic-check.html"
+
+           # Check if AHI is enabled and partitioned
+           for row in docs[0]:
+               name, value = row["Variable_name"], row["Value"]
+               if name == "innodb_adaptive_hash_index":
+                   if value == "ON":
+                       ahi_enabled = 1
+                   else:
+                       ahi_enabled = 0
+               if name == "innodb_adaptive_hash_index_parts":
+                   ahi_parts = value
+
+           if ahi_enabled:
+               if int(ahi_parts) > 0:
+                   desc = "AHI is operating with {} partitions.".format(ahi_parts)
+               else:
+                   desc = "AHI is operating unpartitioned"
+               results.append({
+                   "summary": "InnoDB's Adaptive Hash Index (AHI) is enabled.",
+                   "description": desc,
+                   "read_more_url": read_more,
+                   "severity": "notice",
+                   "labels": {},
+               })
+
+               # AHI hit-ratio
+               dataPoints = []
+               samplesSum = 0
+               for row in docs[1][0]["values"]:
+                   sample = float(row[1])
+                   dataPoints.append(sample)
+                   samplesSum = samplesSum + sample
+               hitRatioAvg = int((samplesSum/len(dataPoints))*100)
+
+               # AHI btr_search_latch load
+               dataPoints = []
+               samplesSum = 0
+               for row in docs[2][0]["values"]:
+                   sample = float(row[1])
+                   # Removing the 0.0 samples matches PMM's averages
+                   if sample!=0.0:
+                       dataPoints.append(sample)
+                   samplesSum = samplesSum + sample
+               loadAvg = int(samplesSum/len(dataPoints))
+
+               # Proposed evaluation:
+               # Low AHI hit ratio --> NOTICE
+               # Low AHI contention --> WARNING
+               # Medium AHI contention --> MAJOR
+               # High AHI contention --> CRITICAL
+               #
+               # But how to calculate contention?
+               # My experiments show that when btr_search_latch load is above #CPUs*2
+               # we start seeing enough btr0sea entries in the SEMAPHORES section of
+               # SEIS to consider there's contention at AHI.
+
+               nCPUs = int(docs[3][0]["value"][1])
+
+               # Using simple thresholds for btr_search_latch wait load
+               # - The critical threshold is twice the number of vCPUs
+               thresholdB = nCPUs*2
+               # - The "warning" threshold is 3/4 of the critical one
+               thresholdA = (thresholdB/4)*3
+
+               btrWaitLoadHitRatioMsg = "AHI average btr_search_latch wait load is {}, AHI average hit ratio is {}%.".format(loadAvg,hitRatioAvg)
+
+               if hitRatioAvg > 50 and loadAvg > thresholdA:
+                   if loadAvg < thresholdB:
+                       summary = "AHI is experiencing some contention"
+                       description = btrWaitLoadHitRatioMsg
+                       severity = "warning"
+                   else:  # loadAvg > thresholdB
+                       summary = "AHI is likely experiencing contention"
+                       description = "{}. You should consider increasing the number of AHI partitions (currently operating with {}) or disable it altogether.".format(btrWaitLoadHitRatioMsg,ahi_parts)
+                       severity = "major"
+
+               else:
+                   summary = "AHI is operating with no contention detected"
+                   description = btrWaitLoadHitRatioMsg
+                   severity = "notice"
+
+               results.append({
+                   "summary": summary,
+                   "description": description,
+                   "read_more_url": read_more,
+                   "severity": severity,
+                   "labels": {},
+               })
+
+           # AHI is disabled
+           else:
+               results.append({
+                   "summary": "InnoDB's Adaptive Hash Index (AHI) is disabled.",
+                   "description": "The AHI can speed up queries in certain MySQL read workloads, sometimes at the expense of concurrency. It might be worth experimenting operating with it enabled if you haven't already. Then, keep checking this dashboard for any signs of contention on AHI; test with caution.",
+                   "read_more_url": read_more,
+                   "severity": "notice",
+                   "labels": {},
+               })
+
+           return results

@@ -1,0 +1,38 @@
+---
+checks:
+  - version: 2
+    name: mongodb_multiple_services
+    summary: MongoDB - Multiple mongod services
+    description: This check returns a notice if multiple mongod services are running in a single node.
+    interval: standard
+    family: MONGODB
+    advisor: performance_generic
+    #author: Parag Bhayani
+    queries:
+      - type: METRICS_INSTANT
+        query: avg by(node_name,rs_nm,cluster) (mongodb_ss_pid{node_name=~"{{.NodeName}}"})
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          results = []
+          mongo_cnt = 0
+          pids = []
+
+          for row in docs[0]:
+              node = row["metric"]["node_name"]
+              cluster = row["metric"]["cluster"]
+              replsetname = row["metric"]["rs_nm"]
+              pid = int(row["value"][1])
+              if pid:
+                  mongo_cnt = int(mongo_cnt) + 1
+                  pids.append(pid)
+
+          if mongo_cnt > 1:
+              results.append({
+                  "summary": "MongoDB - multiple mongod services running",
+                  "description": "Multiple mongod services (pids: {}) are running on a single node <{}>. We recommended to use a dedicated node or container for each mongod service. For more information, refer to Read More documentation.".format(pids, node),
+                  "read_more_url": read_url.format("multiple-mongod-running-in-a-node"),
+                  "severity": "notice",
+              })
+          return results

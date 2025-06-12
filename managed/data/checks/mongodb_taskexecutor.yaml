@@ -1,0 +1,36 @@
+---
+checks:
+  - version: 2
+    name: mongodb_taskexecutor
+    summary: MongoDB TaskExecutorPoolSize High
+    description: MongoDB TaskExecutorPoolSize count is higher than available CPU cores
+    interval: standard
+    family: MONGODB
+    #author: Divyanshu Soni/Parag Bhayani
+    advisor: configuration_resources
+    queries:
+      - type: MONGODB_GETPARAMETER
+      - type: METRICS_INSTANT
+        query: mongodb_sys_cpu_num_cpus{node_name="{{.NodeName}}"}
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          info = docs[0]
+          results = []
+
+          for row in info:
+              taskExecutorPoolSize = row["taskExecutorPoolSize"]
+              taskExecutorPoolSize_int = int(taskExecutorPoolSize)
+
+          for row in docs[1]:
+              value = int(row["value"][1])
+
+          if taskExecutorPoolSize_int > value:
+              results.append({
+                  "summary": "MongoDB TaskExecutorPoolSize count is higher than available CPU cores. Please reduce it to equal to or less than the available cores.",
+                  "description": "See the following to reduce the taskExecutorPools size",
+                  "read_more_url":read_url.format("mongodb-task-executorPoolSize-high"),
+                  "severity": "warning",
+              })
+          return results

@@ -1,0 +1,27 @@
+---
+checks:
+  - version: 2
+    name: mongodb_clickhouse
+    summary: Sample Clickhouse advisor that checks if QAN is on a MongoDB instance
+    advisor: example
+    description: Sample Clickhouse advisor that checks if QAN is on a MongoDB instance
+    interval: standard
+    family: MONGODB
+    category: configuration
+    queries:
+      - type: CLICKHOUSE_SELECT
+        query: service_id, service_name, COUNT(*) as count FROM metrics WHERE service_id='{{.ServiceID}}' GROUP BY (service_id,service_name);
+    script: |
+      def check_context(docs, context):
+          results = []
+
+          if len(docs[0]) < 1:
+              results.append({
+                  "summary": "PMM QAN not enabled on MongoDB instance",
+                  "description": "PMM QAN is not enabled for this service",
+                  "read_more_url": "https://docs.percona.com/percona-monitoring-and-management/setting-up/client/mongodb.html#set-profiling-in-the-configuration-file",
+                  "severity": "warning",
+                  "labels": {},
+              })
+
+          return results
