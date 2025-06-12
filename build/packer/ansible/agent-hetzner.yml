@@ -55,8 +55,8 @@
           - gettext
           - unzip
           - python3
-          - svn # we use it in pmm-framework.sh
-          - php # we use PHP in pmm-qa repo
+          - svn  # we use it in pmm-framework.sh
+          - php  # we use PHP in pmm-qa repo
           - php-mysqlnd
           - php-pdo
           - wget
@@ -69,8 +69,8 @@
           - nodejs
           - chromium
           - packer
-          - xfsprogs # XFS filesystem utilities
-          - xfsdump  # XFS backup utilities
+          - xfsprogs  # XFS filesystem utilities
+          - xfsdump   # XFS backup utilities
         state: latest
 
     - name: Install Java17
