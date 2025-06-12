@@ -44,608 +44,6 @@
       "Collection": {
         "acquireCount": {
           "R": 0,
-          "r": 1
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 1
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 1,
-    "nreturned": 0,
-    "ns": "test.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "$db",
-        "Value": "test"
-      },
-      {
-        "Key": "profile",
-        "Value": 2
-      },
-      {
-        "Key": "slowms",
-        "Value": 0
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 79,
-    "ts": "2025-05-01T11:53:32.819Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 1,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "topologyVersion",
-        "Value": {
-          "counter": 0,
-          "processId": {
-            "$oid": "681360aa06fdf4c41296de5b"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      },
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "maxAwaitTimeMS",
-        "Value": 10000
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:53:41.239Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_query",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "$db",
-        "Value": "admin"
-      },
-      {
-        "Key": "ismaster",
-        "Value": 1
-      },
-      {
-        "Key": "helloOk",
-        "Value": true
-      },
-      {
-        "Key": "client",
-        "Value": {
-          "application": {
-            "name": "mongosh 2.3.8"
-          },
-          "driver": {
-            "name": "nodejs|mongosh",
-            "version": "6.12.0|2.3.8"
-          },
-          "env": {
-            "container": {
-              "runtime": "docker"
-            }
-          },
-          "os": {
-            "architecture": "arm64",
-            "name": "linux",
-            "type": "Linux",
-            "version": "4.14.209-160.339.amzn2.aarch64"
-          },
-          "platform": "Node.js v20.18.1, LE"
-        }
-      },
-      {
-        "Key": "compression",
-        "Value": [
-          "none"
-        ]
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 329,
-    "ts": "2025-05-01T11:53:41.241Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "maxAwaitTimeMS",
-        "Value": 10000
-      },
-      {
-        "Key": "topologyVersion",
-        "Value": {
-          "counter": 0,
-          "processId": {
-            "$oid": "681360aa06fdf4c41296de5b"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:53:51.248Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:53:51.25Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
           "r": 0
         }
       },
@@ -676,7 +74,7 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "",
     "protocol": "op_msg",
     "query": null,
@@ -806,7 +204,7 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "",
     "protocol": "op_msg",
     "query": null,
@@ -928,7 +326,7 @@
     "nreturned": 0,
     "ns": "test.logs",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "",
     "protocol": "op_msg",
     "query": null,
@@ -954,231 +352,6 @@
     "originatingCommand": null,
     "reslen": 38,
     "ts": "2025-05-01T11:54:00.064Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "$db",
-        "Value": "admin"
-      },
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "maxAwaitTimeMS",
-        "Value": 10000
-      },
-      {
-        "Key": "topologyVersion",
-        "Value": {
-          "counter": 0,
-          "processId": {
-            "$oid": "681360aa06fdf4c41296de5b"
-          }
-        }
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:54:01.254Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:54:01.255Z",
     "user": "",
     "writeConflicts": 0,
     "docsExamined": 0,
@@ -1267,7 +440,7 @@
     "nreturned": 1,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "COLLSCAN",
     "protocol": "op_msg",
     "query": null,
@@ -1389,12 +562,24 @@
     "nreturned": 1,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "COLLSCAN",
     "protocol": "op_msg",
     "query": null,
     "updateobj": null,
     "command": [
+      {
+        "Key": "limit",
+        "Value": 5
+      },
+      {
+        "Key": "lsid",
+        "Value": {
+          "id": {
+            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
+          }
+        }
+      },
       {
         "Key": "$db",
         "Value": "test"
@@ -1418,18 +603,6 @@
         "Key": "sort",
         "Value": {
           "age": -1
-        }
-      },
-      {
-        "Key": "limit",
-        "Value": 5
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
         }
       }
     ],
@@ -1524,12 +697,22 @@
     "nreturned": 1,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "COLLSCAN",
     "protocol": "op_msg",
     "query": null,
     "updateobj": null,
     "command": [
+      {
+        "Key": "find",
+        "Value": "users"
+      },
+      {
+        "Key": "filter",
+        "Value": {
+          "name": "Alice"
+        }
+      },
       {
         "Key": "limit",
         "Value": 1
@@ -1545,16 +728,6 @@
       {
         "Key": "$db",
         "Value": "test"
-      },
-      {
-        "Key": "find",
-        "Value": "users"
-      },
-      {
-        "Key": "filter",
-        "Value": {
-          "name": "Alice"
-        }
       }
     ],
     "originatingCommand": null,
@@ -1564,231 +737,6 @@
     "writeConflicts": 0,
     "docsExamined": 1,
     "queryHash": "01AEE5EC",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "maxAwaitTimeMS",
-        "Value": 10000
-      },
-      {
-        "Key": "topologyVersion",
-        "Value": {
-          "counter": 0,
-          "processId": {
-            "$oid": "681360aa06fdf4c41296de5b"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:54:11.259Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:54:11.262Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
     "storage": {
       "data": {
         "bytesRead": 0,
@@ -1873,12 +821,24 @@
     "nreturned": 0,
     "ns": "test.orders",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "EOF",
     "protocol": "op_msg",
     "query": null,
     "updateobj": null,
     "command": [
+      {
+        "Key": "lsid",
+        "Value": {
+          "id": {
+            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
+          }
+        }
+      },
+      {
+        "Key": "$db",
+        "Value": "test"
+      },
       {
         "Key": "aggregate",
         "Value": "orders"
@@ -1909,18 +869,6 @@
       {
         "Key": "cursor",
         "Value": {}
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
       }
     ],
     "originatingCommand": null,
@@ -2014,12 +962,18 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "update",
     "planSummary": "COLLSCAN",
     "protocol": "",
     "query": null,
     "updateobj": null,
     "command": [
+      {
+        "Key": "q",
+        "Value": {
+          "name": "Alice"
+        }
+      },
       {
         "Key": "u",
         "Value": {
@@ -2035,12 +989,6 @@
       {
         "Key": "upsert",
         "Value": false
-      },
-      {
-        "Key": "q",
-        "Value": {
-          "name": "Alice"
-        }
       }
     ],
     "originatingCommand": null,
@@ -2120,139 +1068,6 @@
       },
       "Global": {
         "acquireCount": {
-          "r": 1,
-          "w": 2
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 5,
-    "nreturned": 0,
-    "ns": "test.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
-      },
-      {
-        "Key": "update",
-        "Value": "users"
-      },
-      {
-        "Key": "updates",
-        "Value": [
-          {
-            "q": {
-              "name": "Alice"
-            },
-            "u": {
-              "$set": {
-                "age": 31
-              }
-            }
-          }
-        ]
-      },
-      {
-        "Key": "ordered",
-        "Value": true
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 60,
-    "ts": "2025-05-01T11:54:20.553Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
           "r": 0,
           "w": 1
         }
@@ -2267,20 +1082,12 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "update",
     "planSummary": "COLLSCAN",
     "protocol": "",
     "query": null,
     "updateobj": null,
     "command": [
-      {
-        "Key": "multi",
-        "Value": true
-      },
-      {
-        "Key": "upsert",
-        "Value": false
-      },
       {
         "Key": "q",
         "Value": {}
@@ -2292,6 +1099,14 @@
             "visits": 1
           }
         }
+      },
+      {
+        "Key": "multi",
+        "Value": true
+      },
+      {
+        "Key": "upsert",
+        "Value": false
       }
     ],
     "originatingCommand": null,
@@ -2371,363 +1186,6 @@
       },
       "Global": {
         "acquireCount": {
-          "r": 1,
-          "w": 2
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "test.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "$db",
-        "Value": "test"
-      },
-      {
-        "Key": "update",
-        "Value": "users"
-      },
-      {
-        "Key": "updates",
-        "Value": [
-          {
-            "multi": true,
-            "q": {},
-            "u": {
-              "$inc": {
-                "visits": 1
-              }
-            }
-          }
-        ]
-      },
-      {
-        "Key": "ordered",
-        "Value": true
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 60,
-    "ts": "2025-05-01T11:54:20.607Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "maxAwaitTimeMS",
-        "Value": 10000
-      },
-      {
-        "Key": "topologyVersion",
-        "Value": {
-          "counter": 0,
-          "processId": {
-            "$oid": "681360aa06fdf4c41296de5b"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:54:21.261Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:54:21.266Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
           "r": 0,
           "w": 1
         }
@@ -2742,7 +1200,7 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "update",
     "planSummary": "COLLSCAN",
     "protocol": "",
     "query": null,
@@ -2847,138 +1305,6 @@
       },
       "Global": {
         "acquireCount": {
-          "r": 1,
-          "w": 2
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "test.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "update",
-        "Value": "users"
-      },
-      {
-        "Key": "updates",
-        "Value": [
-          {
-            "q": {
-              "name": "Bob"
-            },
-            "u": {
-              "age": 28,
-              "name": "Bobby"
-            }
-          }
-        ]
-      },
-      {
-        "Key": "ordered",
-        "Value": true
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 60,
-    "ts": "2025-05-01T11:54:21.324Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
           "r": 0,
           "w": 1
         }
@@ -2993,7 +1319,7 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "remove",
     "planSummary": "COLLSCAN",
     "protocol": "",
     "query": null,
@@ -3087,135 +1413,6 @@
       },
       "Global": {
         "acquireCount": {
-          "r": 1,
-          "w": 2
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 3,
-    "nreturned": 0,
-    "ns": "test.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "delete",
-        "Value": "users"
-      },
-      {
-        "Key": "deletes",
-        "Value": [
-          {
-            "limit": 1,
-            "q": {
-              "name": "Charlie"
-            }
-          }
-        ]
-      },
-      {
-        "Key": "ordered",
-        "Value": true
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 45,
-    "ts": "2025-05-01T11:54:25.603Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
           "r": 0,
           "w": 1
         }
@@ -3230,21 +1427,21 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "remove",
     "planSummary": "COLLSCAN",
     "protocol": "",
     "query": null,
     "updateobj": null,
     "command": [
       {
-        "Key": "limit",
-        "Value": 0
-      },
-      {
         "Key": "q",
         "Value": {
           "inactive": true
         }
+      },
+      {
+        "Key": "limit",
+        "Value": 0
       }
     ],
     "originatingCommand": null,
@@ -3324,360 +1521,6 @@
       },
       "Global": {
         "acquireCount": {
-          "r": 1,
-          "w": 2
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "test.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "delete",
-        "Value": "users"
-      },
-      {
-        "Key": "deletes",
-        "Value": [
-          {
-            "limit": 0,
-            "q": {
-              "inactive": true
-            }
-          }
-        ]
-      },
-      {
-        "Key": "ordered",
-        "Value": true
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 45,
-    "ts": "2025-05-01T11:54:26.24Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "$db",
-        "Value": "admin"
-      },
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "maxAwaitTimeMS",
-        "Value": 10000
-      },
-      {
-        "Key": "topologyVersion",
-        "Value": {
-          "counter": 0,
-          "processId": {
-            "$oid": "681360aa06fdf4c41296de5b"
-          }
-        }
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:54:31.264Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:54:31.268Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
           "r": 0,
           "w": 1
         }
@@ -3692,24 +1535,12 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "",
     "protocol": "op_msg",
     "query": null,
     "updateobj": null,
     "command": [
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
-      },
       {
         "Key": "insert",
         "Value": "users"
@@ -3728,6 +1559,18 @@
       {
         "Key": "ordered",
         "Value": true
+      },
+      {
+        "Key": "lsid",
+        "Value": {
+          "id": {
+            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
+          }
+        }
+      },
+      {
+        "Key": "$db",
+        "Value": "test"
       }
     ],
     "originatingCommand": null,
@@ -3821,12 +1664,18 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "update",
     "planSummary": "COLLSCAN",
     "protocol": "",
     "query": null,
     "updateobj": null,
     "command": [
+      {
+        "Key": "q",
+        "Value": {
+          "name": "Alice"
+        }
+      },
       {
         "Key": "u",
         "Value": {
@@ -3842,12 +1691,6 @@
       {
         "Key": "upsert",
         "Value": false
-      },
-      {
-        "Key": "q",
-        "Value": {
-          "name": "Alice"
-        }
       }
     ],
     "originatingCommand": null,
@@ -3857,139 +1700,6 @@
     "writeConflicts": 0,
     "docsExamined": 1,
     "queryHash": "01AEE5EC",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 1,
-          "w": 2
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 1,
-    "nreturned": 0,
-    "ns": "test.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "$db",
-        "Value": "test"
-      },
-      {
-        "Key": "update",
-        "Value": "users"
-      },
-      {
-        "Key": "updates",
-        "Value": [
-          {
-            "q": {
-              "name": "Alice"
-            },
-            "u": {
-              "$set": {
-                "age": 32
-              }
-            }
-          }
-        ]
-      },
-      {
-        "Key": "ordered",
-        "Value": true
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 60,
-    "ts": "2025-05-01T11:54:31.308Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
     "storage": {
       "data": {
         "bytesRead": 0,
@@ -4074,7 +1784,7 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "remove",
     "planSummary": "COLLSCAN",
     "protocol": "",
     "query": null,
@@ -4098,135 +1808,6 @@
     "writeConflicts": 0,
     "docsExamined": 3,
     "queryHash": "01AEE5EC",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 1,
-          "w": 2
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "test.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
-      },
-      {
-        "Key": "delete",
-        "Value": "users"
-      },
-      {
-        "Key": "deletes",
-        "Value": [
-          {
-            "limit": 1,
-            "q": {
-              "name": "Bob"
-            }
-          }
-        ]
-      },
-      {
-        "Key": "ordered",
-        "Value": true
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 45,
-    "ts": "2025-05-01T11:54:31.309Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
     "storage": {
       "data": {
         "bytesRead": 0,
@@ -4311,7 +1892,7 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "none",
     "planSummary": "",
     "protocol": "",
     "query": null,
@@ -4437,7 +2018,7 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "",
     "protocol": "op_msg",
     "query": null,
@@ -4562,16 +2143,12 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "",
     "protocol": "op_msg",
     "query": null,
     "updateobj": null,
     "command": [
-      {
-        "Key": "$db",
-        "Value": "test"
-      },
       {
         "Key": "dropIndexes",
         "Value": "users"
@@ -4587,341 +2164,6 @@
             "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
           }
         }
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 55,
-    "ts": "2025-05-01T11:54:37.321Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 1,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "maxAwaitTimeMS",
-        "Value": 10000
-      },
-      {
-        "Key": "topologyVersion",
-        "Value": {
-          "counter": 0,
-          "processId": {
-            "$oid": "681360aa06fdf4c41296de5b"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      },
-      {
-        "Key": "hello",
-        "Value": 1
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:54:41.266Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:54:41.27Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "test.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "ping",
-        "Value": 1
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
       },
       {
         "Key": "$db",
@@ -4929,8 +2171,8 @@
       }
     ],
     "originatingCommand": null,
-    "reslen": 38,
-    "ts": "2025-05-01T11:54:42.105Z",
+    "reslen": 55,
+    "ts": "2025-05-01T11:54:37.321Z",
     "user": "",
     "writeConflicts": 0,
     "docsExamined": 0,
@@ -5019,16 +2261,12 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "",
     "protocol": "op_msg",
     "query": null,
     "updateobj": null,
     "command": [
-      {
-        "Key": "$db",
-        "Value": "test"
-      },
       {
         "Key": "collStats",
         "Value": "users"
@@ -5040,578 +2278,15 @@
             "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
           }
         }
+      },
+      {
+        "Key": "$db",
+        "Value": "test"
       }
     ],
     "originatingCommand": null,
     "reslen": 25365,
     "ts": "2025-05-01T11:54:42.125Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 1,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "test.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "serverStatus",
-        "Value": 1
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 58933,
-    "ts": "2025-05-01T11:54:42.631Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "test.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "connectionStatus",
-        "Value": 1
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 181,
-    "ts": "2025-05-01T11:54:48.191Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "test.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "logout",
-        "Value": 1
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 38,
-    "ts": "2025-05-01T11:54:48.926Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "maxAwaitTimeMS",
-        "Value": 10000
-      },
-      {
-        "Key": "topologyVersion",
-        "Value": {
-          "counter": 0,
-          "processId": {
-            "$oid": "681360aa06fdf4c41296de5b"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:54:51.276Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:54:51.277Z",
     "user": "",
     "writeConflicts": 0,
     "docsExamined": 0,
@@ -5700,7 +2375,7 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "COLLSCAN",
     "protocol": "op_msg",
     "query": null,
@@ -5840,20 +2515,12 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "COLLSCAN",
     "protocol": "op_msg",
     "query": null,
     "updateobj": null,
     "command": [
-      {
-        "Key": "$db",
-        "Value": "test"
-      },
-      {
-        "Key": "findAndModify",
-        "Value": "users"
-      },
       {
         "Key": "query",
         "Value": {
@@ -5879,6 +2546,14 @@
             "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
           }
         }
+      },
+      {
+        "Key": "$db",
+        "Value": "test"
+      },
+      {
+        "Key": "findAndModify",
+        "Value": "users"
       }
     ],
     "originatingCommand": null,
@@ -5888,231 +2563,6 @@
     "writeConflicts": 0,
     "docsExamined": 3,
     "queryHash": "01AEE5EC",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "maxAwaitTimeMS",
-        "Value": 10000
-      },
-      {
-        "Key": "topologyVersion",
-        "Value": {
-          "counter": 0,
-          "processId": {
-            "$oid": "681360aa06fdf4c41296de5b"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:55:01.285Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:55:01.286Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
     "storage": {
       "data": {
         "bytesRead": 0,
@@ -6197,7 +2647,7 @@
     "nreturned": 0,
     "ns": "test.nonexistent",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "EOF",
     "protocol": "op_msg",
     "query": null,
@@ -6315,12 +2765,16 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "",
     "protocol": "op_msg",
     "query": null,
     "updateobj": null,
     "command": [
+      {
+        "Key": "$db",
+        "Value": "test"
+      },
       {
         "Key": "insert",
         "Value": "users"
@@ -6344,10 +2798,6 @@
             "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
           }
         }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
       }
     ],
     "originatingCommand": null,
@@ -6441,12 +2891,24 @@
     "nreturned": 0,
     "ns": "test.users",
     "numYield": 0,
-    "op": "",
+    "op": "command",
     "planSummary": "",
     "protocol": "op_msg",
     "query": null,
     "updateobj": null,
     "command": [
+      {
+        "Key": "lsid",
+        "Value": {
+          "id": {
+            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
+          }
+        }
+      },
+      {
+        "Key": "$db",
+        "Value": "test"
+      },
       {
         "Key": "insert",
         "Value": "users"
@@ -6462,817 +2924,11 @@
       {
         "Key": "ordered",
         "Value": true
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
       }
     ],
     "originatingCommand": null,
     "reslen": 236,
     "ts": "2025-05-01T11:55:02.08Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "maxAwaitTimeMS",
-        "Value": 10000
-      },
-      {
-        "Key": "topologyVersion",
-        "Value": {
-          "counter": 0,
-          "processId": {
-            "$oid": "681360aa06fdf4c41296de5b"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:55:11.291Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:55:11.3Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "maxAwaitTimeMS",
-        "Value": 10000
-      },
-      {
-        "Key": "topologyVersion",
-        "Value": {
-          "counter": 0,
-          "processId": {
-            "$oid": "681360aa06fdf4c41296de5b"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      },
-      {
-        "Key": "hello",
-        "Value": 1
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:55:21.296Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:55:21.306Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "maxAwaitTimeMS",
-        "Value": 10000
-      },
-      {
-        "Key": "topologyVersion",
-        "Value": {
-          "counter": 0,
-          "processId": {
-            "$oid": "681360aa06fdf4c41296de5b"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:55:31.307Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "$db",
-        "Value": "admin"
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 313,
-    "ts": "2025-05-01T11:55:31.309Z",
-    "user": "",
-    "writeConflicts": 0,
-    "docsExamined": 0,
-    "queryHash": "",
-    "storage": {
-      "data": {
-        "bytesRead": 0,
-        "timeReadingMicros": 0
-      }
-    },
-    "appName": "mongosh 2.3.8",
-    "comments": ""
-  },
-  {
-    "allUsers": null,
-    "client": "",
-    "cursorExhausted": false,
-    "execStats": {
-      "advanced": 0,
-      "executionTimeMillisEstimate": 0,
-      "inputStage": {
-        "advanced": 0,
-        "direction": "",
-        "docsExamined": 0,
-        "executionTimeMillisEstimate": 0,
-        "filter": {
-          "date": {
-            "$eq": ""
-          }
-        },
-        "invalidates": 0,
-        "isEOF": 0,
-        "nReturned": 0,
-        "needTime": 0,
-        "needYield": 0,
-        "restoreState": 0,
-        "saveState": 0,
-        "stage": "",
-        "works": 0
-      },
-      "invalidates": 0,
-      "isEOF": 0,
-      "limitAmount": 0,
-      "nReturned": 0,
-      "needTime": 0,
-      "needYield": 0,
-      "restoreState": 0,
-      "saveState": 0,
-      "stage": "",
-      "works": 0,
-      "docsExamined": 0
-    },
-    "keyUpdates": 0,
-    "keysExamined": 0,
-    "locks": {
-      "Collection": {
-        "acquireCount": {
-          "R": 0,
-          "r": 0
-        }
-      },
-      "Database": {
-        "acquireCount": {
-          "r": 0
-        },
-        "acquireWaitCount": {
-          "r": 0
-        },
-        "timeAcquiringMicros": {
-          "r": 0
-        }
-      },
-      "Global": {
-        "acquireCount": {
-          "r": 0,
-          "w": 0
-        }
-      },
-      "MMAPV1Journal": {
-        "acquireCount": {
-          "r": 0
-        }
-      }
-    },
-    "durationMillis": 0,
-    "nreturned": 0,
-    "ns": "admin.$cmd",
-    "numYield": 0,
-    "op": "",
-    "planSummary": "",
-    "protocol": "op_msg",
-    "query": null,
-    "updateobj": null,
-    "command": [
-      {
-        "Key": "$db",
-        "Value": "admin"
-      },
-      {
-        "Key": "hello",
-        "Value": 1
-      },
-      {
-        "Key": "maxAwaitTimeMS",
-        "Value": 10000
-      },
-      {
-        "Key": "topologyVersion",
-        "Value": {
-          "counter": 0,
-          "processId": {
-            "$oid": "681360aa06fdf4c41296de5b"
-          }
-        }
-      }
-    ],
-    "originatingCommand": null,
-    "reslen": 120,
-    "ts": "2025-05-01T11:55:38.073Z",
     "user": "",
     "writeConflicts": 0,
     "docsExamined": 0,
