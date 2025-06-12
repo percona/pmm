@@ -178,7 +178,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 				if sendCtx != nil {
 					cancel()
 				}
-				sendCtx, cancel = context.WithTimeout(ctx, s.config.Reporting.SendTimeout)
+				sendCtx, cancel = context.WithTimeout(ctx, s.config.Reporting.SendTimeout) //nolint:fatcontext
 
 				reportsBufSync.Lock()
 				reportsBuf = append(reportsBuf, report)

@@ -105,7 +105,7 @@ type CmdGlobalFlagsRunner interface {
 
 // CmdWithContextRunner represents a command to be run with context.
 type CmdWithContextRunner interface {
-	RunCmdWithContext(context.Context, *flags.GlobalFlags) (commands.Result, error)
+	RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error)
 }
 
 func run(ctx *kong.Context, globals *flags.GlobalFlags) error {

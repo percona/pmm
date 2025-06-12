@@ -61,5 +61,5 @@ Below is a list of affected variables and their new names.
 
 | PMM 3                                      | Comments                                                     |
 |--------------------------------------------|--------------------------------------------------------------|
-| `PMM_CLICKHOUSE_USER`                      | Added in v3.1.0                                              |
-| `PMM_CLICKHOUSE_PASSWORD`                  | Added in v3.1.0                                              |
+| `PMM_CLICKHOUSE_USER`                      | Added in v3.2.0                                              |
+| `PMM_CLICKHOUSE_PASSWORD`                  | Added in v3.2.0                                              |

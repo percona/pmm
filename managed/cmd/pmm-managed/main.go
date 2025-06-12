@@ -458,7 +458,7 @@ func runDebugServer(ctx context.Context) {
 	if err != nil {
 		l.Panic(err)
 	}
-	http.HandleFunc("/debug", func(rw http.ResponseWriter, req *http.Request) {
+	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
 		rw.Write(buf.Bytes()) //nolint:errcheck
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugAddr, strings.Join(handlers, "\n\t"))
@@ -843,7 +843,7 @@ func main() { //nolint:maintidx,cyclop
 	agentsRegistry := agents.NewRegistry(db, vmParams)
 
 	// TODO remove once PMM cluster will be Active-Active
-	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(ctx context.Context) error { return nil }, func() {
+	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(_ context.Context) error { return nil }, func() {
 		agentsRegistry.KickAll(ctx)
 	}))
 
@@ -880,7 +880,7 @@ func main() { //nolint:maintidx,cyclop
 			HAParams: haParams,
 		})
 
-	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(ctx context.Context) error {
+	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(_ context.Context) error {
 		return supervisord.StartSupervisedService("pmm-agent")
 	}, func() {
 		err := supervisord.StopSupervisedService("pmm-agent")
@@ -955,7 +955,10 @@ func main() { //nolint:maintidx,cyclop
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 
-	dumpService := dump.New(db)
+	dumpService := dump.New(db, &dump.URLs{
+		ClickhouseURL: chURI.String(),
+		VMURL:         *victoriaMetricsURLF,
+	})
 
 	serverParams := &server.Params{
 		DB:                   db,

@@ -24,15 +24,10 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Go release
-        uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
-
-      - name: Install kerberos development libraries
-        run: |
-          sudo apt-get update
-          sudo apt-get install libkrb5-dev
 
       - name: Enable Go build cache
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
@@ -115,7 +110,7 @@ jobs:
           fail_level: error
           cache: false
           golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v1.62.0 # Version should match specified in Makefile
+          golangci_lint_version: v1.64.8 # Version should match specified in Makefile
 
       - name: Run go-consistent
         env:
@@ -152,7 +147,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Check spelling of md files
-        uses: crate-ci/typos@b1a1ef3893ff35ade0cfa71523852a49bfd05d19 # v1.31.1
+        uses: crate-ci/typos@b1ae8d918b6e85bd611117d3d9a3be4f903ee5e4 # v1.33.1
         with:
           files: "**/*.md ./documentation/**/*.md"
 

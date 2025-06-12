@@ -87,5 +87,5 @@ func processGlobalAddFlagsWithSocket(cmd connectionGetter, opts AddCommonFlags) 
 		portI = int(opts.AddPortFlag)
 	}
 
-	return serviceName, socket, host, uint16(portI), nil
+	return serviceName, socket, host, uint16(portI), nil //nolint:gosec // port is a uint16
 }
