@@ -337,11 +337,17 @@
         value: 1023
         ignoreerrors: yes
 
+    - name: Check if XFS sysctl exists
+      stat:
+        path: /proc/sys/fs/xfs/xfssyncd_centisecs
+      register: xfs_sysctl
+      ignore_errors: yes
+
     - name: Increase fs.xfs.xfssyncd_centisecs
       sysctl:
         name: fs.xfs.xfssyncd_centisecs
         value: 9000
-        ignoreerrors: yes  # This parameter may not exist on all systems
+      when: xfs_sysctl.stat.exists | default(false)
 
     - name: Increase fs.inotify.max_user_watches
       sysctl:
