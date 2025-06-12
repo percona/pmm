@@ -1,32 +1,18 @@
 # Configure PMM server on AWS
 
-Complete the initial setup, security configuration, and ongoing maintenance for your PMM Server deployment.
+Complete the essential security configuration, user management, and ongoing maintenance for your PMM Server deployment on AWS.
 
-## Initial PMM Server setup
+## Prerequisites
 
-### First-time access and login
+Before configuring your PMM Server, ensure you have:
+- Completed [planning your PMM Server deployment](../aws/plan_aws.md) including instance sizing, storage, and network requirements
+- Successfully [deployed PMM Server from AWS Marketplace](../aws/deploy_aws.md) 
+- Completed the [initial login and changed default credentials](../aws/deploy_aws.md#initial-pmm-server-access)
+- Your PMM Server instance is running and accessible via HTTPS
 
-Once you've accessed the PMM web interface at `https://<your-instance-ip>`, you'll need to complete the initial login process. The default credentials are `admin`/`your instance ID`. 
+## Configure SSL/TLS
 
-To find your instance ID:
-{.power-number}
-
-1. In the EC2 console, select your PMM instance.
-2. Copy the **Instance ID** from the instance details.
-3. Use this as the password for initial login.
-
-### Mandatory password change
-
-These credentials not only manage access to the PMM web interface but also facilitate authentication between the PMM Server and PMM Clients. You will need to reuse these credentials when configuring PMM Clients on other hosts.
-
-Store the new credentials securely as you'll need them when configuring PMM Clients on other hosts.
-
-!!! warning "Security critical"
-    You **must** change the default password immediately. PMM will force a password change on first login for security.
-
-### SSL/TLS configuration
-
-Replace the self-signed certificate with a proper SSL certificate for production use.
+Replace the self-signed certificate with a proper SSL certificate for production.
 
 === "Let's Encrypt certificate (free)"
     {.power-number}
@@ -245,7 +231,6 @@ aws ec2 create-snapshot \
     --description "PMM Server manual backup $(date +%Y-%m-%d_%H:%M:%S)"
 ```
 ![AWS Marketplace](../../../../images/aws-marketplace.png)
-
 
 ## Restore from backup
 

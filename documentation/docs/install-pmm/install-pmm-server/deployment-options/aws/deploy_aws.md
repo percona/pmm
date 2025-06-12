@@ -48,7 +48,7 @@ Monitor your instance deployment progress through its status checks:
 
 ## Initial PMM Server access
 
-Once your instance status show "Running" and passes all status checks in the AWS console:
+Once your instance status shows "Running" and passes all status checks in the AWS console:
 {.power-number}
 
 1. In the EC2 console, select your instance and copy its **IPv4 Public IP** in the instance details or the **Public IP** field from the **Properties** panel:
@@ -60,7 +60,6 @@ Once your instance status show "Running" and passes all status checks in the AWS
     ![PMM Login](../../../../images/PMM_Login.png)
 
 3. Change the default credentials then use the new ones to log in to the PMM Server home page. You will reuse these credentials when configuring PMM Clients on other hosts.
-
 
     ![PMM Home Dashboard](../../../../images/PMM_Home_Dashboard.png)
 
@@ -78,6 +77,10 @@ For proper PMM Server functionality and access, ensure your security group allow
 
 !!! warning "Security reminder"
     Your PMM instance is now accessible via the internet. Ensure your security group settings restrict access to trusted IP addresses only.
+
+### SSH access
+For SSH access instructions, see [Connecting to Your Linux Instance Using SSH](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html).
+Replace the user name `ec2-user` with `admin`. You can also add SSH keys later through the **PMM Configuration > Settings > SSH Key** page.
 
 ### Configure PMM Server IP settings (Optional)
 
@@ -101,7 +104,6 @@ By default, your EC2 instance will have a private IP for internal VPC network ac
     2. If an Elastic IP is assigned, disassociate it from the instance.
     3. To access PMM Server using only a private IP, ensure you're connected to your VPC and use the private IP address for access. 
 
-
 #### To use an Elastic IP (for a static, public-facing IP address)
 
 For a static, public-facing IP address:
@@ -115,9 +117,10 @@ Associating a new Elastic IP to an instance with an existing Elastic IP will dis
 For detailed information on EC2 instance IP addressing, see the [AWS documentation on using instance addressing](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html).
 
 
+
 ## Post-deployment tasks
 
-Performed these tasks after your PMM Server is up and running.
+Perform these tasks after your PMM Server is up and running.
 
 ### Resize the EBS volume
 
@@ -147,12 +150,6 @@ To permanently remove your PMM Server instance:
 
 !!! warning "Data loss warning"
     Terminating an instance permanently deletes all data stored on the instance. Ensure you have created backups before termination.
-
-
-
-
-   
-
 
 ## Next steps
 - [Configure PMM server](../aws/configure_aws.md) for security and authentication
