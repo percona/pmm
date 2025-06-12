@@ -44,8 +44,6 @@ source "hcloud" "jenkins-agent" {
   snapshot_labels = {
     Name            = "Jenkins Agent x86_64 v3"
     iit-billing-tag = "pmm-worker-3"
-    architecture    = "x86_64"
-    os              = "rocky-9"
   }
   server_name = "packer-pmm-x86-${local.uuid_short}"
   ssh_keys    = var.ssh_key_name == "" ? [] : [var.ssh_key_name]
@@ -64,8 +62,6 @@ source "hcloud" "jenkins-agent-arm" {
   snapshot_labels = {
     Name            = "Jenkins Agent arm64 v3"
     iit-billing-tag = "pmm-worker-3"
-    architecture    = "arm64"
-    os              = "rocky-9"
   }
   server_name = "packer-pmm-arm-${local.uuid_short}"
   ssh_keys    = var.ssh_key_name == "" ? [] : [var.ssh_key_name]
