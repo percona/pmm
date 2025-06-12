@@ -22,8 +22,6 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
-	"io/fs"
 	"net/url"
 	"os"
 	"os/exec"
@@ -59,6 +57,7 @@ const (
 	envCheckFile         = "PMM_DEV_ADVISOR_CHECKS_FILE"
 	envDisableStartDelay = "PMM_ADVISORS_CHECKS_DISABLE_START_DELAY"
 	builtinAdvisorsPath  = "/usr/local/percona/pmm/advisors"
+	builtinChecksPath    = "/usr/local/percona/pmm/checks"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
 	resultAwaitTimeout     = 20 * time.Second // should be greater than agents.defaultQueryActionTimeout
@@ -1360,7 +1359,7 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 	return targets, nil
 }
 
-// CollectAdvisors loads advisors from file or SaaS, and stores versions this pmm-managed version can handle.
+// CollectAdvisors loads advisors from builtin-in advisors directory or user-defined file, and stores versions this pmm-managed version can handle.
 func (s *Service) CollectAdvisors(ctx context.Context) {
 	var advisors []check.Advisor
 	var err error
@@ -1384,9 +1383,10 @@ func (s *Service) CollectAdvisors(ctx context.Context) {
 			Checks:      checks,
 		})
 	} else {
+		s.l.Warnf("Using builtin test checks file: %s.", builtinAdvisorsPath)
 		advisors, err = s.loadBuiltinAdvisors(ctx)
 		if err != nil {
-			s.l.Errorf("Failed to download checks: %s.", err)
+			s.l.Errorf("Failed to load built-in advisors: %s.", err)
 			return // keep previously downloaded advisors
 		}
 	}
@@ -1422,56 +1422,116 @@ func (s *Service) loadCustomChecks(file string) ([]check.Check, error) {
 
 // loadBuiltinAdvisors loads builtin advisors.
 func (s *Service) loadBuiltinAdvisors(_ context.Context) ([]check.Advisor, error) {
-	// be liberal about check files.
-	// todo(idoqo): we can enforce stricter checks since they are now builtin.
-	params := &check.ParseParams{
-		DisallowUnknownFields: false,
-		DisallowInvalidChecks: false,
-	}
-
-	// check that the builtin advisors path exists
-	info, err := os.Stat(builtinAdvisorsPath)
+	s.l.Infof("Loading advisors from dir=%s", builtinAdvisorsPath)
+	matches, err := filepath.Glob(filepath.Join(builtinAdvisorsPath, "*.yaml"))
 	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, errors.Errorf("builtin advisors path does not exist: %s", builtinAdvisorsPath)
-		} else if !info.IsDir() {
-			return nil, errors.Errorf("builtin advisors path is not a valid directory: %s", builtinAdvisorsPath)
-		}
-		return nil, errors.Wrap(err, "failed to read builtin advisors path")
+		return nil, errors.Wrap(err, "failed to find advisor files")
 	}
 
-	var advisorsContent []byte
-	err = filepath.WalkDir(builtinAdvisorsPath, func(path string, d fs.DirEntry, err error) error {
+	advisors, err := s.loadAdvisorsFromFiles(matches)
+	if err != nil {
+		return nil, err
+	}
+
+	s.l.Infof("Loading checks from dir=%s", builtinChecksPath)
+
+	matches, err = filepath.Glob(filepath.Join(builtinChecksPath, "*.yaml"))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find check files")
+	}
+
+	checks, err := s.loadChecksFromFiles(matches)
+	if err != nil {
+		return nil, err
+	}
+
+	// Link checks to advisors
+	for _, c := range checks {
+		a, ok := advisors[c.Advisor]
+		if !ok {
+			return nil, errors.Errorf("check '%s' refers to an unknown advisor '%s'", c.Name, c.Advisor)
+		}
+		c.Category = a.Category // Inherit category form advisor for backward compatibility
+		a.Checks = append(a.Checks, c)
+	}
+
+	advisorsSlice := make([]check.Advisor, 0, len(advisors))
+	for _, a := range advisors {
+		advisorsSlice = append(advisorsSlice, *a)
+	}
+	return advisorsSlice, nil
+}
+
+// loadChecksFromFiles loads Advisor checks from a list of given files.
+func (s *Service) loadChecksFromFiles(files []string) ([]check.Check, error) {
+	res := make([]check.Check, 0, len(files))
+	for _, file := range files {
+		s.l.Debugf("Loading check file=%s", file)
+
+		b, err := os.ReadFile(file) //nolint:gosec
 		if err != nil {
-			return err
+			return nil, errors.Wrapf(err, "failed to read checks file %s", file)
 		}
-
-		// Skip directories and non-YAML files
-		if d.IsDir() || (!strings.HasSuffix(strings.ToLower(path), ".yaml") &&
-			!strings.HasSuffix(strings.ToLower(path), ".yml")) {
-			return nil
-		}
-
-		content, err := os.ReadFile(path)
+		checks, err := check.ParseChecks(bytes.NewReader(b), &check.ParseParams{
+			DisallowUnknownFields: true,
+			DisallowInvalidChecks: true,
+		})
 		if err != nil {
-			s.l.Warnf("failed to read advisors file '%s': %s", path, err.Error())
-			return nil
+			return nil, errors.Wrapf(err, "failed to parse checks from file %s", file)
 		}
-		advisorsContent = append(advisorsContent, content...)
-		advisorsContent = append(advisorsContent, '\n')
-		return nil
-	})
 
-	if err != nil {
-		return nil, fmt.Errorf("failed to read advisors from %s: %w", builtinAdvisorsPath, err)
+		if len(checks) != 1 {
+			return nil, errors.Errorf("expected exactly one check in %s", file)
+		}
+		c := checks[0]
+
+		_, fileName := filepath.Split(file)
+		if c.Name != strings.TrimSuffix(fileName, ".yaml") {
+			return nil, errors.Errorf("check name does not match file name %s", file)
+		}
+
+		res = append(res, c)
 	}
 
-	advisors, err := check.ParseAdvisors(bytes.NewReader(advisorsContent), params)
-	if err != nil {
-		return nil, errors.WithStack(err)
+	return res, nil
+}
+
+// loadAdvisorsFromFiles loads Advisors from a list of given files.
+func (s *Service) loadAdvisorsFromFiles(files []string) (map[string]*check.Advisor, error) {
+	res := make(map[string]*check.Advisor, len(files))
+	for _, file := range files {
+		s.l.Infof("Loading advisor file=%s", file)
+
+		b, err := os.ReadFile(file) //nolint:gosec
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to read advisor file %s", file)
+		}
+		advisors, err := check.ParseAdvisors(bytes.NewReader(b), &check.ParseParams{
+			DisallowUnknownFields: true,
+			DisallowInvalidChecks: true,
+		})
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to parse advisor from file %s", file)
+		}
+
+		if len(advisors) != 1 {
+			return nil, errors.Errorf("expected exactly one advisor in %s", file)
+		}
+		a := advisors[0]
+
+		_, fileName := filepath.Split(file)
+		if a.Name != strings.TrimSuffix(fileName, ".yaml") {
+			return nil, errors.Errorf("advisor name does not match file name %s", file)
+		}
+
+		if _, ok := res[a.Name]; ok {
+			return nil, errors.Errorf("advisor name collision detected: %s", a.Name)
+		}
+
+		res[a.Name] = &a
 	}
 
-	return advisors, nil
+	return res, nil
 }
 
 // filterSupportedChecks returns supported advisor checks and prints warning log messages about unsupported.

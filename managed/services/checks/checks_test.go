@@ -48,7 +48,7 @@ var (
 	clickhouseDB *sql.DB
 )
 
-func TestDownloadAdvisors(t *testing.T) {
+func TestLoadBuiltinAdvisors(t *testing.T) {
 	setupClients(t)
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
@@ -70,12 +70,14 @@ func TestDownloadAdvisors(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotEmpty(t, dChecks)
 
+		s.CollectAdvisors(ctx)
+
 		checks, err = s.GetAdvisors()
 		require.NoError(t, err)
 		assert.NotEmpty(t, checks)
 	})
 
-	t.Run("disabled telemetry", func(t *testing.T) {
+	t.Run("advisors are loaded with telemetry disabled", func(t *testing.T) {
 		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
 			EnableTelemetry: pointer.ToBool(false),
 		})
@@ -86,11 +88,11 @@ func TestDownloadAdvisors(t *testing.T) {
 
 		dChecks, err := s.loadBuiltinAdvisors(ctx)
 		require.NoError(t, err)
-		assert.Empty(t, dChecks)
+		assert.NotEmpty(t, dChecks)
 
 		checks, err := s.GetAdvisors()
 		require.NoError(t, err)
-		assert.Empty(t, checks)
+		assert.NotEmpty(t, checks)
 	})
 }
 
