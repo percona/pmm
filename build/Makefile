@@ -42,6 +42,12 @@ pmm-ami:
 		-var 'watchtower_image_name=${WATCHTOWER_IMAGE}' \
 		-only amazon-ebs -color=false packer/pmm.json | tee build.log
 
+# Initialize Packer plugins
+packer-init:
+	cd packer && packer init aws.pkr.hcl
+	cd packer && packer init do.pkr.hcl
+	cd packer && packer init hetzner.pkr.hcl
+
 # Jenkins Agent builds for various cloud providers
 jenkins-agents-aws:
 	cd packer && packer build aws.pkr.hcl
