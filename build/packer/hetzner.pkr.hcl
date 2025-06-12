@@ -46,15 +46,11 @@ source "hcloud" "jenkins-agent" {
     iit-billing-tag = "pmm-worker-3"
     architecture    = "x86_64"
     os              = "rocky-9"
-    jenkins-ready   = "true"
-    created-by      = "packer"
   }
   server_name = "packer-pmm-x86-${local.uuid_short}"
   ssh_keys    = var.ssh_key_name == "" ? [] : [var.ssh_key_name]
   server_labels = {
     iit-billing-tag = "pmm-worker"
-    purpose         = "packer-build"
-    temporary       = "true"
   }
 }
 
@@ -70,15 +66,11 @@ source "hcloud" "jenkins-agent-arm" {
     iit-billing-tag = "pmm-worker-3"
     architecture    = "arm64"
     os              = "rocky-9"
-    jenkins-ready   = "true"
-    created-by      = "packer"
   }
   server_name = "packer-pmm-arm-${local.uuid_short}"
   ssh_keys    = var.ssh_key_name == "" ? [] : [var.ssh_key_name]
   server_labels = {
     iit-billing-tag = "pmm-worker"
-    purpose         = "packer-build"
-    temporary       = "true"
   }
 }
 
