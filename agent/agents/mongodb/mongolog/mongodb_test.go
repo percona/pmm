@@ -51,7 +51,7 @@ func TestMongoRun(t *testing.T) {
 		m, err := New(params, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		ctx, cancel := context.WithTimeout(t.Context(), 3*time.Second)
 		defer cancel()
 		go m.Run(ctx)
 

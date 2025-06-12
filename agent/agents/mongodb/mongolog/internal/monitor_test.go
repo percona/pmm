@@ -57,7 +57,7 @@ func TestCollector(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test, func(t *testing.T) {
 			t.Parallel()
-			ctx, cancel := context.WithTimeout(context.Background(), timeout)
+			ctx, cancel := context.WithTimeout(t.Context(), timeout)
 			t.Cleanup(cancel)
 
 			hash, err := generateRandomHash(t)

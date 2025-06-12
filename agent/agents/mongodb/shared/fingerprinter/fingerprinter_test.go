@@ -95,7 +95,7 @@ func TestProfilerFingerprinter(t *testing.T) {
 			return
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutSessionSync)
+		ctx, cancel := context.WithTimeout(t.Context(), mgoTimeoutSessionSync)
 		defer cancel()
 		_ = client.Database(dbName).Drop(ctx)
 		defer client.Database(dbName).Drop(context.TODO()) //nolint:errcheck
