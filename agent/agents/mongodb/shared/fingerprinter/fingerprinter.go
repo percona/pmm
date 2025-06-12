@@ -91,8 +91,15 @@ func (pf *ProfilerFingerprinter) fingerprintFind(fp fingerprinter.Fingerprint, d
 	fp.Fingerprint += ")"
 
 	if sort, ok := command["sort"]; ok {
-		sortJSON, _ := json.Marshal(sort.(bson.D).Map()) //nolint:errchkjson,staticcheck // PMM-13964
-		fp.Fingerprint += fmt.Sprintf(`.sort(%s)`, sortJSON)
+		switch s := sort.(type) {
+		case bson.D:
+			sortJSON, _ := json.Marshal(s.Map()) //nolint:errchkjson,staticcheck // PMM-13964
+			fp.Fingerprint += fmt.Sprintf(`.sort(%s)`, sortJSON)
+		case map[string]interface{}:
+			sortJSON, _ := json.Marshal(s) //nolint:errchkjson,staticcheck // PMM-13964
+			fp.Fingerprint += fmt.Sprintf(`.sort(%s)`, sortJSON)
+		default:
+		}
 	}
 	if _, ok := command["limit"]; ok {
 		fp.Fingerprint += `.limit(?)`

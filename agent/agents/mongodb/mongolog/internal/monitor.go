@@ -17,6 +17,8 @@ package mongolog
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -85,6 +87,49 @@ type row struct {
 type systemProfile struct {
 	proto.SystemProfile
 	Command bson.M `json:"command"`
+	Type    string `json:"type"`
+}
+
+func fixOpAndNs(profile *systemProfile) {
+	if profile.Type != "" {
+		profile.Op = profile.Type
+		return
+	}
+
+	switch profile.Protocol {
+	case "op_msg":
+		// Check command keys to identify operation type
+		for k, v := range profile.Command {
+			switch k {
+			case "insert":
+				profile.Op = "insert"
+			case "find":
+				profile.Op = "query"
+			case "update":
+				profile.Op = "update"
+			case "delete":
+				profile.Op = "remove"
+			case "explain", "endSessions", "killCursors":
+				profile.Op = "command"
+			}
+
+			profile.Ns = fmt.Sprintf("%s.%s", profile.Ns, v)
+			return
+		}
+		// Default for op_msg without a known command key
+		profile.Op = "command"
+		// not known ns?
+		return
+
+		// If protocol is op_query
+	case "op_query":
+		profile.Op = "query"
+		// not known ns?
+		return
+	default:
+		profile.Op = profile.Protocol
+		// not known ns?
+	}
 }
 
 // readFile continuously read new lines from file, until it is canceled or considered as done.
@@ -111,7 +156,6 @@ func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docs
 			logger.Debugf("readed line: %s", line)
 
 			var l row
-			var doc proto.SystemProfile
 			if line == "" || !json.Valid([]byte(line)) {
 				continue
 			}
@@ -131,7 +175,14 @@ func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docs
 				continue
 			}
 
-			doc = stats.SystemProfile
+			if strings.Contains(stats.Ns, ".$cmd") {
+				logger.Debugln("skipping line with Ns .$cmd")
+				continue
+			}
+
+			fixOpAndNs(&stats)
+
+			doc := stats.SystemProfile
 			doc.Ts = l.T.Date
 
 			var command bson.D
