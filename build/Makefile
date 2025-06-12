@@ -41,6 +41,40 @@ pmm-ami:
 		build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}' \
 		-var 'watchtower_image_name=${WATCHTOWER_IMAGE}' \
 		-only amazon-ebs -color=false packer/pmm.json | tee build.log
+
+# Jenkins Agent builds for various cloud providers
+jenkins-agents-aws:
+	cd packer && packer build aws.pkr.hcl
+
+jenkins-agents-digitalocean:
+	cd packer && packer build -color=false do.pkr.hcl
+
+jenkins-agents-hetzner:
+	@if [ -z "${HCLOUD_TOKEN}" ]; then \
+		echo "Error: HCLOUD_TOKEN environment variable is not set"; \
+		echo "Please run: export HCLOUD_TOKEN='your-token-here'"; \
+		exit 1; \
+	fi
+	cd packer && packer build -var="hcloud_token=${HCLOUD_TOKEN}" hetzner.pkr.hcl
+
+jenkins-agents-hetzner-amd64:
+	@if [ -z "${HCLOUD_TOKEN}" ]; then \
+		echo "Error: HCLOUD_TOKEN environment variable is not set"; \
+		echo "Please run: export HCLOUD_TOKEN='your-token-here'"; \
+		exit 1; \
+	fi
+	cd packer && packer build -var="hcloud_token=${HCLOUD_TOKEN}" -only=jenkins-farm.hcloud.jenkins-agent hetzner.pkr.hcl
+
+jenkins-agents-hetzner-arm64:
+	@if [ -z "${HCLOUD_TOKEN}" ]; then \
+		echo "Error: HCLOUD_TOKEN environment variable is not set"; \
+		echo "Please run: export HCLOUD_TOKEN='your-token-here'"; \
+		exit 1; \
+	fi
+	cd packer && packer build -var="hcloud_token=${HCLOUD_TOKEN}" -only=jenkins-farm.hcloud.jenkins-agent-arm hetzner.pkr.hcl
+
+# Build all Jenkins agents
+jenkins-agents-all: jenkins-agents-aws jenkins-agents-digitalocean jenkins-agents-hetzner
 ## ----------------- PACKER ------------------
 
 check:
