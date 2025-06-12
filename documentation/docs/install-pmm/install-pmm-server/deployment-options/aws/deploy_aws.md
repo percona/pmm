@@ -28,7 +28,7 @@ To launch  PMM Server via AWS Marketplace:
 11. Assign a meaningful name to the instance to help distinguish it from others in your environment.
 
 ### Access the EC2 console
-
+Monitor the deployment progress and access your instance through the EC2 console:
 {.power-number}
 
 1. Click the **EC2 Console** link that appears at the top of the confirmation page after launching, or go directly to the [EC2 Console](https://console.aws.amazon.com/ec2/).

@@ -17,7 +17,8 @@ Before configuring your PMM Server, ensure you have:
 
 Replace the self-signed certificate with a proper SSL certificate for production.
 
-=== "Let's Encrypt certificate (free)"
+=== "Let's Encrypt certificate"
+    If you want to use a free Let's Encrypt certificate:
     {.power-number}
 
     1. Make sure that the domain name pointing to your PMM Server IP.
@@ -67,7 +68,6 @@ Replace the self-signed certificate with a proper SSL certificate for production
 
 Configure the operating system-level firewall on your PMM Server instance to further restrict access to required ports. This adds an additional layer of security beyond AWS Security Groups.
 
-
 ```sh
 # SSH to PMM Server
 ssh -i /path/to/your-key.pem admin@<your-instance-ip>
@@ -85,9 +85,9 @@ After the initial setup, create additional user accounts in PMM for your team me
 1. Go to **Administration > Users and access > Users**.
 2. Click **New user** and configure the user with an appropriate role:
 
-   - **Admin**: Full system access
-   - **Editor**: Dashboard editing, no system config
-   - **Viewer**: Read-only access
+    - **Admin**: Full system access
+    - **Editor**: Dashboard editing, no system config
+    - **Viewer**: Read-only access
 
 3. Limit access based on job responsibilities and use viewer accounts for stakeholders who only need to see metrics.
 
@@ -209,7 +209,7 @@ To restore PMM Server from a backup:
 
 1. Create a new volume using the latest snapshot of the PMM data volume:
 
-![Create Volume](../../../../images/aws-marketplace.pmm.ec2.backup2.png)
+    ![Create Volume](../../../../images/aws-marketplace.pmm.ec2.backup2.png)
 
 2. Stop the PMM Server instance.
 
@@ -219,100 +219,71 @@ To restore PMM Server from a backup:
 
 4. Attach the new volume:
 
-![Attach Volume](../../../../images/aws-marketplace.pmm.ec2.backup4.png)
+    ![Attach Volume](../../../../images/aws-marketplace.pmm.ec2.backup4.png)
 
-5. Start the PMM Server instance.
+5. Start the PMM Server instance. 
+The restore process typically takes 5-15 minutes depending on volume size and AWS region performance.
 
-!!! note "Recovery time"
-    The restore process typically takes 5-15 minutes depending on volume size and AWS region performance.
+## Remove PMM server from AWS
 
-## Remove or terminate your instance
-
-To permanently delete PMM Server:
-{.power-number}
-
-1. Create final backup:
-   ```bash
-   aws ec2 create-snapshot --volume-id $DATA_VOLUME_ID --description "Final backup before termination"
-    ```
-2. Disconnect all PMM clients:
-   ```bash
-    # On each monitored server
-    pmm-admin remove --all
-    ```
-3. Export configuration:
-   ```bash
-    sudo docker exec pmm-server pmm-admin summary > pmm-final-config.txt
-    ```
-4. Stop PMM services:
-   ```bash
-   sudo docker stop pmm-server
-   ```
-5. Terminate the instance:
-   ```bash
-   aws ec2 terminate-instances --instance-ids i-1234567890abcdef0
-   ```
-6. Clean up resources:
-
-   ```bash
-   # Release Elastic IP if using one
-   aws ec2 release-address --allocation-id eipalloc-12345678\
-   ```
-!!! danger alert alert-danger "Data loss warning"
+!!! danger "Data loss warning"
     Instance termination permanently deletes all data. Ensure you have completed all backup procedures before terminating an instance.
-
-## Remove PMM Server from AWS
 
 To permanently delete your PMM Server instance and clean up resources:
 
 === "From the AWS console (UI)"
-{.power-note}
+    Use the AWS console for a visual, step-by-step termination process:
+    {.power-number}
 
-1. Go to the **EC2 Console**.
-2. Find the instance you want to remove.
+    1. Go to the **EC2 Console**.
 
-    ![EC2 Console](../../../../images/aws-marketplace.pmm.ec2.remove1.png)
+    2. Find the instance you want to remove.
+        ![EC2 Console](../../../../images/aws-marketplace.pmm.ec2.remove1.png)
 
-3. Open the **Instance state** menu and select **Terminate instance**.
+    3. Open the **Instance state** menu and select **Terminate instance**.
 
-    ![Terminate Instance](../../../../images/aws-marketplace.pmm.ec2.remove2.png)
+        ![Terminate Instance](../../../../images/aws-marketplace.pmm.ec2.remove2.png)
 
-4. Confirm termination.
+    4. Confirm termination.
 
-    ![Confirm Terminate](../../../../images/aws-marketplace.pmm.ec2.remove3.png)
+        ![Confirm Terminate](../../../../images/aws-marketplace.pmm.ec2.remove3.png)
 
 === "From AWS CLI"
-{.power-note}
+    Use the AWS CLI when you want to automate termination with cleanup:
+    {.power-number}
 
-1. Create a final backup:
-   ```bash
-   aws ec2 create-snapshot --volume-id $DATA_VOLUME_ID --description "Final backup before termination"
-   ```
-2. Disconnect all PMM clients:
-   ```bash
-    # On each monitored server
-    pmm-admin remove --all
-    ```
+    1. Create a final backup:
+       ```bash
+       aws ec2 create-snapshot --volume-id $DATA_VOLUME_ID --description "Final backup before termination"
+       ```
 
-3. Export configuration:
-   ```bash
-    sudo docker exec pmm-server pmm-admin summary > pmm-final-config.txt
-   ```
-4. Stop PMM services:
-   ```bash
-   sudo docker stop pmm-server
-   ```
+    2. Disconnect all PMM clients:
+       ```bash
+       # On each monitored server
+       pmm-admin remove --all
+       ```
 
-5. Terminate the instance:
-   ```bash
-   aws ec2 terminate-instances --instance-ids i-1234567890abcdef0
-   ```
-6. Clean up AWS resources (optional):
-   ```bash
-    # Release Elastic IP if allocated
-    aws ec2 release-address --allocation-id eipalloc-12345678
-   ```
-   
+    3. Export configuration:
+       ```bash
+       sudo docker exec pmm-server pmm-admin summary > pmm-final-config.txt
+       ```
+
+    4. Stop PMM services:
+       ```bash
+       sudo docker stop pmm-server
+       ```
+
+    5. Terminate the instance:
+       ```bash
+       aws ec2 terminate-instances --instance-ids i-1234567890abcdef0
+       ```
+
+    6. Clean up AWS resources (optional):
+       ```bash
+       # Release Elastic IP if allocated
+       aws ec2 release-address --allocation-id eipalloc-12345678
+       ```
+
 ## Next steps
 
 With your PMM Server fully configured and secured:
