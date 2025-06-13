@@ -18,15 +18,15 @@ gobuild_component() {
     local extract_path=${3:-"github.com/percona/$parent_component"}
     local component_path=$4
     local result_file=${5:-bin/$(basename ${component_path:-$extract_path})}
-    local source_dir=/home/builder/tmp/source/pmm-client-${pmm_version}
-    local binary_dir=/home/builder/tmp/binary/pmm-client-${pmm_version}
+    local src_dir=/home/builder/tmp/source/pmm-client-${pmm_version}
+    local bin_dir=/home/builder/tmp/binary/pmm-client-${pmm_version}
     local target build_command archive
     local volume_mounts="-v ${tmp_dir}:/home/builder/tmp -v ${tmp_dir}/go:/tmp/go"
     volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
     volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
     volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
 
-    # Set target for Nomad accordingly
+    # Set target for Nomad
     case "$(uname -m)" in
         x86_64) target="linux_amd64" ;;
         aarch64) target="linux_arm64" ;;
@@ -51,11 +51,11 @@ gobuild_component() {
     elif [[ "${component}" =~ (node|mysqld|proxysql|rds|postgres|azure_metrics)_exporter ]]; then
         build_command="cd /tmp/go/src/${extract_path} && make release"
     elif [ "${component}" = percona-toolkit ]; then
-        build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o \${binary_dir}/${result_file} ."
+        build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o ${bin_dir}/${result_file} ."
     elif [ "${component}" = nomad ]; then
         build_command="cd /tmp/go/src/${extract_path} && TARGETS=${target} make deps release"
     else
-        build_command="go build -o \${binary_dir}/${result_file} ./src/${extract_path}/${component_path}"
+        build_command="go build -o ${bin_dir}/${result_file} ./src/${extract_path}/${component_path}"
     fi
 
     docker run --rm ${volume_mounts} \
@@ -76,12 +76,12 @@ gobuild_component() {
         export PMM_RELEASE_BRANCH=""
         sudo chown -R builder:builder /home/builder/tmp
 
-        export PMM_RELEASE_PATH=${binary_dir}/bin
+        export PMM_RELEASE_PATH=${bin_dir}/bin
 
-        mkdir -p $binary_dir/bin
+        mkdir -p ${bin_dir}/bin
         mkdir -p /tmp/go/src/${extract_path}
 
-        tar -C /tmp/go/src/${extract_path} --strip-components=1 -zxpf ${source_dir}/${archive}
+        tar -C /tmp/go/src/${extract_path} --strip-components=1 -zxpf ${src_dir}/${archive}
         pushd /tmp/go
             export GOPATH=\$(pwd -P)
             export PATH=$PATH:\$(go env GOPATH)/bin
