@@ -61,7 +61,7 @@ jenkins-agents-hetzner:
 		echo "Please run: export HCLOUD_TOKEN='your-token-here'"; \
 		exit 1; \
 	fi
-	cd packer && packer build -var="hcloud_token=${HCLOUD_TOKEN}" hetzner.pkr.hcl
+	cd packer && packer build -var="hcloud_token=${HCLOUD_TOKEN}" $(if $(HCLOUD_LOCATION),-var="location=$(HCLOUD_LOCATION)") hetzner.pkr.hcl
 
 jenkins-agents-hetzner-amd64:
 	@if [ -z "${HCLOUD_TOKEN}" ]; then \
@@ -69,7 +69,7 @@ jenkins-agents-hetzner-amd64:
 		echo "Please run: export HCLOUD_TOKEN='your-token-here'"; \
 		exit 1; \
 	fi
-	cd packer && packer build -var="hcloud_token=${HCLOUD_TOKEN}" -only=jenkins-farm.hcloud.jenkins-agent hetzner.pkr.hcl
+	cd packer && packer build -var="hcloud_token=${HCLOUD_TOKEN}" $(if $(HCLOUD_LOCATION),-var="location=$(HCLOUD_LOCATION)") -only=jenkins-farm.hcloud.jenkins-agent hetzner.pkr.hcl
 
 jenkins-agents-hetzner-arm64:
 	@if [ -z "${HCLOUD_TOKEN}" ]; then \
@@ -77,7 +77,7 @@ jenkins-agents-hetzner-arm64:
 		echo "Please run: export HCLOUD_TOKEN='your-token-here'"; \
 		exit 1; \
 	fi
-	cd packer && packer build -var="hcloud_token=${HCLOUD_TOKEN}" -only=jenkins-farm.hcloud.jenkins-agent-arm hetzner.pkr.hcl
+	cd packer && packer build -var="hcloud_token=${HCLOUD_TOKEN}" $(if $(HCLOUD_LOCATION),-var="location=$(HCLOUD_LOCATION)") -only=jenkins-farm.hcloud.jenkins-agent-arm hetzner.pkr.hcl
 
 # Build all Jenkins agents
 jenkins-agents-all: jenkins-agents-aws jenkins-agents-digitalocean jenkins-agents-hetzner

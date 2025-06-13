@@ -5,7 +5,7 @@
   vars:
     docker_compose_version: "2.26.1"
     kubectl_version: "1.29.2"
-    hcloud_cli_version: "1.40.0"
+    hcloud_cli_version: "1.51.0"
     doctl_version: "1.105.0"
     node_version: "22.x"
     goreleaser_version: "2.3.2" # https://github.com/goreleaser/goreleaser/releases
@@ -46,6 +46,17 @@
           - docker-buildx-plugin
           - docker-compose-plugin
         state: latest
+
+    - name: Copy docker daemon config
+      copy:
+        src: daemon.json
+        dest: /etc/docker/daemon.json
+
+    - name: Enable Docker service
+      systemd:
+        name: docker.service
+        state: started
+        enabled: yes
 
     - name: Install packages
       dnf:
@@ -193,17 +204,6 @@
         disable_gpg_check: yes
       when: ansible_architecture == "x86_64"  # Only available for x86_64
 
-    - name: Copy docker daemon config
-      copy:
-        src: daemon.json
-        dest: /etc/docker/daemon.json
-
-    - name: Enable Docker service
-      systemd:
-        name: docker.service
-        state: started
-        enabled: yes
-
     - name: Download and unarchive AWS installer
       unarchive:
         src: https://awscli.amazonaws.com/awscli-exe-linux-{{ ansible_architecture }}.zip
@@ -345,11 +345,18 @@
         state: present
       ignore_errors: yes
 
+    - name: Check if XFS is available
+      stat:
+        path: /proc/sys/fs/xfs/xfssyncd_centisecs
+      register: xfs_param_check
+      failed_when: false
+
     - name: Increase fs.xfs.xfssyncd_centisecs
       sysctl:
         name: fs.xfs.xfssyncd_centisecs
         value: 9000
         state: present
+      when: xfs_param_check.stat.exists
       failed_when: false
 
     - name: Increase fs.inotify.max_user_watches
