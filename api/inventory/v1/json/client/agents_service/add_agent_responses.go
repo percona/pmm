@@ -2340,6 +2340,9 @@ type AddAgentOKBodyExternalExporter struct {
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddAgentOKBodyExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -6008,6 +6011,9 @@ type AddAgentParamsBodyExternalExporter struct {
 
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `json:"push_metrics,omitempty"`
+
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 }
 
 // Validate validates this add agent params body external exporter
