@@ -22,7 +22,7 @@ full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
 # Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
 full_pmm_version=${full_pmm_version//\//-}
 
-if [[ "${pmm_branch}" =~ ^pmm-3.|^v3$|^main$ ]]; then
+if [[ "${pmm_branch}" =~ ^pmm-3.|^v3$|^main$|^release- ]]; then
     full_pmm_version=${pmm_base_version}
 fi
 
