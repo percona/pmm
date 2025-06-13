@@ -191,13 +191,9 @@
         name: "{{ item }}"
         source: pull
       loop:
-        - debian:buster
-        - debian:bullseye
         - debian:bookworm
-        - ubuntu:focal
         - ubuntu:jammy
         - ubuntu:noble
-        - rockylinux:8
         - oraclelinux:9
         - public.ecr.aws/e7j3v3n0/rpmbuild:3
         - public.ecr.aws/e7j3v3n0/rpmbuild:3-ol8
