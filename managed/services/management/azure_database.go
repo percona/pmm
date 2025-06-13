@@ -251,7 +251,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 			Environment:  req.Environment,
 			CustomLabels: req.CustomLabels,
 			Address:      &req.Address,
-			Port:         pointer.ToUint16(uint16(req.Port)),
+			Port:         pointer.ToUint16(uint16(req.Port)), //nolint:gosec // port is a uint16
 		})
 		if err != nil {
 			return err
