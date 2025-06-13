@@ -71,6 +71,8 @@ gobuild_component() {
         export PMM_RELEASE_VERSION=${full_pmm_version}
         export PMM_RELEASE_TIMESTAMP=$(date '+%s')
         export PMM_RELEASE_FULLCOMMIT=$(git -C sources/${parent_component}/src/${extract_path} rev-parse HEAD)
+        export COMPONENT_VERSION=$(git -C sources/${parent_component}/src/${extract_path} describe --abbrev=0 --always)
+        export COMPONENT_BRANCH=$(git -C sources/${parent_component}/src/${extract_path} describe --always --contains --all)
         export PMM_RELEASE_BRANCH=""
         sudo chown -R builder:builder /home/builder/tmp
 
