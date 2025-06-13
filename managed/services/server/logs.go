@@ -177,7 +177,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		"/etc/supervisord.d/vmalert.ini",
 		"/etc/supervisord.d/vmproxy.ini",
 
-		"/usr/local/percona/pmm/config/pmm-agent.yaml",
+		"/usr/share/pmm-server/pmm-agent.yaml",
 	} {
 		b, m, err := readFile(f)
 		files = append(files, fileContent{

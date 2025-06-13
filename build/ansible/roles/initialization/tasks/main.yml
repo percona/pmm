@@ -47,8 +47,6 @@
     copy:
       src: maintenance.html
       dest: /usr/share/pmm-server/maintenance/
-      owner: pmm
-      group: pmm
       mode: 0644
 
   - name: Wait for PostgreSQL to become responsive
@@ -86,8 +84,6 @@
     file:
       path: /srv/backup
       state: directory
-      owner: pmm
-      group: pmm
       mode: 0775
     when: need_upgrade
 
