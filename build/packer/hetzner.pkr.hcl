@@ -29,6 +29,12 @@ variable "volume_size" {
   default     = 60
 }
 
+variable "location" {
+  type        = string
+  description = "Hetzner Cloud location (fsn1, hel1, nbg1, ash, hil)"
+  default     = "fsn1"
+}
+
 locals {
   timestamp  = formatdate("YYYYMMDD-HHmmss", timestamp())
   uuid_short = substr(uuidv4(), 0, 8)
@@ -37,7 +43,7 @@ locals {
 source "hcloud" "jenkins-agent" {
   token         = var.hcloud_token
   image         = "rocky-9" # Using Rocky Linux 9 as Oracle Linux not available on Hetzner
-  location      = "fsn1"    # Falkenstein, Germany - or use "hel1" (Helsinki), "nbg1" (Nuremberg)
+  location      = var.location
   server_type   = "ccx23"   # 4 dedicated vCPUs, 16GB RAM - Intel-based (matches AWS t3.xlarge)
   ssh_username  = "root"
   snapshot_name = "Docker Agent v3 Hetzner"
