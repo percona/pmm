@@ -1,7 +1,7 @@
 [
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -81,10 +81,6 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "insert",
-        "Value": "users"
-      },
-      {
         "Key": "documents",
         "Value": [
           {
@@ -111,6 +107,10 @@
       {
         "Key": "$db",
         "Value": "test"
+      },
+      {
+        "Key": "insert",
+        "Value": "users"
       }
     ],
     "originatingCommand": null,
@@ -131,7 +131,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -211,10 +211,6 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "insert",
-        "Value": "users"
-      },
-      {
         "Key": "documents",
         "Value": 2
       },
@@ -233,6 +229,10 @@
       {
         "Key": "$db",
         "Value": "test"
+      },
+      {
+        "Key": "insert",
+        "Value": "users"
       }
     ],
     "originatingCommand": null,
@@ -253,7 +253,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -333,10 +333,6 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "create",
-        "Value": "logs"
-      },
-      {
         "Key": "lsid",
         "Value": {
           "id": {
@@ -347,6 +343,10 @@
       {
         "Key": "$db",
         "Value": "test"
+      },
+      {
+        "Key": "create",
+        "Value": "logs"
       }
     ],
     "originatingCommand": null,
@@ -367,7 +367,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": true,
     "execStats": {
       "advanced": 0,
@@ -447,14 +447,6 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "$db",
-        "Value": "test"
-      },
-      {
-        "Key": "find",
-        "Value": "users"
-      },
-      {
         "Key": "filter",
         "Value": {
           "age": {
@@ -469,6 +461,14 @@
             "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
           }
         }
+      },
+      {
+        "Key": "$db",
+        "Value": "test"
+      },
+      {
+        "Key": "find",
+        "Value": "users"
       }
     ],
     "originatingCommand": null,
@@ -489,7 +489,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": true,
     "execStats": {
       "advanced": 0,
@@ -569,18 +569,6 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "limit",
-        "Value": 5
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
         "Key": "$db",
         "Value": "test"
       },
@@ -604,6 +592,18 @@
         "Value": {
           "age": -1
         }
+      },
+      {
+        "Key": "limit",
+        "Value": 5
+      },
+      {
+        "Key": "lsid",
+        "Value": {
+          "id": {
+            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
+          }
+        }
       }
     ],
     "originatingCommand": null,
@@ -624,7 +624,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": true,
     "execStats": {
       "advanced": 0,
@@ -748,7 +748,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": true,
     "execStats": {
       "advanced": 0,
@@ -828,18 +828,6 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
-      },
-      {
         "Key": "aggregate",
         "Value": "orders"
       },
@@ -869,6 +857,18 @@
       {
         "Key": "cursor",
         "Value": {}
+      },
+      {
+        "Key": "lsid",
+        "Value": {
+          "id": {
+            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
+          }
+        }
+      },
+      {
+        "Key": "$db",
+        "Value": "test"
       }
     ],
     "originatingCommand": null,
@@ -889,7 +889,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -1009,7 +1009,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -1127,7 +1127,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -1246,7 +1246,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -1354,7 +1354,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -1462,7 +1462,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -1542,21 +1542,6 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "insert",
-        "Value": "users"
-      },
-      {
-        "Key": "documents",
-        "Value": [
-          {
-            "_id": {
-              "$oid": "681360f723567705faa00aa4"
-            },
-            "name": "Dana"
-          }
-        ]
-      },
-      {
         "Key": "ordered",
         "Value": true
       },
@@ -1571,6 +1556,21 @@
       {
         "Key": "$db",
         "Value": "test"
+      },
+      {
+        "Key": "insert",
+        "Value": "users"
+      },
+      {
+        "Key": "documents",
+        "Value": [
+          {
+            "_id": {
+              "$oid": "681360f723567705faa00aa4"
+            },
+            "name": "Dana"
+          }
+        ]
       }
     ],
     "originatingCommand": null,
@@ -1591,7 +1591,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -1671,6 +1671,10 @@
     "updateobj": null,
     "command": [
       {
+        "Key": "upsert",
+        "Value": false
+      },
+      {
         "Key": "q",
         "Value": {
           "name": "Alice"
@@ -1686,10 +1690,6 @@
       },
       {
         "Key": "multi",
-        "Value": false
-      },
-      {
-        "Key": "upsert",
         "Value": false
       }
     ],
@@ -1711,7 +1711,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -1945,7 +1945,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -2025,6 +2025,18 @@
     "updateobj": null,
     "command": [
       {
+        "Key": "lsid",
+        "Value": {
+          "id": {
+            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
+          }
+        }
+      },
+      {
+        "Key": "$db",
+        "Value": "test"
+      },
+      {
         "Key": "createIndexes",
         "Value": "users"
       },
@@ -2038,18 +2050,6 @@
             "name": "name_1"
           }
         ]
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
       }
     ],
     "originatingCommand": null,
@@ -2070,7 +2070,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -2188,7 +2188,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -2302,7 +2302,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -2382,6 +2382,24 @@
     "updateobj": null,
     "command": [
       {
+        "Key": "query",
+        "Value": {
+          "name": "Alice"
+        }
+      },
+      {
+        "Key": "remove",
+        "Value": false
+      },
+      {
+        "Key": "new",
+        "Value": false
+      },
+      {
+        "Key": "upsert",
+        "Value": false
+      },
+      {
         "Key": "update",
         "Value": {
           "$set": {
@@ -2404,24 +2422,6 @@
       {
         "Key": "findAndModify",
         "Value": "users"
-      },
-      {
-        "Key": "query",
-        "Value": {
-          "name": "Alice"
-        }
-      },
-      {
-        "Key": "remove",
-        "Value": false
-      },
-      {
-        "Key": "new",
-        "Value": false
-      },
-      {
-        "Key": "upsert",
-        "Value": false
       }
     ],
     "originatingCommand": null,
@@ -2442,7 +2442,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -2522,6 +2522,10 @@
     "updateobj": null,
     "command": [
       {
+        "Key": "findAndModify",
+        "Value": "users"
+      },
+      {
         "Key": "query",
         "Value": {
           "name": "Dana"
@@ -2550,10 +2554,6 @@
       {
         "Key": "$db",
         "Value": "test"
-      },
-      {
-        "Key": "findAndModify",
-        "Value": "users"
       }
     ],
     "originatingCommand": null,
@@ -2574,7 +2574,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": true,
     "execStats": {
       "advanced": 0,
@@ -2692,7 +2692,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -2772,6 +2772,14 @@
     "updateobj": null,
     "command": [
       {
+        "Key": "lsid",
+        "Value": {
+          "id": {
+            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
+          }
+        }
+      },
+      {
         "Key": "$db",
         "Value": "test"
       },
@@ -2790,14 +2798,6 @@
       {
         "Key": "ordered",
         "Value": true
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
       }
     ],
     "originatingCommand": null,
@@ -2818,7 +2818,7 @@
   },
   {
     "allUsers": null,
-    "client": "",
+    "client": "127.0.0.1",
     "cursorExhausted": false,
     "execStats": {
       "advanced": 0,
@@ -2898,18 +2898,6 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
-      },
-      {
         "Key": "insert",
         "Value": "users"
       },
@@ -2924,6 +2912,18 @@
       {
         "Key": "ordered",
         "Value": true
+      },
+      {
+        "Key": "lsid",
+        "Value": {
+          "id": {
+            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
+          }
+        }
+      },
+      {
+        "Key": "$db",
+        "Value": "test"
       }
     ],
     "originatingCommand": null,

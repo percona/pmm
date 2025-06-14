@@ -30,7 +30,9 @@ import (
 )
 
 const (
-	slowQuery = "Slow query"
+	slowQuery       = "Slow query"
+	authQuery       = "Successfully authenticated"
+	disconnectQuery = "Connection ended"
 )
 
 // NewMonitor creates new monitor.
@@ -91,6 +93,14 @@ type systemProfile struct {
 	Remote  string `json:"remote"`
 }
 
+type auth struct {
+	// Connect
+	Client string `json:"client"`
+	User   string `json:"user"`
+	// Disconnect
+	Remote string `json:"remote"`
+}
+
 func fixOpAndNs(profile *systemProfile) {
 	if profile.Type != "" {
 		profile.Op = profile.Type
@@ -139,6 +149,8 @@ func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docs
 ) {
 	defer wg.Done()
 	logger.Debugln("reader started")
+
+	connections := map[string]string{}
 	for {
 		select {
 		case <-ctx.Done():
@@ -165,37 +177,63 @@ func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docs
 				logger.Error(err)
 				continue
 			}
-			if l.Msg != slowQuery {
-				continue
+
+			switch l.Msg {
+			case slowQuery:
+				sendQuery(l, logger, docsChan, connections)
+			case authQuery:
+				if connection, ok := getConnection(l.Attr, logger); ok {
+					connections[connection.Client] = connection.User
+				}
+			case disconnectQuery:
+				if connection, ok := getConnection(l.Attr, logger); ok {
+					delete(connections, connection.Remote)
+				}
 			}
-
-			var stats systemProfile
-			err = json.Unmarshal(l.Attr, &stats)
-			if err != nil {
-				logger.Debugln("not valid system.profile structure")
-				continue
-			}
-
-			if strings.Contains(stats.Ns, ".$cmd") {
-				logger.Debugln("skipping line with Ns .$cmd")
-				continue
-			}
-
-			fixOpAndNs(&stats)
-
-			doc := stats.SystemProfile
-			doc.Client = strings.Split(stats.Remote, ":")[0]
-			doc.Ts = l.T.Date
-
-			var command bson.D
-			for key, value := range stats.Command {
-				command = append(command, bson.E{Key: key, Value: value})
-			}
-
-			doc.Command = command
-			docsChan <- doc
 		}
 	}
+}
+
+func getConnection(attr json.RawMessage, logger *logrus.Entry) (auth, bool) {
+	var connection auth
+	err := json.Unmarshal(attr, &connection)
+	if err != nil {
+		logger.Debugln("not valid system.profile structure")
+		return connection, false
+	}
+
+	return connection, true
+}
+
+func sendQuery(l row, logger *logrus.Entry, docsChan chan proto.SystemProfile, connections map[string]string) {
+	var stats systemProfile
+	err := json.Unmarshal(l.Attr, &stats)
+	if err != nil {
+		logger.Debugln("not valid system.profile structure")
+		return
+	}
+
+	if strings.Contains(stats.Ns, ".$cmd") {
+		logger.Debugln("skipping line with Ns .$cmd")
+		return
+	}
+
+	fixOpAndNs(&stats)
+
+	doc := stats.SystemProfile
+	if user, ok := connections[stats.Remote]; ok {
+		doc.User = user
+	}
+	doc.Client = strings.Split(stats.Remote, ":")[0]
+	doc.Ts = l.T.Date
+
+	var command bson.D
+	for key, value := range stats.Command {
+		command = append(command, bson.E{Key: key, Value: value})
+	}
+
+	doc.Command = command
+	docsChan <- doc
 }
 
 // Stop stops monitor.
