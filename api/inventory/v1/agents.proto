@@ -661,6 +661,8 @@ message ExternalExporter {
   string process_exec_path = 11;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 12;
+  // Skip TLS certificate and hostname verification.
+  bool tls_skip_verify = 13;
 }
 
 // AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
@@ -1468,6 +1470,8 @@ message AddExternalExporterParams {
   map<string, string> custom_labels = 10;
   // Enables push metrics mode for exporter.
   bool push_metrics = 11;
+  // Skip TLS certificate and hostname verification.
+  bool tls_skip_verify = 12;
 }
 
 message ChangeExternalExporterParams {

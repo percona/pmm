@@ -1858,6 +1858,9 @@ type ListAgentsOKBodyExternalExporterItems0 struct {
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyExternalExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }

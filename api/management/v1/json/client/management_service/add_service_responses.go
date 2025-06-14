@@ -1377,6 +1377,9 @@ type AddServiceOKBodyExternalExternalExporter struct {
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyExternalExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -1748,6 +1751,9 @@ type AddServiceOKBodyHaproxyExternalExporter struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyHaproxyExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -7817,6 +7823,9 @@ type AddServiceParamsBodyExternal struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
 	// add node
 	AddNode *AddServiceParamsBodyExternalAddNode `json:"add_node,omitempty"`
 }
@@ -8139,6 +8148,9 @@ type AddServiceParamsBodyHaproxy struct {
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyHaproxyAddNode `json:"add_node,omitempty"`
