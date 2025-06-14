@@ -150,7 +150,7 @@ func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docs
 	defer wg.Done()
 	logger.Debugln("reader started")
 
-	connections := map[string]string{}
+	connections := make(map[string]string)
 	for {
 		select {
 		case <-ctx.Done():
