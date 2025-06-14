@@ -88,6 +88,7 @@ type systemProfile struct {
 	proto.SystemProfile
 	Command bson.M `json:"command"`
 	Type    string `json:"type"`
+	Remote  string `json:"remote"`
 }
 
 func fixOpAndNs(profile *systemProfile) {
@@ -183,6 +184,7 @@ func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docs
 			fixOpAndNs(&stats)
 
 			doc := stats.SystemProfile
+			doc.Client = strings.Split(stats.Remote, ":")[0]
 			doc.Ts = l.T.Date
 
 			var command bson.D
