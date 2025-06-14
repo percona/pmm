@@ -124,6 +124,32 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 			mongodb.QanMongodbProfiler = agent.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
 		}
 
+		if req.QanMongodbMongolog {
+			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBMongologAgentType, &models.CreateAgentParams{
+				PMMAgentID:    req.PmmAgentId,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
+				QANOptions: models.QANOptions{
+					MaxQueryLength: req.MaxQueryLength,
+					// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
+				},
+				MongoDBOptions: models.MongoDBOptionsFromRequest(req),
+				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			})
+			if err != nil {
+				return err
+			}
+
+			agent, err := services.ToAPIAgent(tx.Querier, row)
+			if err != nil {
+				return err
+			}
+			mongodb.QanMongodbMongolog = agent.(*inventoryv1.QANMongoDBMongologAgent) //nolint:forcetypeassert
+		}
+
 		return nil
 	}); e != nil {
 		return nil, e

@@ -176,6 +176,9 @@ func removeAllAgentsInList(t pmmapitests.TestingT, listAgentsOK *agents.ListAgen
 	for _, agent := range listAgentsOK.Payload.QANMongodbProfilerAgent {
 		agentIDs = append(agentIDs, agent.AgentID)
 	}
+	for _, agent := range listAgentsOK.Payload.QANMongodbMongologAgent {
+		agentIDs = append(agentIDs, agent.AgentID)
+	}
 	for _, agent := range listAgentsOK.Payload.QANMysqlSlowlogAgent {
 		agentIDs = append(agentIDs, agent.AgentID)
 	}

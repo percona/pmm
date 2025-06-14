@@ -23,6 +23,8 @@ import (
 	"github.com/percona/go-mysql/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/agent/utils/filereader"
 )
 
 func BenchmarkParser(b *testing.B) {
@@ -47,8 +49,8 @@ func benchmarkFile(b *testing.B, name string) {
 		for i := 0; i < b.N; i++ {
 			b.StopTimer()
 
-			r, err := NewSimpleFileReader(name)
-			require.NoError(b, err)
+			r, err := filereader.NewSimpleFileReader(name)
+			assert.NoError(b, err)
 			p := NewSlowLogParser(r, log.Options{})
 
 			b.StartTimer()

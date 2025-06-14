@@ -784,6 +784,9 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 		QANMongoDBProfilerAgentType: {
 			MongoDBServiceType,
 		},
+		QANMongoDBMongologAgentType: {
+			MongoDBServiceType,
+		},
 		PostgresExporterType: {
 			PostgreSQLServiceType,
 		},
