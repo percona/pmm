@@ -175,6 +175,7 @@ func (e explain) prepareCommand() (bson.D, error) {
 			return nil, errors.Errorf("command %s is not supported for explain", command[0].Key)
 		case "group":
 		default:
+			// https://www.mongodb.com/docs/manual/tutorial/use-database-commands/?utm_source=chatgpt.com#database-command-form
 			return reorderToCommandFirst(command), nil
 		}
 
