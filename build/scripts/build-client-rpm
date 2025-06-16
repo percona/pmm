@@ -1,36 +1,24 @@
 #!/bin/bash
 
-. $(dirname $0)/vars
-
-set -o errexit
-set -o xtrace
-
-bin_dir=$(cd $(dirname $0); pwd -P)
-tmp_dir=${root_dir}/tmp
+. "$(dirname "$0")/vars"
 
 main() {
-    local IMAGE=${1:-${rpmbuild_docker_image}}
-    docker run --rm -v ${bin_dir}:/home/builder/bin -v ${root_dir}/results:/home/builder/results ${IMAGE} sh -c "
-        set -o errexit
-        set -o xtrace
+  echo -----------------------------------------
+  echo "Building PMM Client RPM packages..."
+  echo -----------------------------------------
 
-        export pmm_version=$pmm_version
-        export pmm_release=$pmm_release
-        export sudo_path=\$(ls /usr/bin/sudo)
-        mkdir -p /tmp/pmm
-        pushd /home/builder/results
-            \$sudo_path /home/builder/bin/build-client-packages \
-                --builddir=/tmp/pmm \
-                --install_deps=1
-            /home/builder/bin/build-client-packages \
-                --builddir=/tmp/pmm \
-                --build_rpm=1
-        popd
-        \$sudo_path chown -R $(id -u):$(id -g) /home/builder/results/rpm
-    "
+  local IMAGE=${1:-${rpmbuild_docker_image}}
+  docker run --rm \
+    --platform="${platform}" \
+    -v "${bin_dir}":/home/builder/bin \
+    -v "${build_dir}":/home/builder/build \
+    -w /home/builder/build \
+    -e PMM_VERSION="${pmm_version}" \
+    -e PMM_RELEASE="${pmm_release}" \
+    --entrypoint="/home/builder/bin/build-client-entrypoint" \
+    "${IMAGE}" --build_rpm
 }
 
-main $*
-exit 0
+main "$*"
 
-# vim: expandtab shiftwidth=4 tabstop=4
+# vim: expandtab shiftwidth=2 tabstop=2
