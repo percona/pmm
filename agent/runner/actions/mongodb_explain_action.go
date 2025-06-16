@@ -164,26 +164,19 @@ func (e explain) prepareCommand() (bson.D, error) {
 		return dropDBField(command), nil
 	case "command":
 		command = dropDBField(command)
-
 		if len(command) == 0 {
 			return command, nil
 		}
-
-		switch command[0].Key {
-		// Not supported commands.
-		case "dbStats":
-			return nil, errors.Errorf("command %s is not supported for explain", command[0].Key)
-		case "group":
-		default:
-			// https://www.mongodb.com/docs/manual/tutorial/use-database-commands/?utm_source=chatgpt.com#database-command-form
-			res, isExplainable := reorderToCommandFirst(command)
-			if !isExplainable {
-				return nil, errors.Errorf("command %s is not supported for explain", command[0].Key)
-			}
-			return res, nil
+		if command[0].Key == "group" {
+			return fixReduceField(command), nil
 		}
 
-		return fixReduceField(command), nil
+		// https://www.mongodb.com/docs/manual/tutorial/use-database-commands/?utm_source=chatgpt.com#database-command-form
+		res, isExplainable := reorderToCommandFirst(command)
+		if !isExplainable {
+			return nil, errors.Errorf("command %s is not supported for explain", command[0].Key)
+		}
+		return res, nil
 	// Not supported operations.
 	case "insert", "drop":
 		return nil, errors.Errorf("operation %s is not supported for explain", e.Op)
@@ -195,7 +188,7 @@ func (e explain) prepareCommand() (bson.D, error) {
 func reorderToCommandFirst(doc bson.D) (bson.D, bool) {
 	recognized := map[string]struct{}{
 		"find": {}, "findandmodify": {}, "insert": {}, "update": {}, "delete": {},
-		"aggregate": {}, "count": {}, "distinct": {}, "mapReduce": {},
+		"aggregate": {}, "count": {}, "distinct": {}, "mapReduce": {}, "dbStats": {},
 		"collStats": {}, "listIndexes": {}, "currentOp": {}, "explain": {},
 		"getMore": {}, "killCursors": {}, "create": {}, "drop": {},
 		"listCollections": {}, "listDatabases": {}, "validate": {},
