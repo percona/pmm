@@ -21,7 +21,11 @@ jobs:
         shell: bash
         run: |
           version="${release_tag/refs\/tags\/v/}"
-          wget https://raw.githubusercontent.com/percona/pmm/v3/documentation/docs/release-notes/$version.md -O ${{ github.workspace }}-CHANGELOG.txt
+          # Try to download from v3-doc-prod branch first
+          if ! wget https://raw.githubusercontent.com/percona/pmm/v3-doc-prod/documentation/docs/release-notes/$version.md -O ${{ github.workspace }}-CHANGELOG.txt 2>/dev/null; then
+            echo "Documentation not found in v3-doc-prod branch, trying pmm-$version branch..."
+            wget https://raw.githubusercontent.com/percona/pmm/pmm-$version/documentation/docs/release-notes/$version.md -O ${{ github.workspace }}-CHANGELOG.txt
+          fi
         env:
           release_tag: ${{ github.ref }}
 
