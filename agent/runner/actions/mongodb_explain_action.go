@@ -189,7 +189,7 @@ func (e explain) prepareCommand() (bson.D, error) {
 
 func reorderToCommandFirst(doc bson.D) bson.D {
 	recognized := map[string]struct{}{
-		"find": {}, "insert": {}, "update": {}, "delete": {},
+		"find": {}, "findandmodify": {}, "insert": {}, "update": {}, "delete": {},
 		"aggregate": {}, "count": {}, "distinct": {}, "mapReduce": {},
 		"collStats": {}, "listIndexes": {}, "currentOp": {},
 	}
