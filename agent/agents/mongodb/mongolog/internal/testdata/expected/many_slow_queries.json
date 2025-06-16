@@ -97,14 +97,6 @@
         "Value": true
       },
       {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
         "Key": "$db",
         "Value": "test"
       },
@@ -211,20 +203,8 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "documents",
-        "Value": 2
-      },
-      {
         "Key": "ordered",
         "Value": true
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
       },
       {
         "Key": "$db",
@@ -233,6 +213,10 @@
       {
         "Key": "insert",
         "Value": "users"
+      },
+      {
+        "Key": "documents",
+        "Value": 2
       }
     ],
     "originatingCommand": null,
@@ -333,20 +317,12 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
+        "Key": "create",
+        "Value": "logs"
       },
       {
         "Key": "$db",
         "Value": "test"
-      },
-      {
-        "Key": "create",
-        "Value": "logs"
       }
     ],
     "originatingCommand": null,
@@ -447,6 +423,10 @@
     "updateobj": null,
     "command": [
       {
+        "Key": "find",
+        "Value": "users"
+      },
+      {
         "Key": "filter",
         "Value": {
           "age": {
@@ -455,20 +435,8 @@
         }
       },
       {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
         "Key": "$db",
         "Value": "test"
-      },
-      {
-        "Key": "find",
-        "Value": "users"
       }
     ],
     "originatingCommand": null,
@@ -569,6 +537,16 @@
     "updateobj": null,
     "command": [
       {
+        "Key": "sort",
+        "Value": {
+          "age": -1
+        }
+      },
+      {
+        "Key": "limit",
+        "Value": 5
+      },
+      {
         "Key": "$db",
         "Value": "test"
       },
@@ -584,24 +562,6 @@
               "options": "",
               "pattern": "A"
             }
-          }
-        }
-      },
-      {
-        "Key": "sort",
-        "Value": {
-          "age": -1
-        }
-      },
-      {
-        "Key": "limit",
-        "Value": 5
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
           }
         }
       }
@@ -704,10 +664,6 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "find",
-        "Value": "users"
-      },
-      {
         "Key": "filter",
         "Value": {
           "name": "Alice"
@@ -718,16 +674,12 @@
         "Value": 1
       },
       {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
         "Key": "$db",
         "Value": "test"
+      },
+      {
+        "Key": "find",
+        "Value": "users"
       }
     ],
     "originatingCommand": null,
@@ -828,6 +780,10 @@
     "updateobj": null,
     "command": [
       {
+        "Key": "$db",
+        "Value": "test"
+      },
+      {
         "Key": "aggregate",
         "Value": "orders"
       },
@@ -857,18 +813,6 @@
       {
         "Key": "cursor",
         "Value": {}
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
       }
     ],
     "originatingCommand": null,
@@ -969,6 +913,10 @@
     "updateobj": null,
     "command": [
       {
+        "Key": "upsert",
+        "Value": false
+      },
+      {
         "Key": "q",
         "Value": {
           "name": "Alice"
@@ -984,10 +932,6 @@
       },
       {
         "Key": "multi",
-        "Value": false
-      },
-      {
-        "Key": "upsert",
         "Value": false
       }
     ],
@@ -1089,6 +1033,10 @@
     "updateobj": null,
     "command": [
       {
+        "Key": "upsert",
+        "Value": false
+      },
+      {
         "Key": "q",
         "Value": {}
       },
@@ -1103,10 +1051,6 @@
       {
         "Key": "multi",
         "Value": true
-      },
-      {
-        "Key": "upsert",
-        "Value": false
       }
     ],
     "originatingCommand": null,
@@ -1207,6 +1151,14 @@
     "updateobj": null,
     "command": [
       {
+        "Key": "multi",
+        "Value": false
+      },
+      {
+        "Key": "upsert",
+        "Value": false
+      },
+      {
         "Key": "q",
         "Value": {
           "name": "Bob"
@@ -1218,14 +1170,6 @@
           "age": 28,
           "name": "Bobby"
         }
-      },
-      {
-        "Key": "multi",
-        "Value": false
-      },
-      {
-        "Key": "upsert",
-        "Value": false
       }
     ],
     "originatingCommand": null,
@@ -1434,14 +1378,14 @@
     "updateobj": null,
     "command": [
       {
+        "Key": "limit",
+        "Value": 0
+      },
+      {
         "Key": "q",
         "Value": {
           "inactive": true
         }
-      },
-      {
-        "Key": "limit",
-        "Value": 0
       }
     ],
     "originatingCommand": null,
@@ -1542,22 +1486,6 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "ordered",
-        "Value": true
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
-      },
-      {
         "Key": "insert",
         "Value": "users"
       },
@@ -1571,6 +1499,14 @@
             "name": "Dana"
           }
         ]
+      },
+      {
+        "Key": "ordered",
+        "Value": true
+      },
+      {
+        "Key": "$db",
+        "Value": "test"
       }
     ],
     "originatingCommand": null,
@@ -1671,10 +1607,6 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "upsert",
-        "Value": false
-      },
-      {
         "Key": "q",
         "Value": {
           "name": "Alice"
@@ -1690,6 +1622,10 @@
       },
       {
         "Key": "multi",
+        "Value": false
+      },
+      {
+        "Key": "upsert",
         "Value": false
       }
     ],
@@ -1915,14 +1851,6 @@
         ]
       },
       {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
         "Key": "$db",
         "Value": "test"
       }
@@ -2025,18 +1953,6 @@
     "updateobj": null,
     "command": [
       {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
-      },
-      {
         "Key": "createIndexes",
         "Value": "users"
       },
@@ -2050,6 +1966,10 @@
             "name": "name_1"
           }
         ]
+      },
+      {
+        "Key": "$db",
+        "Value": "test"
       }
     ],
     "originatingCommand": null,
@@ -2158,14 +2078,6 @@
         "Value": "name_1"
       },
       {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
         "Key": "$db",
         "Value": "test"
       }
@@ -2270,14 +2182,6 @@
       {
         "Key": "collStats",
         "Value": "users"
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
       },
       {
         "Key": "$db",
@@ -2408,14 +2312,6 @@
         }
       },
       {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
         "Key": "$db",
         "Value": "test"
       },
@@ -2522,6 +2418,10 @@
     "updateobj": null,
     "command": [
       {
+        "Key": "$db",
+        "Value": "test"
+      },
+      {
         "Key": "findAndModify",
         "Value": "users"
       },
@@ -2542,18 +2442,6 @@
       {
         "Key": "upsert",
         "Value": false
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
-        "Key": "$db",
-        "Value": "test"
       }
     ],
     "originatingCommand": null,
@@ -2662,14 +2550,6 @@
         "Value": {}
       },
       {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
-      {
         "Key": "$db",
         "Value": "test"
       }
@@ -2771,14 +2651,6 @@
     "query": null,
     "updateobj": null,
     "command": [
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
-      },
       {
         "Key": "$db",
         "Value": "test"
@@ -2912,14 +2784,6 @@
       {
         "Key": "ordered",
         "Value": true
-      },
-      {
-        "Key": "lsid",
-        "Value": {
-          "id": {
-            "$uuid": "9f944398-68b7-4781-9cad-ac2fb5c41bf7"
-          }
-        }
       },
       {
         "Key": "$db",
