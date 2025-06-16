@@ -24,7 +24,9 @@ import (
 )
 
 // key is unexported to prevent collisions - it is different from any other type in other packages.
-var key = struct{}{}
+type keyStruct struct{}
+
+var key = keyStruct{}
 
 // Get returns logrus entry for given context. Set must be called before this method is called.
 func Get(ctx context.Context) *logrus.Entry {
