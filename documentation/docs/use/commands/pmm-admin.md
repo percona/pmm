@@ -12,7 +12,7 @@ PMM communicates with the PMM Server via a PMM agent process.
 
 `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]`
 
-DATABASE:= [[MongoDB](#mongodb) | [MySQL](#mysql) | [PostgreSQL](#postgresql) | [ProxySQL](#proxysql)]
+DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL](#database-commands)
 
 `pmm-admin add --pmm-agent-listen-port=LISTEN_PORT DATABASE [FLAGS] [NAME] [ADDRESS]`
 
@@ -191,7 +191,7 @@ DATABASE:= [[MongoDB](#mongodb) | [MySQL](#mysql) | [PostgreSQL](#postgresql) | 
     ` --pmm-agent-listen-port=LISTEN_PORT`
     : The PMM agent listen port.
 
-DATABASE:= [[MongoDB](#mongodb) | [MySQL](#mysql) | [PostgreSQL](#postgresql) | [ProxySQL](#proxysql)]
+DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL](#database-commands)
 
 
 #### `pmm-admin remove`
