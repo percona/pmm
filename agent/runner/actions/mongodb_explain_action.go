@@ -176,7 +176,11 @@ func (e explain) prepareCommand() (bson.D, error) {
 		case "group":
 		default:
 			// https://www.mongodb.com/docs/manual/tutorial/use-database-commands/?utm_source=chatgpt.com#database-command-form
-			return reorderToCommandFirst(command), nil
+			res, isExplainable := reorderToCommandFirst(command)
+			if !isExplainable {
+				return nil, errors.Errorf("command %s is not supported for explain", command[0].Key)
+			}
+			return res, nil
 		}
 
 		return fixReduceField(command), nil
@@ -188,13 +192,18 @@ func (e explain) prepareCommand() (bson.D, error) {
 	return command, nil
 }
 
-func reorderToCommandFirst(doc bson.D) bson.D {
+func reorderToCommandFirst(doc bson.D) (bson.D, bool) {
 	recognized := map[string]struct{}{
 		"find": {}, "findandmodify": {}, "insert": {}, "update": {}, "delete": {},
 		"aggregate": {}, "count": {}, "distinct": {}, "mapReduce": {},
 		"collStats": {}, "listIndexes": {}, "currentOp": {}, "explain": {},
 		"getMore": {}, "killCursors": {}, "create": {}, "drop": {},
 		"listCollections": {}, "listDatabases": {}, "validate": {},
+	}
+
+	explainable := map[string]struct{}{
+		"find": {}, "findandmodify": {}, "update": {}, "aggregate": {},
+		"count": {}, "distinct": {}, "mapReduce": {}, "getMore": {},
 	}
 
 	var first bson.E
@@ -209,10 +218,12 @@ func reorderToCommandFirst(doc bson.D) bson.D {
 	}
 
 	if first.Key != "" {
-		return append(bson.D{first}, rest...)
+		reordered := append(bson.D{first}, rest...)
+		_, isExplainable := explainable[first.Key]
+		return reordered, isExplainable
 	}
 
-	return doc
+	return doc, false
 }
 
 func (e explain) getDB() string {
