@@ -195,7 +195,7 @@ func reorderToCommandFirst(doc bson.D) bson.D {
 	}
 
 	var first bson.E
-	var rest []bson.E
+	rest := []bson.E{}
 	for _, e := range doc {
 		if _, ok := recognized[e.Key]; ok && first.Key == "" {
 			first = e
