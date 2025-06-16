@@ -192,7 +192,9 @@ func reorderToCommandFirst(doc bson.D) bson.D {
 	recognized := map[string]struct{}{
 		"find": {}, "findandmodify": {}, "insert": {}, "update": {}, "delete": {},
 		"aggregate": {}, "count": {}, "distinct": {}, "mapReduce": {},
-		"collStats": {}, "listIndexes": {}, "currentOp": {},
+		"collStats": {}, "listIndexes": {}, "currentOp": {}, "explain": {},
+		"getMore": {}, "killCursors": {}, "create": {}, "drop": {},
+		"listCollections": {}, "listDatabases": {}, "validate": {},
 	}
 
 	var first bson.E
