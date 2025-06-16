@@ -185,10 +185,12 @@ func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docs
 				if connection, ok := getConnection(l.Attr, logger); ok {
 					connections[connection.Client] = connection.User
 				}
+				logger.Debugf("connections: %+v", connections)
 			case disconnectQuery:
 				if connection, ok := getConnection(l.Attr, logger); ok {
 					delete(connections, connection.Remote)
 				}
+				logger.Debugf("connections: %+v", connections)
 			}
 		}
 	}
@@ -229,6 +231,10 @@ func sendQuery(l row, logger *logrus.Entry, docsChan chan proto.SystemProfile, c
 
 	var command bson.D
 	for key, value := range stats.Command {
+		if key == "$clusterTime" || key == "lsid" {
+			continue
+		}
+
 		command = append(command, bson.E{Key: key, Value: value})
 	}
 
