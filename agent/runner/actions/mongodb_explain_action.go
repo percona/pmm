@@ -175,7 +175,7 @@ func (e explain) prepareCommand() (bson.D, error) {
 			return nil, errors.Errorf("command %s is not supported for explain", command[0].Key)
 		case "group":
 		default:
-			return command, nil
+			return reorderToCommandFirst(command), nil
 		}
 
 		return fixReduceField(command), nil
@@ -185,6 +185,31 @@ func (e explain) prepareCommand() (bson.D, error) {
 	}
 
 	return command, nil
+}
+
+func reorderToCommandFirst(doc bson.D) bson.D {
+	recognized := map[string]struct{}{
+		"find": {}, "insert": {}, "update": {}, "delete": {},
+		"aggregate": {}, "count": {}, "distinct": {}, "mapReduce": {},
+		"collStats": {}, "listIndexes": {}, "currentOp": {},
+	}
+
+	var first bson.E
+	var rest []bson.E
+	for _, e := range doc {
+		if _, ok := recognized[e.Key]; ok && first.Key == "" {
+			first = e
+			continue
+		}
+
+		rest = append(rest, e)
+	}
+
+	if first.Key != "" {
+		return append(bson.D{first}, rest...)
+	}
+
+	return doc
 }
 
 func (e explain) getDB() string {
