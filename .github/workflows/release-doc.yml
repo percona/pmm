@@ -3,31 +3,158 @@ on:
   push:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
-  workflow_dispatch:      
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to test (e.g., 3.0.1)'
+        required: true
+        default: '3.0.1'
+        type: string
+      source_branch:
+        description: 'Source branch to merge from (default: pmm-version)'
+        required: false
+        default: ''
+        type: string
+      target_docs_branch:
+        description: 'Target docs branch (default: v3-doc-prod)'
+        required: false
+        default: 'v3-doc-prod'
+        type: string
 
 permissions:
   contents: read
 
 jobs:
+  merge-docs:
+    permissions:
+      contents: write  # for git push operations
+
+    if: (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && github.repository == 'percona/pmm'
+    runs-on: ubuntu-22.04
+    
+    steps:
+      - name: Set version for testing
+        id: set_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+            echo "source_branch=${{ inputs.source_branch }}" >> $GITHUB_OUTPUT
+            echo "target_docs_branch=${{ inputs.target_docs_branch }}" >> $GITHUB_OUTPUT
+            echo "Testing with version: ${{ inputs.version }}"
+            echo "Target docs branch: ${{ inputs.target_docs_branch }}"
+          else
+            version="${{ github.ref }}"
+            version="${version/refs\/tags\/v/}"
+            echo "version=$version" >> $GITHUB_OUTPUT
+            echo "source_branch=" >> $GITHUB_OUTPUT
+            echo "target_docs_branch=v3-doc-prod" >> $GITHUB_OUTPUT
+            echo "Release with version: $version"
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Merge pmm-version branch into target docs branch
+        shell: bash
+        run: |
+          version="${{ steps.set_version.outputs.version }}"
+          source_branch="${{ steps.set_version.outputs.source_branch }}"
+          target_docs_branch="${{ steps.set_version.outputs.target_docs_branch }}"
+          
+          # Use source branch if provided, otherwise use pmm-$version
+          if [ -n "$source_branch" ]; then
+            merge_source_branch="$source_branch"
+            echo "Using specified source branch: $merge_source_branch"
+          else
+            merge_source_branch="pmm-$version"
+            echo "Using standard branch: $merge_source_branch"
+          fi
+          
+          echo "Target documentation branch: $target_docs_branch"
+          
+          # Configure git
+          git config user.name "GitHub Action"
+          git config user.email "github-action@users.noreply.github.com"
+          
+          # Check if branch exists
+          if git ls-remote --heads origin $merge_source_branch | grep -q $merge_source_branch; then
+            echo "Found $merge_source_branch branch, merging into $target_docs_branch..."
+            
+            # Checkout target docs branch
+            git checkout $target_docs_branch || git checkout -b $target_docs_branch origin/$target_docs_branch
+            
+            # Merge branch
+            git merge origin/$merge_source_branch --no-ff -m "Merge $merge_source_branch into $target_docs_branch for release $version"
+            
+            # Push the merge
+            git push origin $target_docs_branch
+            
+            echo "Successfully merged $merge_source_branch into $target_docs_branch"
+          else
+            echo "$merge_source_branch branch not found, skipping merge"
+          fi
+
   release:
     permissions:
       contents: write  # for softprops/action-gh-release to create GitHub release
 
-    if: startsWith(github.ref, 'refs/tags/')
+    if: (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && github.repository == 'percona/pmm'
     runs-on: ubuntu-22.04
+    needs: merge-docs
     steps:
+      - name: Set version for testing
+        id: set_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+            echo "source_branch=${{ inputs.source_branch }}" >> $GITHUB_OUTPUT
+            echo "target_docs_branch=${{ inputs.target_docs_branch }}" >> $GITHUB_OUTPUT
+            echo "Testing with version: ${{ inputs.version }}"
+            echo "Target docs branch: ${{ inputs.target_docs_branch }}"
+          else
+            version="${{ github.ref }}"
+            version="${version/refs\/tags\/v/}"
+            echo "version=$version" >> $GITHUB_OUTPUT
+            echo "source_branch=" >> $GITHUB_OUTPUT
+            echo "target_docs_branch=v3-doc-prod" >> $GITHUB_OUTPUT
+            echo "Release with version: $version"
+          fi
+
       - name: Build Changelog
         id: pmm_release
         shell: bash
         run: |
-          version="${release_tag/refs\/tags\/v/}"
-          # Try to download from v3-doc-prod branch first
-          if ! wget https://raw.githubusercontent.com/percona/pmm/v3-doc-prod/documentation/docs/release-notes/$version.md -O ${{ github.workspace }}-CHANGELOG.txt 2>/dev/null; then
-            echo "Documentation not found in v3-doc-prod branch, trying pmm-$version branch..."
-            wget https://raw.githubusercontent.com/percona/pmm/pmm-$version/documentation/docs/release-notes/$version.md -O ${{ github.workspace }}-CHANGELOG.txt
+          version="${{ steps.set_version.outputs.version }}"
+          source_branch="${{ steps.set_version.outputs.source_branch }}"
+          target_docs_branch="${{ steps.set_version.outputs.target_docs_branch }}"
+          
+          echo "Building changelog for version: $version"
+          echo "Target docs branch: $target_docs_branch"
+          
+          # Use source branch if provided, otherwise use pmm-$version
+          if [ -n "$source_branch" ]; then
+            fallback_branch="$source_branch"
+            echo "Will fallback to source branch: $fallback_branch"
+          else
+            fallback_branch="pmm-$version"
+            echo "Will fallback to branch: $fallback_branch"
           fi
-        env:
-          release_tag: ${{ github.ref }}
+          
+          # Try to download from target docs branch first
+          if ! wget https://raw.githubusercontent.com/percona/pmm/$target_docs_branch/documentation/docs/release-notes/$version.md -O ${{ github.workspace }}-CHANGELOG.txt 2>/dev/null; then
+            echo "Documentation not found in $target_docs_branch branch, trying $fallback_branch branch..."
+            if ! wget https://raw.githubusercontent.com/percona/pmm/$fallback_branch/documentation/docs/release-notes/$version.md -O ${{ github.workspace }}-CHANGELOG.txt 2>/dev/null; then
+              echo "Documentation not found in $fallback_branch branch either."
+              echo "ERROR: Could not find release notes for version $version"
+              exit 1
+            fi
+          fi
+          
+          echo "Changelog file size: $(wc -c < ${{ github.workspace }}-CHANGELOG.txt) bytes"
+          echo "Changelog content preview:"
+          head -5 ${{ github.workspace }}-CHANGELOG.txt
 
       - name: Convert mkdocs
         shell: bash --noprofile --norc -ex {0}
@@ -43,3 +170,7 @@ jobs:
         with:
           body_path: ${{ github.workspace }}-CHANGELOG.txt
           draft: true
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}-test', steps.set_version.outputs.version) || github.ref_name }}
+          name: ${{ github.event_name == 'workflow_dispatch' && format('Test Release v{0}', steps.set_version.outputs.version) || format('Release {0}', github.ref_name) }}
+
+
