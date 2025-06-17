@@ -89,7 +89,6 @@
   command: pnpm build:local
   args:
     chdir: "{{ ai_chat_dir }}/mcp-client-chatbot"
-  become_user: pmm
   environment:
     POSTGRES_URL: "{{ postgres_url }}"
     NODE_ENV: production
