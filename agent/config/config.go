@@ -147,7 +147,7 @@ type Setup struct {
 // Config represents pmm-agent's configuration.
 //
 //nolint:maligned
-type Config struct { //nolint:musttag
+type Config struct {
 	// no config file there
 
 	ID                             string `yaml:"id"`
@@ -346,7 +346,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 // Application returns kingpin application that will parse command-line flags and environment variables
 // (but not configuration file) into cfg except --config-file/PMM_AGENT_CONFIG_FILE that is returned separately.
 func Application(cfg *Config) (*kingpin.Application, *string) {
-	app := kingpin.New("pmm-agent", fmt.Sprintf("Version %s", version.Version))
+	app := kingpin.New("pmm-agent", "Version "+version.Version)
 	app.HelpFlag.Short('h')
 
 	app.Command("run", "Run pmm-agent (default command)").Default()
@@ -524,7 +524,7 @@ func loadFromFile(path string) (*Config, error) {
 		return nil, err
 	}
 	cfg := &Config{}
-	if err = yaml.Unmarshal(b, cfg); err != nil {
+	if err = yaml.Unmarshal(b, cfg); err != nil { //nolint:musttag // false positive
 		return nil, err
 	}
 	return cfg, nil
@@ -533,7 +533,7 @@ func loadFromFile(path string) (*Config, error) {
 // SaveToFile saves configuration to file.
 // No special cases.
 func SaveToFile(path string, cfg *Config, comment string) error {
-	b, err := yaml.Marshal(cfg)
+	b, err := yaml.Marshal(cfg) //nolint:musttag // false positive
 	if err != nil {
 		return err
 	}

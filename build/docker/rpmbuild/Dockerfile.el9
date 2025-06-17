@@ -28,8 +28,8 @@ RUN dnf update -y && \
     dnf clean all && rm -rf /var/cache/dnf /var/cache/yum
 
 # keep that format for easier search
-ENV GO_VERSION=1.23.4
-ENV GO_RELEASER_VERSION=2.8.2
+ENV GO_VERSION=1.24.3
+ENV GO_RELEASER_VERSION=2.9.0
 
 RUN if [ `uname -m` == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
     curl -fSsL -o /tmp/golang.tar.gz https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz && \
@@ -47,8 +47,8 @@ RUN useradd builder -u 1000 -m -G users,wheel && \
     echo "builder ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers && \
     echo "# macros"                      >  /home/builder/.rpmmacros && \
     echo "%_topdir    /home/builder/rpm" >> /home/builder/.rpmmacros && \
-    mkdir /home/builder/rpm && \
-    chmod 755 /home/builder && \
+    mkdir -p /home/builder/{rpm,go/pkg/mod/cache,.cache/go-build,.cache/yarn} && \
+    chmod -R 755 /home/builder && \
     chown -R builder:builder /home/builder
 
 USER builder

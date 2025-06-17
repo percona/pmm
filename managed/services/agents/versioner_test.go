@@ -40,7 +40,6 @@ func TestSoftwareName(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(string(tc.name), func(t *testing.T) {
 			t.Parallel()
 			res := tc.sw.Name()

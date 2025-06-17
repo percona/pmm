@@ -20,6 +20,7 @@ enum AgentType {
   AGENT_TYPE_MONGODB_EXPORTER = 4;
   AGENT_TYPE_POSTGRES_EXPORTER = 5;
   AGENT_TYPE_PROXYSQL_EXPORTER = 6;
+  AGENT_TYPE_VALKEY_EXPORTER = 17;
   AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT = 7;
   AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT = 8;
   AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT = 9;
@@ -316,6 +317,47 @@ message ProxySQLExporter {
   common.MetricsResolutions metrics_resolutions = 25;
 }
 
+// ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
+message ValkeyExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // Valkey username for scraping metrics.
+  string username = 5;
+  // Use TLS for database connections.
+  bool tls = 6;
+  // Skip TLS certificate and hostname verification.
+  bool tls_skip_verify = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 8;
+  // True if exporter uses push metrics mode.
+  bool push_metrics_enabled = 9;
+  // List of disabled collector names.
+  repeated string disabled_collectors = 10;
+
+  //
+  // Status fields below.
+  //
+
+  // Actual Agent status.
+  AgentStatus status = 20;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 21;
+  // Path to exec process.
+  string process_exec_path = 22;
+  // Log level for exporter.
+  LogLevel log_level = 23;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 24;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 25;
+}
+
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 message QANMySQLPerfSchemaAgent {
   // Unique randomly generated instance identifier.
@@ -582,6 +624,8 @@ message ExternalExporter {
   string process_exec_path = 11;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 12;
+  // Skip TLS certificate and hostname verification.
+  bool tls_skip_verify = 13;
 }
 
 // AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
@@ -664,6 +708,7 @@ message ListAgentsResponse {
   repeated RDSExporter rds_exporter = 14;
   repeated AzureDatabaseExporter azure_database_exporter = 15;
   repeated NomadAgent nomad_agent = 16;
+  repeated ValkeyExporter valkey_exporter = 17;
 }
 
 // Get
@@ -691,6 +736,7 @@ message GetAgentResponse {
     RDSExporter rds_exporter = 14;
     AzureDatabaseExporter azure_database_exporter = 15;
     NomadAgent nomad_agent = 16;
+    ValkeyExporter valkey_exporter = 17;
   }
 }
 
@@ -728,6 +774,7 @@ message AddAgentRequest {
     AddQANMongoDBProfilerAgentParams qan_mongodb_profiler_agent = 12;
     AddQANPostgreSQLPgStatementsAgentParams qan_postgresql_pgstatements_agent = 13;
     AddQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
+    AddValkeyExporterParams valkey_exporter = 15;
   }
 }
 
@@ -747,6 +794,7 @@ message AddAgentResponse {
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 12;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
+    ValkeyExporter valkey_exporter = 15;
   }
 }
 
@@ -769,8 +817,8 @@ message ChangeAgentRequest {
     ChangeQANMongoDBProfilerAgentParams qan_mongodb_profiler_agent = 12;
     ChangeQANPostgreSQLPgStatementsAgentParams qan_postgresql_pgstatements_agent = 13;
     ChangeQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
-
     ChangeNomadAgentParams nomad_agent = 15;
+    ChangeValkeyExporterParams valkey_exporter = 16;
   }
 }
 
@@ -791,8 +839,8 @@ message ChangeAgentResponse {
     QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 12;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
-
     NomadAgent nomad_agent = 15;
+    ValkeyExporter valkey_exporter = 16;
   }
 }
 
@@ -1331,6 +1379,8 @@ message AddExternalExporterParams {
   map<string, string> custom_labels = 10;
   // Enables push metrics mode for exporter.
   bool push_metrics = 11;
+  // Skip TLS certificate and hostname verification.
+  bool tls_skip_verify = 12;
 }
 
 message ChangeExternalExporterParams {
@@ -1387,6 +1437,54 @@ message ChangeAzureDatabaseExporterParams {
 message ChangeNomadAgentParams {
   // Enable this Agent. Agents are enabled by default when they get added.
   optional bool enable = 1;
+}
+
+// Add/Change ValkeyExporter
+
+message AddValkeyExporterParams {
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 1 [(validate.rules).string.uuid = true];
+  // Service identifier.
+  string service_id = 2 [(validate.rules).string.uuid = true];
+  // Valkey username for scraping metrics.
+  string username = 3 [(validate.rules).string.min_len = 1];
+  // Valkey password for scraping metrics.
+  string password = 4;
+  // Use TLS for database connections.
+  bool tls = 5;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 7;
+  // Skip connection check.
+  bool skip_connection_check = 8;
+  // Enables push metrics mode for exporter.
+  bool push_metrics = 9;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 10;
+  // TLS CA certificate.
+  string tls_ca = 11;
+  // TLS Certifcate.
+  string tls_cert = 12;
+  // TLS Certificate Key.
+  string tls_key = 13;
+  // Custom password for exporter endpoint /metrics.
+  string agent_password = 14;
+  // Log level for exporter.
+  LogLevel log_level = 15;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 16;
+}
+
+message ChangeValkeyExporterParams {
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Enables push metrics with vmagent.
+  optional bool enable_push_metrics = 3;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 4;
 }
 
 // Remove
