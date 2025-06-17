@@ -19,13 +19,13 @@
     group: "{{ ai_chat_group }}"
     mode: '0755'
 
-- name: Check if Node.js is installed
-  command: node --version
-  register: node_version
-  ignore_errors: yes
-
 - name: Add NodeJS repository
-  shell: "curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -"
+  shell: "curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -"
+
+- name: Install Node.js
+  dnf:
+    name: nodejs
+    state: present
 
 - name: Install pnpm globally
   npm:
