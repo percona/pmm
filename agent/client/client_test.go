@@ -55,7 +55,7 @@ func setup(t *testing.T, connect func(server agentv1.AgentService_ConnectServer)
 	// start server with given connect handler
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
-	port = uint16(lis.Addr().(*net.TCPAddr).Port)
+	port = uint16(lis.Addr().(*net.TCPAddr).Port) //nolint:gosec // port is uint16
 	server := grpc.NewServer()
 	agentv1.RegisterAgentServiceServer(server, &testServer{
 		connectFunc: connect,
@@ -176,7 +176,7 @@ func TestClient(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
 			defer cancel()
 
-			connect := func(stream agentv1.AgentService_ConnectServer) error {
+			connect := func(_ agentv1.AgentService_ConnectServer) error {
 				time.Sleep(300 * time.Millisecond)
 				return errors.New("connect done")
 			}
@@ -259,7 +259,7 @@ func TestUnexpectedActionType(t *testing.T) {
 
 				msg, err = stream.Recv()
 				require.NoError(t, err)
-				assert.Equal(t, int32(tc.expectedCode), msg.GetStatus().GetCode())
+				assert.Equal(t, int32(tc.expectedCode), msg.GetStatus().GetCode()) //nolint:gosec // grpc code is int32
 			})
 		}
 		return nil
@@ -322,7 +322,6 @@ func TestArgListFromPgParams(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(prototext.Format(tc.req), func(t *testing.T) {
 			actual := argListFromPgParams(tc.req)
 			t.Logf("\n%+v\n", actual)
@@ -372,7 +371,6 @@ func TestArgListFromMongoDBParams(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(prototext.Format(tc.req), func(t *testing.T) {
 			actual := argListFromMongoDBParams(tc.req)
 			assert.ElementsMatch(t, tc.expected, actual)

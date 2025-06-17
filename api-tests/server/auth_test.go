@@ -23,7 +23,9 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
@@ -47,8 +49,6 @@ func TestAuth(t *testing.T) {
 			nil:                              401,
 			url.UserPassword("bad", "wrong"): 401,
 		} {
-			user := user
-			code := code
 			t.Run(fmt.Sprintf("%s/%d", user, code), func(t *testing.T) {
 				t.Parallel()
 
@@ -80,8 +80,6 @@ func TestAuth(t *testing.T) {
 			codes.Unauthenticated:  401,
 			codes.PermissionDenied: 403,
 		} {
-			grpcCode := grpcCode
-			httpCode := httpCode
 			t.Run(fmt.Sprintf("%s/%d", grpcCode, httpCode), func(t *testing.T) {
 				t.Parallel()
 
@@ -104,8 +102,6 @@ func TestSwagger(t *testing.T) {
 		"swagger.json",
 		"swagger/swagger.json",
 	} {
-		path := path
-
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
 			t.Run("NoAuth", func(t *testing.T) {
@@ -123,14 +119,26 @@ func TestSwagger(t *testing.T) {
 				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
-				resp, _ := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
-
+				resp, err := http.DefaultClient.Do(req)
 				require.NoError(t, err)
-				assert.Equal(t, 200, resp.StatusCode)
+				defer resp.Body.Close() //nolint:errcheck
+
+				assert.Equal(t, 401, resp.StatusCode)
 			})
 
 			t.Run("Auth", func(t *testing.T) {
 				t.Parallel()
+
+				// Create a client that preserves credentials during redirects
+				client := &http.Client{
+					CheckRedirect: func(req *http.Request, via []*http.Request) error {
+						// Copy authentication from original request
+						if len(via) > 0 && via[0].URL.User != nil {
+							req.URL.User = via[0].URL.User
+						}
+						return nil
+					},
+				}
 
 				uri := pmmapitests.BaseURL.ResolveReference(&url.URL{
 					Path: path,
@@ -139,9 +147,10 @@ func TestSwagger(t *testing.T) {
 				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
-				resp, _ := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
-
+				resp, err := client.Do(req)
 				require.NoError(t, err)
+				defer resp.Body.Close() //nolint:errcheck
+
 				assert.Equal(t, 200, resp.StatusCode)
 			})
 		})
@@ -159,6 +168,148 @@ func doRequest(tb testing.TB, client *http.Client, req *http.Request) (*http.Res
 	require.NoError(tb, err)
 
 	return resp, b
+}
+
+func TestBasicAuthPermissions(t *testing.T) {
+	ts := strconv.FormatInt(time.Now().Unix(), 10)
+	none := "none-" + ts
+	viewer := "viewer-" + ts
+	editor := "editor-" + ts
+	admin := "admin-" + ts
+
+	noneID := createUser(t, none)
+	defer deleteUser(t, noneID)
+
+	viewerID := createUserWithRole(t, viewer, "Viewer")
+	defer deleteUser(t, viewerID)
+
+	editorID := createUserWithRole(t, editor, "Editor")
+	defer deleteUser(t, editorID)
+
+	adminID := createUserWithRole(t, admin, "Admin")
+	defer deleteUser(t, adminID)
+
+	type userCase struct {
+		userType   string
+		login      string
+		statusCode int
+	}
+
+	tests := []struct {
+		name     string
+		url      string
+		method   string
+		userCase []userCase
+	}{
+		{name: "settings", url: "/v1/server/settings", method: "GET", userCase: []userCase{
+			{userType: "default", login: none, statusCode: 401},
+			{userType: "viewer", login: viewer, statusCode: 401},
+			{userType: "editor", login: editor, statusCode: 401},
+			{userType: "admin", login: admin, statusCode: 200},
+		}},
+		{name: "platform-connect", url: "/v1/platform:connect", method: "POST", userCase: []userCase{
+			{userType: "default", login: none, statusCode: 401},
+			{userType: "viewer", login: viewer, statusCode: 401},
+			{userType: "editor", login: editor, statusCode: 401},
+			{userType: "admin", login: admin, statusCode: 400}, // We send a bad request, but have access to endpoint
+		}},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			for _, user := range test.userCase {
+				t.Run(fmt.Sprintf("Basic auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
+					// make a BaseURL without authentication
+					u, err := url.Parse(pmmapitests.BaseURL.String())
+					require.NoError(t, err)
+					u.User = url.UserPassword(user.login, user.login)
+					u.Path = test.url
+
+					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
+					require.NoError(t, err)
+
+					resp, err := http.DefaultClient.Do(req)
+					require.NoError(t, err)
+					defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+
+					assert.Equal(t, user.statusCode, resp.StatusCode)
+				})
+			}
+		})
+	}
+}
+
+func createUserWithRole(t *testing.T, login, role string) int {
+	t.Helper()
+	userID := createUser(t, login)
+	setRole(t, userID, role)
+
+	return userID
+}
+
+func deleteUser(t *testing.T, userID int) {
+	t.Helper()
+	u, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	u.Path = "/graph/api/admin/users/" + strconv.Itoa(userID)
+
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
+	require.NoError(t, err)
+
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
+
+	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete user, status code: %d, response: %s", resp.StatusCode, b)
+}
+
+func createUser(t *testing.T, login string) int {
+	t.Helper()
+	u, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	u.Path = "/graph/api/admin/users"
+
+	// https://grafana.com/docs/http_api/admin/#global-users
+	data, err := json.Marshal(map[string]string{
+		"name":     login,
+		"email":    login + "@percona.invalid",
+		"login":    login,
+		"password": login,
+	})
+	require.NoError(t, err)
+
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, u.String(), bytes.NewReader(data))
+	require.NoError(t, err)
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
+
+	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create user, status code: %d, response: %s", resp.StatusCode, b)
+
+	var m map[string]interface{}
+	err = json.Unmarshal(b, &m)
+	require.NoError(t, err)
+
+	return int(m["id"].(float64))
+}
+
+func setRole(t *testing.T, userID int, role string) {
+	t.Helper()
+	u, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	u.Path = "/graph/api/org/users/" + strconv.Itoa(userID)
+
+	// https://grafana.com/docs/http_api/org/#updates-the-given-user
+	data, err := json.Marshal(map[string]string{
+		"role": role,
+	})
+	require.NoError(t, err)
+
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPatch, u.String(), bytes.NewReader(data))
+	require.NoError(t, err)
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
+
+	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set role for user, response: %s", b)
 }
 
 func TestServiceAccountPermissions(t *testing.T) {
@@ -216,7 +367,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			for _, user := range test.userCase {
-				t.Run(fmt.Sprintf("Service Token auth %s", user.userType), func(t *testing.T) {
+				t.Run(fmt.Sprintf("Service Token auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
@@ -235,7 +386,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
 
-				t.Run(fmt.Sprintf("Basic auth with Service Token %s", user.userType), func(t *testing.T) {
+				t.Run(fmt.Sprintf("Basic auth with Service Token %s", user.userType), func(t *testing.T) { //nolint:perfsprint
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
 					u.User = url.UserPassword("service_token", user.serviceToken)

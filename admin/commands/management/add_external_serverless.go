@@ -71,6 +71,7 @@ type AddExternalServerlessCommand struct {
 	Region              string            `help:"Node region"`
 	Az                  string            `help:"Node availability zone"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
+	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
 }
 
 // Help returns cli usage help.
@@ -154,6 +155,7 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 				MetricsMode:         pointer.ToString(mservice.AddServiceParamsBodyExternalMetricsModeMETRICSMODEPULL),
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
+				TLSSkipVerify:       cmd.TLSSkipVerify,
 			},
 		},
 		Context: commands.Ctx,
@@ -188,7 +190,7 @@ func (cmd *AddExternalServerlessCommand) processURLFlags() (string, string, stri
 			if err != nil {
 				return "", "", "", 0, err
 			}
-			port = uint16(portI)
+			port = uint16(portI) //nolint:gosec // port is a uint16
 		}
 		metricsPath = uri.Path
 	case cmd.Address != "":
@@ -201,7 +203,7 @@ func (cmd *AddExternalServerlessCommand) processURLFlags() (string, string, stri
 		if err != nil {
 			return "", "", "", 0, err
 		}
-		port = uint16(portI)
+		port = uint16(portI) //nolint:gosec // port is a uint16
 	}
 
 	return scheme, metricsPath, address, port, nil

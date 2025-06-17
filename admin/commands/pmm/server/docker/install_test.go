@@ -46,7 +46,7 @@ func TestRunContainer(t *testing.T) {
 		containerID, err := c.runContainer(context.Background(), &volume.Volume{}, "docker-image")
 
 		require.NoError(t, err)
-		require.Equal(t, containerID, "container-id")
+		require.Equal(t, "container-id", containerID)
 	})
 }
 
