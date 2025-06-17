@@ -2208,6 +2208,8 @@ func (m *ExternalExporter) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for TlsSkipVerify
+
 	if len(errors) > 0 {
 		return ExternalExporterMultiError(errors)
 	}
@@ -11185,6 +11187,8 @@ func (m *AddExternalExporterParams) validate(all bool) error {
 	// no validation rules for CustomLabels
 
 	// no validation rules for PushMetrics
+
+	// no validation rules for TlsSkipVerify
 
 	if len(errors) > 0 {
 		return AddExternalExporterParamsMultiError(errors)

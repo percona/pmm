@@ -98,7 +98,7 @@ var rules = map[string]role{
 	"/victoriametrics": admin,
 	"/nomad":           admin,
 	"/graph":           none,
-	"/swagger":         none,
+	"/swagger":         viewer,
 
 	"/v1/mcp": none, // TODO: remove this once we have a proper auth for mcp
 
