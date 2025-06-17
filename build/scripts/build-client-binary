@@ -58,7 +58,7 @@ gobuild_component() {
     elif [ ${component} = 'percona-toolkit' ]; then
         build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o \${binary_dir}/${result_file} ."
     elif [ ${component} = 'nomad' ]; then
-        build_command="cd /tmp/go/src/${extract_path} && TARGETS=${target} make deps release"
+        build_command="cd /tmp/go/src/${extract_path} && TARGETS=${target} make deps release && cp -r pkg/${target}/nomad \${binary_dir}/${result_file}"
     else
         build_command="go build -o \${binary_dir}/${result_file} ./src/${extract_path}/${component_path}"
     fi
@@ -115,11 +115,46 @@ copy_component() {
     cp -r ${component_dir}/${component_path} ${binary_dir}/${component_dest}
 }
 
+# S3 cache helpers for nomad and vmagent
+build_third_party_with_cache() {
+    local component=$1
+    local commit_hash=$2
+    local short_commit=${commit_hash:0:7}
+    local s3_url="s3://pmm-build-cache/PR-BUILDS/pmm-client/${component}-${short_commit}.tar.gz"
+    local dest_dir="${binary_dir}/bin"
+    local dest_tar="${dest_dir}/${component}-${short_commit}.tar.gz"
+    local dest_bin="${dest_dir}/${component}"
+
+    # Check and fetch from S3
+    if aws s3 ls "$s3_url" > /dev/null 2>&1; then
+        mkdir -p "$dest_dir"
+        aws s3 cp "$s3_url" "$dest_tar"
+        tar -xzvf "$dest_tar" -C "$dest_dir" > /dev/null
+        rm -f "$dest_tar"
+        chmod +x "$dest_bin"
+        return 0
+    fi
+
+    # Build if not found
+    gobuild_component "$component" "${@:3}"
+
+    # Upload to S3
+    if [ -f "$dest_bin" ]; then
+        tar -czvf "$dest_tar" -C "$dest_dir" "$component" > /dev/null
+        aws s3 cp "$dest_tar" "$s3_url"
+        rm -f "$dest_tar"
+    fi
+}
+
 main() {
     extract_source_tarball
 
-    gobuild_component "vmagent" "" "github.com/VictoriaMetrics/VictoriaMetrics" "app/vmagent"
-    gobuild_component "nomad" "" "github.com/hashicorp/nomad"
+    # vmagent with S3 cache
+    build_third_party_with_cache "vmagent" "${vmagent_commit_hash}" "" "github.com/VictoriaMetrics/VictoriaMetrics" "app/vmagent"
+
+    # nomad with S3 cache
+    build_third_party_with_cache "nomad" "${nomad_commit_hash}" "" "github.com/hashicorp/nomad"
+
     gobuild_component "node_exporter" "" "github.com/prometheus/node_exporter"
     gobuild_component "mysqld_exporter"
     gobuild_component "postgres_exporter" "" "" "cmd/postgres_exporter"
@@ -149,8 +184,6 @@ main() {
     copy_component "percona-toolkit" "bin/pt-mysql-summary"
     gobuild_component "percona-toolkit" "" "github.com/percona/percona-toolkit" "src/go/pt-mongodb-summary"
     gobuild_component "percona-toolkit" "" "github.com/percona/percona-toolkit" "src/go/pt-pg-summary"
-
-    cp -r ${tmp_dir}/go/src/github.com/hashicorp/nomad/pkg/linux_*/nomad ${binary_dir}/bin/nomad
 
     rm -rf ${binary_tarball}
     mkdir -p $(dirname ${binary_tarball}) || :
