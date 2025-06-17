@@ -1,0 +1,28 @@
+{
+    "mcpServers": {
+      "pmm": {
+        "url": "http://localhost:7772/v1/mcp/sse"
+      },
+      "mcp-clickhouse": {
+        "command": "uv",
+        "args": [
+          "run",
+          "--with",
+          "mcp-clickhouse",
+          "--python",
+          "3.13",
+          "mcp-clickhouse"
+        ],
+        "env": {
+          "CLICKHOUSE_HOST": "localhost",
+          "CLICKHOUSE_PORT": "8123",
+          "CLICKHOUSE_USER": "default",
+          "CLICKHOUSE_PASSWORD": "clickhouse",
+          "CLICKHOUSE_SECURE": "false",
+          "CLICKHOUSE_VERIFY": "false",
+          "CLICKHOUSE_CONNECT_TIMEOUT": "30",
+          "CLICKHOUSE_SEND_RECEIVE_TIMEOUT": "30"
+        }
+      }
+    }
+  } 

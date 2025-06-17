@@ -25,9 +25,6 @@
   set_fact:
     need_upgrade: "{{ pmm_current_version is version(pmm_image_version, '<') }}"
 
-- name: Include AI chat variables
-  include_vars: "/opt/ansible/roles/ai-chat/vars/main.yml"
-
 - name: Print PMM distribution
   debug:
     msg: "PMM distribution: {{ pmm_distribution }}, Is AMI: {{ is_ami }}"
@@ -113,15 +110,15 @@
     block:
       - name: Create AI chat data directory
         file:
-          path: "{{ ai_chat_data_dir }}"
+          path: "/srv/ai-chat/data"
           state: directory
-          owner: "{{ ai_chat_user }}"
-          group: "{{ ai_chat_group }}"
+          owner: pmm
+          group: pmm
           mode: '0755'
 
       - name: Check if BETTER_AUTH_SECRET already exists
         stat:
-          path: "{{ ai_chat_data_dir }}/.auth_secret"
+          path: "/srv/ai-chat/data/.auth_secret"
         register: auth_secret_file
 
       - name: Check if npx is available
@@ -137,7 +134,7 @@
 
       - name: Read existing BETTER_AUTH_SECRET
         slurp:
-          src: "{{ ai_chat_data_dir }}/.auth_secret"
+          src: "/srv/ai-chat/data/.auth_secret"
         register: existing_auth_secret
         when: auth_secret_file.stat.exists
 
@@ -148,30 +145,32 @@
       - name: Store BETTER_AUTH_SECRET in file
         copy:
           content: "{{ generated_auth_secret.stdout }}"
-          dest: "{{ ai_chat_data_dir }}/.auth_secret"
-          owner: "{{ ai_chat_user }}"
-          group: "{{ ai_chat_group }}"
+          dest: "/srv/ai-chat/data/.auth_secret"
+          owner: pmm
+          group: pmm
           mode: '0600'
         when: not auth_secret_file.stat.exists
 
       - name: Update AI chat environment file with auth secret
         lineinfile:
-          path: "{{ ai_chat_dir }}/mcp-client-chatbot/.env"
+          path: "/opt/ai-chat/mcp-client-chatbot/.env"
           regexp: '^BETTER_AUTH_SECRET='
           line: "BETTER_AUTH_SECRET={{ final_auth_secret }}"
           create: yes
-          owner: "{{ ai_chat_user }}"
-          group: "{{ ai_chat_group }}"
+          owner: pmm
+          group: pmm
           mode: '0600'
 
       - name: Run AI chat database migrations
         command: pnpm db:migrate
         args:
-          chdir: "{{ ai_chat_dir }}/mcp-client-chatbot"
-        become_user: "{{ ai_chat_user }}"
-        environment:
-          POSTGRES_URL: "postgres://ai_chat_user:{{ ai_chat_db_password }}@localhost:5432/ai_chat"
-          NODE_ENV: production
+          chdir: "/opt/ai-chat/mcp-client-chatbot"
+          become: true
+          become_method: su
+          become_user: pmm
+          environment:
+            POSTGRES_URL: "postgres://ai_chat_user:ai_chat_secure_password@localhost:5432/ai_chat"
+            NODE_ENV: production
         ignore_errors: yes
     when: need_initialization
 

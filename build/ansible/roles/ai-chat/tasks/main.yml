@@ -77,9 +77,9 @@
     mode: '0600'
 
 # MCP Configuration
-- name: Create MCP configuration file
-  template:
-    src: mcp-config.json.j2
+- name: Copy MCP configuration file
+  copy:
+    src: mcp-config.json
     dest: "{{ ai_chat_dir }}/mcp-client-chatbot/mcp-config.json"
     owner: pmm
     group: pmm
@@ -92,11 +92,3 @@
   environment:
     POSTGRES_URL: "{{ postgres_url }}"
     NODE_ENV: production
-
-- name: Create supervisord configuration for AI chat
-  template:
-    src: ai-chat.ini.j2
-    dest: /etc/supervisord.d/ai-chat.ini
-    owner: pmm
-    group: pmm
-    mode: '0644'
