@@ -26,7 +26,7 @@
     need_upgrade: "{{ pmm_current_version is version(pmm_image_version, '<') }}"
 
 - name: Include AI chat variables
-  include_vars: "{{ playbook_dir }}/roles/ai-chat/vars/main.yml"
+  include_vars: "/opt/ansible/roles/ai-chat/vars/main.yml"
 
 - name: Print PMM distribution
   debug:
