@@ -41,13 +41,20 @@
 
 - name: Install uv Python package manager
   shell: curl -LsSf https://astral.sh/uv/install.sh | sh
+  become: true
+  become_method: su
+  become_user: pmm
   when: uv_version.rc != 0
 
 - name: Add uv to PATH for all users
   lineinfile:
-    path: /etc/environment
-    line: 'PATH="/root/.cargo/bin:$PATH"'
+    path: /home/pmm/.profile
+    line: 'export PATH="/home/pmm/.cargo/bin:$PATH"'
     create: yes
+    state: present
+    owner: pmm
+    group: pmm
+    mode: '0644'
   when: uv_version.rc != 0
 
 - name: Download and extract AI chat application
