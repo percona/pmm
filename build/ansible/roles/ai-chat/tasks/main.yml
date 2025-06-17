@@ -7,16 +7,16 @@
   file:
     path: "{{ ai_chat_dir }}"
     state: directory
-    owner: "{{ ai_chat_user }}"
-    group: "{{ ai_chat_group }}"
+    owner: pmm
+    group: pmm
     mode: '0755'
 
 - name: Create AI chat data directory
   file:
     path: "{{ ai_chat_data_dir }}"
     state: directory
-    owner: "{{ ai_chat_user }}"
-    group: "{{ ai_chat_group }}"
+    owner: pmm
+    group: pmm
     mode: '0755'
 
 - name: Add NodeJS repository
@@ -50,19 +50,19 @@
     create: yes
   when: uv_version.rc != 0
 
-- name: Clone AI chat application repository
-  git:
-    repo: "{{ ai_chat_repo_url }}"
-    dest: "{{ ai_chat_dir }}/mcp-client-chatbot"
-    version: "{{ ai_chat_version }}"
-    force: yes
-  become_user: "{{ ai_chat_user }}"
+- name: Download and extract AI chat application
+  shell: |
+    mkdir -p "{{ ai_chat_dir }}/mcp-client-chatbot"
+    curl -L "{{ ai_chat_repo_url }}" | tar -xz -C "{{ ai_chat_dir }}/mcp-client-chatbot" --strip-components=1
+    chown -R pmm:pmm "{{ ai_chat_dir }}/mcp-client-chatbot"
+  args:
+    creates: "{{ ai_chat_dir }}/mcp-client-chatbot/package.json"
 
 - name: Install AI chat dependencies
   command: pnpm install
   args:
     chdir: "{{ ai_chat_dir }}/mcp-client-chatbot"
-  become_user: "{{ ai_chat_user }}"
+  become_user: pmm
 
 # Set database connection URL (database is created during initialization)
 - name: Set postgres_url for AI chat
@@ -73,8 +73,8 @@
   template:
     src: env.j2
     dest: "{{ ai_chat_dir }}/mcp-client-chatbot/.env"
-    owner: "{{ ai_chat_user }}"
-    group: "{{ ai_chat_group }}"
+    owner: pmm
+    group: pmm
     mode: '0600'
 
 # MCP Configuration
@@ -82,15 +82,15 @@
   template:
     src: mcp-config.json.j2
     dest: "{{ ai_chat_dir }}/mcp-client-chatbot/mcp-config.json"
-    owner: "{{ ai_chat_user }}"
-    group: "{{ ai_chat_group }}"
+    owner: pmm
+    group: pmm
     mode: '0644'
 
 - name: Build AI chat application
   command: pnpm build:local
   args:
     chdir: "{{ ai_chat_dir }}/mcp-client-chatbot"
-  become_user: "{{ ai_chat_user }}"
+  become_user: pmm
   environment:
     POSTGRES_URL: "{{ postgres_url }}"
     NODE_ENV: production
