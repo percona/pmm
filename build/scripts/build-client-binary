@@ -12,6 +12,21 @@ extract_source_tarball() {
     fi
 }
 
+get_arch_name() {
+    case "$(uname -m)" in
+        x86_64)
+            echo "amd64"
+            ;;
+        aarch64)
+            echo "arm64"
+            ;;
+        *)
+            echo "Unsupported architecture: $(uname -m)" >&2
+            exit 1
+            ;;
+    esac
+}
+
 gobuild_component() {
     local component=$1
     local parent_component=${2:-$component}
@@ -25,19 +40,9 @@ gobuild_component() {
     volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
 
     # Set target for Nomad accordingly
-    local target
-    case "$(uname -m)" in
-        x86_64)
-            target="linux_amd64"
-            ;;
-        aarch64)
-            target="linux_arm64"
-            ;;
-        *)
-            echo "Unsupported architecture: $(uname -m)"
-            exit 1
-            ;;
-    esac
+    local arch_name
+    arch_name=$(get_arch_name)
+    local target="linux_${arch_name}"
 
     if [ ${component} = 'azure_metrics_exporter' ]; then
         result_file=${result_file/_metrics/}
@@ -119,10 +124,12 @@ copy_component() {
 build_third_party_with_cache() {
     local component=$1
     local commit_hash=$2
+    local arch_name
+    arch_name=$(get_arch_name)
     local short_commit=${commit_hash:0:7}
-    local s3_url="s3://pmm-build-cache/PR-BUILDS/pmm-client/${component}-${short_commit}.tar.gz"
+    local s3_url="s3://pmm-build-cache/PR-BUILDS/pmm-client/${component}-${short_commit}-${arch_name}.tar.gz"
     local dest_dir="${binary_dir}/bin"
-    local dest_tar="${dest_dir}/${component}-${short_commit}.tar.gz"
+    local dest_tar="${dest_dir}/${component}-${short_commit}-${arch_name}.tar.gz"
     local dest_bin="${dest_dir}/${component}"
 
     # Check and fetch from S3
@@ -136,7 +143,7 @@ build_third_party_with_cache() {
     fi
 
     # Build if not found
-    gobuild_component "$component" "${@:3}"
+    gobuild_component "$component" "$commit_hash" "${@:3}"
 
     # Upload to S3
     if [ -f "$dest_bin" ]; then
