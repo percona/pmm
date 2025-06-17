@@ -104,4 +104,4 @@
 - name: Ensure supervisord is running
   supervisorctl:
     name: all
-    state: reloaded 
+    state: restarted 
