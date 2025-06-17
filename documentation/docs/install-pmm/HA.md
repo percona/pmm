@@ -26,7 +26,11 @@ Critical systems requiring sub-second failover gain the most value from PMM HA, 
 
 Choose the option that best fits your infrastructure and requirements:
 
-=== "Docker restart with data caching (Basic HA)"
+=== "Docker restart"
+    **Best for**: First-time HA implementation, development environments, single-server setups.
+
+    Docker restart with data caching provides basic HA through Docker's built-in restart capabilities combined with PMM's client-side data buffering. This approach offers the simplest path to improved availability without complex infrastructure changes. 
+
     The most straightforward approach to increase availability in PMM is to launch the PMM Server within Docker using the `--restart=always` flag. See [Install PMM Server with Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md) for more information.
 
     This ensures that the PMM Server automatically restarts if a minor issue occurs. Additionally, PMM's data caching feature stores data locally on the PMM Client when the connection to the PMM Server is interrupted.
@@ -35,7 +39,10 @@ Choose the option that best fits your infrastructure and requirements:
 
     This option is suitable for scenarios where the primary concern is the ability to investigate potential issues later. However, it's important to note that this approach is limited by the underlying physical infrastructure. If the failure stems from a hardware issue, automatic recovery might be challenging.
 
-=== "Leverage Kubernetes for enhanced isolation"
+=== "Kubernetes (Production)"
+    **Best for**: Production environments, teams already using Kubernetes, cloud-native deployments.
+
+    Leverage Kubernetes for enhanced isolation and automatic infrastructure-level failover. This is a production-ready approach that provides robust HA through Kubernetes' native orchestration and pod management capabilities. 
 
     If you are running PMM in a Kubernetes (K8s) environment, PMM offers a Helm chart that facilitates running PMM with enhanced isolation. See [Install PMM Server with Helm on the Kubernetes clusters](../install-pmm/install-pmm-server/deployment-options/helm/index.md).
 
@@ -43,8 +50,11 @@ Choose the option that best fits your infrastructure and requirements:
 
     While restarts within K8s can take up to several minutes (depending on your infrastructure configuration), PMM's data caching ensures that information is preserved during this transition. Alerts will still be triggered to keep you informed about any issues that started during PMM's restart and continue after PMM is back.
 
-=== "Fully-clustered PMM in Kubernetes (in development)"
+=== "Clustered (future)"
 
+    **Best for**: Large enterprises, geographically distributed teams, maximum resilience requirements.
+
+    Fully-clustered PMM in Kubernetes delivers enterprise-grade HA for large-scale, mission-critical monitoring environments.
     If you have a large deployment with numerous instances and distributed locations, you might find that a fully clustered PMM setup in Kubernetes is better suited to your needs. We are actively developing this solution, which is slated for release later with PMM 3.x, to cater specifically to users managing extensive and complex monitoring environments.
 
     This option will provide a comprehensive HA solution, including clustered database setups (ClickHouse, VictoriaMetrics, and PostgreSQL). In this setup, multiple PMM instances will be configured, with one being the leader and the others as followers.
@@ -57,7 +67,9 @@ Choose the option that best fits your infrastructure and requirements:
         - clustered VictoriaMetrics for storing operational metrics from monitored databases and hosts
         - HAProxy for managing and directing network traffic to the current leader PMM instance
 
-=== "Manual HA setup"
+=== "Manual setup (Advanced)"
+    
+    **Best for**: Custom requirements that other options don't meet, integration with existing infrastructure
 
     !!! caution alert alert-warning "Important"
     This feature is currently in [Technical Preview](../reference/glossary.md#technical-preview). Early adopters are advised to use this feature for testing purposes only as it is subject to change.
