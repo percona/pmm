@@ -62,7 +62,6 @@
   command: pnpm install
   args:
     chdir: "{{ ai_chat_dir }}/mcp-client-chatbot"
-  become_user: pmm
 
 # Set database connection URL (database is created during initialization)
 - name: Set postgres_url for AI chat
