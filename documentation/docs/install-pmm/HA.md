@@ -72,14 +72,14 @@ Choose the option that best fits your infrastructure and requirements:
     **Best for**: Custom requirements that other options don't meet, integration with existing infrastructure
 
     !!! caution alert alert-warning "Important"
-    This feature is currently in [Technical Preview](../reference/glossary.md#technical-preview). Early adopters are advised to use this feature for testing purposes only as it is subject to change.
+        This feature is currently in [Technical Preview](../reference/glossary.md#technical-preview). Early adopters are advised to use this feature for testing purposes only as it is subject to change.
 
-    If none of the above options work for your specific use case, consider setting up PMM in HA mode manually by following the steps below.
+    If none of the other HA options work for your specific use case, consider setting up PMM in HA mode manually by following the steps below.
 
     To enable communication and coordination among the PMM Server instances, two key protocols are used:
 
-        - **Gossip protocol**: Enables PMM servers to discover and share information about their states. It is used for managing the PMM server list and failure detection, ensuring that all instances are aware of the current state of the cluster.
-        - **Raft protocol**: Ensures that PMM servers agree on a leader and that logs are replicated among all machines to maintain data consistency.
+     - **Gossip protocol**: Enables PMM servers to discover and share information about their states. It is used for managing the PMM server list and failure detection, ensuring that all instances are aware of the current state of the cluster.
+     - **Raft protocol**: Ensures that PMM servers agree on a leader and that logs are replicated among all machines to maintain data consistency.
 
     These protocols work in tandem to ensure that the PMM Server instances can effectively store and manage the data collected from your monitored databases and systems. 
 
@@ -87,171 +87,171 @@ Choose the option that best fits your infrastructure and requirements:
 
     To eliminate single points of failure and provide better service level agreements (SLAs), the critical services typically bundled with PMM Server are extracted and set up as separate, clustered instances:
 
-        - ClickHouse: A clustered setup of ClickHouse is used to store Query Analytics (QAN) metrics. This ensures that QAN data remains highly available and can be accessed even if one of the ClickHouse nodes fails.
-        - VictoriaMetrics: A clustered setup of VictoriaMetrics is used to store Prometheus metrics. This provides a highly available and scalable solution for storing and querying metrics data.
-        - PostgreSQL: A clustered setup of PostgreSQL is used to store PMM data, such as inventory and settings. This ensures that PMM's configuration and metadata remain highly available and can be accessed by all PMM Server instances.
+     - ClickHouse: A clustered setup of ClickHouse is used to store Query Analytics (QAN) metrics. This ensures that QAN data remains highly available and can be accessed even if one of the ClickHouse nodes fails.
+     - VictoriaMetrics: A clustered setup of VictoriaMetrics is used to store Prometheus metrics. This provides a highly available and scalable solution for storing and querying metrics data.
+     - PostgreSQL: A clustered setup of PostgreSQL is used to store PMM data, such as inventory and settings. This ensures that PMM's configuration and metadata remain highly available and can be accessed by all PMM Server instances.
 
-            ### Prerequisites
-            Before you begin:
+    ### Prerequisites
+    Before you begin:
 
-            - [Install and configure Docker](https://docs.docker.com/get-docker/).
-            - Prepare your environment:
-                - for testing, you can run services on a single machine
-            - for production, deploy services on separate instances and use clustered versions of PostgreSQL, VictoriaMetrics, and ClickHouse. Keep in mind that running all services on a single machine is not recommended for production. Use separate instances and clustered components for better reliability.
+     - [Install and configure Docker](https://docs.docker.com/get-docker/).
+     - Prepare your environment:
+        - for testing, you can run services on a single machine
+        - for production, deploy services on separate instances and use clustered versions of PostgreSQL, VictoriaMetrics, and ClickHouse. Keep in mind that running all services on a single machine is not recommended for production. Use separate instances and clustered components for better reliability.
 
-        To set up PMM in HA mode manually:
+    To set up PMM in HA mode manually:
 
-        #### **Step 1: Define environment variables**
+    #### **Step 1: Define environment variables**
 
-        Before you start with the setup, define the necessary environment variables on each instance where the services will be running. These variables will be used in subsequent commands. 
+    Before you start with the setup, define the necessary environment variables on each instance where the services will be running. These variables will be used in subsequent commands. 
 
-        For all IP addresses, use the format `17.10.1.x`, and for all usernames and passwords, use a string format like `example`.
+    For all IP addresses, use the format `17.10.1.x`, and for all usernames and passwords, use a string format like `example`.
 
-        | **Variable**        | **Description**
-        | ------------------------------------------------| -------------------------------------------------------------------------------------------------------------------------------
-        | `CH_HOST_IP`                                     | The IP address of the instance where the ClickHouse service is running or the desired IP address for the ClickHouse container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.2`
-        | `VM_HOST_IP`                                     | The IP address of the instance where the VictoriaMetrics service is running or the desired IP address for the VictoriaMetrics container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.3`
-        | `PG_HOST_IP`                                     | The IP address of the instance where the PostgreSQL service is running or the desired IP address for the PostgreSQL container within the Docker network, depending on your setup.</br></br> Example: `17.10.1.4`
-        | `PG_USERNAME`                                    | The username for your PostgreSQL server.</br></br> Example: `pmmuser`
-        | `PG_PASSWORD`                                   | The password for your PostgreSQL server. </br></br>Example: `pgpassword`
-        | `GF_USERNAME`                                   | The username for your Grafana database user.</br></br>Example: `gfuser`
-        | `GF_PASSWORD`                                   | The password for your Grafana database user.</br></br>Example: `gfpassword`
-        | `PMM_ACTIVE_IP`                                 | The IP address of the instance where the active PMM server is running or the desired IP address for your active PMM server container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.5`
-        | `PMM_ACTIVE_NODE_ID`                            | The unique ID for your active PMM server node.</br></br>Example: `pmm-server-active`
-        | `PMM_PASSIVE_IP`                                | The IP address of the instance where the first passive PMM server is running or the desired IP address for your first passive PMM server container within the Docker network, depending on your setup. </br></br>Example: `17.10.1.6`
-        | `PMM_PASSIVE_NODE_ID`                           | The unique ID for your first passive PMM server node.</br></br>Example: `pmm-server-passive`
-        | `PMM_PASSIVE2_IP`                               | The IP address of the instance where the second passive PMM server is running or the desired IP address for your second passive PMM server container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.7`
-        | `PMM_PASSIVE2_NODE_ID`                          | The unique ID for your second passive PMM server node.</br></br>Example: `pmm-server-passive2`
-        | `PMM_DOCKER_IMAGE`                              | The specific PMM Server Docker image for this guide.</br></br>Example: `percona/pmm-server:3`
+    | **Variable**        | **Description**
+    | ------------------------------------------------| -------------------------------------------------------------------------------------------------------------------------------
+    | `CH_HOST_IP`                                     | The IP address of the instance where the ClickHouse service is running or the desired IP address for the ClickHouse container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.2`
+    | `VM_HOST_IP`                                     | The IP address of the instance where the VictoriaMetrics service is running or the desired IP address for the VictoriaMetrics container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.3`
+    | `PG_HOST_IP`                                     | The IP address of the instance where the PostgreSQL service is running or the desired IP address for the PostgreSQL container within the Docker network, depending on your setup.</br></br> Example: `17.10.1.4`
+    | `PG_USERNAME`                                    | The username for your PostgreSQL server.</br></br> Example: `pmmuser`
+    | `PG_PASSWORD`                                   | The password for your PostgreSQL server. </br></br>Example: `pgpassword`
+    | `GF_USERNAME`                                   | The username for your Grafana database user.</br></br>Example: `gfuser`
+    | `GF_PASSWORD`                                   | The password for your Grafana database user.</br></br>Example: `gfpassword`
+    | `PMM_ACTIVE_IP`                                 | The IP address of the instance where the active PMM server is running or the desired IP address for your active PMM server container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.5`
+    | `PMM_ACTIVE_NODE_ID`                            | The unique ID for your active PMM server node.</br></br>Example: `pmm-server-active`
+    | `PMM_PASSIVE_IP`                                | The IP address of the instance where the first passive PMM server is running or the desired IP address for your first passive PMM server container within the Docker network, depending on your setup. </br></br>Example: `17.10.1.6`
+    | `PMM_PASSIVE_NODE_ID`                           | The unique ID for your first passive PMM server node.</br></br>Example: `pmm-server-passive`
+    | `PMM_PASSIVE2_IP`                               | The IP address of the instance where the second passive PMM server is running or the desired IP address for your second passive PMM server container within the Docker network, depending on your setup.</br></br>Example: `17.10.1.7`
+    | `PMM_PASSIVE2_NODE_ID`                          | The unique ID for your second passive PMM server node.</br></br>Example: `pmm-server-passive2`
+    | `PMM_DOCKER_IMAGE`                              | The specific PMM Server Docker image for this guide.</br></br>Example: `percona/pmm-server:3`
 
-        ??? example "Expected output"
+    ??? example "Expected output"
                 
+        ```
+        export CH_HOST_IP=17.10.1.2
+        export VM_HOST_IP=17.10.1.3
+        export PG_HOST_IP=17.10.1.4
+        export PG_USERNAME=pmmuser
+        export PG_PASSWORD=pgpassword
+        export GF_USERNAME=gfuser
+        export GF_PASSWORD=gfpassword
+        export PMM_ACTIVE_IP=17.10.1.5
+        export PMM_ACTIVE_NODE_ID=pmm-server-active
+        export PMM_PASSIVE_IP=17.10.1.6
+        export PMM_PASSIVE_NODE_ID=pmm-server-passive
+        export PMM_PASSIVE2_IP=17.10.1.7
+        export PMM_PASSIVE2_NODE_ID=pmm-server-passive2
+        export PMM_DOCKER_IMAGE=percona/pmm-server:3
+        ```
+
+    !!! note alert alert-primary "Note"
+        Ensure that you have all the environment variables from Step 1 set in each instance where you run these commands.
+
+    #### **Step 2: Create Docker network (Optional)**
+    Create a dedicated network if you plan to run multiple PMM services on the same instance. This ensures proper communication between containers, especially for High Availability mode.
+    {.power-number}
+
+    1. Set up a Docker network for PMM services if you plan to run all the services on the same instance. As a result of this Docker network, your containers will be able to communicate with each other, which is essential for the High Availability (HA) mode to function properly in PMM. This step may be optional if you run your services on separate instances.
+
+    2. Run the following command to create a Docker network:
+
+        ```sh
+        docker network create pmm-network --subnet=17.10.1.0/16
+        ```
+
+    #### **Step 3: Set up ClickHouse**
+
+    ClickHouse is an open-source column-oriented database management system. In PMM, ClickHouse stores Query Analytics (QAN) metrics, which provide detailed information about your queries.
+
+    To set up ClickHouse:
+    {.power-number}
+
+    1. Pull the ClickHouse Docker image:
+
+        ```sh
+        docker pull clickhouse/clickhouse-server:23.8.2.7-alpine
+        ```
+
+    2. Create a Docker volume for ClickHouse data:
+
+        ```sh
+        docker volume create ch_data
+        ```
+
+    3. Run the ClickHouse container:
+
+        === "Run services on same instance"
+
+            ```sh
+            docker run -d \
+            --name ch \
+            --network pmm-network \
+            --ip ${CH_HOST_IP} \
+            -p 9000:9000 \
+            -v ch_data:/var/lib/clickhouse \
+            clickhouse/clickhouse-server:23.8.2.7-alpine
             ```
-            export CH_HOST_IP=17.10.1.2
-            export VM_HOST_IP=17.10.1.3
-            export PG_HOST_IP=17.10.1.4
-            export PG_USERNAME=pmmuser
-            export PG_PASSWORD=pgpassword
-            export GF_USERNAME=gfuser
-            export GF_PASSWORD=gfpassword
-            export PMM_ACTIVE_IP=17.10.1.5
-            export PMM_ACTIVE_NODE_ID=pmm-server-active
-            export PMM_PASSIVE_IP=17.10.1.6
-            export PMM_PASSIVE_NODE_ID=pmm-server-passive
-            export PMM_PASSIVE2_IP=17.10.1.7
-            export PMM_PASSIVE2_NODE_ID=pmm-server-passive2
-            export PMM_DOCKER_IMAGE=percona/pmm-server:3
+            
+        === "Run services on a separate instance"
+
+            ```sh
+            docker run -d \
+            --name ch \
+            -p 9000:9000 \
+            -v ch_data:/var/lib/clickhouse \
+            clickhouse/clickhouse-server:23.8.2.7-alpine
             ```
 
         !!! note alert alert-primary "Note"
-            Ensure that you have all the environment variables from Step 1 set in each instance where you run these commands.
+            - If you run the services on the same instance, the `--network` and `--ip` flags assign a specific IP address to the container within the Docker network created in the previous step. This IP address is referenced in subsequent steps as the ClickHouse service address. 
+            - The `--network` and `--ip` flags are not required if the services are running on separate instances since ClickHouse will bind to the default network interface.
 
-        #### **Step 2: Create Docker network (Optional)**
-        Create a dedicated network if you plan to run multiple PMM services on the same instance. This ensures proper communication between containers, especially for High Availability mode.
-        {.power-number}
+    #### **Step 4: Set up VictoriaMetrics**
 
-        1. Set up a Docker network for PMM services if you plan to run all the services on the same instance. As a result of this Docker network, your containers will be able to communicate with each other, which is essential for the High Availability (HA) mode to function properly in PMM. This step may be optional if you run your services on separate instances.
+    VictoriaMetrics provides a long-term storage solution for your time-series data. In PMM, it is used to store Prometheus metrics.
 
-        2. Run the following command to create a Docker network:
+    To set up VictoriaMetrics:
+    {.power-number}
 
-            ```sh
-            docker network create pmm-network --subnet=17.10.1.0/16
-            ```
+    1. Pull the VictoriaMetrics Docker image:
 
-        #### **Step 3: Set up ClickHouse**
+        ```sh
+        docker pull victoriametrics/victoria-metrics:v1.93.4
+        ```
 
-        ClickHouse is an open-source column-oriented database management system. In PMM, ClickHouse stores Query Analytics (QAN) metrics, which provide detailed information about your queries.
+    2. Create a Docker volume for VictoriaMetrics data:
 
-        To set up ClickHouse:
-        {.power-number}
+        ```sh
+        docker volume create vm_data
+        ```
 
-        1. Pull the ClickHouse Docker image:
+    3. Run the VictoriaMetrics container:
 
-            ```sh
-            docker pull clickhouse/clickhouse-server:23.8.2.7-alpine
-            ```
-
-        2. Create a Docker volume for ClickHouse data:
-
-            ```sh
-            docker volume create ch_data
-            ```
-
-        3. Run the ClickHouse container:
-
-            === "Run services on same instance"
-
-                ```sh
-                docker run -d \
-                --name ch \
-                --network pmm-network \
-                --ip ${CH_HOST_IP} \
-                -p 9000:9000 \
-                -v ch_data:/var/lib/clickhouse \
-                clickhouse/clickhouse-server:23.8.2.7-alpine
-                ```
-            
-            === "Run services on a separate instance"
-
-                ```sh
-                docker run -d \
-                --name ch \
-                -p 9000:9000 \
-                -v ch_data:/var/lib/clickhouse \
-                clickhouse/clickhouse-server:23.8.2.7-alpine
-                ```
-
-            !!! note alert alert-primary "Note"
-                - If you run the services on the same instance, the `--network` and `--ip` flags assign a specific IP address to the container within the Docker network created in the previous step. This IP address is referenced in subsequent steps as the ClickHouse service address. 
-                - The `--network` and `--ip` flags are not required if the services are running on separate instances since ClickHouse will bind to the default network interface.
-
-        #### **Step 4: Set up VictoriaMetrics**
-
-        VictoriaMetrics provides a long-term storage solution for your time-series data. In PMM, it is used to store Prometheus metrics.
-
-        To set up VictoriaMetrics:
-        {.power-number}
-
-        1. Pull the VictoriaMetrics Docker image:
-
-            ```sh
-            docker pull victoriametrics/victoria-metrics:v1.93.4
-            ```
-
-        2. Create a Docker volume for VictoriaMetrics data:
-
-            ```sh
-            docker volume create vm_data
-            ```
-
-        3. Run the VictoriaMetrics container:
-
-            You can either run all the services on the same instance or a separate instance.
+        You can either run all the services on the same instance or a separate instance.
 
             
-            === "Run services on same instance"
+        === "Run services on same instance"
 
-                ```sh
-                docker run -d \
-                --name vm \
-                --network pmm-network \
-                --ip ${VM_HOST_IP} \
-                -p 8428:8428 \
-                -p 8089:8089 \
-                -p 8089:8089/udp \
-                -p 2003:2003 \
-                -p 2003:2003/udp \
-                -p 4242:4242 \
-                -v vm_data:/storage \
-                victoriametrics/victoria-metrics:v1.93.4 \
-                --storageDataPath=/storage \
-                --graphiteListenAddr=:2003 \
-                --opentsdbListenAddr=:4242 \
-                --httpListenAddr=:8428 \
-                --influxListenAddr=:8089
-                ```
+            ```sh
+            docker run -d \
+            --name vm \
+            --network pmm-network \
+            --ip ${VM_HOST_IP} \
+            -p 8428:8428 \
+            -p 8089:8089 \
+            -p 8089:8089/udp \
+            -p 2003:2003 \
+            -p 2003:2003/udp \
+            -p 4242:4242 \
+            -v vm_data:/storage \
+            victoriametrics/victoria-metrics:v1.93.4 \
+            --storageDataPath=/storage \
+            --graphiteListenAddr=:2003 \
+            --opentsdbListenAddr=:4242 \
+            --httpListenAddr=:8428 \
+            --influxListenAddr=:8089
+            ```
             
-            === "Run services on a separate instance"
+        === "Run services on a separate instance"
 
                 ```sh
                 docker run -d \
