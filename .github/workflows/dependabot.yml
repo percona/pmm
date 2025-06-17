@@ -8,7 +8,7 @@ permissions:
 jobs:
   dependabot:
     name: Enable auto-merge
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Dependabot metadata
