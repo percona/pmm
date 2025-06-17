@@ -140,7 +140,12 @@
 
       - name: Set final auth secret variable
         set_fact:
-          final_auth_secret: "{{ generated_auth_secret.stdout if not auth_secret_file.stat.exists else existing_auth_secret.content | b64decode | trim }}"
+          final_auth_secret: >-
+            {% if not auth_secret_file.stat.exists and (generated_auth_secret is defined and 'stdout' in generated_auth_secret) %}
+              {{ generated_auth_secret.stdout }}
+            {% else %}
+              {{ existing_auth_secret.content | b64decode | trim }}
+            {% endif %}
 
       - name: Store BETTER_AUTH_SECRET in file
         copy:
