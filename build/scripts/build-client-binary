@@ -15,7 +15,7 @@ extract_source_tarball() {
 get_arch_name() {
     case "$(uname -m)" in
         x86_64) echo "amd64";;
-        aarch64) echo "arm64";;
+        arm64|aarch64) echo "arm64";;
         *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1;;
     esac
 }
