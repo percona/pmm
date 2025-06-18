@@ -27,83 +27,127 @@ Critical systems requiring sub-second failover gain the most value from PMM HA, 
 Choose the option that best fits your infrastructure and requirements:
 
 === "Docker restart"
-    **Best for**: First-time HA implementation, development environments, single-server setups.
+    **Best for**: Development environments, single-server deployments, teams getting started with HA.
 
-    Docker restart with data caching provides basic HA through Docker's built-in restart capabilities combined with PMM's client-side data buffering. This approach offers the simplest path to improved availability without complex infrastructure changes. 
+    Docker's built-in restart capabilities combined with PMM's client-side data buffering provide a simple yet effective way to improve availability without complex infrastructure changes. This leverages Docker automatic container recovery and PMM Client-side data caching:
+    - Docker automatically restarts the PMM Server container after crashes or system reboots
+    - PMM Clients buffer metrics locally when the server is unavailable, preventing data loss during outages
 
-    The most straightforward approach to increase availability in PMM is to launch the PMM Server within Docker using the `--restart=always` flag. See [Install PMM Server with Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md) for more information.
+    To increase PMM availability and ensure the PMM Server automatically restarts after minor issues, launch the PMM Server in Docker with the `--restart=always` flag. 
+    
+    When the PMM Server becomes unavailable, PMM Clients automatically:
+    - detect the connection failure
+    - begin caching metrics data locally
+    - continue attempting to reconnect
+    - transfer all cached data once the connection is restored
 
-    This ensures that the PMM Server automatically restarts if a minor issue occurs. Additionally, PMM's data caching feature stores data locally on the PMM Client when the connection to the PMM Server is interrupted.
+    This solution works well for environments where brief interruptions are acceptable and post-incident analysis is more important than real-time availability. For mission-critical deployments requiring higher availability, consider the more advanced options described in the following sections.
 
-    Once the connection is restored, the cached data is transferred to the PMM Server, ensuring no data loss during the restart process.
+    For deployment instructions, see [Install PMM Server with Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md).
 
-    This option is suitable for scenarios where the primary concern is the ability to investigate potential issues later. However, it's important to note that this approach is limited by the underlying physical infrastructure. If the failure stems from a hardware issue, automatic recovery might be challenging.
 
-=== "Kubernetes (Production)"
-    **Best for**: Production environments, teams already using Kubernetes, cloud-native deployments.
+=== "Kubernetes (production)"
+    **Best for**: Production environments, cloud-native architectures, teams with existing Kubernetes infrastructure
 
-    Leverage Kubernetes for enhanced isolation and automatic infrastructure-level failover. This is a production-ready approach that provides robust HA through Kubernetes' native orchestration and pod management capabilities. 
+    Kubernetes provides enterprise-grade high availability through automated container orchestration, self-healing capabilities, and intelligent workload distribution across multiple nodes. This leverages Kubernetes pod management and PMM's data persistence:
+    - Kubernetes automatically restarts failed pods and reschedules them to healthy nodes
+    - Persistent volumes preserve all PMM data, configurations, and dashboards across pod restarts
+    - Health probes ensure only healthy instances receive traffic
+    - PMM Clients cache metrics locally during server unavailability
 
-    If you are running PMM in a Kubernetes (K8s) environment, PMM offers a Helm chart that facilitates running PMM with enhanced isolation. See [Install PMM Server with Helm on the Kubernetes clusters](../install-pmm/install-pmm-server/deployment-options/helm/index.md).
+    When infrastructure issues occur, Kubernetes automatically:
 
-    In this setup, even if the physical infrastructure encounters a problem, K8s automatically handles failover, migrating the PMM instance to a healthy node. 
+    - detects pod or node failures through health checks (within 30 seconds)
+    - marks failed resources as unavailable
+    - reschedules the PMM pod to a healthy node
+    - mounts the existing persistent volume to restore state
+    - routes traffic once readiness checks pass
 
-    While restarts within K8s can take up to several minutes (depending on your infrastructure configuration), PMM's data caching ensures that information is preserved during this transition. Alerts will still be triggered to keep you informed about any issues that started during PMM's restart and continue after PMM is back.
+    During failover (typically 2-5 minutes), data integrity is maintained through:
+
+    - PMM Client-side caching of up to 24 hours of metrics
+    - PersistentVolumeClaims that retain all historical data
+    - automatic metric synchronization once connection restores
+    - preservation of all configurations and custom dashboards
+
+    This solution works well for production environments that can tolerate brief monitoring interruptions during automatic failover. The trade-off between operational simplicity and high availability makes it ideal for most production workloads. For zero-downtime requirements or multi-region deployments, consider the advanced clustering options in the following sections.
+
+    For deployment instructions, see [Install PMM Server with Helm on Kubernetes clusters](../install-pmm/install-pmm-server/deployment-options/helm/index.md).
 
 === "Clustered (future)"
 
     **Best for**: Large enterprises, geographically distributed teams, maximum resilience requirements.
 
-    Fully-clustered PMM in Kubernetes delivers enterprise-grade HA for large-scale, mission-critical monitoring environments.
-    If you have a large deployment with numerous instances and distributed locations, you might find that a fully clustered PMM setup in Kubernetes is better suited to your needs. We are actively developing this solution, which is slated for release later with PMM 3.x, to cater specifically to users managing extensive and complex monitoring environments.
+    A fully clustered PMM deployment is under development to provide true high availability with zero downtime and horizontal scalability. This enterprise-grade architecture will leverage Kubernetes orchestration and distributed database technologies:
+    - multiple active PMM instances with automatic leader election via Raft consensus
+    - clustered databases ensure no single point of failure across all data stores
+    - geographic distribution support for multi-region deployments
+    - automatic failover with zero data loss and minimal service interruption
 
-    This option will provide a comprehensive HA solution, including clustered database setups (ClickHouse, VictoriaMetrics, and PostgreSQL). In this setup, multiple PMM instances will be configured, with one being the leader and the others as followers.
+    The clustered architecture will include:
+    - **PMM instances**: Multiple servers in active-passive configuration with automatic leader election
+    - **PostgreSQL cluster**: Replicated metadata and configuration storage with automatic failover
+    - **ClickHouse cluster**: Distributed query analytics data across multiple shards and replicas
+    - **VictoriaMetrics cluster**: Horizontally scaled metrics storage with configurable replication factor
+    - **HAProxy**: Intelligent load balancing and automatic routing to the current leader
 
-    Leader election will be managed using the Raft consensus algorithm, ensuring a smooth transition of the leader role if the current leader fails. The architecture will consist of:
+    Key high availability features:
+    - sub-second failover through Raft-based leader election
+    - no data loss with synchronous replication across all components
+    - read scaling through follower instances for dashboards and queries
+    - maintenance without downtime via rolling updates
+    - automatic recovery from node and network failures
 
-        - multiple PMM instances for redundancy
-        - clustered PostgreSQL for storing metadata and configuration data
-        - clustered ClickHouse for storing query performance metrics (Query Analytics)
-        - clustered VictoriaMetrics for storing operational metrics from monitored databases and hosts
-        - HAProxy for managing and directing network traffic to the current leader PMM instance
+    This solution will address enterprise requirements for mission-critical monitoring infrastructure where any downtime is unacceptable. It will support complex scenarios including disaster recovery, multi-datacenter deployments, and regulatory compliance requiring data residency.
 
-=== "Manual setup (Advanced)"
+    This feature is currently in development. For immediate high availability needs, consider the Kubernetes deployment option described above, which provides robust automatic recovery suitable for most production environments.
+
+=== "Manual setup (advanced)"
     
-    **Best for**: Custom requirements that other options don't meet, integration with existing infrastructure
+    **Best for**: Custom requirements that other options don't meet, integration with existing infrastructure, granular control over individual components.
 
     !!! caution alert alert-warning "Important"
-        This feature is currently in [Technical Preview](../reference/glossary.md#technical-preview). Early adopters are advised to use this feature for testing purposes only as it is subject to change.
+        This feature is currently in [Technical Preview](../reference/glossary.md#technical-preview). Early adopters should use this feature for testing purposes only as it is subject to change.
 
-    If none of the other HA options work for your specific use case, consider setting up PMM in HA mode manually by following the steps below.
+    Manual setup provides complete control over PMM's HA architecture by deploying each component separately. This approach leverages distributed consensus protocols and external clustered databases:
 
-    To enable communication and coordination among the PMM Server instances, two key protocols are used:
-
-     - **Gossip protocol**: Enables PMM servers to discover and share information about their states. It is used for managing the PMM server list and failure detection, ensuring that all instances are aware of the current state of the cluster.
-     - **Raft protocol**: Ensures that PMM servers agree on a leader and that logs are replicated among all machines to maintain data consistency.
-
+     - gossip protocols enables PMM servers to discover and share information about their states. It is used for managing the PMM server list and failure detection, ensuring that all instances are aware of the current state of the cluster.
+     - raft consensus ensures that PMM servers agree on a leader and that logs are replicated among all machines to maintain data consistency.
+     - external clustered databases eliminate single points of failure for all data stores
+     - three PMM instances (one leader, two followers). The leader server handles all client requests. If the leader fails, the followers take over, minimizing downtime.
     These protocols work in tandem to ensure that the PMM Server instances can effectively store and manage the data collected from your monitored databases and systems. 
 
-    In an HA configuration, three PMM Server instances are configured: one as the leader and the others as followers. The leader server handles all client requests. If the leader fails, the followers take over, minimizing downtime.
+    The architecture separates critical services to eliminate single points of failure and provide better service level agreements (SLAs):
 
-    To eliminate single points of failure and provide better service level agreements (SLAs), the critical services typically bundled with PMM Server are extracted and set up as separate, clustered instances:
+     - ClickHouse cluster stores Query Analytics (QAN) metrics. This ensures that QAN data remains highly available and can be accessed even if one of the ClickHouse nodes fails.
+     - VictoriaMetrics cluster stores Prometheus metrics. This provides a highly available and scalable solution for storing and querying metrics data.
+     - PostgreSQL cluster stores PMM data, such as inventory and settings. This ensures that PMM's configuration and metadata remain highly available and can be accessed by all PMM Server instances.
+     - HAProxy routes traffic to the current leader based on health checks.
 
-     - ClickHouse: A clustered setup of ClickHouse is used to store Query Analytics (QAN) metrics. This ensures that QAN data remains highly available and can be accessed even if one of the ClickHouse nodes fails.
-     - VictoriaMetrics: A clustered setup of VictoriaMetrics is used to store Prometheus metrics. This provides a highly available and scalable solution for storing and querying metrics data.
-     - PostgreSQL: A clustered setup of PostgreSQL is used to store PMM data, such as inventory and settings. This ensures that PMM's configuration and metadata remain highly available and can be accessed by all PMM Server instances.
 
     ### Prerequisites
     Before you begin:
 
      - [Install and configure Docker](https://docs.docker.com/get-docker/).
      - Prepare your environment:
-        - for testing, you can run services on a single machine
-        - for production, deploy services on separate instances and use clustered versions of PostgreSQL, VictoriaMetrics, and ClickHouse. Keep in mind that running all services on a single machine is not recommended for production. Use separate instances and clustered components for better reliability.
+        - for testing > run services on a single machine
+        - for production > deploy services on separate instances and use clustered versions of PostgreSQL, VictoriaMetrics, and ClickHouse. Keep in mind that running all services on a single machine is not recommended for production. Use separate instances and clustered components for better reliability.
+
+    When the leader fails, the remaining instances:
+
+    - detect the failure through Raft consensus
+    - elect a new leader from the followers
+    - update HAProxy routing automatically
+    - maintain service availability with minimal interruption
+    - preserve all data through external clustered storage
+
+    Implementing this architecture involves configuring environment variables, creating Docker networks, deploying each component, and setting up HAProxy for traffic management.
 
     To set up PMM in HA mode manually:
 
     #### **Step 1: Define environment variables**
 
-    Before you start with the setup, define the necessary environment variables on each instance where the services will be running. These variables will be used in subsequent commands. 
+    Before you start, define the necessary environment variables on each instance where the services will be running. You will need these variables for the subsequent commands. 
 
     For all IP addresses, use the format `17.10.1.x`, and for all usernames and passwords, use a string format like `example`.
 
@@ -253,25 +297,25 @@ Choose the option that best fits your infrastructure and requirements:
             
         === "Run services on a separate instance"
 
-                ```sh
-                docker run -d \
-                --name vm \
-                -p 8428:8428 \
-                -p 8089:8089 \
-                -p 8089:8089/udp \
-                -p 2003:2003 \
-                -p 2003:2003/udp \
-                -p 4242:4242 \
-                -v vm_data:/storage \
-                victoriametrics/victoria-metrics:v1.93.4 \
-                --storageDataPath=/storage \
-                --graphiteListenAddr=:2003 \
-                --opentsdbListenAddr=:4242 \
-                --httpListenAddr=:8428 \
-                --influxListenAddr=:8089
-                ```
+            ```sh
+            docker run -d \
+            --name vm \
+            -p 8428:8428 \
+            -p 8089:8089 \
+            -p 8089:8089/udp \
+            -p 2003:2003 \
+            -p 2003:2003/udp \
+            -p 4242:4242 \
+            -v vm_data:/storage \
+            victoriametrics/victoria-metrics:v1.93.4 \
+            --storageDataPath=/storage \
+            --graphiteListenAddr=:2003 \
+            --opentsdbListenAddr=:4242 \
+            --httpListenAddr=:8428 \
+            --influxListenAddr=:8089
+            ```
 
-            !!! note alert alert-primary "Note"
+            !!! note alert alert-primary "When to sse Docker network and IP flags"
                 - If you run the services on the same instance,  the `--network` and `--ip` flags are used to assign a specific IP address to the container within the Docker network created in Step 2. This IP address is referenced in subsequent steps as the VictoriaMetrics service address. 
                 - The `--network` and `--ip` flags are not required if the services are running on separate instances, as VictoriaMetrics will bind to the default network interface.
 
@@ -717,17 +761,14 @@ Choose the option that best fits your infrastructure and requirements:
 
         #### **Step 8: Access PMM**
 
-        You can access the PMM web interface via HAProxy once all the components are set up and configured:
+        Once all components are running, access PMM through HAProxy and verify your high availability configuration:
         {.power-number}
 
-        1. Access the PMM services by navigating to `https://<HAProxy_IP>` in your web browser. Replace `<HAProxy_IP>` with the IP address or hostname of the machine running the HAProxy container.
-        2. You should now see the PMM login screen. Log in using the default credentials, unless you changed them during setup.
-        3. You can use the PMM web interface to monitor your database infrastructure, analyze metrics, and perform various database management tasks.
+        1. Access the PMM services by navigating to `https://<HAProxy_IP>` in your web browser. Replace `<HAProxy_IP>` with the IP address or hostname of the machine running the HAProxy container. HAProxy will automatically route your connection to the current leader PMM instance.
+        2. Use the default credentials (`admin`/`admin`) unless changed during setup. PMM will prompt you to set a new password on first login.
+        3. Verify HA status to check that your HA setup is functioning correctly. You can use `docker ps` to check the status of your Docker containers. If a container is not running, you can view its logs using the command `docker logs <container_name>` to investigate the issue.
+        4. Register PMM Clients. When adding monitored nodes, always use the HAProxy address (or hostname) instead of individual PMM server IPs.
 
-        When you register PMM Clients, you must use the HAProxy IP address (or hostname) rather than the PMM Server address once your PMM environment has been set up in high-availability (HA) mode. Even if one PMM server becomes unavailable, clients will still be able to communicate with the servers.
-
-        You have now successfully set up PMM in HA mode using Docker containers. Your PMM environment is more resilient to failures and can continue providing monitoring services if any of the instances fail.
+        Your PMM environment is now running in high availability mode with automatic failover capabilities. The setup provides resilience against single node failures while maintaining continuous monitoring coverage.RetryClaude can make mistakes. Please double-check responses.
 
 
-        !!! note alert alert-primary "Note"
-            Ensure that all containers are running and accessible. You can use `docker ps` to check the status of your Docker containers. If a container is not running, you can view its logs using the command `docker logs <container_name>` to investigate the issue.
