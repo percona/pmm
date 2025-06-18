@@ -46,7 +46,7 @@ source "hcloud" "jenkins-agent" {
   location      = var.location
   server_type   = "ccx23"   # 4 dedicated vCPUs, 16GB RAM - Intel-based (matches AWS t3.xlarge)
   ssh_username  = "root"
-  snapshot_name = "Docker Agent v3 Hetzner"
+  snapshot_name = "Docker Agent v3 Hetzner ${local.timestamp}"
   snapshot_labels = {
     type                    = "jenkins-agent"
     arch                    = "x86_64"
@@ -63,10 +63,10 @@ source "hcloud" "jenkins-agent" {
 source "hcloud" "jenkins-agent-arm" {
   token         = var.hcloud_token
   image         = "rocky-9" # Using Rocky Linux 9 as Oracle Linux not available on Hetzner
-  location      = "fsn1"
+  location      = var.location
   server_type   = "cax31" # 8 vCPUs ARM, 16GB RAM - Best ARM option (AWS t4g.xlarge has 4 vCPUs)
   ssh_username  = "root"
-  snapshot_name = "Docker Agent ARM v3 Hetzner"
+  snapshot_name = "Docker Agent ARM v3 Hetzner ${local.timestamp}"
   snapshot_labels = {
     type                    = "jenkins-agent"
     arch                    = "arm64"
@@ -90,10 +90,11 @@ build {
   provisioner "ansible" {
     use_proxy        = false
     user             = "root"
-    ansible_env_vars = ["ANSIBLE_NOCOLOR=True"]
+    ansible_env_vars = ["ANSIBLE_NOCOLOR=True", "CLOUD_PROVIDER=hetzner"]
     extra_arguments = [
-      "--ssh-extra-args", "-o HostKeyAlgorithms=+ssh-rsa -o StrictHostKeyChecking=no -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null", "-vvv"
+      "--ssh-extra-args", "-o HostKeyAlgorithms=+ssh-rsa -o StrictHostKeyChecking=no -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null", "-vvv",
+      "-e", "cloud_provider=hetzner"
     ]
-    playbook_file = "./ansible/agent-hetzner.yml"
+    playbook_file = "./ansible/agent-aws-hetzner.yml"
   }
 }
