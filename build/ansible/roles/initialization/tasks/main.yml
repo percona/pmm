@@ -121,16 +121,10 @@
           path: "/srv/ai-chat/data/.auth_secret"
         register: auth_secret_file
 
-      - name: Check if npx is available
-        command: npx --version
-        register: npx_available
-        ignore_errors: yes
-        when: not auth_secret_file.stat.exists
-
       - name: Generate BETTER_AUTH_SECRET using better-auth CLI
         shell: npx @better-auth/cli@latest secret
         register: generated_auth_secret
-        when: not auth_secret_file.stat.exists and npx_available.rc == 0
+        when: not auth_secret_file.stat.exists
 
       - name: Read existing BETTER_AUTH_SECRET
         slurp:
