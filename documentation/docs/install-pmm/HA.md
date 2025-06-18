@@ -60,9 +60,6 @@ Choose the option that best fits your infrastructure and requirements:
 
    For deployment instructions, see [Install PMM Server with Docker](../install-pmm/install-pmm-server/deployment-options/docker/index.md).
 
-
-
-
 === "Kubernetes (production)"
    **Best for**: Production environments, cloud-native architectures, teams with existing Kubernetes infrastructure
 
@@ -98,9 +95,7 @@ Choose the option that best fits your infrastructure and requirements:
 
    For deployment instructions, see [Install PMM Server with Helm on Kubernetes clusters](../install-pmm/install-pmm-server/deployment-options/helm/index.md).
 
-
 === "Clustered (future)"
-
 
    **Best for**: Large enterprises, geographically distributed teams, maximum resilience requirements.
 
@@ -133,7 +128,6 @@ Choose the option that best fits your infrastructure and requirements:
 
    This feature is currently in development. For immediate high availability needs, consider the Kubernetes deployment option described above, which provides robust automatic recovery suitable for most production environments.
 
-
 === "Manual setup (advanced)"
   
    **Best for**: Custom requirements that other options don't meet, integration with existing infrastructure, granular control over individual components.
@@ -155,27 +149,21 @@ Choose the option that best fits your infrastructure and requirements:
 
    The architecture separates critical services to eliminate single points of failure and provide better service level agreements (SLAs):
 
-
-    - ClickHouse cluster stores Query Analytics (QAN) metrics. This ensures that QAN data remains highly available and can be accessed even if one of the ClickHouse nodes fails.
-    - VictoriaMetrics cluster stores Prometheus metrics. This provides a highly available and scalable solution for storing and querying metrics data.
-    - PostgreSQL cluster stores PMM data, such as inventory and settings. This ensures that PMM's configuration and metadata remain highly available and can be accessed by all PMM Server instances.
-    - HAProxy routes traffic to the current leader based on health checks.
-
+        - ClickHouse cluster stores Query Analytics (QAN) metrics. This ensures that QAN data remains highly available and can be accessed even if one of the ClickHouse nodes fails.
+        - VictoriaMetrics cluster stores Prometheus metrics. This provides a highly available and scalable solution for storing and querying metrics data.
+        - PostgreSQL cluster stores PMM data, such as inventory and settings. This ensures that PMM's configuration and metadata remain highly available and can be accessed by all PMM Server instances.
+        - HAProxy routes traffic to the current leader based on health checks.
 
 
+    ### Prerequisites
+    Before you begin:
 
-   ### Prerequisites
-   Before you begin:
-
-
-    - [Install and configure Docker](https://docs.docker.com/get-docker/).
-    - Prepare your environment:
-       - for testing > run services on a single machine
-       - for production > deploy services on separate instances and use clustered versions of PostgreSQL, VictoriaMetrics, and ClickHouse. Keep in mind that running all services on a single machine is not recommended for production. Use separate instances and clustered components for better reliability.
-
+     - [Install and configure Docker](https://docs.docker.com/get-docker/).
+        - Prepare your environment:
+         - for testing > run services on a single machine
+         - for production > deploy services on separate instances and use clustered versions of PostgreSQL, VictoriaMetrics, and ClickHouse. Keep in mind that running all services on a single machine is not recommended for production. Use separate instances and clustered components for better reliability.
 
    When the leader fails, the remaining instances:
-
 
    - detect the failure through Raft consensus
    - elect a new leader from the followers
@@ -183,21 +171,15 @@ Choose the option that best fits your infrastructure and requirements:
    - maintain service availability with minimal interruption
    - preserve all data through external clustered storage
 
-
    Implementing this architecture involves configuring environment variables, creating Docker networks, deploying each component, and setting up HAProxy for traffic management.
-
 
    To set up PMM in HA mode manually:
 
-
    #### **Step 1: Define environment variables**
-
 
    Before you start, define the necessary environment variables on each instance where the services will be running. You will need these variables for the subsequent commands.
 
-
    For all IP addresses, use the format `17.10.1.x`, and for all usernames and passwords, use a string format like `example`.
-
 
    | **Variable**        | **Description**
    | ------------------------------------------------| -------------------------------------------------------------------------------------------------------------------------------
@@ -236,25 +218,19 @@ Choose the option that best fits your infrastructure and requirements:
        export PMM_DOCKER_IMAGE=percona/pmm-server:3
        ```
 
-
    #### **Step 2: Create Docker network (Optional)**
    Create a dedicated network if you plan to run multiple PMM services on the same instance. This ensures proper communication between containers, especially for High Availability mode.
    {.power-number}
 
-
    1. Set up a Docker network for PMM services if you plan to run all the services on the same instance. As a result of this Docker network, your containers will be able to communicate with each other, which is essential for the High Availability (HA) mode to function properly in PMM. This step may be optional if you run your services on separate instances.
 
-
    2. Run the following command to create a Docker network:
-
 
        ```sh
        docker network create pmm-network --subnet=17.10.1.0/16
        ```
 
-
    #### **Step 3: Set up ClickHouse**
-
 
    ClickHouse is an open-source column-oriented database management system. In PMM, ClickHouse stores Query Analytics (QAN) metrics, which provide detailed information about your queries.
 
@@ -262,28 +238,21 @@ Choose the option that best fits your infrastructure and requirements:
    To set up ClickHouse:
    {.power-number}
 
-
    1. Pull the ClickHouse Docker image:
-
 
        ```sh
        docker pull clickhouse/clickhouse-server:23.8.2.7-alpine
        ```
 
-
    2. Create a Docker volume for ClickHouse data:
-
 
        ```sh
        docker volume create ch_data
        ```
 
-
    3. Run the ClickHouse container:
 
-
        === "Run services on the same instance"
-
 
            ```sh
            docker run -d \
@@ -299,7 +268,6 @@ Choose the option that best fits your infrastructure and requirements:
           
        === "Run services on a separate instance"
 
-
            ```sh
            docker run -d \
            --name ch \
@@ -307,40 +275,31 @@ Choose the option that best fits your infrastructure and requirements:
            -v ch_data:/var/lib/clickhouse \
            clickhouse/clickhouse-server:23.8.2.7-alpine
            ```
-          
+        
            When running on separate instances, ClickHouse binds to the default network interface.
-
 
    #### **Step 4: Set up VictoriaMetrics**
 
-
    VictoriaMetrics provides a long-term storage solution for your time-series data. In PMM, it is used to store Prometheus metrics.
-
 
    To set up VictoriaMetrics:
    {.power-number}
 
-
    1. Pull the VictoriaMetrics Docker image:
-
 
        ```sh
        docker pull victoriametrics/victoria-metrics:v1.93.4
        ```
 
-
    2. Create a Docker volume for VictoriaMetrics data:
-
 
        ```sh
        docker volume create vm_data
        ```
 
-
    3. Run the VictoriaMetrics container:
           
        === "Run services on the same instance"
-
 
            ```sh
            docker run -d \
@@ -366,7 +325,6 @@ Choose the option that best fits your infrastructure and requirements:
           
        === "Run services on a separate instance"
 
-
            ```sh
            docker run -d \
            --name vm \
@@ -387,19 +345,14 @@ Choose the option that best fits your infrastructure and requirements:
           
            When running on separate instances, VictoriaMetrics binds to the default network interface.
 
-
    #### **Step 5: Set up PostgreSQL**
 
-
    PostgreSQL is a powerful, open-source object-relational database system. PMM uses it to store data related to inventory, settings, and other features.
-
 
    To set up PostgreSQL:
    {.power-number}
 
-
    1. Pull the PostgreSQL Docker image:
-
 
        ```sh
        docker pull postgres:14
@@ -434,7 +387,6 @@ Choose the option that best fits your infrastructure and requirements:
        CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
        ```
 
-
    5. Use **`sed`** to replace the placeholders with the environment variables and write the output to **`init.sql`**:
       
        ```bash
@@ -447,9 +399,7 @@ Choose the option that best fits your infrastructure and requirements:
       
    6. Run the PostgreSQL container based on your deployment architecture:
 
-
        === "Run services on the same instance"
-
 
            ```sh
            docker run -d \
@@ -465,7 +415,6 @@ Choose the option that best fits your infrastructure and requirements:
            ```
           
            The `--network` and `--ip` flags assign a specific IP address within the Docker network created in Step 2.
-
 
        === "Run services on a separate instance"
       
@@ -488,19 +437,12 @@ Choose the option that best fits your infrastructure and requirements:
            - The init SQL file in `/docker-entrypoint-initdb.d` executes automatically on first container startup
            - Ensure the postgres user has read permissions on the mounted directory
 
-
    #### **Step 6: Running PMM services**
-
-
-   The PMM server orchestrates the collection, storage, and visualization of metrics. In our high-availability setup, we'll have one active PMM server and two passive PMM servers.
-
-
    !!! note alert alert-primary "Environment setup"
        Ensure environment variables from Step 1 are set on each instance where you run these commands.
 
-
+   The PMM server orchestrates the collection, storage, and visualization of metrics. In our high-availability setup, we'll have one active PMM server and two passive PMM servers.
    {.power-number}
-
 
    1. Pull the PMM Server Docker image:
       
@@ -519,7 +461,6 @@ Choose the option that best fits your infrastructure and requirements:
    3. Run the active PMM managed server. This server will serve as the primary monitoring server.
       
        === "Run services on same instance"
-
 
            ```sh
            docker run -d \
@@ -588,7 +529,6 @@ Choose the option that best fits your infrastructure and requirements:
    4. Run the first passive PMM-managed server. This server will act as a standby server, ready to take over if the active server fails.
       
        === "Run services on the same instance"
-
 
            ```sh
            docker run -d \
@@ -722,9 +662,7 @@ Choose the option that best fits your infrastructure and requirements:
       
        When running on separate instances, include `-p` port mappings and omit `--network` and `--ip` flags.
 
-
        #### **Step 7: Set up HAProxy**
-
 
   HAProxy provides high availability for your PMM setup by directing traffic to the current leader server via the `/v1/leaderHealthCheck` endpoint:
   {.power-number}  
@@ -762,7 +700,6 @@ Choose the option that best fits your infrastructure and requirements:
 
 
   5. Copy your SSL certificate and private key to the directory you created in step 2. Ensure that the certificate file is named `pmm.crt` and the private key file is named `pmm.key`.
-
 
       Concatenate these two files to create a PEM file:
      
@@ -831,8 +768,6 @@ Choose the option that best fits your infrastructure and requirements:
       ```
      
   9. Run the HAProxy container, using absolute paths for all volume mounts. If running services on separate instances, remove the `--network` flag:
-
-
      
       ```bash
       docker run -d \
@@ -849,24 +784,18 @@ Choose the option that best fits your infrastructure and requirements:
      
   HAProxy is now configured to redirect traffic to the leader PMM managed server. This ensures highly reliable service by redirecting requests to the remaining servers in the event that the leader server goes down.
 
-
   #### **Step 8: Access PMM and verify the setup**
-
 
    Once all components are running, access PMM through HAProxy and verify your high availability configuration:
    {.power-number}
   
    1. Access the PMM services by navigating to `https://<HAProxy_IP>` in your web browser. Replace `<HAProxy_IP>` with the IP address or hostname of the machine running the HAProxy container. HAProxy will automatically route your connection to the current leader PMM instance.
 
-
    2. Use the default credentials (`admin`/`admin`) unless changed during setup. PMM will prompt you to set a new password on your first login.
-
 
    3. Verify HA status to check that your HA setup is functioning correctly. You can use `docker ps` to check the status of your Docker containers. If a container is not running, you can view its logs using the command `docker logs <container_name>` to investigate the issue.
 
-
    4. Register PMM Clients. When adding monitored nodes, always use the HAProxy address (or hostname) instead of individual PMM server IPs.
-
 
    Your PMM environment is now running in high availability mode with automatic failover capabilities.
   
