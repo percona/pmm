@@ -13,7 +13,7 @@ require (
 	github.com/go-delve/delve v1.24.0
 	github.com/go-openapi/runtime v0.28.0
 	github.com/go-openapi/spec v0.21.0
-	github.com/go-swagger/go-swagger v0.31.0
+	github.com/go-swagger/go-swagger v0.32.3
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.0
 	github.com/jstemmer/go-junit-report v1.0.0
 	github.com/quasilyte/go-consistent v0.6.0
@@ -101,6 +101,7 @@ require (
 	github.com/go-toolsmith/astinfo v1.0.0 // indirect
 	github.com/go-toolsmith/pkgload v1.0.2-0.20220101231613-e814995d17c5 // indirect
 	github.com/go-toolsmith/typep v1.0.2 // indirect
+	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/gofrs/flock v0.12.1 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
