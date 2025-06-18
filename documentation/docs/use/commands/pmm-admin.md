@@ -1,8 +1,6 @@
-# pmm-admin - PMM Administration Tool
+# pmm-admin - PMM administration tool
 
-`pmm-admin` is a command-line tool for administering PMM using a set of COMMAND keywords and associated FLAGS.
-
-PMM communicates with the PMM Server via a PMM agent process.
+`pmm-admin` is a command-line tool for administering PMM using a set of COMMAND keywords and associated FLAGS. It communicates directly with the PMM Server.
 
 ## Synopsis
 
@@ -19,8 +17,6 @@ DATABASE:= [MongoDB|MySQL|PostgreSQL|ProxySQL](#database-commands)
 `pmm-admin add haproxy [FLAGS] [NAME]`
 
 `pmm-admin add external [FLAGS] [NAME] [ADDRESS]`
-
-`--tls-skip-verify`
 
 `pmm-admin add external-serverless [FLAGS] [NAME] [ADDRESS]`
 
