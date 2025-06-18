@@ -14,16 +14,9 @@ extract_source_tarball() {
 
 get_arch_name() {
     case "$(uname -m)" in
-        x86_64)
-            echo "amd64"
-            ;;
-        aarch64)
-            echo "arm64"
-            ;;
-        *)
-            echo "Unsupported architecture: $(uname -m)" >&2
-            exit 1
-            ;;
+        x86_64) echo "amd64";;
+        aarch64) echo "arm64";;
+        *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1;;
     esac
 }
 
@@ -120,10 +113,10 @@ copy_component() {
     cp -r ${component_dir}/${component_path} ${binary_dir}/${component_dest}
 }
 
-# S3 cache helpers for nomad and vmagent
-build_third_party_with_cache() {
-    local component=$1
-    local commit_hash=$2
+# Build external components, i.e. nomad and vmagent
+build_third_party() {
+    local component="$1"
+    local commit_hash="$2"
     local arch_name
     arch_name=$(get_arch_name)
     local short_commit=${commit_hash:0:7}
@@ -143,7 +136,7 @@ build_third_party_with_cache() {
     fi
 
     # Build if not found
-    gobuild_component "$component" "${@:3}"
+    gobuild_component "$component" "" "${@:3}"
 
     # Upload to S3
     if [ -f "$dest_bin" ]; then
@@ -156,11 +149,8 @@ build_third_party_with_cache() {
 main() {
     extract_source_tarball
 
-    # vmagent with S3 cache
-    build_third_party_with_cache "vmagent" "${vmagent_commit_hash}" "" "github.com/VictoriaMetrics/VictoriaMetrics" "app/vmagent"
-
-    # nomad with S3 cache
-    build_third_party_with_cache "nomad" "${nomad_commit_hash}" "" "github.com/hashicorp/nomad"
+    build_third_party "vmagent" "${vmagent_commit_hash}" "github.com/VictoriaMetrics/VictoriaMetrics" "app/vmagent"
+    build_third_party "nomad" "${nomad_commit_hash}" "github.com/hashicorp/nomad"
 
     gobuild_component "node_exporter" "" "github.com/prometheus/node_exporter"
     gobuild_component "mysqld_exporter"
