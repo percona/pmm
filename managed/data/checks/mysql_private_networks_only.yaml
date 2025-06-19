@@ -1,0 +1,57 @@
+---
+checks:
+  - version: 1
+    name: mysql_private_networks_only
+    summary: MySQL Users With Granted Public Networks Access
+    description: Notifies about MySQL accounts currently allowed to connect from public networks.
+    type: MYSQL_SELECT
+    #family: MYSQL
+    advisor: security_connection
+    interval: standard
+    query: ' * FROM mysql.user'
+    script: |
+      def check(rows):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(rows, context)
+
+
+      def check_context(rows, context):
+         """
+         This check returns a notice if MySQL accounts are allowed to be used from public networks
+         """
+
+         func = context.get("ip_is_private", fail)
+         users = []
+
+         # case is different in different versions of MySQL and MariaDB
+         for row in rows:
+             host = row.get("host") or row.get("Host")
+             if host == "localhost" or func(host):
+                 continue
+
+             user = row.get("user") or row.get("User")
+             user += "@"
+             user += host
+             users.append(user)
+
+         count = len(users)
+         if count:
+             desc = "account is"
+             if count > 1:
+                 desc = "{} accounts are".format(count)
+
+             return [{
+                 "summary": "The following {} allowed to be connected from public networks".format(desc),
+                 "description": " {}".format(users),
+                 "read_more_url": "https://dev.mysql.com/doc/refman/8.0/en/request-access.html",
+                 "severity": "notice",
+                 "labels": {
+                     "count": str(count),
+                 },
+             }]
+
+         return []

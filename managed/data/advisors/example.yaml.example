@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: example
+    summary: Example advisor
+    description: Advisor that gives awesome advises.
+    category: security

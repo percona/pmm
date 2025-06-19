@@ -1,0 +1,34 @@
+---
+checks:
+  - version: 2
+    name: mysql_configuration_innodb_file_per_table_not_enabled
+    summary: innodb_file_per_table not enabled
+    description: innodb_file_per_table not enabled
+    interval: standard
+    advisor: configuration_innodb
+    #subcategory: performance
+    #author:Kedar Vaijanapurkar
+    family: MYSQL
+    category: configuration
+    queries:
+      - type: MYSQL_SELECT
+        query: "@@global.innodb_file_per_table as innodb_file_per_table, @@global.version as version, @@global.hostname as service"
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def check_context(docs, context):
+           results = []
+           for row in docs[0]:
+               version = row["version"]
+               service = row["service"]
+               if row["innodb_file_per_table"] == 'OFF':
+                  results.append({
+                       "summary": "MySQL innodb_file_per_table check",
+                       "description": "MySQL innodb_file_per_table is {}. Recommended and default since 5.6.6 is ON.".format(row["innodb_file_per_table"]),
+                       "read_more_url": read_url.format('mysql_configuration_innodb_file_per_table_not_enabled'),
+                       "labels": {
+                           "mysql_version": "{}".format(version),
+                           "service": "{}".format(service),
+                       },
+                       "severity": "warning"
+                   })
+           return results

@@ -178,7 +178,6 @@ templates:
   - name: template_with_missing_param_1
     version: 1
     summary: Template with missing param 1
-    tiers: [anonymous, registered]
     expr: |-
       max_over_time(mysql_global_status_threads_connected[5m]) / ignoring (job)
       mysql_global_variables_max_connections
@@ -228,7 +227,6 @@ templates:
   - name: valid_template_1
     version: 1
     summary: Valid template 1
-    tiers: [anonymous, registered]
     expr: |-
       max_over_time(mysql_global_status_threads_connected[5m]) / ignoring (job)
       mysql_global_variables_max_connections
@@ -271,7 +269,6 @@ templates:
   - name: valid_template_1
     version: 1
     summary: Actually this template isn't valid because of missing threshold param :) 
-    tiers: [anonymous, registered]
     expr: |-
       max_over_time(mysql_global_status_threads_connected[5m]) / ignoring (job)
       mysql_global_variables_max_connections

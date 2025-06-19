@@ -1,0 +1,55 @@
+---
+checks:
+  - version: 2
+    name: mysql_tables_without_pk
+    summary: MySQL check for table without Primary Key
+    description: Checks tables without primary keys.
+    interval: standard
+    family: MYSQL
+    #author:tibi/the grinch
+    advisor: query_index
+    queries:
+      - type: MYSQL_SELECT
+        query: |
+          tables.table_schema, tables.table_name, tables.table_rows
+            FROM information_schema.tables
+            LEFT JOIN (
+              SELECT table_schema, table_name
+              FROM information_schema.statistics
+              GROUP BY table_schema, table_name, index_name
+              HAVING
+                SUM(
+                  CASE WHEN non_unique = 0 AND nullable != 'YES' THEN 1 ELSE 0 END
+                ) = COUNT(*)
+            ) puks
+            ON tables.table_schema = puks.table_schema AND tables.table_name = puks.table_name
+            WHERE puks.table_name IS NULL
+              AND tables.table_schema NOT IN ('mysql', 'information_schema', 'performance_schema', 'sys')
+              AND tables.table_type = 'BASE TABLE' AND engine='InnoDB'
+    script: |
+      def check_context(docs, context):
+          # `docs` is a frozen (deeply immutable) list where each item represents single query results. The order of results
+          # matches the order of queries in the check file. Each query result is list of dicts where where each dict represents
+          # a single document in the result set.
+          #
+          # `context` is a dict with additional functions.
+          #
+          # Global `print` and `fail` functions are available.
+          #
+          # `check_context` function is expected to return a list of dicts that are then converted to alerts;
+          # in particular, that list can be empty.
+          # Any other value (for example, string) is treated as script execution failure
+          # (Starlark does not support Python exceptions);
+          # it is recommended to use global function `fail` for that instead.
+           results = []
+           read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+           for row in docs[0]:
+               TABLE_SCHEMA, TABLE_NAME, TABLE_ROWS = row["TABLE_SCHEMA"], row["TABLE_NAME"], row["TABLE_ROWS"]
+               results.append({
+                   "summary": "Table {}.{} does not have a Primary Key.".format(TABLE_SCHEMA,TABLE_NAME),
+                   "description": "Table {}.{} does not have a Primary Key.".format(TABLE_SCHEMA,TABLE_NAME),
+                   "read_more_url":read_url.format("tables-found-without-primary-keys"),
+                   "severity": "warning",
+                   "labels": {},
+               })
+           return results

@@ -1,0 +1,47 @@
+---
+checks:
+  - version: 2
+    name: mysql_config_sql_mode
+    summary: Server is not configured to enforce data integrity
+    description: In order for maximum data integrity to be set, the server should have specific values configured in sql_mode.
+    interval: standard
+    advisor: configuration_generic
+    #author: The Grinch
+    family: MYSQL
+    queries:
+      - type: MYSQL_SELECT
+        query: " @@global.sql_mode as sql_mode, @@version version,@@hostname service;"
+    script: |
+      def check_sql_mode(doc,read_url):
+          for row in doc:
+             sql_mode = row["sql_mode"]
+             version = row["version"]
+             service = row["service"]
+             sql_mode_list = sql_mode.split(',')
+             desired_list = ['TRADITIONAL', 'STRICT_ALL_TABLES', 'STRICT_TRANS_TABLES']
+             missing_list = []
+             for desired_item in desired_list:
+                if desired_item not in sql_mode_list:
+                    missing_list.append(desired_item)
+             if len(missing_list) > 0:
+              return {
+                  "summary": "Server is not configured to enforce data integrity",
+                  "description": "In order for maximum data integrity to be set, the server should have {} configured in sql_mode. From these {} are missing.".format(', '.join(desired_list), ', '.join(missing_list)),
+                  "severity": "warning",
+                  "read_more_url": read_url.format("configuration-check-sql-mode"),
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  }
+              }
+
+      def check_context(docs, context):
+          # we first define some global variables
+          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          results = []
+
+          in_result = check_sql_mode(docs[0],read_url)
+          if in_result:
+            results.append(in_result)
+
+          return results
