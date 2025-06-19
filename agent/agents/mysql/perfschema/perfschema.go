@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer" // register SQL driver
@@ -360,6 +361,14 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 					}
 					b.Common.Comments = comments
 				}
+			}
+		} else {
+			if !strings.Contains(b.Common.Fingerprint, "?") {
+				b.Common.Example = b.Common.Fingerprint
+				b.Common.ExampleType = agentv1.ExampleType_EXAMPLE_TYPE_RANDOM
+
+				b.Common.ExplainFingerprint = b.Common.Fingerprint
+				b.Common.PlaceholdersCount = 0
 			}
 		}
 		buckets[i] = b

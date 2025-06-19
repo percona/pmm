@@ -49,7 +49,7 @@ func getHistory(q *reform.Querier, long *bool) (historyMap, error) {
 	if long != nil && *long {
 		view = eventsStatementsHistoryLongView
 	}
-	rows, err := q.SelectRows(view, "WHERE DIGEST IS NOT NULL AND SQL_TEXT IS NOT NULL")
+	rows, err := q.SelectRows(view, "WHERE DIGEST IS NOT NULL AND SQL_TEXT IS NOT NULL AND DIGEST_TEXT IS NOT NULL")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to query events_statements_history")
 	}
