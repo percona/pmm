@@ -21,6 +21,8 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -196,7 +198,6 @@ func (m *PerfSchema) Run(ctx context.Context) {
 
 	// add current summaries to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
-	var err error
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 	if s, err := getSummaries(m.q); err == nil {
@@ -205,9 +206,7 @@ func (m *PerfSchema) Run(ctx context.Context) {
 			running = true
 			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 		}
-	}
 
-	if err != nil {
 		m.l.Error(err)
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 	}
@@ -259,7 +258,17 @@ func (m *PerfSchema) Run(ctx context.Context) {
 }
 
 func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
-	t := time.NewTicker(refreshHistory)
+	interval := refreshHistory
+	if value := os.Getenv("PMM_PROFILER_REFRESH_RATE"); value != "" {
+		num, err := strconv.Atoi(value)
+		if err != nil {
+			m.l.Error("PMM_PROFILER_REFRESH_RATE is not number")
+		}
+
+		interval = time.Duration(num) * time.Second
+	}
+	m.l.Debugf("profiler refresh rate is set to %d seconds", interval)
+	t := time.NewTicker(interval)
 	defer t.Stop()
 
 	for {
