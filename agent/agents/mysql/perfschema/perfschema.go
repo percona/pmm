@@ -198,15 +198,17 @@ func (m *PerfSchema) Run(ctx context.Context) {
 
 	// add current summaries to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
+	var s summaryMap
+	var err error
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
-
-	if s, err := getSummaries(m.q); err == nil {
+	if s, err = getSummaries(m.q); err == nil {
 		if err = m.summaryCache.Set(s); err == nil {
 			m.l.Debugf("Got %d initial summaries.", len(s))
 			running = true
 			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 		}
-
+	}
+	if err != nil {
 		m.l.Error(err)
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 	}
