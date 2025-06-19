@@ -259,15 +259,15 @@ func (m *PerfSchema) Run(ctx context.Context) {
 
 func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
 	interval := refreshHistory
-	if value := os.Getenv("PMM_PROFILER_REFRESH_RATE"); value != "" {
+	if value := os.Getenv("PMM_PERFSCHEMA_REFRESH_RATE"); value != "" {
 		num, err := strconv.Atoi(value)
 		if err != nil {
-			m.l.Error("PMM_PROFILER_REFRESH_RATE is not number")
+			m.l.Error("PMM_PERFSCHEMA_REFRESH_RATE is not number")
+		} else {
+			interval = time.Duration(num) * time.Second
 		}
-
-		interval = time.Duration(num) * time.Second
 	}
-	m.l.Debugf("profiler refresh rate is set to %d seconds", interval)
+	m.l.Debugf("perfschema refresh rate is set to %f seconds", interval.Seconds())
 	t := time.NewTicker(interval)
 	defer t.Stop()
 
