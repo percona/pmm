@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer" // register SQL driver
@@ -69,6 +70,7 @@ type PerfSchema struct {
 	historyCache           *historyCache
 	summaryCache           *summaryCache
 	useLong                *bool
+	perfschemaRefreshRate  uint16
 }
 
 // Params represent Agent parameters.
@@ -80,6 +82,7 @@ type Params struct {
 	DisableQueryExamples   bool
 	TextFiles              *agentv1.TextFiles
 	TLSSkipVerify          bool
+	PerfschemaRefreshRate  uint16
 }
 
 // newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema.
@@ -91,6 +94,7 @@ type newPerfSchemaParams struct {
 	MaxQueryLength         int32
 	DisableQueryExamples   bool
 	LogEntry               *logrus.Entry
+	PerfschemaRefreshRate  uint16
 }
 
 const queryTag = "agent='perfschema'"
@@ -155,6 +159,7 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 		DisableCommentsParsing: params.DisableCommentsParsing,
 		MaxQueryLength:         params.MaxQueryLength,
 		DisableQueryExamples:   params.DisableQueryExamples,
+		PerfschemaRefreshRate:  params.PerfschemaRefreshRate,
 		LogEntry:               l,
 	}
 	return newPerfSchema(newParams)
@@ -182,6 +187,7 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 		changes:                make(chan agents.Change, 10),
 		historyCache:           historyCache,
 		summaryCache:           summaryCache,
+		perfschemaRefreshRate:  params.PerfschemaRefreshRate,
 	}, nil
 }
 
@@ -195,17 +201,16 @@ func (m *PerfSchema) Run(ctx context.Context) {
 
 	// add current summaries to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
+	var s summaryMap
 	var err error
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
-
-	if s, err := getSummaries(m.q); err == nil {
+	if s, err = getSummaries(m.q); err == nil {
 		if err = m.summaryCache.Set(s); err == nil {
 			m.l.Debugf("Got %d initial summaries.", len(s))
 			running = true
 			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 		}
 	}
-
 	if err != nil {
 		m.l.Error(err)
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
@@ -258,7 +263,12 @@ func (m *PerfSchema) Run(ctx context.Context) {
 }
 
 func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
-	t := time.NewTicker(refreshHistory)
+	interval := refreshHistory
+	if m.perfschemaRefreshRate != 0 {
+		interval = time.Duration(m.perfschemaRefreshRate) * time.Second
+	}
+	m.l.Debugf("perfschema refresh rate is set to %f seconds", interval.Seconds())
+	t := time.NewTicker(interval)
 	defer t.Stop()
 
 	for {
@@ -327,7 +337,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 		b.Common.PeriodLengthSecs = periodLengthSecs
 
 		//nolint:nestif
-		if esh := history[b.Common.Queryid]; esh != nil {
+		if esh := history[queryIDWithSchema(b.Common.Schema, b.Common.Queryid)]; esh != nil {
 			// TODO test if we really need that
 			// If we don't need it, we can avoid polling events_statements_history completely
 			// if query examples are disabled.
@@ -335,7 +345,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 				b.Common.Schema = pointer.GetString(esh.CurrentSchema)
 			}
 
-			if esh.SQLText != nil {
+			if esh.SQLText != nil && *esh.SQLText != "" {
 				explainFingerprint, placeholdersCount := queryparser.GetMySQLFingerprintPlaceholders(*esh.SQLText, *esh.DigestText)
 				explainFingerprint, truncated := truncate.Query(explainFingerprint, m.maxQueryLength, truncate.GetDefaultMaxQueryLength())
 				if truncated {
@@ -361,8 +371,13 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 					b.Common.Comments = comments
 				}
 			}
-		}
+		} else if !strings.Contains(b.Common.Fingerprint, "?") {
+			b.Common.Example = b.Common.Fingerprint
+			b.Common.ExampleType = agentv1.ExampleType_EXAMPLE_TYPE_RANDOM
 
+			b.Common.ExplainFingerprint = b.Common.Fingerprint
+			b.Common.PlaceholdersCount = 0
+		}
 		buckets[i] = b
 	}
 
