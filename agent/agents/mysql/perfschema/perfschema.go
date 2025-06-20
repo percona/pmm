@@ -21,8 +21,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -72,6 +70,7 @@ type PerfSchema struct {
 	historyCache           *historyCache
 	summaryCache           *summaryCache
 	useLong                *bool
+	perfschemaRefreshRate  uint16
 }
 
 // Params represent Agent parameters.
@@ -83,6 +82,7 @@ type Params struct {
 	DisableQueryExamples   bool
 	TextFiles              *agentv1.TextFiles
 	TLSSkipVerify          bool
+	PerfschemaRefreshRate  uint16
 }
 
 // newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema.
@@ -94,6 +94,7 @@ type newPerfSchemaParams struct {
 	MaxQueryLength         int32
 	DisableQueryExamples   bool
 	LogEntry               *logrus.Entry
+	PerfschemaRefreshRate  uint16
 }
 
 const queryTag = "agent='perfschema'"
@@ -158,6 +159,7 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 		DisableCommentsParsing: params.DisableCommentsParsing,
 		MaxQueryLength:         params.MaxQueryLength,
 		DisableQueryExamples:   params.DisableQueryExamples,
+		PerfschemaRefreshRate:  params.PerfschemaRefreshRate,
 		LogEntry:               l,
 	}
 	return newPerfSchema(newParams)
@@ -185,6 +187,7 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 		changes:                make(chan agents.Change, 10),
 		historyCache:           historyCache,
 		summaryCache:           summaryCache,
+		perfschemaRefreshRate:  params.PerfschemaRefreshRate,
 	}, nil
 }
 
@@ -261,13 +264,8 @@ func (m *PerfSchema) Run(ctx context.Context) {
 
 func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
 	interval := refreshHistory
-	if value := os.Getenv("PMM_PERFSCHEMA_REFRESH_RATE"); value != "" {
-		num, err := strconv.Atoi(value)
-		if err != nil {
-			m.l.Error("PMM_PERFSCHEMA_REFRESH_RATE is not number")
-		} else {
-			interval = time.Duration(num) * time.Second
-		}
+	if m.perfschemaRefreshRate != 0 {
+		interval = time.Duration(m.perfschemaRefreshRate) * time.Second
 	}
 	m.l.Debugf("perfschema refresh rate is set to %f seconds", interval.Seconds())
 	t := time.NewTicker(interval)
