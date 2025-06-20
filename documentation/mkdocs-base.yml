@@ -9,7 +9,7 @@ site_url: ""
 use_directory_urls: false
 repo_name: percona/pmm
 repo_url: https://github.com/percona/pmm/
-edit_uri: edit/v3/documentation/docs/
+edit_uri: edit/v3-doc-prod/documentation/docs/
 
 theme:
   name: material

@@ -3,7 +3,7 @@ name: PMM Docs 3.x
 on:
   push:
     branches:
-      - v3
+      - v3-doc-prod
     paths:
       - "documentation/**"
 
