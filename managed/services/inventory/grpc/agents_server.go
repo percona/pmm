@@ -99,6 +99,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 			res.ValkeyExporter = append(res.ValkeyExporter, agent)
 		case *inventoryv1.QANMongoDBProfilerAgent:
 			res.QanMongodbProfilerAgent = append(res.QanMongodbProfilerAgent, agent)
+		case *inventoryv1.QANMongoDBMongologAgent:
+			res.QanMongodbMongologAgent = append(res.QanMongodbMongologAgent, agent)
 		case *inventoryv1.ProxySQLExporter:
 			res.ProxysqlExporter = append(res.ProxysqlExporter, agent)
 		case *inventoryv1.QANPostgreSQLPgStatementsAgent:
@@ -149,6 +151,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		res.Agent = &inventoryv1.GetAgentResponse_ValkeyExporter{ValkeyExporter: agent}
 	case *inventoryv1.QANMongoDBProfilerAgent:
 		res.Agent = &inventoryv1.GetAgentResponse_QanMongodbProfilerAgent{QanMongodbProfilerAgent: agent}
+	case *inventoryv1.QANMongoDBMongologAgent:
+		res.Agent = &inventoryv1.GetAgentResponse_QanMongodbMongologAgent{QanMongodbMongologAgent: agent}
 	case *inventoryv1.ProxySQLExporter:
 		res.Agent = &inventoryv1.GetAgentResponse_ProxysqlExporter{ProxysqlExporter: agent}
 	case *inventoryv1.QANPostgreSQLPgStatementsAgent:
@@ -213,6 +217,8 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 		return s.s.AddQANMySQLSlowlogAgent(ctx, req.GetQanMysqlSlowlogAgent())
 	case *inventoryv1.AddAgentRequest_QanMongodbProfilerAgent:
 		return s.s.AddQANMongoDBProfilerAgent(ctx, req.GetQanMongodbProfilerAgent())
+	case *inventoryv1.AddAgentRequest_QanMongodbMongologAgent:
+		return s.s.AddQANMongoDBMongologAgent(ctx, req.GetQanMongodbMongologAgent())
 	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatementsAgent:
 		return s.s.AddQANPostgreSQLPgStatementsAgent(ctx, req.GetQanPostgresqlPgstatementsAgent())
 	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatmonitorAgent:
@@ -251,6 +257,8 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 		return s.s.ChangeQANMySQLSlowlogAgent(ctx, agentID, req.GetQanMysqlSlowlogAgent())
 	case *inventoryv1.ChangeAgentRequest_QanMongodbProfilerAgent:
 		return s.s.ChangeQANMongoDBProfilerAgent(ctx, agentID, req.GetQanMongodbProfilerAgent())
+	case *inventoryv1.ChangeAgentRequest_QanMongodbMongologAgent:
+		return s.s.ChangeQANMongoDBMongologAgent(ctx, agentID, req.GetQanMongodbMongologAgent())
 	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatementsAgent:
 		return s.s.ChangeQANPostgreSQLPgStatementsAgent(ctx, agentID, req.GetQanPostgresqlPgstatementsAgent())
 	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatmonitorAgent:

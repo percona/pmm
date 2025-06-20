@@ -455,6 +455,7 @@ func agentTypeToClickHouseEnum(agentType inventoryv1.AgentType) string {
 		inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT:         "qan-mysql-perfschema-agent",
 		inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:            "qan-mysql-slowlog-agent",
 		inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:         "qan-mongodb-profiler-agent",
+		inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT:         "qan-mongodb-mongolog-agent",
 		inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  "qan-postgresql-pgstatements-agent",
 		inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: "qan-postgresql-pgstatmonitor-agent",
 	}

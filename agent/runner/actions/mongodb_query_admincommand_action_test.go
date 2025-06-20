@@ -16,7 +16,6 @@ package actions
 
 import (
 	"context"
-	"strings"
 	"testing"
 	"time"
 
@@ -284,19 +283,6 @@ func getCmdLineOptsAssertionsWithSSL(t *testing.T, b []byte) { //nolint:thelper
 	assert.Empty(t, security)
 
 	argv := objxM.Get("argv").InterSlice()
-	expected := []interface{}{"mongod", "--sslMode=requireSSL", "--sslPEMKeyFile=/etc/ssl/certificates/server.pem"}
-
-	var tlsMode bool
-	for _, arg := range argv {
-		argStr, ok := arg.(string)
-		assert.True(t, ok)
-		if strings.Contains(argStr, "tlsMode") {
-			tlsMode = true
-			break
-		}
-	}
-	if tlsMode {
-		expected = []interface{}{"mongod", "--tlsMode", "requireTLS", "--tlsCertificateKeyFile", "/etc/ssl/certificates/server.pem"}
-	}
+	expected := []interface{}{"mongod", "--tlsMode=requireTLS", "--tlsCertificateKeyFile=/etc/tls/certificates/server.pem"}
 	assert.Subset(t, argv, expected)
 }
