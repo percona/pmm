@@ -15,7 +15,7 @@ replace golang.org/x/crypto => github.com/percona-lab/crypto v0.0.0-202311081441
 
 require (
 	github.com/AlekSi/pointer v1.2.0
-	github.com/ClickHouse/clickhouse-go/v2 v2.35.0
+	github.com/ClickHouse/clickhouse-go/v2 v2.37.1
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/alecthomas/kong v1.11.0
@@ -44,7 +44,7 @@ require (
 	github.com/grafana/grafana-api-golang-client v0.27.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.0
 	github.com/hashicorp/go-version v1.7.0
 	github.com/hashicorp/raft v1.7.0
 	github.com/jmoiron/sqlx v1.4.0
@@ -76,8 +76,8 @@ require (
 	golang.org/x/sys v0.33.0
 	golang.org/x/text v0.26.0
 	golang.org/x/tools v0.34.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250519155744-55703ea1f237
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237
+	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822
 	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
