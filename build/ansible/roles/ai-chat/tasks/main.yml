@@ -1,37 +1,7 @@
 ---
-# Main tasks for AI Chat integration with MCP support
+# Main tasks for AI Chat Backend service
 - name: Include variables
   include_vars: ../vars/main.yml
-
-- name: Create AI chat application directory
-  file:
-    path: "{{ ai_chat_dir }}"
-    state: directory
-    owner: pmm
-    group: pmm
-    mode: '0755'
-
-- name: Create AI chat data directory
-  file:
-    path: "{{ ai_chat_data_dir }}"
-    state: directory
-    owner: pmm
-    group: pmm
-    mode: '0755'
-
-- name: Add NodeJS repository
-  shell: "curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -"
-
-- name: Install Node.js
-  dnf:
-    name: nodejs
-    state: present
-
-- name: Install pnpm globally
-  npm:
-    name: pnpm
-    global: yes
-    state: present
 
 # Install uv for MCP servers
 - name: Check if uv is installed
@@ -57,45 +27,45 @@
     mode: '0644'
   when: uv_version.rc != 0
 
-- name: Download and extract AI chat application
-  shell: |
-    mkdir -p "{{ ai_chat_dir }}/mcp-client-chatbot"
-    curl -L "{{ ai_chat_repo_url }}" | tar -xz -C "{{ ai_chat_dir }}/mcp-client-chatbot" --strip-components=1
-    chown -R pmm:pmm "{{ ai_chat_dir }}/mcp-client-chatbot"
-  args:
-    creates: "{{ ai_chat_dir }}/mcp-client-chatbot/package.json"
-
-- name: Install AI chat dependencies
-  command: pnpm install
-  args:
-    chdir: "{{ ai_chat_dir }}/mcp-client-chatbot"
-
-# Set database connection URL (database is created during initialization)
-- name: Set postgres_url for AI chat
-  set_fact:
-    postgres_url: "postgres://ai_chat_user:{{ ai_chat_db_password }}@localhost:5432/ai_chat"
-
-- name: Create environment configuration
-  template:
-    src: env.j2
-    dest: "{{ ai_chat_dir }}/mcp-client-chatbot/.env"
+- name: Create aichat-backend directories
+  file:
+    path: "{{ item }}"
+    state: directory
     owner: pmm
     group: pmm
-    mode: '0600'
+    mode: '0755'
+  loop:
+    - /srv/aichat-backend
+    - /srv/logs
 
-# MCP Configuration
-- name: Copy MCP configuration file
+- name: Copy aichat-backend binary
   copy:
-    src: mcp-config.json
-    dest: "{{ ai_chat_dir }}/mcp-client-chatbot/mcp-config.json"
+    src: aichat-backend
+    dest: /usr/local/bin/aichat-backend
+    owner: root
+    group: root
+    mode: '0755'
+  notify: restart aichat-backend
+
+- name: Create aichat-backend log file
+  file:
+    path: /srv/logs/aichat-backend.log
+    state: touch
     owner: pmm
     group: pmm
     mode: '0644'
 
-- name: Build AI chat application
-  command: pnpm build:local
-  args:
-    chdir: "{{ ai_chat_dir }}/mcp-client-chatbot"
-  environment:
-    POSTGRES_URL: "{{ postgres_url }}"
-    NODE_ENV: production
+- name: Deploy supervisord configuration for aichat-backend
+  copy:
+    src: ai-chat.ini
+    dest: /etc/supervisord.d/ai-chat.ini
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart supervisord
+
+- name: Ensure aichat-backend service is started
+  supervisorctl:
+    name: aichat-backend
+    state: started
+  become: yes

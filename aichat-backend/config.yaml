@@ -1,0 +1,45 @@
+server:
+  port: 3001
+
+llm:
+  provider: "openai"
+  api_key: "${OPENAI_API_KEY}"  # Set via environment variable
+  model: "gpt-4o-mini"
+  # base_url: "https://api.openai.com/v1"  # Optional custom endpoint
+  system_prompt: "You are an AI assistant for PMM (Percona Monitoring and Management), a comprehensive database monitoring and management platform. PMM supports MySQL, PostgreSQL, MongoDB, and other database technologies. You help users with database monitoring, performance optimization, query analysis, backup management, and troubleshooting database issues. When providing assistance, focus on PMM-specific features, best practices for database monitoring, and actionable insights for database performance optimization."
+  # options:
+  #   temperature: "0.7"
+  #   max_tokens: "2000"
+
+mcp:
+  # MCP servers are configured in a separate JSON file for better organization
+  servers_file: "mcp-servers.json"
+  
+  # Alternatively, you can define servers directly here (will override servers_file):
+  # servers:
+  #   - name: "filesystem"
+  #     command: "npx"
+  #     args: ["@modelcontextprotocol/server-filesystem", "/path/to/workspace"]
+  #     timeout: 30
+  #     enabled: true
+
+    # Example MCP server configurations
+    # - name: "filesystem"
+    #   command: "npx"
+    #   args: ["@modelcontextprotocol/server-filesystem", "/path/to/workspace"]
+    #   timeout: 30
+    #   env:
+    #     DEBUG: "mcp*"
+    
+    # - name: "database"
+    #   command: "python"
+    #   args: ["-m", "mcp_server_database", "--connection-string", "postgresql://user:pass@localhost/db"]
+    #   timeout: 30
+    #   env:
+    #     MCP_LOG_LEVEL: "INFO"
+
+    # Add more MCP servers as needed
+    # - name: "custom-tool"
+    #   command: "/path/to/custom-mcp-server"
+    #   args: ["--config", "/path/to/config.json"]
+    #   timeout: 30 

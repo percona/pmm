@@ -95,6 +95,7 @@
       - pmm-managed
       - pmm-dump
       - vmproxy
+      - aichat-backend
     state: installed
     enablerepo: local
 

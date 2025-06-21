@@ -1,8 +1,0 @@
-# Variables for AI Chat integration
-ai_chat_dir: /opt/ai-chat
-ai_chat_data_dir: /srv/ai-chat/data
-ai_chat_port: 3001
-ai_chat_repo_url: https://github.com/cgoinglove/mcp-client-chatbot/archive/refs/tags/v1.9.0.tar.gz
-
-# Database configuration
-ai_chat_db_password: ai_chat_secure_password

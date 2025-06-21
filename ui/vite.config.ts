@@ -8,6 +8,10 @@ export default defineConfig({
   base: '/pmm-ui',
   server: {
     proxy: {
+      '/v1/chat': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
       '/v1': {
         target: '/',
       },
