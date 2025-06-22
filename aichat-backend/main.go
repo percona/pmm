@@ -16,22 +16,24 @@ import (
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/handlers"
 	"github.com/percona/pmm/aichat-backend/internal/services"
+	"github.com/percona/pmm/version"
 )
 
 func main() {
+
 	var (
-		configPath string
-		envOnly    bool
-		version    bool
+		configPath  string
+		envOnly     bool
+		showVersion bool
 	)
 
 	flag.StringVar(&configPath, "config", "config.yaml", "Path to configuration file")
 	flag.BoolVar(&envOnly, "env-only", false, "Load configuration only from environment variables")
-	flag.BoolVar(&version, "version", false, "Show version information")
+	flag.BoolVar(&showVersion, "version", false, "Show version information")
 	flag.Parse()
 
-	if version {
-		fmt.Printf("AI Chat Backend version: %s\n", getVersion())
+	if showVersion {
+		fmt.Printf("AI Chat Backend\n%s\n", version.FullInfo())
 		os.Exit(0)
 	}
 
@@ -103,7 +105,7 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{
 			"status":    "ok",
 			"timestamp": time.Now().UTC().Format(time.RFC3339),
-			"version":   getVersion(),
+			"version":   version.ShortInfo(),
 		})
 	})
 
@@ -189,13 +191,4 @@ func validateConfig(cfg *config.Config) error {
 	}
 
 	return nil
-}
-
-// getVersion returns the application version
-func getVersion() string {
-	// This would typically be set during build time via ldflags
-	if version := os.Getenv("AICHAT_VERSION"); version != "" {
-		return version
-	}
-	return "dev"
 }

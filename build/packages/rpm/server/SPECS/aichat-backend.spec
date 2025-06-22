@@ -21,8 +21,6 @@ License:	AGPLv3
 URL:		https://%{provider}
 Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
 
-BuildRequires:	golang >= 1.20
-
 %description
 AI Chat Backend for Percona Monitoring and Management (PMM). This service provides
 AI-powered chat functionality with support for multiple LLM providers (OpenAI, 

@@ -129,7 +129,19 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
     requestId: string;
     toolCalls: ToolCall[];
   } | null>(null);
+  const [isPopupAnalysis, setIsPopupAnalysis] = useState(false);
   const [analysisSessionId] = useState(() => `analysis_${Date.now()}`);
+
+  // Auto-approve tools when they're requested during popup analysis
+  useEffect(() => {
+    if (pendingToolApproval && isPopupAnalysis) {
+      console.log('🔧 Auto-approving tools for popup analysis via useEffect');
+      // Small delay to ensure state is properly set
+      setTimeout(() => {
+        handleToolApproval(true);
+      }, 100);
+    }
+  }, [pendingToolApproval, isPopupAnalysis]);
 
   // Create filters request for the same time period as the data
   const filtersRequest = useMemo(() => {
@@ -312,10 +324,12 @@ Focus on actionable recommendations specific to this query's performance charact
     setError(null);
     setAnalysisResult('');
     setPendingToolApproval(null);
+    setIsPopupAnalysis(true);
     
     const analysisPrompt = `Please analyze this database query performance and provide optimization recommendations:
 
 Query Details:
+- Query ID: ${row.dimension}
 - Rank: #${rank} (by performance impact)
 - Database: ${row.database}
 - Query: ${row.fingerprint || 'N/A'}
@@ -349,11 +363,13 @@ Focus on actionable recommendations that can improve query performance.`;
               }
               break;
             case 'tool_approval_request':
-              if (message.tool_calls && message.request_id) {
-                setPendingToolApproval({
-                  requestId: message.request_id,
-                  toolCalls: message.tool_calls
-                });
+                if (message.tool_calls && message.request_id) {
+                    setPendingToolApproval({
+                    requestId: message.request_id,
+                    toolCalls: message.tool_calls
+                    });
+                    // Auto-approve all tools for popup analysis
+                    console.log('🔧 Auto-approving tools for popup analysis:', message.tool_calls);
               }
               break;
             case 'tool_execution':
@@ -438,6 +454,7 @@ Focus on actionable recommendations that can improve query performance.`;
     setError(null);
     setPendingToolApproval(null);
     setSelectedQuery(null);
+    setIsPopupAnalysis(false);
   };
 
   return (
@@ -746,23 +763,52 @@ Focus on actionable recommendations that can improve query performance.`;
           {selectedQuery && (
             <Paper sx={{ p: 2, mb: 2, bgcolor: 'grey.50' }}>
               <Typography variant="subtitle2" gutterBottom>
-                Query:
+                Query Details:
               </Typography>
-              <Typography 
-                variant="body2" 
-                sx={{ 
-                  fontFamily: 'monospace',
-                  fontSize: '0.875rem',
-                  wordBreak: 'break-word',
-                  bgcolor: 'background.paper',
-                  p: 1,
-                  borderRadius: 1,
-                  border: '1px solid',
-                  borderColor: 'divider'
-                }}
-              >
-                {selectedQuery.fingerprint || 'N/A'}
-              </Typography>
+              <Box sx={{ mb: 1 }}>
+                <Typography variant="caption" color="textSecondary">
+                  Query ID:
+                </Typography>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontFamily: 'monospace',
+                    fontSize: '0.875rem',
+                    fontWeight: 'bold',
+                    color: 'primary.main'
+                  }}
+                >
+                  {selectedQuery.dimension}
+                </Typography>
+              </Box>
+              <Box sx={{ mb: 1 }}>
+                <Typography variant="caption" color="textSecondary">
+                  Database:
+                </Typography>
+                <Typography variant="body2">
+                  {selectedQuery.database || 'N/A'}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="caption" color="textSecondary">
+                  Query:
+                </Typography>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    fontFamily: 'monospace',
+                    fontSize: '0.875rem',
+                    wordBreak: 'break-word',
+                    bgcolor: 'background.paper',
+                    p: 1,
+                    borderRadius: 1,
+                    border: '1px solid',
+                    borderColor: 'divider'
+                  }}
+                >
+                  {selectedQuery.fingerprint || 'N/A'}
+                </Typography>
+              </Box>
             </Paper>
           )}
 
