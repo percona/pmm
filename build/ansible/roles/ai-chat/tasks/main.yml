@@ -77,24 +77,21 @@
     group: pmm
     mode: '0755'
   loop:
-    - /srv/aichat-backend
+    - /etc/aichat-backend
     - /srv/logs
+
+- name: Install aichat-backend RPM package
+  yum:
+    name: aichat-backend
+    state: present
 
 - name: Deploy MCP servers configuration
   copy:
     src: mcp-servers.json
-    dest: /srv/aichat-backend/mcp-servers.json
+    dest: /etc/aichat-backend/mcp-servers.json
     owner: pmm
     group: pmm
     mode: '0644'
-
-- name: Copy aichat-backend binary
-  copy:
-    src: aichat-backend
-    dest: /usr/local/bin/aichat-backend
-    owner: root
-    group: root
-    mode: '0755'
 
 - name: Create aichat-backend log file
   file:
