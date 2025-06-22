@@ -1,5 +1,8 @@
 # Setting up
 
+!!! warning "PMM 2 End of Life" 
+    PMM 2 reaches end of life on July 31st, 2025, with no further development or support. For continued access to security updates, new features and ongoing support, [install PMM3](https://per.co.na/pmm/quickstart).
+
 There are three stages to installing and setting up PMM.
 
 !!! summary alert alert-info "Summary"

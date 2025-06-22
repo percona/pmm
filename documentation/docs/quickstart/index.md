@@ -1,5 +1,8 @@
 # Get started with PMM
 
+!!! warning "PMM 2 End of Life" 
+    PMM 2 reaches end of life on July 31st, 2025, with no further development or support. For continued access to security updates, new features and ongoing support, [install PMM3](https://per.co.na/pmm/quickstart).
+
 To get up and running with Percona Monitoring and Management (PMM) in no time, install PMM on Bare Metal/Virtual using the Easy-install script for Docker.
 
 This is the simplest and most efficient way to install PMM.
