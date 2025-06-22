@@ -4,7 +4,7 @@
       "url": "http://localhost:7772/v1/mcp/sse"
     },
     "mcp-clickhouse": {
-      "command": "uv",
+      "command": "/home/pmm/.local/bin/uv",
       "args": [
         "run",
         "--with",
@@ -28,7 +28,8 @@
       "command": "/usr/local/bin/mcp-victoriametrics",
       "args": [],
       "env": {
-        "VICTORIAMETRICS_URL": "http://localhost:8428"
+        "VM_INSTANCE_ENTRYPOINT": "http://localhost:9090/prometheus",
+        "VM_INSTANCE_TYPE": "single"
       }
     }
   }

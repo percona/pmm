@@ -106,6 +106,6 @@ COPY --from=builder /usr/local/percona/pmm /usr/local/percona/pmm/
 
 USER pmm-agent
 WORKDIR /usr/local/percona/pmm/
-ENV PATH=/usr/local/percona/pmm/bin/:$PATH
+ENV PATH=/usr/local/percona/pmm/bin/:/home/pmm/.local/bin:$PATH
 
 ENTRYPOINT ["/usr/local/percona/pmm/bin/pmm-agent-entrypoint"]

@@ -14,17 +14,6 @@
   become_user: pmm
   when: uv_version.rc != 0
 
-- name: Add uv to PATH for all users
-  lineinfile:
-    path: /home/pmm/.profile
-    line: 'export PATH="/home/pmm/.cargo/bin:$PATH"'
-    create: yes
-    state: present
-    owner: pmm
-    group: pmm
-    mode: '0644'
-  when: uv_version.rc != 0
-
 # Install VictoriaMetrics MCP server
 - name: Get latest VictoriaMetrics MCP server release
   uri:
@@ -99,12 +88,4 @@
     state: touch
     owner: pmm
     group: pmm
-    mode: '0644'
-
-- name: Deploy supervisord configuration for aichat-backend
-  copy:
-    src: ai-chat.ini
-    dest: /etc/supervisord.d/ai-chat.ini
-    owner: root
-    group: root
     mode: '0644'

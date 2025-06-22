@@ -35,27 +35,54 @@ func NewMCPService(cfg *config.Config) *MCPService {
 
 // Initialize connects to all enabled MCP servers from JSON file
 func (s *MCPService) Initialize(ctx context.Context) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	// Load MCP servers from JSON file
 	servers, err := s.config.GetEnabledMCPServers()
 	if err != nil {
 		return fmt.Errorf("failed to load MCP servers: %w", err)
 	}
 
+	s.mu.Lock()
 	s.servers = servers
+	s.mu.Unlock()
+
 	log.Printf("Found %d enabled MCP servers to connect to", len(s.servers))
 
-	// Connect to enabled servers
+	// Connect to enabled servers in parallel
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	var connectionErrors []error
+
 	for serverName, serverConfig := range s.servers {
-		if err := s.connectToServer(ctx, serverName, serverConfig); err != nil {
-			log.Printf("Failed to connect to MCP server %s: %v", serverName, err)
-			continue
+		wg.Add(1)
+		go func(name string, config config.MCPServerConfig) {
+			defer wg.Done()
+
+			if err := s.connectToServer(ctx, name, config); err != nil {
+				log.Printf("Failed to connect to MCP server %s: %v", name, err)
+				mu.Lock()
+				connectionErrors = append(connectionErrors, fmt.Errorf("server %s: %w", name, err))
+				mu.Unlock()
+			}
+		}(serverName, serverConfig)
+	}
+
+	// Wait for all connections to complete
+	wg.Wait()
+
+	s.mu.RLock()
+	connectedCount := len(s.clients)
+	s.mu.RUnlock()
+
+	log.Printf("Successfully initialized MCP service with %d active servers", connectedCount)
+
+	// Log connection errors if any
+	if len(connectionErrors) > 0 {
+		log.Printf("Connection errors occurred for %d servers:", len(connectionErrors))
+		for _, err := range connectionErrors {
+			log.Printf("  - %v", err)
 		}
 	}
 
-	log.Printf("Successfully initialized MCP service with %d active servers", len(s.clients))
 	return nil
 }
 
@@ -128,8 +155,10 @@ func (s *MCPService) connectToServer(ctx context.Context, serverName string, ser
 	toolCount := s.loadToolsFromServer(ctx, serverName, mcpClient)
 	log.Printf("Loaded %d tools from MCP server %s", toolCount, serverName)
 
-	// Store client
+	// Store client (thread-safe)
+	s.mu.Lock()
 	s.clients[serverName] = mcpClient
+	s.mu.Unlock()
 
 	log.Printf("Successfully connected to MCP server: %s using %s transport", serverName, transport)
 	return nil
@@ -144,7 +173,10 @@ func (s *MCPService) loadToolsFromServer(ctx context.Context, serverName string,
 		return 0
 	}
 
-	// Store tools with server prefix
+	// Store tools with server prefix (thread-safe)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	toolCount := 0
 	for _, tool := range toolsResp.Tools {
 		toolKey := fmt.Sprintf("%s/%s", serverName, tool.Name)
@@ -162,7 +194,7 @@ func (s *MCPService) loadToolsFromServer(ctx context.Context, serverName string,
 
 		s.tools[toolKey] = models.MCPTool{
 			Name:        tool.Name,
-			Description: tool.Description, // Remove server prefix from description
+			Description: tool.Description,
 			InputSchema: inputSchema,
 			Server:      serverName,
 		}
@@ -180,11 +212,6 @@ func (s *MCPService) GetTools() []models.MCPTool {
 	tools := make([]models.MCPTool, 0, len(s.tools))
 	for _, tool := range s.tools {
 		tools = append(tools, tool)
-	}
-
-	log.Printf("🔧 MCP: Returning %d available tools", len(tools))
-	for i, tool := range tools {
-		log.Printf("🔧   Tool %d: %s - %s", i+1, tool.Name, tool.Description)
 	}
 
 	return tools
