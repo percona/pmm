@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -33,10 +33,18 @@ import { aiChatAPI, StreamMessage, ToolCall } from '../../api/aichat';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import RecommendIcon from '@mui/icons-material/Lightbulb';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface QANDataDisplayProps {
   data: QANReportResponse;
   maxQueries?: number;
+  selectedServices?: string[];
+  onServiceFilterChange?: (services: string[]) => void;
+  timeRangeHours?: number;
+  onTimeRangeChange?: (hours: number) => void;
   onAnalyzeQuery?: (queryData: string) => void;
 }
 
@@ -86,10 +94,42 @@ const getQueryRate = (row: QANRow): number => {
 const QANDataDisplay: React.FC<QANDataDisplayProps> = ({ 
   data, 
   maxQueries = 10,
+  selectedServices = [],
+  onServiceFilterChange,
+  timeRangeHours,
+  onTimeRangeChange,
   onAnalyzeQuery
 }) => {
+  console.log('🔍 QANDataDisplay received data:', data);
+  console.log('🔍 QANDataDisplay received selectedServices:', selectedServices);
+  console.log('🔍 QAN Data structure check:', {
+    hasData: !!data,
+    hasRows: !!data?.rows,
+    rowCount: data?.rows?.length,
+    totalRows: data?.total_rows,
+    firstRow: data?.rows?.[0],
+    dataKeys: data ? Object.keys(data) : 'no data'
+  });
+  
   // Service filter state
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedServicesState, setSelectedServicesState] = useState<string[]>(selectedServices);
+  
+  // Sync internal state with props
+  useEffect(() => {
+    setSelectedServicesState(selectedServices);
+  }, [selectedServices]);
+
+  // Analysis dialog state
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<string>('');
+  const [selectedQuery, setSelectedQuery] = useState<QANRow | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [pendingToolApproval, setPendingToolApproval] = useState<{
+    requestId: string;
+    toolCalls: ToolCall[];
+  } | null>(null);
+  const [analysisSessionId] = useState(() => `analysis_${Date.now()}`);
 
   // Create filters request for the same time period as the data
   const filtersRequest = useMemo(() => {
@@ -105,13 +145,16 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
 
   // Get available filters from the API
   const { data: filtersData, isLoading: filtersLoading } = useQANFilters(filtersRequest, {
-    enabled: true,
+    enabled: true, // Re-enable now that request format is fixed
     retry: 1
   });
 
   // Extract available services from filters
   const availableServices = useMemo(() => {
-    if (!filtersData?.labels?.service_name?.name) {
+    console.log('🔍 QAN Filter Debug: filtersData =', filtersData);
+    console.log('🔍 QAN Filter Debug: filtersLoading =', filtersLoading);
+    
+    if (!filtersData?.labels?.serviceName?.name) {
       // Fallback to extracting from database field if filters API not available
       const services = new Set<string>();
       data.rows.forEach(row => {
@@ -119,17 +162,26 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
           services.add(row.database);
         }
       });
-      return Array.from(services).sort();
+      const serviceArray = Array.from(services).sort();
+      console.log('🔍 QAN Filter Debug: Using fallback database extraction');
+      console.log('🔍 Available services from database field:', serviceArray);
+      console.log('🔍 Total data rows:', data.rows.length);
+      console.log('🔍 Non-total rows:', data.rows.filter(row => row.fingerprint !== 'TOTAL' && row.dimension !== ''));
+      return serviceArray;
     }
     
     // Use service names from filters API
-    return filtersData.labels.service_name.name
+    console.log('🔍 QAN Filter Debug: service_name data =', filtersData.labels.serviceName);
+    const apiServices = filtersData.labels.serviceName.name
       .map(service => service.value)
       .filter(service => service && service.trim() !== '')
       .sort();
-  }, [filtersData, data.rows]);
+    console.log('🔍 QAN Filter Debug: Using API service names:', apiServices);
+    return apiServices;
+  }, [filtersData, data.rows, filtersLoading]);
 
   if (!data.rows || data.rows.length === 0) {
+    console.log('🚨 QAN Data Issue: No rows found', { data, hasRows: !!data.rows, rowCount: data.rows?.length });
     return (
       <Paper sx={{ p: 3 }}>
         <Typography variant="h6" gutterBottom>
@@ -138,30 +190,24 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
         <Typography variant="body2" color="textSecondary">
           No query data found for the selected time period.
         </Typography>
+        <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
+          Debug: data.rows = {data.rows ? `${data.rows.length} rows` : 'null/undefined'}
+        </Typography>
       </Paper>
     );
   }
 
   // Filter out the TOTAL row and apply service filter
   const queryRows = useMemo(() => {
-    return data.rows
-      .filter(row => {
-        // Filter out total rows
-        if (row.fingerprint === 'TOTAL' || row.dimension === '') return false;
-        
-        // Apply service filter
-        if (selectedServices.length > 0) {
-          // Try to match against service_name field first, then fallback to database
-          const serviceToMatch = row.database || ''; // QAN data might not have service_name field yet
-          if (!selectedServices.includes(serviceToMatch)) {
-            return false;
-          }
-        }
-        
-        return true;
-      })
+    console.log('🔍 QAN Data Debug: data.rows =', data.rows);
+    console.log('🔍 QAN Data Debug: selectedServicesState =', selectedServicesState);
+    
+    const filteredRows = data.rows
       .slice(0, maxQueries);
-  }, [data.rows, selectedServices, maxQueries]);
+      
+    console.log('🔍 Final filtered rows:', filteredRows);
+    return filteredRows;
+  }, [data.rows, selectedServicesState, maxQueries]);
 
   // Total row can be identified by empty dimension or "TOTAL" fingerprint
   const totalRow = data.rows.find(row => row.fingerprint === 'TOTAL' || row.dimension === '');
@@ -189,8 +235,17 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
 
   const truncateQuery = (query: string | undefined | null, maxLength: number = 80): string => {
     if (!query) return 'N/A';
-    if (query.length <= maxLength) return query;
-    return query.substring(0, maxLength) + '...';
+    return query.length > maxLength ? `${query.substring(0, maxLength)}...` : query;
+  };
+
+  // Copy to clipboard function
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      console.log('Content copied to clipboard');
+    } catch (err) {
+      console.error('Failed to copy content:', err);
+    }
   };
 
   const formatQueryForAnalysis = (row: QANRow, rank: number): string => {
@@ -235,20 +290,15 @@ Please analyze this specific query and provide:
 Focus on actionable recommendations specific to this query's performance characteristics.`;
   };
 
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<string>('');
-  const [selectedQuery, setSelectedQuery] = useState<QANRow | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [pendingToolApproval, setPendingToolApproval] = useState<{
-    requestId: string;
-    toolCalls: ToolCall[];
-  } | null>(null);
-  const [analysisSessionId] = useState(() => `analysis_${Date.now()}`);
-
-  const handleServiceFilterChange = (event: SelectChangeEvent<typeof selectedServices>) => {
+  const handleServiceFilterChange = (event: SelectChangeEvent<typeof selectedServicesState>) => {
     const value = event.target.value;
-    setSelectedServices(typeof value === 'string' ? value.split(',') : value);
+    const newServices = typeof value === 'string' ? value.split(',') : value;
+    setSelectedServicesState(newServices);
+    
+    // Call parent callback to trigger new API request
+    if (onServiceFilterChange) {
+      onServiceFilterChange(newServices);
+    }
   };
 
   const handleAnalyzeInChat = (queryData: string) => {
@@ -443,60 +493,102 @@ Focus on actionable recommendations that can improve query performance.`;
               Top {queryRows.length} Queries by Load
             </Typography>
             
-            {/* Service Filter */}
-            {availableServices.length > 1 && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <FilterListIcon color="action" />
-                <FormControl sx={{ minWidth: 200 }} size="small">
-                  <InputLabel id="service-filter-label">Filter by Service</InputLabel>
-                  <Select
-                    labelId="service-filter-label"
-                    multiple
-                    value={selectedServices}
-                    onChange={handleServiceFilterChange}
-                    input={<OutlinedInput label="Filter by Service" />}
-                    renderValue={(selected) => (
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {selected.map((value) => (
-                          <Chip key={value} label={value} size="small" />
-                        ))}
-                      </Box>
-                    )}
-                  >
-                    {availableServices.map((service) => (
-                      <MenuItem key={service} value={service}>
-                        {service}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                {filtersLoading && (
-                  <CircularProgress size={16} />
-                )}
-              </Box>
-            )}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              {/* Time Range Filter */}
+              {onTimeRangeChange && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <AccessTimeIcon color="action" />
+                  <FormControl sx={{ minWidth: 120 }} size="small">
+                    <InputLabel id="time-range-label">Time Range</InputLabel>
+                    <Select
+                      labelId="time-range-label"
+                      value={timeRangeHours || 24}
+                      onChange={(e) => onTimeRangeChange(Number(e.target.value))}
+                      input={<OutlinedInput label="Time Range" />}
+                    >
+                      <MenuItem value={5/60}>5 minutes</MenuItem>
+                      <MenuItem value={10/60}>10 minutes</MenuItem>
+                      <MenuItem value={0.25}>15 minutes</MenuItem>
+                      <MenuItem value={0.5}>30 minutes</MenuItem>
+                      <MenuItem value={1}>1 hour</MenuItem>
+                      <MenuItem value={3}>3 hours</MenuItem>
+                      <MenuItem value={6}>6 hours</MenuItem>
+                      <MenuItem value={12}>12 hours</MenuItem>
+                      <MenuItem value={24}>24 hours</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              )}
+              
+              {/* Service Filter */}
+              {availableServices.length > 1 && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <FilterListIcon color="action" />
+                  <FormControl sx={{ minWidth: 200 }} size="small">
+                    <InputLabel id="service-filter-label">Filter by Service</InputLabel>
+                    <Select
+                      labelId="service-filter-label"
+                      multiple
+                      value={selectedServicesState}
+                      onChange={handleServiceFilterChange}
+                      input={<OutlinedInput label="Filter by Service" />}
+                      renderValue={(selected) => (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                          {selected.map((value) => (
+                            <Chip key={value} label={value} size="small" />
+                          ))}
+                        </Box>
+                      )}
+                    >
+                      {availableServices.map((service) => (
+                        <MenuItem key={service} value={service}>
+                          {service}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  {filtersLoading && (
+                    <CircularProgress size={16} />
+                  )}
+                </Box>
+              )}
+            </Box>
           </Box>
           
           {/* Filter Summary */}
-          {selectedServices.length > 0 && (
-            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="body2" color="textSecondary">
-                Showing queries from {selectedServices.length} service{selectedServices.length !== 1 ? 's' : ''}: {selectedServices.join(', ')}
-              </Typography>
-              <Button 
-                size="small" 
-                variant="outlined" 
-                onClick={() => setSelectedServices([])}
-                sx={{ textTransform: 'none' }}
-              >
-                Clear Filters
-              </Button>
+          {(selectedServicesState.length > 0 || timeRangeHours) && (
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+              {timeRangeHours && (
+                <Typography variant="body2" color="textSecondary">
+                  Time Range: {timeRangeHours < 1 ? `${timeRangeHours * 60} minutes` : `${timeRangeHours} hour${timeRangeHours !== 1 ? 's' : ''}`}
+                </Typography>
+              )}
+              {selectedServicesState.length > 0 && (
+                <>
+                  <Typography variant="body2" color="textSecondary">
+                    Services: {selectedServicesState.length} selected ({selectedServicesState.join(', ')})
+                  </Typography>
+                  <Button 
+                    size="small" 
+                    variant="outlined" 
+                    onClick={() => {
+                      setSelectedServicesState([]);
+                      if (onServiceFilterChange) {
+                        onServiceFilterChange([]);
+                      }
+                    }}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    Clear Service Filters
+                  </Button>
+                </>
+              )}
             </Box>
           )}
         </Box>
         
         <TableContainer>
-          {queryRows.length === 0 && selectedServices.length > 0 ? (
+          {queryRows.length === 0 && selectedServicesState.length > 0 ? (
             <Box sx={{ p: 4, textAlign: 'center' }}>
               <FilterListIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
               <Typography variant="h6" color="textSecondary" gutterBottom>
@@ -731,17 +823,182 @@ Focus on actionable recommendations that can improve query performance.`;
 
           {analysisResult && (
             <Box sx={{ mt: 1 }}>
-              <Typography 
-                variant="body1" 
-                component="div"
-                sx={{ 
-                  whiteSpace: 'pre-wrap',
-                  fontFamily: 'inherit',
-                  lineHeight: 1.6
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  p: ({ children }) => (
+                    <Typography
+                      variant="body2"
+                      component="p"
+                      sx={{ 
+                        mb: 1, 
+                        '&:last-child': { mb: 0 },
+                      }}
+                    >
+                      {children}
+                    </Typography>
+                  ),
+                  code: ({ inline, children }: any) => {
+                    const isInlineCode = inline !== false && !String(children).includes('\n');
+                    return isInlineCode ? (
+                      <code
+                        style={{
+                          backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                          padding: '1px 3px',
+                          borderRadius: '3px',
+                          fontFamily: 'monospace',
+                          fontSize: '0.8em',
+                          display: 'inline-block',
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-all',
+                          maxWidth: '100%',
+                          overflowWrap: 'break-word',
+                        }}
+                      >
+                        {children}
+                      </code>
+                    ) : (
+                      <Box
+                        sx={{
+                          position: 'relative',
+                          mb: 1,
+                          '&:last-child': { mb: 0 },
+                          '&:hover .copy-button': {
+                            opacity: 1,
+                          },
+                        }}
+                      >
+                        <Box
+                          component="pre"
+                          sx={{
+                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                            padding: 2,
+                            borderRadius: 1,
+                            overflow: 'auto',
+                            overflowWrap: 'break-word',
+                            wordBreak: 'break-word',
+                            fontSize: '0.8em',
+                            lineHeight: 1.3,
+                            display: 'block',
+                            whiteSpace: 'pre-wrap',
+                            maxWidth: '100%',
+                            maxHeight: '300px',
+                            border: '1px solid rgba(0, 0, 0, 0.1)',
+                            '&::-webkit-scrollbar': {
+                              width: '8px',
+                              height: '8px',
+                            },
+                            '&::-webkit-scrollbar-track': {
+                              backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                              borderRadius: '4px',
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                              backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                              borderRadius: '4px',
+                              '&:hover': {
+                                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                              },
+                            },
+                            scrollbarWidth: 'thin',
+                            scrollbarColor: 'rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05)',
+                          }}
+                        >
+                          <Box
+                            component="code"
+                            sx={{
+                              fontFamily: 'monospace',
+                              fontSize: 'inherit',
+                            }}
+                          >
+                            {children}
+                          </Box>
+                        </Box>
+                        
+                        <Tooltip title="Copy code">
+                          <IconButton
+                            className="copy-button"
+                            onClick={() => copyToClipboard(String(children))}
+                            sx={{
+                              position: 'absolute',
+                              top: 8,
+                              right: 8,
+                              opacity: 0,
+                              transition: 'opacity 0.2s',
+                              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                              '&:hover': {
+                                backgroundColor: 'rgba(255, 255, 255, 1)',
+                              },
+                              width: 32,
+                              height: 32,
+                            }}
+                            size="small"
+                          >
+                            <ContentCopyIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    );
+                  },
+                  ul: ({ children }) => (
+                    <Box component="ul" sx={{ pl: 2, mb: 1, '&:last-child': { mb: 0 } }}>
+                      {children}
+                    </Box>
+                  ),
+                  ol: ({ children }) => (
+                    <Box component="ol" sx={{ pl: 2, mb: 1, '&:last-child': { mb: 0 } }}>
+                      {children}
+                    </Box>
+                  ),
+                  li: ({ children }) => (
+                    <Typography component="li" variant="body2" sx={{ mb: 0.5 }}>
+                      {children}
+                    </Typography>
+                  ),
+                  h1: ({ children }) => (
+                    <Typography variant="h5" component="h1" sx={{ mb: 1, mt: 2, '&:first-of-type': { mt: 0 } }}>
+                      {children}
+                    </Typography>
+                  ),
+                  h2: ({ children }) => (
+                    <Typography variant="h6" component="h2" sx={{ mb: 1, mt: 2, '&:first-of-type': { mt: 0 } }}>
+                      {children}
+                    </Typography>
+                  ),
+                  h3: ({ children }) => (
+                    <Typography variant="subtitle1" component="h3" sx={{ mb: 1, mt: 1.5, fontWeight: 'bold' }}>
+                      {children}
+                    </Typography>
+                  ),
+                  blockquote: ({ children }) => (
+                    <Box
+                      sx={{
+                        borderLeft: '4px solid',
+                        borderLeftColor: 'primary.main',
+                        pl: 2,
+                        ml: 1,
+                        mb: 1,
+                        '&:last-child': { mb: 0 },
+                        fontStyle: 'italic',
+                        color: 'text.secondary',
+                      }}
+                    >
+                      {children}
+                    </Box>
+                  ),
+                  strong: ({ children }) => (
+                    <Typography component="strong" sx={{ fontWeight: 'bold' }}>
+                      {children}
+                    </Typography>
+                  ),
+                  em: ({ children }) => (
+                    <Typography component="em" sx={{ fontStyle: 'italic' }}>
+                      {children}
+                    </Typography>
+                  ),
                 }}
               >
                 {analysisResult}
-              </Typography>
+              </ReactMarkdown>
               {loading && (
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, color: 'text.secondary' }}>
                   <CircularProgress size={16} sx={{ mr: 1 }} />

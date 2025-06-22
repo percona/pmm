@@ -112,7 +112,7 @@ export const getQANMetricsNames = async (): Promise<QANMetricsNamesResponse> => 
 
 export const getQANFilters = async (request: QANFiltersRequest): Promise<QANFiltersResponse> => {
   try {
-    const response = await api.post<QANFiltersResponse>('/qan/filters:getFilteredMetricsNames', request);
+    const response = await api.post<QANFiltersResponse>('/qan/metrics:getFilters', request);
     return response.data;
   } catch (error) {
     console.error('QAN filters API error:', error);
@@ -121,7 +121,11 @@ export const getQANFilters = async (request: QANFiltersRequest): Promise<QANFilt
 };
 
 // Helper function to get recent QAN data for demo purposes
-export const getRecentQANData = async (hoursBack: number = 24, limit: number = 10): Promise<QANReportResponse> => {
+export const getRecentQANData = async (
+  hoursBack: number = 24, 
+  limit: number = 10, 
+  filters?: QANLabel[]
+): Promise<QANReportResponse> => {
   const now = new Date();
   const startTime = new Date(now.getTime() - hoursBack * 60 * 60 * 1000);
   
@@ -131,8 +135,11 @@ export const getRecentQANData = async (hoursBack: number = 24, limit: number = 1
     group_by: 'queryid',
     order_by: '-load', // Order by load descending (slowest first)
     limit,
-    columns: ['query_time', 'lock_time', 'rows_sent', 'rows_examined', 'num_queries']
+    columns: ['query_time', 'lock_time', 'rows_sent', 'rows_examined', 'num_queries'],
+    ...(filters && filters.length > 0 && { labels: filters })
   };
+  
+  console.log('🔍 QAN API Request with filters:', request);
   
   try {
     return await getQANReport(request);
@@ -140,7 +147,7 @@ export const getRecentQANData = async (hoursBack: number = 24, limit: number = 1
     console.warn('QAN API not available, using mock data for demo:', error);
     
     // Return realistic mock data for development/demo purposes with multiple services
-    return {
+    const mockData = {
       total_rows: 8,
       offset: 0,
       limit: 10,
@@ -244,7 +251,7 @@ export const getRecentQANData = async (hoursBack: number = 24, limit: number = 1
         {
           rank: 2,
           dimension: 'F6E5D4C3B2A1',
-          database: 'ecommerce',
+          database: 'analytics',
           fingerprint: 'SELECT u.user_id, u.email, u.first_name, u.last_name, COUNT(o.order_id) as order_count FROM users u LEFT JOIN orders o ON u.user_id = o.user_id WHERE u.created_at >= ? GROUP BY u.user_id ORDER BY order_count DESC',
           num_queries: 2156, // Deprecated field
           qps: 0.9,
@@ -292,7 +299,7 @@ export const getRecentQANData = async (hoursBack: number = 24, limit: number = 1
         {
           rank: 3,
           dimension: 'B2A1F6E5D4C3',
-          database: 'ecommerce',
+          database: 'inventory',
           fingerprint: 'UPDATE inventory SET quantity = quantity - ? WHERE product_id = ? AND quantity >= ?',
           num_queries: 1893, // Deprecated field
           qps: 0.79,
@@ -531,5 +538,25 @@ export const getRecentQANData = async (hoursBack: number = 24, limit: number = 1
         }
       ]
     };
+    
+    // Filter mock data based on provided filters
+    if (filters && filters.length > 0) {
+      const filteredMockData = {
+        ...mockData,
+        rows: mockData.rows.filter(row => {
+          return filters.every(filter => {
+            if (filter.key === 'service_name') {
+              // For service_name filter, check against database field in mock data
+              return filter.value.includes(row.database);
+            }
+            // For other filters, you could add more logic here
+            return true;
+          });
+        })
+      };
+      return filteredMockData;
+    }
+    
+    return mockData;
   }
 }; 

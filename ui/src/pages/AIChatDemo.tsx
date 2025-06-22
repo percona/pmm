@@ -4,6 +4,7 @@ import { AIChatWidget } from '../components/ai-chat-widget';
 import { QANDataDisplay } from '../components/qan-data-display';
 import { useRecentQANData } from '../hooks/api/useQAN';
 import { formatQANDataForAI, formatQANError } from '../utils/qanFormatter';
+import { QANLabel } from '../api/qan';
 
 /**
  * Demo page showing how to integrate the AI Chat Widget
@@ -13,16 +14,40 @@ const AIChatDemo: React.FC = () => {
   const [shouldOpenWithSample, setShouldOpenWithSample] = useState(false);
   const [sampleMessage, setSampleMessage] = useState('');
   
-  // Fetch real QAN data (auto-fetch for display, but not for chat)
+  // Service filter state
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  
+  // Time range filter state
+  const [timeRangeHours, setTimeRangeHours] = useState<number>(24); // Default to 24 hours
+  
+  // Convert selected services to QAN labels format
+  const qanFilters: QANLabel[] = selectedServices.length > 0 ? [
+    {
+      key: 'service_name',
+      value: selectedServices
+    }
+  ] : [];
+  
+  // Fetch real QAN data with filters and time range
   const { 
     data: qanData, 
     error: qanError, 
     isLoading: isLoadingQAN, 
     refetch: fetchQANData 
-  } = useRecentQANData(24, 10, { 
+  } = useRecentQANData(timeRangeHours, 10, qanFilters, { 
     enabled: true, // Auto-fetch for display
     retry: 1 
   });
+
+  const handleServiceFilterChange = (services: string[]) => {
+    console.log('🔍 Filter change in AIChatDemo:', services);
+    setSelectedServices(services);
+  };
+  
+  const handleTimeRangeChange = (hours: number) => {
+    console.log('🔍 Time range change in AIChatDemo:', hours);
+    setTimeRangeHours(hours);
+  };
 
   const handleAnalyzeRealQANData = async () => {
     try {
@@ -274,7 +299,11 @@ Focus on the most impactful changes that could reduce query execution time and i
               {qanData && !isLoadingQAN && (
                 <QANDataDisplay 
                   data={qanData} 
-                  maxQueries={10} 
+                  maxQueries={10}
+                  selectedServices={selectedServices}
+                  onServiceFilterChange={handleServiceFilterChange}
+                  timeRangeHours={timeRangeHours}
+                  onTimeRangeChange={handleTimeRangeChange}
                   onAnalyzeQuery={(queryData) => {
                     setSampleMessage(queryData);
                     setShouldOpenWithSample(true);

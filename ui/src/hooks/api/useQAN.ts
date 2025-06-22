@@ -1,14 +1,15 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { getRecentQANData, getQANMetricsNames, getQANFilters, QANReportResponse, QANMetricsNamesResponse, QANFiltersResponse, QANFiltersRequest } from 'api/qan';
+import { getRecentQANData, getQANMetricsNames, getQANFilters, QANReportResponse, QANMetricsNamesResponse, QANFiltersResponse, QANFiltersRequest, QANLabel } from 'api/qan';
 
 export const useRecentQANData = (
   hoursBack: number = 24,
   limit: number = 10,
+  filters?: QANLabel[],
   options?: Partial<UseQueryOptions<QANReportResponse>>
 ) =>
   useQuery({
-    queryKey: ['qan', 'recent', hoursBack, limit],
-    queryFn: () => getRecentQANData(hoursBack, limit),
+    queryKey: ['qan', 'recent', hoursBack, limit, filters],
+    queryFn: () => getRecentQANData(hoursBack, limit, filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1, // Only retry once since QAN data might not be available in dev
     ...options,
