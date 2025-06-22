@@ -108,9 +108,3 @@
     owner: root
     group: root
     mode: '0644'
-
-- name: Ensure aichat-backend service is started
-  supervisorctl:
-    name: aichat-backend
-    state: started
-  become: yes
