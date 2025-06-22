@@ -8,7 +8,6 @@ import {
   Typography,
   List,
   ListItem,
-  ListItemText,
   Chip,
   Box,
   Paper,
@@ -70,7 +69,7 @@ export const ToolApprovalDialog: React.FC<ToolApprovalDialogProps> = ({
         pb: 2
       }}>
         <WarningIcon color="warning" />
-        <Typography variant="h6">
+        <Typography variant="h6" component="div">
           Tool Execution Request
         </Typography>
       </DialogTitle>

@@ -69,10 +69,12 @@ export interface MCPTool {
   name: string;
   description: string;
   input_schema: Record<string, any>;
+  server: string;
 }
 
 export interface MCPToolsResponse {
   tools: MCPTool[];
+  force_refresh?: boolean;
 }
 
 export interface ToolApprovalRequest {
@@ -190,14 +192,27 @@ class AIChatAPI {
     }
   }
 
-  async getMCPTools(): Promise<MCPToolsResponse> {
-    const response = await fetch(`${this.baseURL}/mcp/tools`);
+  async getMCPTools(forceRefresh?: boolean): Promise<MCPToolsResponse> {
+    const url = new URL(`${this.baseURL}/mcp/tools`, window.location.origin);
+    if (forceRefresh) {
+      url.searchParams.set('force_refresh', 'true');
+    }
+    
+    console.log(`🌐 API: Making request to ${url.toString()}`);
+    
+    const response = await fetch(url.toString());
+    
+    console.log(`🌐 API: Response status: ${response.status} ${response.statusText}`);
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`🌐 API: Error response body:`, errorText);
+      throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
     }
 
-    return response.json();
+    const data = await response.json();
+    console.log(`🌐 API: Response data:`, data);
+    return data;
   }
 
   // Create a streaming connection for real-time chat

@@ -316,6 +316,11 @@ func (s *ChatService) GetAvailableTools() []models.MCPTool {
 	return s.mcp.GetTools()
 }
 
+// RefreshTools forces a refresh of tools from MCP servers
+func (s *ChatService) RefreshTools() error {
+	return s.mcp.RefreshTools()
+}
+
 // GetMCPServerStatus returns the status of all MCP servers
 func (s *ChatService) GetMCPServerStatus() interface{} {
 	return s.mcp.GetServerStatus()

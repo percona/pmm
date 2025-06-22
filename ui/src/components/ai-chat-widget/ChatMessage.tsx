@@ -9,14 +9,12 @@ import {
   IconButton,
   Tooltip,
   Button,
-  Divider,
 } from '@mui/material';
 import {
   Person as PersonIcon,
   SmartToy as BotIcon,
   Build as ToolIcon,
   Settings as SystemIcon,
-  AttachFile as AttachFileIcon,
   Image as ImageIcon,
   Description as DocumentIcon,
   ContentCopy as CopyIcon,
@@ -44,7 +42,6 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
   const isUser = message.role === 'user';
   const isAssistant = message.role === 'assistant';
   const isTool = message.role === 'tool';
-  const isSystem = message.role === 'system';
   const isToolApproval = message.role === 'tool_approval';
 
   // Debug logging for attachments
@@ -181,7 +178,7 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
                       {children}
                     </Typography>
                   ),
-                                    code: ({ inline, children, ...props }: any) => {
+                  code: ({ inline, children }: any) => {
                     // Since inline prop is unreliable, detect based on content characteristics
                     const isInlineCode = inline !== false && !String(children).includes('\n');
                     console.log('Code element:', { inline, isInlineCode, children: String(children).substring(0, 50) });

@@ -73,11 +73,13 @@ type MCPTool struct {
 	Name        string                 `json:"name"`
 	Description string                 `json:"description"`
 	InputSchema map[string]interface{} `json:"input_schema"`
+	Server      string                 `json:"server"`
 }
 
 // MCPToolsResponse represents the available MCP tools
 type MCPToolsResponse struct {
-	Tools []MCPTool `json:"tools"`
+	Tools        []MCPTool `json:"tools"`
+	ForceRefresh bool      `json:"force_refresh,omitempty"`
 }
 
 // ToolApprovalRequest represents a request for user approval to execute tools

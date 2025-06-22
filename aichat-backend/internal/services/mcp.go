@@ -125,37 +125,51 @@ func (s *MCPService) connectToServer(ctx context.Context, serverName string, ser
 	}
 
 	// Get available tools
-	toolsResp, err := mcpClient.ListTools(initCtx, mcp.ListToolsRequest{})
-	if err != nil {
-		log.Printf("Failed to list tools for server %s: %v", serverName, err)
-	} else {
-		// Store tools with server prefix
-		toolCount := 0
-		for _, tool := range toolsResp.Tools {
-			toolKey := fmt.Sprintf("%s/%s", serverName, tool.Name)
-
-			// Convert ToolInputSchema to map[string]interface{}
-			inputSchema := make(map[string]interface{})
-			inputSchema["type"] = tool.InputSchema.Type
-			if tool.InputSchema.Properties != nil {
-				inputSchema["properties"] = tool.InputSchema.Properties
-			}
-
-			s.tools[toolKey] = models.MCPTool{
-				Name:        tool.Name,
-				Description: fmt.Sprintf("[%s] %s", serverName, tool.Description),
-				InputSchema: inputSchema,
-			}
-			toolCount++
-		}
-		log.Printf("Loaded %d tools from MCP server %s", toolCount, serverName)
-	}
+	toolCount := s.loadToolsFromServer(ctx, serverName, mcpClient)
+	log.Printf("Loaded %d tools from MCP server %s", toolCount, serverName)
 
 	// Store client
 	s.clients[serverName] = mcpClient
 
 	log.Printf("Successfully connected to MCP server: %s using %s transport", serverName, transport)
 	return nil
+}
+
+// loadToolsFromServer loads tools from a specific MCP server and stores them
+func (s *MCPService) loadToolsFromServer(ctx context.Context, serverName string, mcpClient client.MCPClient) int {
+	// Get available tools
+	toolsResp, err := mcpClient.ListTools(ctx, mcp.ListToolsRequest{})
+	if err != nil {
+		log.Printf("❌ MCP: Failed to list tools for server %s: %v", serverName, err)
+		return 0
+	}
+
+	// Store tools with server prefix
+	toolCount := 0
+	for _, tool := range toolsResp.Tools {
+		toolKey := fmt.Sprintf("%s/%s", serverName, tool.Name)
+
+		// Convert ToolInputSchema to map[string]interface{}
+		inputSchema := map[string]interface{}{
+			"type": tool.InputSchema.Type,
+		}
+		if tool.InputSchema.Properties != nil {
+			inputSchema["properties"] = tool.InputSchema.Properties
+		}
+		if len(tool.InputSchema.Required) > 0 {
+			inputSchema["required"] = tool.InputSchema.Required
+		}
+
+		s.tools[toolKey] = models.MCPTool{
+			Name:        tool.Name,
+			Description: tool.Description, // Remove server prefix from description
+			InputSchema: inputSchema,
+			Server:      serverName,
+		}
+		toolCount++
+	}
+
+	return toolCount
 }
 
 // GetTools returns all available tools from connected MCP servers
@@ -174,6 +188,33 @@ func (s *MCPService) GetTools() []models.MCPTool {
 	}
 
 	return tools
+}
+
+// RefreshTools forces a refresh of tools from all MCP servers
+func (s *MCPService) RefreshTools() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	log.Printf("🔄 MCP: Force refreshing tools from all connected servers")
+
+	// Clear existing tools
+	s.tools = make(map[string]models.MCPTool)
+
+	// Refresh tools from all connected clients
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	totalRefreshed := 0
+	for serverName, mcpClient := range s.clients {
+		log.Printf("🔄 MCP: Refreshing tools from server: %s", serverName)
+
+		toolCount := s.loadToolsFromServer(ctx, serverName, mcpClient)
+		totalRefreshed += toolCount
+		log.Printf("✅ MCP: Refreshed %d tools from server %s", toolCount, serverName)
+	}
+
+	log.Printf("🔄 MCP: Force refresh completed. Total tools refreshed: %d", totalRefreshed)
+	return nil
 }
 
 // ServerStatus represents the status of an MCP server

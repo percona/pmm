@@ -128,10 +128,25 @@ func (h *ChatHandler) StreamChat(c *gin.Context) {
 
 // GetMCPTools handles GET /v1/chat/mcp/tools
 func (h *ChatHandler) GetMCPTools(c *gin.Context) {
+	// Check for force refresh parameter
+	forceRefresh := c.Query("force_refresh") == "true"
+
+	if forceRefresh {
+		// Force refresh tools from MCP servers
+		if err := h.chatService.RefreshTools(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": fmt.Sprintf("Failed to refresh tools: %v", err),
+			})
+			return
+		}
+	}
+
+	// Get tools (either cached or freshly refreshed)
 	tools := h.chatService.GetAvailableTools()
 
 	response := models.MCPToolsResponse{
-		Tools: tools,
+		Tools:        tools,
+		ForceRefresh: forceRefresh,
 	}
 
 	c.JSON(http.StatusOK, response)

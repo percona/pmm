@@ -1160,7 +1160,7 @@ func main() { //nolint:maintidx,cyclop
 		runHTTP1Server(ctx, &http1ServerDeps{
 			logs:       logs,
 			authServer: authServer,
-			mcpServer:  mcp.New(managementgrpc.NewActionsServer(actionsService, db)),
+			mcpServer:  mcp.New(managementgrpc.NewActionsServer(actionsService, db), qanClient.GetQANServiceClient()),
 		})
 	}()
 

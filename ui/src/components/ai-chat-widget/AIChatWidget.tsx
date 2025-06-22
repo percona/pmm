@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
 import {
   Box,
   Paper,
@@ -8,41 +8,58 @@ import {
   List,
   ListItem,
   Fab,
-  Drawer,
   AppBar,
   Toolbar,
   CircularProgress,
-  Button,
-  Chip,
   Tooltip,
 } from '@mui/material';
 import {
   Send as SendIcon,
   Chat as ChatIcon,
   Close as CloseIcon,
-  Clear as ClearIcon,
+  DeleteSweep as ClearIcon,
   Refresh as RefreshIcon,
-  Settings as SettingsIcon,
+  SmartToy as AIIcon,
+  List as ListIcon,
 } from '@mui/icons-material';
-import { aiChatAPI, type ChatMessage, type StreamMessage, type MCPTool, type FileAttachment, type ToolCall, type ToolApprovalResponse } from '../../api/aichat';
+import { aiChatAPI, type ChatMessage, type StreamMessage, type MCPTool, type FileAttachment } from '../../api/aichat';
 import { ChatMessageComponent } from './ChatMessage';
 import { MCPToolsDialog } from './MCPToolsDialog';
 import { FileUpload, FileUploadButton } from './FileUpload';
 
 interface AIChatWidgetProps {
   defaultOpen?: boolean;
+  open?: boolean; // Controlled open state
   position?: 'bottom-right' | 'bottom-left';
   maxWidth?: number;
   maxHeight?: number;
+  initialMessage?: string;
+  onMessageSent?: () => void;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
+export interface AIChatWidgetRef {
+  openAndSendMessage: (message: string) => void;
+}
+
+export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
   defaultOpen = false,
+  open,
   position = 'bottom-right',
   maxWidth = 400,
   maxHeight = 600,
-}) => {
+  initialMessage,
+  onMessageSent,
+  onOpenChange,
+}, ref) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  // Handle controlled open state
+  useEffect(() => {
+    if (open !== undefined) {
+      setIsOpen(open);
+    }
+  }, [open]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -51,6 +68,7 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
   const [showTools, setShowTools] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState('');
   const [attachments, setAttachments] = useState<FileAttachment[]>([]);
+  const [toolsLoading, setToolsLoading] = useState(true);
 
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -100,26 +118,49 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
     }
   };
 
-  const loadAvailableTools = async () => {
+  const loadAvailableTools = async (forceRefresh: boolean = false) => {
     try {
-      const toolsResponse = await aiChatAPI.getMCPTools();
+      setToolsLoading(true);
+      console.log(`🔧 Loading MCP tools${forceRefresh ? ' (force refresh)' : ''}...`);
+      
+      // Log the exact URL being called
+      const url = forceRefresh ? '/v1/chat/mcp/tools?force_refresh=true' : '/v1/chat/mcp/tools';
+      console.log(`🌐 Calling API endpoint: ${url}`);
+      
+      const toolsResponse = await aiChatAPI.getMCPTools(forceRefresh);
+      console.log(`🔧 MCP Tools response:`, toolsResponse);
       setAvailableTools(toolsResponse.tools);
+      console.log(`✅ ${toolsResponse.tools.length} MCP tools available:`, toolsResponse.tools.map(t => t.name));
     } catch (error) {
-      console.error('Failed to load available tools:', error);
+      console.error('❌ Failed to load MCP tools:', error);
+      console.error('❌ Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      // Set empty array on error to ensure UI updates
+      setAvailableTools([]);
+    } finally {
+      setToolsLoading(false);
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
+  const handleRefreshTools = () => {
+    loadAvailableTools(true);
+  };
 
-    const userMessage = inputMessage.trim();
-    const currentAttachments = [...attachments];
+  // Unified function to send a message with streaming support
+  const sendMessageWithStreaming = useCallback(async (
+    messageText: string, 
+    messageAttachments: FileAttachment[] = [],
+    onComplete?: () => void
+  ) => {
+    if (!messageText.trim() || isLoading) return;
+
+    const userMessage = messageText.trim();
     
-    setInputMessage('');
-    setAttachments([]); // Clear attachments
     setIsLoading(true);
     setStreamingMessage('');
-    streamingContentRef.current = ''; // Reset streaming content ref
+    streamingContentRef.current = '';
 
     // Add user message to UI immediately
     const newUserMessage: ChatMessage = {
@@ -127,18 +168,17 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
       role: 'user',
       content: userMessage,
       timestamp: new Date().toISOString(),
-      attachments: currentAttachments,
+      attachments: messageAttachments,
     };
     setMessages(prev => [...prev, newUserMessage]);
 
     try {
       // Use file upload endpoint if attachments are present
-      if (currentAttachments.length > 0) {
-        // For file uploads, use non-streaming API for now
+      if (messageAttachments.length > 0) {
         const response = await aiChatAPI.sendMessageWithFiles({
           message: userMessage,
           session_id: sessionId,
-          attachments: currentAttachments,
+          attachments: messageAttachments,
         });
 
         if (response.error) {
@@ -150,6 +190,7 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
         }
         
         setIsLoading(false);
+        onComplete?.();
       } else {
         // Start streaming response for regular messages
         const cleanup = aiChatAPI.streamChat(
@@ -158,13 +199,11 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
           (streamMessage: StreamMessage) => {
             if (streamMessage.type === 'message') {
               const newContent = streamMessage.content || '';
-              streamingContentRef.current += newContent; // Update ref
-              setStreamingMessage(streamingContentRef.current); // Update state
+              streamingContentRef.current += newContent;
+              setStreamingMessage(streamingContentRef.current);
             } else if (streamMessage.type === 'tool_approval_request') {
-              // Handle tool approval request
               console.log('Tool approval request:', streamMessage.tool_calls, 'Request ID:', streamMessage.request_id);
               if (streamMessage.tool_calls && streamMessage.tool_calls.length > 0 && streamMessage.request_id) {
-                // Add tool approval message to chat
                 const approvalMessage: ChatMessage = {
                   id: `approval_${Date.now()}`,
                   role: 'tool_approval',
@@ -172,22 +211,17 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
                   timestamp: new Date().toISOString(),
                   tool_calls: streamMessage.tool_calls,
                   approval_request: {
-                    request_id: streamMessage.request_id, // Use actual request ID from backend
+                    request_id: streamMessage.request_id,
                     tool_calls: streamMessage.tool_calls,
                   },
                 };
-                
                 setMessages(prev => [...prev, approvalMessage]);
-                
-                // Clear streaming message since we're adding the approval as a separate message
                 setStreamingMessage('');
                 streamingContentRef.current = '';
               }
             } else if (streamMessage.type === 'tool_execution') {
-              // Handle tool execution information
               console.log('Tool executions:', streamMessage.tool_executions);
               if (streamMessage.tool_executions && streamMessage.tool_executions.length > 0) {
-                // Add detailed tool execution results to streaming content
                 let toolContent = '\n\n**Tool Execution Results:**\n\n';
                 streamMessage.tool_executions.forEach(exec => {
                   toolContent += `🔧 **${exec.tool_name}** (${exec.duration_ms}ms)\n`;
@@ -215,12 +249,13 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
             const errorMsg = 'Connection error: ' + error;
             streamingContentRef.current = errorMsg;
             setStreamingMessage(errorMsg);
+            setIsLoading(false);
+            onComplete?.();
           },
           () => {
             // Stream completed - use ref value (always current)
             const finalContent = streamingContentRef.current;
             if (finalContent) {
-              // Add the final streaming content as an assistant message
               const assistantMessage: ChatMessage = {
                 id: `assistant_${Date.now()}`,
                 role: 'assistant',
@@ -230,7 +265,7 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
               setMessages(prev => [...prev, assistantMessage]);
             }
             
-            // Clear any processed approval requests to remove "Processing request..." status
+            // Clear any processed approval requests
             setMessages(prevMessages => 
               prevMessages.map(msg => 
                 msg.approval_request?.processed 
@@ -243,6 +278,7 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
             streamingContentRef.current = '';
             setIsLoading(false);
             streamCleanupRef.current = null;
+            onComplete?.();
           }
         );
         
@@ -253,7 +289,52 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
       setIsLoading(false);
       setStreamingMessage('');
       streamingContentRef.current = '';
+      onComplete?.();
     }
+  }, [sessionId, isLoading]);
+
+  // Handle initial message - send it automatically when widget opens
+  useEffect(() => {
+    if (initialMessage && isOpen) {
+      // Don't show the message in the input field, just send it directly
+      // Use a timeout to ensure the widget is ready
+      const timeoutId = setTimeout(async () => {
+        if (!isLoading) {
+          await sendMessageWithStreaming(initialMessage, [], () => {
+            // Call onMessageSent when the AI response is complete
+            onMessageSent?.();
+          });
+        }
+      }, 300);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [initialMessage, isOpen, isLoading, onMessageSent, sendMessageWithStreaming]);
+
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    openAndSendMessage: (message: string) => {
+      setIsOpen(true);
+      // Don't show the message in the input field, just send it directly
+      // Use setTimeout to ensure the widget is open before sending
+      setTimeout(() => {
+        sendMessageWithStreaming(message);
+      }, 200);
+    },
+  }), [sendMessageWithStreaming]);
+
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isLoading) return;
+
+    const userMessage = inputMessage.trim();
+    const currentAttachments = [...attachments];
+    
+    // Clear input and attachments immediately
+    setInputMessage('');
+    setAttachments([]);
+
+    // Send the message using unified function
+    await sendMessageWithStreaming(userMessage, currentAttachments);
   };
 
   const handleClearHistory = async () => {
@@ -282,6 +363,12 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
       streamCleanupRef.current = null;
     }
     setIsOpen(false);
+    onOpenChange?.(false);
+  };
+
+  const handleOpen = () => {
+    setIsOpen(true);
+    onOpenChange?.(true);
   };
 
   const handleToolApproval = (requestId: string, approvedIds?: string[]) => {
@@ -459,7 +546,7 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
       <Fab
         color="primary"
         aria-label="open chat"
-        onClick={() => setIsOpen(true)}
+        onClick={handleOpen}
         sx={{
           position: 'fixed',
           ...positionStyles[position],
@@ -487,44 +574,137 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
     >
       {/* Header */}
       <AppBar position="static" color="primary" elevation={0}>
-        <Toolbar variant="dense">
-          <ChatIcon sx={{ mr: 1 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Toolbar variant="dense" sx={{ minHeight: 56 }}>
+          <AIIcon sx={{ mr: 1, fontSize: 28, color: '#ffffff' }} />
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600, color: '#ffffff' }}>
             AI Assistant
           </Typography>
-          {availableTools.length > 0 && (
-            <Tooltip title="Available Tools">
+          
+          {/* Action buttons with better spacing and visibility */}
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <Tooltip title={
+              toolsLoading 
+                ? "Loading MCP Tools..." 
+                : availableTools.length > 0 
+                  ? `View MCP Tools List (${availableTools.length} available)` 
+                  : "No MCP Tools Available"
+            } arrow>
               <IconButton
-                color="inherit"
                 onClick={() => setShowTools(true)}
-                size="small"
+                size="medium"
+                disabled={toolsLoading || availableTools.length === 0}
+                sx={{ 
+                  backgroundColor: !toolsLoading && availableTools.length > 0 
+                    ? 'rgba(255, 255, 255, 0.15)' 
+                    : 'rgba(255, 255, 255, 0.05)',
+                  '&:hover': !toolsLoading && availableTools.length > 0 ? { 
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                    transform: 'scale(1.05)',
+                  } : {},
+                  borderRadius: 2,
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  transition: 'all 0.2s ease-in-out',
+                  opacity: !toolsLoading && availableTools.length > 0 ? 1 : 0.5,
+                }}
               >
-                <SettingsIcon />
+                {toolsLoading ? (
+                  <CircularProgress size={20} sx={{ color: '#ffffff' }} />
+                ) : (
+                  <ListIcon sx={{ 
+                    fontSize: 20, 
+                    color: availableTools.length > 0 ? '#ffffff' : 'rgba(255, 255, 255, 0.5)', 
+                    fontWeight: 'bold' 
+                  }} />
+                )}
               </IconButton>
             </Tooltip>
-          )}
-          <Tooltip title="Refresh Tools">
-            <IconButton color="inherit" onClick={loadAvailableTools} size="small">
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Clear History">
-            <IconButton color="inherit" onClick={handleClearHistory} size="small">
-              <ClearIcon />
-            </IconButton>
-          </Tooltip>
-          <IconButton color="inherit" onClick={handleClose} size="small">
-            <CloseIcon />
-          </IconButton>
+            
+            <Tooltip title="Refresh MCP Tools" arrow>
+              <IconButton 
+                onClick={handleRefreshTools} 
+                size="medium"
+                sx={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  '&:hover': { 
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                    transform: 'scale(1.05)',
+                  },
+                  borderRadius: 2,
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              >
+                <RefreshIcon sx={{ fontSize: 20, color: '#ffffff', fontWeight: 'bold' }} />
+              </IconButton>
+            </Tooltip>
+            
+            <Tooltip title="Clear Chat History" arrow>
+              <IconButton 
+                onClick={handleClearHistory} 
+                size="medium"
+                sx={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  '&:hover': { 
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                    transform: 'scale(1.05)',
+                  },
+                  borderRadius: 2,
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              >
+                <ClearIcon sx={{ fontSize: 20, color: '#ffffff', fontWeight: 'bold' }} />
+              </IconButton>
+            </Tooltip>
+            
+            <Tooltip title="Close Chat" arrow>
+              <IconButton 
+                onClick={handleClose} 
+                size="medium"
+                sx={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  '&:hover': { 
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                    transform: 'scale(1.05)',
+                  },
+                  borderRadius: 2,
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  transition: 'all 0.2s ease-in-out',
+                  ml: 0.5,
+                }}
+              >
+                <CloseIcon sx={{ fontSize: 20, color: '#ffffff', fontWeight: 'bold' }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Toolbar>
       </AppBar>
 
       {/* Tools indicator */}
-      {availableTools.length > 0 && (
-        <Box sx={{ p: 1, borderBottom: '1px solid #e0e0e0' }}>
-          <Typography variant="caption" color="textSecondary">
-            {availableTools.length} MCP tool{availableTools.length !== 1 ? 's' : ''} available
-          </Typography>
+      {(toolsLoading || availableTools.length > 0) && (
+        <Box sx={{ 
+          p: 1.5, 
+          borderBottom: '1px solid #e0e0e0',
+          backgroundColor: toolsLoading ? '#fff3e0' : '#f0f7ff',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+        }}>
+          {toolsLoading ? (
+            <>
+              <CircularProgress size={18} sx={{ color: '#ff9800' }} />
+              <Typography variant="body2" sx={{ fontWeight: 600, color: '#f57c00' }}>
+                Loading MCP tools...
+              </Typography>
+            </>
+          ) : (
+            <>
+              <ListIcon sx={{ fontSize: 18, color: '#1976d2', fontWeight: 'bold' }} />
+              <Typography variant="body2" sx={{ fontWeight: 600, color: '#1565c0' }}>
+                {availableTools.length} MCP tool{availableTools.length !== 1 ? 's' : ''} available
+              </Typography>
+            </>
+          )}
         </Box>
       )}
 
@@ -653,4 +833,4 @@ export const AIChatWidget: React.FC<AIChatWidgetProps> = ({
 
     </Paper>
   );
-}; 
+}); 
