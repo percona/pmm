@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "pmm": {
-      "url": "http://localhost:80/v1/mcp/sse"
+      "url": "http://localhost:7772/v1/mcp/sse"
     },
     "mcp-clickhouse": {
       "command": "uv",
@@ -25,10 +25,10 @@
       }
     },
     "mcp-victoriametrics": {
-      "command": "./bin/mcp-victoriametrics",
+      "command": "/usr/local/bin/mcp-victoriametrics",
       "args": [],
       "env": {
-        "VICTORIAMETRICS_URL": "http://localhost:80/prometheus"
+        "VICTORIAMETRICS_URL": "http://localhost:8428"
       }
     }
   }

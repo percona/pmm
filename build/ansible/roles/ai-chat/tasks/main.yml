@@ -1,7 +1,5 @@
 ---
 # Main tasks for AI Chat Backend service
-- name: Include variables
-  include_vars: ../vars/main.yml
 
 # Install uv for MCP servers
 - name: Check if uv is installed
@@ -27,6 +25,50 @@
     mode: '0644'
   when: uv_version.rc != 0
 
+# Install VictoriaMetrics MCP server
+- name: Get latest VictoriaMetrics MCP server release
+  uri:
+    url: https://api.github.com/repos/VictoriaMetrics-Community/mcp-victoriametrics/releases/latest
+    method: GET
+    return_content: yes
+  register: vm_mcp_release
+
+- name: Extract VictoriaMetrics MCP server version
+  set_fact:
+    vm_mcp_version: "{{ vm_mcp_release.json.tag_name }}"
+
+- name: Create temporary directory for VictoriaMetrics MCP server
+  tempfile:
+    state: directory
+    suffix: vm-mcp
+  register: vm_mcp_temp_dir
+
+- name: Download VictoriaMetrics MCP server
+  get_url:
+    url: "https://github.com/VictoriaMetrics-Community/mcp-victoriametrics/releases/download/{{ vm_mcp_version }}/mcp-victoriametrics_Linux_x86_64.tar.gz"
+    dest: "{{ vm_mcp_temp_dir.path }}/mcp-victoriametrics.tar.gz"
+    mode: '0644'
+
+- name: Extract VictoriaMetrics MCP server
+  unarchive:
+    src: "{{ vm_mcp_temp_dir.path }}/mcp-victoriametrics.tar.gz"
+    dest: "{{ vm_mcp_temp_dir.path }}"
+    remote_src: yes
+
+- name: Install VictoriaMetrics MCP server binary
+  copy:
+    src: "{{ vm_mcp_temp_dir.path }}/mcp-victoriametrics"
+    dest: /usr/local/bin/mcp-victoriametrics
+    owner: root
+    group: root
+    mode: '0755'
+    remote_src: yes
+
+- name: Clean up VictoriaMetrics MCP server temporary files
+  file:
+    path: "{{ vm_mcp_temp_dir.path }}"
+    state: absent
+
 - name: Create aichat-backend directories
   file:
     path: "{{ item }}"
@@ -38,6 +80,14 @@
     - /srv/aichat-backend
     - /srv/logs
 
+- name: Deploy MCP servers configuration
+  copy:
+    src: mcp-servers.json
+    dest: /srv/aichat-backend/mcp-servers.json
+    owner: pmm
+    group: pmm
+    mode: '0644'
+
 - name: Copy aichat-backend binary
   copy:
     src: aichat-backend
@@ -45,7 +95,6 @@
     owner: root
     group: root
     mode: '0755'
-  notify: restart aichat-backend
 
 - name: Create aichat-backend log file
   file:
@@ -62,7 +111,6 @@
     owner: root
     group: root
     mode: '0644'
-  notify: restart supervisord
 
 - name: Ensure aichat-backend service is started
   supervisorctl:
