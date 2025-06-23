@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 
+	openai "github.com/sashabaranov/go-openai"
+
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/models"
-	openai "github.com/sashabaranov/go-openai"
 )
 
 // OpenAIProvider implements the LLMProvider interface for OpenAI

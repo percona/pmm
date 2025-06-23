@@ -8,9 +8,10 @@ import (
 	"log"
 	"strings"
 
+	"google.golang.org/genai"
+
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/models"
-	"google.golang.org/genai"
 )
 
 // GeminiProvider implements the LLMProvider interface for Google Gemini

@@ -65,6 +65,31 @@ export interface ChatHistory {
   messages: ChatMessage[];
 }
 
+export interface ChatSession {
+  id: string;
+  user_id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SessionListResponse {
+  sessions: ChatSession[];
+  pagination: {
+    page: number;
+    limit: number;
+    offset: number;
+  };
+}
+
+export interface CreateSessionRequest {
+  title: string;
+}
+
+export interface UpdateSessionRequest {
+  title: string;
+}
+
 export interface MCPTool {
   name: string;
   description: string;
@@ -108,12 +133,17 @@ class AIChatAPI {
     this.baseURL = '/v1/chat';
   }
 
+  // Get default headers for API requests
+  private getDefaultHeaders(): Record<string, string> {
+    return {
+      'Content-Type': 'application/json',
+    };
+  }
+
   async sendMessage(request: ChatRequest): Promise<ChatResponse> {
     const response = await fetch(`${this.baseURL}/send`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: this.getDefaultHeaders(),
       body: JSON.stringify(request),
     });
 
@@ -164,7 +194,9 @@ class AIChatAPI {
   }
 
   async getHistory(sessionId: string): Promise<ChatHistory> {
-    const response = await fetch(`${this.baseURL}/history?session_id=${encodeURIComponent(sessionId)}`);
+    const response = await fetch(`${this.baseURL}/sessions/${encodeURIComponent(sessionId)}/messages`, {
+      headers: this.getDefaultHeaders(),
+    });
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -179,12 +211,16 @@ class AIChatAPI {
       console.log('🔍 API: Messages with attachments:', messagesWithAttachments);
     }
 
-    return data;
+    return {
+      session_id: sessionId,
+      messages: data.messages || [],
+    };
   }
 
   async clearHistory(sessionId: string): Promise<void> {
-    const response = await fetch(`${this.baseURL}/clear?session_id=${encodeURIComponent(sessionId)}`, {
+    const response = await fetch(`${this.baseURL}/sessions/${encodeURIComponent(sessionId)}/messages`, {
       method: 'DELETE',
+      headers: this.getDefaultHeaders(),
     });
 
     if (!response.ok) {
@@ -264,7 +300,79 @@ class AIChatAPI {
     };
   }
 
+  // Session management methods
+  async listSessions(page: number = 1, limit: number = 20): Promise<SessionListResponse> {
+    const response = await fetch(`${this.baseURL}/sessions?page=${page}&limit=${limit}`, {
+      headers: this.getDefaultHeaders(),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
+    return response.json();
+  }
+
+  async createSession(request: CreateSessionRequest): Promise<ChatSession> {
+    const response = await fetch(`${this.baseURL}/sessions`, {
+      method: 'POST',
+      headers: this.getDefaultHeaders(),
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async getSession(sessionId: string): Promise<ChatSession> {
+    const response = await fetch(`${this.baseURL}/sessions/${encodeURIComponent(sessionId)}`, {
+      headers: this.getDefaultHeaders(),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async updateSession(sessionId: string, request: UpdateSessionRequest): Promise<void> {
+    const response = await fetch(`${this.baseURL}/sessions/${encodeURIComponent(sessionId)}`, {
+      method: 'PUT',
+      headers: this.getDefaultHeaders(),
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  }
+
+  async deleteSession(sessionId: string): Promise<void> {
+    const response = await fetch(`${this.baseURL}/sessions/${encodeURIComponent(sessionId)}`, {
+      method: 'DELETE',
+      headers: this.getDefaultHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  }
+
+  async getSessionMessages(sessionId: string, page: number = 1, limit: number = 50): Promise<{ messages: ChatMessage[] }> {
+    const response = await fetch(`${this.baseURL}/sessions/${encodeURIComponent(sessionId)}/messages?page=${page}&limit=${limit}`, {
+      headers: this.getDefaultHeaders(),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
 }
 
-export const aiChatAPI = new AIChatAPI(); 
+export const aiChatAPI = new AIChatAPI();

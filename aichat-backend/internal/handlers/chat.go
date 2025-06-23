@@ -12,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+
 	"github.com/percona/pmm/aichat-backend/internal/models"
 	"github.com/percona/pmm/aichat-backend/internal/services"
 )

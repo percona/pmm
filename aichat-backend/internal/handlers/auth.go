@@ -10,7 +10,6 @@ import (
 // getUserID extracts user ID from X-User-ID header set by PMM auth server
 // Returns the user ID string if valid, or empty string if invalid/missing
 func getUserID(c *gin.Context) string {
-	log.Printf("🔍 Auth: Getting user ID from header: %s", c.Request.Header.Get("X-User-ID"))
 	userIDHeader := c.GetHeader("X-User-ID")
 	log.Printf("🔍 Auth: X-User-ID header: %s", userIDHeader)
 	if userIDHeader == "" {

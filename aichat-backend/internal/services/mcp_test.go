@@ -8,9 +8,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/models"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestMCPService_ThreadSafety(t *testing.T) {

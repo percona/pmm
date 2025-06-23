@@ -10,10 +10,10 @@ import (
 	mcpgo "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	actionsv1 "github.com/percona/pmm/api/actions/v1"
 	qanpb "github.com/percona/pmm/api/qan/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // availableQANColumns contains the comprehensive list of all available QAN metric columns
@@ -116,10 +116,12 @@ func (m *Mcp) Server() *server.MCPServer {
 			mcpgo.Description("Labels/filters in JSON format (e.g., {\"service_name\": [\"mysql-1\"], \"database\": [\"test\"]}). Optional"),
 		),
 		mcpgo.WithString("columns",
-			mcpgo.Description("Comma-separated list of metric columns to include. Optional. Available columns: "+availableQANColumns),
+			mcpgo.Description("Comma-separated list of metric columns to include. Required. Available columns: "+availableQANColumns),
+			mcpgo.Required(),
 		),
 		mcpgo.WithString("order_by",
-			mcpgo.Description("Order by metric. Optional. Available columns: "+availableQANColumns+". You can also use aggregation suffixes like '_sum', '_avg', '_min', '_max', '_p99' with most metrics"),
+			mcpgo.Description("Order by metric. Required. Use column name for ascending order or prefix with '-' for descending (e.g., 'query_time' or '-query_time'). Available columns: "+availableQANColumns),
+			mcpgo.Required(),
 		),
 		mcpgo.WithNumber("offset",
 			mcpgo.Description("Pagination offset. Optional, defaults to 0"),
@@ -644,6 +646,14 @@ type qanGetReportArgs struct {
 func (m *Mcp) QANGetReport(ctx context.Context, request mcpgo.CallToolRequest, args qanGetReportArgs) (*mcpgo.CallToolResult, error) {
 	m.l.WithField("args", args).Info("Received QAN get report request")
 
+	// Validate required fields
+	if args.Columns == "" {
+		return nil, fmt.Errorf("columns parameter is required")
+	}
+	if args.OrderBy == "" {
+		return nil, fmt.Errorf("order_by parameter is required")
+	}
+
 	// Parse time periods
 	periodStart, err := time.Parse(time.RFC3339, args.PeriodStart)
 	if err != nil {
@@ -661,6 +671,8 @@ func (m *Mcp) QANGetReport(ctx context.Context, request mcpgo.CallToolRequest, a
 	}
 
 	// Build QAN request
+	// Note: OrderBy supports '-' prefix for descending order (e.g., '-query_time')
+	// The QAN service will handle this prefix internally
 	qanReq := &qanpb.GetReportRequest{
 		PeriodStartFrom: timestamppb.New(periodStart),
 		PeriodStartTo:   timestamppb.New(periodEnd),
@@ -710,6 +722,7 @@ func (m *Mcp) QANGetReport(ctx context.Context, request mcpgo.CallToolRequest, a
 		"period_start": periodStart,
 		"period_end":   periodEnd,
 		"group_by":     qanReq.GroupBy,
+		"order_by":     args.OrderBy,
 		"limit":        qanReq.Limit,
 		"offset":       qanReq.Offset,
 		"columns":      len(qanReq.Columns),
@@ -726,6 +739,8 @@ func (m *Mcp) QANGetReport(ctx context.Context, request mcpgo.CallToolRequest, a
 	result := fmt.Sprintf("QAN Metrics Report\n==================\n\n")
 	result += fmt.Sprintf("Period: %s to %s\n", periodStart.Format(time.RFC3339), periodEnd.Format(time.RFC3339))
 	result += fmt.Sprintf("Group By: %s\n", qanReq.GroupBy)
+	result += fmt.Sprintf("Order By: %s\n", args.OrderBy)
+	result += fmt.Sprintf("Columns: %s\n", args.Columns)
 	result += fmt.Sprintf("Total Rows: %d (showing %d-%d)\n\n", resp.TotalRows, resp.Offset+1, resp.Offset+uint32(len(resp.Rows)))
 
 	if len(resp.Rows) == 0 {

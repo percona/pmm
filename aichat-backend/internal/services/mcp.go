@@ -10,6 +10,7 @@ import (
 
 	"github.com/mark3labs/mcp-go/client"
 	"github.com/mark3labs/mcp-go/mcp"
+
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/models"
 )
@@ -235,8 +236,6 @@ func (s *MCPService) loadToolsFromServer(ctx context.Context, serverName string,
 	}
 
 	// Store tools with server prefix (thread-safe)
-	s.mu.Lock()
-	defer s.mu.Unlock()
 
 	toolCount := 0
 	for _, tool := range toolsResp.Tools {
@@ -253,12 +252,14 @@ func (s *MCPService) loadToolsFromServer(ctx context.Context, serverName string,
 			inputSchema["required"] = tool.InputSchema.Required
 		}
 
+		s.mu.Lock()
 		s.tools[toolKey] = models.MCPTool{
 			Name:        tool.Name,
 			Description: fmt.Sprintf("%s (%s)", tool.Description, serverName),
 			InputSchema: inputSchema,
 			Server:      serverName,
 		}
+		s.mu.Unlock()
 		toolCount++
 	}
 
@@ -311,13 +312,14 @@ func (s *MCPService) RefreshTools() error {
 
 // ExecuteTool executes a tool call on the appropriate MCP server
 func (s *MCPService) ExecuteTool(ctx context.Context, toolCall models.ToolCall) (string, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
 	log.Printf("🔧 MCP: Attempting to execute tool call: %s with args: %s", toolCall.Function.Name, toolCall.Function.Arguments)
 
-	// Parse tool name to find server
+	// Parse tool name to find server (with read lock)
 	var serverName, toolName string
+	var mcpClient client.MCPClient
+	var clientExists bool
+
+	s.mu.RLock()
 	for key, tool := range s.tools {
 		if tool.Name == toolCall.Function.Name {
 			// Extract server name from key (format: "server/tool")
@@ -329,12 +331,17 @@ func (s *MCPService) ExecuteTool(ctx context.Context, toolCall models.ToolCall) 
 	}
 
 	if serverName == "" {
-		log.Printf("❌ MCP: Tool not found: %s. Available tools: %v", toolCall.Function.Name, s.getToolNames())
+		toolNames := s.getToolNamesUnsafe() // Already under lock
+		s.mu.RUnlock()
+		log.Printf("❌ MCP: Tool not found: %s. Available tools: %v", toolCall.Function.Name, toolNames)
 		return "", fmt.Errorf("tool not found: %s", toolCall.Function.Name)
 	}
 
-	mcpClient, exists := s.clients[serverName]
-	if !exists {
+	// Get client reference while under lock
+	mcpClient, clientExists = s.clients[serverName]
+	s.mu.RUnlock()
+
+	if !clientExists {
 		log.Printf("❌ MCP: Server not connected: %s", serverName)
 		return "", fmt.Errorf("MCP server not connected: %s", serverName)
 	}
@@ -385,14 +392,19 @@ func (s *MCPService) Close() error {
 
 // HealthCheck checks the health of all connected MCP servers
 func (s *MCPService) HealthCheck(ctx context.Context) map[string]bool {
+	// Create a copy of clients map to avoid holding lock during network calls
 	s.mu.RLock()
-	defer s.mu.RUnlock()
+	clientsCopy := make(map[string]client.MCPClient)
+	for name, client := range s.clients {
+		clientsCopy[name] = client
+	}
+	s.mu.RUnlock()
 
 	health := make(map[string]bool)
-	for name, mcpClient := range s.clients {
+	for name, mcpClient := range clientsCopy {
 		// Simple ping to check if server is responsive
-		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-		_, err := mcpClient.ListTools(ctx, mcp.ListToolsRequest{})
+		timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		_, err := mcpClient.ListTools(timeoutCtx, mcp.ListToolsRequest{})
 		health[name] = err == nil
 		cancel()
 	}
@@ -400,8 +412,8 @@ func (s *MCPService) HealthCheck(ctx context.Context) map[string]bool {
 	return health
 }
 
-// getToolNames returns a list of available tool names for logging
-func (s *MCPService) getToolNames() []string {
+// getToolNamesUnsafe returns a list of available tool names - must be called with lock held
+func (s *MCPService) getToolNamesUnsafe() []string {
 	names := make([]string, 0, len(s.tools))
 	for _, tool := range s.tools {
 		names = append(names, tool.Name)

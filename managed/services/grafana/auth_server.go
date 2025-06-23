@@ -103,8 +103,7 @@ var rules = map[string]role{
 	"/v1/mcp": none, // TODO: remove this once we have a proper auth for mcp
 
 	// AI Chat API - requires viewer role for basic access
-	"/v1/chat/":       viewer,
-	"/v1/chat/health": none, // health check doesn't require auth
+	"/v1/chat/": viewer,
 
 	"/v1/server/logs.zip": admin,
 
@@ -253,7 +252,6 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	// Set X-User-ID header for AI Chat endpoints
 	if s.isAIChatEndpoint(req) && userID > 0 {
 		rw.Header().Set("X-User-ID", fmt.Sprintf("%d", userID))
-		l.Infof("Set X-User-ID header: %d for AI Chat endpoint", userID)
 	}
 
 	if err := s.maybeAddLBACFilters(ctx, rw, req, userID, l); err != nil {

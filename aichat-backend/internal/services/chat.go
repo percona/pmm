@@ -80,7 +80,10 @@ func (s *ChatService) ProcessStreamMessageForUser(ctx context.Context, userID, s
 
 	s.mu.Lock()
 	session := s.getOrCreateSessionForUser(userID, sessionID)
+	actualSessionID := session.ID // Get the actual session ID (might be different if generated)
 	s.mu.Unlock()
+
+	log.Printf("📋 Chat: Using session ID: %s (original: %s)", actualSessionID, sessionID)
 
 	// Add user message to session
 	userMsg := &models.Message{
@@ -90,7 +93,7 @@ func (s *ChatService) ProcessStreamMessageForUser(ctx context.Context, userID, s
 		Timestamp: time.Now(),
 	}
 
-	s.addMessageToSession(ctx, sessionID, session, userMsg)
+	s.addMessageToSession(ctx, actualSessionID, session, userMsg)
 
 	log.Printf("📝 Chat: Added user message to session, total messages: %d", len(session.Messages))
 
@@ -116,14 +119,14 @@ func (s *ChatService) ProcessStreamMessageForUser(ctx context.Context, userID, s
 	// Process stream
 	go func() {
 		defer close(outputChan)
-		defer log.Printf("🏁 Chat: Stream processing completed for session %s", sessionID)
+		defer log.Printf("🏁 Chat: Stream processing completed for session %s", actualSessionID)
 
 		var fullContent string
 		var messageCount int
 
 		log.Printf("🔄 Chat: Starting stream message processing loop")
 
-		s.handleStreamMessage(ctx, sessionID, session, streamChan, outputChan, &fullContent, tools, &messageCount)
+		s.handleStreamMessage(ctx, actualSessionID, session, streamChan, outputChan, &fullContent, tools, &messageCount)
 
 		log.Printf("⚠️  Chat: Stream channel closed without 'done' message")
 	}()
@@ -215,6 +218,44 @@ func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string,
 
 			log.Printf("💾 Chat: Saved assistant message to session, total messages: %d", len(session.Messages))
 
+			// Generate and update session title if this is the first exchange (2 messages: user + assistant)
+			// Note: We need to count only user/assistant messages, not tool approval messages
+			userMessages := 0
+			assistantMessages := 0
+			for _, msg := range session.Messages {
+				if msg.Role == "user" {
+					userMessages++
+				} else if msg.Role == "assistant" {
+					assistantMessages++
+				}
+			}
+
+			if userMessages == 1 && assistantMessages == 1 {
+				// Find the first user message and current assistant message
+				var firstUserMessage, firstAssistantMessage string
+				for _, msg := range session.Messages {
+					if msg.Role == "user" && firstUserMessage == "" {
+						firstUserMessage = msg.Content
+					} else if msg.Role == "assistant" && firstAssistantMessage == "" {
+						firstAssistantMessage = msg.Content
+						break
+					}
+				}
+
+				// Generate title in background to avoid blocking the response
+				if firstUserMessage != "" && firstAssistantMessage != "" {
+					go func(userMsg, assistantMsg string) {
+						ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+						defer cancel()
+
+						newTitle := s.generateSessionTitle(ctx, userMsg, assistantMsg)
+						// We need to extract userID from session context - for now use a placeholder
+						// In real implementation, we should pass userID to this function
+						s.updateSessionTitle(ctx, sessionID, session.UserID, newTitle)
+					}(firstUserMessage, firstAssistantMessage)
+				}
+			}
+
 			// Handle tool calls if present (request approval instead of executing immediately)
 			if len(streamToolCalls) > 0 {
 				log.Printf("🔧 Chat: Requesting approval for %d tool call(s) from streaming response", len(streamToolCalls))
@@ -298,13 +339,53 @@ func (s *ChatService) ClearHistoryForUser(userID, sessionID string) {
 
 // getOrCreateSessionForUser gets or creates a session for a specific user
 func (s *ChatService) getOrCreateSessionForUser(userID, sessionID string) *ChatSession {
+	// If no sessionID provided, generate a new one
+	if sessionID == "" {
+		sessionID = fmt.Sprintf("session_%d", time.Now().UnixNano())
+		log.Printf("🆕 Chat: Generated new session ID: %s for user: %s", sessionID, userID)
+	}
+
 	// Ensure user sessions map exists
 	if s.userSessions[userID] == nil {
 		s.userSessions[userID] = make(map[string]*ChatSession)
 	}
 
+	// Check if session exists in memory
 	session, exists := s.userSessions[userID][sessionID]
-	if !exists {
+	if exists {
+		return session
+	}
+
+	// Check if session exists in database
+	ctx := context.Background()
+	dbSession, err := s.database.GetSession(ctx, sessionID, userID)
+	if err == nil {
+		// Session exists in database, load it into memory
+		log.Printf("💾 Chat: Loaded existing session from database: %s", sessionID)
+		session = &ChatSession{
+			ID:       dbSession.ID,
+			UserID:   dbSession.UserID,
+			Messages: []*models.Message{}, // Messages will be loaded on demand
+			Created:  dbSession.CreatedAt,
+			Updated:  dbSession.UpdatedAt,
+		}
+		s.userSessions[userID][sessionID] = session
+
+		// Load pending approvals from database
+		s.loadPendingApprovalsFromDB(ctx, sessionID)
+
+		return session
+	}
+
+	// Session doesn't exist, create new one
+	log.Printf("🆕 Chat: Creating new session in database: %s for user: %s", sessionID, userID)
+
+	// Create session in database first with a temporary title
+	defaultTitle := fmt.Sprintf("Chat - %s", time.Now().Format("Jan 2, 2006 at 3:04 PM"))
+	dbSession, err = s.database.CreateSession(ctx, userID, defaultTitle)
+	if err != nil {
+		log.Printf("❌ Chat: Failed to create session in database: %v", err)
+		// Fallback to in-memory session
 		session = &ChatSession{
 			ID:       sessionID,
 			UserID:   userID,
@@ -312,8 +393,21 @@ func (s *ChatService) getOrCreateSessionForUser(userID, sessionID string) *ChatS
 			Created:  time.Now(),
 			Updated:  time.Now(),
 		}
-		s.userSessions[userID][sessionID] = session
+	} else {
+		// Use the session created in database
+		log.Printf("✅ Chat: Successfully created session in database: %s", dbSession.ID)
+		session = &ChatSession{
+			ID:       dbSession.ID,
+			UserID:   dbSession.UserID,
+			Messages: []*models.Message{},
+			Created:  dbSession.CreatedAt,
+			Updated:  dbSession.UpdatedAt,
+		}
+		// Update sessionID to match what was created in database
+		sessionID = dbSession.ID
 	}
+
+	s.userSessions[userID][sessionID] = session
 	return session
 }
 
@@ -509,6 +603,28 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 		// Execute approved tools using common method
 		toolExecutions, toolMessages := s.executeToolCalls(ctx, toolsToExecute, session)
 
+		// Check if all tool executions were successful
+		allSuccessful := true
+		var failedTools []string
+		for _, execution := range toolExecutions {
+			if execution.Error != "" {
+				allSuccessful = false
+				failedTools = append(failedTools, execution.ToolName)
+			}
+		}
+
+		// Only mark approval as processed if all tool executions were successful
+		if allSuccessful {
+			if err := s.database.MarkApprovalProcessed(ctx, approval.SessionID, approval.RequestID); err != nil {
+				log.Printf("⚠️ Chat: Failed to mark approval as processed in database: %v", err)
+				// Continue processing even if database update fails
+			} else {
+				log.Printf("✅ Chat: Marked approval %s as processed after successful tool execution", approval.RequestID)
+			}
+		} else {
+			log.Printf("❌ Chat: Not marking approval %s as processed due to failed tool executions: %v", approval.RequestID, failedTools)
+		}
+
 		// Add tool executions to the last assistant message
 		s.mu.Lock()
 		if len(session.Messages) > 0 {
@@ -525,9 +641,13 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 		s.mu.Unlock()
 
 		// Send tool execution information to the frontend
+		executionStatus := "successful"
+		if !allSuccessful {
+			executionStatus = "partially failed"
+		}
 		outputChan <- &models.StreamMessage{
 			Type:           "tool_execution",
-			Content:        fmt.Sprintf("🔧 Executed %d tool(s)", len(toolExecutions)),
+			Content:        fmt.Sprintf("🔧 Executed %d tool(s) (%s)", len(toolExecutions), executionStatus),
 			SessionID:      approval.SessionID,
 			ToolExecutions: toolExecutions,
 		}
@@ -654,11 +774,14 @@ func (s *ChatService) ProcessMessageWithAttachmentsForUser(ctx context.Context, 
 
 	s.mu.Lock()
 	session := s.getOrCreateSessionForUser(userID, sessionID)
+	actualSessionID := session.ID // Get the actual session ID (might be different if generated)
 	s.mu.Unlock()
+
+	log.Printf("📋 Chat: Using session ID: %s (original: %s)", actualSessionID, sessionID)
 
 	// Create and add user message
 	userMsg := s.createUserMessage(userMessage, attachments)
-	s.addMessageToSession(ctx, sessionID, session, userMsg)
+	s.addMessageToSession(ctx, actualSessionID, session, userMsg)
 
 	log.Printf("📝 Chat: Added user message to session, total messages: %d", len(session.Messages))
 
@@ -669,18 +792,33 @@ func (s *ChatService) ProcessMessageWithAttachmentsForUser(ctx context.Context, 
 	}
 
 	// Add assistant message to session
-	s.addMessageToSession(ctx, sessionID, session, assistantMsg)
+	s.addMessageToSession(ctx, actualSessionID, session, assistantMsg)
 
 	log.Printf("💾 Chat: Saved assistant message to session, total messages: %d", len(session.Messages))
 
+	// Generate and update session title if this is the first exchange (2 messages: user + assistant)
+	if len(session.Messages) == 2 && session.Messages[0].Role == "user" && session.Messages[1].Role == "assistant" {
+		userMessage := session.Messages[0].Content
+		assistantResponse := session.Messages[1].Content
+
+		// Generate title in background to avoid blocking the response
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			newTitle := s.generateSessionTitle(ctx, userMessage, assistantResponse)
+			s.updateSessionTitle(ctx, actualSessionID, userID, newTitle)
+		}()
+	}
+
 	// Handle tool calls if present
 	if len(assistantMsg.ToolCalls) > 0 {
-		s.handleToolCallApprovalRequest(sessionID, assistantMsg)
+		s.handleToolCallApprovalRequest(actualSessionID, assistantMsg)
 	}
 
 	return &models.ChatResponse{
 		Message:   assistantMsg,
-		SessionID: sessionID,
+		SessionID: actualSessionID, // Return the actual session ID
 	}, nil
 }
 
@@ -839,12 +977,12 @@ func (s *ChatService) handleToolCallApprovalRequest(sessionID string, assistantM
 		RequestID: requestID,
 	}
 
-	// Store pending approval
+	// Store pending approval in memory for quick access
 	s.mu.Lock()
 	s.pendingApprovals[requestID] = approvalRequest
 	s.mu.Unlock()
 
-	// Update assistant message with approval request
+	// Update assistant message with approval request - this will be saved to DB via addMessageToSession
 	assistantMsg.ApprovalRequest = &struct {
 		RequestID string            `json:"request_id"`
 		ToolCalls []models.ToolCall `json:"tool_calls"`
@@ -852,8 +990,11 @@ func (s *ChatService) handleToolCallApprovalRequest(sessionID string, assistantM
 	}{
 		RequestID: requestID,
 		ToolCalls: assistantMsg.ToolCalls,
-		Processed: false,
+		Processed: false, // Mark as unprocessed to show approval buttons
 	}
+
+	log.Printf("💾 Chat: Created approval request %s for %d tool calls (will be saved to DB with message)",
+		requestID, len(assistantMsg.ToolCalls))
 }
 
 // GetAvailableTools returns all available MCP tools
@@ -864,4 +1005,110 @@ func (s *ChatService) GetAvailableTools() []models.MCPTool {
 // RefreshTools forces a refresh of tools from MCP servers
 func (s *ChatService) RefreshTools() error {
 	return s.mcp.RefreshTools()
+}
+
+// generateSessionTitle creates a concise title for a session based on the conversation
+func (s *ChatService) generateSessionTitle(ctx context.Context, userMessage, assistantResponse string) string {
+	// Create a simple prompt for title generation
+	titlePrompt := fmt.Sprintf(`Based on this conversation, generate a concise, descriptive title (max 50 characters):
+
+User: %s
+Assistant: %s
+
+Respond with ONLY the title, no explanations or quotes. Make it specific and helpful for identifying this conversation later.`,
+		userMessage, assistantResponse)
+
+	// Prepare messages for title generation
+	titleMessages := []*models.Message{
+		{
+			ID:        "title_request",
+			Role:      "user",
+			Content:   titlePrompt,
+			Timestamp: time.Now(),
+		},
+	}
+
+	// Generate title using LLM (without tools)
+	titleResponse, err := s.llmProvider.GenerateResponse(ctx, titleMessages, nil)
+	if err != nil {
+		log.Printf("⚠️ Chat: Failed to generate session title: %v", err)
+		// Fallback to extract key words from user message
+		return s.generateFallbackTitle(userMessage)
+	}
+
+	// Clean up the response
+	title := strings.TrimSpace(titleResponse.Content)
+	title = strings.Trim(title, "\"'")
+
+	// Limit length
+	if len(title) > 50 {
+		title = title[:47] + "..."
+	}
+
+	// Ensure we have a meaningful title
+	if len(title) < 5 || strings.ToLower(title) == "untitled" {
+		return s.generateFallbackTitle(userMessage)
+	}
+
+	log.Printf("🏷️ Chat: Generated session title: %s", title)
+	return title
+}
+
+// generateFallbackTitle creates a fallback title from the user message
+func (s *ChatService) generateFallbackTitle(userMessage string) string {
+	// Take first few words of user message
+	words := strings.Fields(userMessage)
+	if len(words) == 0 {
+		return "New Chat"
+	}
+
+	// Take up to 6 words or 40 characters, whichever comes first
+	var titleWords []string
+	totalLength := 0
+	for i, word := range words {
+		if i >= 6 || totalLength+len(word) > 40 {
+			break
+		}
+		titleWords = append(titleWords, word)
+		totalLength += len(word) + 1 // +1 for space
+	}
+
+	title := strings.Join(titleWords, " ")
+	if len(words) > len(titleWords) {
+		title += "..."
+	}
+
+	return title
+}
+
+// updateSessionTitle updates the session title in the database
+func (s *ChatService) updateSessionTitle(ctx context.Context, sessionID, userID, newTitle string) {
+	if s.database == nil {
+		return
+	}
+
+	err := s.database.UpdateSession(ctx, sessionID, userID, newTitle)
+	if err != nil {
+		log.Printf("⚠️ Chat: Failed to update session title: %v", err)
+	} else {
+		log.Printf("🏷️ Chat: Updated session title to: %s", newTitle)
+	}
+}
+
+// loadPendingApprovalsFromDB loads pending approvals from the database for a specific session
+func (s *ChatService) loadPendingApprovalsFromDB(ctx context.Context, sessionID string) {
+	approvals, err := s.database.GetPendingApprovals(ctx, sessionID)
+	if err != nil {
+		log.Printf("⚠️ Chat: Failed to load pending approvals from database: %v", err)
+		return
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for _, approval := range approvals {
+		s.pendingApprovals[approval.RequestID] = approval
+	}
+
+	log.Printf("💾 Chat: Loaded %d pending approvals from database for session %s", len(approvals), sessionID)
 }

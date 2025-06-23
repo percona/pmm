@@ -15,6 +15,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq" // PostgreSQL driver
+
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/handlers"
 	"github.com/percona/pmm/aichat-backend/internal/services"
@@ -25,7 +26,6 @@ import (
 var embeddedMigrations embed.FS
 
 func main() {
-
 	var (
 		configPath  string
 		envOnly     bool
@@ -67,18 +67,32 @@ func main() {
 	log.Printf("MCP Servers File: %s", cfg.MCP.ServersFile)
 
 	// Initialize database service
+	log.Printf("🗄️  Database: Initializing database connection...")
 	dbConfig := config.GetDatabaseConfig()
+	log.Printf("🗄️  Database: Database config loaded")
+
 	db, err := dbConfig.OpenDatabase()
 	if err != nil {
 		log.Fatalf("❌ Failed to connect to database: %v", err)
 	}
+	log.Printf("✅ Database: Database connection established")
+
+	// Test the connection immediately
+	if err := db.Ping(); err != nil {
+		log.Printf("❌ Database: Initial ping test failed: %v", err)
+		log.Fatalf("❌ Failed to ping database: %v", err)
+	}
+	log.Printf("✅ Database: Initial ping test successful")
+
 	defer func() {
 		if db != nil {
+			log.Printf("🗄️  Database: Closing database connection...")
 			db.Close()
 		}
 	}()
 
 	// Create database service
+	log.Printf("🗄️  Database: Creating database service...")
 	databaseService := services.NewDatabaseService(db)
 
 	// Create migration service and run migrations
@@ -131,18 +145,7 @@ func main() {
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"},
 		AllowCredentials: true,
-	}
-
-	// Set CORS origins from environment or use defaults
-	if origins := os.Getenv("AICHAT_CORS_ORIGINS"); origins != "" {
-		corsConfig.AllowOrigins = []string{origins}
-	} else {
-		corsConfig.AllowOrigins = []string{
-			"http://localhost:3000",
-			"http://localhost:5173",
-			"http://localhost:8080",
-			"http://localhost:8443",
-		}
+		AllowAllOrigins:  true,
 	}
 
 	router.Use(cors.New(corsConfig))
@@ -175,6 +178,7 @@ func main() {
 		v1chat.PUT("/sessions/:id", sessionHandler.UpdateSession)
 		v1chat.DELETE("/sessions/:id", sessionHandler.DeleteSession)
 		v1chat.GET("/sessions/:id/messages", sessionHandler.GetSessionMessages)
+		v1chat.DELETE("/sessions/:id/messages", sessionHandler.ClearSessionMessages)
 	}
 
 	// Start server

@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/percona/pmm/aichat-backend/internal/models"
 	"github.com/percona/pmm/aichat-backend/internal/services"
 )
 
@@ -250,6 +252,11 @@ func (h *SessionHandler) GetSessionMessages(c *gin.Context) {
 		return
 	}
 
+	// Ensure we return an empty array instead of null if no messages
+	if messages == nil {
+		messages = []*models.Message{}
+	}
+
 	// Note: For simplicity, we're not implementing total count query
 	// In production, you might want to add a separate count query
 	response := gin.H{
@@ -262,4 +269,33 @@ func (h *SessionHandler) GetSessionMessages(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+// ClearSessionMessages handles DELETE /v1/chat/sessions/:id/messages
+func (h *SessionHandler) ClearSessionMessages(c *gin.Context) {
+	sessionID := c.Param("id")
+
+	// Get user ID from authentication header
+	userID, ok := requireUserID(c)
+	if !ok {
+		return // Error response already sent by requireUserID
+	}
+
+	err := h.dbService.ClearSessionMessages(c.Request.Context(), sessionID, userID)
+	if err != nil {
+		if err.Error() == "session not found or not owned by user" {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Session not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Sprintf("Failed to clear session messages: %v", err),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Session messages cleared successfully",
+	})
 }

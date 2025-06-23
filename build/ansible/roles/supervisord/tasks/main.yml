@@ -67,7 +67,7 @@
     - supervisord.ini
     - grafana.ini
     - pmm.ini
-    - ai-chat.ini
+    - aichat-backend.ini
 
 - name: Fix credentials
   ini_file:
