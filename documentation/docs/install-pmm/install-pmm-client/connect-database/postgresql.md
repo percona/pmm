@@ -112,6 +112,7 @@ Choose:
 | **Installation complexity** | ⚠ Low | ⚠ Medium |
 | **Benefits** | • Part of official PostgreSQL<br>• Minimal overhead<br>• Simple to set up and use | • Builds on pg_stat_statements features<br>• Bucket-based time-series analysis<br>• Query examples for troubleshooting<br>• More accurate performance data |
 | **Drawbacks** | • No aggregated statistics or histograms<br>• No Query Examples<br>• Limited metrics collection | • Slightly higher resource overhead<br>• Requires separate installation<br>• More complex configuration |
+| **Known Issues** | None | **⚠️ PMM v2.x/v3.x**: Query plan metrics cause incorrect time measurements (off by 1000x+) |
 
 For a more detailed comparison of extensions, see the [pg_stat_monitor documentation](https://docs.percona.com/pg-stat-monitor/user_guide.html).
 
@@ -119,7 +120,20 @@ For a more detailed comparison of extensions, see the [pg_stat_monitor documenta
 
 === "pg_stat_monitor"
 
-    pg_stat_monitor is Percona’s advanced PostgreSQL monitoring extension that enhances observability with detailed query metrics and improved aggregation. It is compatible with PostgreSQL and Percona Distribution for PostgreSQL versions 11 through 15.
+    `pg_stat_monitor` is Percona’s advanced PostgreSQL monitoring extension that enhances observability with detailed query metrics and improved aggregation. It is compatible with PostgreSQL and Percona Distribution for PostgreSQL versions 11 through 15.
+    
+    !!! warning "Query Plan metrics known issue"
+        Before configuring `pg_stat_monitor`, be aware that when `pg_stat_monitor.pgsm_enable_query_plan` is enabled, time metrics in Query Analytics (QAN) are incorrect and can be **off by 1000x or more**.
+        To keep query plan disabled during configuration:
+            ```sql
+            ALTER SYSTEM SET pg_stat_monitor.pgsm_enable_query_plan = off;
+            SELECT pg_reload_conf();
+            ```
+        To check current setting:
+        ```sql
+        SHOW pg_stat_monitor.pgsm_enable_query_plan;
+        ```
+    To configure `pg_stat_monitor`: 
     {.power-number}
     
     1. Install the extension:

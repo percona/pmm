@@ -4,7 +4,7 @@ PMM 2 reaches end of life on July 31st, 2025, with no further development or sup
 
 PMM 3 delivers significant architectural changes that require a gradual transition from PMM 2. The migration process keeps your existing monitoring data and configurations, ensuring monitoring continuity. You can migrate to PMM 3 automatically using the automated migration script (recommended), or manually, following step-by-step instructions.
 
-We recommend beginning your evaluation of PMM 3 in a test environment for a smooth transition. To gradually migrate to PMM 3:
+We recommend beginning your evaluation of PMM 3 in a test environment for a smooth transition.  To gradually migrate to PMM 3:
 
 ## Step 1: Upgrade PMM 2 Server to the latest version
 
