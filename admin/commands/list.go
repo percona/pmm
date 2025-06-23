@@ -286,6 +286,7 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 	agentsList = append(agentsList, qanMysqlPerfschemaAgents(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, qanMysqlSlowlogAgents(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, qanMongodbProfilerAgents(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, qanMongodbMongologAgents(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, qanPostgresqlPgstatementsAgents(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, qanPostgresqlPgstatmonitorAgents(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, externalExporters(agentsRes, nodeID)...)
@@ -424,6 +425,22 @@ func qanMongodbProfilerAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[st
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
 				AgentType: types.AgentTypeQANMongoDBProfilerAgent,
+				AgentID:   a.AgentID,
+				ServiceID: a.ServiceID,
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
+			})
+		}
+	}
+	return agentsList
+}
+
+func qanMongodbMongologAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
+	for _, a := range agentsRes.Payload.QANMongodbMongologAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType: types.AgentTypeQANMongoDBMongologAgent,
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
 				Status:    getStatus(a.Status),
