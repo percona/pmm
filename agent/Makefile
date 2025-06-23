@@ -108,7 +108,7 @@ env-up:                         ## Start development environment
 	rm -fr testdata
 	# to make slowlog rotation tests work
 	mkdir -p testdata/mysql/slowlogs
-	# to make monoglog tests work
+	# to make mongolog tests work
 	mkdir -p testdata/mongo/var/log/mongodb
 	touch testdata/mongo/var/log/mongodb/mongo.log testdata/mongo/var/log/mongodb/mongo_tls.log
 	chmod -R 0777 testdata
