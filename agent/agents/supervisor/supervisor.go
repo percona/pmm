@@ -576,6 +576,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
 			TextFiles:              builtinAgent.GetTextFiles(),
 			TLSSkipVerify:          builtinAgent.TlsSkipVerify,
+			PerfschemaRefreshRate:  cfg.PerfschemaRefreshRate,
 		}
 		agent, err = perfschema.New(params, l)
 
