@@ -53,7 +53,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.55
 	github.com/percona/exporter_shared v0.7.5
 	github.com/percona/go-mysql v0.0.0-20250429063950-bc274ddba990
-	github.com/percona/percona-toolkit v0.0.0-20250415124358-824ba7e80ab2
+	github.com/percona/percona-toolkit v0.0.0-20250623101308-06d5966106f5
 	github.com/percona/promconfig v0.2.5
 	github.com/percona/saas v0.0.0-20240923141535-da19f6682c6e
 	github.com/pganalyze/pg_query_go/v6 v6.1.0
@@ -69,7 +69,7 @@ require (
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.10.0
 	github.com/tink-crypto/tink-go v0.0.0-20230613075026-d6de17e3f164
-	go.mongodb.org/mongo-driver v1.17.3
+	go.mongodb.org/mongo-driver v1.17.4
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	golang.org/x/crypto v0.39.0
 	golang.org/x/sync v0.15.0
