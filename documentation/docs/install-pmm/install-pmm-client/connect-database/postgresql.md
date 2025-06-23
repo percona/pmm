@@ -122,8 +122,9 @@ For a more detailed comparison of extensions, see the [pg_stat_monitor documenta
 
     `pg_stat_monitor` is Percona’s advanced PostgreSQL monitoring extension that enhances observability with detailed query metrics and improved aggregation. It is compatible with PostgreSQL and Percona Distribution for PostgreSQL versions 11 through 15.
     
-    !!! warning "Query Plan metrics known issue"
+    !!! warning "Query plan metrics known issue"
         Before configuring `pg_stat_monitor`, be aware that when `pg_stat_monitor.pgsm_enable_query_plan` is enabled, time metrics in Query Analytics (QAN) are incorrect and can be **off by 1000x or more**.
+
         To keep query plan disabled during configuration:
             ```sql
             ALTER SYSTEM SET pg_stat_monitor.pgsm_enable_query_plan = off;
@@ -462,9 +463,9 @@ The PostgreSQL exporter can execute custom queries to collect additional metrics
 
 ## Related topics
 
-- [`pmm-admin` man page for `pmm-admin add postgresql`](../../../use/commands/pmm-admin.md#postgresql)
-- [Configuring Percona Repositories with percona-release][PERCONA_RELEASE]
-- [Percona Blog -- Running Custom MySQL Queries in Percona Monitoring and Management][BLOG_CUSTOM_QUERIES_MYSQL]
+- [`pmm-admin` man page for `pmm-admin add postgresql`](../../../use/commands/pmm-admin.md#database-commands)
+- [Configuring Percona repositories with percona-release][PERCONA_RELEASE]
+- [Running custom MySQL queries in PMM][BLOG_CUSTOM_QUERIES_MYSQL]
 
 [PostgreSQL]: https://www.postgresql.org/
 [Percona Distribution for PostgreSQL]: https://www.percona.com/software/postgresql-distribution
