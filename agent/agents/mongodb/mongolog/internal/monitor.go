@@ -17,7 +17,6 @@ package mongolog
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -101,48 +100,6 @@ type auth struct {
 	Remote string `json:"remote"`
 }
 
-func fixOpAndNs(profile *systemProfile) {
-	if profile.Type != "" {
-		profile.Op = profile.Type
-		return
-	}
-
-	switch profile.Protocol {
-	case "op_msg":
-		// Check command keys to identify operation type
-		for k, v := range profile.Command {
-			switch k {
-			case "insert":
-				profile.Op = "insert"
-			case "find":
-				profile.Op = "query"
-			case "update":
-				profile.Op = "update"
-			case "delete":
-				profile.Op = "remove"
-			case "explain", "endSessions", "killCursors":
-				profile.Op = "command"
-			}
-
-			profile.Ns = fmt.Sprintf("%s.%s", profile.Ns, v)
-			return
-		}
-		// Default for op_msg without a known command key
-		profile.Op = "command"
-		// not known ns?
-		return
-
-		// If protocol is op_query
-	case "op_query":
-		profile.Op = "query"
-		// not known ns?
-		return
-	default:
-		profile.Op = profile.Protocol
-		// not known ns?
-	}
-}
-
 // readFile continuously read new lines from file, until it is canceled or considered as done.
 func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docsChan chan proto.SystemProfile,
 	doneChan <-chan struct{}, wg *sync.WaitGroup, logger *logrus.Entry,
@@ -182,6 +139,10 @@ func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docs
 			case slowQuery:
 				sendQuery(l, logger, docsChan, connections)
 			case authQuery:
+				// There are two types of message:
+				// Connection accepted: logged on connection open, with IP and port in the "remote" field.
+				// Successfully authenticated: logged on successful login, with IP and port in the "client" field.
+				// We are adding connection to pool only after user is successfully authenticated.
 				if connection, ok := getConnection(l.Attr, logger); ok {
 					connections[connection.Client] = connection.User
 				}
@@ -220,7 +181,9 @@ func sendQuery(l row, logger *logrus.Entry, docsChan chan proto.SystemProfile, c
 		return
 	}
 
-	fixOpAndNs(&stats)
+	if stats.Type != "" {
+		stats.Op = stats.Type
+	}
 
 	doc := stats.SystemProfile
 	if user, ok := connections[stats.Remote]; ok {
