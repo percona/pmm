@@ -3,9 +3,11 @@ import { Outlet } from 'react-router-dom';
 import { useBootstrap } from 'hooks/utils/useBootstrap';
 import { Sidebar } from 'components/sidebar';
 import { GrafanaPage } from 'pages/grafana';
+import { useKioskMode } from 'hooks/utils/useKioskMode';
 
 export const MainWithNav = () => {
   const { isReady } = useBootstrap();
+  const kioskMode = useKioskMode();
 
   if (!isReady) {
     return (
@@ -24,8 +26,12 @@ export const MainWithNav = () => {
 
   return (
     <Stack direction="row" flex={1}>
-      <Sidebar />
-      <Outlet />
+      {!kioskMode.active && (
+        <>
+          <Sidebar />
+          <Outlet />
+        </>
+      )}
       <GrafanaPage />
     </Stack>
   );

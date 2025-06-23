@@ -94,6 +94,7 @@ export const Sidebar: FC = () => {
         backgroundColor: theme.palette.common.white,
         alignItems: 'flex-start',
       })}
+      data-testid="pmm-sidebar"
     >
       <Stack
         sx={{

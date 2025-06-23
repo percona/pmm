@@ -1,32 +1,23 @@
+import { LOCATORS } from 'lib/constants';
+
 export const applyCustomStyles = () => {
   const style = document.createElement('style');
+
+  // Hide toolbar elements
   style.innerText = `
-              #mega-menu-toggle,
-              header > div:first-child > div:nth-child(2) {
-                display: none;
-              }
+    ${LOCATORS.menuToggle},
+    ${LOCATORS.helpButton},
+    ${LOCATORS.searchButton},
+    ${LOCATORS.profileButton} {
+      display: none;
+    }
 
-              header {
-                padding: 8px;
-                flex-direction: row !important;
-                border-bottom: 1px solid rgba(36, 41, 46, 0.12)
-              }
+    ${LOCATORS.commandPaletteTrigger},
+    ${LOCATORS.searchButton} {
+      visibility: hidden;
+      order: -1;
+    }
+  `;
 
-              header > div:first-child {
-                flex: 1;
-              }
-
-              header > div {
-                border-bottom: 0 !important;
-              }
-
-              [class*="canvas-wrapper"] > div {
-                top: 57px;
-              }
-
-              #pageContent {
-                margin-top: 16px;
-              }
-              `;
   document.head.appendChild(style);
 };

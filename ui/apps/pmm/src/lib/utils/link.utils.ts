@@ -1,4 +1,5 @@
-import { Location } from 'react-router-dom';
-
-export const constructUrl = (location: Location) =>
-  location.pathname + location.search + location.hash;
+export const constructUrl = (location: {
+  pathname: string;
+  search: string;
+  hash: string;
+}) => location.pathname + location.search + location.hash;

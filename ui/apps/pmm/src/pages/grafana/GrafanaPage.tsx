@@ -1,7 +1,9 @@
 import { Box, CircularProgress, Stack } from '@mui/material';
 import { useGrafana } from 'contexts/grafana';
+import { useKioskMode } from 'hooks/utils/useKioskMode';
 import { PMM_BASE_PATH, PMM_HOME_URL } from 'lib/constants';
 import messenger from 'lib/messenger';
+import { constructUrl } from 'lib/utils/link.utils';
 import { FC, useEffect, useMemo, useState } from 'react';
 
 export const GrafanaPage: FC = () => {
@@ -10,11 +12,15 @@ export const GrafanaPage: FC = () => {
     // load specific grafana page as the first one
     () =>
       isFrameLoaded
-        ? window.location.pathname.replace(PMM_BASE_PATH, '')
+        ? constructUrl({
+            ...window.location,
+            pathname: window.location.pathname.replace(PMM_BASE_PATH, ''),
+          })
         : PMM_HOME_URL,
     [isFrameLoaded]
   );
   const [loading, setLoading] = useState(true);
+  const kioskMode = useKioskMode();
 
   useEffect(() => {
     if (isFrameLoaded) {
@@ -53,13 +59,20 @@ export const GrafanaPage: FC = () => {
           ref={frameRef}
           src={src}
           component="iframe"
-          sx={(theme) => ({
-            borderStyle: 'solid',
-            borderColor: theme.palette.divider,
-            borderRadius: theme.shape.borderRadius,
-            flex: 1,
-            m: 1,
-          })}
+          sx={
+            kioskMode.active
+              ? {
+                  border: 'none',
+                  flex: 1,
+                }
+              : (theme) => ({
+                  borderStyle: 'solid',
+                  borderColor: theme.palette.divider,
+                  borderRadius: theme.shape.borderRadius,
+                  flex: 1,
+                  m: 1,
+                })
+          }
         />
       </Stack>
     </>

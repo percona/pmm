@@ -1,14 +1,15 @@
 import { locationService } from '@grafana/runtime';
 import { CrossFrameMessenger, DashboardVariablesMessage, LocationChangeMessage } from '@pmm/shared';
+import { GRAFANA_SUB_PATH, PMM_UI_PATH } from 'lib/constants';
 import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
-import { isWithinIframe } from 'utils';
-import { getLinkWithVariables } from 'variables';
+import { adjustToolbar } from 'compat/toolbar';
+import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 
 export const initialize = () => {
   if (!isWithinIframe()) {
     // redirect user to the new UI
-    window.location.replace(window.location.href.replace('/graph', '/pmm-ui/next/graph'));
+    window.location.replace(window.location.href.replace(GRAFANA_SUB_PATH, PMM_UI_PATH));
     return;
   }
 
@@ -19,6 +20,8 @@ export const initialize = () => {
   });
 
   applyCustomStyles();
+
+  adjustToolbar();
 
   // sync with PMM UI theme
   changeTheme('light');
@@ -32,12 +35,20 @@ export const initialize = () => {
     onMessage: (message: LocationChangeMessage) => locationService.push(message.payload!),
   });
 
-  locationService.getHistory().listen((location: Location) =>
+  let prevLocation: Location | undefined;
+  locationService.getHistory().listen((location: Location) => {
+    // re-add custom toolbar buttons after closing kiosk mode
+    if (prevLocation?.search.includes('kiosk') && !location.search.includes('kiosk')) {
+      adjustToolbar();
+    }
+
     messenger.sendMessage({
       type: 'LOCATION_CHANGE',
       payload: location,
-    })
-  );
+    });
+
+    prevLocation = location;
+  });
 
   messenger.addListener({
     type: 'DASHBOARD_VARIABLES',
