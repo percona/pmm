@@ -41,10 +41,9 @@ A comprehensive AI chat integration for PMM consisting of a standalone Go backen
 **API Endpoints:**
 - `POST /v1/chat/send` - Send message and get response
 - `GET /v1/chat/stream` - Server-Sent Events streaming
-- `GET /v1/chat/history` - Get conversation history
 - `DELETE /v1/chat/clear` - Clear conversation history
 - `GET /v1/chat/mcp/tools` - List available MCP tools
-- `GET /v1/chat/mcp/servers/status` - MCP server status
+- `GET /v1/chat/sessions/:id/messages` - Get session messages (paginated)
 - `GET /v1/chat/health` - Health check
 
 ### 2. React Widget (`ui/src/shared/components/AIChatWidget/`)
@@ -209,12 +208,34 @@ docker run -d \
   aichat-backend
 ```
 
+## Authentication Integration
+
+The AI chat backend integrates with PMM's existing authentication system:
+
+### Authentication Flow
+```
+User Request → nginx → PMM Auth Server → AI Chat Backend (with X-User-ID header)
+```
+
+### Security Model
+- **PMM Auth Server**: Validates requests to `/v1/chat/` endpoints (requires `viewer` role)
+- **User ID Header**: Authenticated requests include `X-User-ID` header with the user's ID
+- **Data Isolation**: Each user's chat sessions and history are completely isolated
+- **Strict Authentication**: Requests without valid authentication receive 401 Unauthorized responses
+
+### Database Integration
+- **PostgreSQL Backend**: Chat sessions and messages stored in PMM's PostgreSQL database
+- **User-Scoped Data**: All database operations are scoped to the authenticated user
+- **Session Management**: Complete CRUD operations for user chat sessions
+
 ## Security Considerations
 
 ### Backend Security
+- PMM authentication integration
 - Environment-based API key management
 - CORS configuration for frontend access
 - Input validation and sanitization
+- User data isolation
 - Rate limiting (to be implemented)
 
 ### Frontend Security
@@ -227,7 +248,7 @@ docker run -d \
 
 ### Health Monitoring
 - `/health` endpoint for service status
-- `/api/v1/mcp/servers/status` for MCP server health
+
 - Structured logging throughout application
 
 ### Debug Configuration
@@ -259,11 +280,14 @@ Enable debugging by adding environment variables to MCP servers:
 ## Future Enhancements
 
 ### Planned Features
-- **Authentication**: User-based session management
-- **Persistent Storage**: Database-backed chat history
 - **Rate Limiting**: API rate limiting and quotas
 - **Multi-LLM Support**: Support for additional LLM providers
 - **Advanced MCP**: More sophisticated MCP server management
+
+### Implemented Features
+- **Authentication**: PMM authentication integration with user-based session management
+- **Persistent Storage**: Database-backed chat history with PostgreSQL
+- **User Isolation**: Complete data isolation between authenticated users
 
 ### Performance Optimizations
 - **Connection Pooling**: Optimize MCP server connections

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"embed"
 	"flag"
 	"fmt"
 	"log"
@@ -13,11 +14,15 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq" // PostgreSQL driver
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/handlers"
 	"github.com/percona/pmm/aichat-backend/internal/services"
 	"github.com/percona/pmm/version"
 )
+
+//go:embed migrations/*.sql
+var embeddedMigrations embed.FS
 
 func main() {
 
@@ -61,6 +66,41 @@ func main() {
 	log.Printf("LLM Provider: %s, Model: %s", cfg.LLM.Provider, cfg.LLM.Model)
 	log.Printf("MCP Servers File: %s", cfg.MCP.ServersFile)
 
+	// Initialize database service
+	dbConfig := config.GetDatabaseConfig()
+	db, err := dbConfig.OpenDatabase()
+	if err != nil {
+		log.Fatalf("❌ Failed to connect to database: %v", err)
+	}
+	defer func() {
+		if db != nil {
+			db.Close()
+		}
+	}()
+
+	// Create database service
+	databaseService := services.NewDatabaseService(db)
+
+	// Create migration service and run migrations
+	log.Printf("Running database migrations...")
+	migrationService := services.NewMigrationService(db, embeddedMigrations)
+
+	if err := migrationService.RunMigrations(); err != nil {
+		log.Fatalf("❌ Failed to run database migrations: %v", err)
+	}
+
+	// Log current migration version
+	migrationVersion, dirty, err := migrationService.GetMigrationVersion()
+	if err != nil {
+		log.Printf("⚠️ Warning: Failed to get migration version: %v", err)
+	} else {
+		if dirty {
+			log.Printf("⚠️ Warning: Database is in dirty state (version %d)", migrationVersion)
+		} else {
+			log.Printf("✅ Database migration version: %d", migrationVersion)
+		}
+	}
+
 	// Initialize services
 	llmService := services.NewLLMService(cfg.LLM)
 	mcpService := services.NewMCPService(cfg)
@@ -71,10 +111,17 @@ func main() {
 		log.Printf("Warning: Failed to initialize MCP service: %v", err)
 	}
 
-	chatService := services.NewChatService(llmService, mcpService, cfg.LLM.SystemPrompt)
+	chatService := services.NewChatService(llmService, mcpService, databaseService)
+
+	// Set system prompt from configuration
+	if cfg.LLM.SystemPrompt != "" {
+		chatService.SetSystemPrompt(cfg.LLM.SystemPrompt)
+		log.Printf("✅ System prompt configured (%d characters)", len(cfg.LLM.SystemPrompt))
+	}
 
 	// Initialize HTTP handlers
 	chatHandler := handlers.NewChatHandler(chatService)
+	sessionHandler := handlers.NewSessionHandler(databaseService)
 
 	// Setup router
 	router := gin.Default()
@@ -115,13 +162,19 @@ func main() {
 		// Chat operations
 		v1chat.POST("/send", chatHandler.SendMessage)
 		v1chat.POST("/send-with-files", chatHandler.SendMessageWithFiles)
-		v1chat.GET("/history", chatHandler.GetHistory)
 		v1chat.DELETE("/clear", chatHandler.ClearHistory)
 		v1chat.GET("/stream", chatHandler.StreamChat)
 
 		// MCP operations
 		v1chat.GET("/mcp/tools", chatHandler.GetMCPTools)
-		v1chat.GET("/mcp/servers/status", chatHandler.GetMCPServerStatus)
+
+		// Session management
+		v1chat.POST("/sessions", sessionHandler.CreateSession)
+		v1chat.GET("/sessions", sessionHandler.ListSessions)
+		v1chat.GET("/sessions/:id", sessionHandler.GetSession)
+		v1chat.PUT("/sessions/:id", sessionHandler.UpdateSession)
+		v1chat.DELETE("/sessions/:id", sessionHandler.DeleteSession)
+		v1chat.GET("/sessions/:id/messages", sessionHandler.GetSessionMessages)
 	}
 
 	// Start server

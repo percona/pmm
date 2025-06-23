@@ -16,6 +16,12 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// availableQANColumns contains the comprehensive list of all available QAN metric columns
+const availableQANColumns = "Core: load, num_queries, num_queries_with_errors, num_queries_with_warnings, query_time, lock_time, rows_sent, rows_examined, rows_affected, rows_read; " +
+	"MySQL: merge_passes, innodb_io_r_ops, innodb_io_r_bytes, innodb_io_r_wait, innodb_rec_lock_wait, innodb_queue_wait, innodb_pages_distinct, query_length, bytes_sent, tmp_tables, tmp_disk_tables, tmp_table_sizes, qc_hit, full_scan, full_join, tmp_table, tmp_table_on_disk, filesort, filesort_on_disk, select_full_range_join, select_range, select_range_check, sort_range, sort_rows, sort_scan, no_index_used, no_good_index_used; " +
+	"MongoDB: docs_returned, response_length, docs_scanned, docs_examined, keys_examined, locks_global_acquire_count_read_shared, locks_global_acquire_count_write_shared, locks_database_acquire_count_read_shared, locks_database_acquire_wait_count_read_shared, locks_database_time_acquiring_micros_read_shared, locks_collection_acquire_count_read_shared, storage_bytes_read, storage_time_reading_micros; " +
+	"PostgreSQL: shared_blks_hit, shared_blks_read, shared_blks_dirtied, shared_blks_written, local_blks_hit, local_blks_read, local_blks_dirtied, local_blks_written, temp_blks_read, temp_blks_written, shared_blk_read_time, shared_blk_write_time, local_blk_read_time, local_blk_write_time, cpu_user_time, cpu_sys_time, plans_calls, wal_records, wal_fpi, wal_bytes, plan_time"
+
 type Mcp struct {
 	actionServer actionsv1.ActionsServiceServer
 	qanClient    qanpb.QANServiceClient
@@ -92,6 +98,72 @@ func (m *Mcp) Server() *server.MCPServer {
 			mcpgo.Description("Additional filters in JSON format. Optional"),
 		),
 	), mcpgo.NewTypedToolHandler(m.ShowIndex))
+
+	mcpServer.AddTool(mcpgo.NewTool("qan_get_report",
+		mcpgo.WithDescription("Gets QAN metrics report grouped by queryid or other dimensions. Returns aggregated performance metrics for queries over a specified time period."),
+		mcpgo.WithString("period_start",
+			mcpgo.Description("Period start time (RFC3339 format, e.g., 2024-01-01T00:00:00Z). Required"),
+			mcpgo.Required(),
+		),
+		mcpgo.WithString("period_end",
+			mcpgo.Description("Period end time (RFC3339 format, e.g., 2024-01-01T23:59:59Z). Required"),
+			mcpgo.Required(),
+		),
+		mcpgo.WithString("group_by",
+			mcpgo.Description("Group by dimension (e.g., 'queryid', 'host', 'service_name'). Optional, defaults to 'queryid'"),
+		),
+		mcpgo.WithString("labels",
+			mcpgo.Description("Labels/filters in JSON format (e.g., {\"service_name\": [\"mysql-1\"], \"database\": [\"test\"]}). Optional"),
+		),
+		mcpgo.WithString("columns",
+			mcpgo.Description("Comma-separated list of metric columns to include. Optional. Available columns: "+availableQANColumns),
+		),
+		mcpgo.WithString("order_by",
+			mcpgo.Description("Order by metric. Optional. Available columns: "+availableQANColumns+". You can also use aggregation suffixes like '_sum', '_avg', '_min', '_max', '_p99' with most metrics"),
+		),
+		mcpgo.WithNumber("offset",
+			mcpgo.Description("Pagination offset. Optional, defaults to 0"),
+		),
+		mcpgo.WithNumber("limit",
+			mcpgo.Description("Number of results to return. Optional, defaults to 100"),
+		),
+		mcpgo.WithString("main_metric",
+			mcpgo.Description("Main metric for calculations (e.g., 'query_time'). Optional. Available metrics: "+availableQANColumns),
+		),
+		mcpgo.WithString("search",
+			mcpgo.Description("Search term to filter results. Optional"),
+		),
+	), mcpgo.NewTypedToolHandler(m.QANGetReport))
+
+	mcpServer.AddTool(mcpgo.NewTool("qan_get_metrics",
+		mcpgo.WithDescription("Gets detailed QAN metrics for a specific dimension value (e.g., specific query ID or host). Returns comprehensive performance metrics and statistics."),
+		mcpgo.WithString("period_start",
+			mcpgo.Description("Period start time (RFC3339 format, e.g., 2024-01-01T00:00:00Z). Required"),
+			mcpgo.Required(),
+		),
+		mcpgo.WithString("period_end",
+			mcpgo.Description("Period end time (RFC3339 format, e.g., 2024-01-01T23:59:59Z). Required"),
+			mcpgo.Required(),
+		),
+		mcpgo.WithString("filter_by",
+			mcpgo.Description("Filter by specific dimension value (e.g., query ID like '1D410B4BE5060972' or hostname). Required"),
+			mcpgo.Required(),
+		),
+		mcpgo.WithString("group_by",
+			mcpgo.Description("Group by dimension (e.g., 'queryid', 'host', 'service_name'). Required"),
+			mcpgo.Required(),
+		),
+		mcpgo.WithString("labels",
+			mcpgo.Description("Additional labels/filters in JSON format (e.g., {\"service_name\": [\"mysql-1\"]}). Optional"),
+		),
+		mcpgo.WithString("include_only_fields",
+			mcpgo.Description("Comma-separated list of specific metric fields to include. Optional. Available fields: "+availableQANColumns),
+		),
+		mcpgo.WithBoolean("totals",
+			mcpgo.Description("Include only totals, excluding N/A values. Optional, defaults to false"),
+		),
+	), mcpgo.NewTypedToolHandler(m.QANGetMetrics))
+
 	return mcpServer
 }
 
@@ -552,6 +624,302 @@ func (m *Mcp) ShowIndex(ctx context.Context, request mcpgo.CallToolRequest, args
 	return &mcpgo.CallToolResult{
 		Content: []mcpgo.Content{
 			mcpgo.NewTextContent(finalResult),
+		},
+	}, nil
+}
+
+type qanGetReportArgs struct {
+	PeriodStart string `json:"period_start"`
+	PeriodEnd   string `json:"period_end"`
+	GroupBy     string `json:"group_by,omitempty"`
+	Labels      string `json:"labels,omitempty"`
+	Columns     string `json:"columns,omitempty"`
+	OrderBy     string `json:"order_by,omitempty"`
+	Offset      int    `json:"offset,omitempty"`
+	Limit       int    `json:"limit,omitempty"`
+	MainMetric  string `json:"main_metric,omitempty"`
+	Search      string `json:"search,omitempty"`
+}
+
+func (m *Mcp) QANGetReport(ctx context.Context, request mcpgo.CallToolRequest, args qanGetReportArgs) (*mcpgo.CallToolResult, error) {
+	m.l.WithField("args", args).Info("Received QAN get report request")
+
+	// Parse time periods
+	periodStart, err := time.Parse(time.RFC3339, args.PeriodStart)
+	if err != nil {
+		return nil, fmt.Errorf("invalid period_start format: %w (expected RFC3339, e.g., 2024-01-01T00:00:00Z)", err)
+	}
+
+	periodEnd, err := time.Parse(time.RFC3339, args.PeriodEnd)
+	if err != nil {
+		return nil, fmt.Errorf("invalid period_end format: %w (expected RFC3339, e.g., 2024-01-01T23:59:59Z)", err)
+	}
+
+	// Validate time range
+	if periodStart.After(periodEnd) {
+		return nil, fmt.Errorf("period_start (%v) cannot be after period_end (%v)", periodStart, periodEnd)
+	}
+
+	// Build QAN request
+	qanReq := &qanpb.GetReportRequest{
+		PeriodStartFrom: timestamppb.New(periodStart),
+		PeriodStartTo:   timestamppb.New(periodEnd),
+		GroupBy:         args.GroupBy,
+		OrderBy:         args.OrderBy,
+		Offset:          uint32(args.Offset),
+		Limit:           uint32(args.Limit),
+		MainMetric:      args.MainMetric,
+		Search:          args.Search,
+	}
+
+	// Set default group_by if not provided
+	if qanReq.GroupBy == "" {
+		qanReq.GroupBy = "queryid"
+	}
+
+	// Set default limit if not provided
+	if qanReq.Limit == 0 {
+		qanReq.Limit = 100
+	}
+
+	// Parse labels if provided
+	if args.Labels != "" {
+		var labelsMap map[string][]string
+		if err := json.Unmarshal([]byte(args.Labels), &labelsMap); err != nil {
+			return nil, fmt.Errorf("invalid labels JSON format: %w", err)
+		}
+
+		for key, values := range labelsMap {
+			qanReq.Labels = append(qanReq.Labels, &qanpb.ReportMapFieldEntry{
+				Key:   key,
+				Value: values,
+			})
+		}
+	}
+
+	// Parse columns if provided
+	if args.Columns != "" {
+		qanReq.Columns = strings.Split(args.Columns, ",")
+		// Trim whitespace from column names
+		for i, col := range qanReq.Columns {
+			qanReq.Columns[i] = strings.TrimSpace(col)
+		}
+	}
+
+	m.l.WithFields(logrus.Fields{
+		"period_start": periodStart,
+		"period_end":   periodEnd,
+		"group_by":     qanReq.GroupBy,
+		"limit":        qanReq.Limit,
+		"offset":       qanReq.Offset,
+		"columns":      len(qanReq.Columns),
+		"labels":       len(qanReq.Labels),
+	}).Info("Calling QAN GetReport")
+
+	// Call QAN service
+	resp, err := m.qanClient.GetReport(ctx, qanReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get QAN report: %w", err)
+	}
+
+	// Format response
+	result := fmt.Sprintf("QAN Metrics Report\n==================\n\n")
+	result += fmt.Sprintf("Period: %s to %s\n", periodStart.Format(time.RFC3339), periodEnd.Format(time.RFC3339))
+	result += fmt.Sprintf("Group By: %s\n", qanReq.GroupBy)
+	result += fmt.Sprintf("Total Rows: %d (showing %d-%d)\n\n", resp.TotalRows, resp.Offset+1, resp.Offset+uint32(len(resp.Rows)))
+
+	if len(resp.Rows) == 0 {
+		result += "No data found for the specified criteria.\n"
+	} else {
+		for i, row := range resp.Rows {
+			result += fmt.Sprintf("Row %d (Rank: %d):\n", i+1, row.Rank)
+			result += fmt.Sprintf("  Dimension: %s\n", row.Dimension)
+			if row.Database != "" {
+				result += fmt.Sprintf("  Database: %s\n", row.Database)
+			}
+			result += fmt.Sprintf("  Queries: %d (QPS: %.2f, Load: %.2f)\n", row.NumQueries, row.Qps, row.Load)
+
+			if len(row.Metrics) > 0 {
+				result += "  Metrics:\n"
+				for metricName, metric := range row.Metrics {
+					stats := metric.Stats
+					result += fmt.Sprintf("    %s: avg=%.3fs, sum=%.3fs, cnt=%.0f, min=%.3fs, max=%.3fs, p99=%.3fs\n",
+						metricName, stats.Avg, stats.Sum, stats.Cnt, stats.Min, stats.Max, stats.P99)
+				}
+			}
+
+			if row.Fingerprint != "" {
+				result += fmt.Sprintf("  Fingerprint: %s\n", row.Fingerprint)
+			}
+			result += "\n"
+		}
+	}
+
+	return &mcpgo.CallToolResult{
+		Content: []mcpgo.Content{
+			mcpgo.NewTextContent(result),
+		},
+	}, nil
+}
+
+type qanGetMetricsArgs struct {
+	PeriodStart       string `json:"period_start"`
+	PeriodEnd         string `json:"period_end"`
+	FilterBy          string `json:"filter_by"`
+	GroupBy           string `json:"group_by"`
+	Labels            string `json:"labels,omitempty"`
+	IncludeOnlyFields string `json:"include_only_fields,omitempty"`
+	Totals            bool   `json:"totals,omitempty"`
+}
+
+func (m *Mcp) QANGetMetrics(ctx context.Context, request mcpgo.CallToolRequest, args qanGetMetricsArgs) (*mcpgo.CallToolResult, error) {
+	m.l.WithField("args", args).Info("Received QAN get metrics request")
+
+	// Parse time periods
+	periodStart, err := time.Parse(time.RFC3339, args.PeriodStart)
+	if err != nil {
+		return nil, fmt.Errorf("invalid period_start format: %w (expected RFC3339, e.g., 2024-01-01T00:00:00Z)", err)
+	}
+
+	periodEnd, err := time.Parse(time.RFC3339, args.PeriodEnd)
+	if err != nil {
+		return nil, fmt.Errorf("invalid period_end format: %w (expected RFC3339, e.g., 2024-01-01T23:59:59Z)", err)
+	}
+
+	// Validate time range
+	if periodStart.After(periodEnd) {
+		return nil, fmt.Errorf("period_start (%v) cannot be after period_end (%v)", periodStart, periodEnd)
+	}
+
+	// Build QAN request
+	qanReq := &qanpb.GetMetricsRequest{
+		PeriodStartFrom: timestamppb.New(periodStart),
+		PeriodStartTo:   timestamppb.New(periodEnd),
+		FilterBy:        args.FilterBy,
+		GroupBy:         args.GroupBy,
+		Totals:          args.Totals,
+	}
+
+	// Parse labels if provided
+	if args.Labels != "" {
+		var labelsMap map[string][]string
+		if err := json.Unmarshal([]byte(args.Labels), &labelsMap); err != nil {
+			return nil, fmt.Errorf("invalid labels JSON format: %w", err)
+		}
+
+		for key, values := range labelsMap {
+			qanReq.Labels = append(qanReq.Labels, &qanpb.MapFieldEntry{
+				Key:   key,
+				Value: values,
+			})
+		}
+	}
+
+	// Parse include_only_fields if provided
+	if args.IncludeOnlyFields != "" {
+		qanReq.IncludeOnlyFields = strings.Split(args.IncludeOnlyFields, ",")
+		// Trim whitespace from field names
+		for i, field := range qanReq.IncludeOnlyFields {
+			qanReq.IncludeOnlyFields[i] = strings.TrimSpace(field)
+		}
+	}
+
+	m.l.WithFields(logrus.Fields{
+		"period_start":        periodStart,
+		"period_end":          periodEnd,
+		"filter_by":           args.FilterBy,
+		"group_by":            args.GroupBy,
+		"totals":              args.Totals,
+		"include_only_fields": len(qanReq.IncludeOnlyFields),
+		"labels":              len(qanReq.Labels),
+	}).Info("Calling QAN GetMetrics")
+
+	// Call QAN service
+	resp, err := m.qanClient.GetMetrics(ctx, qanReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get QAN metrics: %w", err)
+	}
+
+	// Format response
+	result := fmt.Sprintf("QAN Detailed Metrics\n=====================\n\n")
+	result += fmt.Sprintf("Period: %s to %s\n", periodStart.Format(time.RFC3339), periodEnd.Format(time.RFC3339))
+	result += fmt.Sprintf("Filter By: %s (%s)\n", args.FilterBy, args.GroupBy)
+	if args.Totals {
+		result += "Mode: Totals only\n"
+	}
+	result += "\n"
+
+	// Display metrics
+	if len(resp.Metrics) > 0 {
+		result += "Performance Metrics:\n"
+		for metricName, metricValues := range resp.Metrics {
+			result += fmt.Sprintf("  %s:\n", metricName)
+			result += fmt.Sprintf("    Rate: %.3f/sec\n", metricValues.Rate)
+			result += fmt.Sprintf("    Count: %.0f\n", metricValues.Cnt)
+			result += fmt.Sprintf("    Sum: %.3f\n", metricValues.Sum)
+			result += fmt.Sprintf("    Average: %.3f\n", metricValues.Avg)
+			result += fmt.Sprintf("    Min: %.3f\n", metricValues.Min)
+			result += fmt.Sprintf("    Max: %.3f\n", metricValues.Max)
+			result += fmt.Sprintf("    P99: %.3f\n", metricValues.P99)
+			if metricValues.PercentOfTotal > 0 {
+				result += fmt.Sprintf("    Percent of Total: %.2f%%\n", metricValues.PercentOfTotal)
+			}
+			result += "\n"
+		}
+	}
+
+	// Display text metrics
+	if len(resp.TextMetrics) > 0 {
+		result += "Text Metrics:\n"
+		for key, value := range resp.TextMetrics {
+			result += fmt.Sprintf("  %s: %s\n", key, value)
+		}
+		result += "\n"
+	}
+
+	// Display totals if available
+	if len(resp.Totals) > 0 {
+		result += "Totals:\n"
+		for metricName, metricValues := range resp.Totals {
+			result += fmt.Sprintf("  %s: sum=%.3f, avg=%.3f, cnt=%.0f\n",
+				metricName, metricValues.Sum, metricValues.Avg, metricValues.Cnt)
+		}
+		result += "\n"
+	}
+
+	// Display fingerprint if available
+	if resp.Fingerprint != "" {
+		result += fmt.Sprintf("Query Fingerprint:\n%s\n\n", resp.Fingerprint)
+	}
+
+	// Display metadata if available
+	if resp.Metadata != nil {
+		result += "Metadata:\n"
+		if resp.Metadata.ServiceName != "" {
+			result += fmt.Sprintf("  Service: %s\n", resp.Metadata.ServiceName)
+		}
+		if resp.Metadata.ServiceType != "" {
+			result += fmt.Sprintf("  Service Type: %s\n", resp.Metadata.ServiceType)
+		}
+		if resp.Metadata.Database != "" {
+			result += fmt.Sprintf("  Database: %s\n", resp.Metadata.Database)
+		}
+		if resp.Metadata.NodeName != "" {
+			result += fmt.Sprintf("  Node: %s\n", resp.Metadata.NodeName)
+		}
+		if resp.Metadata.NodeType != "" {
+			result += fmt.Sprintf("  Node Type: %s\n", resp.Metadata.NodeType)
+		}
+	}
+
+	// Display sparkline info if available
+	if len(resp.Sparkline) > 0 {
+		result += fmt.Sprintf("Sparkline Data Points: %d\n", len(resp.Sparkline))
+	}
+
+	return &mcpgo.CallToolResult{
+		Content: []mcpgo.Content{
+			mcpgo.NewTextContent(result),
 		},
 	}, nil
 }

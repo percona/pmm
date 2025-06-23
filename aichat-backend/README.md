@@ -1,165 +1,102 @@
 # AI Chat Backend
 
-A standalone Go backend service for AI chat functionality with Large Language Model (LLM) integration and Model Context Protocol (MCP) client support.
+A sophisticated AI chat backend service for PMM (Percona Monitoring and Management) with support for multiple LLM providers, MCP (Model Context Protocol) server integration, and persistent chat history.
 
 ## Features
 
-- **LLM Integration**: Support for OpenAI API with streaming responses
-- **MCP Client**: Connect to multiple MCP servers and use their tools
-- **RESTful API**: Clean HTTP API for chat operations
-- **Session Management**: In-memory chat session handling
-- **Health Monitoring**: Health check endpoints for service monitoring
+- **Multiple LLM Providers**: OpenAI, Anthropic, and other providers
+- **MCP Server Integration**: Connect to external tools and data sources via MCP protocol
+- **PMM Authentication Integration**: Seamless user authentication via PMM's auth server
+- **Persistent Chat History**: Database-backed chat sessions with user isolation
+- **Session Management**: Create, update, delete, and list chat sessions
+- **File Attachments**: Support for uploading and processing files in chat
+- **Streaming Responses**: Real-time streaming chat responses via Server-Sent Events
+- **Tool Execution with Approval**: Request user approval before executing tools
+- **Parallel MCP Connections**: Efficient parallel connection to multiple MCP servers
 
-## Project Structure
+## Authentication
+
+The AI Chat Backend integrates with PMM's authentication system:
+
+1. **PMM Auth Server**: All `/v1/chat/` endpoints (except `/v1/chat/health`) require PMM authentication with at least `viewer` role
+2. **User ID Header**: PMM auth server sets `X-User-ID` header containing the authenticated user's ID
+3. **Data Isolation**: Each user's chat sessions and history are completely isolated
+4. **Security**: Requests without valid authentication will receive 401 Unauthorized responses
+
+### Authentication Flow
 
 ```
-aichat-backend/
-├── cmd/
-│   └── main.go                 # Application entry point
-├── internal/
-│   ├── config/
-│   │   └── config.go          # Configuration management
-│   ├── models/
-│   │   └── models.go          # Data models and types
-│   ├── services/
-│   │   ├── llm.go             # LLM service implementation
-│   │   ├── mcp.go             # MCP client service
-│   │   └── chat.go            # Chat orchestration service
-│   └── handlers/
-│       └── handlers.go        # HTTP request handlers
-├── config.yaml                # Main configuration file
-├── mcp-servers.json           # MCP servers configuration
-├── go.mod
-├── go.sum
-├── Dockerfile
-└── README.md
+User Request → nginx → PMM Auth Server → AI Chat Backend (with X-User-ID header)
 ```
+
+The auth server validates the user's session and forwards the request with the user ID, ensuring secure access to user-specific chat data.
+
+**Note**: There is no fallback to a default user. All endpoints require valid PMM authentication.
 
 ## Configuration
 
-### Main Configuration (config.yaml)
+### Environment Variables
 
-```yaml
-server:
-  port: 3001
+```bash
+# Server configuration
+export AICHAT_PORT="3001"
 
-llm:
-  provider: "openai"
-  api_key: "${OPENAI_API_KEY}"
-  model: "gpt-4o-mini"
+# LLM configuration
+export AICHAT_LLM_PROVIDER="openai"
+export AICHAT_LLM_MODEL="gpt-4o-mini"
+export AICHAT_API_KEY="your-api-key-here"
 
-mcp:
-  servers_file: "mcp-servers.json"
-```
+# MCP servers configuration
+export AICHAT_MCP_SERVERS_FILE="/etc/aichat-backend/mcp-servers.json"
 
-### MCP Servers Configuration (mcp-servers.json)
+# Database configuration (uses dedicated AI Chat database)
+export AICHAT_DATABASE_URL="postgres://ai_chat_user:ai_chat_secure_password@127.0.0.1:5432/ai_chat?sslmode=disable"
 
-Configure your MCP servers in a separate JSON file:
+# Alternative: Individual database parameters (for backward compatibility)
+# export AICHAT_DB_HOST="127.0.0.1"
+# export AICHAT_DB_PORT="5432"
+# export AICHAT_DB_NAME="ai_chat"
+# export AICHAT_DB_USERNAME="ai_chat_user"
+# export AICHAT_DB_PASSWORD="ai_chat_secure_password"
+# export AICHAT_DB_SSL_MODE="disable"
 
-```json
-{
-  "servers": [
-    {
-      "name": "filesystem",
-      "description": "File system operations",
-      "command": "npx",
-      "args": ["@modelcontextprotocol/server-filesystem", "/path/to/workspace"],
-      "timeout": 30,
-      "env": {
-        "DEBUG": "mcp*"
-      },
-      "enabled": true
-    },
-    {
-      "name": "remote-api",
-      "description": "Remote API MCP server",
-      "url": "https://api.example.com/mcp/sse",
-      "timeout": 60,
-      "enabled": true
-    }
-  ]
-}
+# CORS configuration
+export AICHAT_CORS_ORIGINS="http://localhost:8080,http://localhost:8443"
+
+# Logging
+export AICHAT_LOG_LEVEL="info"
 ```
 
 ## API Endpoints
 
-The backend provides the following RESTful API endpoints:
+### Authentication
+
+All endpoints (except `/v1/chat/health`) require PMM authentication. The user ID is automatically extracted from the `X-User-ID` header set by PMM's auth server.
 
 ### Chat Operations
-- `POST /v1/chat/send` - Send a chat message and get response
-- `GET /v1/chat/history` - Get chat history for a session
-- `DELETE /v1/chat/clear` - Clear chat history for a session
-- `GET /v1/chat/stream` - Server-Sent Events streaming for real-time responses
+
+- `POST /v1/chat/send` - Send a chat message
+- `POST /v1/chat/send-with-files` - Send a chat message with file attachments
+- `DELETE /v1/chat/clear?session_id=<id>` - Clear chat history for a session
+- `GET /v1/chat/stream?session_id=<id>&message=<text>` - Stream chat responses (SSE)
+
+### Session Management
+
+- `POST /v1/chat/sessions` - Create a new chat session
+- `GET /v1/chat/sessions` - List user's chat sessions (paginated)
+- `GET /v1/chat/sessions/:id` - Get specific session details
+- `PUT /v1/chat/sessions/:id` - Update session title
+- `DELETE /v1/chat/sessions/:id` - Delete session and all messages
+- `GET /v1/chat/sessions/:id/messages` - Get session messages (paginated)
 
 ### MCP Operations
-- `GET /v1/chat/mcp/tools` - List all available MCP tools
-- `GET /v1/chat/mcp/servers/status` - Get status of all MCP servers
+
+- `GET /v1/chat/mcp/tools` - Get available MCP tools
+- `GET /v1/chat/mcp/tools?force_refresh=true` - Force refresh MCP tools
 
 ### Health Check
-- `GET /v1/chat/health` - Health check endpoint (no authentication required)
 
-## Quick Start
-
-### 1. Prerequisites
-
-- Go 1.23 or later
-- OpenAI API key
-- Node.js (for MCP servers)
-
-### 2. Installation
-
-```bash
-# Clone the repository (if part of PMM)
-git clone https://github.com/percona/pmm.git
-cd pmm/aichat-backend
-
-# Or create standalone
-mkdir aichat-backend && cd aichat-backend
-# Copy the source files
-```
-
-### 3. Install Dependencies
-
-```bash
-go mod init github.com/percona/pmm/aichat-backend
-go mod tidy
-```
-
-### 4. Environment Setup
-
-```bash
-export OPENAI_API_KEY="your-openai-api-key"
-```
-
-### 5. Configure MCP Servers
-
-Create `mcp-servers.json`:
-
-```json
-{
-  "servers": [
-    {
-      "name": "filesystem",
-      "description": "File system operations",
-      "command": "npx",
-      "args": ["@modelcontextprotocol/server-filesystem", "/workspace"],
-      "timeout": 30,
-      "env": {
-        "DEBUG": "mcp*"
-      },
-      "enabled": true
-    }
-  ]
-}
-```
-
-### 6. Run the Service
-
-```bash
-go run cmd/main.go
-```
-
-The service will start on port 3001 (configurable).
+- `GET /v1/chat/health` - Health check (no authentication required)
 
 ## Usage Examples
 
@@ -168,133 +105,128 @@ The service will start on port 3001 (configurable).
 ```bash
 curl -X POST http://localhost:3001/v1/chat/send \
   -H "Content-Type: application/json" \
+  -H "X-User-ID: 123" \
   -d '{
-    "message": "List the files in the current directory",
-    "session_id": "user123"
+    "message": "Hello, how can you help me with database monitoring?",
+    "session_id": "session-123"
   }'
 ```
 
-### Get Available Tools
+### Create a New Session
 
 ```bash
-curl http://localhost:3001/api/v1/mcp/tools
+curl -X POST http://localhost:3001/v1/chat/sessions \
+  -H "Content-Type: application/json" \
+  -H "X-User-ID: 123" \
+  -d '{
+    "title": "Database Performance Discussion"
+  }'
 ```
 
-### Check Server Status
+### List User Sessions
 
 ```bash
-curl http://localhost:3001/api/v1/mcp/servers/status
+curl -X GET "http://localhost:3001/v1/chat/sessions?limit=10&offset=0" \
+  -H "X-User-ID: 123"
 ```
 
-## Docker Deployment
-
-### Build Docker Image
+### Stream Chat Response
 
 ```bash
-docker build -t aichat-backend .
-```
-
-### Run with Docker
-
-```bash
-docker run -d \
-  --name aichat-backend \
-  -p 3001:3001 \
-  -e OPENAI_API_KEY=your-api-key \
-  -v $(pwd)/config.yaml:/app/config.yaml \
-  -v $(pwd)/mcp-servers.json:/app/mcp-servers.json \
-  aichat-backend
-```
-
-## MCP Server Configuration
-
-The AI Chat Backend supports connecting to multiple MCP (Model Context Protocol) servers simultaneously. MCP servers provide tools and capabilities that can be used during chat conversations.
-
-### Transport Types
-
-The backend supports two transport types for MCP servers:
-
-1. **stdio** - Standard input/output for local MCP servers (when `command` is specified)
-2. **sse** - Server-Sent Events for remote HTTP-based MCP servers (when `url` is specified)
-
-### Configuration File
-
-MCP servers are configured in `mcp-servers.json`:
-
-```json
-{
-  "servers": [
-    {
-      "name": "filesystem",
-      "description": "File system operations",
-      "command": "npx",
-      "args": ["@modelcontextprotocol/server-filesystem", "/path/to/workspace"],
-      "timeout": 30,
-      "env": {
-        "DEBUG": "mcp*"
-      },
-      "enabled": true
-    },
-    {
-      "name": "remote-api",
-      "description": "Remote API MCP server",
-      "url": "https://api.example.com/mcp/sse",
-      "timeout": 60,
-      "enabled": true
-    }
-  ]
-}
-```
-
-### Configuration Fields
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | Unique identifier for the server |
-| `description` | string | No | Human-readable description |
-| `command` | string | stdio only | Command to execute for stdio transport |
-| `args` | array | stdio only | Command arguments for stdio transport |
-| `url` | string | sse only | Base URL for SSE transport |
-| `env` | object | stdio only | Environment variables for stdio transport |
-| `timeout` | number | No | Connection timeout in seconds (default: 30) |
-| `enabled` | boolean | Yes | Whether the server is enabled |
-
-### Transport Auto-Detection
-
-Transport type is automatically detected based on configuration:
-- If `url` is present → **SSE transport**
-- If `command` is present → **stdio transport**
-- Both fields cannot be specified for the same server
-
-### Example Configurations
-
-#### stdio Transport (Local MCP Server)
-```json
-{
-  "name": "filesystem",
-  "description": "Local filesystem operations",
-  "command": "npx",
-  "args": ["@modelcontextprotocol/server-filesystem", "/workspace"],
-  "timeout": 30,
-  "enabled": true
-}
-```
-
-#### SSE Transport (Remote MCP Server)
-```json
-{
-  "name": "remote-tools",
-  "description": "Remote tool server",
-  "url": "http://localhost:8080/mcp",
-  "timeout": 60,
-  "enabled": true
-}
+curl -X GET "http://localhost:3001/v1/chat/stream?session_id=session-123&message=Hello" \
+  -H "X-User-ID: 123" \
+  -H "Accept: text/event-stream"
 ```
 
 ## Development
 
-### Running Tests
+### Running Locally
 
 ```bash
-go test ./...
+# Install dependencies
+go mod download
+
+# Set environment variables
+export AICHAT_LLM_PROVIDER="openai"
+export AICHAT_API_KEY="your-openai-api-key"
+export AICHAT_DATABASE_URL="postgres://ai_chat_user:password@localhost:5432/ai_chat?sslmode=disable"
+
+# Run the server
+go run main.go
+
+# Or build and run
+go build -o aichat-backend main.go
+./aichat-backend
 ```
+
+### Testing with Authentication
+
+For local development without PMM's auth server, the application falls back to a default user ID:
+
+```bash
+# Test with explicit user ID header
+curl -X POST http://localhost:3001/v1/chat/send \
+  -H "Content-Type: application/json" \
+  -H "X-User-ID: 123" \
+  -d '{"message": "Test message", "session_id": "test-session"}'
+
+# Test without header (uses default-user)
+curl -X POST http://localhost:3001/v1/chat/send \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Test message", "session_id": "test-session"}'
+```
+
+## Database Schema
+
+The service uses PostgreSQL with the following tables:
+
+- `chat_sessions` - User chat sessions
+- `chat_messages` - Individual messages within sessions  
+- `chat_attachments` - File attachments for messages
+
+All data is isolated per user ID for security and privacy.
+
+## Integration with PMM
+
+When deployed as part of PMM:
+
+1. **nginx** handles routing and authentication
+2. **PMM Auth Server** validates user credentials and sets headers
+3. **AI Chat Backend** receives authenticated requests with user context
+4. **Database** stores user-specific chat data securely
+
+This ensures that users can only access their own chat sessions and history, maintaining proper data isolation and security within the PMM ecosystem.
+
+## Database Migrations
+
+The AI Chat Backend uses [go-migrate](https://github.com/golang-migrate/migrate) for database schema management with embedded migrations.
+
+### Automatic Migrations
+
+Migrations are embedded into the Go binary and run automatically on application startup:
+
+```bash
+# Migrations run automatically when starting the application
+./aichat-backend
+
+# Example startup output:
+# Running database migrations...
+# ✅ Database migration version: 1
+```
+
+### Migration Files
+
+Migration files are stored in the `migrations/` directory and embedded at build time:
+
+- `000001_create_chat_tables.up.sql` - Forward migration
+- `000001_create_chat_tables.down.sql` - Rollback migration
+
+### Production Benefits
+
+This approach provides several advantages for production deployments:
+
+- **Self-contained**: No need to distribute migration files separately
+- **Version consistency**: Migrations always match the binary version
+- **Reliability**: No risk of missing migration files
+- **Security**: Migration logic is compiled into the binary
+- **Simplicity**: No manual migration commands needed

@@ -47,12 +47,38 @@ func (s *MCPService) Initialize(ctx context.Context) error {
 
 	log.Printf("Found %d enabled MCP servers to connect to", len(s.servers))
 
-	// Connect to enabled servers in parallel
+	// Connect to all configured servers
+	connectedCount, connectionErrors := s.connectToAllServers(ctx, s.servers, false)
+
+	log.Printf("Successfully initialized MCP service with %d active servers", connectedCount)
+
+	// Log connection errors if any
+	s.logConnectionErrors(connectionErrors, "during initialization")
+
+	return nil
+}
+
+// connectToAllServers connects to multiple MCP servers in parallel
+// closeExisting: if true, closes existing connections before connecting
+// Returns: (connectedCount, connectionErrors)
+func (s *MCPService) connectToAllServers(ctx context.Context, servers map[string]config.MCPServerConfig, closeExisting bool) (int, []error) {
+	if len(servers) == 0 {
+		return 0, nil
+	}
+
+	// Close existing connections if requested
+	if closeExisting {
+		s.mu.Lock()
+		s.closeAllClients(true)
+		s.mu.Unlock()
+	}
+
+	// Connect to servers in parallel
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	var connectionErrors []error
 
-	for serverName, serverConfig := range s.servers {
+	for serverName, serverConfig := range servers {
 		wg.Add(1)
 		go func(name string, config config.MCPServerConfig) {
 			defer wg.Done()
@@ -69,21 +95,56 @@ func (s *MCPService) Initialize(ctx context.Context) error {
 	// Wait for all connections to complete
 	wg.Wait()
 
+	// Get final connected count
 	s.mu.RLock()
 	connectedCount := len(s.clients)
 	s.mu.RUnlock()
 
-	log.Printf("Successfully initialized MCP service with %d active servers", connectedCount)
+	return connectedCount, connectionErrors
+}
 
-	// Log connection errors if any
-	if len(connectionErrors) > 0 {
-		log.Printf("Connection errors occurred for %d servers:", len(connectionErrors))
-		for _, err := range connectionErrors {
+// closeAllClients closes all existing client connections and optionally clears tools
+// Must be called with mutex held
+func (s *MCPService) closeAllClients(clearTools bool) error {
+	var lastErr error
+
+	if clearTools {
+		s.tools = make(map[string]models.MCPTool)
+	}
+
+	for name, client := range s.clients {
+		if err := client.Close(); err != nil {
+			log.Printf("⚠️ MCP: Failed to close existing connection to %s: %v", name, err)
+			lastErr = err
+		} else {
+			log.Printf("Closed MCP client: %s", name)
+		}
+	}
+	s.clients = make(map[string]client.MCPClient)
+
+	return lastErr
+}
+
+// getServerConfigs returns a copy of all server configurations
+func (s *MCPService) getServerConfigs() map[string]config.MCPServerConfig {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	serverConfigs := make(map[string]config.MCPServerConfig)
+	for name, config := range s.servers {
+		serverConfigs[name] = config
+	}
+	return serverConfigs
+}
+
+// logConnectionErrors logs a list of connection errors in a consistent format
+func (s *MCPService) logConnectionErrors(errors []error, context string) {
+	if len(errors) > 0 {
+		log.Printf("❌ MCP: Connection errors occurred for %d servers %s:", len(errors), context)
+		for _, err := range errors {
 			log.Printf("  - %v", err)
 		}
 	}
-
-	return nil
 }
 
 // connectToServer establishes connection to an MCP server
@@ -194,7 +255,7 @@ func (s *MCPService) loadToolsFromServer(ctx context.Context, serverName string,
 
 		s.tools[toolKey] = models.MCPTool{
 			Name:        tool.Name,
-			Description: tool.Description,
+			Description: fmt.Sprintf("%s (%s)", tool.Description, serverName),
 			InputSchema: inputSchema,
 			Server:      serverName,
 		}
@@ -217,87 +278,35 @@ func (s *MCPService) GetTools() []models.MCPTool {
 	return tools
 }
 
-// RefreshTools forces a refresh of tools from all MCP servers
+// RefreshTools forces a refresh of tools from all MCP servers, reconnecting if necessary
 func (s *MCPService) RefreshTools() error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	log.Printf("🔄 MCP: Force refreshing tools from all MCP servers (with reconnection)")
 
-	log.Printf("🔄 MCP: Force refreshing tools from all connected servers")
+	// Get list of server configurations
+	serverConfigs := s.getServerConfigs()
 
-	// Clear existing tools
-	s.tools = make(map[string]models.MCPTool)
+	if len(serverConfigs) == 0 {
+		log.Printf("🔄 MCP: No configured servers to refresh tools from")
+		return nil
+	}
 
-	// Refresh tools from all connected clients
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// Create context with timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	totalRefreshed := 0
-	for serverName, mcpClient := range s.clients {
-		log.Printf("🔄 MCP: Refreshing tools from server: %s", serverName)
+	// Reconnect to all servers (this will close existing connections and clear tools)
+	connectedCount, connectionErrors := s.connectToAllServers(ctx, serverConfigs, true)
 
-		toolCount := s.loadToolsFromServer(ctx, serverName, mcpClient)
-		totalRefreshed += toolCount
-		log.Printf("✅ MCP: Refreshed %d tools from server %s", toolCount, serverName)
-	}
+	// Log connection errors if any
+	s.logConnectionErrors(connectionErrors, "during refresh")
 
-	log.Printf("🔄 MCP: Force refresh completed. Total tools refreshed: %d", totalRefreshed)
-	return nil
-}
-
-// ServerStatus represents the status of an MCP server
-type ServerStatus struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Transport   string `json:"transport"`
-	Enabled     bool   `json:"enabled"`
-	Connected   bool   `json:"connected"`
-	ToolCount   int    `json:"tool_count"`
-}
-
-// GetServerStatus returns the status of all configured MCP servers
-func (s *MCPService) GetServerStatus() map[string]ServerStatus {
+	// Count total tools refreshed
 	s.mu.RLock()
-	defer s.mu.RUnlock()
+	totalRefreshed := len(s.tools)
+	s.mu.RUnlock()
 
-	status := make(map[string]ServerStatus)
-
-	for serverName, serverConfig := range s.servers {
-		// Auto-detect transport type for display
-		var transport string
-		if serverConfig.URL != "" {
-			transport = "sse"
-		} else if serverConfig.Command != "" {
-			transport = "stdio"
-		} else {
-			transport = "unknown"
-		}
-
-		serverStatus := ServerStatus{
-			Name:        serverName,
-			Description: serverConfig.Description,
-			Transport:   transport,
-			Enabled:     serverConfig.Enabled,
-			Connected:   false,
-			ToolCount:   0,
-		}
-
-		if serverConfig.Enabled {
-			if _, exists := s.clients[serverName]; exists {
-				serverStatus.Connected = true
-				// Count tools for this server
-				for toolKey := range s.tools {
-					if len(toolKey) > len(serverName)+1 &&
-						toolKey[:len(serverName)+1] == serverName+"/" {
-						serverStatus.ToolCount++
-					}
-				}
-			}
-		}
-
-		status[serverName] = serverStatus
-	}
-
-	return status
+	log.Printf("🔄 MCP: Force refresh completed. Connected servers: %d, Total tools refreshed: %d", connectedCount, totalRefreshed)
+	return nil
 }
 
 // ExecuteTool executes a tool call on the appropriate MCP server
@@ -371,17 +380,7 @@ func (s *MCPService) Close() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	var lastErr error
-	for name, mcpClient := range s.clients {
-		if err := mcpClient.Close(); err != nil {
-			log.Printf("Failed to close MCP client %s: %v", name, err)
-			lastErr = err
-		} else {
-			log.Printf("Closed MCP client: %s", name)
-		}
-	}
-
-	return lastErr
+	return s.closeAllClients(false)
 }
 
 // HealthCheck checks the health of all connected MCP servers

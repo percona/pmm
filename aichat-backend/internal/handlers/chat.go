@@ -38,10 +38,16 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 		return
 	}
 
+	// Get user ID from authentication header
+	userID, ok := requireUserID(c)
+	if !ok {
+		return // Error response already sent by requireUserID
+	}
+
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 30*time.Second)
 	defer cancel()
 
-	response, err := h.chatService.ProcessMessage(ctx, request.SessionID, request.Message)
+	response, err := h.chatService.ProcessMessageWithUser(ctx, userID, request.SessionID, request.Message)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Sprintf("Failed to process message: %v", err),
@@ -50,20 +56,6 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
-}
-
-// GetHistory handles GET /v1/chat/history
-func (h *ChatHandler) GetHistory(c *gin.Context) {
-	sessionID := c.Query("session_id")
-	if sessionID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "session_id parameter is required",
-		})
-		return
-	}
-
-	history := h.chatService.GetHistory(sessionID)
-	c.JSON(http.StatusOK, history)
 }
 
 // ClearHistory handles DELETE /v1/chat/clear
@@ -76,7 +68,13 @@ func (h *ChatHandler) ClearHistory(c *gin.Context) {
 		return
 	}
 
-	h.chatService.ClearHistory(sessionID)
+	// Get user ID from authentication header
+	userID, ok := requireUserID(c)
+	if !ok {
+		return // Error response already sent by requireUserID
+	}
+
+	h.chatService.ClearHistoryForUser(userID, sessionID)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Chat history cleared successfully",
 	})
@@ -94,6 +92,12 @@ func (h *ChatHandler) StreamChat(c *gin.Context) {
 		return
 	}
 
+	// Get user ID from authentication header
+	userID, ok := requireUserID(c)
+	if !ok {
+		return // Error response already sent by requireUserID
+	}
+
 	// Set headers for SSE
 	c.Header("Content-Type", "text/event-stream")
 	c.Header("Cache-Control", "no-cache")
@@ -104,7 +108,7 @@ func (h *ChatHandler) StreamChat(c *gin.Context) {
 	defer cancel()
 
 	// Process streaming message
-	streamChan, err := h.chatService.ProcessStreamMessage(ctx, sessionID, message)
+	streamChan, err := h.chatService.ProcessStreamMessageForUser(ctx, userID, sessionID, message)
 	if err != nil {
 		// Send error as SSE
 		c.SSEvent("error", gin.H{
@@ -150,19 +154,6 @@ func (h *ChatHandler) GetMCPTools(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
-}
-
-// GetMCPServerStatus handles GET /v1/chat/mcp/servers/status
-func (h *ChatHandler) GetMCPServerStatus(c *gin.Context) {
-	// This requires access to the MCP service directly
-	// We'll need to pass it through the chat service or create a separate handler
-	// For now, we'll create a method in the chat service to expose this
-	status := h.chatService.GetMCPServerStatus()
-
-	c.JSON(http.StatusOK, gin.H{
-		"servers":   status,
-		"timestamp": time.Now().UTC().Format(time.RFC3339),
-	})
 }
 
 // SendMessageWithFiles handles POST /v1/chat/send-with-files (multipart form)
@@ -249,10 +240,22 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 		Attachments: attachments,
 	}
 
+	// Get user ID from authentication header
+	userID, ok := requireUserID(c)
+	if !ok {
+		return // Error response already sent by requireUserID
+	}
+
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 30*time.Second)
 	defer cancel()
 
-	response, err := h.chatService.ProcessMessageWithAttachments(ctx, request.SessionID, request.Message, request.Attachments)
+	// Convert attachments to pointer slice for the service method
+	var attachmentPtrs []*models.Attachment
+	for i := range attachments {
+		attachmentPtrs = append(attachmentPtrs, &attachments[i])
+	}
+
+	response, err := h.chatService.ProcessMessageWithAttachmentsForUser(ctx, userID, request.SessionID, request.Message, attachmentPtrs)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Sprintf("Failed to process message: %v", err),

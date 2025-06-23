@@ -27,6 +27,25 @@ You can run the backend in two modes:
 | `AICHAT_CORS_ORIGINS` | Allowed CORS origins (comma-separated) | `http://localhost:8080,http://localhost:8443` | `https://pmm.example.com` |
 | `GIN_MODE` | Gin framework mode | `debug` | `release` |
 
+## Database Configuration
+
+| Environment Variable | Description | Default | Example |
+|---------------------|-------------|---------|---------|
+| `AICHAT_DATABASE_URL` | Complete PostgreSQL connection DSN | Built from individual components | `postgres://user:pass@host:5432/dbname?sslmode=disable` |
+
+### Individual Database Parameters (Backward Compatibility)
+
+If `AICHAT_DATABASE_URL` is not set, the system will build the DSN from these individual parameters:
+
+| Environment Variable | Description | Default | Example |
+|---------------------|-------------|---------|---------|
+| `AICHAT_DB_HOST` | Database host | `127.0.0.1` | `localhost` |
+| `AICHAT_DB_PORT` | Database port | `5432` | `5432` |
+| `AICHAT_DB_NAME` | Database name | `ai_chat` | `ai_chat` |
+| `AICHAT_DB_USERNAME` | Database username | `ai_chat_user` | `ai_chat_user` |
+| `AICHAT_DB_PASSWORD` | Database password | `ai_chat_secure_password` | `your_password` |
+| `AICHAT_DB_SSL_MODE` | SSL mode | `disable` | `require` |
+
 ## LLM Configuration
 
 | Environment Variable | Description | Default | Example |
@@ -71,6 +90,7 @@ AICHAT_API_KEY=<from_ansible_vault>
 AICHAT_MCP_SERVERS_FILE=/srv/aichat-backend/mcp-servers.json
 AICHAT_LOG_LEVEL=info
 AICHAT_CORS_ORIGINS=http://localhost:8080,http://localhost:8443
+AICHAT_DATABASE_URL=postgres://ai_chat_user:ai_chat_secure_password@127.0.0.1:5432/ai_chat?sslmode=disable
 AICHAT_VERSION=pmm-3.x
 GIN_MODE=release
 ```
@@ -84,6 +104,7 @@ export OPENAI_API_KEY=sk-your-api-key
 export AICHAT_LLM_MODEL=gpt-4o-mini
 export AICHAT_LLM_TEMPERATURE=0.7
 export AICHAT_LOG_LEVEL=debug
+export AICHAT_DATABASE_URL=postgres://ai_chat_user:ai_chat_secure_password@127.0.0.1:5432/ai_chat?sslmode=disable
 export GIN_MODE=debug
 
 ./aichat-backend --env-only
@@ -99,6 +120,7 @@ export AICHAT_LLM_MAX_TOKENS=4000
 export AICHAT_MCP_SERVERS_FILE=/srv/aichat-backend/mcp-servers.json
 export AICHAT_LOG_LEVEL=info
 export AICHAT_CORS_ORIGINS=https://pmm.company.com
+export AICHAT_DATABASE_URL=postgres://ai_chat_user:ai_chat_secure_password@127.0.0.1:5432/ai_chat?sslmode=disable
 export GIN_MODE=release
 
 ./aichat-backend --env-only
@@ -119,6 +141,7 @@ COPY --from=builder /app/aichat-backend .
 ENV AICHAT_PORT=3001
 ENV AICHAT_LLM_PROVIDER=openai
 ENV AICHAT_LLM_MODEL=gpt-4o-mini
+ENV AICHAT_DATABASE_URL=postgres://ai_chat_user:ai_chat_secure_password@db:5432/ai_chat?sslmode=disable
 ENV GIN_MODE=release
 
 CMD ["./aichat-backend", "--env-only"]
@@ -148,9 +171,48 @@ spec:
           value: "gpt-4o-mini"
         - name: AICHAT_MCP_SERVERS_FILE
           value: "/config/mcp-servers.json"
+        - name: AICHAT_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: aichat-secrets
+              key: database-url
         - name: GIN_MODE
           value: "release"
         args: ["--env-only"]
+```
+
+## Database Configuration Priority
+
+The database configuration is loaded in the following priority order:
+
+1. **AICHAT_DATABASE_URL** (highest priority) - Complete PostgreSQL DSN
+2. **Individual Parameters** (fallback) - Built from AICHAT_DB_* variables
+3. **Default Values** (lowest priority) - Built-in defaults for AI Chat database
+
+### DSN Format
+
+The `AICHAT_DATABASE_URL` should follow the PostgreSQL connection URI format:
+
+```
+postgres://username:password@hostname:port/database_name?param1=value1&param2=value2
+```
+
+Common parameters:
+- `sslmode=disable|require|verify-ca|verify-full`
+- `connect_timeout=10`
+- `application_name=aichat-backend`
+
+### Examples
+
+```bash
+# Local development
+AICHAT_DATABASE_URL="postgres://ai_chat_user:ai_chat_secure_password@localhost:5432/ai_chat?sslmode=disable"
+
+# Production with SSL
+AICHAT_DATABASE_URL="postgres://ai_chat_user:secure_password@db.example.com:5432/ai_chat?sslmode=require"
+
+# With connection timeout
+AICHAT_DATABASE_URL="postgres://ai_chat_user:password@db:5432/ai_chat?sslmode=disable&connect_timeout=30"
 ```
 
 ## Configuration Priority
@@ -170,12 +232,14 @@ The application validates the following required settings:
 - **API Key**: Required when using OpenAI provider (`OPENAI_API_KEY` or `AICHAT_API_KEY`)
 - **Port**: Must be between 1 and 65535
 - **MCP Servers File**: Must be readable JSON file (if specified)
+- **Database Connection**: Must be able to connect and ping the database
 
 ## Security Considerations
 
 ### Environment Variables Security
 
 - **Never commit API keys** to version control
+- **Never commit database credentials** to version control
 - Use **secrets management** systems (Kubernetes secrets, Docker secrets, etc.)
 - Restrict **environment variable visibility** in production systems
 - Use **least privilege** access for service accounts
@@ -185,12 +249,15 @@ The application validates the following required settings:
 ```bash
 # ✅ Good: Use secrets management
 export OPENAI_API_KEY=$(vault kv get -field=api_key secret/openai)
+export AICHAT_DATABASE_URL=$(vault kv get -field=database_url secret/aichat)
 
 # ✅ Good: Load from file with restricted permissions
 export OPENAI_API_KEY=$(cat /etc/secrets/openai-api-key)
+export AICHAT_DATABASE_URL=$(cat /etc/secrets/database-url)
 
 # ❌ Bad: Hardcoded in scripts
 export OPENAI_API_KEY=sk-hardcoded-key-here
+export AICHAT_DATABASE_URL=postgres://user:password@host/db
 
 # ❌ Bad: Visible in process list
 ./aichat-backend --api-key sk-visible-in-ps
@@ -220,13 +287,19 @@ curl http://localhost:3001/health
    ```
    **Solution**: Set the API key environment variable
 
-2. **Port in Use**
+2. **Database Connection Failed**
+   ```
+   Error: Failed to connect to database: dial tcp 127.0.0.1:5432: connect: connection refused
+   ```
+   **Solution**: Ensure PostgreSQL is running and AICHAT_DATABASE_URL is correct
+
+3. **Port in Use**
    ```
    Error: Failed to start server: listen tcp :3001: bind: address already in use
    ```
    **Solution**: Change `AICHAT_PORT` or stop conflicting service
 
-3. **Invalid MCP Servers File**
+4. **Invalid MCP Servers File**
    ```
    Warning: Failed to initialize MCP service: no such file or directory
    ```

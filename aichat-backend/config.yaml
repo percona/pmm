@@ -11,6 +11,23 @@ llm:
   #   temperature: "0.7"
   #   max_tokens: "2000"
 
+# Database configuration
+# Note: Database connection is configured via environment variables, not in this file
+# Use AICHAT_DATABASE_URL for complete DSN:
+#   AICHAT_DATABASE_URL="postgres://user:pass@host:5432/dbname?sslmode=disable"
+# 
+# Or use individual parameters (backward compatibility):
+#   AICHAT_DB_HOST="127.0.0.1"
+#   AICHAT_DB_PORT="5432"
+#   AICHAT_DB_NAME="ai_chat"
+#   AICHAT_DB_USERNAME="ai_chat_user"
+#   AICHAT_DB_PASSWORD="ai_chat_secure_password"
+#   AICHAT_DB_SSL_MODE="disable"
+database:
+  # Database configuration is loaded from environment variables only
+  # This section is for documentation purposes
+  dsn: "${AICHAT_DATABASE_URL}"  # Complete PostgreSQL DSN
+
 mcp:
   # MCP servers are configured in a separate JSON file for better organization
   servers_file: "mcp-servers.json"

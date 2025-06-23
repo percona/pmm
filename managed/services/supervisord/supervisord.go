@@ -731,6 +731,7 @@ environment =
     AICHAT_MCP_SERVERS_FILE="{{ .AIChatMCPServersFile }}",
     AICHAT_LOG_LEVEL="{{ .AIChatLogLevel }}",
     AICHAT_CORS_ORIGINS="{{ .AIChatCORSOrigins }}",
+    AICHAT_DATABASE_URL="postgres://ai_chat_user:ai_chat_secure_password@127.0.0.1:5432/ai_chat?sslmode=disable",
     GIN_MODE="release"
 {{end -}}
 {{end}}

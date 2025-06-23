@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"log"
 	"strings"
@@ -14,9 +13,10 @@ import (
 
 // ChatService handles chat conversations and coordinates LLM and MCP services
 type ChatService struct {
-	llm              *LLMService
+	llmProvider      LLMProvider
 	mcp              *MCPService
-	sessions         map[string]*ChatSession
+	database         *DatabaseService
+	userSessions     map[string]map[string]*ChatSession // userID -> sessionID -> session
 	systemPrompt     string
 	pendingApprovals map[string]*models.ToolApprovalRequest // requestID -> approval request
 	mu               sync.RWMutex
@@ -25,30 +25,39 @@ type ChatService struct {
 // ChatSession represents an active chat session
 type ChatSession struct {
 	ID       string
+	UserID   string
 	Messages []*models.Message
 	Created  time.Time
 	Updated  time.Time
 }
 
 // NewChatService creates a new chat service
-func NewChatService(llmService *LLMService, mcpService *MCPService, systemPrompt string) *ChatService {
+func NewChatService(llmProvider LLMProvider, mcp *MCPService, database *DatabaseService) *ChatService {
 	return &ChatService{
-		llm:              llmService,
-		mcp:              mcpService,
-		sessions:         make(map[string]*ChatSession),
-		systemPrompt:     systemPrompt,
+		llmProvider:      llmProvider,
+		mcp:              mcp,
+		database:         database,
+		userSessions:     make(map[string]map[string]*ChatSession),
+		systemPrompt:     "",
 		pendingApprovals: make(map[string]*models.ToolApprovalRequest),
 	}
 }
 
-// ProcessMessage processes a user message and generates a response
-func (s *ChatService) ProcessMessage(ctx context.Context, sessionID, userMessage string) (*models.ChatResponse, error) {
-	return s.ProcessMessageWithAttachments(ctx, sessionID, userMessage, nil)
+// SetSystemPrompt sets the system prompt for the chat service
+func (s *ChatService) SetSystemPrompt(prompt string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.systemPrompt = prompt
 }
 
-// ProcessStreamMessage processes a user message and returns a streaming response
-func (s *ChatService) ProcessStreamMessage(ctx context.Context, sessionID, userMessage string) (<-chan *models.StreamMessage, error) {
-	log.Printf("🚀 Chat: Starting stream processing for session %s, message: %q", sessionID, userMessage)
+// ProcessMessageWithUser processes a user message and generates a response for a specific user
+func (s *ChatService) ProcessMessageWithUser(ctx context.Context, userID, sessionID, userMessage string) (*models.ChatResponse, error) {
+	return s.ProcessMessageWithAttachmentsForUser(ctx, userID, sessionID, userMessage, nil)
+}
+
+// ProcessStreamMessageForUser processes a user message and returns a streaming response for a specific user
+func (s *ChatService) ProcessStreamMessageForUser(ctx context.Context, userID, sessionID, userMessage string) (<-chan *models.StreamMessage, error) {
+	log.Printf("🚀 Chat: Starting stream processing for user %s, session %s, message: %q", userID, sessionID, userMessage)
 
 	// Check if this is a tool approval message
 	if strings.HasPrefix(userMessage, "[APPROVE_TOOLS:") && strings.HasSuffix(userMessage, "]") {
@@ -57,7 +66,7 @@ func (s *ChatService) ProcessStreamMessage(ctx context.Context, sessionID, userM
 		log.Printf("🔧 Chat: Detected tool approval message for request: %s", requestID)
 
 		// Process tool approval directly in streaming
-		return s.processToolApprovalInStream(ctx, sessionID, requestID, true)
+		return s.processToolApprovalInStreamForUser(ctx, userID, sessionID, requestID, true)
 	}
 
 	if strings.HasPrefix(userMessage, "[DENY_TOOLS:") && strings.HasSuffix(userMessage, "]") {
@@ -66,11 +75,11 @@ func (s *ChatService) ProcessStreamMessage(ctx context.Context, sessionID, userM
 		log.Printf("🔧 Chat: Detected tool denial message for request: %s", requestID)
 
 		// Process tool denial directly in streaming
-		return s.processToolApprovalInStream(ctx, sessionID, requestID, false)
+		return s.processToolApprovalInStreamForUser(ctx, userID, sessionID, requestID, false)
 	}
 
 	s.mu.Lock()
-	session := s.getOrCreateSession(sessionID)
+	session := s.getOrCreateSessionForUser(userID, sessionID)
 	s.mu.Unlock()
 
 	// Add user message to session
@@ -81,10 +90,7 @@ func (s *ChatService) ProcessStreamMessage(ctx context.Context, sessionID, userM
 		Timestamp: time.Now(),
 	}
 
-	s.mu.Lock()
-	session.Messages = append(session.Messages, userMsg)
-	session.Updated = time.Now()
-	s.mu.Unlock()
+	s.addMessageToSession(ctx, sessionID, session, userMsg)
 
 	log.Printf("📝 Chat: Added user message to session, total messages: %d", len(session.Messages))
 
@@ -96,7 +102,7 @@ func (s *ChatService) ProcessStreamMessage(ctx context.Context, sessionID, userM
 	preparedMessages := s.prepareMessagesWithSystemPrompt(session.Messages)
 
 	// Generate streaming response from LLM
-	streamChan, err := s.llm.GenerateStreamResponse(ctx, preparedMessages, tools)
+	streamChan, err := s.llmProvider.GenerateStreamResponse(ctx, preparedMessages, tools)
 	if err != nil {
 		log.Printf("❌ Chat: Failed to start LLM streaming: %v", err)
 		return nil, err
@@ -205,13 +211,9 @@ func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string,
 				ToolCalls: streamToolCalls,
 			}
 
-			s.mu.Lock()
-			session.Messages = append(session.Messages, assistantMsg)
-			session.Updated = time.Now()
-			totalMessages := len(session.Messages)
-			s.mu.Unlock()
+			s.addMessageToSession(ctx, sessionID, session, assistantMsg)
 
-			log.Printf("💾 Chat: Saved assistant message to session, total messages: %d", totalMessages)
+			log.Printf("💾 Chat: Saved assistant message to session, total messages: %d", len(session.Messages))
 
 			// Handle tool calls if present (request approval instead of executing immediately)
 			if len(streamToolCalls) > 0 {
@@ -241,10 +243,7 @@ func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string,
 					ToolCalls: streamToolCalls,
 				}
 
-				s.mu.Lock()
-				session.Messages = append(session.Messages, approvalMsg)
-				session.Updated = time.Now()
-				s.mu.Unlock()
+				s.addMessageToSession(ctx, sessionID, session, approvalMsg)
 
 				// Send approval request to frontend via stream
 				outputChan <- &models.StreamMessage{
@@ -279,51 +278,172 @@ func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string,
 	}
 }
 
-// GetHistory returns the chat history for a session
-func (s *ChatService) GetHistory(sessionID string) *models.ChatHistory {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	session, exists := s.sessions[sessionID]
-	if !exists {
-		return &models.ChatHistory{
-			SessionID: sessionID,
-			Messages:  []*models.Message{},
-		}
-	}
-
-	return &models.ChatHistory{
-		SessionID: sessionID,
-		Messages:  session.Messages,
-	}
-}
-
-// ClearHistory clears the chat history for a session
-func (s *ChatService) ClearHistory(sessionID string) error {
+// ClearHistoryForUser clears chat history for a specific user's session
+func (s *ChatService) ClearHistoryForUser(userID, sessionID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if session, exists := s.sessions[sessionID]; exists {
-		session.Messages = []*models.Message{}
-		session.Updated = time.Now()
+	userSessions, exists := s.userSessions[userID]
+	if !exists {
+		return
 	}
 
-	return nil
+	delete(userSessions, sessionID)
+
+	// If user has no more sessions, remove user entry
+	if len(userSessions) == 0 {
+		delete(s.userSessions, userID)
+	}
 }
 
-// GetAvailableTools returns all available MCP tools
-func (s *ChatService) GetAvailableTools() []models.MCPTool {
-	return s.mcp.GetTools()
+// getOrCreateSessionForUser gets or creates a session for a specific user
+func (s *ChatService) getOrCreateSessionForUser(userID, sessionID string) *ChatSession {
+	// Ensure user sessions map exists
+	if s.userSessions[userID] == nil {
+		s.userSessions[userID] = make(map[string]*ChatSession)
+	}
+
+	session, exists := s.userSessions[userID][sessionID]
+	if !exists {
+		session = &ChatSession{
+			ID:       sessionID,
+			UserID:   userID,
+			Messages: []*models.Message{},
+			Created:  time.Now(),
+			Updated:  time.Now(),
+		}
+		s.userSessions[userID][sessionID] = session
+	}
+	return session
 }
 
-// RefreshTools forces a refresh of tools from MCP servers
-func (s *ChatService) RefreshTools() error {
-	return s.mcp.RefreshTools()
+// isTextFile checks if the MIME type represents a text file
+func (s *ChatService) isTextFile(mimeType string) bool {
+	textTypes := []string{
+		"text/plain",
+		"text/html",
+		"text/css",
+		"text/javascript",
+		"text/xml",
+		"application/json",
+		"application/xml",
+		"application/yaml",
+		"application/x-yaml",
+		"text/yaml",
+		"text/x-yaml",
+		"text/markdown",
+		"text/x-markdown",
+	}
+
+	for _, textType := range textTypes {
+		if strings.Contains(mimeType, textType) {
+			return true
+		}
+	}
+
+	// Also check for common programming language extensions
+	if strings.Contains(mimeType, "text/") ||
+		strings.Contains(mimeType, "application/javascript") ||
+		strings.Contains(mimeType, "application/typescript") {
+		return true
+	}
+
+	return false
 }
 
-// GetMCPServerStatus returns the status of all MCP servers
-func (s *ChatService) GetMCPServerStatus() interface{} {
-	return s.mcp.GetServerStatus()
+// isImageFile checks if the MIME type represents an image file
+func (s *ChatService) isImageFile(mimeType string) bool {
+	return strings.HasPrefix(mimeType, "image/")
+}
+
+// prepareMessagesWithSystemPrompt prepares messages for LLM with system prompt
+func (s *ChatService) prepareMessagesWithSystemPrompt(messages []*models.Message) []*models.Message {
+	if s.systemPrompt == "" {
+		return messages
+	}
+
+	// Check if the first message is already a system message
+	if len(messages) > 0 && messages[0].Role == "system" {
+		return messages
+	}
+
+	// Enhance system prompt with current time context
+	currentTime := time.Now()
+	timeContext := fmt.Sprintf("\n\nCURRENT CONTEXT:\n- Current time: %s (UTC)\n- Current time (local): %s\n- For QAN queries, use a 12-hour period by default (from %s to %s UTC) unless the user specifies otherwise\n- When using QAN tools, format timestamps in RFC3339 format (e.g., %s)",
+		currentTime.UTC().Format("2006-01-02 15:04:05"),
+		currentTime.Format("2006-01-02 15:04:05 MST"),
+		currentTime.Add(-12*time.Hour).UTC().Format("2006-01-02T15:04:05Z"),
+		currentTime.UTC().Format("2006-01-02T15:04:05Z"),
+		currentTime.UTC().Format(time.RFC3339))
+
+	enhancedSystemPrompt := s.systemPrompt + timeContext
+
+	// Create system message
+	systemMsg := &models.Message{
+		ID:        "system_prompt",
+		Role:      "system",
+		Content:   enhancedSystemPrompt,
+		Timestamp: time.Now(),
+	}
+
+	// Prepend system message to the conversation
+	preparedMessages := make([]*models.Message, 0, len(messages)+1)
+	preparedMessages = append(preparedMessages, systemMsg)
+	preparedMessages = append(preparedMessages, messages...)
+
+	return preparedMessages
+}
+
+// executeToolCalls executes a list of tool calls and returns tool executions and result messages
+func (s *ChatService) executeToolCalls(ctx context.Context, toolCalls []models.ToolCall, session *ChatSession) ([]models.ToolExecution, []*models.Message) {
+	var toolExecutions []models.ToolExecution
+	var toolMessages []*models.Message
+
+	for i, toolCall := range toolCalls {
+		log.Printf("🔧 Tool call %d: ID=%s, Type=%s, Function=%s, Args=%s",
+			i+1, toolCall.ID, toolCall.Type, toolCall.Function.Name, toolCall.Function.Arguments)
+
+		// Track tool execution
+		startTime := time.Now()
+		toolExecution := models.ToolExecution{
+			ID:        toolCall.ID,
+			ToolName:  toolCall.Function.Name,
+			Arguments: toolCall.Function.Arguments,
+			StartTime: startTime,
+		}
+
+		// Execute tool
+		toolResult, err := s.mcp.ExecuteTool(ctx, toolCall)
+		endTime := time.Now()
+		toolExecution.EndTime = endTime
+		toolExecution.Duration = endTime.Sub(startTime).Milliseconds()
+
+		if err != nil {
+			log.Printf("❌ Tool execution failed for %s: %v", toolCall.Function.Name, err)
+			toolExecution.Error = err.Error()
+			toolResult = fmt.Sprintf("Error executing tool: %v", err)
+		} else {
+			log.Printf("✅ Tool execution successful for %s, result length: %d", toolCall.Function.Name, len(toolResult))
+		}
+
+		toolExecution.Result = toolResult
+		toolExecutions = append(toolExecutions, toolExecution)
+
+		// Add tool result as a message
+		toolMsg := &models.Message{
+			ID:        fmt.Sprintf("tool_%s", toolCall.ID),
+			Role:      "tool",
+			Content:   toolResult,
+			Timestamp: time.Now(),
+		}
+
+		toolMessages = append(toolMessages, toolMsg)
+
+		// Add to session and save to database
+		s.addMessageToSession(ctx, session.ID, session, toolMsg)
+	}
+
+	return toolExecutions, toolMessages
 }
 
 // ProcessToolApproval processes user's approval/denial of tool execution
@@ -366,7 +486,7 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 
 		// Get session for context
 		s.mu.Lock()
-		session := s.getOrCreateSession(approval.SessionID)
+		session := s.getOrCreateSessionForUser("default-user", approval.SessionID)
 		s.mu.Unlock()
 
 		// Determine which tools to execute (all or selective)
@@ -426,7 +546,7 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 
 		// Get follow-up response from LLM with fresh context
 		preparedMessages := s.prepareMessagesWithSystemPrompt(allMessages)
-		followUpChan, err := s.llm.GenerateStreamResponse(ctx, preparedMessages, tools)
+		followUpChan, err := s.llmProvider.GenerateStreamResponse(ctx, preparedMessages, tools)
 		if err != nil {
 			log.Printf("❌ Chat: Failed to get follow-up response: %v", err)
 			outputChan <- &models.StreamMessage{
@@ -450,9 +570,9 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 	return outputChan, nil
 }
 
-// processToolApprovalInStream processes tool approval within the streaming flow
-func (s *ChatService) processToolApprovalInStream(ctx context.Context, sessionID, requestID string, approved bool) (<-chan *models.StreamMessage, error) {
-	log.Printf("🔧 Chat: Processing tool approval in stream for request %s, approved: %t", requestID, approved)
+// processToolApprovalInStreamForUser processes tool approval within the streaming flow for a specific user
+func (s *ChatService) processToolApprovalInStreamForUser(ctx context.Context, userID, sessionID, requestID string, approved bool) (<-chan *models.StreamMessage, error) {
+	log.Printf("🔧 Chat: Processing tool approval in stream for user %s, session %s, request %s, approved: %t", userID, sessionID, requestID, approved)
 
 	// Create the approval response structure and delegate to ProcessToolApproval
 	approval := &models.ToolApprovalResponse{
@@ -464,46 +584,13 @@ func (s *ChatService) processToolApprovalInStream(ctx context.Context, sessionID
 	return s.ProcessToolApproval(ctx, approval)
 }
 
-// getOrCreateSession gets or creates a chat session (caller must hold lock)
-func (s *ChatService) getOrCreateSession(sessionID string) *ChatSession {
-	if sessionID == "" {
-		sessionID = fmt.Sprintf("session_%d", time.Now().UnixNano())
-	}
-
-	session, exists := s.sessions[sessionID]
-	if !exists {
-		session = &ChatSession{
-			ID:       sessionID,
-			Messages: []*models.Message{},
-			Created:  time.Now(),
-			Updated:  time.Now(),
-		}
-		s.sessions[sessionID] = session
-	}
-
-	return session
-}
-
-// CleanupOldSessions removes sessions older than the specified duration
-func (s *ChatService) CleanupOldSessions(maxAge time.Duration) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	cutoff := time.Now().Add(-maxAge)
-	for sessionID, session := range s.sessions {
-		if session.Updated.Before(cutoff) {
-			delete(s.sessions, sessionID)
-		}
-	}
-}
-
 // Close closes the chat service and cleans up resources
 func (s *ChatService) Close() error {
 	var errs []error
 
 	// Close LLM service
-	if s.llm != nil {
-		if err := s.llm.Close(); err != nil {
+	if s.llmProvider != nil {
+		if err := s.llmProvider.Close(); err != nil {
 			errs = append(errs, fmt.Errorf("failed to close LLM service: %w", err))
 		}
 	}
@@ -517,7 +604,7 @@ func (s *ChatService) Close() error {
 
 	// Clear sessions
 	s.mu.Lock()
-	s.sessions = make(map[string]*ChatSession)
+	s.userSessions = make(map[string]map[string]*ChatSession)
 	s.mu.Unlock()
 
 	// Return combined errors if any
@@ -556,272 +643,225 @@ func (s *ChatService) detectToolCallAttempts(content string) bool {
 	return false
 }
 
-// ProcessMessageWithAttachments processes a user message with file attachments and generates a response
-func (s *ChatService) ProcessMessageWithAttachments(ctx context.Context, sessionID, userMessage string, attachments []models.Attachment) (*models.ChatResponse, error) {
-	s.mu.Lock()
-	session := s.getOrCreateSession(sessionID)
-	s.mu.Unlock()
+// ProcessMessageWithAttachmentsForUser processes a user message with file attachments and generates a response for a specific user
+func (s *ChatService) ProcessMessageWithAttachmentsForUser(ctx context.Context, userID, sessionID, userMessage string, attachments []*models.Attachment) (*models.ChatResponse, error) {
+	log.Printf("🚀 Chat: Processing message with attachments for user %s, session %s, message: %q, attachments: %d", userID, sessionID, userMessage, len(attachments))
 
-	// Add user message to session with original content and attachments (for UI display)
-	userMsg := &models.Message{
-		ID:          fmt.Sprintf("user_%d", time.Now().UnixNano()),
-		Role:        "user",
-		Content:     userMessage, // Store original user message for UI
-		Timestamp:   time.Now(),
-		Attachments: attachments,
+	// Handle tool approval/denial messages
+	if response, handled := s.handleToolApprovalMessage(ctx, sessionID, userMessage); handled {
+		return response, nil
 	}
 
 	s.mu.Lock()
-	session.Messages = append(session.Messages, userMsg)
-	session.Updated = time.Now()
+	session := s.getOrCreateSessionForUser(userID, sessionID)
 	s.mu.Unlock()
 
-	// Create enhanced message for LLM processing (includes attachment descriptions)
-	enhancedMessage := userMessage
-	if len(attachments) > 0 {
-		enhancedMessage = s.processAttachments(userMessage, attachments)
-	}
+	// Create and add user message
+	userMsg := s.createUserMessage(userMessage, attachments)
+	s.addMessageToSession(ctx, sessionID, session, userMsg)
 
-	// Create a temporary enhanced user message for LLM context
-	enhancedUserMsg := &models.Message{
-		ID:          userMsg.ID,
-		Role:        "user",
-		Content:     enhancedMessage, // Enhanced content for LLM
-		Timestamp:   userMsg.Timestamp,
-		Attachments: attachments,
-	}
+	log.Printf("📝 Chat: Added user message to session, total messages: %d", len(session.Messages))
 
-	// Create messages array with enhanced content for LLM
-	llmMessages := make([]*models.Message, len(session.Messages)-1) // All messages except the last user message
-	copy(llmMessages, session.Messages[:len(session.Messages)-1])
-	llmMessages = append(llmMessages, enhancedUserMsg) // Add enhanced user message
-
-	// Get available tools
-	tools := s.mcp.GetTools()
-
-	// Prepare messages with system prompt
-	preparedLLMMessages := s.prepareMessagesWithSystemPrompt(llmMessages)
-
-	// Generate response from LLM using enhanced messages
-	response, err := s.llm.GenerateResponse(ctx, preparedLLMMessages, tools)
+	// Generate LLM response
+	assistantMsg, err := s.generateLLMResponse(ctx, session)
 	if err != nil {
-		return &models.ChatResponse{
-			SessionID: sessionID,
-			Error:     err.Error(),
-		}, nil
+		return nil, err
 	}
 
-	// Set timestamp and update session
-	response.Timestamp = time.Now()
+	// Add assistant message to session
+	s.addMessageToSession(ctx, sessionID, session, assistantMsg)
 
-	s.mu.Lock()
-	session.Messages = append(session.Messages, response)
-	session.Updated = time.Now()
-	s.mu.Unlock()
+	log.Printf("💾 Chat: Saved assistant message to session, total messages: %d", len(session.Messages))
 
 	// Handle tool calls if present
-	if len(response.ToolCalls) > 0 {
-		log.Printf("🔧 LLM attempted to call %d tool(s) in response %s", len(response.ToolCalls), response.ID)
-
-		// Execute tools using common method
-		toolExecutions, _ := s.executeToolCalls(ctx, response.ToolCalls, session)
-
-		// Add tool executions to the response message
-		response.ToolExecutions = toolExecutions
-
-		// Generate follow-up response with tool results
-		log.Printf("🔄 Generating follow-up response after tool execution(s)")
-
-		// Create updated LLM messages with enhanced user message for follow-up
-		updatedLLMMessages := make([]*models.Message, 0, len(session.Messages))
-		for _, msg := range session.Messages {
-			if msg.ID == userMsg.ID && msg.Role == "user" {
-				// Replace with enhanced version for LLM
-				updatedLLMMessages = append(updatedLLMMessages, enhancedUserMsg)
-			} else {
-				updatedLLMMessages = append(updatedLLMMessages, msg)
-			}
-		}
-
-		var noTools []models.MCPTool // Disable tools for follow-up to avoid infinite loops
-		preparedUpdatedMessages := s.prepareMessagesWithSystemPrompt(updatedLLMMessages)
-		followUpResponse, err := s.llm.GenerateResponse(ctx, preparedUpdatedMessages, noTools)
-		if err == nil {
-			followUpResponse.Timestamp = time.Now()
-			s.mu.Lock()
-			session.Messages = append(session.Messages, followUpResponse)
-			session.Updated = time.Now()
-			s.mu.Unlock()
-			response = followUpResponse
-			log.Printf("✅ Follow-up response generated successfully")
-		} else {
-			log.Printf("❌ Failed to generate follow-up response: %v", err)
-		}
-	} else {
-		// Check if the response content suggests tool usage without proper tool calls
-		if s.detectToolCallAttempts(response.Content) {
-			log.Printf("⚠️  LLM response suggests tool usage but no tool calls were detected. Response: %s", response.Content)
-		}
+	if len(assistantMsg.ToolCalls) > 0 {
+		s.handleToolCallApprovalRequest(sessionID, assistantMsg)
 	}
 
 	return &models.ChatResponse{
-		Message:   response,
+		Message:   assistantMsg,
 		SessionID: sessionID,
 	}, nil
 }
 
-// processAttachments processes file attachments and enhances the message content
-func (s *ChatService) processAttachments(userMessage string, attachments []models.Attachment) string {
-	if len(attachments) == 0 {
-		return userMessage
+// handleToolApprovalMessage handles tool approval/denial messages and returns the response if handled
+func (s *ChatService) handleToolApprovalMessage(ctx context.Context, sessionID, userMessage string) (*models.ChatResponse, bool) {
+	var requestID string
+	var approved bool
+	var handled bool
+
+	if strings.HasPrefix(userMessage, "[APPROVE_TOOLS:") && strings.HasSuffix(userMessage, "]") {
+		requestID = strings.TrimSuffix(strings.TrimPrefix(userMessage, "[APPROVE_TOOLS:"), "]")
+		approved = true
+		handled = true
+		log.Printf("🔧 Chat: Detected tool approval message for request: %s", requestID)
+	} else if strings.HasPrefix(userMessage, "[DENY_TOOLS:") && strings.HasSuffix(userMessage, "]") {
+		requestID = strings.TrimSuffix(strings.TrimPrefix(userMessage, "[DENY_TOOLS:"), "]")
+		approved = false
+		handled = true
+		log.Printf("🔧 Chat: Detected tool denial message for request: %s", requestID)
 	}
 
-	enhancedMessage := userMessage + "\n\nAttached files:\n"
-
-	for _, attachment := range attachments {
-		enhancedMessage += fmt.Sprintf("\n--- File: %s (Size: %d bytes, Type: %s) ---\n",
-			attachment.Filename, attachment.Size, attachment.MimeType)
-
-		// For text files, include the content
-		if s.isTextFile(attachment.MimeType) && attachment.Content != "" {
-			// Decode base64 content
-			if content, err := base64.StdEncoding.DecodeString(attachment.Content); err == nil {
-				// Limit content size for very large files
-				contentStr := string(content)
-				if len(contentStr) > 50000 { // Limit to 50KB of text
-					contentStr = contentStr[:50000] + "\n... (content truncated)"
-				}
-				enhancedMessage += contentStr
-			}
-		} else if s.isImageFile(attachment.MimeType) {
-			enhancedMessage += "[Image file - binary content not displayed]"
-		} else {
-			enhancedMessage += "[Binary file - content not displayed]"
-		}
-
-		enhancedMessage += "\n--- End of file ---\n"
+	if !handled {
+		return nil, false
 	}
 
-	return enhancedMessage
+	// Process tool approval/denial
+	approval := &models.ToolApprovalResponse{
+		SessionID: sessionID,
+		RequestID: requestID,
+		Approved:  approved,
+	}
+
+	streamChan, err := s.ProcessToolApproval(ctx, approval)
+	if err != nil {
+		return nil, true // handled but with error
+	}
+
+	response := s.collectStreamResponse(streamChan, sessionID, approved)
+	return response, true
 }
 
-// isTextFile checks if the MIME type represents a text file
-func (s *ChatService) isTextFile(mimeType string) bool {
-	textTypes := []string{
-		"text/plain",
-		"text/html",
-		"text/css",
-		"text/javascript",
-		"text/xml",
-		"application/json",
-		"application/xml",
-		"application/yaml",
-		"application/x-yaml",
-		"text/yaml",
-		"text/x-yaml",
-		"text/markdown",
-		"text/x-markdown",
-	}
+// collectStreamResponse collects stream messages into a single ChatResponse
+func (s *ChatService) collectStreamResponse(streamChan <-chan *models.StreamMessage, sessionID string, approved bool) *models.ChatResponse {
+	var content strings.Builder
+	var toolExecutions []models.ToolExecution
 
-	for _, textType := range textTypes {
-		if strings.Contains(mimeType, textType) {
-			return true
+	for streamMsg := range streamChan {
+		if streamMsg.Content != "" {
+			content.WriteString(streamMsg.Content)
+		}
+		if len(streamMsg.ToolExecutions) > 0 {
+			toolExecutions = append(toolExecutions, streamMsg.ToolExecutions...)
 		}
 	}
 
-	// Also check for common programming language extensions
-	if strings.Contains(mimeType, "text/") ||
-		strings.Contains(mimeType, "application/javascript") ||
-		strings.Contains(mimeType, "application/typescript") {
-		return true
+	messageID := fmt.Sprintf("approval_result_%d", time.Now().UnixNano())
+	if !approved {
+		messageID = fmt.Sprintf("denial_result_%d", time.Now().UnixNano())
 	}
 
-	return false
-}
-
-// isImageFile checks if the MIME type represents an image file
-func (s *ChatService) isImageFile(mimeType string) bool {
-	return strings.HasPrefix(mimeType, "image/")
-}
-
-// prepareMessagesWithSystemPrompt prepares messages for LLM with system prompt
-func (s *ChatService) prepareMessagesWithSystemPrompt(messages []*models.Message) []*models.Message {
-	if s.systemPrompt == "" {
-		return messages
-	}
-
-	// Check if the first message is already a system message
-	if len(messages) > 0 && messages[0].Role == "system" {
-		return messages
-	}
-
-	// Create system message
-	systemMsg := &models.Message{
-		ID:        "system_prompt",
-		Role:      "system",
-		Content:   s.systemPrompt,
+	message := &models.Message{
+		ID:        messageID,
+		Role:      "assistant",
+		Content:   content.String(),
 		Timestamp: time.Now(),
 	}
 
-	// Prepend system message to the conversation
-	preparedMessages := make([]*models.Message, 0, len(messages)+1)
-	preparedMessages = append(preparedMessages, systemMsg)
-	preparedMessages = append(preparedMessages, messages...)
-
-	return preparedMessages
-}
-
-// executeToolCalls executes a list of tool calls and returns tool executions and result messages
-func (s *ChatService) executeToolCalls(ctx context.Context, toolCalls []models.ToolCall, session *ChatSession) ([]models.ToolExecution, []*models.Message) {
-	var toolExecutions []models.ToolExecution
-	var toolMessages []*models.Message
-
-	for i, toolCall := range toolCalls {
-		log.Printf("🔧 Tool call %d: ID=%s, Type=%s, Function=%s, Args=%s",
-			i+1, toolCall.ID, toolCall.Type, toolCall.Function.Name, toolCall.Function.Arguments)
-
-		// Track tool execution
-		startTime := time.Now()
-		toolExecution := models.ToolExecution{
-			ID:        toolCall.ID,
-			ToolName:  toolCall.Function.Name,
-			Arguments: toolCall.Function.Arguments,
-			StartTime: startTime,
-		}
-
-		// Execute tool
-		toolResult, err := s.mcp.ExecuteTool(ctx, toolCall)
-		endTime := time.Now()
-		toolExecution.EndTime = endTime
-		toolExecution.Duration = endTime.Sub(startTime).Milliseconds()
-
-		if err != nil {
-			log.Printf("❌ Tool execution failed for %s: %v", toolCall.Function.Name, err)
-			toolExecution.Error = err.Error()
-			toolResult = fmt.Sprintf("Error executing tool: %v", err)
-		} else {
-			log.Printf("✅ Tool execution successful for %s, result length: %d", toolCall.Function.Name, len(toolResult))
-		}
-
-		toolExecution.Result = toolResult
-		toolExecutions = append(toolExecutions, toolExecution)
-
-		// Add tool result as a message
-		toolMsg := &models.Message{
-			ID:        fmt.Sprintf("tool_%s", toolCall.ID),
-			Role:      "tool",
-			Content:   toolResult,
-			Timestamp: time.Now(),
-		}
-
-		toolMessages = append(toolMessages, toolMsg)
-
-		// Add to session
-		s.mu.Lock()
-		session.Messages = append(session.Messages, toolMsg)
-		session.Updated = time.Now()
-		s.mu.Unlock()
+	if len(toolExecutions) > 0 {
+		message.ToolExecutions = toolExecutions
 	}
 
-	return toolExecutions, toolMessages
+	return &models.ChatResponse{
+		Message:   message,
+		SessionID: sessionID,
+	}
+}
+
+// createUserMessage creates a user message with attachments
+func (s *ChatService) createUserMessage(userMessage string, attachments []*models.Attachment) *models.Message {
+	var msgAttachments []models.Attachment
+	if attachments != nil {
+		msgAttachments = make([]models.Attachment, len(attachments))
+		for i, att := range attachments {
+			msgAttachments[i] = *att
+		}
+	}
+
+	return &models.Message{
+		ID:          fmt.Sprintf("user_%d", time.Now().UnixNano()),
+		Role:        "user",
+		Content:     userMessage,
+		Timestamp:   time.Now(),
+		Attachments: msgAttachments,
+	}
+}
+
+// addMessageToSession safely adds a message to the session and saves it to database
+func (s *ChatService) addMessageToSession(ctx context.Context, sessionID string, session *ChatSession, message *models.Message) {
+	s.mu.Lock()
+	session.Messages = append(session.Messages, message)
+	session.Updated = time.Now()
+	s.mu.Unlock()
+
+	// Save message to database
+	if err := s.database.SaveMessage(ctx, sessionID, message); err != nil {
+		log.Printf("⚠️  Chat: Failed to save message to database: %v", err)
+	} else {
+		log.Printf("💾 Chat: Saved message to database")
+	}
+}
+
+// generateLLMResponse generates an LLM response for the session
+func (s *ChatService) generateLLMResponse(ctx context.Context, session *ChatSession) (*models.Message, error) {
+	// Get available tools
+	tools := s.mcp.GetTools()
+	log.Printf("🔧 Chat: Retrieved %d available tools", len(tools))
+
+	// Prepare messages for LLM
+	s.mu.RLock()
+	allMessages := make([]*models.Message, len(session.Messages))
+	copy(allMessages, session.Messages)
+	s.mu.RUnlock()
+
+	preparedMessages := s.prepareMessagesWithSystemPrompt(allMessages)
+
+	// Generate response
+	response, err := s.llmProvider.GenerateResponse(ctx, preparedMessages, tools)
+	if err != nil {
+		log.Printf("❌ Chat: LLM generation failed: %v", err)
+		return nil, fmt.Errorf("failed to generate response: %w", err)
+	}
+
+	log.Printf("✅ Chat: LLM generated response: %q", response.Content)
+
+	// Create assistant message
+	return &models.Message{
+		ID:        fmt.Sprintf("assistant_%d", time.Now().UnixNano()),
+		Role:      "assistant",
+		Content:   response.Content,
+		Timestamp: time.Now(),
+		ToolCalls: response.ToolCalls,
+	}, nil
+}
+
+// handleToolCallApprovalRequest handles tool call approval requests
+func (s *ChatService) handleToolCallApprovalRequest(sessionID string, assistantMsg *models.Message) {
+	log.Printf("🔧 Chat: Requesting approval for %d tool call(s)", len(assistantMsg.ToolCalls))
+
+	// Generate approval request ID
+	requestID := fmt.Sprintf("approval_%d", time.Now().UnixNano())
+
+	// Create approval request
+	approvalRequest := &models.ToolApprovalRequest{
+		SessionID: sessionID,
+		ToolCalls: assistantMsg.ToolCalls,
+		RequestID: requestID,
+	}
+
+	// Store pending approval
+	s.mu.Lock()
+	s.pendingApprovals[requestID] = approvalRequest
+	s.mu.Unlock()
+
+	// Update assistant message with approval request
+	assistantMsg.ApprovalRequest = &struct {
+		RequestID string            `json:"request_id"`
+		ToolCalls []models.ToolCall `json:"tool_calls"`
+		Processed bool              `json:"processed,omitempty"`
+	}{
+		RequestID: requestID,
+		ToolCalls: assistantMsg.ToolCalls,
+		Processed: false,
+	}
+}
+
+// GetAvailableTools returns all available MCP tools
+func (s *ChatService) GetAvailableTools() []models.MCPTool {
+	return s.mcp.GetTools()
+}
+
+// RefreshTools forces a refresh of tools from MCP servers
+func (s *ChatService) RefreshTools() error {
+	return s.mcp.RefreshTools()
 }

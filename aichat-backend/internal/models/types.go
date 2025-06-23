@@ -16,13 +16,18 @@ type Attachment struct {
 
 // Message represents a chat message
 type Message struct {
-	ID             string          `json:"id"`
-	Role           string          `json:"role"` // user, assistant, system
-	Content        string          `json:"content"`
-	Timestamp      time.Time       `json:"timestamp"`
-	ToolCalls      []ToolCall      `json:"tool_calls,omitempty"`
-	ToolExecutions []ToolExecution `json:"tool_executions,omitempty"`
-	Attachments    []Attachment    `json:"attachments,omitempty"`
+	ID              string          `json:"id"`
+	Role            string          `json:"role"` // user, assistant, system
+	Content         string          `json:"content"`
+	Timestamp       time.Time       `json:"timestamp"`
+	ToolCalls       []ToolCall      `json:"tool_calls,omitempty"`
+	ToolExecutions  []ToolExecution `json:"tool_executions,omitempty"`
+	Attachments     []Attachment    `json:"attachments,omitempty"`
+	ApprovalRequest *struct {
+		RequestID string     `json:"request_id"`
+		ToolCalls []ToolCall `json:"tool_calls"`
+		Processed bool       `json:"processed,omitempty"`
+	} `json:"approval_request,omitempty"`
 }
 
 // ToolCall represents a tool function call

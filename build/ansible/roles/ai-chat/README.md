@@ -113,7 +113,6 @@ The service exposes the following endpoints through nginx reverse proxy:
 - `GET /v1/chat/history` - Get chat history
 - `GET /v1/chat/stream` - Server-Sent Events streaming
 - `GET /v1/chat/mcp/tools` - List available MCP tools
-- `GET /v1/chat/mcp/servers/status` - MCP server status
 - `GET /v1/chat/health` - Health check
 
 ## File Locations
@@ -212,9 +211,6 @@ nginx -t
 ```bash
 # Test MCP server manually
 npx @modelcontextprotocol/server-filesystem /srv
-
-# Check MCP server status
-curl http://localhost/api/v1/mcp/servers/status
 ```
 
 ## Monitoring

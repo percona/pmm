@@ -131,7 +131,7 @@ if serverConfig.URL != "" {
 The backend exposes these endpoints for MCP management:
 
 - `GET /api/v1/mcp/tools` - List all available tools from all servers
-- `GET /api/v1/mcp/servers/status` - Get connection status of all servers
+
 
 ### Server Status Response
 ```json
