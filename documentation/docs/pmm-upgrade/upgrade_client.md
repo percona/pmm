@@ -47,9 +47,9 @@ To deploy a specific version of the PMM Client via package manager, check the av
 === "Debian-based"
     ```sh
     apt-cache madison pmm-client
-    pmm-client | 3.0.1-6.focal | http://repo.percona.com/pmm-client/apt focal/main amd64 Packages
-    pmm-client | 3.0.0-6.focal | http://repo.percona.com/pmm-client/apt focal/main amd64 Packages
-    apt install pmm-client=3.0.1-6.focal
+    pmm-client | 3.0.1-6.jammy | http://repo.percona.com/pmm-client/apt jammy/main amd64 Packages
+    pmm-client | 3.0.0-6.jammy | http://repo.percona.com/pmm-client/apt jammy/main amd64 Packages
+    apt install pmm-client=3.0.1-6.jammy
     ```
 
 ### 2. Tarball method
