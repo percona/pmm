@@ -166,7 +166,7 @@ func readFile(ctx context.Context, reader *filereader.ContinuousFileReader, docs
 				logger.Error(err)
 				return
 			}
-			logger.Debugf("readed line: %s", line)
+			logger.Debugf("read line: %s", line)
 
 			var l row
 			if line == "" || !json.Valid([]byte(line)) {
