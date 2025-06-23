@@ -1,0 +1,69 @@
+---
+checks:
+  - version: 2
+    name: postgresql_logging_recommendation_checks
+    summary: Check for minimal logging
+    description: Checks to see if recommended minimum logging features are enabled."
+    advisor: configuration_generic
+    #Author: Jorge Torralba
+    interval: standard
+    family: POSTGRESQL
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: " s1.setting AS logging_collector, s2.setting AS log_temp_files, s3.setting log_checkpoints, s4.setting log_min_duration_statement, s5.unit unit, s6.min_val AS minval, s7.setting AS log_autovacuum_min_duration FROM pg_settings s1 , pg_settings s2 , pg_settings s3 , pg_settings s4 , pg_settings s5 , pg_settings s6 , pg_settings s7 WHERE s1.name = 'logging_collector' and s2.name = 'log_temp_files' and s3.name = 'log_checkpoints' and s4.name = 'log_min_duration_statement' and s5.name = 'log_min_duration_statement' and s6.name = 'log_min_duration_statement' and s7.name = 'log_autovacuum_min_duration'"
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(rows, context):
+          results = []
+          description = ""
+          nl = " "
+          sec = 0
+          for row in rows[0]:
+              logging_collector = row["logging_collector"]
+              log_temp_files = row["log_temp_files"]
+              log_checkpoints = row["log_checkpoints"]
+              log_min_duration_statement = row["log_min_duration_statement"]
+              unit = row["unit"]
+              minval = row["minval"]
+              log_autovacuum_min_duration = row["log_autovacuum_min_duration"]
+
+              if logging_collector == "off":
+                  description = description + "logging_collector is disabled. " + nl
+
+              if int(log_temp_files) < 0:
+                  description = description + "log_temp_files is disabled. " + nl
+
+              if log_checkpoints == "off":
+                  description = description + "log_checkpoints is disabled. " + nl
+
+
+              if log_min_duration_statement.isdigit():
+
+                  if int(log_min_duration_statement) > 0:
+                     sec = int(log_min_duration_statement) / 1000
+                     if int(sec) > 10:
+                        description = description + "The log_min_duration_statement setting of {} seconds seems high and may not log all intended queries. ".format(sec) + nl
+
+                     if sec < 2:
+                        description = description + "The log_min_duration_statement setting of {} seconds seems low and may log more intended queries than intended. ".format(sec) + nl
+
+                  if int(log_min_duration_statement) < 0:
+                     description = description + "log_min_duration_statement is disabled. " + nl
+
+                  if int(log_min_duration_statement) == 0:
+                      description = description + "log_min_duration_statement is set to log all statements. This could lead to excessive loggin IO. " + nl
+
+
+              if int(log_autovacuum_min_duration) < 0:
+                  description = description + "log_autovacuum_min_duration is disabled. " + nl
+
+              if description != "":
+                  results.append({
+                      "summary": "Logging check issues found.",
+                      "description": description,
+                      "read_more_url": read_url.format("postgresql-logging-recommendations"),
+                      "severity": "warning"
+                  })
+
+              return results

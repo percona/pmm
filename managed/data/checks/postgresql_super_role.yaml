@@ -1,0 +1,50 @@
+---
+checks:
+  - version: 1
+    name: postgresql_super_role
+    summary: PostgreSQL Super Role
+    description: This check returns a notice if there are users with superuser role.
+    type: POSTGRESQL_SELECT
+    #family: postgresql
+    advisor: security_authentication
+    interval: standard
+    query: r.rolname, r.rolsuper, ARRAY(SELECT b.rolname FROM pg_catalog.pg_auth_members m JOIN pg_catalog.pg_roles b ON (m.roleid = b.oid) WHERE m.member = r.oid) as memberof FROM pg_catalog.pg_roles r WHERE r.rolname !~ '^pg_' AND r.rolcanlogin = 't' AND r.rolname NOT IN ('postgres', 'rdsadmin', 'pmm_user')
+    script: |
+      def check(rows):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(rows, context)
+
+
+      def check_context(rows, context):
+          """
+          This check returns a notice if there are users with superuser role.
+          """
+
+          users = []
+
+          for row in rows:
+              is_super = row["rolsuper"]
+              is_super = is_super or ("rds_superuser" in row["memberof"])
+              if is_super:
+                  users.append(row["rolname"])
+
+          count = len(users)
+          if count:
+              desc = "1 user"
+              if count > 1:
+                  desc = "{} users".format(count)
+
+              return [{
+                  "summary": "User(s) with Superuser role found",
+                  "description": "{} - {}".format(desc, users),
+                  "severity": "notice",
+                  "labels": {
+                      "count": str(count),
+                  },
+              }]
+
+          return []

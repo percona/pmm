@@ -1,0 +1,37 @@
+---
+checks:
+  - version: 2
+    name: mongodb_read_tickets
+    summary: MongoDB Read Tickets
+    description: This check returns warnings if MongoDB is using more than 128 read tickets.
+    interval: standard
+    family: MONGODB
+    advisor: configuration_generic
+    #author: Vinicius Grippa/Parag Bhayani
+    queries:
+      - type: MONGODB_GETCMDLINEOPTS
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          """
+          This check returns warnings if MongoDB using 128 or more WiredTiger Read Tickets concurrently.
+          """
+
+          info = docs[0]
+          results = []
+
+          for row in info:
+              parsed = row["parsed"]
+              if parsed.get("setParameter", {}):
+                  setParameter = parsed.get("setParameter", {})
+                  if setParameter.get("wiredTigerConcurrentReadTransactions", {}):
+                      readTicket = (int(setParameter.get("wiredTigerConcurrentReadTransactions")) >= 128)
+                      if readTicket:
+                          results.append({
+                              "summary": "MongoDB is using more than 128 read tickets",
+                              "description": "To avoid performance issues, see the following to set it to default",
+                              "read_more_url": read_url.format("mongodb-read-tickets"),
+                              "severity": "warning",
+                          })
+              return results
