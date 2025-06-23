@@ -595,7 +595,7 @@ const queryExampleTmpl = `
 SELECT schema AS schema, tables, service_id, service_type, queryid, explain_fingerprint, placeholders_count, example,
        is_truncated, toUInt8(example_type) AS example_type, example_metrics
   FROM metrics
- WHERE period_start >= :period_start_from AND period_start <= :period_start_to
+ WHERE period_start >= :period_start_from AND period_start <= :period_start_to AND isNotNull(example) AND example != ''
  {{ if .DimensionVal }} AND {{ .Group }} = :filter {{ end }}
  {{ if .Dimensions }}
     {{range $key, $vals := .Dimensions }}
