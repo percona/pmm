@@ -1,12 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
 import { useKioskMode } from './useKioskMode';
+import reactRouter from 'react-router-dom';
 
 const setup = (params: string) => {
   const mockUseSearchParams = vi
     .fn()
     .mockReturnValue([new URLSearchParams(params)]);
 
-  vi.spyOn(require('react-router-dom'), 'useSearchParams').mockImplementation(
+  vi.spyOn(reactRouter, 'useSearchParams').mockImplementation(
     mockUseSearchParams
   );
 };
