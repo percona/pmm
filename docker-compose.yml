@@ -85,8 +85,8 @@ services:
       # VM
       - ${PMM_PORT_VM:-9090}:9090
       # CH
-      - ${PMM_PORT_CH_TCP:-11000}:9000
-      - ${PMM_PORT_CH_HTTP:-11123}:8123
+      - ${PMM_PORT_CH_TCP:-9000}:9000
+      - ${PMM_PORT_CH_HTTP:-8123}:8123
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # substitute Makefile in devcontainer
