@@ -120,10 +120,10 @@ For a more detailed comparison of extensions, see the [pg_stat_monitor documenta
 
 === "pg_stat_monitor"
 
-    `pg_stat_monitor` is Percona’s advanced PostgreSQL monitoring extension that enhances observability with detailed query metrics and improved aggregation. It is compatible with PostgreSQL and Percona Distribution for PostgreSQL versions 11 through 15.
+    `pg_stat_monitor` is Percona’s advanced PostgreSQL monitoring extension that enhances observability with detailed query metrics and improved aggregation. It is compatible with PostgreSQL and Percona Distribution for PostgreSQL versions 11 through 17.
     
     !!! warning "Query plan metrics known issue"
-        Before configuring `pg_stat_monitor`, be aware that when `pg_stat_monitor.pgsm_enable_query_plan` is enabled, time metrics in Query Analytics (QAN) are incorrect and can be **off by 1000x or more**.
+        Before configuring `pg_stat_monitor`, make sure that `pg_stat_monitor.pgsm_enable_query_plan` stays disabled. This is because query plans causes `pg_stat_monitor` to create multiple records for each query, leading to incorrect timing calculations.
 
         To keep query plan disabled during configuration:
             ```sql
