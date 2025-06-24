@@ -2391,9 +2391,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pmm-cannot-acess-admin-user-after-upgrading" class="md-nav__link">
+  <a href="#pmm-cannot-access-admin-user-after-upgrading" class="md-nav__link">
     <span class="md-ellipsis">
-      PMM cannot acess admin user after upgrading
+      PMM cannot access admin user after upgrading
     </span>
   </a>
   
@@ -2523,6 +2523,15 @@
   <a href="#missing-data" class="md-nav__link">
     <span class="md-ellipsis">
       Missing data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incorrect-metrics-unrealistic-query-execution-times" class="md-nav__link">
+    <span class="md-ellipsis">
+      Incorrect metrics: unrealistic query execution times
     </span>
   </a>
   
@@ -7776,9 +7785,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pmm-cannot-acess-admin-user-after-upgrading" class="md-nav__link">
+  <a href="#pmm-cannot-access-admin-user-after-upgrading" class="md-nav__link">
     <span class="md-ellipsis">
-      PMM cannot acess admin user after upgrading
+      PMM cannot access admin user after upgrading
     </span>
   </a>
   
@@ -7908,6 +7917,15 @@
   <a href="#missing-data" class="md-nav__link">
     <span class="md-ellipsis">
       Missing data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#incorrect-metrics-unrealistic-query-execution-times" class="md-nav__link">
+    <span class="md-ellipsis">
+      Incorrect metrics: unrealistic query execution times
     </span>
   </a>
   
@@ -8044,7 +8062,7 @@
 <p>While PMM is being upgraded, log in to the PMM server and run the following command:</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;s/- nginx/- nginx*/&#39;</span><span class="w"> </span>/usr/share/pmm-update/ansible/playbook/tasks/update.yml
 </code></pre></div>
-<h4 id="pmm-cannot-acess-admin-user-after-upgrading">PMM cannot acess admin user after upgrading<a class="headerlink" href="#pmm-cannot-acess-admin-user-after-upgrading" title="Permanent link">&para;</a></h4>
+<h4 id="pmm-cannot-access-admin-user-after-upgrading">PMM cannot access admin user after upgrading<a class="headerlink" href="#pmm-cannot-access-admin-user-after-upgrading" title="Permanent link">&para;</a></h4>
 <p>After upgrading PMM from version 2.39.0 to 2.40.0 (not el7) using Docker, the <code>admin</code> user cannot access the PMM UI.</p>
 <p><strong>Solution</strong>: To fix the problem and gain back admin access to the PMM interface execute the following:</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># psql -U grafana</span>
@@ -8121,6 +8139,21 @@ PMM is no longer sourcing templates from the <code>ia</code> folder, since we ha
 </ul>
 <p><strong>Why don&rsquo;t I see the whole query?</strong></p>
 <p>Long query examples and fingerprints can be truncated to 1024 symbols to reduce space usage. In this case, the query explains section will not work.</p>
+<h4 id="incorrect-metrics-unrealistic-query-execution-times">Incorrect metrics: unrealistic query execution times<a class="headerlink" href="#incorrect-metrics-unrealistic-query-execution-times" title="Permanent link">&para;</a></h4>
+<p>If you&rsquo;re seeing query execution times that seem impossible (like 50,000+ seconds for simple SELECT statements), this is typically caused by metric calculation errors rather than actual performance issues. </p>
+<p>This is because enabling query plans causes <code>pg_stat_monitor</code> to create multiple records for each query, leading to incorrect timing calculations.</p>
+<p>To fix the issue, disable query plan collection:</p>
+<div class="highlight"><pre><span></span><code><span class="c1">-- Check if query plan collection is enabled </span>
+<span class="k">SHOW</span><span class="w"> </span><span class="n">pg_stat_monitor</span><span class="p">.</span><span class="n">pgsm_enable_query_plan</span><span class="p">;</span>
+
+<span class="c1">-- If it shows &#39;on&#39;, disable it </span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">pg_stat_monitor</span><span class="p">.</span><span class="n">pgsm_enable_query_plan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">off</span><span class="p">;</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pg_reload_conf</span><span class="p">();</span>
+
+<span class="c1">-- Verify the change took effect</span>
+<span class="k">SHOW</span><span class="w"> </span><span class="n">pg_stat_monitor</span><span class="p">.</span><span class="n">pgsm_enable_query_plan</span><span class="p">;</span>
+</code></pre></div>
+<p>After disabling query plan collection, new metrics should show realistic execution times within minutes.</p>
 <h3 id="plugins-issues">Plugins issues<a class="headerlink" href="#plugins-issues" title="Permanent link">&para;</a></h3>
 <p><strong>PMM does not allow to install, upgrade or remove plugins</strong></p>
 <p>Users have encountered issues with installing, updating and removing plugins from PMM. The cause of this issue is the incorrect permissions assigned to the <code>/srv/grafana/plugins</code> directory. These permissions are preventing the grafana component from writing to the directory.</p>
@@ -8146,7 +8179,7 @@ PMM is no longer sourcing templates from the <code>ia</code> folder, since we ha
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-19
+    2025-06-24
   </span>
 
     
