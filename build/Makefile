@@ -43,6 +43,18 @@ pmm-ami:
 		-only amazon-ebs -color=false packer/pmm.json | tee build.log
 ## ----------------- PACKER ------------------
 
+## RPM Build Images
+rpmbuild-el8: ## Build rpmbuild Docker image for EL8 (Oracle Linux 8)
+	cd docker/rpmbuild && docker build -t perconalab/rpmbuild:3-ol8 -f Dockerfile.el8 .
+
+rpmbuild-el9: ## Build rpmbuild Docker image for EL9 (Oracle Linux 9)
+	cd docker/rpmbuild && docker build -t perconalab/rpmbuild:3 -f Dockerfile.el9 .
+
+rpmbuild-hetzner-el9: ## Build rpmbuild Docker image for Hetzner (Rocky Linux 9)
+	cd docker/rpmbuild && docker build -t perconalab/rpmbuild:3-hetzner -f Dockerfile.hetzner-el9 .
+
+rpmbuild-all: rpmbuild-el8 rpmbuild-el9 rpmbuild-hetzner-el9 ## Build all rpmbuild Docker images
+
 check:
 	echo "TODO: Since update.yml has been deprecated, see if other playbooks need to be linted"
 	# ansible-playbook --syntax-check ansible/pmm-docker/main.yml
