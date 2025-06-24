@@ -24,5 +24,6 @@ example-queries-postgres.yml /usr/local/percona/pmm/collectors/custom-queries/po
 example-queries-postgres.yml /usr/local/percona/pmm/collectors/custom-queries/postgresql/medium-resolution/
 example-queries-postgres.yml /usr/local/percona/pmm/collectors/custom-queries/postgresql/high-resolution/
 queries-postgres-uptime.yml /usr/local/percona/pmm/collectors/custom-queries/postgresql/high-resolution/
+queries-hr.yml /usr/local/percona/pmm/collectors/custom-queries/postgresql/high-resolution/
 queries-mr.yaml /usr/local/percona/pmm/collectors/custom-queries/postgresql/medium-resolution/
 queries-lr.yaml /usr/local/percona/pmm/collectors/custom-queries/postgresql/low-resolution/
