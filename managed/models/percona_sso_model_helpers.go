@@ -20,7 +20,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/url"
@@ -46,13 +45,9 @@ func GetPerconaSSODetails(ctx context.Context, q *reform.Querier) (*PerconaSSODe
 
 	ssoDetails, err := q.SelectOneFrom(PerconaSSODetailsTable, "")
 	if err != nil {
-		logrus.Infof("comparing err=%p msg=%q vs reform.ErrNoRows=%p",
-			err, err.Error(), reform.ErrNoRows)
 		if errors.Is(err, reform.ErrNoRows) {
-			logrus.Infof("errors.Is result=%v", errors.Is(err, reform.ErrNoRows))
 			return nil, ErrNotConnectedToPortal
 		}
-		logrus.Infof("should have been ErrNoRows")
 		return nil, errors.Wrap(err, "failed to get Percona SSO Details")
 	}
 

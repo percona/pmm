@@ -18,9 +18,13 @@ package interceptors
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
+	"gopkg.in/reform.v1"
 	"io"
 	"runtime/debug"
 	"runtime/pprof"
+	"strings"
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -53,6 +57,25 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 
 			err = status.Error(codes.Internal, "Internal server error.")
 			return
+		}
+
+		if err != nil && strings.Contains(err.Error(), "no rows in result set") {
+			l.WithFields(logrus.Fields{
+				"err_addr":            fmt.Sprintf("%p", err),
+				"err_type":            fmt.Sprintf("%T", err),
+				"sql_errnorows":       fmt.Sprintf("%p", sql.ErrNoRows),
+				"reform_errnorows":    fmt.Sprintf("%p", reform.ErrNoRows),
+				"is_sql_errnorows":    errors.Is(err, sql.ErrNoRows),
+				"is_reform_errnorows": errors.Is(err, reform.ErrNoRows),
+				"errnorows_equality":  reform.ErrNoRows == sql.ErrNoRows,
+			}).Warnf("NO_ROWS_DEBUG: %s", prefix)
+
+			// Walk the error chain for additional debugging
+			chain := []string{}
+			for e := err; e != nil; e = errors.Unwrap(e) {
+				chain = append(chain, fmt.Sprintf("%T:%p", e, e))
+			}
+			l.Warnf("NO_ROWS_DEBUG: error chain for %s: %v", prefix, chain)
 		}
 
 		// log gRPC errors as warning, not errors, even if they are wrapped
