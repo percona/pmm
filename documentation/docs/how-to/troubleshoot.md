@@ -201,11 +201,7 @@ Long query examples and fingerprints can be truncated to 1024 symbols to reduce 
 
 If you're seeing query execution times that seem impossible (like 50,000+ seconds for simple SELECT statements), this is typically caused by metric calculation errors rather than actual performance issues. 
 
-The most common cause is the `pg_stat_monitor.pgsm_enable_query_plan setting` in PostgreSQL with `pg_stat_monitor extension`, which has a known issue where it interferes with time metric calculations. When enabled, the extension reports timing data in microseconds, but PMM interprets it as milliseconds, resulting in times that are off by a factor of 1000 or more. This causes:
-
-- Query execution times showing 10,000+ seconds for queries that should take milliseconds
-- Times that are exactly 1000x higher than expected
-- All queries showing unreasonably high execution times consistently
+This is because enabling query plans causes `pg_stat_monitor` to create multiple records for each query, leading to incorrect timing calculations.
 
 To fix the issue, disable query plan collection:
 
@@ -222,6 +218,7 @@ SHOW pg_stat_monitor.pgsm_enable_query_plan;
 ```
 
 After disabling query plan collection, new metrics should show realistic execution times within minutes.
+
 ### Plugins issues
 
 **PMM does not allow to install, upgrade or remove plugins**

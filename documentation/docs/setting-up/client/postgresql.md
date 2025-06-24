@@ -165,7 +165,7 @@ You can now [add the service](#add-service).
         ```sql
            SHOW pg_stat_monitor.pgsm_enable_query_plan;
         ```
-
+        
 - If you use *Percona Distribution for PostgreSQL*, you can install the extension with your Linux package manager. See [Installing Percona Distribution for PostgreSQL][PERCONA_POSTGRESQL_INSTALL].
 
 - If you use *PostgreSQL* you can install by downloading and compiling the source code. See [Installing `pg_stat_monitor`][PG_STAT_MONITOR_INSTALL].
