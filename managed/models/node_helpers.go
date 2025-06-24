@@ -17,6 +17,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -35,9 +36,13 @@ func checkUniqueNodeID(q *reform.Querier, id string) error {
 	node := &Node{NodeID: id}
 	err := q.Reload(node)
 	if err != nil {
+		logrus.Infof("comparing err=%p msg=%q vs reform.ErrNoRows=%p",
+			err, err.Error(), reform.ErrNoRows)
 		if errors.Is(err, reform.ErrNoRows) {
+			logrus.Infof("errors.Is result=%v", errors.Is(err, reform.ErrNoRows))
 			return nil
 		}
+		logrus.Infof("should have been ErrNoRows")
 		return errors.WithStack(err)
 	}
 
