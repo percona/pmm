@@ -154,7 +154,7 @@ You can now [add the service](#add-service).
 #### Install
 
 !!! warning "Query plan metrics known issue"
-    Before configuring `pg_stat_monitor`, be aware that when `pg_stat_monitor.pgsm_enable_query_plan` is enabled, time metrics in Query Analytics (QAN) are incorrect and can be **off by 1000x or more**.
+    Before configuring `pg_stat_monitor`, make sure to keep `pg_stat_monitor.pgsm_enable_query_plan` disabled. This is because query plans causes `pg_stat_monitor` to create multiple records for each query, leading to incorrect timing calculations.
     
     To keep query plan disabled during configuration:
         ```sql
@@ -165,7 +165,7 @@ You can now [add the service](#add-service).
         ```sql
            SHOW pg_stat_monitor.pgsm_enable_query_plan;
         ```
-        
+
 - If you use *Percona Distribution for PostgreSQL*, you can install the extension with your Linux package manager. See [Installing Percona Distribution for PostgreSQL][PERCONA_POSTGRESQL_INSTALL].
 
 - If you use *PostgreSQL* you can install by downloading and compiling the source code. See [Installing `pg_stat_monitor`][PG_STAT_MONITOR_INSTALL].
