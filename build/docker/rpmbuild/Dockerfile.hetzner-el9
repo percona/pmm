@@ -13,7 +13,7 @@ RUN microdnf install -y dnf
 # - USA (Ashburn): Will work but slower (~1.5 MB/s, 100ms+ latency)
 # Note: If deploying primarily in Finland, consider using https://mirror.csc.fi/rocky instead
 RUN sed -i 's|mirrorlist=|#mirrorlist=|g' /etc/yum.repos.d/rocky*.repo && \
-    sed -i 's|#baseurl=http://dl.rockylinux.org|baseurl=https://mirror1.hs-esslingen.de/pub/Mirrors/rocky|g' /etc/yum.repos.d/rocky*.repo
+    sed -i 's|#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirror1.hs-esslingen.de/pub/Mirrors/rocky|g' /etc/yum.repos.d/rocky*.repo
 # enable nodesource repo for nodejs
 RUN curl -sL https://rpm.nodesource.com/setup_22.x | bash -
 RUN curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
