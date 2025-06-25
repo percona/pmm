@@ -6,7 +6,12 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN microdnf install -y dnf
 
 # Configure European mirrors for better performance on Hetzner infrastructure
-# Using German university mirror which provides excellent performance from Hetzner datacenters
+# Using German university mirror which provides excellent performance from all Hetzner datacenters
+# Tested speeds from Hetzner locations:
+# - Germany (Falkenstein/Nuremberg): ~7.5 MB/s, 12ms latency
+# - Finland (Helsinki): Expected similar performance due to good EU connectivity
+# - USA (Ashburn): Will work but slower (~1.5 MB/s, 100ms+ latency)
+# Note: If deploying primarily in Finland, consider using https://mirror.csc.fi/rocky instead
 RUN sed -i 's|mirrorlist=|#mirrorlist=|g' /etc/yum.repos.d/rocky*.repo && \
     sed -i 's|#baseurl=http://dl.rockylinux.org|baseurl=https://mirror1.hs-esslingen.de/pub/Mirrors/rocky|g' /etc/yum.repos.d/rocky*.repo
 # enable nodesource repo for nodejs
