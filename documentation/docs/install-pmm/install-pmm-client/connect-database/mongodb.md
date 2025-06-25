@@ -182,7 +182,7 @@ Choose one of the following methods to enable profiling:
 
 === "In MongoDB shell (temporary)"
 
-    This method enables profiling until the next server restart. Profiling must be enabled for **each** database you want to monitor. For example, to enable the profiler in the `testdb`, run this:
+    This method enables profiling until the next server restart. Profiling must be enabled for **each** database you want to monitor. For example, to enable the profiler/mongolog in the `testdb`, run this:
 
     ```json
     use testdb
