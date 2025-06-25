@@ -427,6 +427,7 @@ nav:
         - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
         - reference/dashboards/dashboard-mongodb-PBM-details.md
       - PostgreSQL dashboards:
+        - reference/dashboards/dashboard-postresql-checkpoint-
         - reference/dashboards/dashboard-postgresql-instances-overview.md
         - reference/dashboards/dashboard-postgresql-instance-summary.md
         - reference/dashboards/dashboard-postgresql-instances-compare.md
