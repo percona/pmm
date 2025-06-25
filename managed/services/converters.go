@@ -371,6 +371,23 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}, nil
 
+	case models.QANMongoDBMongologAgentType:
+		return &inventoryv1.QANMongoDBMongologAgent{
+			AgentId:         agent.AgentID,
+			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
+			ServiceId:       serviceID,
+			Username:        pointer.GetString(agent.Username),
+			Disabled:        agent.Disabled,
+			Status:          inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			CustomLabels:    labels,
+			Tls:             agent.TLS,
+			TlsSkipVerify:   agent.TLSSkipVerify,
+			MaxQueryLength:  agent.QANOptions.MaxQueryLength,
+			ProcessExecPath: processExecPath,
+			LogLevel:        inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
+		}, nil
+
 	case models.ProxySQLExporterType:
 		return &inventoryv1.ProxySQLExporter{
 			AgentId:            agent.AgentID,
@@ -486,6 +503,16 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		return &inventoryv1.VMAgent{
 			AgentId:         agent.AgentID,
 			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
+			Status:          inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			ProcessExecPath: processExecPath,
+			ListenPort:      uint32(pointer.GetUint16(agent.ListenPort)),
+		}, nil
+
+	case models.NomadAgentType:
+		return &inventoryv1.NomadAgent{
+			AgentId:         agent.AgentID,
+			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
+			Disabled:        agent.Disabled,
 			Status:          inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ProcessExecPath: processExecPath,
 			ListenPort:      uint32(pointer.GetUint16(agent.ListenPort)),

@@ -66,6 +66,8 @@ type ChangeSettingsParams struct {
 	// Enable Advisors
 	EnableAdvisors *bool
 
+	EnableNomad *bool
+
 	// List of Advisor checks to disable
 	DisableAdvisorChecks []string
 	// List of Advisor checks to enable
@@ -114,7 +116,7 @@ func SetPMMServerID(q reform.DBTX) error {
 func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) { //nolint:cyclop
 	err := ValidateSettings(params)
 	if err != nil {
-		return nil, NewInvalidArgumentError(err.Error())
+		return nil, NewInvalidArgumentError("%s", err.Error())
 	}
 
 	if params.DefaultRoleID != nil {
@@ -167,6 +169,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableAdvisors != nil {
 		settings.SaaS.Enabled = params.EnableAdvisors
+	}
+
+	if params.EnableNomad != nil {
+		settings.Nomad.Enabled = params.EnableNomad
 	}
 
 	if params.AdvisorsRunInterval.RareInterval != 0 {

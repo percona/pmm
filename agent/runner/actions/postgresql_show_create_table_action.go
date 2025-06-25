@@ -29,6 +29,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -69,6 +70,7 @@ type postgresqlShowCreateTableAction struct {
 	timeout time.Duration
 	params  *agentv1.StartActionRequest_PostgreSQLShowCreateTableParams
 	dsn     string
+	tmpDir  string
 }
 
 // NewPostgreSQLShowCreateTableAction creates PostgreSQL SHOW CREATE TABLE Action.
@@ -79,7 +81,8 @@ func NewPostgreSQLShowCreateTableAction(
 	params *agentv1.StartActionRequest_PostgreSQLShowCreateTableParams,
 	tempDir string,
 ) (Action, error) {
-	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, filepath.Join(tempDir, postgreSQLShowCreateTableActionType, id))
+	tmpDir := filepath.Join(tempDir, postgreSQLShowCreateTableActionType, id)
+	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, tmpDir)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -89,6 +92,7 @@ func NewPostgreSQLShowCreateTableAction(
 		timeout: timeout,
 		params:  params,
 		dsn:     dsn,
+		tmpDir:  tmpDir,
 	}, nil
 }
 
@@ -114,6 +118,8 @@ func (a *postgresqlShowCreateTableAction) DSN() string {
 
 // Run runs an Action and returns output and error.
 func (a *postgresqlShowCreateTableAction) Run(ctx context.Context) ([]byte, error) {
+	defer templates.CleanupTempDir(a.tmpDir, logrus.WithField("component", postgreSQLShowCreateTableActionType))
+
 	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -221,7 +227,7 @@ ORDER BY a.attnum;`, tableID)
 
 	tw := tabwriter.NewWriter(w, 0, 0, 1, ' ', tabwriter.Debug)
 
-	fmt.Fprintln(tw, "Column\tType\tCollation\tNullable\tDefault\tStorage\tStats target\tDescription")
+	fmt.Fprintln(tw, "Column\tType\tCollation\tNullable\tDefault\tStorage\tStats target\tDescription") //nolint:errcheck
 
 	for rows.Next() {
 		var ci columnInfo
@@ -288,7 +294,7 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	fmt.Fprintln(bw, "Indexes:")
+	fmt.Fprintln(bw, "Indexes:") //nolint:errcheck
 
 	for rows.Next() {
 		info := indexInfo{}
@@ -372,7 +378,7 @@ ORDER BY conname`, tableID)
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	fmt.Fprintln(bw, "Foreign-key constraints:")
+	fmt.Fprintln(bw, "Foreign-key constraints:") //nolint:errcheck
 
 	for rows.Next() {
 		var conname, condef string
@@ -413,7 +419,7 @@ ORDER BY conname`, tableID)
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	fmt.Fprintln(bw, "Referenced by:")
+	fmt.Fprintln(bw, "Referenced by:") //nolint:errcheck
 
 	for rows.Next() {
 		var conname, conrelid, condef string
@@ -454,7 +460,7 @@ ORDER BY conname`, tableID)
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	fmt.Fprintln(bw, "Check constraints:")
+	fmt.Fprintln(bw, "Check constraints:") //nolint:errcheck
 
 	for rows.Next() {
 		var conname, condef string

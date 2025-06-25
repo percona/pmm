@@ -73,7 +73,6 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 
 [Advanced Data Exploration]: ../../reference/dashboards/dashboard-advanced-data-exploration.md
 [Home Dashboard]: ../../reference/dashboards/dashboard-home.md
-[DB Cluster Summary]: ../../reference/dashboards/dashboard-cluster-summary.md
 [Prometheus Exporter Status]: ../../reference/dashboards/dashboard-prometheus-exporter-status.md
 [Prometheus Exporters Overview]: ../../reference/dashboards/dashboard-prometheus-exporters-overview.md
 [VictoriaMetrics]: ../../reference/dashboards/dashboard-victoriametrics.md

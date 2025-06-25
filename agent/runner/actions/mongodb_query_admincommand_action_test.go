@@ -16,7 +16,6 @@ package actions
 
 import (
 	"context"
-	"strings"
 	"testing"
 	"time"
 
@@ -197,14 +196,14 @@ func convertToObjxMap(t *testing.T, b []byte) objx.Map {
 func getParameterAssertions(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 5000, len(b))
 	objxM := convertToObjxMap(t, b)
-	assert.Equal(t, 1.0, objxM.Get("ok").Data())
+	assert.InEpsilon(t, 1.0, objxM.Get("ok").Data(), 0.0001)
 	assert.Contains(t, objxM.Get("authenticationMechanisms").Data(), "SCRAM-SHA-1")
 }
 
 func buildInfoAssertions(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 1000, len(b))
 	objxM := convertToObjxMap(t, b)
-	assert.Equal(t, 1.0, objxM.Get("ok").Data())
+	assert.InEpsilon(t, 1.0, objxM.Get("ok").Data(), 0.0001)
 	assert.Equal(t, "mozjs", objxM.Get("javascriptEngine").Data())
 	assert.Equal(t, "x86_64", objxM.Get("buildEnvironment.distarch").Data())
 }
@@ -212,15 +211,15 @@ func buildInfoAssertions(t *testing.T, b []byte) { //nolint:thelper
 func getDiagnosticDataAssertions(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 25000, len(b))
 	objxM := convertToObjxMap(t, b)
-	assert.Equal(t, 1.0, objxM.Get("ok").Data())
-	assert.Equal(t, 1.0, objxM.Get("data.serverStatus.ok").Data())
+	assert.InEpsilon(t, 1.0, objxM.Get("ok").Data(), 0.0001)
+	assert.InEpsilon(t, 1.0, objxM.Get("data.serverStatus.ok").Data(), 0.0001)
 	assert.Equal(t, "mongod", objxM.Get("data.serverStatus.process").Data())
 }
 
 func replSetGetStatusAssertionsReplicated(t *testing.T, b []byte) { //nolint:thelper
 	assert.LessOrEqual(t, 1000, len(b))
 	objxM := convertToObjxMap(t, b)
-	assert.Equal(t, 1.0, objxM.Get("ok").Data())
+	assert.InEpsilon(t, 1.0, objxM.Get("ok").Data(), 0.0001)
 	assert.Len(t, objxM.Get("members").Data(), 2)
 }
 
@@ -281,22 +280,9 @@ func getCmdLineOptsAssertionsWithSSL(t *testing.T, b []byte) { //nolint:thelper
 	assert.Equal(t, "all", operationProfiling.Get("mode").String())
 
 	security := parsed.Get("security").ObjxMap()
-	assert.Len(t, security, 0)
+	assert.Empty(t, security)
 
 	argv := objxM.Get("argv").InterSlice()
-	expected := []interface{}{"mongod", "--sslMode=requireSSL", "--sslPEMKeyFile=/etc/ssl/certificates/server.pem"}
-
-	var tlsMode bool
-	for _, arg := range argv {
-		argStr, ok := arg.(string)
-		assert.True(t, ok)
-		if strings.Contains(argStr, "tlsMode") {
-			tlsMode = true
-			break
-		}
-	}
-	if tlsMode {
-		expected = []interface{}{"mongod", "--tlsMode", "requireTLS", "--tlsCertificateKeyFile", "/etc/ssl/certificates/server.pem"}
-	}
+	expected := []interface{}{"mongod", "--tlsMode=requireTLS", "--tlsCertificateKeyFile=/etc/tls/certificates/server.pem"}
 	assert.Subset(t, argv, expected)
 }

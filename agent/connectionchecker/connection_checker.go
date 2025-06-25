@@ -17,6 +17,7 @@ package connectionchecker
 
 import (
 	"context"
+	"crypto/tls"
 	"crypto/x509"
 	"database/sql"
 	"fmt"
@@ -82,7 +83,7 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentv1.CheckConnec
 	case inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:
 		return cc.checkProxySQLConnection(ctx, msg.Dsn)
 	case inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
-		return cc.checkExternalConnection(ctx, msg.Dsn)
+		return cc.checkExternalConnection(ctx, msg.Dsn, msg.TlsSkipVerify)
 	default:
 		panic(fmt.Sprintf("unknown service type: %v", msg.Type))
 	}
@@ -118,6 +119,7 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 
 	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-mysql-connection"), strconv.Itoa(int(id)))
 	_, err = templates.RenderDSN(dsn, files, tempdir)
+	defer templates.CleanupTempDir(tempdir, cc.l)
 	if err != nil {
 		cc.l.Debugf("checkMySQLDBConnection: failed to Render DSN: %s", err)
 		res.Error = err.Error()
@@ -154,6 +156,7 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 
 	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-mongodb-connection"), strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	defer templates.CleanupTempDir(tempdir, cc.l)
 	if err != nil {
 		cc.l.Debugf("checkMongoDBConnection: failed to Render DSN: %s", err)
 		res.Error = err.Error()
@@ -223,6 +226,7 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 
 	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-postgresql-connection"), strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	defer templates.CleanupTempDir(tempdir, cc.l)
 	if err != nil {
 		cc.l.Debugf("checkPostgreSQLConnection: failed to Render DSN: %s", err)
 		res.Error = err.Error()
@@ -269,7 +273,7 @@ func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn st
 	return &res
 }
 
-func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri string) *agentv1.CheckConnectionResponse {
+func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri string, tlsSkipVerify bool) *agentv1.CheckConnectionResponse {
 	var res agentv1.CheckConnectionResponse
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
@@ -278,7 +282,13 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 		return &res
 	}
 
-	var client http.Client
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: tlsSkipVerify, //nolint:gosec // allow this for self-signed certs
+		},
+	}
+	client := &http.Client{Transport: tr}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		res.Error = err.Error()

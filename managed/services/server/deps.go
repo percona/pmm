@@ -26,13 +26,13 @@ import (
 
 // healthChecker interface wraps all services that implements the IsReady method to report the
 // service health for the Readiness check.
-type healthChecker interface {
+type healthChecker interface { //nolint:iface
 	IsReady(ctx context.Context) error
 }
 
 // grafanaClient is a subset of methods of grafana.Client used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type grafanaClient interface {
+type grafanaClient interface { //nolint:iface
 	healthChecker
 }
 
@@ -40,7 +40,7 @@ type grafanaClient interface {
 // We use it instead of real type to avoid dependency cycle.
 //
 // FIXME Rename to victoriaMetrics.Service, update tests.
-type prometheusService interface {
+type prometheusService interface { //nolint:iface
 	RequestConfigurationUpdate()
 	healthChecker
 }
@@ -56,7 +56,7 @@ type checksService interface {
 
 // vmAlertService is a subset of methods of vmalert.Service used by this package.
 // We use it instead of real type to avoid dependency cycle.
-type vmAlertService interface {
+type vmAlertService interface { //nolint:iface
 	RequestConfigurationUpdate()
 	healthChecker
 }
@@ -106,4 +106,9 @@ type haService interface {
 type victoriaMetricsParams interface {
 	ExternalVM() bool
 	URLFor(path string) (*url.URL, error)
+}
+
+// nomadService represents an interface for managing and updating Nomad-related configurations in a given context.
+type nomadService interface {
+	UpdateConfiguration(settings *models.Settings) error
 }

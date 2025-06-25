@@ -184,7 +184,7 @@ func (svc *Service) reload(ctx context.Context) error {
 		return errors.WithStack(err)
 	}
 
-	if resp.StatusCode != http.StatusNoContent {
+	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusOK {
 		return errors.Errorf("expected 204, got %d", resp.StatusCode)
 	}
 	return nil
@@ -326,20 +326,24 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		if err != nil {
 			return err
 		}
-		globalResoulutions := settings.MetricsResolutions
+		resolutions := settings.MetricsResolutions
 		if cfg.GlobalConfig.ScrapeInterval == 0 {
-			cfg.GlobalConfig.ScrapeInterval = config.Duration(globalResoulutions.LR)
+			cfg.GlobalConfig.ScrapeInterval = config.Duration(resolutions.LR)
 		}
 		if cfg.GlobalConfig.ScrapeTimeout == 0 {
-			cfg.GlobalConfig.ScrapeTimeout = ScrapeTimeout(globalResoulutions.LR)
+			cfg.GlobalConfig.ScrapeTimeout = ScrapeTimeout(resolutions.LR)
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(svc.l, globalResoulutions.HR, svc.params))
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVictoriaMetrics(svc.l, resolutions.HR, svc.params))
 		if svc.params.ExternalVM() {
-			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(globalResoulutions.HR, svc.baseURL.Host))
+			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(resolutions.HR, svc.baseURL.Host))
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(globalResoulutions.HR))
-		AddInternalServicesToScrape(cfg, globalResoulutions)
-		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &globalResoulutions, nil, false)
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(resolutions.HR))
+		AddInternalServicesToScrape(cfg, resolutions)
+		if pointer.GetBool(settings.Nomad.Enabled) {
+			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs,
+				scrapeConfigForNomadServer(resolutions.MR))
+		}
+		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &resolutions, nil, false)
 	})
 }
 

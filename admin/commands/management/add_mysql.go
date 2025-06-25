@@ -111,7 +111,7 @@ type AddMySQLCommand struct {
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
 	TLS                    bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
+	TLSSkipVerify          bool              `help:"Skip TLS certificate verification"`
 	TLSCaFile              string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile            string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile             string            `name:"tls-key" help:"Path to client key file"`
@@ -151,7 +151,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 
 	if cmd.CreateUser {
 		return nil, errors.New("Unrecognized option. To create a user, see " +
-			"'https://docs.percona.com/percona-monitoring-and-management/setting-up/client/mysql.html#create-a-database-account-for-pmm'")
+			"'https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql.html#create-a-database-account-for-pmm'")
 	}
 
 	var (

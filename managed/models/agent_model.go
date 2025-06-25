@@ -67,10 +67,12 @@ const (
 	QANMySQLPerfSchemaAgentType         AgentType = "qan-mysql-perfschema-agent"
 	QANMySQLSlowlogAgentType            AgentType = "qan-mysql-slowlog-agent"
 	QANMongoDBProfilerAgentType         AgentType = "qan-mongodb-profiler-agent"
+	QANMongoDBMongologAgentType         AgentType = "qan-mongodb-mongolog-agent"
 	QANPostgreSQLPgStatementsAgentType  AgentType = "qan-postgresql-pgstatements-agent"
 	QANPostgreSQLPgStatMonitorAgentType AgentType = "qan-postgresql-pgstatmonitor-agent"
 	ExternalExporterType                AgentType = "external-exporter"
 	VMAgentType                         AgentType = "vmagent"
+	NomadAgentType                      AgentType = "nomad-agent"
 )
 
 var v2_42 = version.MustParse("2.42.0-0")
@@ -524,7 +526,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		return cfg.FormatDSN()
 
-	case QANMongoDBProfilerAgentType, MongoDBExporterType:
+	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType:
 		q := make(url.Values)
 		if dsnParams.DialTimeout != 0 {
 			q.Set("connectTimeoutMS", strconv.Itoa(int(dsnParams.DialTimeout/time.Millisecond)))
@@ -737,7 +739,7 @@ func (s Agent) Files() map[string]string {
 		return nil
 	case ProxySQLExporterType:
 		return nil
-	case QANMongoDBProfilerAgentType, MongoDBExporterType:
+	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType:
 		files := make(map[string]string)
 		if s.MongoDBOptions.TLSCa != "" {
 			files[caFilePlaceholder] = s.MongoDBOptions.TLSCa
@@ -816,12 +818,14 @@ var HashPassword = func(password, salt string) (string, error) {
 	return string(buf), nil
 }
 
+// https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md
 const webConfigTemplate = `basic_auth_users:
     pmm: {{ . }}
 `
 
 // BuildWebConfigFile builds prometheus-compatible basic auth configuration.
 func (s *Agent) BuildWebConfigFile() (string, error) {
+	// If not provided by the user, it is the `agent_id`.
 	password := s.GetAgentPassword()
 	salt := getPasswordSalt(s)
 
@@ -831,9 +835,11 @@ func (s *Agent) BuildWebConfigFile() (string, error) {
 	}
 
 	var configBuffer bytes.Buffer
-	if tmpl, err := template.New("webConfig").Parse(webConfigTemplate); err != nil {
+	tmpl, err := template.New("webConfig").Parse(webConfigTemplate)
+	if err != nil {
 		return "", errors.Wrap(err, "Failed to parse webconfig template")
-	} else if err = tmpl.Execute(&configBuffer, hashedPassword); err != nil {
+	}
+	if err = tmpl.Execute(&configBuffer, hashedPassword); err != nil {
 		return "", errors.Wrap(err, "Failed to execute webconfig template")
 	}
 

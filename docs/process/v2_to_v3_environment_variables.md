@@ -30,8 +30,8 @@ Below is a list of affected variables and their new names.
 | `PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE`      | `PMM_CLICKHOUSE_DATASOURCE`                |                                                              |
 | `PERCONA_TEST_PMM_CLICKHOUSE_HOST`            | `PMM_CLICKHOUSE_HOST`                      |                                                              |
 | `PERCONA_TEST_PMM_CLICKHOUSE_PORT`            | `PMM_CLICKHOUSE_PORT`                      |                                                              |
-| `PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE`      |                                            | Removed in PMM v3, because of new clickhouse version.        |
 | `PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE`       |                                            | Removed in PMM v3, because of new clickhouse version.        |
+| `PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE`      |                                            | Removed in PMM v3, because of new clickhouse version.        |
 | `PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE` | `PMM_DISABLE_BUILTIN_CLICKHOUSE`           |                                                              |
 | `PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES`   | `PMM_DISABLE_BUILTIN_POSTGRES`             |                                                              |
 | `PERCONA_TEST_INTERFACE_TO_BIND`              | `PMM_INTERFACE_TO_BIND`                    |                                                              |
@@ -55,3 +55,11 @@ Below is a list of affected variables and their new names.
 | `PERCONA_TEST_TELEMETRY_INTERVAL`             | `PMM_DEV_TELEMETRY_INTERVAL`               |                                                              |
 | `PERCONA_TEST_TELEMETRY_RETRY_BACKOFF`        | `PMM_DEV_TELEMETRY_RETRY_BACKOFF`          |                                                              |
 | `PERCONA_TEST_VERSION_SERVICE_URL`            |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS`    |
+
+
+## Changes to environment variables in v3+
+
+| PMM 3                                      | Comments                                                     |
+|--------------------------------------------|--------------------------------------------------------------|
+| `PMM_CLICKHOUSE_USER`                      | Added in v3.2.0                                              |
+| `PMM_CLICKHOUSE_PASSWORD`                  | Added in v3.2.0                                              |

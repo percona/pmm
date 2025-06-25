@@ -127,6 +127,11 @@ func (as *AgentsService) List(ctx context.Context, filters models.AgentFilters) 
 		if got > 1 {
 			return status.Errorf(codes.InvalidArgument, "expected at most one param: pmm_agent_id, node_id or service_id")
 		}
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		filters.IgnoreNomad = !settings.IsNomadEnabled()
 
 		agents, err := models.FindAgents(tx.Querier, filters)
 		if err != nil {
@@ -769,6 +774,88 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, agen
 	return res, nil
 }
 
+// AddQANMongoDBMongologAgent adds MongoDB Mongolog QAN Agent.
+func (as *AgentsService) AddQANMongoDBMongologAgent(ctx context.Context, p *inventoryv1.AddQANMongoDBMongologAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	var agent *inventoryv1.QANMongoDBMongologAgent
+
+	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		params := &models.CreateAgentParams{
+			PMMAgentID:    p.PmmAgentId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			CustomLabels:  p.CustomLabels,
+			TLS:           p.Tls,
+			TLSSkipVerify: p.TlsSkipVerify,
+			QANOptions: models.QANOptions{
+				MaxQueryLength: p.MaxQueryLength,
+				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650 - done, but not included in params.
+			},
+			MongoDBOptions: models.MongoDBOptionsFromRequest(p),
+			LogLevel:       services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		}
+		row, err := models.CreateAgent(tx.Querier, models.QANMongoDBMongologAgentType, params)
+		if err != nil {
+			return err
+		}
+		if !p.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
+		}
+
+		aa, err := services.ToAPIAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		agent = aa.(*inventoryv1.QANMongoDBMongologAgent) //nolint:forcetypeassert
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_QanMongodbMongologAgent{
+			QanMongodbMongologAgent: agent,
+		},
+	}
+
+	return res, e
+}
+
+// ChangeQANMongoDBMongologAgent updates MongoDB Mongolog QAN Agent with given parameters.
+//
+//nolint:lll,dupl
+func (as *AgentsService) ChangeQANMongoDBMongologAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMongoDBMongologAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
+	common := &commonAgentParams{
+		Enable:             p.Enable,
+		EnablePushMetrics:  p.EnablePushMetrics,
+		CustomLabels:       p.CustomLabels,
+		MetricsResolutions: p.MetricsResolutions,
+	}
+	ag, err := as.changeAgent(ctx, agentID, common)
+	if err != nil {
+		return nil, err
+	}
+
+	agent := ag.(*inventoryv1.QANMongoDBMongologAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_QanMongodbMongologAgent{
+			QanMongodbMongologAgent: agent,
+		},
+	}
+	return res, nil
+}
+
 // AddProxySQLExporter inserts proxysql_exporter Agent with given parameters.
 func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1.AddProxySQLExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.ProxySQLExporter
@@ -1094,15 +1181,16 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 	)
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateExternalExporterParams{
-			RunsOnNodeID: p.RunsOnNodeId,
-			ServiceID:    p.ServiceId,
-			Username:     p.Username,
-			Password:     p.Password,
-			Scheme:       p.Scheme,
-			MetricsPath:  p.MetricsPath,
-			ListenPort:   p.ListenPort,
-			CustomLabels: p.CustomLabels,
-			PushMetrics:  p.PushMetrics,
+			RunsOnNodeID:  p.RunsOnNodeId,
+			ServiceID:     p.ServiceId,
+			Username:      p.Username,
+			Password:      p.Password,
+			Scheme:        p.Scheme,
+			MetricsPath:   p.MetricsPath,
+			ListenPort:    p.ListenPort,
+			CustomLabels:  p.CustomLabels,
+			PushMetrics:   p.PushMetrics,
+			TLSSkipVerify: p.TlsSkipVerify,
 		}
 		row, err := models.CreateExternalExporter(tx.Querier, params)
 		if err != nil {
@@ -1228,6 +1316,25 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_AzureDatabaseExporter{
 			AzureDatabaseExporter: agent,
+		},
+	}
+	return res, nil
+}
+
+// ChangeNomadAgent updates Nomad Agent with given parameters.
+func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, params *inventoryv1.ChangeNomadAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
+	common := &commonAgentParams{
+		Enable: params.Enable,
+	}
+	ag, err := as.changeAgent(ctx, agentID, common)
+	if err != nil {
+		return nil, err
+	}
+	agent := ag.(*inventoryv1.NomadAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_NomadAgent{
+			NomadAgent: agent,
 		},
 	}
 	return res, nil

@@ -42,14 +42,14 @@ unset new_pmm_version
 unset new_pmm_release
 echo -e "\n\n\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_version} pmm_release=${pmm_release}\n\n\n"
 
-rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:2}
+rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:3}
 rpms_dir=${root_dir}/tmp/pmm-server/RPMS
 rpmbuild_dir=${root_dir}/sources/pmm/src/github.com/percona/pmm/build/packages/rpm/server
 rpmbuild_dist=${RPMBUILD_DIST:-"el9"}
 source_dir=${root_dir}/tmp/source/pmm-client-${pmm_version}
 binary_dir=${root_dir}/tmp/binary/pmm-client-${pmm_version}
 client_properties=${root_dir}/results/pmm-client.properties
-docker_file=${DOCKERFILE:-Dockerfile}
+docker_file=${DOCKERFILE:-Dockerfile.el9}
 docker_tag_file=${root_dir}/results/docker/TAG
 docker_client_tag_file=${root_dir}/results/docker/CLIENT_TAG
 docker_tarball=${root_dir}/results/docker/pmm-server-${pmm_version}.docker
@@ -57,7 +57,7 @@ docker_client_tarball=${root_dir}/results/docker/pmm-client-${pmm_version}.docke
 source_tarball=${root_dir}/results/source_tarball/pmm-client-${pmm_version}.tar.gz
 binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}.tar.gz
 
-# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.93.4
-vmagent_commit_hash=58ecb9066574f38f1d1c91ace467316e7f175b09
-# https://github.com/hashicorp/nomad/releases/tag/v1.9.0
-nomad_commit_hash=7ad36851ec02f875e0814775ecf1df0229f0a615
+# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.114.0
+vmagent_commit_hash=a5e3c6d4492db765800363dfae48a04b4d7888be
+# https://github.com/hashicorp/nomad/releases/tag/v1.10.2
+nomad_commit_hash=df4c764f6703e99e4df6f4d6c46c916d97ef8f84

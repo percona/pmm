@@ -199,7 +199,7 @@ Expand the table below for the list of checks types that you can use to define y
     | MONGODB_GETDIAGNOSTICDATA |Executes db.adminCommand( { getDiagnosticData: 1 } ) against MongoDB's "admin" database. For more information, see [MongoDB Performance](https://docs.mongodb.com/manual/administration/analyzing-mongodb-performance/#full-time-diagnostic-data-capture)| No|
     | METRICS_INSTANT |Executes instant [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about instant queries, check out the [Prometheus docs](https://prometheus.io/docs/prometheus/latest/querying/api/#instant-queries).|Yes|
     | METRICS_RANGE |Executes range [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about range queries, check out the [Prometheus docs](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries).|Yes|
-    | CLICKHOUSE_SELECT |Executes 'SELECT ...' statements against PMM's [Query Analytics](../use/qan/index.html) Clickhouse database. Queries can use the {% raw %} **{{.ServiceName**}} and **{{.ServiceID}}**  {% endraw %} placeholders in query string. They match the target service name and service ID respectively.|Yes|
+    | CLICKHOUSE_SELECT |Executes 'SELECT ...' statements against PMM's [Query Analytics](../use/qan/index.md) ClickHouse database. Queries can use the {% raw %} **{{.ServiceName**}} and **{{.ServiceID}}**  {% endraw %} placeholders in query string. They match the target service name and service ID respectively.|Yes|
 
 ## Query parameters
 - `METRICS_INSTANT`
@@ -251,17 +251,29 @@ To develop custom checks for PMM:
     docker exec -it pmm-server supervisorctl tail -f pmm-managed
     ```
 
-# Troubleshooting and tips
+## Troubleshooting and tips
 
-- in Debug mode, PMM generates a lot of redundant information in the log files, information that is not useful for developing checks. 
-If debug logging is enabled, you can disable it with the following environment variable: `PMM_DEBUG=0`.
-- All logs from checks subsystem has `component=checks` tag, so you can just filter `pmm-managed` logs with grep.
-- Local check file should always be linked to fake dev advisor: `advisor: dev`. If PMM does not display the **Development** tab on the **Advisors** page, make sure that you specify dev advisor in the check file.
-- If this still doesn't display the **Development** tab, probably PMM could not load your file due to formatting issues. Check pmm-managed logs for details.
-- There are to ways to reload the check file:
-   - Click `Run check` button (but it’s unavailable if you don’t have any tabs on advisors page and most likely that is the case during development)
-   - Reload managed: `supervisorctl restart pmm-managed` (execute inside PMM Server)
+When developing checks for PMM, you may encounter various issues. Here are solutions for common problems:
 
+### Managing debug output
+Debug mode generates excessive information in log files that can obscure important data. To disable debug logging, use `PMM_DEBUG=0`.
+
+### Filtering logs
+All check subsystem logs include the component=checks tag. Filter relevant logs with: `grep "component=checks" /path/to/pmm-managed.log`.
+
+### Development tab issues
+
+If your Development tab isn't appearing on the **Advisors** page:
+{.power-number}
+
+1. Verify your check file links to the development advisor: `advisor: dev`.
+2. If the Development tab still doesn't appear, check for YAML formatting issues in your check file. Examine `pmm-managed` logs for parsing errors or validation failures.
+
+### Reloading check files
+There are two ways to reload your check file after making changes:
+
+- Using the UI (when available): click the **Run check** button on the **Advisors** page.
+- From command line (always works): SSH into PMM Server and execute: `supervisorctl restart pmm-managed`.
 
 ## Submit feedback
 We welcome your feedback on the current process for developing and debugging checks. Send us your comments or post a question on the [Percona Forums](https://forums.percona.com/c/percona-monitoring-and-management-pmm/pmm-3/84).

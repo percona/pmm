@@ -52,6 +52,7 @@ var agentTypes = map[inventoryv1.AgentType]models.AgentType{
 	inventoryv1.AgentType_AGENT_TYPE_EXTERNAL_EXPORTER:                  models.ExternalExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:            models.AzureDatabaseExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_VM_AGENT:                           models.VMAgentType,
+	inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT:                        models.NomadAgentType,
 }
 
 func agentType(req *inventoryv1.ListAgentsRequest) *models.AgentType {
@@ -94,6 +95,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 			res.PostgresExporter = append(res.PostgresExporter, agent)
 		case *inventoryv1.QANMongoDBProfilerAgent:
 			res.QanMongodbProfilerAgent = append(res.QanMongodbProfilerAgent, agent)
+		case *inventoryv1.QANMongoDBMongologAgent:
+			res.QanMongodbMongologAgent = append(res.QanMongodbMongologAgent, agent)
 		case *inventoryv1.ProxySQLExporter:
 			res.ProxysqlExporter = append(res.ProxysqlExporter, agent)
 		case *inventoryv1.QANPostgreSQLPgStatementsAgent:
@@ -108,6 +111,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 			res.AzureDatabaseExporter = append(res.AzureDatabaseExporter, agent)
 		case *inventoryv1.VMAgent:
 			res.VmAgent = append(res.VmAgent, agent)
+		case *inventoryv1.NomadAgent:
+			res.NomadAgent = append(res.NomadAgent, agent)
 		default:
 			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 		}
@@ -140,6 +145,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		res.Agent = &inventoryv1.GetAgentResponse_PostgresExporter{PostgresExporter: agent}
 	case *inventoryv1.QANMongoDBProfilerAgent:
 		res.Agent = &inventoryv1.GetAgentResponse_QanMongodbProfilerAgent{QanMongodbProfilerAgent: agent}
+	case *inventoryv1.QANMongoDBMongologAgent:
+		res.Agent = &inventoryv1.GetAgentResponse_QanMongodbMongologAgent{QanMongodbMongologAgent: agent}
 	case *inventoryv1.ProxySQLExporter:
 		res.Agent = &inventoryv1.GetAgentResponse_ProxysqlExporter{ProxysqlExporter: agent}
 	case *inventoryv1.QANPostgreSQLPgStatementsAgent:
@@ -154,6 +161,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		res.Agent = &inventoryv1.GetAgentResponse_AzureDatabaseExporter{AzureDatabaseExporter: agent}
 	case *inventoryv1.VMAgent:
 		// skip it, fix later if needed.
+	case *inventoryv1.NomadAgent:
+		res.Agent = &inventoryv1.GetAgentResponse_NomadAgent{NomadAgent: agent}
 	default:
 		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 	}
@@ -200,6 +209,8 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 		return s.s.AddQANMySQLSlowlogAgent(ctx, req.GetQanMysqlSlowlogAgent())
 	case *inventoryv1.AddAgentRequest_QanMongodbProfilerAgent:
 		return s.s.AddQANMongoDBProfilerAgent(ctx, req.GetQanMongodbProfilerAgent())
+	case *inventoryv1.AddAgentRequest_QanMongodbMongologAgent:
+		return s.s.AddQANMongoDBMongologAgent(ctx, req.GetQanMongodbMongologAgent())
 	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatementsAgent:
 		return s.s.AddQANPostgreSQLPgStatementsAgent(ctx, req.GetQanPostgresqlPgstatementsAgent())
 	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatmonitorAgent:
@@ -211,7 +222,7 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 
 // ChangeAgent allows to change some Agent attributes.
 func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeAgentRequest) (*inventoryv1.ChangeAgentResponse, error) {
-	agentID := req.GetAgentId() //nolint:typecheck
+	agentID := req.GetAgentId()
 
 	switch req.Agent.(type) {
 	case *inventoryv1.ChangeAgentRequest_NodeExporter:
@@ -236,10 +247,14 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 		return s.s.ChangeQANMySQLSlowlogAgent(ctx, agentID, req.GetQanMysqlSlowlogAgent())
 	case *inventoryv1.ChangeAgentRequest_QanMongodbProfilerAgent:
 		return s.s.ChangeQANMongoDBProfilerAgent(ctx, agentID, req.GetQanMongodbProfilerAgent())
+	case *inventoryv1.ChangeAgentRequest_QanMongodbMongologAgent:
+		return s.s.ChangeQANMongoDBMongologAgent(ctx, agentID, req.GetQanMongodbMongologAgent())
 	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatementsAgent:
 		return s.s.ChangeQANPostgreSQLPgStatementsAgent(ctx, agentID, req.GetQanPostgresqlPgstatementsAgent())
 	case *inventoryv1.ChangeAgentRequest_QanPostgresqlPgstatmonitorAgent:
 		return s.s.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, agentID, req.GetQanPostgresqlPgstatmonitorAgent())
+	case *inventoryv1.ChangeAgentRequest_NomadAgent:
+		return s.s.ChangeNomadAgent(ctx, agentID, req.GetNomadAgent())
 	default:
 		return nil, fmt.Errorf("invalid request %v", req.Agent)
 	}

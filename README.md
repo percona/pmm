@@ -43,7 +43,7 @@ See the [PMM Documentation](https://docs.percona.com/percona-monitoring-and-mana
 
 ## Installation
 
-There is a number of installation methods, please check our [Setting Up](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/index.html) documentation page.
+There are numbers of installation methods, please check our [About PMM installation](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/index.html) documentation page.
 
 But in a nutshell:
 

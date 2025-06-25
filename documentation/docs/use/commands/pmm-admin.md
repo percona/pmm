@@ -209,7 +209,8 @@ DATABASE:= [[MongoDB](#mongodb) | [MySQL](#mysql) | [PostgreSQL](#postgresql) | 
     `--force`
     : Remove service with that name or ID and all dependent services and agents.
 
-When you remove a service, collected data remains on PMM Server for the specified [retention period](../../reference/faq.md#how-to-control-data-retention--retention-).
+When you remove a service, collected data remains on PMM Server for the specified [retention period](../../reference/faq.md#retention).
+
 #### `pmm-admin annotate`
 
 `pmm-admin annotate [--node|--service] <annotation> [--tags <tags>] [--node-name=<node>] [--service-name=<service>]`
@@ -542,26 +543,14 @@ In low resolution we collect metrics from collectors which could take some time:
     `--tls-skip-verify`
     : Skip TLS certificates validation.
 
-    `--tls-cert-file=PATHTOCERT`
+    `--tls-cert=PATHTOCERT`
     : Path to TLS client certificate file.
 
     `--tls-key=PATHTOCERTKEY`
     : Key for TLS client certificate file.
 
-    `--tls-ca-file=PATHTOCACERT`
+    `--tls-ca=PATHTOCACERT`
     : Path to certificate authority file.
-
-    `--ssl-ca=PATHTOCACERT`
-    : The path name of the Certificate Authority (CA) certificate file. If used, must specify the same certificate used by the server. (-ssl-capath is similar, but specifies the path name of a directory of CA certificate files.)
-
-    `--ssl-cert=PATHTOCERTKEY`
-    : The path name of the client public key certificate file.
-
-    `--ssl-key`
-    : The path name of the client private key file.
-
-    `--ssl-skip-verify`
-    : Skip SSL certificate verification.
 
     `--metrics-mode=mode`
     : Metrics flow mode for agents node-exporter. Allowed values:
@@ -943,8 +932,3 @@ For other collectors that you can disable with the `--disable-collectors` option
 - [`mongodb_exporter`](https://github.com/percona/mongodb_exporter)
 - [`postgres_exporter`](https://github.com/percona/postgres_exporter)
 - [`proxysql_exporter`](https://github.com/percona/proxysql_exporter)
-
-[inventory]: ../dashboards/dashboard-inventory.md
-
-
-[inventory]: ../dashboards/dashboard-inventory.md

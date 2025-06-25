@@ -37,7 +37,7 @@ const (
 )
 
 // MySQLOptionsParams contains methods to create MySQLOptions object.
-type MySQLOptionsParams interface {
+type MySQLOptionsParams interface { //nolint:iface
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
@@ -53,7 +53,7 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) MySQLOptions {
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
-type PostgreSQLOptionsParams interface {
+type PostgreSQLOptionsParams interface { //nolint:iface
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
@@ -173,6 +173,8 @@ type AgentFilters struct {
 	AgentType *AgentType
 	// Return only Agents that provide insights for that AWSAccessKey.
 	AWSAccessKey string
+	// IgnoreNomad is used to ignore Nomad agents.
+	IgnoreNomad bool
 }
 
 // FindAgents returns Agents by filters.
@@ -212,6 +214,11 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	if filters.AWSAccessKey != "" {
 		conditions = append(conditions, fmt.Sprintf("(aws_options ? 'aws_access_key' AND aws_options->>'aws_access_key' = %s)", q.Placeholder(idx)))
 		args = append(args, filters.AWSAccessKey)
+		idx++
+	}
+	if filters.IgnoreNomad {
+		conditions = append(conditions, fmt.Sprintf("agent_type != %s", q.Placeholder(idx)))
+		args = append(args, NomadAgentType)
 	}
 
 	var whereClause string
@@ -483,22 +490,17 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 	return res, nil
 }
 
-// FindPMMAgentsIDsWithPushMetrics returns pmm-agents-ids with agent, that use push_metrics mode.
-func FindPMMAgentsIDsWithPushMetrics(q *reform.Querier) ([]string, error) {
-	structs, err := q.SelectAllFrom(AgentTable, fmt.Sprintf("WHERE NOT disabled AND pmm_agent_id IS NOT NULL AND %s ORDER BY agent_id", pushMetricsTrue))
+// FindAllPMMAgentsIDs returns pmm-agents-ids with agents.
+func FindAllPMMAgentsIDs(q *reform.Querier) ([]string, error) {
+	structs, err := q.SelectAllFrom(AgentTable, "WHERE agent_type = $1 ORDER BY agent_id", PMMAgentType)
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "Couldn't get agents")
 	}
 
-	uniqAgents := make(map[string]struct{})
 	res := make([]string, 0, len(structs))
 	for _, str := range structs {
-		row := pointer.GetString(str.(*Agent).PMMAgentID) //nolint:forcetypeassert
-		if _, ok := uniqAgents[row]; ok {
-			continue
-		}
+		row := str.(*Agent).AgentID //nolint:forcetypeassert
 		res = append(res, row)
-		uniqAgents[row] = struct{}{}
 	}
 
 	return res, nil
@@ -548,23 +550,8 @@ func ExtractPmmAgentID(agent *Agent) (string, error) {
 	switch agent.AgentType {
 	case PMMAgentType:
 		return agent.AgentID, nil
-	case NodeExporterType,
-		MySQLdExporterType,
-		MongoDBExporterType,
-		PostgresExporterType,
-		ProxySQLExporterType,
-		RDSExporterType,
-		AzureDatabaseExporterType,
-		QANMySQLPerfSchemaAgentType,
-		QANMySQLSlowlogAgentType,
-		QANMongoDBProfilerAgentType,
-		QANPostgreSQLPgStatementsAgentType,
-		QANPostgreSQLPgStatMonitorAgentType,
-		ExternalExporterType,
-		VMAgentType:
-		return pointer.GetString(agent.PMMAgentID), nil
 	default:
-		return "", status.Errorf(codes.Internal, "Unhandled inventory Agent type %s", agent.AgentType)
+		return pointer.GetString(agent.PMMAgentID), nil
 	}
 }
 
@@ -624,10 +611,6 @@ func CreateNodeExporter(q *reform.Querier,
 	if err != nil {
 		return nil, err
 	}
-	if !IsPushMetricsSupported(pmmAgent.Version) {
-		return nil, status.Errorf(codes.FailedPrecondition, "cannot use push_metrics_enabled with pmm_agent version=%q,"+
-			" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())
-	}
 	row := &Agent{
 		AgentID:       id,
 		AgentType:     NodeExporterType,
@@ -656,15 +639,16 @@ func CreateNodeExporter(q *reform.Querier,
 
 // CreateExternalExporterParams params for add external exporter.
 type CreateExternalExporterParams struct {
-	RunsOnNodeID string
-	ServiceID    string
-	Username     string
-	Password     string
-	Scheme       string
-	MetricsPath  string
-	ListenPort   uint32
-	CustomLabels map[string]string
-	PushMetrics  bool
+	RunsOnNodeID  string
+	ServiceID     string
+	Username      string
+	Password      string
+	Scheme        string
+	MetricsPath   string
+	ListenPort    uint32
+	CustomLabels  map[string]string
+	PushMetrics   bool
+	TLSSkipVerify bool
 }
 
 // CreateExternalExporter creates ExternalExporter.
@@ -691,10 +675,6 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		default:
 			return nil, errors.Errorf("exactly one pmm_agent expected for external exporter, but "+
 				"(%d) found at node: %s", len(agentIDs), params.RunsOnNodeID)
-		}
-		if !IsPushMetricsSupported(agentIDs[0].Version) {
-			return nil, status.Errorf(codes.FailedPrecondition, "cannot use push_metrics_enabled with pmm_agent version=%q,"+
-				" it doesn't support it, minimum supported version=%q", pointer.GetString(agentIDs[0].Version), PMMAgentWithPushMetricsSupport.String())
 		}
 		pmmAgentID = pointer.ToString(agentIDs[0].AgentID)
 		runsOnNodeID = nil
@@ -729,6 +709,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 			MetricsPath:   metricsPath,
 			MetricsScheme: scheme,
 		},
+		TLSSkipVerify: params.TLSSkipVerify,
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
@@ -803,6 +784,9 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 		QANMongoDBProfilerAgentType: {
 			MongoDBServiceType,
 		},
+		QANMongoDBMongologAgentType: {
+			MongoDBServiceType,
+		},
 		PostgresExporterType: {
 			PostgreSQLServiceType,
 		},
@@ -849,17 +833,9 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		return nil, err
 	}
 
-	pmmAgent, err := FindAgentByID(q, params.PMMAgentID)
+	_, err := FindAgentByID(q, params.PMMAgentID)
 	if err != nil {
 		return nil, err
-	}
-	// check version for agent, if it exists.
-	if params.ExporterOptions.PushMetrics {
-		// special case for vmAgent, it always supports push metrics.
-		if agentType != VMAgentType && !IsPushMetricsSupported(pmmAgent.Version) {
-			return nil, status.Errorf(codes.FailedPrecondition, "cannot use push_metrics_enabled with pmm_agent version=%q,"+
-				" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())
-		}
 	}
 
 	if params.NodeID != "" {
@@ -1079,10 +1055,5 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 
 // IsPushMetricsSupported return if PUSH mode is supported for pmm agent version.
 func IsPushMetricsSupported(pmmAgentVersion *string) bool {
-	if agentVersion, err := version.Parse(pointer.GetString(pmmAgentVersion)); err == nil {
-		if agentVersion.Less(PMMAgentWithPushMetricsSupport) {
-			return false
-		}
-	}
 	return true
 }

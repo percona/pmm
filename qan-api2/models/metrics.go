@@ -40,6 +40,7 @@ const (
 	cannotPrepare        = "cannot prepare query"
 	cannotPopulate       = "cannot populate query arguments"
 	cannotExecute        = "cannot execute metrics query"
+	secondsPerMinute     = 60
 )
 
 // Metrics represents methods to work with metrics.
@@ -315,8 +316,53 @@ SUM(m_plan_time_sum) AS m_plan_time_sum,
 MIN(m_plan_time_min) AS m_plan_time_min,
 MAX(m_plan_time_max) AS m_plan_time_max,
 
-any(top_queryid) as top_queryid,
-any(top_query) as top_query
+any(top_queryid) AS top_queryid,
+any(top_query) AS top_query,
+
+SUM(m_docs_examined_cnt) AS m_docs_examined_cnt,
+SUM(m_docs_examined_sum) AS m_docs_examined_sum,
+MIN(m_docs_examined_min) AS m_docs_examined_min,
+MAX(m_docs_examined_max) AS m_docs_examined_max,
+AVG(m_docs_examined_p99) AS m_docs_examined_p99,
+
+SUM(m_keys_examined_cnt) AS m_keys_examined_cnt,
+SUM(m_keys_examined_sum) AS m_keys_examined_sum,
+MIN(m_keys_examined_min) AS m_keys_examined_min,
+MAX(m_keys_examined_max) AS m_keys_examined_max,
+AVG(m_keys_examined_p99) AS m_keys_examined_p99,
+
+SUM(m_locks_global_acquire_count_read_shared_sum) AS m_locks_global_acquire_count_read_shared_sum,
+SUM(m_locks_global_acquire_count_read_shared_cnt) AS m_locks_global_acquire_count_read_shared_cnt,
+
+SUM(m_locks_global_acquire_count_write_shared_sum) AS m_locks_global_acquire_count_write_shared_sum,
+SUM(m_locks_global_acquire_count_write_shared_cnt) AS m_locks_global_acquire_count_write_shared_cnt,
+
+SUM(m_locks_database_acquire_count_read_shared_sum) AS m_locks_database_acquire_count_read_shared_sum,
+SUM(m_locks_database_acquire_count_read_shared_cnt) AS m_locks_database_acquire_count_read_shared_cnt,
+
+SUM(m_locks_database_acquire_wait_count_read_shared_sum) AS m_locks_database_acquire_wait_count_read_shared_sum,
+SUM(m_locks_database_acquire_wait_count_read_shared_cnt) AS m_locks_database_acquire_wait_count_read_shared_cnt,
+
+SUM(m_locks_database_time_acquiring_micros_read_shared_cnt) AS m_locks_database_time_acquiring_micros_read_shared_cnt,
+SUM(m_locks_database_time_acquiring_micros_read_shared_sum) AS m_locks_database_time_acquiring_micros_read_shared_sum,
+MIN(m_locks_database_time_acquiring_micros_read_shared_min) AS m_locks_database_time_acquiring_micros_read_shared_min,
+MAX(m_locks_database_time_acquiring_micros_read_shared_max) AS m_locks_database_time_acquiring_micros_read_shared_max,
+AVG(m_locks_database_time_acquiring_micros_read_shared_p99) AS m_locks_database_time_acquiring_micros_read_shared_p99,
+
+SUM(m_locks_collection_acquire_count_read_shared_sum) AS m_locks_collection_acquire_count_read_shared_sum,
+SUM(m_locks_collection_acquire_count_read_shared_cnt) AS m_locks_collection_acquire_count_read_shared_cnt,
+
+SUM(m_storage_bytes_read_cnt) AS m_storage_bytes_read_cnt,
+SUM(m_storage_bytes_read_sum) AS m_storage_bytes_read_sum,
+MIN(m_storage_bytes_read_min) AS m_storage_bytes_read_min,
+MAX(m_storage_bytes_read_max) AS m_storage_bytes_read_max,
+AVG(m_storage_bytes_read_p99) AS m_storage_bytes_read_p99,
+
+SUM(m_storage_time_reading_micros_cnt) AS m_storage_time_reading_micros_cnt,
+SUM(m_storage_time_reading_micros_sum) AS m_storage_time_reading_micros_sum,
+MIN(m_storage_time_reading_micros_min) AS m_storage_time_reading_micros_min,
+MAX(m_storage_time_reading_micros_max) AS m_storage_time_reading_micros_max,
+AVG(m_storage_time_reading_micros_p99) AS m_storage_time_reading_micros_p99
 
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
@@ -401,7 +447,23 @@ if(SUM(m_plans_calls_cnt) == 0, NaN, SUM(m_plans_calls_sum) / time_frame) AS m_p
 if(SUM(m_wal_records_cnt) == 0, NaN, SUM(m_wal_records_sum) / time_frame) AS m_wal_records_sum_per_sec,
 if(SUM(m_wal_fpi_cnt) == 0, NaN, SUM(m_wal_fpi_sum) / time_frame) AS m_wal_fpi_sum_per_sec,
 if(SUM(m_wal_bytes_cnt) == 0, NaN, SUM(m_wal_bytes_sum) / time_frame) AS m_wal_bytes_sum_per_sec,
-if(SUM(m_plan_time_cnt) == 0, NaN, SUM(m_plan_time_sum) / time_frame) AS m_plan_time_sum_per_sec
+if(SUM(m_plan_time_cnt) == 0, NaN, SUM(m_plan_time_sum) / time_frame) AS m_plan_time_sum_per_sec,
+if(SUM(m_docs_examined_cnt) == 0, NaN, SUM(m_docs_examined_sum) / time_frame) AS m_docs_examined_sum_per_sec,
+if(SUM(m_keys_examined_cnt) == 0, NaN, SUM(m_keys_examined_sum) / time_frame) AS m_keys_examined_sum_per_sec,
+if(SUM(m_locks_global_acquire_count_read_shared_cnt) == 0, NaN, SUM(m_locks_global_acquire_count_read_shared_sum) / time_frame) 
+AS m_locks_global_acquire_count_read_shared_sum_per_sec,
+if(SUM(m_locks_global_acquire_count_write_shared_cnt) == 0, NaN, SUM(m_locks_global_acquire_count_write_shared_sum) / time_frame) 
+AS m_locks_global_acquire_count_write_shared_sum_per_sec,
+if(SUM(m_locks_database_acquire_count_read_shared_cnt) == 0, NaN, SUM(m_locks_database_acquire_count_read_shared_sum) / time_frame) 
+AS m_locks_database_acquire_count_read_shared_sum_per_sec,
+if(SUM(m_locks_database_acquire_wait_count_read_shared_cnt) == 0, NaN, SUM(m_locks_database_acquire_wait_count_read_shared_sum) / time_frame) 
+AS m_locks_database_acquire_wait_count_read_shared_sum_per_sec,
+if(SUM(m_locks_database_time_acquiring_micros_read_shared_cnt) == 0, NaN, SUM(m_locks_database_time_acquiring_micros_read_shared_sum) / time_frame) 
+AS m_locks_database_time_acquiring_micros_read_shared_sum_per_sec,
+if(SUM(m_locks_collection_acquire_count_read_shared_cnt) == 0, NaN, SUM(m_locks_collection_acquire_count_read_shared_sum) / time_frame) 
+AS m_locks_collection_acquire_count_read_shared_sum_per_sec,
+if(SUM(m_storage_bytes_read_cnt) == 0, NaN, SUM(m_storage_bytes_read_sum) / time_frame) AS m_storage_bytes_read_sum_per_sec,
+if(SUM(m_storage_time_reading_micros_cnt) == 0, NaN, SUM(m_storage_time_reading_micros_sum) / time_frame) AS m_storage_time_reading_micros_sum_per_sec
 
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
@@ -427,8 +489,8 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	filter, group string, dimensions, labels map[string][]string,
 ) ([]*qanv1.Point, error) {
 	// Align to minutes
-	periodStartToSec = periodStartToSec / 60 * 60
-	periodStartFromSec = periodStartFromSec / 60 * 60
+	periodStartToSec = periodStartToSec / secondsPerMinute * secondsPerMinute
+	periodStartFromSec = periodStartFromSec / secondsPerMinute * secondsPerMinute
 
 	// If time range is bigger then two hour - amount of sparklines points = 120 to avoid huge data in response.
 	// Otherwise amount of sparklines points is equal to minutes in time range to not mess up calculation.
@@ -437,15 +499,15 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	// reduce amount of point if period less then 2h.
 	if timePeriod < int64((minFullTimeFrame).Seconds()) {
 		// minimum point is 1 minute
-		amountOfPoints = timePeriod / 60
+		amountOfPoints = timePeriod / secondsPerMinute
 	}
 
 	// how many full minutes we can fit into given amount of points.
-	minutesInPoint := (periodStartToSec - periodStartFromSec) / 60 / amountOfPoints
+	minutesInPoint := (periodStartToSec - periodStartFromSec) / secondsPerMinute / amountOfPoints
 	// we need aditional point to show this minutes
-	remainder := ((periodStartToSec - periodStartFromSec) / 60) % amountOfPoints
+	remainder := ((periodStartToSec - periodStartFromSec) / secondsPerMinute) % amountOfPoints
 	amountOfPoints += remainder / minutesInPoint
-	timeFrame := minutesInPoint * 60
+	timeFrame := minutesInPoint * secondsPerMinute
 
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
@@ -533,7 +595,7 @@ const queryExampleTmpl = `
 SELECT schema AS schema, tables, service_id, service_type, queryid, explain_fingerprint, placeholders_count, example,
        is_truncated, toUInt8(example_type) AS example_type, example_metrics
   FROM metrics
- WHERE period_start >= :period_start_from AND period_start <= :period_start_to
+ WHERE period_start >= :period_start_from AND period_start <= :period_start_to AND isNotNull(example) AND example != ''
  {{ if .DimensionVal }} AND {{ .Group }} = :filter {{ end }}
  {{ if .Dimensions }}
     {{range $key, $vals := .Dimensions }}
