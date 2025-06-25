@@ -1,12 +1,19 @@
 # PostgreSQL Instances Overview Extended
 
+
+Use this dashboard to get a comprehensive overview of all your PostgreSQL instances, compare performance across services, and identify which databases need attention. 
+
+This is essential for database administrators managing multiple PostgreSQL services who need to quickly spot performance issues, resource bottlenecks, or configuration problems across their entire infrastructure. 
+
+Start here when you need to compare performance across all your databases, identify your busiest services, find instances with connection or memory pressure, or get a high-level health check of your entire PostgreSQL environment.
+
 ![!image](../../images/PMM_PostgreSQL_Instances_Overview_Extended.png)
 
 ## Overview 
 
 ### Services
 Shows how many PostgreSQL services you're currently monitoring with PMM. This gives you a quick count of all active database instances under management across your infrastructure.
-
+ 
 ### Max Active Connections  
 Shows the highest number of active connections recorded across all your monitored PostgreSQL services. 
 
