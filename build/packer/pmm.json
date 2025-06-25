@@ -94,7 +94,7 @@
         ["modifyvm", "{{.Name}}", "--cpus", "4", "--vrdeport", "5050", "--vram", "10", "--graphicscontroller", "vmsvga", "--ioapic", "on"],
         ["storagectl", "{{.Name}}", "--name", "IDE Controller", "--controller", "PIIX4", "--remove"],
         ["storagectl", "{{.Name}}", "--name", "SATA Controller", "--controller", "IntelAhci", "--portcount", "2", "--hostiocache", "on", "--bootable", "on"],
-        ["createhd", "--variant", "STREAM", "--format", "VMDK", "--size", "409600", "--filename", "/tmp/box-disk002.vmdk"],
+        ["createhd", "--variant", "STREAM", "--format", "VMDK", "--size", "10240", "--filename", "/tmp/box-disk002.vmdk"],
         ["storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "1", "--type", "hdd", "--medium", "/tmp/box-disk002.vmdk"]
       ]
     },
