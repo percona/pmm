@@ -1,8 +1,8 @@
 # PostgreSQL Checkpoints, Buffers and WAL Usage
 
-Monitors PostgreSQL's checkpoint behavior, buffer management, and Write-Ahead Log (WAL) activity to help you identify I/O bottlenecks and optimize your database performance. 
+This dashboard monitors PostgreSQL's checkpoint behavior, buffer management, and Write-Ahead Log (WAL) activity to help you identify I/O bottlenecks and optimize your database performance. 
 
-Use this dashboard to correlate checkpoint activity with disk I/O patterns and understand their impact on your storage subsystem.
+Use this to correlate checkpoint activity with disk I/O patterns and understand their impact on your storage subsystem.
 
 ![!image](../../images/PMM_PostgreSQL_Checkpoints_Buffers_WAL.png)
 

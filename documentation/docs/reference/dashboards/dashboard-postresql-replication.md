@@ -1,8 +1,8 @@
 # PostgreSQL Replication Overview 
 
-Use this dashboard to monitor PostgreSQL streaming replication health, track lag between primary and replica nodes, and identify replication issues. 
+This dashboard monitors PostgreSQL streaming replication health, tracks lag between primary and replica nodes, and identifies replication issues. 
 
-This is essential for database administrators managing high-availability PostgreSQL setups who need to verify replication status, troubleshoot lag problems, or investigate failover readiness. 
+This information  is essential for database administrators managing high-availability PostgreSQL setups who need to verify replication status, troubleshoot lag problems, or investigate failover readiness. 
 
 Start here when you need to check if your replicas are keeping up with the primary, diagnose replication conflicts, or verify your disaster recovery setup is working properly.
 
