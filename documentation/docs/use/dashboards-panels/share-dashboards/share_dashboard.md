@@ -30,6 +30,7 @@ To enable image rendering:
     ```sh
     docker run -d \
     --name renderer \
+    --network=pmm-network \
     -e IGNORE_HTTPS_ERRORS=true \
     grafana/grafana-image-renderer:latest
     ```
