@@ -30,11 +30,11 @@ Depending on your MySQL configuration — including the number of threads, volum
 
 ### What's Happening Under the Hood
 
-- **`events_statements_summary_by_digest`**  
+- `events_statements_summary_by_digest`  
   - This table stores **aggregated metrics** for each unique query (digest).  
   - Each normalized query appears **only once**, regardless of how many times it was executed.
 
-- **`events_statements_history`** (or `events_statements_history_long` in MariaDB)  
+- `events_statements_history` (or `events_statements_history_long` in MariaDB)  
   - This table stores **individual query executions**, meaning **multiple rows** can exist for the same query.  
   - It works as a **fixed-size rolling buffer** and is subject to being overwritten as new queries come in.
 
