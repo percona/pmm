@@ -25,8 +25,10 @@ func TestQuery(t *testing.T) {
 		query     string
 		truncated bool
 	}{
-		"абвг":    {"абвг", false},
-		"абвгд":   {"абвгд", false},
+		"abcd":    {"abcd", false},
+		"абвг":    {"абвг", true}, // 8 runes
+		"abcde":   {"abcde", false},
+		"абвгд":   {"абвгд", true}, // 10 runes
 		"абвгде":  {"а ...", true},
 		"абвгдеё": {"а ...", true},
 
