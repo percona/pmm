@@ -192,6 +192,12 @@ Choose one of the following methods to enable profiling:
     !!! note alert alert-primary ""
         If you have already [added a service](#add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.
 
+
+## MongoDB supports logging to a file
+Since PMM 3.3 there is new query source available for MongoDB. It is `Mongolog` and its collecting data from log files instead from profiler. For more details see:
+[`How to setup Mongolog`](./mongodb/mongolog.md)
+
+
 ## Add MongoDB service to PMM
 
 After configuring your database server, add a MongoDB service using either the user interface or the command line.
