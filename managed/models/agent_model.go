@@ -19,7 +19,6 @@ import (
 	"bytes"
 	"database/sql/driver"
 	"fmt"
-	"maps"
 	"net"
 	"net/url"
 	"strconv"
@@ -68,12 +67,12 @@ const (
 	QANMySQLPerfSchemaAgentType         AgentType = "qan-mysql-perfschema-agent"
 	QANMySQLSlowlogAgentType            AgentType = "qan-mysql-slowlog-agent"
 	QANMongoDBProfilerAgentType         AgentType = "qan-mongodb-profiler-agent"
+	QANMongoDBMongologAgentType         AgentType = "qan-mongodb-mongolog-agent"
 	QANPostgreSQLPgStatementsAgentType  AgentType = "qan-postgresql-pgstatements-agent"
 	QANPostgreSQLPgStatMonitorAgentType AgentType = "qan-postgresql-pgstatmonitor-agent"
 	ExternalExporterType                AgentType = "external-exporter"
 	VMAgentType                         AgentType = "vmagent"
 	NomadAgentType                      AgentType = "nomad-agent"
-	ValkeyExporterType                  AgentType = "valkey_exporter"
 )
 
 var v2_42 = version.MustParse("2.42.0-0")
@@ -264,25 +263,10 @@ func (c PostgreSQLOptions) IsEmpty() bool {
 		c.MaxExporterConnections == 0
 }
 
-// ValkeyOptions represents a structure for special Valkey options.
-type ValkeyOptions struct { //nolint:recvcheck
-	SSLCa   string `json:"ssl_ca"`
-	SSLCert string `json:"ssl_cert"`
-	SSLKey  string `json:"ssl_key"`
-}
-
-// Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c ValkeyOptions) Value() (driver.Value, error) { return jsonValue(c) }
-
-// Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *ValkeyOptions) Scan(src any) error { return jsonScan(c, src) }
-
-// IsEmpty returns true if all ValkeyOptions fields are unset or have zero values, otherwise returns false.
-func (c ValkeyOptions) IsEmpty() bool {
-	return c.SSLCa == "" &&
-		c.SSLCert == "" &&
-		c.SSLKey == ""
-}
+// PMMAgentWithPushMetricsSupport - version of pmmAgent,
+// that support vmagent and push metrics mode
+// will be released with PMM Agent v2.12.
+var PMMAgentWithPushMetricsSupport = version.MustParse("2.11.99")
 
 // Agent represents Agent as stored in database.
 //
@@ -320,7 +304,6 @@ type Agent struct {
 	MongoDBOptions    MongoDBOptions    `reform:"mongo_options"`
 	MySQLOptions      MySQLOptions      `reform:"mysql_options"`
 	PostgreSQLOptions PostgreSQLOptions `reform:"postgresql_options"`
-	ValkeyOptions     ValkeyOptions     `reform:"valkey_options"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -387,7 +370,9 @@ func (s *Agent) UnifiedLabels() (map[string]string, error) {
 		"agent_id":   s.AgentID,
 		"agent_type": string(s.AgentType),
 	}
-	maps.Copy(res, custom)
+	for name, value := range custom {
+		res[name] = value
+	}
 
 	if err = prepareLabels(res, true); err != nil {
 		return nil, err
@@ -541,7 +526,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		return cfg.FormatDSN()
 
-	case QANMongoDBProfilerAgentType, MongoDBExporterType:
+	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType:
 		q := make(url.Values)
 		if dsnParams.DialTimeout != 0 {
 			q.Set("connectTimeoutMS", strconv.Itoa(int(dsnParams.DialTimeout/time.Millisecond)))
@@ -754,7 +739,7 @@ func (s Agent) Files() map[string]string {
 		return nil
 	case ProxySQLExporterType:
 		return nil
-	case QANMongoDBProfilerAgentType, MongoDBExporterType:
+	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType:
 		files := make(map[string]string)
 		if s.MongoDBOptions.TLSCa != "" {
 			files[caFilePlaceholder] = s.MongoDBOptions.TLSCa

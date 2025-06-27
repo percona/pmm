@@ -33,7 +33,8 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/percona/pmm/agent/agents"
-	"github.com/percona/pmm/agent/agents/mongodb"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog"
+	mongoprofiler "github.com/percona/pmm/agent/agents/mongodb/profiler"
 	"github.com/percona/pmm/agent/agents/mysql/perfschema"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog"
 	"github.com/percona/pmm/agent/agents/noop"
@@ -576,16 +577,25 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
 			TextFiles:              builtinAgent.GetTextFiles(),
 			TLSSkipVerify:          builtinAgent.TlsSkipVerify,
+			PerfschemaRefreshRate:  cfg.PerfschemaRefreshRate,
 		}
 		agent, err = perfschema.New(params, l)
 
 	case inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:
-		params := &mongodb.Params{
+		params := &mongoprofiler.Params{
 			DSN:            dsn,
 			AgentID:        agentID,
 			MaxQueryLength: builtinAgent.MaxQueryLength,
 		}
-		agent, err = mongodb.New(params, l)
+		agent, err = mongoprofiler.New(params, l)
+
+	case inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT:
+		params := &mongolog.Params{
+			DSN:            dsn,
+			AgentID:        agentID,
+			MaxQueryLength: builtinAgent.MaxQueryLength,
+		}
+		agent, err = mongolog.New(params, l)
 
 	case inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:
 		params := &slowlog.Params{
