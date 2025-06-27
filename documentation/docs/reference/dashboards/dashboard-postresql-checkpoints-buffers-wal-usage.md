@@ -141,7 +141,7 @@ Lower values result in more conservative cleaning that may leave work for checkp
 ### BgWriter Stats Reset
 Shows when PostgreSQL last reset the background writer statistics.
 
- Use this timestamp to understand how long your current background writer metrics have been accumulating. Reset statistics after configuration changes to get clean baseline measurements for tuning.
+Use this timestamp to understand how long your current background writer metrics have been accumulating. Reset statistics after configuration changes to get clean baseline measurements for tuning.
 
 ### Buffers Read
 Monitors buffers loaded into shared memory from either page cache (memory) or disk I/O. 
