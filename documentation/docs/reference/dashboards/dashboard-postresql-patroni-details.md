@@ -155,6 +155,6 @@ Compare with Received WAL Location to identify replay lag—differences indicate
 ### WAL Replay Paused
 Displays whether WAL replay is currently paused on replica nodes with both status and cluster identification. 
 
-**False**(red) indicates normal operation, **True** (green) means replay is intentionally paused. 
+**False** (red) indicates normal operation, **True** (green) means replay is intentionally paused. 
 
 This is the inverse of the simpler **WAL Replay** panel and provides cluster context.
