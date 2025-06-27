@@ -2,7 +2,7 @@
 
 # PostreSQL Patroni Details 
 
-This ashboard provides comprehensive monitoring for PostgreSQL clusters managed by Patroni, focusing on cluster member status, replication health, and WAL (Write-Ahead Log) synchronization. 
+This dashboard provides comprehensive monitoring for PostgreSQL clusters managed by Patroni, focusing on cluster member status, replication health, and WAL (Write-Ahead Log) synchronization. 
 
 Use this dashboard when you need to monitor high-availability PostgreSQL clusters, troubleshoot replication issues, or verify cluster member roles and status.
 
