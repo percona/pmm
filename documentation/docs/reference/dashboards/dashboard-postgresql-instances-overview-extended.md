@@ -97,7 +97,7 @@ Shows the peak rate of existing tuples being modified.
 High update rates combined with low commit rates may indicate inefficient update patterns.
 
 ### Max Deleted Tuples
-Shows the highest rate of tuples being removed.Consistently high delete rates may require more frequent vacuuming to reclaim space.
+Shows the highest rate of tuples being removed. Consistently high delete rates may require more frequent vacuuming to reclaim space.
 
 ## Tuple Details
 
