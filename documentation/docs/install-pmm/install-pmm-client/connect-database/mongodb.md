@@ -192,6 +192,71 @@ Choose one of the following methods to enable profiling:
     !!! note alert alert-primary ""
         If you have already [added a service](#add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.
 
+## Configure query source for MongoDB
+
+PMM offers two methods for collecting MongoDB query analytics. Choose the one that best fits your environment:
+
+=== "Log-based collection with mongolog (recommended for scale)"
+    Since PMM 3.3.0, `mongolog` collects query metrics by parsing MongoDB's slow query logs directly from disk.
+    
+    **Best for:**
+    - high-scale environments with 100+ databases
+    - production workloads requiring minimal overhead
+    - environments experiencing connection pool exhaustion
+    - `mongos` routers or managed services with restricted `system.profile` access
+    
+    **Key advantages:**
+    - **Zero database connections** required for metrics collection
+    - **Eliminates connection pool errors** completely
+    - **Scales linearly** regardless of database count
+    - **Identical query analytics** data in PMM
+    
+    **To use mongolog**, add the `--query-source=mongolog` parameter:
+    
+    ```bash
+    pmm-admin add mongodb \
+      --query-source=mongolog \
+      --username=pmm \
+      --password=your_secure_password \
+      127.0.0.1
+    ```
+    
+    !!! note alert alert-primary "Setup required"
+        MongoDB must be configured to log slow operations to a file. See [MongoDB Log-based Query Analytics (mongolog)](./mongodb/mongolog.md) for complete setup instructions including log rotation configuration.
+
+=== "Traditional profiler (default)"
+    The standard method uses MongoDB's built-in profiler to collect query metrics from the `system.profile` collection.
+    
+    **Best for:**
+    - small to medium deployments (< 100 databases)
+    - environments with available connection pool capacity
+    - simple setups where profiler access is unrestricted
+    
+    **How it works:**
+    - queries `system.profile` collections for each database
+    - requires active database connections
+    - provides real-time query analytics
+    
+    This is the default method when adding MongoDB services to PMM.ngos` routers or managed services with restricted `system.profile` access
+    
+    **Key advantages:**
+    - **Zero database connections** required for metrics collection
+    - **Eliminates connection pool errors** completely
+    - **Scales linearly** regardless of database count
+    - **Identical query analytics** data in PMM
+    
+    **To use mongolog**, add the `--query-source=mongolog` parameter:
+    
+    ```bash
+    pmm-admin add mongodb \
+      --query-source=mongolog \
+      --username=pmm \
+      --password=your_secure_password \
+      127.0.0.1
+    ```
+    
+    !!! note alert alert-primary "Setup required"
+        MongoDB must be configured to log slow operations to a file. See [MongoDB Log-based Query Analytics (mongolog)](../connect-database/mongodb/mongolog.md) for complete setup instructions including log rotation configuration.
 
 ## MongoDB supports logging to a file
 Since PMM 3.3 there is new query source available for MongoDB. It is `Mongolog` and its collecting data from log files instead from profiler. For more details see:
