@@ -881,7 +881,11 @@ func main() { //nolint:maintidx,cyclop
 		})
 
 	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(_ context.Context) error {
-		return supervisord.StartSupervisedService("pmm-agent")
+		err := supervisord.StartSupervisedService("pmm-agent")
+		if err != nil {
+			l.Warnf("couldn't start pmm-agent: %q", err)
+		}
+		return err
 	}, func() {
 		err := supervisord.StopSupervisedService("pmm-agent")
 		if err != nil {
@@ -973,6 +977,7 @@ func main() { //nolint:maintidx,cyclop
 		VMAlertExternalRules: externalRules,
 		Updater:              updater,
 		Dus:                  dus,
+		HAService:            haService,
 		Nomad:                nomad,
 	}
 

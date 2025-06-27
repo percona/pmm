@@ -27,11 +27,11 @@ const (
 	AgentTypeMySQLdExporter                  = "AGENT_TYPE_MYSQLD_EXPORTER"
 	AgentTypeMongoDBExporter                 = "AGENT_TYPE_MONGODB_EXPORTER"
 	AgentTypePostgresExporter                = "AGENT_TYPE_POSTGRES_EXPORTER"
-	AgentTypeValkeyExporter                  = "AGENT_TYPE_VALKEY_EXPORTER"
 	AgentTypeProxySQLExporter                = "AGENT_TYPE_PROXYSQL_EXPORTER"
 	AgentTypeQANMySQLPerfSchemaAgent         = "AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT"
 	AgentTypeQANMySQLSlowlogAgent            = "AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT"
 	AgentTypeQANMongoDBProfilerAgent         = "AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT"
+	AgentTypeQANMongoDBMongologAgent         = "AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT"
 	AgentTypeQANPostgreSQLPgStatementsAgent  = "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
 	AgentTypeQANPostgreSQLPgStatMonitorAgent = "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
 	AgentTypeRDSExporter                     = "AGENT_TYPE_RDS_EXPORTER"
@@ -48,11 +48,11 @@ var agentTypeNames = map[string]string{
 	AgentTypeMySQLdExporter:                  "mysqld_exporter",
 	AgentTypeMongoDBExporter:                 "mongodb_exporter",
 	AgentTypePostgresExporter:                "postgres_exporter",
-	AgentTypeValkeyExporter:                  "valkey_exporter",
 	AgentTypeProxySQLExporter:                "proxysql_exporter",
 	AgentTypeQANMySQLPerfSchemaAgent:         "mysql_perfschema_agent",
 	AgentTypeQANMySQLSlowlogAgent:            "mysql_slowlog_agent",
 	AgentTypeQANMongoDBProfilerAgent:         "mongodb_profiler_agent",
+	AgentTypeQANMongoDBMongologAgent:         "mongodb_mongolog_agent",
 	AgentTypeQANPostgreSQLPgStatementsAgent:  "postgresql_pgstatements_agent",
 	AgentTypeQANPostgreSQLPgStatMonitorAgent: "postgresql_pgstatmonitor_agent",
 	AgentTypeRDSExporter:                     "rds_exporter",
