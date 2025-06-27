@@ -122,10 +122,10 @@ Shows the combined rate of all transactions (both commits and rollbacks) across 
 This provides an overall view of your transaction throughput.
 
 ### Max Commits Transactions
-Shows the peak rate of successful transactions.This reflects your actual productive database work.
+Shows the peak rate of successful transactions. This reflects your actual productive database work.
 
 ### Max Rollback Transactions  
-Shows the highest rate of failed transactions.High rollback rates may indicate application errors, deadlocks, or constraint violations that need investigation.
+Shows the highest rate of failed transactions. High rollback rates may indicate application errors, deadlocks, or constraint violations that need investigation.
 
 ### Max Transaction Duration
 Shows the longest running transaction currently active across all services.Long-running transactions can block other operations and should be monitored closely.
@@ -133,7 +133,7 @@ Shows the longest running transaction currently active across all services.Long-
 ### Max Number of Temp Files and  Max Size of Temp Files
 Shows when PostgreSQL creates temporary files because operations exceed available memory. 
 
-High temp file usage indicates you may need to increase work_mem or optimize queries to use less memory.
+High temp file usage indicates you may need to increase `work_mem` or optimize queries to use less memory.
 
 ## Transaction Details
 
@@ -142,7 +142,7 @@ Time series showing transaction success and failure patterns.
 
 Use these to identify services with transaction issues or unusually high failure rates.
 
-### Top 5 Duration of Active and Top 5 Duraction of Other Transactions
+### Top 5 Duration of Active and Top 5 Duration of Other Transactions
 Shows which services have the longest-running transactions. 
 
 Long-running transactions can impact performance and should be investigated, especially if they're blocking other operations.
@@ -152,7 +152,7 @@ Long-running transactions can impact performance and should be investigated, esp
 ### Top 5 Number and Top 5 Size of Temp Files
 Shows which services are creating the most temporary files or using the most temporary storage.
 
-High temp file usage indicates memory pressure—consider increasing work_mem for complex queries or adding more RAM.
+High temp file usage indicates memory pressure. Consider increasing `work_mem` for complex queries or adding more RAM.
 
 ## Conflicts & Locks
 
@@ -164,17 +164,17 @@ Some locking is normal, but excessive locks may indicate lock contention issues 
 ### Total Deadlocks
 Shows the rate of deadlocks occurring across your PostgreSQL services. 
 
-Deadlocks happen when transactions block each other—any deadlocks indicate application logic issues or transaction design problems that need fixing.
+Deadlocks happen when transactions block each other. Any deadlocks indicate application logic issues or transaction design problems that need fixing.
 
 ### Total Conflicts  
 Shows the rate of recovery conflicts across your services.
 
-Conflicts occur on standby servers when recovery processes interfere with queries—frequent conflicts may indicate you need to tune recovery settings.
+Conflicts occur on standby servers when recovery processes interfere with queries. Frequent conflicts may indicate you need to tune recovery settings.
 
 ### Min Cache Hit Ratio and Max Cache Hit Ratio
 Shows the lowest and highest cache hit ratios across your services. 
 
-Aim for 95%+ cache hit ratios—low ratios indicate insufficient shared_buffers or queries that scan too much data.
+Aim for 95%+ cache hit ratios—low ratios indicate insufficient `shared_buffers` or queries that scan too much data.
 
 ### Total Canceled Queries
 Shows the total rate of queries canceled due to various conflicts (buffer pins, deadlocks, locks, snapshots, tablespace issues).
@@ -184,7 +184,7 @@ High cancellation rates indicate system stress or configuration problems that pr
 ## Conflicts & Locks Details
 
 ### Top 5 Locks
-Shows which services currently hold the most database locks.Use this to identify services experiencing lock contention that might need query optimization or transaction restructuring.
+Shows which services currently hold the most database locks. Use this to identify services experiencing lock contention that might need query optimization or transaction restructuring.
 
 ### Locks visual
 Displays each service's current lock count as colored hexagons.
@@ -199,7 +199,9 @@ Deadlocks always indicate application issues—focus optimization efforts on ser
 ### Deadlocks visual
 Shows each service's deadlock rate as colored hexagons with thresholds.
 
-Green (low), yellow (moderate), red (high)—any non-green hexagons need immediate attention.
+- Green: Low deadlocks (normal)
+- Yellow: Moderate deadlocks (review database design and transaction logic)
+- Red: High deadlocks (immediate investigation required for locking conflicts and query optimization)
 
 ### Top 5 Conflicts
 Shows which services experience the most recovery conflicts.
@@ -207,14 +209,14 @@ Shows which services experience the most recovery conflicts.
 This is primarily relevant for standby servers—high conflicts may indicate replica lag or recovery tuning needs.
 
 ### Conflicts visual
-Displays each service's conflict rate as colored hexagons.Monitor this especially for read replicas where recovery conflicts can impact query performance.
+Displays each service's conflict rate as colored hexagons. Monitor this especially for read replicas where recovery conflicts can impact query performance.
 
 ## Cache Hit Details
 
 ### Top 5 Lowest Cache Hit Ratio
 Shows the five services with the worst cache hit ratios.
 
-Focus tuning efforts here—low cache hit ratios indicate either insufficient memory allocation or inefficient queries that scan too much data.
+Focus tuning efforts here, considering that low cache hit ratios indicate either insufficient memory allocation or inefficient queries that scan too much data.
 
 ### Cache Hit Ratio Visual
 Shows each service's cache hit ratio as colored hexagons with performance thresholds.
@@ -227,9 +229,11 @@ Red indicates poor cache performance (below 50%), yellow shows moderate performa
 Shows which services have the highest rate of canceled queries due to various conflicts.This combines all conflict types (buffer pins, deadlocks, locks, snapshots, tablespace issues) to identify services under the most stress.
 
 ### Canceled Queries 
-Displays each service's query cancellation rate as colored hexagons.
+Shows query cancellation rates for each service using colored hexagons.
 
-Green (low cancellations), yellow (moderate), red (high)—services showing yellow or red need investigation for the root cause of query cancellations.
+- Green: Low cancellations (normal)
+- Yellow: Moderate cancellations (monitor for potential issues)
+- Red: High cancellations (investigate immediately for resource constraints, timeouts, or application issues) 
 
 ## Block Operations
 
@@ -273,7 +277,7 @@ Monitor these for services experiencing unusually high I/O activity that could i
 ### Top 5 Allocated Buffers
 Shows which services are allocating the most memory buffers.
 
-High buffer allocation indicates active workloads—monitor this to understand memory usage patterns and identify services that might need more shared_buffers.
+High buffer allocation indicates active workloads. Monitor this to understand memory usage patterns and identify services that might need more `shared_buffers`.
 
 ### Allocated Buffers
 Displays each service's buffer allocation rate as hexagons.
@@ -283,7 +287,7 @@ This helps you quickly identify which services are the most memory-intensive.
 ### Top 5 Fsync Calls by a Backend
 Shows which services have backends making the most direct fsync calls.
 
-High values mean your backends are waiting for writes to finish—this suggests you need checkpoint or background writer tuning.
+High values mean your backends are waiting for writes to finish. This suggests you need checkpoint or background writer tuning.
 
 ### Fsync Calls by a Backend
 Shows each service's backend fsync rate as hexagons.
@@ -293,7 +297,7 @@ Services with high fsync rates may be experiencing I/O bottlenecks or insufficie
 ### Top 5 Written Directly by a Backend
 Shows which services have backends writing buffers directly instead of letting the background writer handle them.
 
-High backend writes indicate the background writer can't keep up—consider tuning bgwriter settings or increasing its aggressiveness.
+High backend writes indicate the background writer can't keep up—consider tuning `bgwriter` settings or increasing its aggressiveness.
 
 ### Written Directly by a Backend
 Displays each service's direct backend write rate as hexagons.
@@ -303,7 +307,7 @@ Services showing high values need background writer optimization to reduce the l
 ### Top 5 Written by the Background Writer
 Shows which services have the most active background writer activity.
 
-This is generally good—it means the background writer is proactively cleaning dirty buffers before checkpoints need to handle them.
+This is generally good, it means the background writer is proactively cleaning dirty buffers before checkpoints need to handle them.
 
 ### Written by the background writer
 Shows each service's background writer activity as hexagons. 
@@ -313,7 +317,7 @@ Higher values here (combined with lower backend writes) indicate healthy buffer 
 ### Top 5 Written During Checkpoints
 Shows which services write the most buffers during checkpoint operations.
 
-High checkpoint writes combined with low background writer activity indicates the background writer isn't keeping up—consider tuning bgwriter settings.
+High checkpoint writes combined with low background writer activity indicates the background writer isn't keeping up so consider tuning `bgwriter` settings.
 
 ### Written During Checkpoints 
 Displays each service's checkpoint buffer write activity as hexagons.
@@ -325,7 +329,7 @@ Services with consistently high checkpoint writes need background writer optimiz
 ### Top 5 Files Synchronization to Disk
 Shows which services spend the most time synchronizing files to disk during checkpoints. 
 
-High sync times indicate storage system strain—consider faster storage or checkpoint tuning to spread the load over longer periods.
+High sync times indicate storage system strain. Consider faster storage or checkpoint tuning to spread the load over longer periods.
 
 ### Files Synchronization to Disk
 Displays each service's file synchronization activity as hexagons. 
