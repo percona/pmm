@@ -52,7 +52,7 @@ Focuses specifically on active connections (currently executing queries) across 
 
 Compare this with the total connections chart to understand your active vs. idle connection ratio.
 
-##$ Active Connections
+## Active Connections
 Shows each service as a hexagon displaying the ratio of active connections to maximum allowed connections. Active connections are currently executing queries or operations. 
 
 Colors indicate connection pressure: green (healthy usage under 10%), yellow (moderate usage 50-90%), red (approaching limits over 90%). 
