@@ -87,7 +87,7 @@ Frequent requested checkpoints indicate that you should `increase max_wal_size`.
 Tracks how long PostgreSQL spends:
 
 - **Syncing files to disk**: time to `fsync` files during checkpoints
-- **Writing files to disk**: Time to write dirty buffers
+- **Writing files to disk**: time to write dirty buffers
 
 High values mean your I/O subsystem is struggling during checkpoints.
 
