@@ -427,14 +427,14 @@ nav:
         - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
         - reference/dashboards/dashboard-mongodb-PBM-details.md
       - PostgreSQL dashboards:
-        - reference/dashboards/dashboard-postresql-checkpoints-buffers-wal-usage.md
+        - reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.md
         - reference/dashboards/dashboard-postgresql-instance-summary.md
         - reference/dashboards/dashboard-postgresql-instances-compare.md
         - reference/dashboards/dashboard-postgresql-instances-overview.md
         - reference/dashboards/dashboard-postgresql-instances-overview-extended.md
-        - §reference/dashboards/dashboard-postgresql-patroni-details.md
-        - reference/dashboards/dashboard-postgresql-replication-overview.md
-        - reference/dashboards/dashboard-postgresql-top-queries.md
+        - reference/dashboards/dashboard-postgresql-patroni-details.md
+        - reference/dashboards/dashboard-postgresql-replication.md
+        - reference/dashboards/dashboard-postgresql-topqueries.md
       - ProxySQL dashboards:
         - reference/dashboards/dashboard-proxysql-instance-summary.md
       - HA dashboards:

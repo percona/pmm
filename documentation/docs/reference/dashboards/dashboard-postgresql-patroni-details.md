@@ -1,4 +1,4 @@
-# PostreSQL Patroni Details 
+# PostgreSQL Patroni Details 
 
 This dashboard provides comprehensive monitoring for PostgreSQL clusters managed by Patroni, focusing on cluster member status, replication health, and WAL (Write-Ahead Log) synchronization. 
 
@@ -86,7 +86,7 @@ A healthy cluster typically shows stable leadership with minimal transitions, ex
 
 Use this timeline to correlate leadership changes with performance issues or outages in your application.
 
-## PostreSQL
+## PostgreSQL
 
 ### PostgreSQL Version
 Shows the PostgreSQL major and minor version numbers running in your cluster. 
