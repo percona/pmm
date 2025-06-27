@@ -107,7 +107,7 @@ Time series and hexagon views showing which services are fetching the most data 
 Use these to identify services with heavy read workloads that might benefit from query optimization.
 
 ### Top 5 Returned Tuples Rate and Returned Tuples Rate  
-Shows which services are returning the most data to applications.Large differences between fetched and returned tuples may indicate inefficient queries reading more data than needed.
+Shows which services are returning the most data to applications. Large differences between fetched and returned tuples may indicate inefficient queries reading more data than needed.
 
 ### Top 5 Inserted/Updated/Deleted Tuples Rate
 These paired charts show both trending data and current rates for write operations.
