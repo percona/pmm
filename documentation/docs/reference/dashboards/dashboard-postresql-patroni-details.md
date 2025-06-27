@@ -1,5 +1,3 @@
-
-
 # PostreSQL Patroni Details 
 
 This dashboard provides comprehensive monitoring for PostgreSQL clusters managed by Patroni, focusing on cluster member status, replication health, and WAL (Write-Ahead Log) synchronization. 
@@ -18,7 +16,6 @@ Shows the current version of Patroni running on your selected service.
 Monitor this panel to ensure all nodes in your cluster run compatible Patroni versions.
 
 Version mismatches can cause unexpected behavior during failover operations or cluster management tasks. 
-
 
 ### Patroni DCS Last Seen
 Shows the last time Patroni contacted the distributed configuration store (DCS) for your selected service. 
@@ -44,7 +41,7 @@ Shows whether your selected service node operates as a replica (standby) in the 
 
 This panel displays **Yes** for replica nodes and **No** for the primary leader.
 
-This status complements the Leader panel - most nodes in your cluster should show **Yes** here.
+This status complements the Leader panel. Most nodes in your cluster should show **Yes** here.
 
 If a node shows **No** for both Leader and Replica panels, investigate the node's cluster membership status as it may be isolated or experiencing configuration issues that prevent proper cluster participation.
 
@@ -69,14 +66,14 @@ This state typically occurs during maintenance windows or when administrators pa
 ### Patroni Cluster Unlocked
 Shows whether your Patroni cluster currently operates in unlocked mode. The panel displays **Yes** for unlocked clusters or **No** for normally locked clusters.
 
-Clusters typically remain locked for safety - unlocked mode allows potentially dangerous operations. 
+Clusters typically remain locked for safety but unlocked mode allows potentially dangerous operations. 
 
 If you see **Yes** unexpectedly, verify whether someone intentionally unlocked the cluster for maintenance. Leaving clusters unlocked long-term increases the risk of accidental data loss or cluster corruption during administrative operations.
 
 ### Patroni Failsafe Mode Active
 Shows whether Patroni currently operates in failsafe mode for your cluster. This safety mechanism activates when Patroni detects potentially dangerous conditions that could compromise data integrity.
 
-Failsafe mode typically engages during network partitions, DCS connectivity issues, or other scenarios where automatic actions might cause data loss. When you see **Yes**, investigate the underlying issue immediately - your cluster may have reduced functionality or inability to perform automatic failover until the condition resolves.
+Failsafe mode typically engages during network partitions, DCS connectivity issues, or other scenarios where automatic actions might cause data loss. When you see **Yes**, investigate the underlying issue immediately. Your cluster may have reduced functionality or inability to perform automatic failover until the condition resolves.
 
 ### Patroni Nodes State
 Shows the leadership state timeline for all nodes in your cluster over the selected time range. This state timeline visualization uses color coding to track primary role transitions across your cluster nodes.
