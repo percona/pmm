@@ -1,5 +1,5 @@
 export PACKER_CACHE_DIR := .cache
-export PACKER_VERSION := 1.11.2
+export PACKER_VERSION := 1.9.4
 # check available versions at https://vagrantcloud.com/api/v2/vagrant/bento/oraclelinux-9
 export BOX_VERSION := 202502.21.0
 export PMM_SERVER_IMAGE ?= docker.io/perconalab/pmm-server:3-dev-latest
