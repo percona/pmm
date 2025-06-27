@@ -1,36 +1,36 @@
 # MongoDB Log-based Query Analytics (mongolog)
 
-PMM supports collecting MongoDB query metrics from slow query logs instead of the profiler by using the `mongolog` query source. `mongolog` parses MongoDB's slow query logs from disk in real time.
+PMM supports collecting MongoDB query metrics from slow query logs instead of the profiler by using the `mongolog` query source. Mongolog parses MongoDB's slow query logs from disk in real time.
 
 This solves connection pool exhaustion issues that occur with the traditional profiler approach, particularly in high-traffic environments with hundreds of databases.
 
 When using the standard profiler method, PMM-Agent queries compete with application traffic for database connections. In environments with 600+ databases this leads to severe errors like:
 
-`couldn't create system.profile iterator, reason: timed out while checking out a connection from connection pool: context deadline exceeded; maxPoolSize: 100, connections in use by cursors: 0, connections in use by transactions: 0, connections in use by other operations: 100`
+*couldn't create system.profile iterator, reason: timed out while checking out a connection from connection pool: context deadline exceeded; maxPoolSize: 100, connections in use by cursors: 0, connections in use by transactions: 0, connections in use by other operations: 100*
 
 This occurs because:
 
 - PMM-Agent tries to query `system.profile` collections across all databases
-- Each query consumes a connection from the pool
-- With hundreds of databases, all 100 connections get exhausted
-- New monitoring queries timeout waiting for connections, which leads to missing query analytics (QAN) data and blind spots in monitoring
+- each query consumes a connection from the pool
+- with hundreds of databases, all 100 connections get exhausted
+- new monitoring queries timeout waiting for connections, which leads to missing query analytics (QAN) data and blind spots in monitoring
 
 ## How monolog works
 
 The `mongolog` query source eliminates this problem by reading MongoDB's slow query logs directly from disk, completely bypassing database connections entirely. This file-based approach:
 
-- does not query system.profile collections
+- does not query `system.profile` collections
 - uses zero database connections for metrics collection
 - scales to any number of databases without performance degradation
 - provides identical query analytics data in PMM
 
 ## When to use mongolog
 
-Use `mongolog` when you:
+Use mongolog when you:
 
-- experience connection pool exhaustion errors (the primary use case)
+- experience connection pool exhaustion errors (primary use case)
 - manage 100+ databases on a single MongoDB instance
-- see PMM-Agent timeout errors in your logs
+- see pmm-agent timeout errors in your logs
 - need to avoid profiler performance overhead
 - work in restricted environments where `system.profile` is unavailable (mongos, managed services)
 - require consistent metrics collection without gaps
@@ -45,7 +45,7 @@ Use `mongolog` when you:
 ## Configure MongoDB
 Configure MongoDB to log slow operations to a file using either a config file or command-line flags. 
 
-This requires enabling slow operation logging (not full profiling). Only slow operation logging is required—full profiling is not needed.
+This requires enabling slow operation logging (not full profiling). Only slow operation logging is required, full profiling is not needed.
 
 === "Config file (recommended)"
     This configuration logs slow operations to a file, appends instead of overwriting, and sets the threshold to 100ms. Ensure the log file is readable by the user running the PMM Agent.
@@ -81,44 +81,36 @@ This requires enabling slow operation logging (not full profiling). Only slow op
       --slowms 100
     ```
 
-### Flag descriptions
+    **Flag descriptions**
 
-| Flag | Purpose |
-|----------------|--------------------------------------------------------|
-| `--logpath` | Enables logging to a file (required by mongolog) |
-| `--logappend` | Appends to the log file instead of overwriting |
-| `--profile 1` | Enables logging of slow operations (not full profiling). `--profile 1` only logs slow operations to file, it does **not** populate `system.profile` collection |
-| `--slowms 100` | Sets slow operation threshold (in milliseconds) |
-| `--dbpath` | Required if no config file is used |
+    | Flag | Purpose |
+    |----------------|--------------------------------------------------------|
+    | `--logpath` | Enables logging to a file (required by mongolog) |
+    | `--logappend` | Appends to the log file instead of overwriting |
+    | `--profile 1` | Enables logging of slow operations (not full profiling). `--profile 1` only logs slow operations to file, it does **not** populate `system.profile` collection |
+    | `--slowms 100` | Sets slow operation threshold (in milliseconds) |
+    | `--dbpath` | Required if no config file is used |
 
 ## Add MongoDB with mongolog to PMM
+After configuring MongoDB to log slow operations to a file, the final step is to register your instance with PMM using the mongolog query source. This tells PMM to collect query analytics from log files instead of the system profiler.
+{.power-number}
 
-### Step 1: Register MongoDB instance
+1. Register the MongoDB instance with `mongolog` as the query source. Use `--query-source=mongolog` to enable log-based query analytics, MongoDB credentials for metadata collection, and MongoDB endpoint (defaults to `127.0.0.1:27017`): 
 
-Register the MongoDB instance with `mongolog` as the query source:
-
-```bash
+```sh
 pmm-admin add mongodb \
   --query-source=mongolog \
   --username=pmm \
   --password=your_secure_password \
   127.0.0.1
 ```
+2. Verify the configuration: 
 
-**Required parameters:**
-- `--query-source=mongolog` - Enables log-based query analytics
-- `--username`, `--password` - MongoDB credentials for metadata collection
-- MongoDB host/port (127.0.0.1:27017 by default)
-
-### Step 2: Verify the configuration
-
-Check that mongolog is active:
-
-```bash
+```sh
 pmm-admin status
 ```
 
-In the output, look for `mongodb_profiler_agent` - it should show the agent is running with mongolog as the query source.
+In the output, look for `mongodb_profiler_agent`. It should show the agent is running with mongolog as the query source.
 
 ## Configure log rotation
 
@@ -146,10 +138,10 @@ Proper log rotation is critical for mongolog to continue functioning. Ensure `mo
 
 Once configured, slow query metrics from `mongolog` appear in Query Analytics (QAN) with identical functionality to profiler-based collection, regardless of which query source you choose:
 
-- Query fingerprints and statistics
-- Performance metrics and trends  
-- Database and collection breakdowns
-- Full query details and examples
+- query fingerprints and statistics
+- performance metrics and trends  
+- database and collection breakdowns
+- full query details and examples
 
 Performance impact is virtually zero since metrics are sourced from existing log files.
 
