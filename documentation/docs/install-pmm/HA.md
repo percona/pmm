@@ -27,11 +27,11 @@ Critical systems requiring sub-second failover gain the most value from PMM HA, 
 
 Choose the option that best fits your infrastructure and requirements:
 
-=== "Docker restart"
+=== "Docker (basic)"
 
-    **Best for**: Development environments, single-server deployments, teams getting started with HA.
+    **Best for**: Development environments, single-server deployments, teams wanting basic restart capabilities without true HA.
 
-    Docker's built-in restart capabilities combined with PMM's client-side data buffering provide a simple yet effective way to improve availability without complex infrastructure changes. This leverages Docker automatic container recovery and PMM Client-side data caching:
+    Docker's built-in restart capabilities combined with PMM's client-side data buffering provide basic availability improvements, but this is not a true high availability solution. This approach leverages Docker's automatic container recovery:
 
      - Docker automatically restarts the PMM Server container after crashes or system reboots.
      - PMM Clients buffer metrics locally when the server is unavailable, preventing data loss during outages.
