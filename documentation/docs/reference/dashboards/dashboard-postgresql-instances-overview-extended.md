@@ -89,7 +89,7 @@ Shows the highest rate of tuples returned to clients.
 This reflects the volume of data your applications are actually receiving from queries.
 
 ### Max Inserted Tuples
-Shows the peak rate of new tuples being inserted.Monitor this during bulk insert operations or high-volume transaction periods.
+Shows the peak rate of new tuples being inserted. Monitor this during bulk insert operations or high-volume transaction periods.
 
 ### Max Updated Tuples
 Shows the peak rate of existing tuples being modified.
