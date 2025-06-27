@@ -15,7 +15,7 @@ This occurs because:
 - with hundreds of databases, all 100 connections get exhausted
 - new monitoring queries timeout waiting for connections, which leads to missing query analytics (QAN) data and blind spots in monitoring
 
-## How monolog works
+## How mongolog works
 
 The `mongolog` query source eliminates this problem by reading MongoDB's slow query logs directly from disk, completely bypassing database connections entirely. This file-based approach:
 
@@ -95,7 +95,7 @@ This requires enabling slow operation logging (not full profiling). Only slow op
 After configuring MongoDB to log slow operations to a file, the final step is to register your instance with PMM using the mongolog query source. This tells PMM to collect query analytics from log files instead of the system profiler.
 {.power-number}
 
-1. Register the MongoDB instance with `mongolog` as the query source. Use `--query-source=mongolog` to enable log-based query analytics, MongoDB credentials for metadata collection, and MongoDB endpoint (defaults to `127.0.0.1:27017`): 
+1. Register the MongoDB instance with `mongolog` as the query source. Use `--query-source=mongolog` to enable log-based query analytics, MongoDB credentials for metadata collection, and the MongoDB endpoint (defaults to `127.0.0.1:27017`):
 
 ```sh
 pmm-admin add mongodb \
@@ -104,13 +104,7 @@ pmm-admin add mongodb \
   --password=your_secure_password \
   127.0.0.1
 ```
-2. Verify the configuration: 
-
-```sh
-pmm-admin status
-```
-
-In the output, look for `mongodb_profiler_agent`. It should show the agent is running with mongolog as the query source.
+2. Verify the configuration with `pmm-admin status`. In the output, look for `mongodb_profiler_agent`. It should show the agent is running with mongolog as the query source.
 
 ## Configure log rotation
 

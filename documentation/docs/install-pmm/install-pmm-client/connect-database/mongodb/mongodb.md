@@ -200,18 +200,20 @@ PMM offers two methods for collecting MongoDB query analytics. Choose the one th
     Since PMM 3.3.0, `mongolog` collects query metrics by parsing MongoDB's slow query logs directly from disk.
     
     **Best for:**
+
     - high-scale environments with 100+ databases
     - production workloads requiring minimal overhead
     - environments experiencing connection pool exhaustion
     - `mongos` routers or managed services with restricted `system.profile` access
     
-    **Key advantages:**
-    - **Zero database connections** required for metrics collection
-    - **Eliminates connection pool errors** completely
-    - **Scales linearly** regardless of database count
-    - **Identical query analytics** data in PMM
+    Key advantages:
+
+    - zero database connections required for metrics collection
+    - eliminates connection pool errors completely
+    - scales linearly regardless of database count
+    - identical query analytics data in PMM
     
-    **To use mongolog**, add the `--query-source=mongolog` parameter:
+    To use mongolog, add the `--query-source=mongolog` parameter:
     
     ```bash
     pmm-admin add mongodb \
@@ -228,24 +230,27 @@ PMM offers two methods for collecting MongoDB query analytics. Choose the one th
     The standard method uses MongoDB's built-in profiler to collect query metrics from the `system.profile` collection.
     
     **Best for:**
+
     - small to medium deployments (< 100 databases)
     - environments with available connection pool capacity
     - simple setups where profiler access is unrestricted
     
-    **How it works:**
+    How it works:
+
     - queries `system.profile` collections for each database
     - requires active database connections
     - provides real-time query analytics
     
     This is the default method when adding MongoDB services to PMM.ngos` routers or managed services with restricted `system.profile` access
     
-    **Key advantages:**
-    - **Zero database connections** required for metrics collection
-    - **Eliminates connection pool errors** completely
-    - **Scales linearly** regardless of database count
-    - **Identical query analytics** data in PMM
+    Key advantages:
+
+    - zero database connections** required for metrics collection
+    - eliminates connection pool errors** completely
+    - scales linearly regardless of database count
+    - identical query analytics** data in PMM
     
-    **To use mongolog**, add the `--query-source=mongolog` parameter:
+    To use mongolog, add the `--query-source=mongolog` parameter:
     
     ```bash
     pmm-admin add mongodb \
