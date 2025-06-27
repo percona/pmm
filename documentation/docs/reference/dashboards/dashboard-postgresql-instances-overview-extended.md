@@ -1,6 +1,6 @@
 # PostgreSQL Instances Overview Extended
 
-This dasgboard shows an overview of all your PostgreSQL instances, compare performance across services, and identify which databases need attention. 
+This dashboard shows an overview of all your PostgreSQL instances, compare performance across services, and identify which databases need attention. 
 
 This is essential for database administrators managing multiple PostgreSQL services who need to quickly spot performance issues, resource bottlenecks, or configuration problems across their entire infrastructure. 
 
