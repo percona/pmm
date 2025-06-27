@@ -2,7 +2,7 @@
 
 ![!image](../../images/PMM_Processes_Details.jpg)
 
-The Processes Details dashboard displays Linux process information - PIDs, Threads, and Processes.  The dashboard shows how many processes/threads are either in the kernel run queue (runnable state) or in the blocked queue (waiting for I/O). When the number of process in the runnable state is constantly higher than the number of CPU cores available, the load is CPU bound. When the number of process blocked waiting for I/O is large, the load is disk bound. The running average of the sum of these two quantities is the basis of the `loadavg` metric.
+This dashboard displays Linux process information - PIDs, Threads, and Processes.  The dashboard shows how many processes/threads are either in the kernel run queue (runnable state) or in the blocked queue (waiting for I/O). When the number of process in the runnable state is constantly higher than the number of CPU cores available, the load is CPU bound. When the number of process blocked waiting for I/O is large, the load is disk bound. The running average of the sum of these two quantities is the basis of the `loadavg` metric.
 
 The dashboard consists of two parts: the first section describes metrics for all hosts, and the second part provides charts for each host.
 
