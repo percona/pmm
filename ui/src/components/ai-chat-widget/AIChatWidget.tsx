@@ -928,13 +928,13 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
               p: 2,
             }}
           >
-            <ChatIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-            <Typography variant="h6" color="textSecondary" gutterBottom>
-              Welcome to AI Assistant
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Ask me anything! I can help with database queries, analysis, and more.
-            </Typography>
+              <ChatIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+              <Typography variant="h6" color="textSecondary" gutterBottom>
+                Welcome to AI Assistant
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Ask me anything! I can help with database queries, analysis, and more.
+              </Typography>
             {!sessionId && (
               <Typography variant="caption" color="textSecondary" sx={{ mt: 1, fontStyle: 'italic' }}>
                 Your session will be created when you send your first message
