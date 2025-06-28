@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	"gopkg.in/yaml.v3"
 )
 
-// Config represents the application configuration
+// Config contains all application configuration
 type Config struct {
-	Server ServerConfig `yaml:"server"`
-	LLM    LLMConfig    `yaml:"llm"`
-	MCP    MCPConfig    `yaml:"mcp"`
+	Server   ServerConfig   `yaml:"server"`
+	Database DatabaseConfig `yaml:"database"`
+	LLM      LLMConfig      `yaml:"llm"`
+	MCP      MCPConfig      `yaml:"mcp"`
 }
 
 // ServerConfig contains server configuration
@@ -52,12 +52,38 @@ type MCPServersConfig struct {
 	MCPServers map[string]MCPServerConfig `json:"mcpServers"`
 }
 
-// Load loads configuration from file and environment variables
+// Load loads configuration from file only (no environment variable handling)
 func Load(path string) (*Config, error) {
 	// Set defaults
-	config := &Config{
+	config := GetConfigFromDefaults()
+
+	// Try to read config file if it exists
+	if path != "" {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			if !os.IsNotExist(err) {
+				return nil, err
+			}
+			// Config file doesn't exist, use defaults
+		} else {
+			// Parse YAML if file exists
+			if err := yaml.Unmarshal(data, config); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return config, nil
+}
+
+// GetConfigFromDefaults returns configuration with default values only
+func GetConfigFromDefaults() *Config {
+	return &Config{
 		Server: ServerConfig{
 			Port: 3001,
+		},
+		Database: DatabaseConfig{
+			DSN: "postgres://ai_chat_user:ai_chat_secure_password@127.0.0.1:5432/ai_chat?sslmode=disable",
 		},
 		LLM: LLMConfig{
 			Provider:     "openai",
@@ -67,91 +93,6 @@ func Load(path string) (*Config, error) {
 		MCP: MCPConfig{
 			ServersFile: "mcp-servers.json",
 		},
-	}
-
-	// Try to read config file if it exists
-	if path != "" {
-		data, err := os.ReadFile(path)
-		if err != nil {
-			if !os.IsNotExist(err) {
-				return nil, err
-			}
-			// Config file doesn't exist, use defaults and env vars
-		} else {
-			// Parse YAML if file exists
-			if err := yaml.Unmarshal(data, config); err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	// Override with environment variables
-	loadFromEnvironment(config)
-
-	return config, nil
-}
-
-// loadFromEnvironment loads configuration from environment variables
-func loadFromEnvironment(config *Config) {
-	// Server configuration
-	if port := os.Getenv("AICHAT_PORT"); port != "" {
-		if p, err := strconv.Atoi(port); err == nil {
-			config.Server.Port = p
-		}
-	}
-	if port := os.Getenv("PORT"); port != "" {
-		if p, err := strconv.Atoi(port); err == nil {
-			config.Server.Port = p
-		}
-	}
-
-	// LLM configuration
-	if provider := os.Getenv("AICHAT_LLM_PROVIDER"); provider != "" {
-		config.LLM.Provider = provider
-	}
-	if apiKey := os.Getenv("AICHAT_API_KEY"); apiKey != "" {
-		config.LLM.APIKey = apiKey
-	}
-	if apiKey := os.Getenv("OPENAI_API_KEY"); apiKey != "" {
-		config.LLM.APIKey = apiKey
-	}
-	if apiKey := os.Getenv("GEMINI_API_KEY"); apiKey != "" {
-		config.LLM.APIKey = apiKey
-	}
-	if apiKey := os.Getenv("GOOGLE_API_KEY"); apiKey != "" {
-		config.LLM.APIKey = apiKey
-	}
-	if model := os.Getenv("AICHAT_LLM_MODEL"); model != "" {
-		config.LLM.Model = model
-	}
-	if baseURL := os.Getenv("AICHAT_LLM_BASE_URL"); baseURL != "" {
-		config.LLM.BaseURL = baseURL
-	}
-	if systemPrompt := os.Getenv("AICHAT_SYSTEM_PROMPT"); systemPrompt != "" {
-		config.LLM.SystemPrompt = systemPrompt
-	}
-
-	// LLM options from environment
-	if config.LLM.Options == nil {
-		config.LLM.Options = make(map[string]string)
-	}
-	if temp := os.Getenv("AICHAT_LLM_TEMPERATURE"); temp != "" {
-		config.LLM.Options["temperature"] = temp
-	}
-	if maxTokens := os.Getenv("AICHAT_LLM_MAX_TOKENS"); maxTokens != "" {
-		config.LLM.Options["max_tokens"] = maxTokens
-	}
-	if topP := os.Getenv("AICHAT_LLM_TOP_P"); topP != "" {
-		config.LLM.Options["top_p"] = topP
-	}
-
-	// MCP configuration
-	if serversFile := os.Getenv("AICHAT_MCP_SERVERS_FILE"); serversFile != "" {
-		config.MCP.ServersFile = serversFile
-	}
-	if serversFile := os.Getenv("AICHAT_CONFIG_FILE"); serversFile != "" {
-		// Legacy support
-		config.MCP.ServersFile = filepath.Join(filepath.Dir(serversFile), "mcp-servers.json")
 	}
 }
 
@@ -193,24 +134,4 @@ func (c *Config) GetEnabledMCPServers() (map[string]MCPServerConfig, error) {
 	}
 
 	return enabledServers, nil
-}
-
-// GetConfigFromEnv loads configuration entirely from environment variables
-func GetConfigFromEnv() *Config {
-	config := &Config{
-		Server: ServerConfig{
-			Port: 3001,
-		},
-		LLM: LLMConfig{
-			Provider:     "openai",
-			Model:        "gpt-4o-mini",
-			SystemPrompt: "You are an AI assistant for PMM (Percona Monitoring and Management), a comprehensive database monitoring and management platform. PMM supports MySQL, PostgreSQL, MongoDB, and other database technologies. You help users with database monitoring, performance optimization, query analysis, backup management, and troubleshooting database issues. When providing assistance, focus on PMM-specific features, best practices for database monitoring, and actionable insights for database performance optimization.",
-		},
-		MCP: MCPConfig{
-			ServersFile: "mcp-servers.json",
-		},
-	}
-
-	loadFromEnvironment(config)
-	return config
 }

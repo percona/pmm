@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/mark3labs/mcp-go/client"
 	"github.com/mark3labs/mcp-go/mcp"
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/models"
@@ -22,6 +22,7 @@ type MCPService struct {
 	tools   map[string]models.MCPTool
 	servers map[string]config.MCPServerConfig
 	mu      sync.RWMutex
+	l       *logrus.Entry
 }
 
 // NewMCPService creates a new MCP service
@@ -31,6 +32,7 @@ func NewMCPService(cfg *config.Config) *MCPService {
 		clients: make(map[string]client.MCPClient),
 		tools:   make(map[string]models.MCPTool),
 		servers: make(map[string]config.MCPServerConfig),
+		l:       logrus.WithField("component", "mcp-service"),
 	}
 }
 
@@ -46,12 +48,12 @@ func (s *MCPService) Initialize(ctx context.Context) error {
 	s.servers = servers
 	s.mu.Unlock()
 
-	log.Printf("Found %d enabled MCP servers to connect to", len(s.servers))
+	s.l.WithField("enabled_servers_count", len(s.servers)).Info("Initializing MCP service")
 
 	// Connect to all configured servers
 	connectedCount, connectionErrors := s.connectToAllServers(ctx, s.servers, false)
 
-	log.Printf("Successfully initialized MCP service with %d active servers", connectedCount)
+	s.l.WithField("connected_servers_count", connectedCount).Info("MCP service initialization completed")
 
 	// Log connection errors if any
 	s.logConnectionErrors(connectionErrors, "during initialization")
@@ -85,7 +87,10 @@ func (s *MCPService) connectToAllServers(ctx context.Context, servers map[string
 			defer wg.Done()
 
 			if err := s.connectToServer(ctx, name, config); err != nil {
-				log.Printf("Failed to connect to MCP server %s: %v", name, err)
+				s.l.WithFields(logrus.Fields{
+					"server_name": name,
+					"error":       err,
+				}).Error("Failed to connect to MCP server")
 				mu.Lock()
 				connectionErrors = append(connectionErrors, fmt.Errorf("server %s: %w", name, err))
 				mu.Unlock()
@@ -115,10 +120,13 @@ func (s *MCPService) closeAllClients(clearTools bool) error {
 
 	for name, client := range s.clients {
 		if err := client.Close(); err != nil {
-			log.Printf("⚠️ MCP: Failed to close existing connection to %s: %v", name, err)
+			s.l.WithFields(logrus.Fields{
+				"server_name": name,
+				"error":       err,
+			}).Warn("Failed to close existing MCP connection")
 			lastErr = err
 		} else {
-			log.Printf("Closed MCP client: %s", name)
+			s.l.WithField("server_name", name).Debug("Closed MCP client")
 		}
 	}
 	s.clients = make(map[string]client.MCPClient)
@@ -141,16 +149,22 @@ func (s *MCPService) getServerConfigs() map[string]config.MCPServerConfig {
 // logConnectionErrors logs a list of connection errors in a consistent format
 func (s *MCPService) logConnectionErrors(errors []error, context string) {
 	if len(errors) > 0 {
-		log.Printf("❌ MCP: Connection errors occurred for %d servers %s:", len(errors), context)
+		s.l.WithFields(logrus.Fields{
+			"error_count": len(errors),
+			"context":     context,
+		}).Error("MCP connection errors occurred")
 		for _, err := range errors {
-			log.Printf("  - %v", err)
+			s.l.WithField("error", err).Debug("MCP connection error detail")
 		}
 	}
 }
 
 // connectToServer establishes connection to an MCP server
 func (s *MCPService) connectToServer(ctx context.Context, serverName string, serverConfig config.MCPServerConfig) error {
-	log.Printf("Connecting to MCP server: %s (%s)", serverName, serverConfig.Description)
+	s.l.WithFields(logrus.Fields{
+		"server_name":        serverName,
+		"server_description": serverConfig.Description,
+	}).Info("Connecting to MCP server")
 
 	var mcpClient client.MCPClient
 	var err error
@@ -159,7 +173,10 @@ func (s *MCPService) connectToServer(ctx context.Context, serverName string, ser
 	// Auto-detect transport based on configuration
 	if serverConfig.URL != "" {
 		transport = "sse"
-		log.Printf("Creating SSE MCP client for URL: %s", serverConfig.URL)
+		s.l.WithFields(logrus.Fields{
+			"server_name": serverName,
+			"url":         serverConfig.URL,
+		}).Debug("Creating SSE MCP client")
 		mcpSSEClient, err := client.NewSSEMCPClient(serverConfig.URL)
 		if err != nil {
 			return fmt.Errorf("failed to create SSE MCP client: %w", err)
@@ -168,7 +185,11 @@ func (s *MCPService) connectToServer(ctx context.Context, serverName string, ser
 		mcpClient = mcpSSEClient
 	} else if serverConfig.Command != "" {
 		transport = "stdio"
-		log.Printf("Creating stdio MCP client for command: %s %v", serverConfig.Command, serverConfig.Args)
+		s.l.WithFields(logrus.Fields{
+			"server_name": serverName,
+			"command":     serverConfig.Command,
+			"args":        serverConfig.Args,
+		}).Debug("Creating stdio MCP client")
 
 		// Convert environment map to slice of strings in KEY=VALUE format
 		var envVars []string
@@ -215,14 +236,20 @@ func (s *MCPService) connectToServer(ctx context.Context, serverName string, ser
 
 	// Get available tools
 	toolCount := s.loadToolsFromServer(ctx, serverName, mcpClient)
-	log.Printf("Loaded %d tools from MCP server %s", toolCount, serverName)
+	s.l.WithFields(logrus.Fields{
+		"server_name": serverName,
+		"tool_count":  toolCount,
+	}).Debug("Loaded tools from MCP server")
 
 	// Store client (thread-safe)
 	s.mu.Lock()
 	s.clients[serverName] = mcpClient
 	s.mu.Unlock()
 
-	log.Printf("Successfully connected to MCP server: %s using %s transport", serverName, transport)
+	s.l.WithFields(logrus.Fields{
+		"server_name": serverName,
+		"transport":   transport,
+	}).Info("Successfully connected to MCP server")
 	return nil
 }
 
@@ -231,7 +258,10 @@ func (s *MCPService) loadToolsFromServer(ctx context.Context, serverName string,
 	// Get available tools
 	toolsResp, err := mcpClient.ListTools(ctx, mcp.ListToolsRequest{})
 	if err != nil {
-		log.Printf("❌ MCP: Failed to list tools for server %s: %v", serverName, err)
+		s.l.WithFields(logrus.Fields{
+			"server_name": serverName,
+			"error":       err,
+		}).Error("Failed to list tools for MCP server")
 		return 0
 	}
 
@@ -281,13 +311,13 @@ func (s *MCPService) GetTools() []models.MCPTool {
 
 // RefreshTools forces a refresh of tools from all MCP servers, reconnecting if necessary
 func (s *MCPService) RefreshTools() error {
-	log.Printf("🔄 MCP: Force refreshing tools from all MCP servers (with reconnection)")
+	s.l.Info("Force refreshing tools from all MCP servers (with reconnection)")
 
 	// Get list of server configurations
 	serverConfigs := s.getServerConfigs()
 
 	if len(serverConfigs) == 0 {
-		log.Printf("🔄 MCP: No configured servers to refresh tools from")
+		s.l.Warn("No configured servers to refresh tools from")
 		return nil
 	}
 
@@ -306,13 +336,19 @@ func (s *MCPService) RefreshTools() error {
 	totalRefreshed := len(s.tools)
 	s.mu.RUnlock()
 
-	log.Printf("🔄 MCP: Force refresh completed. Connected servers: %d, Total tools refreshed: %d", connectedCount, totalRefreshed)
+	s.l.WithFields(logrus.Fields{
+		"connected_servers": connectedCount,
+		"total_tools":       totalRefreshed,
+	}).Info("Force refresh completed")
 	return nil
 }
 
 // ExecuteTool executes a tool call on the appropriate MCP server
 func (s *MCPService) ExecuteTool(ctx context.Context, toolCall models.ToolCall) (string, error) {
-	log.Printf("🔧 MCP: Attempting to execute tool call: %s with args: %s", toolCall.Function.Name, toolCall.Function.Arguments)
+	s.l.WithFields(logrus.Fields{
+		"tool_name": toolCall.Function.Name,
+		"tool_args": toolCall.Function.Arguments,
+	}).Debug("Attempting to execute tool call")
 
 	// Parse tool name to find server (with read lock)
 	var serverName, toolName string
@@ -325,7 +361,10 @@ func (s *MCPService) ExecuteTool(ctx context.Context, toolCall models.ToolCall) 
 			// Extract server name from key (format: "server/tool")
 			serverName = key[:len(key)-len(tool.Name)-1]
 			toolName = tool.Name
-			log.Printf("🔧 MCP: Found tool %s on server %s", toolName, serverName)
+			s.l.WithFields(logrus.Fields{
+				"tool_name":   toolName,
+				"server_name": serverName,
+			}).Debug("Found tool on server")
 			break
 		}
 	}
@@ -333,7 +372,10 @@ func (s *MCPService) ExecuteTool(ctx context.Context, toolCall models.ToolCall) 
 	if serverName == "" {
 		toolNames := s.getToolNamesUnsafe() // Already under lock
 		s.mu.RUnlock()
-		log.Printf("❌ MCP: Tool not found: %s. Available tools: %v", toolCall.Function.Name, toolNames)
+		s.l.WithFields(logrus.Fields{
+			"tool_name":       toolCall.Function.Name,
+			"available_tools": toolNames,
+		}).Error("Tool not found")
 		return "", fmt.Errorf("tool not found: %s", toolCall.Function.Name)
 	}
 
@@ -342,18 +384,22 @@ func (s *MCPService) ExecuteTool(ctx context.Context, toolCall models.ToolCall) 
 	s.mu.RUnlock()
 
 	if !clientExists {
-		log.Printf("❌ MCP: Server not connected: %s", serverName)
+		s.l.WithField("server_name", serverName).Error("Server not connected")
 		return "", fmt.Errorf("MCP server not connected: %s", serverName)
 	}
 
 	// Parse arguments
 	var args map[string]interface{}
 	if err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args); err != nil {
-		log.Printf("❌ MCP: Failed to parse tool arguments: %v", err)
+		s.l.WithError(err).Error("Failed to parse tool arguments")
 		return "", fmt.Errorf("failed to parse tool arguments: %w", err)
 	}
 
-	log.Printf("🔧 MCP: Executing tool %s on server %s with args: %v", toolName, serverName, args)
+	s.l.WithFields(logrus.Fields{
+		"tool_name":   toolName,
+		"server_name": serverName,
+		"args":        args,
+	}).Debug("Executing tool on server")
 
 	// Execute tool with correct request structure
 	request := mcp.CallToolRequest{}
@@ -362,7 +408,11 @@ func (s *MCPService) ExecuteTool(ctx context.Context, toolCall models.ToolCall) 
 
 	result, err := mcpClient.CallTool(ctx, request)
 	if err != nil {
-		log.Printf("❌ MCP: Tool execution failed: %v", err)
+		s.l.WithFields(logrus.Fields{
+			"tool_name":   toolName,
+			"server_name": serverName,
+			"error":       err,
+		}).Error("Tool execution failed")
 		return "", fmt.Errorf("failed to execute tool: %w", err)
 	}
 
@@ -378,7 +428,11 @@ func (s *MCPService) ExecuteTool(ctx context.Context, toolCall models.ToolCall) 
 		}
 	}
 
-	log.Printf("✅ MCP: Tool %s executed successfully, result length: %d", toolName, len(resultStr))
+	s.l.WithFields(logrus.Fields{
+		"tool_name":     toolName,
+		"server_name":   serverName,
+		"result_length": len(resultStr),
+	}).Debug("Tool executed successfully")
 	return resultStr, nil
 }
 
@@ -407,6 +461,13 @@ func (s *MCPService) HealthCheck(ctx context.Context) map[string]bool {
 		_, err := mcpClient.ListTools(timeoutCtx, mcp.ListToolsRequest{})
 		health[name] = err == nil
 		cancel()
+
+		if err != nil {
+			s.l.WithFields(logrus.Fields{
+				"server_name": name,
+				"error":       err,
+			}).Debug("Health check failed for MCP server")
+		}
 	}
 
 	return health

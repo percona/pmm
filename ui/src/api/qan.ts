@@ -92,8 +92,32 @@ export interface QANFiltersResponse {
 
 export const getQANReport = async (request: QANReportRequest): Promise<QANReportResponse> => {
   try {
-    const response = await api.post<QANReportResponse>('/qan/metrics:getReport', request);
-    return response.data;
+    const response = await api.post<any>('/qan/metrics:getReport', request);
+    const data = response.data;
+    
+    // Handle potential field name variations and missing total_rows
+    const result: QANReportResponse = {
+      // Try both snake_case and camelCase variants, fallback to calculating from rows
+      total_rows: data.total_rows ?? data.totalRows ?? data.rows?.length ?? 0,
+      offset: data.offset ?? 0,
+      limit: data.limit ?? 0,
+      rows: data.rows ?? []
+    };
+    
+    // If total_rows is still 0 but we have rows, calculate it properly
+    if (result.total_rows === 0 && result.rows.length > 0) {
+      // Filter out TOTAL row (rank=0) and count actual query rows
+      const queryRows = result.rows.filter(row => 
+        row.fingerprint !== 'TOTAL' && row.dimension !== '' && (row.rank || 0) > 0
+      );
+      
+      // For real API responses, the total_rows should represent the total count across all pages
+      // Since we can't determine this from a single page, we'll use a reasonable estimate
+      result.total_rows = Math.max(queryRows.length, result.limit || 10);
+      
+           }
+    
+    return result;
   } catch (error) {
     console.error('QAN API error:', error);
     throw error;
@@ -124,7 +148,9 @@ export const getQANFilters = async (request: QANFiltersRequest): Promise<QANFilt
 export const getRecentQANData = async (
   hoursBack: number = 24, 
   limit: number = 10, 
-  filters?: QANLabel[]
+  filters?: QANLabel[],
+  orderBy?: string,
+  offset?: number
 ): Promise<QANReportResponse> => {
   const now = new Date();
   const startTime = new Date(now.getTime() - hoursBack * 60 * 60 * 1000);
@@ -133,13 +159,14 @@ export const getRecentQANData = async (
     period_start_from: startTime.toISOString(),
     period_start_to: now.toISOString(),
     group_by: 'queryid',
-    order_by: '-load', // Order by load descending (slowest first)
+    order_by: orderBy || '-load', // Default to load descending (slowest first)
     limit,
+    offset: offset || 0,
     columns: ['query_time', 'lock_time', 'rows_sent', 'rows_examined', 'num_queries'],
     ...(filters && filters.length > 0 && { labels: filters })
   };
   
-  console.log('🔍 QAN API Request with filters:', request);
+
   
   try {
     return await getQANReport(request);
@@ -148,9 +175,9 @@ export const getRecentQANData = async (
     
     // Return realistic mock data for development/demo purposes with multiple services
     const mockData = {
-      total_rows: 8,
-      offset: 0,
-      limit: 10,
+      total_rows: 7, // Count of actual query rows (excluding TOTAL row with rank=0)
+      offset: offset || 0,
+      limit: limit,
       rows: [
         {
           rank: 0,
@@ -541,22 +568,30 @@ export const getRecentQANData = async (
     
     // Filter mock data based on provided filters
     if (filters && filters.length > 0) {
+      const filteredRows = mockData.rows.filter(row => {
+        return filters.every(filter => {
+          if (filter.key === 'service_name') {
+            // For service_name filter, check against database field in mock data
+            return filter.value.includes(row.database);
+          }
+          // For other filters, you could add more logic here
+          return true;
+        });
+      });
+      
+      // Calculate total_rows as count of query rows (excluding TOTAL row)
+      const queryRowsCount = filteredRows.filter(row => 
+        row.fingerprint !== 'TOTAL' && row.dimension !== '' && row.rank > 0
+      ).length;
+      
       const filteredMockData = {
         ...mockData,
-        rows: mockData.rows.filter(row => {
-          return filters.every(filter => {
-            if (filter.key === 'service_name') {
-              // For service_name filter, check against database field in mock data
-              return filter.value.includes(row.database);
-            }
-            // For other filters, you could add more logic here
-            return true;
-          });
-        })
+        total_rows: queryRowsCount,
+        rows: filteredRows
       };
+      
       return filteredMockData;
     }
-    
     return mockData;
   }
 }; 

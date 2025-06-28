@@ -251,24 +251,37 @@ class AIChatAPI {
     return data;
   }
 
-  // Create a streaming connection for real-time chat
-  createStreamConnection(sessionId: string, message: string): EventSource {
-    const url = new URL(`${this.baseURL}/stream`, window.location.origin);
-    url.searchParams.set('session_id', sessionId);
-    url.searchParams.set('message', message);
-    
-    return new EventSource(url.toString());
+  // New streaming pattern: initiate stream and connect separately
+  async initiateStream(sessionId: string, message: string): Promise<{
+    stream_id: string;
+    session_id: string;
+    stream_url: string;
+  }> {
+    const response = await fetch(`${this.baseURL}/send?streaming=true`, {
+      method: 'POST',
+      headers: this.getDefaultHeaders(),
+      body: JSON.stringify({
+        message,
+        session_id: sessionId,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   }
 
-  // Stream chat with callback
-  streamChat(
-    sessionId: string,
-    message: string,
+  // Connect to an existing stream by ID
+  connectToStream(
+    streamId: string,
     onMessage: (message: StreamMessage) => void,
     onError: (error: string) => void,
     onComplete: () => void
   ): () => void {
-    const eventSource = this.createStreamConnection(sessionId, message);
+    const url = new URL(`${this.baseURL}/stream/${streamId}`, window.location.origin);
+    const eventSource = new EventSource(url.toString());
     
     eventSource.onmessage = (event) => {
       try {
@@ -298,6 +311,27 @@ class AIChatAPI {
     return () => {
       eventSource.close();
     };
+  }
+
+  // High-level method that combines initiate + connect
+  async streamChatWithSeparateEndpoints(
+    sessionId: string,
+    message: string,
+    onMessage: (message: StreamMessage) => void,
+    onError: (error: string) => void,
+    onComplete: () => void
+  ): Promise<() => void> {
+    try {
+      // Step 1: Initiate the stream
+      const streamInfo = await this.initiateStream(sessionId, message);
+      
+      // Step 2: Connect to the stream
+      return this.connectToStream(streamInfo.stream_id, onMessage, onError, onComplete);
+    } catch (error) {
+      onError(`Failed to initiate stream: ${error}`);
+      onComplete();
+      return () => {}; // Return empty cleanup function
+    }
   }
 
   // Session management methods

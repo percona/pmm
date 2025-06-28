@@ -5,34 +5,41 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"google.golang.org/genai"
 
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/models"
+	"github.com/sirupsen/logrus"
 )
 
 // GeminiProvider implements the LLMProvider interface for Google Gemini
 type GeminiProvider struct {
 	client *genai.Client
 	config config.LLMConfig
+	l      *logrus.Entry
 }
 
 // NewGeminiProvider creates a new Gemini provider
 func NewGeminiProvider(cfg config.LLMConfig) (*GeminiProvider, error) {
+	l := logrus.WithField("component", "gemini-provider")
+
+	l.WithField("model", cfg.Model).Info("Initializing Gemini provider")
+
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
 		APIKey: cfg.APIKey,
 	})
 	if err != nil {
+		l.WithError(err).Error("Failed to create Gemini client")
 		return nil, fmt.Errorf("failed to initialize Gemini client: %w", err)
 	}
 
 	return &GeminiProvider{
 		client: client,
 		config: cfg,
+		l:      l,
 	}, nil
 }
 
@@ -45,24 +52,20 @@ func (p *GeminiProvider) convertMCPToolsToGemini(tools []models.MCPTool) []*gena
 	functions := make([]*genai.FunctionDeclaration, 0, len(tools))
 
 	for _, tool := range tools {
-		log.Printf("🔧 Gemini: Converting tool %s, schema: %+v", tool.Name, tool.InputSchema)
-
 		// Convert input schema to Gemini format
 		parameters := &genai.Schema{
 			Type: genai.TypeObject,
 		}
 		m, err := json.Marshal(tool.InputSchema)
 		if err != nil {
-			log.Printf("❌ Gemini: Failed to marshal tool input schema: %v", err)
+			p.l.WithError(err).Error("Failed to marshal tool input schema")
 			continue
 		}
-		log.Printf("🔧 Gemini: Tool input schema: %s", string(m))
 		err = json.Unmarshal(m, &parameters)
 		if err != nil {
-			log.Printf("❌ Gemini: Failed to unmarshal tool input schema: %v", err)
+			p.l.WithError(err).Error("Failed to unmarshal tool input schema")
 			continue
 		}
-		log.Printf("🔧 Gemini: Tool input schema: %+v", parameters)
 
 		function := &genai.FunctionDeclaration{
 			Name:        tool.Name,
@@ -72,8 +75,6 @@ func (p *GeminiProvider) convertMCPToolsToGemini(tools []models.MCPTool) []*gena
 
 		functions = append(functions, function)
 	}
-
-	log.Printf("🔧 Gemini: Converted %d MCP tools to Gemini functions", len(functions))
 	return functions
 }
 
@@ -83,7 +84,6 @@ func (p *GeminiProvider) GenerateResponse(ctx context.Context, messages []*model
 	var toolConfig *genai.GenerateContentConfig
 	functions := p.convertMCPToolsToGemini(tools)
 	if len(functions) > 0 {
-		log.Printf("🔧 Gemini: Enabling function calling with %d functions", len(functions))
 		toolConfig = &genai.GenerateContentConfig{
 			Tools: []*genai.Tool{{
 				FunctionDeclarations: functions,
@@ -91,7 +91,6 @@ func (p *GeminiProvider) GenerateResponse(ctx context.Context, messages []*model
 			Temperature: genai.Ptr(float32(0.7)),
 		}
 	} else {
-		log.Printf("🔧 Gemini: No tools available for function calling")
 		toolConfig = &genai.GenerateContentConfig{
 			Temperature: genai.Ptr(float32(0.7)),
 		}
@@ -120,7 +119,7 @@ func (p *GeminiProvider) GenerateResponse(ctx context.Context, messages []*model
 			for _, toolCall := range msg.ToolCalls {
 				var args map[string]interface{}
 				if err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args); err != nil {
-					log.Printf("❌ Gemini: Failed to parse function arguments: %v", err)
+					p.l.WithError(err).Error("Failed to parse function arguments")
 					continue
 				}
 
@@ -137,7 +136,6 @@ func (p *GeminiProvider) GenerateResponse(ctx context.Context, messages []*model
 			// Tool results should be formatted as function responses
 			// For now, we'll convert them to text parts but ensure they have proper content
 			if msg.Content == "" {
-				log.Printf("⚠️  Gemini: Skipping empty tool result message")
 				continue
 			}
 
@@ -151,7 +149,6 @@ func (p *GeminiProvider) GenerateResponse(ctx context.Context, messages []*model
 		} else {
 			// Handle regular user or system messages
 			if msg.Content == "" {
-				log.Printf("⚠️  Gemini: Skipping empty message with role: %s", msg.Role)
 				continue
 			}
 
@@ -191,17 +188,15 @@ func (p *GeminiProvider) GenerateResponse(ctx context.Context, messages []*model
 	var content string
 	var toolCalls []models.ToolCall
 
-	for i, part := range candidate.Content.Parts {
+	for _, part := range candidate.Content.Parts {
 		if part.Text != "" {
-			log.Printf("🔧 Gemini: Found text part %d: %s", i, part.Text)
 			content += part.Text
 		}
 		if part.FunctionCall != nil {
-			log.Printf("🔧 Gemini: Found function call part %d: %s with args %+v", i, part.FunctionCall.Name, part.FunctionCall.Args)
 			// Convert to tool call
 			argsBytes, err := json.Marshal(part.FunctionCall.Args)
 			if err != nil {
-				log.Printf("❌ Gemini: Failed to marshal function arguments: %v", err)
+				p.l.WithError(err).Error("Failed to marshal function arguments")
 				continue
 			}
 
@@ -220,10 +215,6 @@ func (p *GeminiProvider) GenerateResponse(ctx context.Context, messages []*model
 		}
 	}
 
-	if len(toolCalls) > 0 {
-		log.Printf("🔧 Gemini: Detected %d tool calls in response", len(toolCalls))
-	}
-
 	return &models.Message{
 		Role:      "assistant",
 		Content:   content,
@@ -233,13 +224,10 @@ func (p *GeminiProvider) GenerateResponse(ctx context.Context, messages []*model
 
 // GenerateStreamResponse generates a streaming response using Google Gemini API
 func (p *GeminiProvider) GenerateStreamResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (<-chan *models.StreamMessage, error) {
-	log.Printf("🔄 Gemini: Starting streaming response generation")
-
 	// Convert MCP tools to Gemini functions
 	var toolConfig *genai.GenerateContentConfig
 	functions := p.convertMCPToolsToGemini(tools)
 	if len(functions) > 0 {
-		log.Printf("🔧 Gemini: Enabling function calling with %d functions", len(functions))
 		toolConfig = &genai.GenerateContentConfig{
 			Tools: []*genai.Tool{{
 				FunctionDeclarations: functions,
@@ -247,7 +235,6 @@ func (p *GeminiProvider) GenerateStreamResponse(ctx context.Context, messages []
 			Temperature: genai.Ptr(float32(0.7)),
 		}
 	} else {
-		log.Printf("🔧 Gemini: No tools available for function calling")
 		toolConfig = &genai.GenerateContentConfig{
 			Temperature: genai.Ptr(float32(0.7)),
 		}
@@ -271,7 +258,7 @@ func (p *GeminiProvider) GenerateStreamResponse(ctx context.Context, messages []
 			for _, toolCall := range msg.ToolCalls {
 				var args map[string]interface{}
 				if err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args); err != nil {
-					log.Printf("❌ Gemini: Failed to parse function arguments: %v", err)
+					p.l.WithError(err).Error("Failed to parse function arguments")
 					continue
 				}
 
@@ -288,7 +275,6 @@ func (p *GeminiProvider) GenerateStreamResponse(ctx context.Context, messages []
 			// Tool results should be formatted as function responses
 			// For now, we'll convert them to text parts but ensure they have proper content
 			if msg.Content == "" {
-				log.Printf("⚠️  Gemini: Skipping empty tool result message")
 				continue
 			}
 
@@ -302,7 +288,6 @@ func (p *GeminiProvider) GenerateStreamResponse(ctx context.Context, messages []
 		} else {
 			// Regular user or system messages
 			if msg.Content == "" {
-				log.Printf("⚠️  Gemini: Skipping empty message with role: %s", msg.Role)
 				continue
 			}
 
@@ -328,8 +313,6 @@ func (p *GeminiProvider) GenerateStreamResponse(ctx context.Context, messages []
 	go func() {
 		defer close(responseChan)
 
-		log.Printf("🔄 Gemini: Starting streaming response processing")
-		var messageCount int
 		var totalContent string
 		var detectedToolCalls []models.ToolCall
 
@@ -339,7 +322,7 @@ func (p *GeminiProvider) GenerateStreamResponse(ctx context.Context, messages []
 		// Process streaming response
 		for resp, err := range streamIter {
 			if err != nil {
-				log.Printf("❌ Gemini: Streaming error: %v", err)
+				p.l.WithError(err).Error("Streaming error")
 				responseChan <- &models.StreamMessage{
 					Type:    "error",
 					Content: "",
@@ -349,32 +332,18 @@ func (p *GeminiProvider) GenerateStreamResponse(ctx context.Context, messages []
 				return
 			}
 
-			messageCount++
-			log.Printf("📦 Gemini: Processing chunk %d with %d candidates", messageCount, len(resp.Candidates))
-
 			if len(resp.Candidates) == 0 {
-				log.Printf("⚠️  Gemini: Chunk %d has no candidates", messageCount)
 				continue
 			}
 
 			candidate := resp.Candidates[0]
 			if candidate.Content == nil || len(candidate.Content.Parts) == 0 {
-				log.Printf("⚠️  Gemini: Chunk %d has no content parts", messageCount)
 				continue
 			}
 
 			// Process parts in this chunk
-			for partIndex, part := range candidate.Content.Parts {
+			for _, part := range candidate.Content.Parts {
 				if part.Text != "" {
-					log.Printf("📝 Gemini: Chunk %d, part %d - Text content (length: %d): %s",
-						messageCount, partIndex+1, len(part.Text),
-						func() string {
-							if len(part.Text) > 50 {
-								return part.Text[:50] + "..."
-							}
-							return part.Text
-						}())
-
 					totalContent += part.Text
 					responseChan <- &models.StreamMessage{
 						Type:    "message",
@@ -383,13 +352,10 @@ func (p *GeminiProvider) GenerateStreamResponse(ctx context.Context, messages []
 					}
 				}
 				if part.FunctionCall != nil {
-					log.Printf("🔧 Gemini: Chunk %d, part %d - Function call: %s with args %+v",
-						messageCount, partIndex+1, part.FunctionCall.Name, part.FunctionCall.Args)
-
 					// Convert to tool call
 					argsBytes, err := json.Marshal(part.FunctionCall.Args)
 					if err != nil {
-						log.Printf("❌ Gemini: Failed to marshal function arguments: %v", err)
+						p.l.WithError(err).Error("Failed to marshal function arguments")
 						continue
 					}
 
@@ -407,11 +373,6 @@ func (p *GeminiProvider) GenerateStreamResponse(ctx context.Context, messages []
 					detectedToolCalls = append(detectedToolCalls, toolCall)
 				}
 			}
-
-			// Check for finish reason
-			if candidate.FinishReason != "" {
-				log.Printf("🏁 Gemini: Chunk %d finish reason: %s", messageCount, candidate.FinishReason)
-			}
 		}
 
 		// Send final message with tool calls if any were detected
@@ -422,12 +383,7 @@ func (p *GeminiProvider) GenerateStreamResponse(ctx context.Context, messages []
 			ToolCalls: detectedToolCalls,
 		}
 
-		if len(detectedToolCalls) > 0 {
-			log.Printf("🔧 Gemini: Final message includes %d tool calls", len(detectedToolCalls))
-		}
-
 		responseChan <- finalMessage
-		log.Printf("✅ Gemini: Successfully completed streaming response")
 	}()
 
 	return responseChan, nil
@@ -449,19 +405,16 @@ func (p *GeminiProvider) convertAttachmentsToGeminiParts(attachments []models.At
 			// Decode base64 content
 			imageBytes, err := base64.StdEncoding.DecodeString(attachment.Content)
 			if err != nil {
-				log.Printf("❌ Gemini: Failed to decode base64 content for %s: %v", attachment.Filename, err)
+				p.l.WithFields(logrus.Fields{
+					"filename": attachment.Filename,
+					"error":    err,
+				}).Error("Failed to decode base64 content")
 				continue
 			}
 
 			// Create image part using the correct Gemini method
 			imagePart := genai.NewPartFromBytes(imageBytes, attachment.MimeType)
 			parts = append(parts, imagePart)
-
-			log.Printf("🖼️  Gemini: Added image attachment %s (%s, %d bytes)",
-				attachment.Filename, attachment.MimeType, len(imageBytes))
-		} else {
-			log.Printf("⚠️  Gemini: Skipping non-image attachment %s (%s)",
-				attachment.Filename, attachment.MimeType)
 		}
 	}
 

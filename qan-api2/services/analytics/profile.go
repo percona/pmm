@@ -249,6 +249,9 @@ func getOrderBy(reqOrder, defaultOrder string) (string, string) {
 		orderCol = "query_time"
 		queryOrder = fmt.Sprintf("m_%s_sum %s", orderCol, direction)
 	// order by average for time metrics.
+	case reqOrder == "query_time_max":
+		orderCol = "query_time"
+		queryOrder = fmt.Sprintf("m_%s_max %s", orderCol, direction)
 	case isTimeMetric(reqOrder):
 		orderCol = reqOrder
 		queryOrder = fmt.Sprintf("m_%s_avg %s", orderCol, direction)

@@ -1,17 +1,19 @@
 package handlers
 
 import (
-	"log"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
+
+var authLogger = logrus.WithField("component", "auth-handler")
 
 // getUserID extracts user ID from X-User-ID header set by PMM auth server
 // Returns the user ID string if valid, or empty string if invalid/missing
 func getUserID(c *gin.Context) string {
 	userIDHeader := c.GetHeader("X-User-ID")
-	log.Printf("🔍 Auth: X-User-ID header: %s", userIDHeader)
+	authLogger.WithField("user_id_header", userIDHeader).Debug("Extracting user ID from header")
 	if userIDHeader == "" {
 		return ""
 	}
@@ -22,6 +24,7 @@ func getUserID(c *gin.Context) string {
 	}
 
 	// If invalid, return empty string
+	authLogger.WithField("user_id_header", userIDHeader).Warn("Invalid user ID header format")
 	return ""
 }
 

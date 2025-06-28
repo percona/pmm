@@ -5,11 +5,13 @@ export const useRecentQANData = (
   hoursBack: number = 24,
   limit: number = 10,
   filters?: QANLabel[],
+  orderBy?: string,
+  offset?: number,
   options?: Partial<UseQueryOptions<QANReportResponse>>
 ) =>
   useQuery({
-    queryKey: ['qan', 'recent', hoursBack, limit, filters],
-    queryFn: () => getRecentQANData(hoursBack, limit, filters),
+    queryKey: ['qan', 'recent', hoursBack, limit, filters, orderBy, offset],
+    queryFn: () => getRecentQANData(hoursBack, limit, filters, orderBy, offset),
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1, // Only retry once since QAN data might not be available in dev
     ...options,

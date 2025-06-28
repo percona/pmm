@@ -269,7 +269,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
         onComplete?.();
       } else {
         // Start streaming response for regular messages
-        const cleanup = aiChatAPI.streamChat(
+        const cleanup = await aiChatAPI.streamChatWithSeparateEndpoints(
           currentSessionId,
           userMessage,
           (streamMessage: StreamMessage) => {
@@ -487,7 +487,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
     onOpenChange?.(true);
   };
 
-  const handleToolApproval = (requestId: string, approvedIds?: string[]) => {
+  const handleToolApproval = async (requestId: string, approvedIds?: string[]) => {
     console.log('Tool approval:', requestId, approvedIds);
     
     // Mark this approval request as processed to hide buttons
@@ -510,7 +510,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
     let collectedToolExecutions: ToolExecution[] = [];
 
     // Use the same streaming chat endpoint
-    const cleanup = aiChatAPI.streamChat(
+    const cleanup = await aiChatAPI.streamChatWithSeparateEndpoints(
       sessionId,
       approvalMessage,
       (streamMessage: StreamMessage) => {
@@ -618,7 +618,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
     streamCleanupRef.current = cleanup;
   };
 
-  const handleToolDenial = (requestId: string) => {
+  const handleToolDenial = async (requestId: string) => {
     console.log('Tool denial:', requestId);
     
     // Mark this approval request as processed to hide buttons
@@ -638,7 +638,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
     streamingContentRef.current = '';
 
     // Use the same streaming chat endpoint
-    const cleanup = aiChatAPI.streamChat(
+    const cleanup = await aiChatAPI.streamChatWithSeparateEndpoints(
       sessionId,
       denialMessage,
       (streamMessage: StreamMessage) => {

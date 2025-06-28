@@ -3,7 +3,8 @@ package providers
 import (
 	"context"
 	"fmt"
-	"log"
+
+	"github.com/sirupsen/logrus"
 
 	openai "github.com/sashabaranov/go-openai"
 
@@ -15,6 +16,7 @@ import (
 type OpenAIProvider struct {
 	client *openai.Client
 	config config.LLMConfig
+	l      *logrus.Entry
 }
 
 // NewOpenAIProvider creates a new OpenAI provider
@@ -26,9 +28,16 @@ func NewOpenAIProvider(cfg config.LLMConfig) (*OpenAIProvider, error) {
 
 	client := openai.NewClientWithConfig(clientConfig)
 
+	l := logrus.WithField("component", "openai-provider")
+	l.WithFields(logrus.Fields{
+		"model":    cfg.Model,
+		"base_url": cfg.BaseURL,
+	}).Info("Initializing OpenAI provider")
+
 	return &OpenAIProvider{
 		client: client,
 		config: cfg,
+		l:      l,
 	}, nil
 }
 
@@ -104,13 +113,18 @@ func (p *OpenAIProvider) GenerateResponse(ctx context.Context, messages []*model
 
 	// Handle tool calls in response
 	if len(choice.Message.ToolCalls) > 0 {
-		log.Printf("🔧 OpenAI returned %d tool call(s) in response", len(choice.Message.ToolCalls))
-		toolCalls := make([]models.ToolCall, 0, len(choice.Message.ToolCalls))
-		for i, tc := range choice.Message.ToolCalls {
-			log.Printf("🔧 OpenAI tool call %d: ID=%s, Type=%s, Function=%s, Args=%s",
-				i+1, tc.ID, tc.Type, tc.Function.Name, tc.Function.Arguments)
+		p.l.WithField("tool_call_count", len(choice.Message.ToolCalls)).Debug("OpenAI returned tool calls in response")
 
-			toolCalls = append(toolCalls, models.ToolCall{
+		for i, tc := range choice.Message.ToolCalls {
+			p.l.WithFields(logrus.Fields{
+				"call_index": i + 1,
+				"call_id":    tc.ID,
+				"type":       tc.Type,
+				"function":   tc.Function.Name,
+				"arguments":  tc.Function.Arguments,
+			}).Debug("OpenAI tool call details")
+
+			message.ToolCalls = append(message.ToolCalls, models.ToolCall{
 				ID:   tc.ID,
 				Type: string(tc.Type),
 				Function: struct {
@@ -122,9 +136,8 @@ func (p *OpenAIProvider) GenerateResponse(ctx context.Context, messages []*model
 				},
 			})
 		}
-		message.ToolCalls = toolCalls
 	} else {
-		log.Printf("📝 OpenAI response (no tool calls): %s", choice.Message.Content)
+		p.l.WithField("content", choice.Message.Content).Debug("OpenAI response (no tool calls)")
 	}
 
 	return message, nil
@@ -177,7 +190,7 @@ func (p *OpenAIProvider) GenerateStreamResponse(ctx context.Context, messages []
 		defer close(responseChan)
 		defer stream.Close()
 
-		log.Printf("🔄 OpenAI: Starting streaming response processing")
+		p.l.Debug("Starting streaming response processing")
 		var messageCount int
 		var totalContent string
 
@@ -186,14 +199,20 @@ func (p *OpenAIProvider) GenerateStreamResponse(ctx context.Context, messages []
 			if err != nil {
 				if err.Error() == "EOF" {
 					// Stream ended normally
-					log.Printf("✅ OpenAI: Stream completed normally. Total chunks: %d, content length: %d", messageCount, len(totalContent))
+					p.l.WithFields(logrus.Fields{
+						"total_chunks":   messageCount,
+						"content_length": len(totalContent),
+					}).Debug("Stream completed normally")
 					responseChan <- &models.StreamMessage{
 						Type: "done",
 					}
 					return
 				}
 				// Error occurred
-				log.Printf("❌ OpenAI: Stream error after %d chunks: %v", messageCount, err)
+				p.l.WithFields(logrus.Fields{
+					"chunks_processed": messageCount,
+					"error":            err,
+				}).Error("Stream error after processing chunks")
 				responseChan <- &models.StreamMessage{
 					Type:  "error",
 					Error: err.Error(),
@@ -202,7 +221,7 @@ func (p *OpenAIProvider) GenerateStreamResponse(ctx context.Context, messages []
 			}
 
 			messageCount++
-			log.Printf("📦 OpenAI: Received chunk %d", messageCount)
+			p.l.WithField("chunk_number", messageCount).Debug("Received chunk")
 
 			if len(response.Choices) > 0 {
 				choice := response.Choices[0]
@@ -210,7 +229,11 @@ func (p *OpenAIProvider) GenerateStreamResponse(ctx context.Context, messages []
 				// Log choice details
 				if choice.Delta.Content != "" {
 					totalContent += choice.Delta.Content
-					log.Printf("📝 OpenAI: Content chunk %d (length: %d): %q", messageCount, len(choice.Delta.Content), choice.Delta.Content)
+					p.l.WithFields(logrus.Fields{
+						"chunk_number":   messageCount,
+						"content_length": len(choice.Delta.Content),
+						"content":        choice.Delta.Content,
+					}).Debug("Content chunk received")
 					responseChan <- &models.StreamMessage{
 						Type:    "message",
 						Content: choice.Delta.Content,
@@ -219,9 +242,17 @@ func (p *OpenAIProvider) GenerateStreamResponse(ctx context.Context, messages []
 
 				// Check for tool calls in streaming (OpenAI supports this)
 				if len(choice.Delta.ToolCalls) > 0 {
-					log.Printf("🔧 OpenAI: Tool calls detected in streaming chunk %d: %d calls", messageCount, len(choice.Delta.ToolCalls))
+					p.l.WithFields(logrus.Fields{
+						"chunk_number":    messageCount,
+						"tool_call_count": len(choice.Delta.ToolCalls),
+					}).Debug("Tool calls detected in streaming chunk")
+
 					for i, tc := range choice.Delta.ToolCalls {
-						log.Printf("🔧 OpenAI: Stream tool call %d: ID=%s, Function=%s", i+1, tc.ID, tc.Function.Name)
+						p.l.WithFields(logrus.Fields{
+							"call_index": i + 1,
+							"call_id":    tc.ID,
+							"function":   tc.Function.Name,
+						}).Debug("Stream tool call details")
 						responseChan <- &models.StreamMessage{
 							Type:    "tool_call",
 							Content: fmt.Sprintf("Tool call: %s", tc.Function.Name),
@@ -231,10 +262,10 @@ func (p *OpenAIProvider) GenerateStreamResponse(ctx context.Context, messages []
 
 				// Log finish reason if present
 				if choice.FinishReason != "" {
-					log.Printf("🏁 OpenAI: Stream finished with reason: %s", choice.FinishReason)
+					p.l.WithField("finish_reason", choice.FinishReason).Debug("Stream finished")
 				}
 			} else {
-				log.Printf("⚠️  OpenAI: Chunk %d has no choices", messageCount)
+				p.l.WithField("chunk_number", messageCount).Debug("Chunk has no choices")
 			}
 		}
 	}()

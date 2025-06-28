@@ -100,6 +100,7 @@ type ToolApprovalResponse struct {
 	RequestID   string   `json:"request_id"`
 	Approved    bool     `json:"approved"`
 	ApprovedIDs []string `json:"approved_ids,omitempty"` // Allow selective approval
+	UserID      string   `json:"user_id,omitempty"`      // User ID from request header
 }
 
 // StreamMessage represents a streaming chat message chunk

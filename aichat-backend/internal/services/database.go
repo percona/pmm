@@ -3,11 +3,11 @@ package services
 import (
 	"context"
 	"database/sql"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -15,89 +15,109 @@ import (
 	"github.com/percona/pmm/aichat-backend/internal/models"
 )
 
+// logrusReformLogger implements reform.Logger for logrus
+// Logs all SQL statements at Debug level, no-ops for Before/After
+// Usage: reform.NewDB(db, dialect, &logrusReformLogger{l})
+type logrusReformLogger struct {
+	l *logrus.Entry
+}
+
+func (l *logrusReformLogger) Printf(format string, args ...interface{}) {
+	l.l.Debugf(format, args...)
+}
+func (l *logrusReformLogger) Before(_ string, _ []interface{})                          {}
+func (l *logrusReformLogger) After(_ string, _ []interface{}, _ time.Duration, _ error) {}
+
 // DatabaseService handles database operations for chat sessions
+// Now supports reconnection using the stored DatabaseConfig.
 type DatabaseService struct {
 	db       *sql.DB
 	reformDB *reform.DB
 	dbConfig *config.DatabaseConfig
+	l        *logrus.Entry
 }
 
 // NewDatabaseService creates a new database service
-func NewDatabaseService(db *sql.DB) *DatabaseService {
-	log.Printf("🗄️  Database: Creating new database service")
+func NewDatabaseService(dbConfig *config.DatabaseConfig) (*DatabaseService, error) {
+	l := logrus.WithField("component", "database-service")
+	l.Info("Creating new database service")
 
-	// Test the connection immediately
-	if db != nil {
-		if err := db.Ping(); err != nil {
-			log.Printf("❌ Database: Connection test failed during service creation: %v", err)
-		} else {
-			log.Printf("✅ Database: Connection test successful during service creation")
-		}
-	} else {
-		log.Printf("❌ Database: Received nil database connection")
+	db, err := dbConfig.OpenDatabase()
+	if err != nil {
+		l.WithError(err).Error("Failed to open database connection")
+		return nil, err
 	}
 
-	// Create Reform DB instance
-	var reformDB *reform.DB
-	if db != nil {
-		reformDB = reform.NewDB(db, postgresql.Dialect, reform.NewPrintfLogger(log.Printf))
+	if err := db.Ping(); err != nil {
+		l.WithError(err).Error("Connection test failed during service creation")
+		return nil, err
 	}
+	l.Info("Connection test successful during service creation")
+
+	reformDB := reform.NewDB(db, postgresql.Dialect, &logrusReformLogger{l})
 
 	return &DatabaseService{
 		db:       db,
 		reformDB: reformDB,
-		dbConfig: config.GetDatabaseConfig(), // Store config for reconnection
-	}
+		dbConfig: dbConfig,
+		l:        l,
+	}, nil
 }
 
 // ensureConnection ensures the database connection is active, reconnecting if necessary
 func (s *DatabaseService) ensureConnection() error {
 	if s.db == nil {
-		log.Printf("🗄️  Database: Database connection is nil, attempting to establish new connection")
+		s.l.Warn("Database connection is nil, attempting to establish new connection")
 		return s.reconnect()
 	}
 
 	if err := s.db.Ping(); err != nil {
-		log.Printf("⚠️  Database: Connection ping failed (%v), attempting to reconnect", err)
+		s.l.WithError(err).Warn("Connection ping failed, attempting to reconnect")
 		return s.reconnect()
 	}
 
 	return nil
 }
 
-// reconnect establishes a new database connection
+// reconnect establishes a new database connection using the stored DatabaseConfig
 func (s *DatabaseService) reconnect() error {
-	log.Printf("🗄️  Database: Reconnecting to database...")
+	s.l.Info("Attempting to reconnect using stored DatabaseConfig...")
 
 	if s.db != nil {
-		s.db.Close() // Close existing connection
+		s.db.Close()
 	}
 
-	newDB, err := s.dbConfig.OpenDatabase()
+	db, err := s.dbConfig.OpenDatabase()
 	if err != nil {
-		log.Printf("❌ Database: Failed to reconnect: %v", err)
-		return err
+		s.l.WithError(err).Error("Failed to open new connection during reconnection")
+		return errors.Wrap(err, "failed to open new database connection during reconnection")
 	}
 
-	s.db = newDB
-	s.reformDB = reform.NewDB(newDB, postgresql.Dialect, reform.NewPrintfLogger(log.Printf))
-	log.Printf("✅ Database: Successfully reconnected to database")
+	if err := db.Ping(); err != nil {
+		db.Close()
+		s.l.WithError(err).Error("Ping failed on new connection during reconnection")
+		return errors.Wrap(err, "failed to ping new database connection during reconnection")
+	}
+
+	s.db = db
+	s.reformDB = reform.NewDB(db, postgresql.Dialect, &logrusReformLogger{s.l})
+	s.l.Info("Successfully reconnected to database")
 	return nil
 }
 
 // CreateSession creates a new chat session for a user
 func (s *DatabaseService) CreateSession(ctx context.Context, userID, title string) (*models.ChatSession, error) {
-	log.Printf("🗄️  Database: Creating session for user %s with title '%s'", userID, title)
+	s.l.WithFields(logrus.Fields{"user_id": userID, "title": title}).Info("Creating session for user")
 
 	// Test database connection before proceeding
 	if err := s.ensureConnection(); err != nil {
-		log.Printf("❌ Database: Connection failed in CreateSession: %v", err)
+		s.l.WithError(err).Error("Connection failed in CreateSession")
 		return nil, errors.Wrap(err, "database connection failed")
 	}
-	log.Printf("✅ Database: Connection successful in CreateSession")
+	s.l.Info("Connection successful in CreateSession")
 
 	sessionID := uuid.New().String()
-	log.Printf("🗄️  Database: Generated session ID: %s", sessionID)
+	s.l.WithField("session_id", sessionID).Debug("Generated session ID")
 
 	session := &models.ChatSession{
 		ID:     sessionID,
@@ -105,15 +125,15 @@ func (s *DatabaseService) CreateSession(ctx context.Context, userID, title strin
 		Title:  title,
 	}
 
-	log.Printf("🗄️  Database: Inserting session with ID=%s, userID=%s, title=%s", sessionID, userID, title)
+	s.l.WithFields(logrus.Fields{"session_id": sessionID, "user_id": userID, "title": title}).Debug("Inserting session")
 
 	err := s.reformDB.WithContext(ctx).Insert(session)
 	if err != nil {
-		log.Printf("❌ Database: Failed to create chat session: %v", err)
+		s.l.WithError(err).Error("Failed to create chat session")
 		return nil, errors.Wrap(err, "failed to create chat session")
 	}
 
-	log.Printf("✅ Database: Successfully created session: %s", session.ID)
+	s.l.WithField("session_id", session.ID).Info("Successfully created session")
 	return session, nil
 }
 
@@ -121,7 +141,7 @@ func (s *DatabaseService) CreateSession(ctx context.Context, userID, title strin
 func (s *DatabaseService) GetSession(ctx context.Context, sessionID, userID string) (*models.ChatSession, error) {
 	// Ensure database connection is active
 	if err := s.ensureConnection(); err != nil {
-		log.Printf("❌ Database: Connection failed in GetSession: %v", err)
+		s.l.WithError(err).Error("Connection failed in GetSession")
 		return nil, errors.Wrap(err, "database connection failed")
 	}
 
@@ -334,8 +354,14 @@ func (s *DatabaseService) SaveMessage(ctx context.Context, sessionID string, msg
 		}
 	}
 
-	// Update session timestamp
-	_, err = tx.Exec("UPDATE chat_sessions SET updated_at = $1 WHERE id = $2", time.Now(), sessionID)
+	// Update session timestamp using Reform
+	session := &models.ChatSession{ID: sessionID}
+	err = tx.Reload(session)
+	if err != nil {
+		return errors.Wrap(err, "failed to reload session for timestamp update")
+	}
+
+	err = tx.Update(session)
 	if err != nil {
 		return errors.Wrap(err, "failed to update session timestamp")
 	}
@@ -490,20 +516,27 @@ func (s *DatabaseService) ClearSessionMessages(ctx context.Context, sessionID, u
 	}
 	defer tx.Rollback()
 
-	// Delete attachments first
-	_, err = tx.Exec("DELETE FROM chat_attachments WHERE message_id IN (SELECT id FROM chat_messages WHERE session_id = $1)", sessionID)
+	// Delete attachments first using Reform bulk delete
+	_, err = tx.DeleteFrom(models.ChatAttachmentTable,
+		"WHERE message_id IN (SELECT id FROM chat_messages WHERE session_id = $1)",
+		sessionID)
 	if err != nil {
 		return errors.Wrap(err, "failed to delete chat attachments")
 	}
 
-	// Delete messages
-	_, err = tx.Exec("DELETE FROM chat_messages WHERE session_id = $1", sessionID)
+	// Delete messages using Reform bulk delete
+	_, err = tx.DeleteFrom(models.ChatMessageTable, "WHERE session_id = $1", sessionID)
 	if err != nil {
 		return errors.Wrap(err, "failed to delete chat messages")
 	}
 
-	// Update session timestamp
-	_, err = tx.Exec("UPDATE chat_sessions SET updated_at = $1 WHERE id = $2", time.Now(), sessionID)
+	// Update session timestamp by fetching and updating the session record
+	session, err := s.GetSession(ctx, sessionID, userID)
+	if err != nil {
+		return errors.Wrap(err, "failed to get session for update")
+	}
+
+	err = tx.Update(session)
 	if err != nil {
 		return errors.Wrap(err, "failed to update session timestamp")
 	}
@@ -518,9 +551,9 @@ func (s *DatabaseService) GetPendingApprovals(ctx context.Context, sessionID str
 		return nil, errors.Wrap(err, "database connection failed")
 	}
 
-	// Query messages with unprocessed approval requests
+	// Query messages with unprocessed approval requests using Reform SelectAllFrom
 	structs, err := s.reformDB.WithContext(ctx).SelectAllFrom(models.ChatMessageTable,
-		"WHERE session_id = $1 AND approval_request IS NOT NULL AND approval_request->>'processed' = 'false'",
+		"WHERE session_id = $1 AND approval_request IS NOT NULL AND (approval_request->>'processed')::boolean = false",
 		sessionID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get pending approvals")
@@ -549,14 +582,33 @@ func (s *DatabaseService) MarkApprovalProcessed(ctx context.Context, sessionID, 
 		return errors.Wrap(err, "database connection failed")
 	}
 
-	// Update the approval_request field to mark as processed
-	_, err := s.reformDB.Exec(
-		"UPDATE chat_messages SET approval_request = jsonb_set(approval_request, '{processed}', 'true') WHERE session_id = $1 AND approval_request->>'request_id' = $2",
+	// Find the message with the approval request using Reform
+	structs, err := s.reformDB.WithContext(ctx).SelectAllFrom(models.ChatMessageTable,
+		"WHERE session_id = $1 AND approval_request->>'request_id' = $2",
 		sessionID, requestID)
 	if err != nil {
-		return errors.Wrap(err, "failed to mark approval as processed")
+		return errors.Wrap(err, "failed to find approval request")
 	}
 
-	log.Printf("💾 Database: Marked approval request %s as processed", requestID)
+	if len(structs) == 0 {
+		return errors.New("approval request not found")
+	}
+
+	// Update the approval request using Reform
+	chatMsg := structs[0].(*models.ChatMessage)
+	if chatMsg.ApprovalRequest != nil {
+		chatMsg.ApprovalRequest.Processed = true
+		err = s.reformDB.WithContext(ctx).Update(chatMsg)
+		if err != nil {
+			return errors.Wrap(err, "failed to mark approval as processed")
+		}
+	}
+
+	s.l.WithField("request_id", requestID).Info("Marked approval request as processed")
 	return nil
+}
+
+// DB returns the underlying *sql.DB instance.
+func (s *DatabaseService) DB() *sql.DB {
+	return s.db
 }

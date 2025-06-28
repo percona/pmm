@@ -388,6 +388,9 @@ func (m *Mcp) responseActionOutput(ctx context.Context, actionID string) (*mcpgo
 			}
 			if action.Done {
 				m.l.WithField("action_id", actionID).Infof("Action completed with output: %s", action.Output)
+				if action.Error != "" {
+					return nil, fmt.Errorf("action failed: %s", action.Error)
+				}
 				return &mcpgo.CallToolResult{
 					Content: []mcpgo.Content{
 						mcpgo.TextContent{

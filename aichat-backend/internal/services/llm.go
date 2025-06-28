@@ -3,7 +3,8 @@ package services
 import (
 	"context"
 	"fmt"
-	"log"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/models"
@@ -21,10 +22,13 @@ type LLMProvider interface {
 type LLMService struct {
 	provider providers.LLMProvider
 	config   config.LLMConfig
+	l        *logrus.Entry
 }
 
 // NewLLMService creates a new LLM service with the appropriate provider
 func NewLLMService(cfg config.LLMConfig) *LLMService {
+	l := logrus.WithField("component", "llm-service")
+
 	var provider providers.LLMProvider
 	var err error
 
@@ -45,19 +49,29 @@ func NewLLMService(cfg config.LLMConfig) *LLMService {
 	}
 
 	if err != nil {
-		fmt.Printf("Warning: Failed to initialize %s provider: %v\n", cfg.Provider, err)
+		l.WithFields(logrus.Fields{
+			"provider": cfg.Provider,
+			"error":    err,
+		}).Warn("Failed to initialize LLM provider")
 		// Return service with nil provider - will fail gracefully at runtime
+	} else {
+		l.WithField("provider", cfg.Provider).Info("LLM service initialized")
 	}
 
 	return &LLMService{
 		provider: provider,
 		config:   cfg,
+		l:        l,
 	}
 }
 
 // GenerateResponse generates a response from the configured LLM provider
 func (s *LLMService) GenerateResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (*models.Message, error) {
-	log.Printf("🤖 LLM: Generating response using provider: %s, messages: %d, tools: %d", s.config.Provider, len(messages), len(tools))
+	s.l.WithFields(logrus.Fields{
+		"provider":      s.config.Provider,
+		"message_count": len(messages),
+		"tool_count":    len(tools),
+	}).Debug("Generating response using LLM provider")
 
 	if s.provider == nil {
 		return nil, fmt.Errorf("LLM provider not initialized")
@@ -65,17 +79,24 @@ func (s *LLMService) GenerateResponse(ctx context.Context, messages []*models.Me
 
 	response, err := s.provider.GenerateResponse(ctx, messages, tools)
 	if err != nil {
-		log.Printf("❌ LLM: Response generation failed: %v", err)
+		s.l.WithError(err).Error("Response generation failed")
 		return nil, err
 	}
 
-	log.Printf("✅ LLM: Response generated successfully, content length: %d, tool calls: %d", len(response.Content), len(response.ToolCalls))
+	s.l.WithFields(logrus.Fields{
+		"content_length": len(response.Content),
+		"tool_calls":     len(response.ToolCalls),
+	}).Debug("Response generated successfully")
 	return response, nil
 }
 
 // GenerateStreamResponse generates a streaming response from the configured LLM provider
 func (s *LLMService) GenerateStreamResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (<-chan *models.StreamMessage, error) {
-	log.Printf("🌊 LLM: Starting streaming response using provider: %s, messages: %d, tools: %d", s.config.Provider, len(messages), len(tools))
+	s.l.WithFields(logrus.Fields{
+		"provider":      s.config.Provider,
+		"message_count": len(messages),
+		"tool_count":    len(tools),
+	}).Debug("Starting streaming response using LLM provider")
 
 	if s.provider == nil {
 		return nil, fmt.Errorf("LLM provider not initialized")
@@ -83,11 +104,11 @@ func (s *LLMService) GenerateStreamResponse(ctx context.Context, messages []*mod
 
 	streamChan, err := s.provider.GenerateStreamResponse(ctx, messages, tools)
 	if err != nil {
-		log.Printf("❌ LLM: Streaming response failed to start: %v", err)
+		s.l.WithError(err).Error("Streaming response failed to start")
 		return nil, err
 	}
 
-	log.Printf("✅ LLM: Streaming response started successfully")
+	s.l.Debug("Streaming response started successfully")
 	return streamChan, nil
 }
 

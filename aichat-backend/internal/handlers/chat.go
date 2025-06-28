@@ -29,6 +29,37 @@ func NewChatHandler(chatService *services.ChatService) *ChatHandler {
 	}
 }
 
+// collectStreamResponse collects stream messages into a single ChatResponse
+func (h *ChatHandler) collectStreamResponse(streamChan <-chan *models.StreamMessage, sessionID string) *models.ChatResponse {
+	var content strings.Builder
+	var toolExecutions []models.ToolExecution
+
+	for streamMsg := range streamChan {
+		if streamMsg.Content != "" {
+			content.WriteString(streamMsg.Content)
+		}
+		if len(streamMsg.ToolExecutions) > 0 {
+			toolExecutions = append(toolExecutions, streamMsg.ToolExecutions...)
+		}
+	}
+
+	message := &models.Message{
+		ID:        fmt.Sprintf("collected_%d", time.Now().UnixNano()),
+		Role:      "assistant",
+		Content:   content.String(),
+		Timestamp: time.Now(),
+	}
+
+	if len(toolExecutions) > 0 {
+		message.ToolExecutions = toolExecutions
+	}
+
+	return &models.ChatResponse{
+		Message:   message,
+		SessionID: sessionID,
+	}
+}
+
 // SendMessage handles POST /v1/chat/send
 func (h *ChatHandler) SendMessage(c *gin.Context) {
 	var request models.ChatRequest
@@ -39,24 +70,57 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 		return
 	}
 
+	// Check if streaming is requested
+	streaming := c.Query("streaming") == "true"
+
 	// Get user ID from authentication header
 	userID, ok := requireUserID(c)
 	if !ok {
 		return // Error response already sent by requireUserID
 	}
 
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 30*time.Second)
-	defer cancel()
+	if streaming {
+		// For streaming requests, use background context with timeout so streams don't live forever
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute) //nolint:lostcancel
 
-	response, err := h.chatService.ProcessMessageWithUser(ctx, userID, request.SessionID, request.Message)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": fmt.Sprintf("Failed to process message: %v", err),
+		// For streaming requests, initiate the stream and return stream info
+		streamID, err := h.chatService.InitiateStreamForUser(ctx, userID, request.SessionID, request.Message)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": fmt.Sprintf("Failed to initiate stream: %v", err),
+			})
+			cancel()
+			return
+		}
+
+		go func() {
+			<-ctx.Done()
+			cancel()
+			h.chatService.GetStreamManager().CloseStream(streamID)
+		}()
+
+		c.JSON(http.StatusOK, gin.H{
+			"stream_id":  streamID,
+			"session_id": request.SessionID,
+			"stream_url": fmt.Sprintf("/v1/chat/stream/%s", streamID),
 		})
-		return
-	}
+	} else {
+		// Non-streaming request - use request context so it cancels if client disconnects
+		ctx := c.Request.Context()
 
-	c.JSON(http.StatusOK, response)
+		// Non-streaming request - get stream channel and collect all results
+		streamChan, err := h.chatService.ProcessStreamMessageForUser(ctx, userID, request.SessionID, request.Message)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": fmt.Sprintf("Failed to process message: %v", err),
+			})
+			return
+		}
+
+		// Collect all stream messages into a complete response
+		response := h.collectStreamResponse(streamChan, request.SessionID)
+		c.JSON(http.StatusOK, response)
+	}
 }
 
 // ClearHistory handles DELETE /v1/chat/clear
@@ -81,7 +145,8 @@ func (h *ChatHandler) ClearHistory(c *gin.Context) {
 	})
 }
 
-// StreamChat handles GET /v1/chat/stream (Server-Sent Events)
+// StreamChat handles GET /v1/chat/stream (Server-Sent Events) - Legacy endpoint
+// Note: For new implementations, use POST /v1/chat/send?streaming=true + GET /v1/chat/stream/{streamId}
 func (h *ChatHandler) StreamChat(c *gin.Context) {
 	sessionID := c.Query("session_id")
 	message := c.Query("message")
@@ -105,7 +170,8 @@ func (h *ChatHandler) StreamChat(c *gin.Context) {
 	c.Header("Connection", "keep-alive")
 	c.Header("Access-Control-Allow-Origin", "*")
 
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 60*time.Second)
+	// Use background context with timeout for streaming - don't tie to HTTP request lifecycle but prevent infinite streams
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 
 	// Process streaming message
@@ -114,6 +180,55 @@ func (h *ChatHandler) StreamChat(c *gin.Context) {
 		// Send error as SSE
 		c.SSEvent("error", gin.H{
 			"error": "Failed to process message: " + err.Error(),
+		})
+		return
+	}
+
+	// Stream responses
+	for streamMsg := range streamChan {
+		data, _ := json.Marshal(streamMsg)
+		c.SSEvent("message", string(data))
+		c.Writer.Flush()
+
+		// Check if client disconnected
+		if streamMsg.Type == "done" || streamMsg.Type == "error" {
+			break
+		}
+	}
+}
+
+// StreamByID handles GET /v1/chat/stream/{streamId} (Server-Sent Events)
+func (h *ChatHandler) StreamByID(c *gin.Context) {
+	streamID := c.Param("streamId")
+	if streamID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "stream ID is required",
+		})
+		return
+	}
+
+	// Get user ID from authentication header
+	userID, ok := requireUserID(c)
+	if !ok {
+		return // Error response already sent by requireUserID
+	}
+
+	// Set headers for SSE
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Cache-Control", "no-cache")
+	c.Header("Connection", "keep-alive")
+	c.Header("Access-Control-Allow-Origin", "*")
+
+	// Use background context with timeout for connecting to stream
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+
+	// Connect to existing stream
+	streamChan, err := h.chatService.ConnectToStream(ctx, userID, streamID)
+	cancel() // Cancel immediately after connecting, the stream itself has its own timeout
+	if err != nil {
+		// Send error as SSE
+		c.SSEvent("error", gin.H{
+			"error": "Failed to connect to stream: " + err.Error(),
 		})
 		return
 	}
@@ -241,14 +356,14 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 		Attachments: attachments,
 	}
 
+	// Check if streaming is requested
+	streaming := c.Query("streaming") == "true"
+
 	// Get user ID from authentication header
 	userID, ok := requireUserID(c)
 	if !ok {
 		return // Error response already sent by requireUserID
 	}
-
-	ctx, cancel := context.WithTimeout(c.Request.Context(), 30*time.Second)
-	defer cancel()
 
 	// Convert attachments to pointer slice for the service method
 	var attachmentPtrs []*models.Attachment
@@ -256,13 +371,60 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 		attachmentPtrs = append(attachmentPtrs, &attachments[i])
 	}
 
-	response, err := h.chatService.ProcessMessageWithAttachmentsForUser(ctx, userID, request.SessionID, request.Message, attachmentPtrs)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": fmt.Sprintf("Failed to process message: %v", err),
-		})
-		return
-	}
+	if streaming {
+		// For streaming requests, use background context with timeout so streams don't live forever
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+		defer cancel()
 
-	c.JSON(http.StatusOK, response)
+		// For streaming requests with files, initiate the stream and return stream info
+		// Note: We could extend InitiateStreamForUser to support attachments, but for now use a different approach
+		streamChan, err := h.chatService.ProcessStreamMessageWithAttachmentsForUser(ctx, userID, request.SessionID, request.Message, attachmentPtrs)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": fmt.Sprintf("Failed to initiate stream: %v", err),
+			})
+			return
+		}
+
+		// For file uploads with streaming, we'll store and return a stream ID
+		streamID := fmt.Sprintf("file_stream_%s_%d", userID, time.Now().UnixNano())
+		h.chatService.GetStreamManager().StoreStream(streamID, userID, streamChan)
+
+		c.JSON(http.StatusOK, gin.H{
+			"stream_id":  streamID,
+			"session_id": request.SessionID,
+			"stream_url": fmt.Sprintf("/v1/chat/stream/%s", streamID),
+		})
+	} else {
+		// Non-streaming request - use request context so it cancels if client disconnects
+		ctx := c.Request.Context()
+
+		// Handle tool approval/denial messages - these need special handling
+		if strings.HasPrefix(request.Message, "[APPROVE_TOOLS:") || strings.HasPrefix(request.Message, "[DENY_TOOLS:") {
+			// For tool approval messages, use the regular stream processing
+			streamChan, err := h.chatService.ProcessStreamMessageForUser(ctx, userID, request.SessionID, request.Message)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": fmt.Sprintf("Failed to process message: %v", err),
+				})
+				return
+			}
+			response := h.collectStreamResponse(streamChan, request.SessionID)
+			c.JSON(http.StatusOK, response)
+			return
+		}
+
+		// Non-streaming request - get stream channel and collect all results
+		streamChan, err := h.chatService.ProcessStreamMessageWithAttachmentsForUser(ctx, userID, request.SessionID, request.Message, attachmentPtrs)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": fmt.Sprintf("Failed to process message: %v", err),
+			})
+			return
+		}
+
+		// Collect all stream messages into a complete response
+		response := h.collectStreamResponse(streamChan, request.SessionID)
+		c.JSON(http.StatusOK, response)
+	}
 }

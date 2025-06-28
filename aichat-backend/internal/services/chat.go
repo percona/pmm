@@ -3,26 +3,31 @@ package services
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/percona/pmm/aichat-backend/internal/models"
 )
 
-// ChatService handles chat conversations and coordinates LLM and MCP services
+// ChatService manages chat sessions and coordinates with LLM and MCP services
 type ChatService struct {
 	llmProvider      LLMProvider
 	mcp              *MCPService
 	database         *DatabaseService
+	streamManager    *StreamManager
 	userSessions     map[string]map[string]*ChatSession // userID -> sessionID -> session
 	systemPrompt     string
 	pendingApprovals map[string]*models.ToolApprovalRequest // requestID -> approval request
-	mu               sync.RWMutex
+	sessionsMu       sync.RWMutex                           // Protects userSessions
+	approvalsMu      sync.RWMutex                           // Protects pendingApprovals
+	promptMu         sync.RWMutex                           // Protects systemPrompt
+	l                *logrus.Entry                          // Logger with component field
 }
 
-// ChatSession represents an active chat session
+// ChatSession represents a chat session for a user
 type ChatSession struct {
 	ID       string
 	UserID   string
@@ -37,33 +42,68 @@ func NewChatService(llmProvider LLMProvider, mcp *MCPService, database *Database
 		llmProvider:      llmProvider,
 		mcp:              mcp,
 		database:         database,
+		streamManager:    NewStreamManager(),
 		userSessions:     make(map[string]map[string]*ChatSession),
 		systemPrompt:     "",
 		pendingApprovals: make(map[string]*models.ToolApprovalRequest),
+		l:                logrus.WithField("component", "chat-service"),
 	}
 }
 
 // SetSystemPrompt sets the system prompt for the chat service
 func (s *ChatService) SetSystemPrompt(prompt string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.promptMu.Lock()
+	defer s.promptMu.Unlock()
 	s.systemPrompt = prompt
 }
 
-// ProcessMessageWithUser processes a user message and generates a response for a specific user
-func (s *ChatService) ProcessMessageWithUser(ctx context.Context, userID, sessionID, userMessage string) (*models.ChatResponse, error) {
-	return s.ProcessMessageWithAttachmentsForUser(ctx, userID, sessionID, userMessage, nil)
+// InitiateStreamForUser initiates a streaming conversation and returns a stream ID
+func (s *ChatService) InitiateStreamForUser(ctx context.Context, userID, sessionID, userMessage string) (string, error) {
+	s.l.WithFields(logrus.Fields{
+		"user_id":    userID,
+		"session_id": sessionID,
+	}).Debug("Initiating stream for user")
+
+	// Create a unique stream ID
+	streamID := fmt.Sprintf("stream_%s_%d", userID, time.Now().UnixNano())
+
+	// Start the stream processing in the background
+	streamChan, err := s.ProcessStreamMessageForUser(ctx, userID, sessionID, userMessage)
+	if err != nil {
+		return "", err
+	}
+
+	// Store the stream channel for later retrieval using StreamManager
+	s.streamManager.StoreStream(streamID, userID, streamChan)
+
+	s.l.WithField("stream_id", streamID).Debug("Stream initiated successfully")
+	return streamID, nil
+}
+
+// ConnectToStream connects to an existing stream by ID
+func (s *ChatService) ConnectToStream(ctx context.Context, userID, streamID string) (<-chan *models.StreamMessage, error) {
+	s.l.WithFields(logrus.Fields{
+		"user_id":   userID,
+		"stream_id": streamID,
+	}).Debug("Connecting to stream")
+
+	// Use StreamManager to connect to the stream
+	return s.streamManager.ConnectToStream(ctx, userID, streamID)
 }
 
 // ProcessStreamMessageForUser processes a user message and returns a streaming response for a specific user
 func (s *ChatService) ProcessStreamMessageForUser(ctx context.Context, userID, sessionID, userMessage string) (<-chan *models.StreamMessage, error) {
-	log.Printf("🚀 Chat: Starting stream processing for user %s, session %s, message: %q", userID, sessionID, userMessage)
+	s.l.WithFields(logrus.Fields{
+		"user_id":     userID,
+		"session_id":  sessionID,
+		"message_len": len(userMessage),
+	}).Debug("Starting stream processing for user")
 
 	// Check if this is a tool approval message
 	if strings.HasPrefix(userMessage, "[APPROVE_TOOLS:") && strings.HasSuffix(userMessage, "]") {
 		// Extract request ID
 		requestID := strings.TrimSuffix(strings.TrimPrefix(userMessage, "[APPROVE_TOOLS:"), "]")
-		log.Printf("🔧 Chat: Detected tool approval message for request: %s", requestID)
+		s.l.WithField("request_id", requestID).Debug("Detected tool approval message")
 
 		// Process tool approval directly in streaming
 		return s.processToolApprovalInStreamForUser(ctx, userID, sessionID, requestID, true)
@@ -72,18 +112,21 @@ func (s *ChatService) ProcessStreamMessageForUser(ctx context.Context, userID, s
 	if strings.HasPrefix(userMessage, "[DENY_TOOLS:") && strings.HasSuffix(userMessage, "]") {
 		// Extract request ID
 		requestID := strings.TrimSuffix(strings.TrimPrefix(userMessage, "[DENY_TOOLS:"), "]")
-		log.Printf("🔧 Chat: Detected tool denial message for request: %s", requestID)
+		s.l.WithField("request_id", requestID).Debug("Detected tool denial message")
 
 		// Process tool denial directly in streaming
 		return s.processToolApprovalInStreamForUser(ctx, userID, sessionID, requestID, false)
 	}
 
-	s.mu.Lock()
+	s.sessionsMu.Lock()
 	session := s.getOrCreateSessionForUser(userID, sessionID)
 	actualSessionID := session.ID // Get the actual session ID (might be different if generated)
-	s.mu.Unlock()
+	s.sessionsMu.Unlock()
 
-	log.Printf("📋 Chat: Using session ID: %s (original: %s)", actualSessionID, sessionID)
+	s.l.WithFields(logrus.Fields{
+		"actual_session_id": actualSessionID,
+		"original_session":  sessionID,
+	}).Debug("Using session for processing")
 
 	// Add user message to session
 	userMsg := &models.Message{
@@ -95,11 +138,14 @@ func (s *ChatService) ProcessStreamMessageForUser(ctx context.Context, userID, s
 
 	s.addMessageToSession(ctx, actualSessionID, session, userMsg)
 
-	log.Printf("📝 Chat: Added user message to session, total messages: %d", len(session.Messages))
+	s.l.WithFields(logrus.Fields{
+		"session_id":     actualSessionID,
+		"total_messages": len(session.Messages),
+	}).Debug("Added user message to session")
 
 	// Get available tools
 	tools := s.mcp.GetTools()
-	log.Printf("🔧 Chat: Retrieved %d available tools for streaming", len(tools))
+	s.l.WithField("tool_count", len(tools)).Debug("Retrieved available tools for streaming")
 
 	// Prepare messages with system prompt
 	preparedMessages := s.prepareMessagesWithSystemPrompt(session.Messages)
@@ -107,11 +153,11 @@ func (s *ChatService) ProcessStreamMessageForUser(ctx context.Context, userID, s
 	// Generate streaming response from LLM
 	streamChan, err := s.llmProvider.GenerateStreamResponse(ctx, preparedMessages, tools)
 	if err != nil {
-		log.Printf("❌ Chat: Failed to start LLM streaming: %v", err)
+		s.l.WithError(err).Error("Failed to start LLM streaming")
 		return nil, err
 	}
 
-	log.Printf("✅ Chat: LLM streaming started successfully")
+	s.l.Debug("LLM streaming started successfully")
 
 	// Create output channel
 	outputChan := make(chan *models.StreamMessage, 10)
@@ -119,16 +165,16 @@ func (s *ChatService) ProcessStreamMessageForUser(ctx context.Context, userID, s
 	// Process stream
 	go func() {
 		defer close(outputChan)
-		defer log.Printf("🏁 Chat: Stream processing completed for session %s", actualSessionID)
+		defer s.l.WithField("session_id", actualSessionID).Debug("Stream processing completed")
 
 		var fullContent string
 		var messageCount int
 
-		log.Printf("🔄 Chat: Starting stream message processing loop")
+		s.l.Debug("Starting stream message processing loop")
 
 		s.handleStreamMessage(ctx, actualSessionID, session, streamChan, outputChan, &fullContent, tools, &messageCount)
 
-		log.Printf("⚠️  Chat: Stream channel closed without 'done' message")
+		s.l.Warn("Stream channel closed without 'done' message")
 	}()
 
 	return outputChan, nil
@@ -141,15 +187,15 @@ func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string,
 		(*messageCount)++
 		streamMsg.SessionID = sessionID
 
-		log.Printf("📦 Chat: Processing stream message %d, type: %s", *messageCount, streamMsg.Type)
+		s.l.WithField("stream_message_count", *messageCount).Debug("Processing stream message")
 
 		if streamMsg.Type == "message" {
 			*fullContent += streamMsg.Content
-			log.Printf("📝 Chat: Accumulated content length: %d", len(*fullContent))
+			s.l.WithField("accumulated_content_length", len(*fullContent)).Debug("Accumulated content length")
 			outputChan <- streamMsg
 		} else if streamMsg.Type == "tool_call" {
 			// Handle tool calls in streaming - collect them for execution after stream completes
-			log.Printf("🔧 Chat: Streaming tool call detected: %s", streamMsg.Content)
+			s.l.WithField("streaming_tool_call", streamMsg.Content).Debug("Streaming tool call detected")
 
 			// Parse tool call from content (format: "Function call: toolname(args)")
 			if strings.HasPrefix(streamMsg.Content, "Function call: ") {
@@ -161,7 +207,10 @@ func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string,
 					funcName := funcCallStr[:parenIndex]
 					argsStr := strings.TrimSuffix(funcCallStr[parenIndex+1:], ")")
 
-					log.Printf("🔧 Chat: Parsing streaming tool call - function: %s, args: %s", funcName, argsStr)
+					s.l.WithFields(logrus.Fields{
+						"function_name": funcName,
+						"function_args": argsStr,
+					}).Debug("Parsing streaming tool call")
 
 					// Create tool call object for later execution
 					toolCall := models.ToolCall{
@@ -177,7 +226,7 @@ func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string,
 					}
 
 					streamToolCalls = append(streamToolCalls, toolCall)
-					log.Printf("🔧 Chat: Collected tool call for later execution: %s (total: %d)", funcName, len(streamToolCalls))
+					s.l.WithField("collected_tool_call", funcName).Debug("Collected tool call for later execution")
 
 					// Send notification to user that tool will be executed
 					outputChan <- &models.StreamMessage{
@@ -186,24 +235,28 @@ func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string,
 						SessionID: sessionID,
 					}
 				} else {
-					log.Printf("❌ Chat: Invalid tool call format: %s", funcCallStr)
+					s.l.WithField("invalid_tool_call_format", funcCallStr).Error("Invalid tool call format")
 				}
 			} else {
-				log.Printf("❌ Chat: Unexpected tool call format: %s", streamMsg.Content)
+				s.l.WithField("unexpected_tool_call_format", streamMsg.Content).Error("Unexpected tool call format")
 			}
 		} else if streamMsg.Type == "error" {
-			log.Printf("❌ Chat: Streaming error: %s", streamMsg.Error)
+			s.l.WithField("error", streamMsg.Error).Error("Streaming error")
 			outputChan <- streamMsg
 			return
 		} else if streamMsg.Type == "done" {
 			// Check if the done message includes tool calls (Gemini style)
 			if len(streamMsg.ToolCalls) > 0 {
-				log.Printf("🔧 Chat: Done message includes %d tool calls from LLM", len(streamMsg.ToolCalls))
+				s.l.WithField("tool_calls_in_done_message", len(streamMsg.ToolCalls)).Debug("Done message includes tool calls from LLM")
 				streamToolCalls = append(streamToolCalls, streamMsg.ToolCalls...)
 			}
 
-			log.Printf("✅ Chat: Stream completed. Total messages: %d, content length: %d, tool calls: %d",
-				*messageCount, len(*fullContent), len(streamToolCalls))
+			s.l.WithFields(logrus.Fields{
+				"session_id":     sessionID,
+				"total_messages": *messageCount,
+				"content_length": len(*fullContent),
+				"tool_calls":     len(streamToolCalls),
+			}).Debug("Stream completed")
 
 			// Save complete message to session
 			assistantMsg := &models.Message{
@@ -216,7 +269,7 @@ func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string,
 
 			s.addMessageToSession(ctx, sessionID, session, assistantMsg)
 
-			log.Printf("💾 Chat: Saved assistant message to session, total messages: %d", len(session.Messages))
+			s.l.WithField("session_id", sessionID).Debug("Saved assistant message to session")
 
 			// Generate and update session title if this is the first exchange (2 messages: user + assistant)
 			// Note: We need to count only user/assistant messages, not tool approval messages
@@ -258,7 +311,7 @@ func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string,
 
 			// Handle tool calls if present (request approval instead of executing immediately)
 			if len(streamToolCalls) > 0 {
-				log.Printf("🔧 Chat: Requesting approval for %d tool call(s) from streaming response", len(streamToolCalls))
+				s.l.WithField("tool_calls_in_streaming_response", len(streamToolCalls)).Debug("Requesting approval for tool calls from streaming response")
 
 				// Generate approval request ID
 				requestID := fmt.Sprintf("approval_%d", time.Now().UnixNano())
@@ -271,9 +324,9 @@ func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string,
 				}
 
 				// Store pending approval
-				s.mu.Lock()
+				s.approvalsMu.Lock()
 				s.pendingApprovals[requestID] = approvalRequest
-				s.mu.Unlock()
+				s.approvalsMu.Unlock()
 
 				// Create tool approval message in chat history
 				approvalMsg := &models.Message{
@@ -304,7 +357,7 @@ func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string,
 			} else {
 				// Check if the response content suggests tool usage without proper tool calls
 				if s.detectToolCallAttempts(*fullContent) {
-					log.Printf("⚠️  Chat: Streaming response suggests tool usage but no tool calls were detected. Content: %s", *fullContent)
+					s.l.WithField("streaming_response_content", *fullContent).Warn("Streaming response suggests tool usage but no tool calls were detected")
 				}
 
 				// Send done message for non-tool responses
@@ -314,15 +367,15 @@ func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string,
 				}
 			}
 		} else {
-			log.Printf("🤔 Chat: Unknown stream message type: %s", streamMsg.Type)
+			s.l.WithField("unknown_stream_message_type", streamMsg.Type).Warn("Unknown stream message type")
 		}
 	}
 }
 
 // ClearHistoryForUser clears chat history for a specific user's session
 func (s *ChatService) ClearHistoryForUser(userID, sessionID string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.sessionsMu.Lock()
+	defer s.sessionsMu.Unlock()
 
 	userSessions, exists := s.userSessions[userID]
 	if !exists {
@@ -342,7 +395,7 @@ func (s *ChatService) getOrCreateSessionForUser(userID, sessionID string) *ChatS
 	// If no sessionID provided, generate a new one
 	if sessionID == "" {
 		sessionID = fmt.Sprintf("session_%d", time.Now().UnixNano())
-		log.Printf("🆕 Chat: Generated new session ID: %s for user: %s", sessionID, userID)
+		s.l.WithField("generated_session_id", sessionID).Debug("Generated new session ID")
 	}
 
 	// Ensure user sessions map exists
@@ -361,7 +414,7 @@ func (s *ChatService) getOrCreateSessionForUser(userID, sessionID string) *ChatS
 	dbSession, err := s.database.GetSession(ctx, sessionID, userID)
 	if err == nil {
 		// Session exists in database, load it into memory
-		log.Printf("💾 Chat: Loaded existing session from database: %s", sessionID)
+		s.l.WithField("loaded_session_id", sessionID).Debug("Loaded existing session from database")
 		session = &ChatSession{
 			ID:       dbSession.ID,
 			UserID:   dbSession.UserID,
@@ -378,13 +431,13 @@ func (s *ChatService) getOrCreateSessionForUser(userID, sessionID string) *ChatS
 	}
 
 	// Session doesn't exist, create new one
-	log.Printf("🆕 Chat: Creating new session in database: %s for user: %s", sessionID, userID)
+	s.l.WithField("created_session_id", sessionID).Debug("Creating new session in database")
 
 	// Create session in database first with a temporary title
 	defaultTitle := fmt.Sprintf("Chat - %s", time.Now().Format("Jan 2, 2006 at 3:04 PM"))
 	dbSession, err = s.database.CreateSession(ctx, userID, defaultTitle)
 	if err != nil {
-		log.Printf("❌ Chat: Failed to create session in database: %v", err)
+		s.l.WithError(err).Error("Failed to create session in database")
 		// Fallback to in-memory session
 		session = &ChatSession{
 			ID:       sessionID,
@@ -395,7 +448,7 @@ func (s *ChatService) getOrCreateSessionForUser(userID, sessionID string) *ChatS
 		}
 	} else {
 		// Use the session created in database
-		log.Printf("✅ Chat: Successfully created session in database: %s", dbSession.ID)
+		s.l.WithField("created_session_id", dbSession.ID).Debug("Successfully created session in database")
 		session = &ChatSession{
 			ID:       dbSession.ID,
 			UserID:   dbSession.UserID,
@@ -411,48 +464,13 @@ func (s *ChatService) getOrCreateSessionForUser(userID, sessionID string) *ChatS
 	return session
 }
 
-// isTextFile checks if the MIME type represents a text file
-func (s *ChatService) isTextFile(mimeType string) bool {
-	textTypes := []string{
-		"text/plain",
-		"text/html",
-		"text/css",
-		"text/javascript",
-		"text/xml",
-		"application/json",
-		"application/xml",
-		"application/yaml",
-		"application/x-yaml",
-		"text/yaml",
-		"text/x-yaml",
-		"text/markdown",
-		"text/x-markdown",
-	}
-
-	for _, textType := range textTypes {
-		if strings.Contains(mimeType, textType) {
-			return true
-		}
-	}
-
-	// Also check for common programming language extensions
-	if strings.Contains(mimeType, "text/") ||
-		strings.Contains(mimeType, "application/javascript") ||
-		strings.Contains(mimeType, "application/typescript") {
-		return true
-	}
-
-	return false
-}
-
-// isImageFile checks if the MIME type represents an image file
-func (s *ChatService) isImageFile(mimeType string) bool {
-	return strings.HasPrefix(mimeType, "image/")
-}
-
 // prepareMessagesWithSystemPrompt prepares messages for LLM with system prompt
 func (s *ChatService) prepareMessagesWithSystemPrompt(messages []*models.Message) []*models.Message {
-	if s.systemPrompt == "" {
+	s.promptMu.RLock()
+	systemPrompt := s.systemPrompt
+	s.promptMu.RUnlock()
+
+	if systemPrompt == "" {
 		return messages
 	}
 
@@ -470,7 +488,7 @@ func (s *ChatService) prepareMessagesWithSystemPrompt(messages []*models.Message
 		currentTime.UTC().Format("2006-01-02T15:04:05Z"),
 		currentTime.UTC().Format(time.RFC3339))
 
-	enhancedSystemPrompt := s.systemPrompt + timeContext
+	enhancedSystemPrompt := systemPrompt + timeContext
 
 	// Create system message
 	systemMsg := &models.Message{
@@ -490,66 +508,116 @@ func (s *ChatService) prepareMessagesWithSystemPrompt(messages []*models.Message
 
 // executeToolCalls executes a list of tool calls and returns tool executions and result messages
 func (s *ChatService) executeToolCalls(ctx context.Context, toolCalls []models.ToolCall, session *ChatSession) ([]models.ToolExecution, []*models.Message) {
+	if len(toolCalls) == 0 {
+		return nil, nil
+	}
+
+	s.l.WithField("tool_calls_count", len(toolCalls)).Debug("Executing tool calls in parallel")
+
+	// Create channels for results
+	type toolResult struct {
+		execution models.ToolExecution
+		message   *models.Message
+		index     int
+	}
+
+	resultChan := make(chan toolResult, len(toolCalls))
+	var wg sync.WaitGroup
+
+	// Execute all tools in parallel
+	for i, toolCall := range toolCalls {
+		wg.Add(1)
+		go func(index int, tc models.ToolCall) {
+			defer wg.Done()
+
+			s.l.WithFields(logrus.Fields{
+				"tool_call_index": index + 1,
+				"tool_call_id":    tc.ID,
+				"tool_call_type":  tc.Type,
+				"tool_call_name":  tc.Function.Name,
+				"tool_call_args":  tc.Function.Arguments,
+			}).Debug("Executing tool call")
+
+			// Track tool execution
+			startTime := time.Now()
+			toolExecution := models.ToolExecution{
+				ID:        tc.ID,
+				ToolName:  tc.Function.Name,
+				Arguments: tc.Function.Arguments,
+				StartTime: startTime,
+			}
+
+			// Execute tool
+			toolResultStr, err := s.mcp.ExecuteTool(ctx, tc)
+			endTime := time.Now()
+			toolExecution.EndTime = endTime
+			toolExecution.Duration = endTime.Sub(startTime).Milliseconds()
+
+			if err != nil {
+				s.l.WithError(err).Error("Tool execution failed")
+				toolExecution.Error = err.Error()
+				toolResultStr = fmt.Sprintf("Error executing tool: %v", err)
+			} else {
+				s.l.WithField("tool_execution_result_length", len(toolResultStr)).Debug("Tool execution successful")
+			}
+
+			toolExecution.Result = toolResultStr
+
+			// Add tool result as a message
+			toolMsg := &models.Message{
+				ID:        fmt.Sprintf("tool_%s", tc.ID),
+				Role:      "tool",
+				Content:   toolResultStr,
+				Timestamp: time.Now(),
+			}
+
+			// Send result through channel
+			resultChan <- toolResult{
+				execution: toolExecution,
+				message:   toolMsg,
+				index:     index,
+			}
+		}(i, toolCall)
+	}
+
+	// Wait for all tools to complete
+	go func() {
+		wg.Wait()
+		close(resultChan)
+	}()
+
+	// Collect results in original order
+	results := make([]toolResult, len(toolCalls))
+	for result := range resultChan {
+		results[result.index] = result
+	}
+
+	// Extract executions and messages in order
 	var toolExecutions []models.ToolExecution
 	var toolMessages []*models.Message
 
-	for i, toolCall := range toolCalls {
-		log.Printf("🔧 Tool call %d: ID=%s, Type=%s, Function=%s, Args=%s",
-			i+1, toolCall.ID, toolCall.Type, toolCall.Function.Name, toolCall.Function.Arguments)
-
-		// Track tool execution
-		startTime := time.Now()
-		toolExecution := models.ToolExecution{
-			ID:        toolCall.ID,
-			ToolName:  toolCall.Function.Name,
-			Arguments: toolCall.Function.Arguments,
-			StartTime: startTime,
-		}
-
-		// Execute tool
-		toolResult, err := s.mcp.ExecuteTool(ctx, toolCall)
-		endTime := time.Now()
-		toolExecution.EndTime = endTime
-		toolExecution.Duration = endTime.Sub(startTime).Milliseconds()
-
-		if err != nil {
-			log.Printf("❌ Tool execution failed for %s: %v", toolCall.Function.Name, err)
-			toolExecution.Error = err.Error()
-			toolResult = fmt.Sprintf("Error executing tool: %v", err)
-		} else {
-			log.Printf("✅ Tool execution successful for %s, result length: %d", toolCall.Function.Name, len(toolResult))
-		}
-
-		toolExecution.Result = toolResult
-		toolExecutions = append(toolExecutions, toolExecution)
-
-		// Add tool result as a message
-		toolMsg := &models.Message{
-			ID:        fmt.Sprintf("tool_%s", toolCall.ID),
-			Role:      "tool",
-			Content:   toolResult,
-			Timestamp: time.Now(),
-		}
-
-		toolMessages = append(toolMessages, toolMsg)
+	for _, result := range results {
+		toolExecutions = append(toolExecutions, result.execution)
+		toolMessages = append(toolMessages, result.message)
 
 		// Add to session and save to database
-		s.addMessageToSession(ctx, session.ID, session, toolMsg)
+		s.addMessageToSession(ctx, session.ID, session, result.message)
 	}
 
+	s.l.WithField("completed_tool_calls_count", len(toolExecutions)).Debug("Completed parallel execution of tools")
 	return toolExecutions, toolMessages
 }
 
 // ProcessToolApproval processes user's approval/denial of tool execution
 func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.ToolApprovalResponse) (<-chan *models.StreamMessage, error) {
-	log.Printf("🔧 Chat: Processing tool approval for request %s, approved: %t", approval.RequestID, approval.Approved)
+	s.l.WithField("request_id", approval.RequestID).Debug("Processing tool approval for request")
 
-	s.mu.Lock()
+	s.approvalsMu.Lock()
 	approvalRequest, exists := s.pendingApprovals[approval.RequestID]
 	if exists {
 		delete(s.pendingApprovals, approval.RequestID)
 	}
-	s.mu.Unlock()
+	s.approvalsMu.Unlock()
 
 	if !exists {
 		return nil, fmt.Errorf("approval request %s not found or expired", approval.RequestID)
@@ -563,7 +631,7 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 		defer close(outputChan)
 
 		if !approval.Approved {
-			log.Printf("❌ Chat: Tool execution denied by user for request %s", approval.RequestID)
+			s.l.WithField("request_id", approval.RequestID).Warn("Tool execution denied by user")
 			outputChan <- &models.StreamMessage{
 				Type:      "message",
 				Content:   "❌ Tool execution was denied by user.",
@@ -576,12 +644,16 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 			return
 		}
 
-		log.Printf("✅ Chat: Tool execution approved by user for request %s", approval.RequestID)
+		s.l.WithField("request_id", approval.RequestID).Debug("Tool execution approved by user")
 
-		// Get session for context
-		s.mu.Lock()
-		session := s.getOrCreateSessionForUser("default-user", approval.SessionID)
-		s.mu.Unlock()
+		s.sessionsMu.Lock()
+		session := s.getOrCreateSessionForUser(approval.UserID, approval.SessionID)
+		s.sessionsMu.Unlock()
+
+		s.l.WithFields(logrus.Fields{
+			"session_id": approval.SessionID,
+			"user_id":    approval.UserID,
+		}).Debug("Using session for user")
 
 		// Determine which tools to execute (all or selective)
 		toolsToExecute := approvalRequest.ToolCalls
@@ -598,7 +670,7 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 			}
 		}
 
-		log.Printf("🔧 Chat: Executing %d approved tool(s)", len(toolsToExecute))
+		s.l.WithField("tool_calls_to_execute_count", len(toolsToExecute)).Debug("Executing approved tool(s)")
 
 		// Execute approved tools using common method
 		toolExecutions, toolMessages := s.executeToolCalls(ctx, toolsToExecute, session)
@@ -616,17 +688,17 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 		// Only mark approval as processed if all tool executions were successful
 		if allSuccessful {
 			if err := s.database.MarkApprovalProcessed(ctx, approval.SessionID, approval.RequestID); err != nil {
-				log.Printf("⚠️ Chat: Failed to mark approval as processed in database: %v", err)
+				s.l.WithError(err).Warn("Failed to mark approval as processed in database")
 				// Continue processing even if database update fails
 			} else {
-				log.Printf("✅ Chat: Marked approval %s as processed after successful tool execution", approval.RequestID)
+				s.l.WithField("request_id", approval.RequestID).Debug("Marked approval as processed after successful tool execution")
 			}
 		} else {
-			log.Printf("❌ Chat: Not marking approval %s as processed due to failed tool executions: %v", approval.RequestID, failedTools)
+			s.l.WithField("failed_tools", failedTools).Warn("Not marking approval as processed due to failed tool executions")
 		}
 
 		// Add tool executions to the last assistant message
-		s.mu.Lock()
+		s.sessionsMu.Lock()
 		if len(session.Messages) > 0 {
 			lastMsg := session.Messages[len(session.Messages)-1]
 			if lastMsg.Role == "assistant" {
@@ -638,7 +710,7 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 		// Get updated messages for LLM
 		allMessages := make([]*models.Message, len(session.Messages))
 		copy(allMessages, session.Messages)
-		s.mu.Unlock()
+		s.sessionsMu.Unlock()
 
 		// Send tool execution information to the frontend
 		executionStatus := "successful"
@@ -647,12 +719,12 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 		}
 		outputChan <- &models.StreamMessage{
 			Type:           "tool_execution",
-			Content:        fmt.Sprintf("🔧 Executed %d tool(s) (%s)", len(toolExecutions), executionStatus),
+			Content:        fmt.Sprintf("�� Executed %d tool(s) (%s)", len(toolExecutions), executionStatus),
 			SessionID:      approval.SessionID,
 			ToolExecutions: toolExecutions,
 		}
 
-		log.Printf("🔧 Chat: Getting LLM follow-up response with %d tool results", len(toolMessages))
+		s.l.WithField("tool_results_count", len(toolMessages)).Debug("Getting LLM follow-up response with tool results")
 
 		// Send notification that LLM is processing results
 		outputChan <- &models.StreamMessage{
@@ -668,7 +740,7 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 		preparedMessages := s.prepareMessagesWithSystemPrompt(allMessages)
 		followUpChan, err := s.llmProvider.GenerateStreamResponse(ctx, preparedMessages, tools)
 		if err != nil {
-			log.Printf("❌ Chat: Failed to get follow-up response: %v", err)
+			s.l.WithError(err).Error("Failed to get follow-up response")
 			outputChan <- &models.StreamMessage{
 				Type:      "error",
 				Error:     fmt.Sprintf("Failed to get follow-up response: %v", err),
@@ -692,13 +764,19 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 
 // processToolApprovalInStreamForUser processes tool approval within the streaming flow for a specific user
 func (s *ChatService) processToolApprovalInStreamForUser(ctx context.Context, userID, sessionID, requestID string, approved bool) (<-chan *models.StreamMessage, error) {
-	log.Printf("🔧 Chat: Processing tool approval in stream for user %s, session %s, request %s, approved: %t", userID, sessionID, requestID, approved)
+	s.l.WithFields(logrus.Fields{
+		"user_id":    userID,
+		"session_id": sessionID,
+		"request_id": requestID,
+		"approved":   approved,
+	}).Debug("Processing tool approval in stream for user")
 
 	// Create the approval response structure and delegate to ProcessToolApproval
 	approval := &models.ToolApprovalResponse{
 		SessionID: sessionID,
 		RequestID: requestID,
 		Approved:  approved,
+		UserID:    userID,
 	}
 
 	return s.ProcessToolApproval(ctx, approval)
@@ -707,6 +785,13 @@ func (s *ChatService) processToolApprovalInStreamForUser(ctx context.Context, us
 // Close closes the chat service and cleans up resources
 func (s *ChatService) Close() error {
 	var errs []error
+
+	// Close StreamManager
+	if s.streamManager != nil {
+		if err := s.streamManager.Close(); err != nil {
+			errs = append(errs, fmt.Errorf("failed to close StreamManager: %w", err))
+		}
+	}
 
 	// Close LLM service
 	if s.llmProvider != nil {
@@ -723,9 +808,9 @@ func (s *ChatService) Close() error {
 	}
 
 	// Clear sessions
-	s.mu.Lock()
+	s.sessionsMu.Lock()
 	s.userSessions = make(map[string]map[string]*ChatSession)
-	s.mu.Unlock()
+	s.sessionsMu.Unlock()
 
 	// Return combined errors if any
 	if len(errs) > 0 {
@@ -763,137 +848,76 @@ func (s *ChatService) detectToolCallAttempts(content string) bool {
 	return false
 }
 
-// ProcessMessageWithAttachmentsForUser processes a user message with file attachments and generates a response for a specific user
-func (s *ChatService) ProcessMessageWithAttachmentsForUser(ctx context.Context, userID, sessionID, userMessage string, attachments []*models.Attachment) (*models.ChatResponse, error) {
-	log.Printf("🚀 Chat: Processing message with attachments for user %s, session %s, message: %q, attachments: %d", userID, sessionID, userMessage, len(attachments))
+// ProcessStreamMessageWithAttachmentsForUser processes a user message with file attachments and returns a streaming response for a specific user
+func (s *ChatService) ProcessStreamMessageWithAttachmentsForUser(ctx context.Context, userID, sessionID, userMessage string, attachments []*models.Attachment) (<-chan *models.StreamMessage, error) {
+
+	s.l.WithFields(logrus.Fields{
+		"user_id":     userID,
+		"session_id":  sessionID,
+		"message_len": len(userMessage),
+		"attachments": len(attachments),
+	}).Debug("Processing stream message with attachments for user")
 
 	// Handle tool approval/denial messages
-	if response, handled := s.handleToolApprovalMessage(ctx, sessionID, userMessage); handled {
-		return response, nil
+	if strings.HasPrefix(userMessage, "[APPROVE_TOOLS:") || strings.HasPrefix(userMessage, "[DENY_TOOLS:") {
+		// For tool approval messages, delegate to the existing streaming method
+		return s.ProcessStreamMessageForUser(ctx, userID, sessionID, userMessage)
 	}
 
-	s.mu.Lock()
+	s.sessionsMu.Lock()
 	session := s.getOrCreateSessionForUser(userID, sessionID)
 	actualSessionID := session.ID // Get the actual session ID (might be different if generated)
-	s.mu.Unlock()
+	s.sessionsMu.Unlock()
 
-	log.Printf("📋 Chat: Using session ID: %s (original: %s)", actualSessionID, sessionID)
+	s.l.WithFields(logrus.Fields{
+		"actual_session_id": actualSessionID,
+		"original_session":  sessionID,
+	}).Debug("Using session for processing")
 
-	// Create and add user message
+	// Create and add user message with attachments
 	userMsg := s.createUserMessage(userMessage, attachments)
 	s.addMessageToSession(ctx, actualSessionID, session, userMsg)
 
-	log.Printf("📝 Chat: Added user message to session, total messages: %d", len(session.Messages))
+	s.l.WithFields(logrus.Fields{
+		"session_id":     actualSessionID,
+		"total_messages": len(session.Messages),
+	}).Debug("Added user message with attachments to session")
 
-	// Generate LLM response
-	assistantMsg, err := s.generateLLMResponse(ctx, session)
+	// Get available tools
+	tools := s.mcp.GetTools()
+	s.l.WithField("tool_count", len(tools)).Debug("Retrieved available tools for streaming")
+
+	// Prepare messages with system prompt
+	preparedMessages := s.prepareMessagesWithSystemPrompt(session.Messages)
+
+	// Generate streaming response from LLM
+	streamChan, err := s.llmProvider.GenerateStreamResponse(ctx, preparedMessages, tools)
 	if err != nil {
+		s.l.WithError(err).Error("Failed to start LLM streaming")
 		return nil, err
 	}
 
-	// Add assistant message to session
-	s.addMessageToSession(ctx, actualSessionID, session, assistantMsg)
+	s.l.Debug("LLM streaming started successfully")
 
-	log.Printf("💾 Chat: Saved assistant message to session, total messages: %d", len(session.Messages))
+	// Create output channel
+	outputChan := make(chan *models.StreamMessage, 10)
 
-	// Generate and update session title if this is the first exchange (2 messages: user + assistant)
-	if len(session.Messages) == 2 && session.Messages[0].Role == "user" && session.Messages[1].Role == "assistant" {
-		userMessage := session.Messages[0].Content
-		assistantResponse := session.Messages[1].Content
+	// Process stream
+	go func() {
+		defer close(outputChan)
+		defer s.l.WithField("session_id", actualSessionID).Debug("Stream processing completed")
 
-		// Generate title in background to avoid blocking the response
-		go func() {
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-			defer cancel()
+		var fullContent string
+		var messageCount int
 
-			newTitle := s.generateSessionTitle(ctx, userMessage, assistantResponse)
-			s.updateSessionTitle(ctx, actualSessionID, userID, newTitle)
-		}()
-	}
+		s.l.Debug("Starting stream message processing loop")
 
-	// Handle tool calls if present
-	if len(assistantMsg.ToolCalls) > 0 {
-		s.handleToolCallApprovalRequest(actualSessionID, assistantMsg)
-	}
+		s.handleStreamMessage(ctx, actualSessionID, session, streamChan, outputChan, &fullContent, tools, &messageCount)
 
-	return &models.ChatResponse{
-		Message:   assistantMsg,
-		SessionID: actualSessionID, // Return the actual session ID
-	}, nil
-}
+		s.l.Warn("Stream channel closed without 'done' message")
+	}()
 
-// handleToolApprovalMessage handles tool approval/denial messages and returns the response if handled
-func (s *ChatService) handleToolApprovalMessage(ctx context.Context, sessionID, userMessage string) (*models.ChatResponse, bool) {
-	var requestID string
-	var approved bool
-	var handled bool
-
-	if strings.HasPrefix(userMessage, "[APPROVE_TOOLS:") && strings.HasSuffix(userMessage, "]") {
-		requestID = strings.TrimSuffix(strings.TrimPrefix(userMessage, "[APPROVE_TOOLS:"), "]")
-		approved = true
-		handled = true
-		log.Printf("🔧 Chat: Detected tool approval message for request: %s", requestID)
-	} else if strings.HasPrefix(userMessage, "[DENY_TOOLS:") && strings.HasSuffix(userMessage, "]") {
-		requestID = strings.TrimSuffix(strings.TrimPrefix(userMessage, "[DENY_TOOLS:"), "]")
-		approved = false
-		handled = true
-		log.Printf("🔧 Chat: Detected tool denial message for request: %s", requestID)
-	}
-
-	if !handled {
-		return nil, false
-	}
-
-	// Process tool approval/denial
-	approval := &models.ToolApprovalResponse{
-		SessionID: sessionID,
-		RequestID: requestID,
-		Approved:  approved,
-	}
-
-	streamChan, err := s.ProcessToolApproval(ctx, approval)
-	if err != nil {
-		return nil, true // handled but with error
-	}
-
-	response := s.collectStreamResponse(streamChan, sessionID, approved)
-	return response, true
-}
-
-// collectStreamResponse collects stream messages into a single ChatResponse
-func (s *ChatService) collectStreamResponse(streamChan <-chan *models.StreamMessage, sessionID string, approved bool) *models.ChatResponse {
-	var content strings.Builder
-	var toolExecutions []models.ToolExecution
-
-	for streamMsg := range streamChan {
-		if streamMsg.Content != "" {
-			content.WriteString(streamMsg.Content)
-		}
-		if len(streamMsg.ToolExecutions) > 0 {
-			toolExecutions = append(toolExecutions, streamMsg.ToolExecutions...)
-		}
-	}
-
-	messageID := fmt.Sprintf("approval_result_%d", time.Now().UnixNano())
-	if !approved {
-		messageID = fmt.Sprintf("denial_result_%d", time.Now().UnixNano())
-	}
-
-	message := &models.Message{
-		ID:        messageID,
-		Role:      "assistant",
-		Content:   content.String(),
-		Timestamp: time.Now(),
-	}
-
-	if len(toolExecutions) > 0 {
-		message.ToolExecutions = toolExecutions
-	}
-
-	return &models.ChatResponse{
-		Message:   message,
-		SessionID: sessionID,
-	}
+	return outputChan, nil
 }
 
 // createUserMessage creates a user message with attachments
@@ -917,84 +941,17 @@ func (s *ChatService) createUserMessage(userMessage string, attachments []*model
 
 // addMessageToSession safely adds a message to the session and saves it to database
 func (s *ChatService) addMessageToSession(ctx context.Context, sessionID string, session *ChatSession, message *models.Message) {
-	s.mu.Lock()
+	s.sessionsMu.Lock()
 	session.Messages = append(session.Messages, message)
 	session.Updated = time.Now()
-	s.mu.Unlock()
+	s.sessionsMu.Unlock()
 
 	// Save message to database
 	if err := s.database.SaveMessage(ctx, sessionID, message); err != nil {
-		log.Printf("⚠️  Chat: Failed to save message to database: %v", err)
+		s.l.WithError(err).Warn("Failed to save message to database")
 	} else {
-		log.Printf("💾 Chat: Saved message to database")
+		s.l.WithField("session_id", sessionID).Debug("Saved message to database")
 	}
-}
-
-// generateLLMResponse generates an LLM response for the session
-func (s *ChatService) generateLLMResponse(ctx context.Context, session *ChatSession) (*models.Message, error) {
-	// Get available tools
-	tools := s.mcp.GetTools()
-	log.Printf("🔧 Chat: Retrieved %d available tools", len(tools))
-
-	// Prepare messages for LLM
-	s.mu.RLock()
-	allMessages := make([]*models.Message, len(session.Messages))
-	copy(allMessages, session.Messages)
-	s.mu.RUnlock()
-
-	preparedMessages := s.prepareMessagesWithSystemPrompt(allMessages)
-
-	// Generate response
-	response, err := s.llmProvider.GenerateResponse(ctx, preparedMessages, tools)
-	if err != nil {
-		log.Printf("❌ Chat: LLM generation failed: %v", err)
-		return nil, fmt.Errorf("failed to generate response: %w", err)
-	}
-
-	log.Printf("✅ Chat: LLM generated response: %q", response.Content)
-
-	// Create assistant message
-	return &models.Message{
-		ID:        fmt.Sprintf("assistant_%d", time.Now().UnixNano()),
-		Role:      "assistant",
-		Content:   response.Content,
-		Timestamp: time.Now(),
-		ToolCalls: response.ToolCalls,
-	}, nil
-}
-
-// handleToolCallApprovalRequest handles tool call approval requests
-func (s *ChatService) handleToolCallApprovalRequest(sessionID string, assistantMsg *models.Message) {
-	log.Printf("🔧 Chat: Requesting approval for %d tool call(s)", len(assistantMsg.ToolCalls))
-
-	// Generate approval request ID
-	requestID := fmt.Sprintf("approval_%d", time.Now().UnixNano())
-
-	// Create approval request
-	approvalRequest := &models.ToolApprovalRequest{
-		SessionID: sessionID,
-		ToolCalls: assistantMsg.ToolCalls,
-		RequestID: requestID,
-	}
-
-	// Store pending approval in memory for quick access
-	s.mu.Lock()
-	s.pendingApprovals[requestID] = approvalRequest
-	s.mu.Unlock()
-
-	// Update assistant message with approval request - this will be saved to DB via addMessageToSession
-	assistantMsg.ApprovalRequest = &struct {
-		RequestID string            `json:"request_id"`
-		ToolCalls []models.ToolCall `json:"tool_calls"`
-		Processed bool              `json:"processed,omitempty"`
-	}{
-		RequestID: requestID,
-		ToolCalls: assistantMsg.ToolCalls,
-		Processed: false, // Mark as unprocessed to show approval buttons
-	}
-
-	log.Printf("💾 Chat: Created approval request %s for %d tool calls (will be saved to DB with message)",
-		requestID, len(assistantMsg.ToolCalls))
 }
 
 // GetAvailableTools returns all available MCP tools
@@ -1005,6 +962,11 @@ func (s *ChatService) GetAvailableTools() []models.MCPTool {
 // RefreshTools forces a refresh of tools from MCP servers
 func (s *ChatService) RefreshTools() error {
 	return s.mcp.RefreshTools()
+}
+
+// GetStreamManager returns the stream manager for direct access
+func (s *ChatService) GetStreamManager() *StreamManager {
+	return s.streamManager
 }
 
 // generateSessionTitle creates a concise title for a session based on the conversation
@@ -1031,7 +993,7 @@ Respond with ONLY the title, no explanations or quotes. Make it specific and hel
 	// Generate title using LLM (without tools)
 	titleResponse, err := s.llmProvider.GenerateResponse(ctx, titleMessages, nil)
 	if err != nil {
-		log.Printf("⚠️ Chat: Failed to generate session title: %v", err)
+		s.l.WithError(err).Warn("Failed to generate session title")
 		// Fallback to extract key words from user message
 		return s.generateFallbackTitle(userMessage)
 	}
@@ -1050,7 +1012,7 @@ Respond with ONLY the title, no explanations or quotes. Make it specific and hel
 		return s.generateFallbackTitle(userMessage)
 	}
 
-	log.Printf("🏷️ Chat: Generated session title: %s", title)
+	s.l.WithField("generated_session_title", title).Debug("Generated session title")
 	return title
 }
 
@@ -1089,9 +1051,9 @@ func (s *ChatService) updateSessionTitle(ctx context.Context, sessionID, userID,
 
 	err := s.database.UpdateSession(ctx, sessionID, userID, newTitle)
 	if err != nil {
-		log.Printf("⚠️ Chat: Failed to update session title: %v", err)
+		s.l.WithError(err).Warn("Failed to update session title")
 	} else {
-		log.Printf("🏷️ Chat: Updated session title to: %s", newTitle)
+		s.l.WithField("updated_session_title", newTitle).Debug("Updated session title")
 	}
 }
 
@@ -1099,16 +1061,16 @@ func (s *ChatService) updateSessionTitle(ctx context.Context, sessionID, userID,
 func (s *ChatService) loadPendingApprovalsFromDB(ctx context.Context, sessionID string) {
 	approvals, err := s.database.GetPendingApprovals(ctx, sessionID)
 	if err != nil {
-		log.Printf("⚠️ Chat: Failed to load pending approvals from database: %v", err)
+		s.l.WithError(err).Warn("Failed to load pending approvals from database")
 		return
 	}
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.approvalsMu.Lock()
+	defer s.approvalsMu.Unlock()
 
 	for _, approval := range approvals {
 		s.pendingApprovals[approval.RequestID] = approval
 	}
 
-	log.Printf("💾 Chat: Loaded %d pending approvals from database for session %s", len(approvals), sessionID)
+	s.l.WithField("loaded_approvals_count", len(approvals)).Debug("Loaded pending approvals from database for session")
 }

@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Box, Typography, Container, Paper, Button, Alert, CircularProgress } from '@mui/material';
 import { AIChatWidget } from '../components/ai-chat-widget';
 import { QANDataDisplay } from '../components/qan-data-display';
+import { QueryAnalysisDialog } from '../components/qan-data-display/QueryAnalysisDialog';
+import { QANOverviewAnalysisDialog } from '../components/qan-data-display/QANOverviewAnalysisDialog';
 import { useRecentQANData } from '../hooks/api/useQAN';
-import { formatQANDataForAI, formatQANError } from '../utils/qanFormatter';
-import { QANLabel } from '../api/qan';
+
+import { QANLabel, QANRow } from '../api/qan';
 
 /**
  * Demo page showing how to integrate the AI Chat Widget
@@ -14,11 +16,24 @@ const AIChatDemo: React.FC = () => {
   const [shouldOpenWithSample, setShouldOpenWithSample] = useState(false);
   const [sampleMessage, setSampleMessage] = useState('');
   
+  // Query Analysis Dialog state
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedQuery] = useState<QANRow | null>(null);
+  const [selectedQueryRank] = useState(1);
+  
+  // Overview Analysis Dialog state
+  const [overviewDialogOpen, setOverviewDialogOpen] = useState(false);
+  
   // Service filter state
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   
   // Time range filter state
   const [timeRangeHours, setTimeRangeHours] = useState<number>(24); // Default to 24 hours
+  
+  // Sorting and pagination state
+  const [orderBy, setOrderBy] = useState<string>('-load'); // Default to load descending
+  const [page, setPage] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(10);
   
   // Convert selected services to QAN labels format
   const qanFilters: QANLabel[] = selectedServices.length > 0 ? [
@@ -28,159 +43,94 @@ const AIChatDemo: React.FC = () => {
     }
   ] : [];
   
-  // Fetch real QAN data with filters and time range
+  // Calculate offset for backend pagination
+  const offset = page * pageSize;
+  
+  // Fetch real QAN data with filters, sorting, and pagination
   const { 
     data: qanData, 
     error: qanError, 
     isLoading: isLoadingQAN, 
     refetch: fetchQANData 
-  } = useRecentQANData(timeRangeHours, 10, qanFilters, { 
+  } = useRecentQANData(timeRangeHours, pageSize, qanFilters, orderBy, offset, { 
     enabled: true, // Auto-fetch for display
     retry: 1 
   });
 
   const handleServiceFilterChange = (services: string[]) => {
-    console.log('🔍 Filter change in AIChatDemo:', services);
     setSelectedServices(services);
+    setPage(0); // Reset to first page when filters change
   };
   
   const handleTimeRangeChange = (hours: number) => {
-    console.log('🔍 Time range change in AIChatDemo:', hours);
     setTimeRangeHours(hours);
+    setPage(0); // Reset to first page when time range changes
   };
 
-  const handleAnalyzeRealQANData = async () => {
-    try {
-      const result = await fetchQANData();
-      
-      if (result.data) {
-        const formattedData = formatQANDataForAI(result.data);
-        setSampleMessage(formattedData);
-        setShouldOpenWithSample(true);
-      } else if (result.error) {
-        const errorMessage = formatQANError(result.error);
-        setSampleMessage(errorMessage);
-        setShouldOpenWithSample(true);
-      }
-    } catch (error) {
-      const errorMessage = formatQANError(error);
-      setSampleMessage(errorMessage);
-      setShouldOpenWithSample(true);
+  const handleSortChange = (newOrderBy: string) => {
+    setOrderBy(newOrderBy);
+    setPage(0); // Reset to first page when sorting changes
+  };
+
+  const handlePageChange = (newPage: number, newPageSize: number) => {
+    setPage(newPage);
+    if (newPageSize !== pageSize) {
+      setPageSize(newPageSize);
     }
   };
 
-  const handleAnalyzeSampleData = () => {
-    const sampleQANPrompt = `Please analyze this sample QAN (Query Analytics) data from a MySQL database and provide performance recommendations:
+  const handleAnalyzeRealQANData = async () => {
+    if (!qanData || !qanData.rows || qanData.rows.length === 0) {
+      // If no QAN data, try to fetch it first
+      await fetchQANData();
+      return;
+    }
 
-**Query Performance Summary:**
-- Total Queries: 15,847
-- Time Period: Last 24 hours
-- Average Query Time: 2.3 seconds
-- Slowest Query Time: 45.2 seconds
-
-**Top 5 Slowest Queries:**
-
-1. **Query:** \`SELECT o.*, c.name as customer_name FROM orders o JOIN customers c ON o.customer_id = c.id WHERE o.created_at BETWEEN '2024-01-01' AND '2024-12-31' ORDER BY o.created_at DESC\`
-   - **Execution Count:** 1,234 times
-   - **Average Time:** 12.5 seconds
-   - **Total Time:** 15,425 seconds
-   - **Rows Examined:** 2,500,000 avg
-   - **Rows Sent:** 50,000 avg
-
-2. **Query:** \`SELECT p.*, COUNT(oi.product_id) as order_count FROM products p LEFT JOIN order_items oi ON p.id = oi.product_id GROUP BY p.id HAVING order_count > 100\`
-   - **Execution Count:** 892 times
-   - **Average Time:** 8.7 seconds
-   - **Total Time:** 7,760 seconds
-   - **Rows Examined:** 1,800,000 avg
-   - **Rows Sent:** 245 avg
-
-3. **Query:** \`UPDATE inventory SET quantity = quantity - 1 WHERE product_id IN (SELECT product_id FROM order_items WHERE order_id = ?)\`
-   - **Execution Count:** 3,456 times
-   - **Average Time:** 4.2 seconds
-   - **Total Time:** 14,515 seconds
-   - **Rows Examined:** 500,000 avg
-   - **Rows Affected:** 1 avg
-
-4. **Query:** \`SELECT DATE(created_at) as date, COUNT(*) as daily_orders, SUM(total_amount) as daily_revenue FROM orders WHERE created_at >= DATE_SUB(NOW(), INTERVAL 90 DAY) GROUP BY DATE(created_at)\`
-   - **Execution Count:** 156 times
-   - **Average Time:** 6.8 seconds
-   - **Total Time:** 1,061 seconds
-   - **Rows Examined:** 1,200,000 avg
-   - **Rows Sent:** 90 avg
-
-5. **Query:** \`SELECT u.email, u.name, COUNT(o.id) as order_count, SUM(o.total_amount) as total_spent FROM users u LEFT JOIN orders o ON u.id = o.user_id WHERE u.created_at > '2024-01-01' GROUP BY u.id ORDER BY total_spent DESC LIMIT 100\`
-   - **Execution Count:** 89 times
-   - **Average Time:** 9.2 seconds
-   - **Total Time:** 819 seconds
-   - **Rows Examined:** 800,000 avg
-   - **Rows Sent:** 100 avg
-
-**Database Schema Context:**
-- orders table: ~2M rows (id, customer_id, created_at, total_amount, status)
-- customers table: ~500K rows (id, name, email, created_at)
-- products table: ~50K rows (id, name, price, category_id)
-- order_items table: ~8M rows (id, order_id, product_id, quantity, price)
-- inventory table: ~50K rows (id, product_id, quantity, warehouse_id)
-- users table: ~500K rows (id, email, name, created_at)
-
-**Current Indexes:**
-- orders: PRIMARY KEY (id), INDEX (customer_id), INDEX (created_at)
-- customers: PRIMARY KEY (id), UNIQUE INDEX (email)
-- products: PRIMARY KEY (id), INDEX (category_id)
-- order_items: PRIMARY KEY (id), INDEX (order_id), INDEX (product_id)
-- inventory: PRIMARY KEY (id), INDEX (product_id)
-- users: PRIMARY KEY (id), UNIQUE INDEX (email)
-
-Please analyze these queries and provide specific recommendations for:
-1. Index optimizations
-2. Query rewrites for better performance
-3. Schema improvements
-4. General best practices
-
-Focus on the most impactful changes that could reduce query execution time and improve overall database performance.`;
-
-    setSampleMessage(sampleQANPrompt);
-    setShouldOpenWithSample(true);
+    // Open the dedicated overview analysis dialog
+    setOverviewDialogOpen(true);
   };
+
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ py: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          AI Chat Assistant Demo
+          AI Chat Demo
         </Typography>
         
         <Typography variant="body1" color="textSecondary" paragraph>
-          This page demonstrates the AI Chat Widget integration and QAN data visualization.
+          This is a demonstration of how AI can be integrated into PMM Query Analytics (QAN).
+          The AI assistant can analyze query performance data, suggest optimizations, and provide insights based on real QAN metrics.
         </Typography>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" gutterBottom>
-                Features
+                AI Integration Features
               </Typography>
               <ul>
-                <li>Real-time chat with AI assistant</li>
-                <li>MCP (Model Context Protocol) tool support</li>
-                <li>Streaming responses for better UX</li>
-                <li>Persistent session history</li>
-                <li>Markdown rendering for rich responses</li>
-                <li>Tool execution and results display</li>
+                <li>AI-powered query performance analysis</li>
+                <li>Real-time chat interface for database insights</li>
+                <li>Integration with PMM Query Analytics data</li>
+                <li>Intelligent optimization recommendations</li>
+                <li>Interactive query exploration and filtering</li>
+                <li>Persistent chat sessions with context retention</li>
               </ul>
             </Paper>
 
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" gutterBottom>
-                QAN Data Integration
+                Query Analytics Integration
               </Typography>
               <Typography variant="body2" paragraph>
-                This demo can analyze both real QAN (Query Analytics) data from your PMM instance 
-                and sample data for demonstration purposes.
+                The AI assistant is integrated with PMM's Query Analytics engine to provide 
+                intelligent insights about database performance. It can analyze real query metrics, 
+                identify bottlenecks, and suggest optimization strategies.
               </Typography>
               
               {qanError && (
                 <Alert severity="info" sx={{ mb: 2 }}>
                   <Typography variant="body2">
                     <strong>QAN Data Status:</strong> Real QAN data is not available. 
-                    This is normal in development environments. You can still use the sample data button 
-                    to see how the AI analyzes database performance information.
+                    This is normal in development environments.
                   </Typography>
                 </Alert>
               )}
@@ -188,7 +138,7 @@ Focus on the most impactful changes that could reduce query execution time and i
               {qanData && (
                 <Alert severity="success" sx={{ mb: 2 }}>
                   <Typography variant="body2">
-                    <strong>QAN Data Status:</strong> Real QAN data is available! 
+                    <strong>QAN Data Status:</strong> Connected to live QAN data! 
                     Found {qanData.total_rows} queries in the recent data.
                   </Typography>
                 </Alert>
@@ -197,16 +147,20 @@ Focus on the most impactful changes that could reduce query execution time and i
 
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" gutterBottom>
-                Usage
+                How to Use
               </Typography>
               <Typography variant="body2" paragraph>
-                The AI Chat Widget appears as a floating action button in the bottom-right corner. 
-                Click it to open the chat interface and start conversing with the AI assistant.
+                1. <strong>Open the AI Chat:</strong> Click the floating chat button in the bottom-right corner
               </Typography>
               
               <Typography variant="body2" paragraph>
-                If MCP tools are configured in the backend, the AI can execute various operations 
-                like file system access, database queries, and more.
+                2. <strong>Analyze Query Performance:</strong> Ask the AI to analyze the current QAN data, 
+                identify slow queries, or suggest optimizations
+              </Typography>
+              
+              <Typography variant="body2" paragraph>
+                3. <strong>Interactive Exploration:</strong> Use the query table below to filter and sort data, 
+                then ask the AI for insights about specific queries or patterns
               </Typography>
 
               <Box sx={{ mt: 3 }}>
@@ -218,22 +172,11 @@ Focus on the most impactful changes that could reduce query execution time and i
                   sx={{ mr: 2, mb: 1 }}
                   startIcon={isLoadingQAN ? <CircularProgress size={20} /> : null}
                 >
-                  📊 Analyze Real QAN Data
-                </Button>
-                <Button 
-                  variant="outlined" 
-                  color="secondary" 
-                  onClick={handleAnalyzeSampleData}
-                  sx={{ mr: 2, mb: 1 }}
-                >
-                  🔍 Analyze Sample Data
+                  📊 Analyze Current QAN Data
                 </Button>
                 <Box sx={{ mt: 1 }}>
                   <Typography variant="caption" color="textSecondary" display="block">
-                    <strong>Real QAN Data:</strong> Fetches actual query performance data from PMM
-                  </Typography>
-                  <Typography variant="caption" color="textSecondary" display="block">
-                    <strong>Sample Data:</strong> Uses example data for demonstration purposes
+                    This will open the AI analysis popup with comprehensive analysis of all current QAN data
                   </Typography>
                 </Box>
               </Box>
@@ -241,32 +184,17 @@ Focus on the most impactful changes that could reduce query execution time and i
 
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
-                Integration
+                AI-Powered Database Insights
               </Typography>
               <Typography variant="body2" paragraph>
-                To add the widget to any page, simply import and use:
+                This demonstration shows how AI can be seamlessly integrated into database monitoring tools 
+                to provide intelligent analysis and optimization recommendations. The AI assistant understands 
+                query performance metrics and can help database administrators identify issues and improve performance.
               </Typography>
-              <Box
-                component="pre"
-                sx={{
-                  backgroundColor: 'grey.100',
-                  p: 2,
-                  borderRadius: 1,
-                  overflow: 'auto',
-                  fontFamily: 'monospace',
-                  fontSize: '0.875rem',
-                }}
-              >
-{`import { AIChatWidget } from '../components/ai-chat-widget';
-
-// In your component:
-<AIChatWidget 
-  defaultOpen={false}
-  position="bottom-right"
-  maxWidth={400}
-  maxHeight={600}
-/>`}
-              </Box>
+              <Typography variant="body2" paragraph>
+                Key capabilities include analyzing slow queries, suggesting index optimizations, 
+                identifying resource bottlenecks, and providing best practices for database performance tuning.
+              </Typography>
             </Paper>
 
             {/* QAN Data Section */}
@@ -297,18 +225,27 @@ Focus on the most impactful changes that could reduce query execution time and i
               )}
 
               {qanData && !isLoadingQAN && (
-                <QANDataDisplay 
-                  data={qanData} 
-                  maxQueries={10}
-                  selectedServices={selectedServices}
-                  onServiceFilterChange={handleServiceFilterChange}
-                  timeRangeHours={timeRangeHours}
-                  onTimeRangeChange={handleTimeRangeChange}
-                  onAnalyzeQuery={(queryData) => {
-                    setSampleMessage(queryData);
-                    setShouldOpenWithSample(true);
-                  }}
-                />
+                <>
+
+                  <QANDataDisplay 
+                    data={qanData}
+                    selectedServices={selectedServices}
+                    onServiceFilterChange={handleServiceFilterChange}
+                    timeRangeHours={timeRangeHours}
+                    onTimeRangeChange={handleTimeRangeChange}
+                    orderBy={orderBy}
+                    onSortChange={handleSortChange}
+                    page={page}
+                    pageSize={pageSize}
+                    onPageChange={handlePageChange}
+                    onAnalyzeQuery={(queryData) => {
+                      setSampleMessage(queryData);
+                      setShouldOpenWithSample(true);
+                    }}
+                    onRefresh={fetchQANData}
+                    isRefreshing={isLoadingQAN}
+                  />
+                </>
               )}
             </Paper>
       </Box>
@@ -333,8 +270,23 @@ Focus on the most impactful changes that could reduce query execution time and i
           }
         }}
       />
+
+      {/* Query Analysis Dialog */}
+      <QueryAnalysisDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        selectedQuery={selectedQuery}
+        rank={selectedQueryRank}
+      />
+      
+      {/* QAN Overview Analysis Dialog */}
+      <QANOverviewAnalysisDialog
+        open={overviewDialogOpen}
+        onClose={() => setOverviewDialogOpen(false)}
+        qanData={qanData || null}
+      />
     </Container>
   );
-};
+  };
 
 export default AIChatDemo; 

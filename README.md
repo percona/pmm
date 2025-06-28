@@ -10,20 +10,31 @@
 
 ![PMM](img/pmm-logo.png)
 
-## Percona Monitoring and Management
-
 A **single pane of glass** to easily view and monitor the performance of your MySQL, MongoDB, PostgreSQL, and MariaDB databases.
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Use Cases](#use-cases)
+- [Architecture](#architecture)
+- [Installation](#installation)
+- [Need Help?](#need-help)
+- [How to Get Involved](#how-to-get-involved)
+- [Submitting Bug Reports](#submitting-bug-reports)
+- [Licensing](#licensing)
+
+## Introduction
+
 [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a best-of-breed open source database monitoring solution. It helps you reduce complexity, optimize performance, and improve the security of your business-critical database environments, no matter where they are located or deployed.
+
 PMM helps users to:
 * Reduce Complexity
 * Optimize Database Performance
 * Improve Data Security
 
-
 See the [PMM Documentation](https://docs.percona.com/percona-monitoring-and-management/3/index.html) for more information.
 
-## Use cases
+## Use Cases
 
 * Monitor your database performance with customizable dashboards and real-time alerting.
 * Spot critical performance issues faster, understand the root cause of incidents better and troubleshoot them more efficiently.
@@ -33,53 +44,53 @@ See the [PMM Documentation](https://docs.percona.com/percona-monitoring-and-mana
 
 ## Architecture
 
-Check [PMM documentation](../pmm/documentation/docs/index.md) for the actual architecture.
+Check [PMM documentation](documentation/docs/index.md) for the actual architecture.
 
-![Overall Architecture](../pmm/documentation/docs/images/C_S_Architecture.jpg "Client Server Architecture")
-
+![Overall Architecture](documentation/docs/images/C_S_Architecture.jpg "Client Server Architecture")
 
 ![PMM Server](https://docs.percona.com/percona-monitoring-and-management/images/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
 
-
-![PMM Client](../pmm/documentation/docs/images/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
+![PMM Client](documentation/docs/images/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
 
 ## Installation
 
-There are numbers of installation methods, please check our [About PMM installation](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/index.html) documentation page.
+There are a number of installation methods, please check our [About PMM installation](https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/index.html) documentation page.
 
-But in a nutshell:
+In a nutshell:
 
-1. Download PMM server Docker image:
-```bash
-$ docker pull percona/pmm-server:3
-```
-2. Create the data volume container:
-```bash
-$ docker volume create pmm-data
-```
-3. Run PMM Server container:
-```bash
-$ docker run --detach --restart always \
---publish 443:8443 \
---volume pmm-data:/srv \
---name pmm-server \
-percona/pmm-server:3
-```
-4. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
+1. **Download PMM server Docker image:**
+   ```bash
+   docker pull percona/pmm-server:3
+   ```
+2. **Create the data volume container:**
+   ```bash
+   docker volume create pmm-data
+   ```
+3. **Run PMM Server container:**
+   ```bash
+   docker run --detach --restart always \
+   --publish 443:8443 \
+   --volume pmm-data:/srv \
+   --name pmm-server \
+   percona/pmm-server:3
+   ```
+4. **Launch the PMM UI:**
+   Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
+   
+   **Note:** The PMM UI is exposed on port 443. You might need to use `https://<PMM_SERVER_IP>` to access it.
 
-<img src="documentation/docs/images/PMM_Login.png" width="280">
+   **Default Credentials:**
+   - **Username:** admin
+   - **Password:** admin
 
-Enter the username and password. The defaults are username: **admin** and password: **admin**
-
-# Need help?
+## Need Help?
 
 | **Commercial Support** | **Community Support** |
 |:--|:--|
 | **Enterprise-grade support** for mission-critical monitoring deployments with Percona Monitoring and Management. <br/><br/>Get expert guidance for complex monitoring scenarios across hybrid environments—from cloud providers to bare metal infrastructures. | Connect with our engineers and community members to troubleshoot issues, share best practices, and discuss monitoring strategies. |
 | **[Get Percona Support](https://hubs.ly/Q02_Fs100)** | **[Visit our Forum](https://forums.percona.com/c/percona-monitoring-and-management-pmm)** |
 
-
-## How to get involved
+## How to Get Involved
 
 We encourage contributions and are always looking for new members that are as dedicated to serving the community as we are.
 
@@ -87,9 +98,9 @@ If you’re looking for information about how you can contribute, we have [contr
 
 We're looking forward to your contributions and hope to hear from you soon on our [Forums](https://forums.percona.com).
 
-## Submitting bug reports
+## Submitting Bug Reports
 
-If you find a bug in Percona Monitoring and Management  or one of the related projects, you should submit a report to that project's [JIRA](https://jira.percona.com) issue tracker. Some of related project also have GitHub Issues enabled, so you also could submit there.
+If you find a bug in Percona Monitoring and Management or one of the related projects, you should submit a report to that project's [JIRA](https://jira.percona.com) issue tracker. Some related projects also have GitHub Issues enabled, so you could also submit there.
 
 Your first step should be [to search](https://jira.percona.com/issues/?jql=project=PMM) the existing set of open tickets for a similar report. If you find that someone else has already reported your problem, then you can upvote that report to increase its visibility.
 
@@ -107,7 +118,6 @@ As a general rule of thumb, please try to create bug reports that are:
 - *Reproducible* - Include steps to reproduce the problem.
 - *Specific* - Include as much detail as possible: which version, what environment, etc.
 - *Unique* - Do not duplicate existing tickets.
-
 
 ## Licensing
 

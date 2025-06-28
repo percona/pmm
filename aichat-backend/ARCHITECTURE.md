@@ -1,14 +1,132 @@
 # AI Chat Backend Architecture
 
+This document describes the architecture and design decisions for the AI Chat Backend service.
+
 ## Overview
 
-The AI Chat Backend is built using a clean, interface-based architecture that follows the Strategy pattern for LLM provider implementations. This design makes it easy to add new LLM providers and maintain existing ones.
+The AI Chat Backend is a Go-based service that provides conversational AI capabilities with tool execution support through the Model Context Protocol (MCP). The service integrates with various Language Learning Models (LLMs) and can execute tools in parallel for improved performance.
 
 ## Core Components
 
-### 1. LLM Service Layer
+### Chat Service (`internal/services/chat.go`)
 
-#### Directory Structure
+The main orchestrator that handles:
+- User message processing
+- LLM integration and streaming responses
+- **Parallel tool execution** for improved performance
+- Session management
+- Tool approval workflows
+
+#### Parallel Tool Execution
+
+The service executes multiple tools concurrently when the LLM requests several tools simultaneously. This provides significant performance improvements:
+
+- **Sequential Execution**: Tools executed one after another (total time = sum of all tool execution times)
+- **Parallel Execution**: Tools executed simultaneously (total time ≈ longest individual tool execution time)
+
+**Example Performance Improvement:**
+```
+3 tools, each taking 200ms:
+- Sequential: ~600ms total
+- Parallel: ~200ms total (3x faster)
+```
+
+**Implementation Details:**
+- Uses Go goroutines and channels for concurrent execution
+- Maintains result ordering to preserve LLM context
+- Thread-safe with proper synchronization
+- Handles errors gracefully for individual tool failures
+
+**Benefits:**
+- Faster query analysis and recommendations
+- Better user experience with reduced wait times
+- Efficient resource utilization
+- Scalable tool execution
+
+### MCP Service (`internal/services/mcp.go`)
+
+Manages connections to MCP servers and tool execution:
+- Multiple MCP server connections
+- Tool discovery and registration
+- Thread-safe tool execution
+- Connection health monitoring
+
+### Database Service (`internal/services/database.go`)
+
+Handles data persistence:
+- Chat history storage
+- Session management
+- Tool approval tracking
+- Message persistence
+
+### LLM Providers (`internal/providers/`)
+
+Abstraction layer for different LLM services:
+- OpenAI integration
+- Streaming response support
+- Tool calling capabilities
+- Error handling and retries
+
+## Data Flow
+
+1. **User Message** → Chat Service
+2. **Session Management** → Database Service
+3. **LLM Processing** → LLM Provider
+4. **Tool Requests** → MCP Service
+5. **Parallel Tool Execution** → Multiple MCP tools simultaneously
+6. **Results Aggregation** → Chat Service
+7. **Response Generation** → LLM Provider
+8. **Response Streaming** → User Interface
+
+## Tool Execution Flow
+
+```
+LLM Request: [tool1, tool2, tool3]
+    ↓
+Parallel Execution:
+    tool1() ← goroutine 1
+    tool2() ← goroutine 2  
+    tool3() ← goroutine 3
+    ↓
+Result Collection (maintains order):
+    [result1, result2, result3]
+    ↓
+Continue LLM Processing
+```
+
+## Configuration
+
+The service is configured through:
+- Environment variables
+- YAML configuration files
+- MCP server definitions
+- Database connection settings
+
+## Security Considerations
+
+- Tool approval workflows
+- Session isolation
+- Input validation
+- Error sanitization
+- Connection security
+
+## Performance Optimizations
+
+- **Parallel tool execution** (primary optimization)
+- Connection pooling
+- Streaming responses
+- Efficient session management
+- Concurrent MCP server connections
+
+## Monitoring and Observability
+
+- Structured logging
+- Performance metrics
+- Tool execution timing
+- Error tracking
+- Health checks
+
+## Directory Structure
 ```
 internal/
 ├── providers/
@@ -22,7 +140,7 @@ internal/
     └── llm.go         # LLM service (strategy context)
 ```
 
-#### LLMProvider Interface (`internal/providers/interface.go`)
+## LLMProvider Interface (`internal/providers/interface.go`)
 ```go
 type LLMProvider interface {
     GenerateResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (*models.Message, error)
@@ -33,15 +151,13 @@ type LLMProvider interface {
 
 All LLM providers must implement this interface, ensuring consistent behavior across different providers.
 
-#### LLMService (Strategy Context) (`internal/services/llm.go`)
+## LLMService (Strategy Context) (`internal/services/llm.go`)
 The `LLMService` acts as a strategy context that:
 - Selects the appropriate provider based on configuration
 - Delegates calls to the selected provider
 - Handles provider initialization and cleanup
 
-### 2. Provider Implementations
-
-#### Currently Implemented Providers
+## Currently Implemented Providers
 
 1. **OpenAIProvider** (`internal/providers/openai.go`)
    - Full implementation for OpenAI GPT models
@@ -57,8 +173,6 @@ The `LLMService` acts as a strategy context that:
    - Testing/demonstration provider
    - Simulates API calls with mock responses
    - Useful for development and testing
-
-#### Partially Implemented (Examples)
 
 4. **ClaudeProvider** (`internal/providers/claude.go`)
    - Skeleton implementation for Anthropic Claude
@@ -180,7 +294,6 @@ llm:
 ## Error Handling
 
 The architecture includes comprehensive error handling:
-
 - Provider initialization errors are logged but don't crash the application
 - Runtime errors are propagated with context
 - Graceful degradation when providers are unavailable
