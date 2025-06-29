@@ -308,7 +308,7 @@ When you remove a service, collected data remains on PMM Server for the specifie
             Avoid using special characters like '\', ';' and '$' in the custom password.
 
     `--query-source=profiler`
-    :  Source of queries, one of: `profiler`, `none` (default: `profiler`).
+    :  Source of queries, one of: `profiler`, `mongolog`, `none` (default: `profiler`).
 
     `--environment=environment`
     :  Environment name.

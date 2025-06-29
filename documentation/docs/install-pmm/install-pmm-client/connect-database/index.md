@@ -4,7 +4,7 @@ Percona Monitoring and Management (PMM) supports monitoring for MySQL/MariaDB, P
 ## Supported database technologies
 
 - [MySQL](mysql/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
-- [MongoDB](mongodb.md)
+- [MongoDB](../connect-database/mongodb/mongodb.md)
 - [PostgreSQL](postgresql.md)
 - [ProxySQL](proxysql.md)
 - [Amazon RDS](aws.md)
@@ -19,7 +19,7 @@ Percona Monitoring and Management (PMM) supports monitoring for MySQL/MariaDB, P
 |----------------------------------------------|------------------|-------------------|------------------|---------------------|---------------------|
 | [MySQL/MariaDB](../connect-database/mysql/mysql.md)     | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> |
 | [PostgreSQL](../connect-database/postgresql.md)          | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> |
-| [MongoDB](../connect-database/mongodb.md)                | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> |
+| [MongoDB](../connect-database/mongodb/mongodb.md)                | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> |
 | [AWS RDS/Aurora](../connect-database/aws.md)             | <span style="color:red">✘</span>  | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> |--->
 | [Azure Database](../connect-database/azure.md)           | <span style="color:red">✘</span>  | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> |
 | [Google Cloud SQL](../connect-database/google.md)        | <span style="color:red">✘</span>  | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> |

@@ -62,7 +62,7 @@ To ensure successful database monitoring with PMM, confirm the following:
 === ":material-database: Core databases"
 
     - [MySQL monitoring requirements](../install-pmm-client/connect-database/mysql/mysql.md#create-a-database-account-for-pmm)  
-    - [MongoDB monitoring requirements](../install-pmm-client/connect-database/mongodb.md#create-a-database-account-and-set-permissions)  
+    - [MongoDB monitoring requirements](../install-pmm-client/connect-database/mongodb/mongodb.md#create-a-database-account-and-set-permissions)  
     - [PostgreSQL monitoring requirements](../install-pmm-client/connect-database/postgresql.md#create-a-database-account-for-pmm)
 
 === ":material-cloud: Cloud services"
