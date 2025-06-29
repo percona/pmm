@@ -18,7 +18,7 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.37.1
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/kingpin/v2 v2.4.0
-	github.com/alecthomas/kong v1.11.0
+	github.com/alecthomas/kong v1.12.0
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b
 	github.com/aws/aws-sdk-go v1.55.7
 	github.com/blang/semver v3.5.1+incompatible
