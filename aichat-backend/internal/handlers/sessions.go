@@ -7,6 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"errors"
+
 	"github.com/percona/pmm/aichat-backend/internal/models"
 	"github.com/percona/pmm/aichat-backend/internal/services"
 )
@@ -114,7 +116,7 @@ func (h *SessionHandler) GetSession(c *gin.Context) {
 
 	session, err := h.dbService.GetSession(c.Request.Context(), sessionID, userID)
 	if err != nil {
-		if err.Error() == "session not found" {
+		if errors.Is(err, services.ErrSessionNotFound) || errors.Is(err, services.ErrUnauthorized) {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "Session not found",
 			})
@@ -159,7 +161,7 @@ func (h *SessionHandler) UpdateSession(c *gin.Context) {
 
 	err := h.dbService.UpdateSession(c.Request.Context(), sessionID, userID, request.Title)
 	if err != nil {
-		if err.Error() == "session not found or not owned by user" {
+		if errors.Is(err, services.ErrSessionNotFound) || errors.Is(err, services.ErrUnauthorized) {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "Session not found",
 			})
@@ -188,7 +190,7 @@ func (h *SessionHandler) DeleteSession(c *gin.Context) {
 
 	err := h.dbService.DeleteSession(c.Request.Context(), sessionID, userID)
 	if err != nil {
-		if err.Error() == "session not found or not owned by user" {
+		if errors.Is(err, services.ErrSessionNotFound) || errors.Is(err, services.ErrUnauthorized) {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "Session not found",
 			})
@@ -232,7 +234,7 @@ func (h *SessionHandler) GetSessionMessages(c *gin.Context) {
 	// First verify the session belongs to the user
 	_, err := h.dbService.GetSession(c.Request.Context(), sessionID, userID)
 	if err != nil {
-		if err.Error() == "session not found" {
+		if errors.Is(err, services.ErrSessionNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "Session not found",
 			})
@@ -283,7 +285,7 @@ func (h *SessionHandler) ClearSessionMessages(c *gin.Context) {
 
 	err := h.dbService.ClearSessionMessages(c.Request.Context(), sessionID, userID)
 	if err != nil {
-		if err.Error() == "session not found or not owned by user" {
+		if errors.Is(err, services.ErrSessionNotFound) || errors.Is(err, services.ErrUnauthorized) {
 			c.JSON(http.StatusNotFound, gin.H{
 				"error": "Session not found",
 			})

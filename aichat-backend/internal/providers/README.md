@@ -19,7 +19,6 @@ All providers must implement the `LLMProvider` interface defined in `interface.g
 
 ```go
 type LLMProvider interface {
-    GenerateResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (*models.Message, error)
     GenerateStreamResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (<-chan *models.StreamMessage, error)
     Close() error
 }

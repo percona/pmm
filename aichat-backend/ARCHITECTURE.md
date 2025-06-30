@@ -143,7 +143,6 @@ internal/
 ## LLMProvider Interface (`internal/providers/interface.go`)
 ```go
 type LLMProvider interface {
-    GenerateResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (*models.Message, error)
     GenerateStreamResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (<-chan *models.StreamMessage, error)
     Close() error
 }
@@ -210,13 +209,6 @@ func NewMyProvider(cfg config.LLMConfig) (*MyProvider, error) {
         client: client,
         config: cfg,
     }, nil
-}
-
-func (p *MyProvider) GenerateResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (*models.Message, error) {
-    // 1. Convert messages to provider format
-    // 2. Convert tools to provider format
-    // 3. Make API call
-    // 4. Convert response back to our format
 }
 
 func (p *MyProvider) GenerateStreamResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (<-chan *models.StreamMessage, error) {
@@ -287,20 +279,18 @@ Example configurations:
 llm:
   provider: "openai"          # openai, gemini, mock, claude, ollama
   model: "gpt-4"             # Provider-specific model name
-  api_key: "${OPENAI_API_KEY}" # API key (can use env vars)
+  api_key: "your-api-key-here" # API key (can use env vars)
   base_url: ""               # Optional custom base URL
 ```
 
 ## Error Handling
 
 The architecture includes comprehensive error handling:
-- Provider initialization errors are logged but don't crash the application
-- Runtime errors are propagated with context
-- Graceful degradation when providers are unavailable
-- Proper resource cleanup on shutdown
-
-## Performance Considerations
-
+llm:
+  provider: "openai"          # openai, gemini, mock, claude, ollama
+  model: "gpt-4"             # Provider-specific model name
+  api_key: "your-api-key-here" # API key (use env vars in production)
+  base_url: ""               # Optional custom base URL
 - Providers are initialized once at startup
 - Connection pooling is handled by individual provider implementations
 - Streaming responses use channels for efficient memory usage

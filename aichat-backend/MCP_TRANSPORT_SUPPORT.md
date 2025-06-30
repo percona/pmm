@@ -200,7 +200,15 @@ The backend exposes these endpoints for MCP management:
 
 ### Debug Logging
 
-Enable debug logging for MCP connections:
+To enable debug logging for MCP connections, set the environment variables in the appropriate location for your server process:
+
+- **For stdio transport:**  
+  Add the variables to the `env` section of the server configuration in your MCP config file (as shown below). These will be passed to the subprocess when it is started.
+
+- **For SSE transport or the main backend server:**  
+  Set the environment variables in your system environment (e.g., in your shell, systemd service file, or Docker environment) before starting the backend server process.
+
+**Example for stdio server configuration:**
 ```json
 {
   "env": {
@@ -209,6 +217,16 @@ Enable debug logging for MCP connections:
   }
 }
 ```
+
+**Example for system environment (SSE or backend):**
+```sh
+export DEBUG=mcp*
+export LOG_LEVEL=debug
+./aichat-backend
+```
+
+> **Note:**  
+> For stdio servers, the `env` block in the config file only affects the subprocess. For the main backend or SSE servers, use your system's environment variable mechanism.
 
 ## Future Enhancements
 

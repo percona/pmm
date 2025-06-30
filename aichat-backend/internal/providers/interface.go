@@ -8,7 +8,6 @@ import (
 
 // LLMProvider defines the interface that all LLM providers must implement
 type LLMProvider interface {
-	GenerateResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (*models.Message, error)
 	GenerateStreamResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (<-chan *models.StreamMessage, error)
 	Close() error
 }

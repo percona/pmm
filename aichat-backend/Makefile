@@ -73,6 +73,7 @@ lint:
 .PHONY: build
 build: deps
 	@echo "Building $(BINARY)..."
+	@mkdir -p $(dir $(BINARY))
 	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) \
 		go build -a -installsuffix cgo $(PMM_LD_FLAGS) \
 		-o $(BINARY) main.go

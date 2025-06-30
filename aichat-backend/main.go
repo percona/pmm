@@ -7,9 +7,10 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
+
+	"net/url"
 
 	"github.com/alecthomas/kong"
 	"github.com/gin-contrib/cors"
@@ -19,6 +20,7 @@ import (
 
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/handlers"
+	"github.com/percona/pmm/aichat-backend/internal/providers"
 	"github.com/percona/pmm/aichat-backend/internal/services"
 	"github.com/percona/pmm/version"
 )
@@ -147,7 +149,10 @@ func main() {
 
 	// Initialize services
 	l.Debug("Initializing services")
-	llmService := services.NewLLMService(cfg.LLM)
+	llmProvider, err := providers.CreateLLMProvider(cfg.LLM)
+	if err != nil {
+		l.WithError(err).Fatal("Failed to initialize LLM provider")
+	}
 	mcpService := services.NewMCPService(cfg)
 
 	// Initialize MCP service (connect to servers)
@@ -156,7 +161,7 @@ func main() {
 		l.WithError(err).Warn("Failed to initialize MCP service")
 	}
 
-	chatService := services.NewChatService(llmService, mcpService, databaseService)
+	chatService := services.NewChatService(llmProvider, mcpService, databaseService)
 
 	// Set system prompt from configuration
 	if cfg.LLM.SystemPrompt != "" {
@@ -258,20 +263,20 @@ func main() {
 
 // maskPassword masks the password in a DSN for logging
 func maskPassword(dsn string) string {
-	if strings.Contains(dsn, "@") {
-		// For postgres://user:pass@host format
-		parts := strings.Split(dsn, "@")
-		if len(parts) == 2 {
-			userPart := parts[0]
-			if strings.Contains(userPart, ":") {
-				userPass := strings.Split(userPart, ":")
-				if len(userPass) >= 2 {
-					return userPass[0] + ":***@" + parts[1]
-				}
-			}
+	u, err := url.Parse(dsn)
+	if err != nil {
+		// If parsing fails, return as-is
+		return dsn
+	}
+	if u.User != nil {
+		username := u.User.Username()
+		if _, hasPassword := u.User.Password(); hasPassword {
+			u.User = url.UserPassword(username, "***")
+		} else {
+			u.User = url.User(username)
 		}
 	}
-	return dsn // Return as-is if we can't parse it
+	return u.String()
 }
 
 // applyCliOverrides applies command line overrides to the configuration

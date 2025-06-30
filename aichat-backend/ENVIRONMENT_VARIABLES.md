@@ -149,7 +149,7 @@ spec:
         - configMapRef:
             name: aichat-config
         - secretRef:
-            name: aichat-secrets
+              name: aichat-secrets
         ports:
         - containerPort: 8080
 ```

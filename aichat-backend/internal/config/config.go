@@ -23,12 +23,14 @@ type ServerConfig struct {
 
 // LLMConfig contains LLM service configuration
 type LLMConfig struct {
-	Provider     string            `yaml:"provider"` // openai, anthropic, etc.
-	APIKey       string            `yaml:"api_key"`
-	Model        string            `yaml:"model"`
-	BaseURL      string            `yaml:"base_url,omitempty"`
-	SystemPrompt string            `yaml:"system_prompt,omitempty"`
-	Options      map[string]string `yaml:"options,omitempty"`
+	Provider       string            `yaml:"provider"` // openai, anthropic, etc.
+	APIKey         string            `yaml:"api_key"`
+	Model          string            `yaml:"model"`
+	BaseURL        string            `yaml:"base_url,omitempty"`
+	SystemPrompt   string            `yaml:"system_prompt,omitempty"`
+	Options        map[string]string `yaml:"options,omitempty"`
+	TimeoutSeconds int               `yaml:"timeout_seconds,omitempty"` // HTTP client timeout in seconds
+	Temperature    float64           `yaml:"temperature,omitempty"`     // LLM temperature parameter
 }
 
 // MCPConfig contains MCP client configuration
@@ -83,7 +85,8 @@ func GetConfigFromDefaults() *Config {
 			Port: 3001,
 		},
 		Database: DatabaseConfig{
-			DSN: "postgres://ai_chat_user:ai_chat_secure_password@127.0.0.1:5432/ai_chat?sslmode=disable",
+			// DSN must be provided via environment variable, CLI flag, or config file for security reasons.
+			DSN: "",
 		},
 		LLM: LLMConfig{
 			Provider:     "openai",
@@ -123,14 +126,15 @@ func (c *Config) GetEnabledMCPServers() (map[string]MCPServerConfig, error) {
 		return map[string]MCPServerConfig{}, nil
 	}
 
-	// Set defaults for missing fields
+	// Set defaults for missing fields and filter only enabled servers
 	enabledServers := make(map[string]MCPServerConfig)
 	for name, serverConfig := range serversConfig.MCPServers {
 		if serverConfig.Timeout == 0 {
 			serverConfig.Timeout = 30 // Default timeout
 		}
-		serverConfig.Enabled = true // All servers are enabled
-		enabledServers[name] = serverConfig
+		if serverConfig.Enabled { // Only include enabled servers
+			enabledServers[name] = serverConfig
+		}
 	}
 
 	return enabledServers, nil

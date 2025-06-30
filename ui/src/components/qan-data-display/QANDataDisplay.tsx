@@ -93,14 +93,15 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
   // Create filters request for the same time period as the data
   const filtersRequest = useMemo(() => {
     const now = new Date();
-    const startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
+    const hours = timeRangeHours ?? 24;
+    const startTime = new Date(now.getTime() - hours * 60 * 60 * 1000); // Use prop instead of hardcoded 24
     
     return {
       period_start_from: startTime.toISOString(),
       period_start_to: now.toISOString(),
       main_metric_name: 'load'
     };
-  }, []);
+  }, [timeRangeHours]);
 
   // Get available filters from the API
   const { data: filtersData, isLoading: filtersLoading } = useQANFilters(filtersRequest, {
@@ -110,9 +111,6 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
 
   // Extract available services from filters
   const availableServices = useMemo(() => {
-    console.log('🔍 QAN Filter Debug: filtersData =', filtersData);
-    console.log('🔍 QAN Filter Debug: filtersLoading =', filtersLoading);
-    
     if (!filtersData?.labels?.serviceName?.name) {
       // Fallback to extracting from database field if filters API not available
       const services = new Set<string>();
@@ -122,20 +120,13 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
         }
       });
       const serviceArray = Array.from(services).sort();
-      console.log('🔍 QAN Filter Debug: Using fallback database extraction');
-      console.log('🔍 Available services from database field:', serviceArray);
-      console.log('🔍 Total data rows:', data.rows.length);
-      console.log('🔍 Non-total rows:', data.rows.filter(row => row.fingerprint !== 'TOTAL' && row.dimension !== ''));
       return serviceArray;
     }
-    
     // Use service names from filters API
-    console.log('🔍 QAN Filter Debug: service_name data =', filtersData.labels.serviceName);
     const apiServices = filtersData.labels.serviceName.name
       .map(service => service.value)
       .filter(service => service && service.trim() !== '')
       .sort();
-    console.log('🔍 QAN Filter Debug: Using API service names:', apiServices);
     return apiServices;
   }, [filtersData, data.rows, filtersLoading]);
 
@@ -253,8 +244,8 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
     onPageChange(newPage, pageSize);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newPageSize = parseInt(event.target.value, 10);
+  const handleChangeRowsPerPage = (event: SelectChangeEvent<number>) => {
+    const newPageSize = parseInt(event.target.value as string, 10);
     if (!onPageChange) return;
     onPageChange(0, newPageSize); // Reset to first page with new page size
   };
@@ -292,7 +283,7 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
 
   const handleAnalyzeInPopup = (row: QANRow, rank: number) => {
     setSelectedQuery(row);
-    setSelectedQueryRank(rank+1);
+    setSelectedQueryRank(rank);
     setDialogOpen(true);
   };
 
@@ -669,7 +660,7 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
             </Typography>
                   <Select
                     value={pageSize || 10}
-                    onChange={(e) => handleChangeRowsPerPage({ target: { value: e.target.value.toString() } } as any)}
+                    onChange={handleChangeRowsPerPage}
                     size="small"
                     sx={{ minWidth: 80 }}
                   >

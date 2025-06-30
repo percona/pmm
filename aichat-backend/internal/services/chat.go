@@ -2,19 +2,23 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/aichat-backend/internal/models"
+	"github.com/percona/pmm/aichat-backend/internal/providers"
 )
 
 // ChatService manages chat sessions and coordinates with LLM and MCP services
 type ChatService struct {
-	llmProvider      LLMProvider
+	llmProvider      providers.LLMProvider
 	mcp              *MCPService
 	database         *DatabaseService
 	streamManager    *StreamManager
@@ -37,7 +41,7 @@ type ChatSession struct {
 }
 
 // NewChatService creates a new chat service
-func NewChatService(llmProvider LLMProvider, mcp *MCPService, database *DatabaseService) *ChatService {
+func NewChatService(llmProvider providers.LLMProvider, mcp *MCPService, database *DatabaseService) *ChatService {
 	return &ChatService{
 		llmProvider:      llmProvider,
 		mcp:              mcp,
@@ -65,7 +69,7 @@ func (s *ChatService) InitiateStreamForUser(ctx context.Context, userID, session
 	}).Debug("Initiating stream for user")
 
 	// Create a unique stream ID
-	streamID := fmt.Sprintf("stream_%s_%d", userID, time.Now().UnixNano())
+	streamID := fmt.Sprintf("stream_%s_%s", userID, uuid.New().String())
 
 	// Start the stream processing in the background
 	streamChan, err := s.ProcessStreamMessageForUser(ctx, userID, sessionID, userMessage)
@@ -130,7 +134,7 @@ func (s *ChatService) ProcessStreamMessageForUser(ctx context.Context, userID, s
 
 	// Add user message to session
 	userMsg := &models.Message{
-		ID:        fmt.Sprintf("user_%d", time.Now().UnixNano()),
+		ID:        s.generateID("user"),
 		Role:      "user",
 		Content:   userMessage,
 		Timestamp: time.Now(),
@@ -180,193 +184,196 @@ func (s *ChatService) ProcessStreamMessageForUser(ctx context.Context, userID, s
 	return outputChan, nil
 }
 
+// Helper to accumulate stream content
+func (s *ChatService) accumulateStreamContent(fullContent *string, streamMsg *models.StreamMessage) {
+	*fullContent += streamMsg.Content
+	s.l.WithField("accumulated_content_length", len(*fullContent)).Debug("Accumulated content length")
+}
+
+// Helper to parse and collect tool calls
+func (s *ChatService) parseAndCollectToolCall(streamMsg *models.StreamMessage, streamToolCalls *[]models.ToolCall, outputChan chan<- *models.StreamMessage, sessionID string) {
+	// Try to parse as JSON first
+	var toolCallObj struct {
+		Name      string          `json:"name"`
+		Arguments json.RawMessage `json:"arguments"`
+	}
+	if err := json.Unmarshal([]byte(streamMsg.Content), &toolCallObj); err == nil && toolCallObj.Name != "" {
+		// Structured JSON tool call
+		*streamToolCalls = append(*streamToolCalls, models.ToolCall{
+			ID:   s.generateID("stream_call"),
+			Type: "function",
+			Function: struct {
+				Name      string `json:"name"`
+				Arguments string `json:"arguments"`
+			}{
+				Name:      toolCallObj.Name,
+				Arguments: string(toolCallObj.Arguments),
+			},
+		})
+		s.l.WithField("collected_tool_call", toolCallObj.Name).Debug("Collected structured tool call for later execution")
+		outputChan <- &models.StreamMessage{
+			Type:      "message",
+			Content:   "🔧 Executing " + toolCallObj.Name + "...\n",
+			SessionID: sessionID,
+		}
+		return
+	}
+
+	// Fallback: regex for function call with nested parentheses or JSON
+	re := regexp.MustCompile(`([a-zA-Z0-9_]+)\s*\((.*)\)$`)
+	if strings.HasPrefix(streamMsg.Content, "Function call: ") {
+		funcCallStr := strings.TrimPrefix(streamMsg.Content, "Function call: ")
+		matches := re.FindStringSubmatch(funcCallStr)
+		if len(matches) == 3 {
+			funcName := matches[1]
+			argsStr := matches[2]
+			// Try to validate if argsStr is valid JSON
+			var jsonTest interface{}
+			if json.Unmarshal([]byte(argsStr), &jsonTest) == nil {
+				argsStr = strings.TrimSpace(argsStr)
+			}
+			*streamToolCalls = append(*streamToolCalls, models.ToolCall{
+				ID:   s.generateID("stream_call"),
+				Type: "function",
+				Function: struct {
+					Name      string `json:"name"`
+					Arguments string `json:"arguments"`
+				}{
+					Name:      funcName,
+					Arguments: argsStr,
+				},
+			})
+			s.l.WithField("collected_tool_call", funcName).Warn("Collected tool call using fallback regex parser")
+			outputChan <- &models.StreamMessage{
+				Type:      "message",
+				Content:   "🔧 Executing " + funcName + "...\n",
+				SessionID: sessionID,
+			}
+			return
+		} else {
+			s.l.WithField("invalid_tool_call_format", funcCallStr).Error("Invalid tool call format (regex fallback)")
+		}
+	} else {
+		s.l.WithField("unexpected_tool_call_format", streamMsg.Content).Error("Unexpected tool call format")
+	}
+}
+
+// Helper to trigger session title generation asynchronously
+func (s *ChatService) triggerSessionTitleGeneration(session *ChatSession, sessionID string) {
+	userMessages := 0
+	assistantMessages := 0
+	for _, msg := range session.Messages {
+		if msg.Role == "user" {
+			userMessages++
+		} else if msg.Role == "assistant" {
+			assistantMessages++
+		}
+	}
+	if userMessages == 1 && assistantMessages == 1 {
+		var firstUserMessage, firstAssistantMessage string
+		for _, msg := range session.Messages {
+			if msg.Role == "user" && firstUserMessage == "" {
+				firstUserMessage = msg.Content
+			} else if msg.Role == "assistant" && firstAssistantMessage == "" {
+				firstAssistantMessage = msg.Content
+				break
+			}
+		}
+		if firstUserMessage != "" && firstAssistantMessage != "" {
+			go func(userMsg, assistantMsg string) {
+				ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+				defer cancel()
+				newTitle := s.generateSessionTitle(ctx, userMsg, assistantMsg)
+				s.updateSessionTitle(ctx, sessionID, session.UserID, newTitle)
+			}(firstUserMessage, firstAssistantMessage)
+		}
+	}
+}
+
+// Helper to handle stream completion logic
+func (s *ChatService) handleStreamCompletion(ctx context.Context, sessionID string, session *ChatSession, fullContent string, streamToolCalls []models.ToolCall, messageCount int, outputChan chan<- *models.StreamMessage) {
+	s.l.WithFields(logrus.Fields{
+		"session_id":     sessionID,
+		"total_messages": messageCount,
+		"content_length": len(fullContent),
+		"tool_calls":     len(streamToolCalls),
+	}).Debug("Stream completed")
+	assistantMsg := &models.Message{
+		ID:        s.generateID("assistant"),
+		Role:      "assistant",
+		Content:   fullContent,
+		Timestamp: time.Now(),
+		ToolCalls: streamToolCalls,
+	}
+	s.addMessageToSession(ctx, sessionID, session, assistantMsg)
+	s.l.WithField("session_id", sessionID).Debug("Saved assistant message to session")
+	s.triggerSessionTitleGeneration(session, sessionID)
+	if len(streamToolCalls) > 0 {
+		s.l.WithField("tool_calls_in_streaming_response", len(streamToolCalls)).Debug("Requesting approval for tool calls from streaming response")
+		requestID := s.generateID("approval")
+		approvalRequest := &models.ToolApprovalRequest{
+			SessionID: sessionID,
+			ToolCalls: streamToolCalls,
+			RequestID: requestID,
+		}
+		s.approvalsMu.Lock()
+		s.pendingApprovals[requestID] = approvalRequest
+		s.approvalsMu.Unlock()
+		approvalMsg := &models.Message{
+			ID:        s.generateID("approval"),
+			Role:      "tool_approval",
+			Content:   fmt.Sprintf("🔧 The assistant wants to execute %d tool(s). Please approve or deny the request.", len(streamToolCalls)),
+			Timestamp: time.Now(),
+			ToolCalls: streamToolCalls,
+		}
+		s.addMessageToSession(ctx, sessionID, session, approvalMsg)
+		outputChan <- &models.StreamMessage{
+			Type:      "tool_approval_request",
+			Content:   fmt.Sprintf("🔧 The assistant wants to execute %d tool(s). Do you approve?", len(streamToolCalls)),
+			SessionID: sessionID,
+			ToolCalls: streamToolCalls,
+			RequestID: requestID,
+		}
+		outputChan <- &models.StreamMessage{
+			Type:      "done",
+			SessionID: sessionID,
+		}
+		return
+	} else {
+		if s.detectToolCallAttempts(fullContent) {
+			s.l.WithField("streaming_response_content", fullContent).Warn("Streaming response suggests tool usage but no tool calls were detected")
+		}
+		outputChan <- &models.StreamMessage{
+			Type:      "done",
+			SessionID: sessionID,
+		}
+	}
+}
+
 func (s *ChatService) handleStreamMessage(ctx context.Context, sessionID string, session *ChatSession, streamChan <-chan *models.StreamMessage, outputChan chan<- *models.StreamMessage, fullContent *string, tools []models.MCPTool, messageCount *int) {
 	var streamToolCalls []models.ToolCall
-
 	for streamMsg := range streamChan {
 		(*messageCount)++
 		streamMsg.SessionID = sessionID
-
 		s.l.WithField("stream_message_count", *messageCount).Debug("Processing stream message")
-
-		if streamMsg.Type == "message" {
-			*fullContent += streamMsg.Content
-			s.l.WithField("accumulated_content_length", len(*fullContent)).Debug("Accumulated content length")
+		switch streamMsg.Type {
+		case "message":
+			s.accumulateStreamContent(fullContent, streamMsg)
 			outputChan <- streamMsg
-		} else if streamMsg.Type == "tool_call" {
-			// Handle tool calls in streaming - collect them for execution after stream completes
-			s.l.WithField("streaming_tool_call", streamMsg.Content).Debug("Streaming tool call detected")
-
-			// Parse tool call from content (format: "Function call: toolname(args)")
-			if strings.HasPrefix(streamMsg.Content, "Function call: ") {
-				funcCallStr := strings.TrimPrefix(streamMsg.Content, "Function call: ")
-
-				// Parse function name and arguments
-				parenIndex := strings.Index(funcCallStr, "(")
-				if parenIndex > 0 {
-					funcName := funcCallStr[:parenIndex]
-					argsStr := strings.TrimSuffix(funcCallStr[parenIndex+1:], ")")
-
-					s.l.WithFields(logrus.Fields{
-						"function_name": funcName,
-						"function_args": argsStr,
-					}).Debug("Parsing streaming tool call")
-
-					// Create tool call object for later execution
-					toolCall := models.ToolCall{
-						ID:   fmt.Sprintf("stream_call_%d", len(streamToolCalls)),
-						Type: "function",
-						Function: struct {
-							Name      string `json:"name"`
-							Arguments string `json:"arguments"`
-						}{
-							Name:      funcName,
-							Arguments: argsStr,
-						},
-					}
-
-					streamToolCalls = append(streamToolCalls, toolCall)
-					s.l.WithField("collected_tool_call", funcName).Debug("Collected tool call for later execution")
-
-					// Send notification to user that tool will be executed
-					outputChan <- &models.StreamMessage{
-						Type:      "message",
-						Content:   fmt.Sprintf("🔧 Executing %s...\n", funcName),
-						SessionID: sessionID,
-					}
-				} else {
-					s.l.WithField("invalid_tool_call_format", funcCallStr).Error("Invalid tool call format")
-				}
-			} else {
-				s.l.WithField("unexpected_tool_call_format", streamMsg.Content).Error("Unexpected tool call format")
-			}
-		} else if streamMsg.Type == "error" {
+		case "tool_call":
+			s.parseAndCollectToolCall(streamMsg, &streamToolCalls, outputChan, sessionID)
+		case "error":
 			s.l.WithField("error", streamMsg.Error).Error("Streaming error")
 			outputChan <- streamMsg
 			return
-		} else if streamMsg.Type == "done" {
-			// Check if the done message includes tool calls (Gemini style)
+		case "done":
 			if len(streamMsg.ToolCalls) > 0 {
 				s.l.WithField("tool_calls_in_done_message", len(streamMsg.ToolCalls)).Debug("Done message includes tool calls from LLM")
 				streamToolCalls = append(streamToolCalls, streamMsg.ToolCalls...)
 			}
-
-			s.l.WithFields(logrus.Fields{
-				"session_id":     sessionID,
-				"total_messages": *messageCount,
-				"content_length": len(*fullContent),
-				"tool_calls":     len(streamToolCalls),
-			}).Debug("Stream completed")
-
-			// Save complete message to session
-			assistantMsg := &models.Message{
-				ID:        fmt.Sprintf("assistant_%d", time.Now().UnixNano()),
-				Role:      "assistant",
-				Content:   *fullContent,
-				Timestamp: time.Now(),
-				ToolCalls: streamToolCalls,
-			}
-
-			s.addMessageToSession(ctx, sessionID, session, assistantMsg)
-
-			s.l.WithField("session_id", sessionID).Debug("Saved assistant message to session")
-
-			// Generate and update session title if this is the first exchange (2 messages: user + assistant)
-			// Note: We need to count only user/assistant messages, not tool approval messages
-			userMessages := 0
-			assistantMessages := 0
-			for _, msg := range session.Messages {
-				if msg.Role == "user" {
-					userMessages++
-				} else if msg.Role == "assistant" {
-					assistantMessages++
-				}
-			}
-
-			if userMessages == 1 && assistantMessages == 1 {
-				// Find the first user message and current assistant message
-				var firstUserMessage, firstAssistantMessage string
-				for _, msg := range session.Messages {
-					if msg.Role == "user" && firstUserMessage == "" {
-						firstUserMessage = msg.Content
-					} else if msg.Role == "assistant" && firstAssistantMessage == "" {
-						firstAssistantMessage = msg.Content
-						break
-					}
-				}
-
-				// Generate title in background to avoid blocking the response
-				if firstUserMessage != "" && firstAssistantMessage != "" {
-					go func(userMsg, assistantMsg string) {
-						ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-						defer cancel()
-
-						newTitle := s.generateSessionTitle(ctx, userMsg, assistantMsg)
-						// We need to extract userID from session context - for now use a placeholder
-						// In real implementation, we should pass userID to this function
-						s.updateSessionTitle(ctx, sessionID, session.UserID, newTitle)
-					}(firstUserMessage, firstAssistantMessage)
-				}
-			}
-
-			// Handle tool calls if present (request approval instead of executing immediately)
-			if len(streamToolCalls) > 0 {
-				s.l.WithField("tool_calls_in_streaming_response", len(streamToolCalls)).Debug("Requesting approval for tool calls from streaming response")
-
-				// Generate approval request ID
-				requestID := fmt.Sprintf("approval_%d", time.Now().UnixNano())
-
-				// Create approval request
-				approvalRequest := &models.ToolApprovalRequest{
-					SessionID: sessionID,
-					ToolCalls: streamToolCalls,
-					RequestID: requestID,
-				}
-
-				// Store pending approval
-				s.approvalsMu.Lock()
-				s.pendingApprovals[requestID] = approvalRequest
-				s.approvalsMu.Unlock()
-
-				// Create tool approval message in chat history
-				approvalMsg := &models.Message{
-					ID:        fmt.Sprintf("approval_%d", time.Now().UnixNano()),
-					Role:      "tool_approval",
-					Content:   fmt.Sprintf("🔧 The assistant wants to execute %d tool(s). Please approve or deny the request.", len(streamToolCalls)),
-					Timestamp: time.Now(),
-					ToolCalls: streamToolCalls,
-				}
-
-				s.addMessageToSession(ctx, sessionID, session, approvalMsg)
-
-				// Send approval request to frontend via stream
-				outputChan <- &models.StreamMessage{
-					Type:      "tool_approval_request",
-					Content:   fmt.Sprintf("🔧 The assistant wants to execute %d tool(s). Do you approve?", len(streamToolCalls)),
-					SessionID: sessionID,
-					ToolCalls: streamToolCalls,
-					RequestID: requestID,
-				}
-
-				// Send done message - user needs to approve before continuing
-				outputChan <- &models.StreamMessage{
-					Type:      "done",
-					SessionID: sessionID,
-				}
-				return
-			} else {
-				// Check if the response content suggests tool usage without proper tool calls
-				if s.detectToolCallAttempts(*fullContent) {
-					s.l.WithField("streaming_response_content", *fullContent).Warn("Streaming response suggests tool usage but no tool calls were detected")
-				}
-
-				// Send done message for non-tool responses
-				outputChan <- &models.StreamMessage{
-					Type:      "done",
-					SessionID: sessionID,
-				}
-			}
-		} else {
+			s.handleStreamCompletion(ctx, sessionID, session, *fullContent, streamToolCalls, *messageCount, outputChan)
+			return
+		default:
 			s.l.WithField("unknown_stream_message_type", streamMsg.Type).Warn("Unknown stream message type")
 		}
 	}
@@ -394,7 +401,7 @@ func (s *ChatService) ClearHistoryForUser(userID, sessionID string) {
 func (s *ChatService) getOrCreateSessionForUser(userID, sessionID string) *ChatSession {
 	// If no sessionID provided, generate a new one
 	if sessionID == "" {
-		sessionID = fmt.Sprintf("session_%d", time.Now().UnixNano())
+		sessionID = fmt.Sprintf("session_%s", uuid.New().String())
 		s.l.WithField("generated_session_id", sessionID).Debug("Generated new session ID")
 	}
 
@@ -719,7 +726,7 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 		}
 		outputChan <- &models.StreamMessage{
 			Type:           "tool_execution",
-			Content:        fmt.Sprintf("�� Executed %d tool(s) (%s)", len(toolExecutions), executionStatus),
+			Content:        fmt.Sprintf("Executed %d tool(s) (%s)", len(toolExecutions), executionStatus),
 			SessionID:      approval.SessionID,
 			ToolExecutions: toolExecutions,
 		}
@@ -931,7 +938,7 @@ func (s *ChatService) createUserMessage(userMessage string, attachments []*model
 	}
 
 	return &models.Message{
-		ID:          fmt.Sprintf("user_%d", time.Now().UnixNano()),
+		ID:          s.generateID("user"),
 		Role:        "user",
 		Content:     userMessage,
 		Timestamp:   time.Now(),
@@ -983,23 +990,31 @@ Respond with ONLY the title, no explanations or quotes. Make it specific and hel
 	// Prepare messages for title generation
 	titleMessages := []*models.Message{
 		{
-			ID:        "title_request",
+			ID:        s.generateID("title_request"),
 			Role:      "user",
 			Content:   titlePrompt,
 			Timestamp: time.Now(),
 		},
 	}
 
-	// Generate title using LLM (without tools)
-	titleResponse, err := s.llmProvider.GenerateResponse(ctx, titleMessages, nil)
+	// Generate title using LLM (without tools) via streaming
+	streamChan, err := s.llmProvider.GenerateStreamResponse(ctx, titleMessages, nil)
 	if err != nil {
-		s.l.WithError(err).Warn("Failed to generate session title")
-		// Fallback to extract key words from user message
+		s.l.WithError(err).Warn("Failed to generate session title (stream)")
 		return s.generateFallbackTitle(userMessage)
 	}
 
-	// Clean up the response
-	title := strings.TrimSpace(titleResponse.Content)
+	var titleBuilder strings.Builder
+	for streamMsg := range streamChan {
+		if streamMsg.Type == "message" && streamMsg.Content != "" {
+			titleBuilder.WriteString(streamMsg.Content)
+		}
+		if streamMsg.Type == "done" {
+			break
+		}
+	}
+
+	title := strings.TrimSpace(titleBuilder.String())
 	title = strings.Trim(title, "\"'")
 
 	// Limit length
@@ -1012,7 +1027,7 @@ Respond with ONLY the title, no explanations or quotes. Make it specific and hel
 		return s.generateFallbackTitle(userMessage)
 	}
 
-	s.l.WithField("generated_session_title", title).Debug("Generated session title")
+	s.l.WithField("generated_session_title", title).Debug("Generated session title (stream)")
 	return title
 }
 
@@ -1073,4 +1088,9 @@ func (s *ChatService) loadPendingApprovalsFromDB(ctx context.Context, sessionID 
 	}
 
 	s.l.WithField("loaded_approvals_count", len(approvals)).Debug("Loaded pending approvals from database for session")
+}
+
+// generateID generates a unique ID with a given prefix
+func (s *ChatService) generateID(prefix string) string {
+	return fmt.Sprintf("%s_%s", prefix, uuid.New().String())
 }

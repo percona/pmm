@@ -47,6 +47,8 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
   const [editTitle, setEditTitle] = useState('');
   const [newSessionTitle, setNewSessionTitle] = useState('');
   const [showNewSessionForm, setShowNewSessionForm] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [sessionIdToDelete, setSessionIdToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -309,9 +311,8 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
                     size="small"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (window.confirm('Are you sure you want to delete this session?')) {
-                        handleDeleteSession(session.id);
-                      }
+                      setSessionIdToDelete(session.id);
+                      setDeleteDialogOpen(true);
                     }}
                     disabled={session.id === currentSessionId}
                   >
@@ -327,6 +328,31 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
       <DialogActions>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
+
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle>Delete Session</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this session?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              if (sessionIdToDelete) {
+                handleDeleteSession(sessionIdToDelete);
+              }
+              setDeleteDialogOpen(false);
+              setSessionIdToDelete(null);
+            }}
+            color="error"
+            variant="contained"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 }; 

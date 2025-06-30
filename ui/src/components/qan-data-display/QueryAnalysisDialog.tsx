@@ -64,20 +64,22 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
   const [toolExecutions, setToolExecutions] = useState<ToolExecution[]>([]);
   const [analysisSessionId, setAnalysisSessionId] = useState<string>('');
   const [isQueryFormatted, setIsQueryFormatted] = useState<boolean>(false);
-  const activeStreamCountRef = useRef(0);
+  const activeStreamsRef = useRef<Map<string, { type: string; timestamp: number }>>(new Map());
 
-  // Thread-safe counter operations
-  const incrementStreamCount = () => {
-    activeStreamCountRef.current += 1;
-    console.log('🔢 Stream count incremented:', activeStreamCountRef.current);
+  // Stream management operations
+  const addStream = (streamId: string, type: string) => {
+    activeStreamsRef.current.set(streamId, { type, timestamp: Date.now() });
+    console.log('🔢 Stream added:', streamId, 'type:', type, 'total:', activeStreamsRef.current.size);
+    debugStreams();
   };
 
-  const decrementStreamCount = (sessionId: string) => {
-    activeStreamCountRef.current = Math.max(0, activeStreamCountRef.current - 1);
-    console.log('🔢 Stream count decremented:', activeStreamCountRef.current);
+  const removeStream = (streamId: string, sessionId: string) => {
+    const wasRemoved = activeStreamsRef.current.delete(streamId);
+    console.log('🔢 Stream removed:', streamId, 'success:', wasRemoved, 'remaining:', activeStreamsRef.current.size);
+    debugStreams();
     
     // Check if we should cleanup the session
-    if (activeStreamCountRef.current === 0 && sessionId) {
+    if (activeStreamsRef.current.size === 0 && sessionId) {
       console.log('🧹 All streams completed, cleaning up session:', sessionId);
       // Clean up immediately since dialog might be closing
       aiChatAPI.deleteSession(sessionId).catch(error => {
@@ -89,7 +91,14 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
     }
   };
 
+  const clearAllStreams = () => {
+    console.log('🧹 Clearing all streams, count:', activeStreamsRef.current.size);
+    activeStreamsRef.current.clear();
+  };
 
+  const debugStreams = () => {
+    console.log('🔍 Current active streams:', Array.from(activeStreamsRef.current.entries()));
+  };
 
   // Reset state when dialog opens/closes
   useEffect(() => {
@@ -100,7 +109,7 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
       setToolExecutions([]);
       setAnalysisSessionId(''); // Reset session ID to let backend create a new one
       setIsQueryFormatted(false); // Reset formatting state
-      activeStreamCountRef.current = 0;
+      clearAllStreams();
       
       // Start analysis
       handleAnalyzeQuery();
@@ -139,7 +148,7 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
   };
 
   // Extracted message handler for analysis stream
-  const handleAnalysisStreamMessage = (message: StreamMessage) => {
+  const handleAnalysisStreamMessage = (message: StreamMessage, currentStreamId?: string) => {
     // Update session ID if backend provides one (for auto-created sessions)
     if (message.session_id && analysisSessionId === '') {
       console.log('🔄 Backend created/provided session ID:', message.session_id);
@@ -154,7 +163,6 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
         break;
       case 'tool_approval_request':
         if (message.tool_calls && message.request_id) {
-          incrementStreamCount();
           // Add pending tool executions to state
           const newToolExecutions = message.tool_calls.map(tool => ({
             id: tool.id,
@@ -200,26 +208,18 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
         }
         break;
       case 'error':
-        setError(message.error || 'An error occurred during analysis');
-        setLoading(false);
+        // Stream errors are now handled by stream-aware error handlers
+        console.log('📊 Analysis stream error for', currentStreamId, ':', message.error);
         break;
       case 'done':
-        setLoading(false);
-        console.log('📊 Analysis stream completed');
-        decrementStreamCount(message.session_id);
+        // Stream completion is now handled by stream-aware complete handlers
+        console.log('📊 Analysis stream completed for', currentStreamId);
+        // But we still need to handle tool approval completion here
+        if (currentStreamId && currentStreamId.startsWith('tool_approval_')) {
+          removeStream(currentStreamId, message.session_id);
+        }
         break;
     }
-  };
-
-  // Common error handler for stream errors
-  const handleStreamError = (error: string) => {
-    setError(error);
-    setLoading(false);
-  };
-
-  // Common completion handler
-  const handleStreamComplete = () => {
-    setLoading(false);
   };
 
   const handleAnalyzeQuery = async () => {
@@ -230,14 +230,34 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
       rank,
     });
 
+    const streamId = 'main_analysis';
+
+    // Create stream-aware handlers
+    const streamAwareMessageHandler = (message: StreamMessage) => {
+      handleAnalysisStreamMessage(message, streamId);
+    };
+
+    const streamAwareErrorHandler = (error: string) => {
+      console.error('Stream error for', streamId, ':', error);
+      setError(error);
+      setLoading(false);
+      removeStream(streamId, analysisSessionId);
+    };
+
+    const streamAwareCompleteHandler = () => {
+      console.log('Stream completed for', streamId);
+      setLoading(false);
+      removeStream(streamId, analysisSessionId);
+    };
+
     try {
-      incrementStreamCount();
+      addStream(streamId, 'analysis_prompt');
       const cleanup = await aiChatAPI.streamChatWithSeparateEndpoints(
         analysisSessionId,
         analysisPrompt,
-        handleAnalysisStreamMessage,
-        handleStreamError,
-        handleStreamComplete
+        streamAwareMessageHandler,
+        streamAwareErrorHandler,
+        streamAwareCompleteHandler
       );
 
       // Store cleanup function for potential cancellation
@@ -246,6 +266,7 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
       console.error('Error analyzing query:', error);
       setError('Failed to start analysis. Please try again.');
       setLoading(false);
+      removeStream(streamId, analysisSessionId);
     }
   };
 
@@ -274,12 +295,31 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
         ? `[APPROVE_TOOLS:${message.request_id}]`
         : `[DENY_TOOLS:${message.request_id}]`;
 
+      const approvalStreamId = `approval_${message.request_id}`;
+      addStream(approvalStreamId, 'approval_message');
+
+      // Create stream-aware handlers for approval
+      const approvalMessageHandler = (msg: StreamMessage) => {
+        handleAnalysisStreamMessage(msg, approvalStreamId);
+      };
+
+      const approvalErrorHandler = (error: string) => {
+        console.error('Approval stream error for', approvalStreamId, ':', error);
+        setError('Failed to process tool approval');
+        removeStream(approvalStreamId, message.session_id);
+      };
+
+      const approvalCompleteHandler = () => {
+        console.log('Approval stream completed for', approvalStreamId);
+        removeStream(approvalStreamId, message.session_id);
+      };
+
       await aiChatAPI.streamChatWithSeparateEndpoints(
         message.session_id,
         approvalMessage,
-        handleAnalysisStreamMessage,
-        handleStreamError,
-        handleStreamComplete
+        approvalMessageHandler,
+        approvalErrorHandler,
+        approvalCompleteHandler
       );
     } catch (error) {
       console.error('Error handling tool approval:', error);

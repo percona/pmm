@@ -3,16 +3,22 @@ package services
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/models"
+)
+
+var (
+	ErrSessionNotFound = errors.New("session not found")
+	ErrUnauthorized    = errors.New("session not found or not owned by user")
 )
 
 // logrusReformLogger implements reform.Logger for logrus
@@ -90,13 +96,13 @@ func (s *DatabaseService) reconnect() error {
 	db, err := s.dbConfig.OpenDatabase()
 	if err != nil {
 		s.l.WithError(err).Error("Failed to open new connection during reconnection")
-		return errors.Wrap(err, "failed to open new database connection during reconnection")
+		return fmt.Errorf("failed to open new database connection during reconnection: %w", err)
 	}
 
 	if err := db.Ping(); err != nil {
 		db.Close()
 		s.l.WithError(err).Error("Ping failed on new connection during reconnection")
-		return errors.Wrap(err, "failed to ping new database connection during reconnection")
+		return fmt.Errorf("failed to ping new database connection during reconnection: %w", err)
 	}
 
 	s.db = db
@@ -112,7 +118,7 @@ func (s *DatabaseService) CreateSession(ctx context.Context, userID, title strin
 	// Test database connection before proceeding
 	if err := s.ensureConnection(); err != nil {
 		s.l.WithError(err).Error("Connection failed in CreateSession")
-		return nil, errors.Wrap(err, "database connection failed")
+		return nil, fmt.Errorf("database connection failed: %w", err)
 	}
 	s.l.Info("Connection successful in CreateSession")
 
@@ -130,7 +136,7 @@ func (s *DatabaseService) CreateSession(ctx context.Context, userID, title strin
 	err := s.reformDB.WithContext(ctx).Insert(session)
 	if err != nil {
 		s.l.WithError(err).Error("Failed to create chat session")
-		return nil, errors.Wrap(err, "failed to create chat session")
+		return nil, fmt.Errorf("failed to create chat session: %w", err)
 	}
 
 	s.l.WithField("session_id", session.ID).Info("Successfully created session")
@@ -142,21 +148,21 @@ func (s *DatabaseService) GetSession(ctx context.Context, sessionID, userID stri
 	// Ensure database connection is active
 	if err := s.ensureConnection(); err != nil {
 		s.l.WithError(err).Error("Connection failed in GetSession")
-		return nil, errors.Wrap(err, "database connection failed")
+		return nil, fmt.Errorf("database connection failed: %w", err)
 	}
 
 	var session models.ChatSession
 	err := s.reformDB.WithContext(ctx).FindByPrimaryKeyTo(&session, sessionID)
 	if err != nil {
 		if err == reform.ErrNoRows {
-			return nil, errors.New("session not found")
+			return nil, ErrSessionNotFound
 		}
-		return nil, errors.Wrap(err, "failed to get chat session")
+		return nil, fmt.Errorf("failed to get chat session: %w", err)
 	}
 
 	// Verify ownership
 	if session.UserID != userID {
-		return nil, errors.New("session not found")
+		return nil, ErrUnauthorized
 	}
 
 	return &session, nil
@@ -166,12 +172,12 @@ func (s *DatabaseService) GetSession(ctx context.Context, sessionID, userID stri
 func (s *DatabaseService) GetUserSessions(ctx context.Context, userID string, limit, offset int) ([]*models.ChatSession, error) {
 	// Ensure database connection is active
 	if err := s.ensureConnection(); err != nil {
-		return nil, errors.Wrap(err, "database connection failed")
+		return nil, fmt.Errorf("database connection failed: %w", err)
 	}
 
 	structs, err := s.reformDB.WithContext(ctx).SelectAllFrom(models.ChatSessionTable, "WHERE user_id = $1 ORDER BY updated_at DESC LIMIT $2 OFFSET $3", userID, limit, offset)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get user sessions")
+		return nil, fmt.Errorf("failed to get user sessions: %w", err)
 	}
 
 	sessions := make([]*models.ChatSession, len(structs))
@@ -186,7 +192,7 @@ func (s *DatabaseService) GetUserSessions(ctx context.Context, userID string, li
 func (s *DatabaseService) UpdateSession(ctx context.Context, sessionID, userID, title string) error {
 	// Ensure database connection is active
 	if err := s.ensureConnection(); err != nil {
-		return errors.Wrap(err, "database connection failed")
+		return fmt.Errorf("database connection failed: %w", err)
 	}
 
 	// First get the session to verify ownership
@@ -199,7 +205,7 @@ func (s *DatabaseService) UpdateSession(ctx context.Context, sessionID, userID, 
 	session.Title = title
 	err = s.reformDB.WithContext(ctx).Update(session)
 	if err != nil {
-		return errors.Wrap(err, "failed to update chat session")
+		return fmt.Errorf("failed to update chat session: %w", err)
 	}
 
 	return nil
@@ -209,13 +215,13 @@ func (s *DatabaseService) UpdateSession(ctx context.Context, sessionID, userID, 
 func (s *DatabaseService) DeleteSession(ctx context.Context, sessionID, userID string) error {
 	// Ensure database connection is active
 	if err := s.ensureConnection(); err != nil {
-		return errors.Wrap(err, "database connection failed")
+		return fmt.Errorf("database connection failed: %w", err)
 	}
 
 	// Start transaction
 	tx, err := s.reformDB.BeginTx(ctx, nil)
 	if err != nil {
-		return errors.Wrap(err, "failed to start transaction")
+		return fmt.Errorf("failed to start transaction: %w", err)
 	}
 	defer tx.Rollback()
 
@@ -228,19 +234,19 @@ func (s *DatabaseService) DeleteSession(ctx context.Context, sessionID, userID s
 	// Delete attachments first
 	_, err = tx.Exec("DELETE FROM chat_attachments WHERE message_id IN (SELECT id FROM chat_messages WHERE session_id = $1)", sessionID)
 	if err != nil {
-		return errors.Wrap(err, "failed to delete chat attachments")
+		return fmt.Errorf("failed to delete chat attachments: %w", err)
 	}
 
 	// Delete messages
 	_, err = tx.Exec("DELETE FROM chat_messages WHERE session_id = $1", sessionID)
 	if err != nil {
-		return errors.Wrap(err, "failed to delete chat messages")
+		return fmt.Errorf("failed to delete chat messages: %w", err)
 	}
 
 	// Delete session
 	err = tx.Delete(session)
 	if err != nil {
-		return errors.Wrap(err, "failed to delete chat session")
+		return fmt.Errorf("failed to delete chat session: %w", err)
 	}
 
 	return tx.Commit()
@@ -250,13 +256,13 @@ func (s *DatabaseService) DeleteSession(ctx context.Context, sessionID, userID s
 func (s *DatabaseService) SaveMessage(ctx context.Context, sessionID string, msg *models.Message) error {
 	// Ensure database connection is active
 	if err := s.ensureConnection(); err != nil {
-		return errors.Wrap(err, "database connection failed")
+		return fmt.Errorf("database connection failed: %w", err)
 	}
 
 	// Start transaction
 	tx, err := s.reformDB.BeginTx(ctx, nil)
 	if err != nil {
-		return errors.Wrap(err, "failed to start transaction")
+		return fmt.Errorf("failed to start transaction: %w", err)
 	}
 	defer tx.Rollback()
 
@@ -332,7 +338,7 @@ func (s *DatabaseService) SaveMessage(ctx context.Context, sessionID string, msg
 	// Insert message
 	err = tx.Insert(chatMessage)
 	if err != nil {
-		return errors.Wrap(err, "failed to save chat message")
+		return fmt.Errorf("failed to save chat message: %w", err)
 	}
 
 	// Save attachments if present
@@ -349,7 +355,7 @@ func (s *DatabaseService) SaveMessage(ctx context.Context, sessionID string, msg
 
 			err = tx.Insert(chatAttachment)
 			if err != nil {
-				return errors.Wrap(err, "failed to save chat attachment")
+				return fmt.Errorf("failed to save chat attachment: %w", err)
 			}
 		}
 	}
@@ -358,12 +364,12 @@ func (s *DatabaseService) SaveMessage(ctx context.Context, sessionID string, msg
 	session := &models.ChatSession{ID: sessionID}
 	err = tx.Reload(session)
 	if err != nil {
-		return errors.Wrap(err, "failed to reload session for timestamp update")
+		return fmt.Errorf("failed to reload session for timestamp update: %w", err)
 	}
 
 	err = tx.Update(session)
 	if err != nil {
-		return errors.Wrap(err, "failed to update session timestamp")
+		return fmt.Errorf("failed to update session timestamp: %w", err)
 	}
 
 	return tx.Commit()
@@ -373,7 +379,7 @@ func (s *DatabaseService) SaveMessage(ctx context.Context, sessionID string, msg
 func (s *DatabaseService) GetSessionMessages(ctx context.Context, sessionID, userID string, limit, offset int) ([]*models.Message, error) {
 	// Ensure database connection is active
 	if err := s.ensureConnection(); err != nil {
-		return nil, errors.Wrap(err, "database connection failed")
+		return nil, fmt.Errorf("database connection failed: %w", err)
 	}
 
 	// Verify session ownership
@@ -384,7 +390,7 @@ func (s *DatabaseService) GetSessionMessages(ctx context.Context, sessionID, use
 
 	structs, err := s.reformDB.WithContext(ctx).SelectAllFrom(models.ChatMessageTable, "WHERE session_id = $1 ORDER BY created_at ASC LIMIT $2 OFFSET $3", sessionID, limit, offset)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get session messages")
+		return nil, fmt.Errorf("failed to get session messages: %w", err)
 	}
 
 	messages := make([]*models.Message, len(structs))
@@ -450,11 +456,7 @@ func (s *DatabaseService) GetSessionMessages(ctx context.Context, sessionID, use
 					},
 				}
 			}
-			msg.ApprovalRequest = &struct {
-				RequestID string            `json:"request_id"`
-				ToolCalls []models.ToolCall `json:"tool_calls"`
-				Processed bool              `json:"processed,omitempty"`
-			}{
+			msg.ApprovalRequest = &models.ApprovalRequest{
 				RequestID: chatMsg.ApprovalRequest.RequestID,
 				ToolCalls: toolCalls,
 				Processed: chatMsg.ApprovalRequest.Processed,
@@ -478,7 +480,7 @@ func (s *DatabaseService) GetSessionMessages(ctx context.Context, sessionID, use
 func (s *DatabaseService) getMessageAttachments(ctx context.Context, messageID string) ([]models.Attachment, error) {
 	structs, err := s.reformDB.WithContext(ctx).SelectAllFrom(models.ChatAttachmentTable, "WHERE message_id = $1 ORDER BY created_at ASC", messageID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get message attachments")
+		return nil, fmt.Errorf("failed to get message attachments: %w", err)
 	}
 
 	attachments := make([]models.Attachment, len(structs))
@@ -500,7 +502,7 @@ func (s *DatabaseService) getMessageAttachments(ctx context.Context, messageID s
 func (s *DatabaseService) ClearSessionMessages(ctx context.Context, sessionID, userID string) error {
 	// Ensure database connection is active
 	if err := s.ensureConnection(); err != nil {
-		return errors.Wrap(err, "database connection failed")
+		return fmt.Errorf("database connection failed: %w", err)
 	}
 
 	// Verify session ownership
@@ -512,7 +514,7 @@ func (s *DatabaseService) ClearSessionMessages(ctx context.Context, sessionID, u
 	// Start transaction
 	tx, err := s.reformDB.BeginTx(ctx, nil)
 	if err != nil {
-		return errors.Wrap(err, "failed to start transaction")
+		return fmt.Errorf("failed to start transaction: %w", err)
 	}
 	defer tx.Rollback()
 
@@ -521,24 +523,24 @@ func (s *DatabaseService) ClearSessionMessages(ctx context.Context, sessionID, u
 		"WHERE message_id IN (SELECT id FROM chat_messages WHERE session_id = $1)",
 		sessionID)
 	if err != nil {
-		return errors.Wrap(err, "failed to delete chat attachments")
+		return fmt.Errorf("failed to delete chat attachments: %w", err)
 	}
 
 	// Delete messages using Reform bulk delete
 	_, err = tx.DeleteFrom(models.ChatMessageTable, "WHERE session_id = $1", sessionID)
 	if err != nil {
-		return errors.Wrap(err, "failed to delete chat messages")
+		return fmt.Errorf("failed to delete chat messages: %w", err)
 	}
 
 	// Update session timestamp by fetching and updating the session record
 	session, err := s.GetSession(ctx, sessionID, userID)
 	if err != nil {
-		return errors.Wrap(err, "failed to get session for update")
+		return fmt.Errorf("failed to get session for update: %w", err)
 	}
 
 	err = tx.Update(session)
 	if err != nil {
-		return errors.Wrap(err, "failed to update session timestamp")
+		return fmt.Errorf("failed to update session timestamp: %w", err)
 	}
 
 	return tx.Commit()
@@ -548,7 +550,7 @@ func (s *DatabaseService) ClearSessionMessages(ctx context.Context, sessionID, u
 func (s *DatabaseService) GetPendingApprovals(ctx context.Context, sessionID string) ([]*models.ToolApprovalRequest, error) {
 	// Ensure database connection is active
 	if err := s.ensureConnection(); err != nil {
-		return nil, errors.Wrap(err, "database connection failed")
+		return nil, fmt.Errorf("database connection failed: %w", err)
 	}
 
 	// Query messages with unprocessed approval requests using Reform SelectAllFrom
@@ -556,7 +558,7 @@ func (s *DatabaseService) GetPendingApprovals(ctx context.Context, sessionID str
 		"WHERE session_id = $1 AND approval_request IS NOT NULL AND (approval_request->>'processed')::boolean = false",
 		sessionID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get pending approvals")
+		return nil, fmt.Errorf("failed to get pending approvals: %w", err)
 	}
 
 	var approvals []*models.ToolApprovalRequest
@@ -579,7 +581,7 @@ func (s *DatabaseService) GetPendingApprovals(ctx context.Context, sessionID str
 func (s *DatabaseService) MarkApprovalProcessed(ctx context.Context, sessionID, requestID string) error {
 	// Ensure database connection is active
 	if err := s.ensureConnection(); err != nil {
-		return errors.Wrap(err, "database connection failed")
+		return fmt.Errorf("database connection failed: %w", err)
 	}
 
 	// Find the message with the approval request using Reform
@@ -587,7 +589,7 @@ func (s *DatabaseService) MarkApprovalProcessed(ctx context.Context, sessionID, 
 		"WHERE session_id = $1 AND approval_request->>'request_id' = $2",
 		sessionID, requestID)
 	if err != nil {
-		return errors.Wrap(err, "failed to find approval request")
+		return fmt.Errorf("failed to find approval request: %w", err)
 	}
 
 	if len(structs) == 0 {
@@ -600,7 +602,7 @@ func (s *DatabaseService) MarkApprovalProcessed(ctx context.Context, sessionID, 
 		chatMsg.ApprovalRequest.Processed = true
 		err = s.reformDB.WithContext(ctx).Update(chatMsg)
 		if err != nil {
-			return errors.Wrap(err, "failed to mark approval as processed")
+			return fmt.Errorf("failed to mark approval as processed: %w", err)
 		}
 	}
 

@@ -14,30 +14,38 @@ type Attachment struct {
 	Path     string `json:"path,omitempty"`    // File path for larger files
 }
 
+// ApprovalRequest represents a request for approval in a message
+// (extracted from the inline struct in Message)
+type ApprovalRequest struct {
+	RequestID string     `json:"request_id"`
+	ToolCalls []ToolCall `json:"tool_calls"`
+	Processed bool       `json:"processed,omitempty"`
+}
+
 // Message represents a chat message
 type Message struct {
-	ID              string          `json:"id"`
-	Role            string          `json:"role"` // user, assistant, system
-	Content         string          `json:"content"`
-	Timestamp       time.Time       `json:"timestamp"`
-	ToolCalls       []ToolCall      `json:"tool_calls,omitempty"`
-	ToolExecutions  []ToolExecution `json:"tool_executions,omitempty"`
-	Attachments     []Attachment    `json:"attachments,omitempty"`
-	ApprovalRequest *struct {
-		RequestID string     `json:"request_id"`
-		ToolCalls []ToolCall `json:"tool_calls"`
-		Processed bool       `json:"processed,omitempty"`
-	} `json:"approval_request,omitempty"`
+	ID              string           `json:"id"`
+	Role            string           `json:"role"` // user, assistant, system
+	Content         string           `json:"content"`
+	Timestamp       time.Time        `json:"timestamp"`
+	ToolCalls       []ToolCall       `json:"tool_calls,omitempty"`
+	ToolExecutions  []ToolExecution  `json:"tool_executions,omitempty"`
+	Attachments     []Attachment     `json:"attachments,omitempty"`
+	ApprovalRequest *ApprovalRequest `json:"approval_request,omitempty"`
+}
+
+// Function represents a tool function call's function details
+// (extracted from the inline struct in ToolCall)
+type Function struct {
+	Name      string `json:"name"`
+	Arguments string `json:"arguments"`
 }
 
 // ToolCall represents a tool function call
 type ToolCall struct {
-	ID       string `json:"id"`
-	Type     string `json:"type"`
-	Function struct {
-		Name      string `json:"name"`
-		Arguments string `json:"arguments"`
-	} `json:"function"`
+	ID       string   `json:"id"`
+	Type     string   `json:"type"`
+	Function Function `json:"function"`
 }
 
 // ToolExecution represents the execution details of a tool call

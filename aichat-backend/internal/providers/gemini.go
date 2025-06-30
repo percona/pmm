@@ -9,6 +9,7 @@ import (
 
 	"google.golang.org/genai"
 
+	"github.com/google/uuid"
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/models"
 	"github.com/sirupsen/logrus"
@@ -78,44 +79,21 @@ func (p *GeminiProvider) convertMCPToolsToGemini(tools []models.MCPTool) []*gena
 	return functions
 }
 
-// GenerateResponse generates a response using Google Gemini API with function calling
-func (p *GeminiProvider) GenerateResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (*models.Message, error) {
-	// Convert MCP tools to Gemini functions
-	var toolConfig *genai.GenerateContentConfig
-	functions := p.convertMCPToolsToGemini(tools)
-	if len(functions) > 0 {
-		toolConfig = &genai.GenerateContentConfig{
-			Tools: []*genai.Tool{{
-				FunctionDeclarations: functions,
-			}},
-			Temperature: genai.Ptr(float32(0.7)),
-		}
-	} else {
-		toolConfig = &genai.GenerateContentConfig{
-			Temperature: genai.Ptr(float32(0.7)),
-		}
-	}
-
-	// Convert messages to Gemini format
+// convertMessagesToGemini converts []*models.Message to []*genai.Content for Gemini API
+func (p *GeminiProvider) convertMessagesToGemini(messages []*models.Message) []*genai.Content {
 	var contents []*genai.Content
-
 	for _, msg := range messages {
 		role := genai.RoleUser
 		if msg.Role == "assistant" {
 			role = genai.RoleModel
 		}
 
-		// Handle tool calls in assistant messages
 		if msg.Role == "assistant" && len(msg.ToolCalls) > 0 {
-			// Create content with function calls
 			parts := []*genai.Part{}
-
-			// Add text content if any
 			if msg.Content != "" {
 				parts = append(parts, genai.NewPartFromText(msg.Content))
 			}
 
-			// Add function calls
 			for _, toolCall := range msg.ToolCalls {
 				var args map[string]interface{}
 				if err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args); err != nil {
@@ -133,29 +111,24 @@ func (p *GeminiProvider) GenerateResponse(ctx context.Context, messages []*model
 			}
 			contents = append(contents, content)
 		} else if msg.Role == "tool" {
-			// Tool results should be formatted as function responses
-			// For now, we'll convert them to text parts but ensure they have proper content
 			if msg.Content == "" {
 				continue
 			}
 
-			parts := []*genai.Part{genai.NewPartFromText(fmt.Sprintf("Tool result: %s", msg.Content))}
+			parts := []*genai.Part{genai.NewPartFromText(msg.Content)}
 
 			content := &genai.Content{
-				Role:  genai.RoleUser, // Tool results should be from user perspective
+				Role:  genai.RoleUser,
 				Parts: parts,
 			}
 			contents = append(contents, content)
 		} else {
-			// Handle regular user or system messages
 			if msg.Content == "" {
 				continue
 			}
 
-			// Create parts starting with text content
 			parts := []*genai.Part{genai.NewPartFromText(msg.Content)}
 
-			// Add attachment parts for user messages
 			if msg.Role == "user" && len(msg.Attachments) > 0 {
 				attachmentParts := p.convertAttachmentsToGeminiParts(msg.Attachments)
 				parts = append(parts, attachmentParts...)
@@ -168,58 +141,7 @@ func (p *GeminiProvider) GenerateResponse(ctx context.Context, messages []*model
 			contents = append(contents, content)
 		}
 	}
-
-	// Generate content
-	resp, err := p.client.Models.GenerateContent(ctx, p.config.Model, contents, toolConfig)
-	if err != nil {
-		return nil, fmt.Errorf("Gemini API request failed: %w", err)
-	}
-
-	if len(resp.Candidates) == 0 {
-		return nil, fmt.Errorf("no response candidates from Gemini")
-	}
-
-	candidate := resp.Candidates[0]
-	if candidate.Content == nil || len(candidate.Content.Parts) == 0 {
-		return nil, fmt.Errorf("empty response from Gemini")
-	}
-
-	// Parse response content and tool calls
-	var content string
-	var toolCalls []models.ToolCall
-
-	for _, part := range candidate.Content.Parts {
-		if part.Text != "" {
-			content += part.Text
-		}
-		if part.FunctionCall != nil {
-			// Convert to tool call
-			argsBytes, err := json.Marshal(part.FunctionCall.Args)
-			if err != nil {
-				p.l.WithError(err).Error("Failed to marshal function arguments")
-				continue
-			}
-
-			toolCall := models.ToolCall{
-				ID:   fmt.Sprintf("call_%d", len(toolCalls)),
-				Type: "function",
-				Function: struct {
-					Name      string `json:"name"`
-					Arguments string `json:"arguments"`
-				}{
-					Name:      part.FunctionCall.Name,
-					Arguments: string(argsBytes),
-				},
-			}
-			toolCalls = append(toolCalls, toolCall)
-		}
-	}
-
-	return &models.Message{
-		Role:      "assistant",
-		Content:   content,
-		ToolCalls: toolCalls,
-	}, nil
+	return contents
 }
 
 // GenerateStreamResponse generates a streaming response using Google Gemini API
@@ -240,71 +162,8 @@ func (p *GeminiProvider) GenerateStreamResponse(ctx context.Context, messages []
 		}
 	}
 
-	// Convert messages to Gemini format (same as non-streaming)
-	var contents []*genai.Content
-
-	for _, msg := range messages {
-		role := genai.RoleUser
-		if msg.Role == "assistant" {
-			role = genai.RoleModel
-		}
-
-		if msg.Role == "assistant" && len(msg.ToolCalls) > 0 {
-			parts := []*genai.Part{}
-			if msg.Content != "" {
-				parts = append(parts, genai.NewPartFromText(msg.Content))
-			}
-
-			for _, toolCall := range msg.ToolCalls {
-				var args map[string]interface{}
-				if err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args); err != nil {
-					p.l.WithError(err).Error("Failed to parse function arguments")
-					continue
-				}
-
-				functionCallPart := genai.NewPartFromFunctionCall(toolCall.Function.Name, args)
-				parts = append(parts, functionCallPart)
-			}
-
-			content := &genai.Content{
-				Role:  role,
-				Parts: parts,
-			}
-			contents = append(contents, content)
-		} else if msg.Role == "tool" {
-			// Tool results should be formatted as function responses
-			// For now, we'll convert them to text parts but ensure they have proper content
-			if msg.Content == "" {
-				continue
-			}
-
-			parts := []*genai.Part{genai.NewPartFromText(fmt.Sprintf("Tool result: %s", msg.Content))}
-
-			content := &genai.Content{
-				Role:  genai.RoleUser, // Tool results should be from user perspective
-				Parts: parts,
-			}
-			contents = append(contents, content)
-		} else {
-			// Regular user or system messages
-			if msg.Content == "" {
-				continue
-			}
-
-			parts := []*genai.Part{genai.NewPartFromText(msg.Content)}
-
-			if msg.Role == "user" && len(msg.Attachments) > 0 {
-				attachmentParts := p.convertAttachmentsToGeminiParts(msg.Attachments)
-				parts = append(parts, attachmentParts...)
-			}
-
-			content := &genai.Content{
-				Role:  role,
-				Parts: parts,
-			}
-			contents = append(contents, content)
-		}
-	}
+	// Use the new helper to convert messages
+	contents := p.convertMessagesToGemini(messages)
 
 	// Create response channel
 	responseChan := make(chan *models.StreamMessage, 10)
@@ -360,7 +219,7 @@ func (p *GeminiProvider) GenerateStreamResponse(ctx context.Context, messages []
 					}
 
 					toolCall := models.ToolCall{
-						ID:   fmt.Sprintf("call_%d", len(detectedToolCalls)),
+						ID:   fmt.Sprintf("call_%s", uuid.New().String()),
 						Type: "function",
 						Function: struct {
 							Name      string `json:"name"`

@@ -6,7 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -45,11 +45,17 @@ func NewClaudeProvider(cfg config.LLMConfig) (*ClaudeProvider, error) {
 	if model == "" {
 		model = defaultClaudeModel
 	}
+
+	timeout := time.Duration(cfg.TimeoutSeconds) * time.Second
+	if timeout == 0 {
+		timeout = 30 * time.Second
+	}
+
 	return &ClaudeProvider{
 		config: cfg,
 		apiKey: apiKey,
 		model:  model,
-		client: &http.Client{},
+		client: &http.Client{Timeout: timeout},
 		l:      logrus.WithField("component", "claude-provider"),
 	}, nil
 }
@@ -123,7 +129,9 @@ type claudeStreamEvent struct {
 	ContentBlock claudeContent   `json:"content_block"`
 }
 
-func (p *ClaudeProvider) convertMessagesToClaude(messages []*models.Message) []claudeMessage {
+// GenerateStreamResponse generates a streaming response using Anthropic Claude API
+func (p *ClaudeProvider) GenerateStreamResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (<-chan *models.StreamMessage, error) {
+	// Inline convertMessagesToClaude
 	claudeMessages := make([]claudeMessage, 0, len(messages))
 	for _, m := range messages {
 		role := "user"
@@ -134,7 +142,6 @@ func (p *ClaudeProvider) convertMessagesToClaude(messages []*models.Message) []c
 		var contentParts []interface{}
 
 		if m.Role == "tool" {
-			// Handle tool result messages
 			results := make([]interface{}, len(m.ToolExecutions))
 			for i, te := range m.ToolExecutions {
 				results[i] = claudeToolResult{
@@ -145,13 +152,23 @@ func (p *ClaudeProvider) convertMessagesToClaude(messages []*models.Message) []c
 			}
 			contentParts = append(contentParts, results...)
 		} else {
-			// Handle regular text and attachments
 			if m.Content != "" {
 				contentParts = append(contentParts, map[string]string{"type": "text", "text": m.Content})
 			}
 			if len(m.Attachments) > 0 {
-				attachmentParts := p.convertAttachmentsToClaudeParts(m.Attachments)
-				contentParts = append(contentParts, attachmentParts...)
+				// Inline convertAttachmentsToClaudeParts
+				for _, attachment := range m.Attachments {
+					if strings.HasPrefix(attachment.MimeType, "image/") && attachment.Content != "" {
+						contentParts = append(contentParts, map[string]interface{}{
+							"type": "image",
+							"source": &claudeImageSource{
+								Type:      "base64",
+								MediaType: attachment.MimeType,
+								Data:      attachment.Content,
+							},
+						})
+					}
+				}
 			}
 		}
 
@@ -160,10 +177,8 @@ func (p *ClaudeProvider) convertMessagesToClaude(messages []*models.Message) []c
 			Content: contentParts,
 		})
 	}
-	return claudeMessages
-}
 
-func (p *ClaudeProvider) convertToolsToClaude(tools []models.MCPTool) []claudeTool {
+	// Inline convertToolsToClaude
 	claudeTools := make([]claudeTool, len(tools))
 	for i, t := range tools {
 		claudeTools[i] = claudeTool{
@@ -172,116 +187,6 @@ func (p *ClaudeProvider) convertToolsToClaude(tools []models.MCPTool) []claudeTo
 			InputSchema: t.InputSchema,
 		}
 	}
-	return claudeTools
-}
-
-func (p *ClaudeProvider) convertAttachmentsToClaudeParts(attachments []models.Attachment) []interface{} {
-	var parts []interface{}
-	for _, attachment := range attachments {
-		if strings.HasPrefix(attachment.MimeType, "image/") && attachment.Content != "" {
-			parts = append(parts, map[string]interface{}{
-				"type": "image",
-				"source": &claudeImageSource{
-					Type:      "base64",
-					MediaType: attachment.MimeType,
-					Data:      attachment.Content,
-				},
-			})
-		}
-	}
-	return parts
-}
-
-// GenerateResponse generates a response using Anthropic Claude API
-func (p *ClaudeProvider) GenerateResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (*models.Message, error) {
-	claudeMessages := p.convertMessagesToClaude(messages)
-	claudeTools := p.convertToolsToClaude(tools)
-
-	reqBody := claudeRequest{
-		Model:    p.model,
-		Messages: claudeMessages,
-		Tools:    claudeTools,
-	}
-	if p.config.SystemPrompt != "" {
-		reqBody.System = p.config.SystemPrompt
-	}
-	if maxTokens, ok := p.config.Options["max_tokens"]; ok {
-		fmt.Sscanf(maxTokens, "%d", &reqBody.MaxTokens)
-	}
-
-	bodyBytes, err := json.Marshal(reqBody)
-	if err != nil {
-		p.l.WithError(err).Error("Failed to marshal Claude request")
-		return nil, err
-	}
-
-	req, err := http.NewRequestWithContext(ctx, "POST", claudeAPIURL, bytes.NewReader(bodyBytes))
-	if err != nil {
-		p.l.WithError(err).Error("Failed to create Claude API request")
-		return nil, err
-	}
-	req.Header.Set("x-api-key", p.apiKey)
-	req.Header.Set("anthropic-version", "2023-06-01")
-	req.Header.Set("content-type", "application/json")
-
-	resp, err := p.client.Do(req)
-	if err != nil {
-		p.l.WithError(err).Error("Claude API request failed")
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		p.l.WithError(err).Error("Failed to read Claude API response body")
-		return nil, err
-	}
-
-	if resp.StatusCode != 200 {
-		p.l.WithField("status", resp.StatusCode).WithField("body", string(respBody)).Error("Claude API error")
-		return nil, fmt.Errorf("Claude API error: %s", string(respBody))
-	}
-
-	var claudeResp claudeResponse
-	if err := json.Unmarshal(respBody, &claudeResp); err != nil {
-		p.l.WithError(err).WithField("body", string(respBody)).Error("Failed to unmarshal Claude response")
-		return nil, err
-	}
-
-	var contentBuilder strings.Builder
-	var toolCalls []models.ToolCall
-
-	for _, part := range claudeResp.Content {
-		if part.Type == "text" {
-			contentBuilder.WriteString(part.Text)
-		} else if part.Type == "tool_use" {
-			toolCalls = append(toolCalls, models.ToolCall{
-				ID:   part.ID,
-				Type: "function",
-				Function: struct {
-					Name      string `json:"name"`
-					Arguments string `json:"arguments"`
-				}{
-					Name:      part.Name,
-					Arguments: string(mustJSONMarshal(part.Input)),
-				},
-			})
-		}
-	}
-
-	return &models.Message{
-		ID:        "claude_response_" + claudeResp.ID,
-		Role:      "assistant",
-		Content:   contentBuilder.String(),
-		Timestamp: time.Now().UTC(),
-		ToolCalls: toolCalls,
-	}, nil
-}
-
-// GenerateStreamResponse generates a streaming response using Anthropic Claude API
-func (p *ClaudeProvider) GenerateStreamResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (<-chan *models.StreamMessage, error) {
-	claudeMessages := p.convertMessagesToClaude(messages)
-	claudeTools := p.convertToolsToClaude(tools)
 
 	reqBody := claudeRequest{
 		Model:     p.model,
@@ -319,7 +224,7 @@ func (p *ClaudeProvider) GenerateStreamResponse(ctx context.Context, messages []
 	}
 
 	if resp.StatusCode != 200 {
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		resp.Body.Close()
 		p.l.WithField("status", resp.StatusCode).WithField("body", string(body)).Error("Claude API streaming error")
 		return nil, fmt.Errorf("Claude API streaming error: %s", string(body))
@@ -382,12 +287,4 @@ func (p *ClaudeProvider) handleStreamingResponse(resp *http.Response, responseCh
 // Close closes the Claude provider
 func (p *ClaudeProvider) Close() error {
 	return nil
-}
-
-func mustJSONMarshal(v interface{}) string {
-	b, err := json.Marshal(v)
-	if err != nil {
-		panic(err)
-	}
-	return string(b)
 }

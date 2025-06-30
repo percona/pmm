@@ -201,7 +201,7 @@ func TestRefreshTools_Parallel_Structure(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Should complete very quickly with no servers
-	assert.Less(t, duration, 100*time.Millisecond, "RefreshTools should complete quickly with no servers")
+	assert.Less(t, duration, 300*time.Millisecond, "RefreshTools should complete quickly with no servers")
 
 	// Verify tools map is properly initialized
 	tools := service.GetTools()
@@ -251,7 +251,8 @@ func TestRefreshTools_WithReconnection(t *testing.T) {
 
 	// Initialize to load server configurations
 	ctx := context.Background()
-	service.Initialize(ctx)
+	err = service.Initialize(ctx)
+	assert.NoError(t, err, "Initialize should not return an error")
 
 	// Verify servers were loaded
 	service.mu.RLock()

@@ -7,6 +7,7 @@ ENV LANG=en_US.utf8
 ENV GF_PLUGIN_DIR=/srv/grafana/plugins
 ENV PERCONA_TELEMETRY_DISABLE=1
 ENV PS1="[\u@\h \W] # "
+ENV PATH=/home/pmm/.local/bin:$PATH
 
 WORKDIR /opt
 

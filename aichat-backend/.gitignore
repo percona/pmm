@@ -1,1 +1,6 @@
-./aichat-backend
+# aichat-backend/.gitignore
+
+# Ignore build artefacts generated inside this directory
+/build/
+/dist/
+aichat-backend

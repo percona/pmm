@@ -84,7 +84,7 @@
         postgresql_user:
           name: ai_chat_user
           password: ai_chat_secure_password
-          role_attr_flags: CREATEDB,LOGIN
+          role_attr_flags: LOGIN
           login_user: postgres
           state: present
 

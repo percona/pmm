@@ -123,10 +123,6 @@
   include_role:
     name: pmm-client
 
-- name: Install AI Chat with MCP support
-  include_role:
-    name: ai-chat
-
 - name: Create a backup directory
   file:
     path: /srv/backup
@@ -148,6 +144,10 @@
     state: touch
     owner: pmm
     group: pmm
+
+- name: Install AI Chat with MCP support
+  include_role:
+    name: ai-chat
 
 # Launch pmm-managed-init first as it may update supervisord configuration on start
 - name: Generate new supervisor config

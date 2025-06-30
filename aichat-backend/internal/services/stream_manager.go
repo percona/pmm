@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/aichat-backend/internal/models"
@@ -109,7 +110,7 @@ func (sm *StreamManager) CloseStream(streamID string) {
 
 // InitiateStream creates a new stream and returns its ID
 func (sm *StreamManager) InitiateStream(ctx context.Context, userID string, streamChan <-chan *models.StreamMessage) string {
-	streamID := fmt.Sprintf("stream_%s_%d", userID, time.Now().UnixNano())
+	streamID := generateID("stream")
 	sm.StoreStream(streamID, userID, streamChan)
 	return streamID
 }
@@ -181,4 +182,8 @@ func (sm *StreamManager) Close() error {
 
 	sm.l.WithField("closed_streams_count", streamCount).Info("StreamManager closed all active streams")
 	return nil
+}
+
+func generateID(prefix string) string {
+	return fmt.Sprintf("%s_%s", prefix, uuid.New().String())
 }

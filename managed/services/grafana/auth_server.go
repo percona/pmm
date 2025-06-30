@@ -100,7 +100,7 @@ var rules = map[string]role{
 	"/graph":           none,
 	"/swagger":         viewer,
 
-	"/v1/mcp": none, // TODO: remove this once we have a proper auth for mcp
+	"/v1/mcp": viewer, // TODO: remove this once we have a proper auth for mcp
 
 	// AI Chat API - requires viewer role for basic access
 	"/v1/chat/": viewer,

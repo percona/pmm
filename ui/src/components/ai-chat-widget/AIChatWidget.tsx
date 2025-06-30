@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
+import React, { useEffect, useRef, useCallback, forwardRef, useImperativeHandle, useReducer } from 'react';
 import {
   Box,
   Paper,
@@ -44,6 +44,112 @@ export interface AIChatWidgetRef {
   openAndSendMessage: (message: string) => void;
 }
 
+// State interface for useReducer
+interface ChatState {
+  isOpen: boolean;
+  messages: ChatMessage[];
+  inputMessage: string;
+  isLoading: boolean;
+  sessionId: string;
+  availableTools: MCPTool[];
+  showTools: boolean;
+  streamingMessage: string;
+  attachments: FileAttachment[];
+  toolsLoading: boolean;
+  showSessionSelector: boolean;
+  sessionInitialized: boolean;
+}
+
+// Action types for the reducer
+type ChatAction =
+  | { type: 'SET_IS_OPEN'; payload: boolean }
+  | { type: 'SET_MESSAGES'; payload: ChatMessage[] }
+  | { type: 'ADD_MESSAGE'; payload: ChatMessage }
+  | { type: 'UPDATE_MESSAGES'; payload: (messages: ChatMessage[]) => ChatMessage[] }
+  | { type: 'SET_INPUT_MESSAGE'; payload: string }
+  | { type: 'SET_IS_LOADING'; payload: boolean }
+  | { type: 'SET_SESSION_ID'; payload: string }
+  | { type: 'SET_AVAILABLE_TOOLS'; payload: MCPTool[] }
+  | { type: 'SET_SHOW_TOOLS'; payload: boolean }
+  | { type: 'SET_STREAMING_MESSAGE'; payload: string }
+  | { type: 'SET_ATTACHMENTS'; payload: FileAttachment[] }
+  | { type: 'SET_TOOLS_LOADING'; payload: boolean }
+  | { type: 'SET_SHOW_SESSION_SELECTOR'; payload: boolean }
+  | { type: 'SET_SESSION_INITIALIZED'; payload: boolean }
+  | { type: 'CLEAR_CHAT_STATE' }
+  | { type: 'RESET_SESSION_STATE'; payload: { sessionId: string; messages: ChatMessage[] } };
+
+// Initial state
+const createInitialState = (defaultOpen: boolean): ChatState => ({
+  isOpen: defaultOpen,
+  messages: [],
+  inputMessage: '',
+  isLoading: false,
+  sessionId: '',
+  availableTools: [],
+  showTools: false,
+  streamingMessage: '',
+  attachments: [],
+  toolsLoading: true,
+  showSessionSelector: false,
+  sessionInitialized: false,
+});
+
+// Reducer function
+const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
+  switch (action.type) {
+    case 'SET_IS_OPEN':
+      return { ...state, isOpen: action.payload };
+    case 'SET_MESSAGES':
+      return { ...state, messages: action.payload };
+    case 'ADD_MESSAGE':
+      return { ...state, messages: [...state.messages, action.payload] };
+    case 'UPDATE_MESSAGES':
+      return { ...state, messages: action.payload(state.messages) };
+    case 'SET_INPUT_MESSAGE':
+      return { ...state, inputMessage: action.payload };
+    case 'SET_IS_LOADING':
+      return { ...state, isLoading: action.payload };
+    case 'SET_SESSION_ID':
+      return { ...state, sessionId: action.payload };
+    case 'SET_AVAILABLE_TOOLS':
+      return { ...state, availableTools: action.payload };
+    case 'SET_SHOW_TOOLS':
+      return { ...state, showTools: action.payload };
+    case 'SET_STREAMING_MESSAGE':
+      return { ...state, streamingMessage: action.payload };
+    case 'SET_ATTACHMENTS':
+      return { ...state, attachments: action.payload };
+    case 'SET_TOOLS_LOADING':
+      return { ...state, toolsLoading: action.payload };
+    case 'SET_SHOW_SESSION_SELECTOR':
+      return { ...state, showSessionSelector: action.payload };
+    case 'SET_SESSION_INITIALIZED':
+      return { ...state, sessionInitialized: action.payload };
+    case 'CLEAR_CHAT_STATE':
+      return {
+        ...state,
+        messages: [],
+        streamingMessage: '',
+        attachments: [],
+        showSessionSelector: false,
+        sessionInitialized: true,
+      };
+    case 'RESET_SESSION_STATE':
+      return {
+        ...state,
+        sessionId: action.payload.sessionId,
+        messages: action.payload.messages,
+        streamingMessage: '',
+        attachments: [],
+        showSessionSelector: false,
+        sessionInitialized: true,
+      };
+    default:
+      return state;
+  }
+};
+
 export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
   defaultOpen = false,
   open,
@@ -54,27 +160,15 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
   onMessageSent,
   onOpenChange,
 }, ref) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [state, dispatch] = useReducer(chatReducer, createInitialState(defaultOpen));
 
   // Handle controlled open state
   useEffect(() => {
     if (open !== undefined) {
-      setIsOpen(open);
+      dispatch({ type: 'SET_IS_OPEN', payload: open });
     }
   }, [open]);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [sessionId, setSessionId] = useState<string>('');
-  const [availableTools, setAvailableTools] = useState<MCPTool[]>([]);
-  const [showTools, setShowTools] = useState(false);
-  const [streamingMessage, setStreamingMessage] = useState('');
-  const [attachments, setAttachments] = useState<FileAttachment[]>([]);
-  const [toolsLoading, setToolsLoading] = useState(true);
-  const [showSessionSelector, setShowSessionSelector] = useState(false);
-  const [sessionInitialized, setSessionInitialized] = useState(false);
 
-  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const streamCleanupRef = useRef<(() => void) | null>(null);
   const streamingContentRef = useRef<string>('');
@@ -87,7 +181,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, streamingMessage, scrollToBottom]);
+  }, [state.messages, state.streamingMessage, scrollToBottom]);
 
   // Load available tools on component mount (no session creation)
   useEffect(() => {
@@ -96,14 +190,14 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
 
   // Load chat history when session is selected/changed
   useEffect(() => {
-    if (sessionInitialized && sessionId) {
+    if (state.sessionInitialized && state.sessionId) {
       loadChatHistory();
     }
-  }, [sessionId, sessionInitialized]); // Dependencies: sessionId and sessionInitialized
+  }, [state.sessionId, state.sessionInitialized]); // Dependencies: sessionId and sessionInitialized
 
   const loadChatHistory = async () => {
     try {
-      const history = await aiChatAPI.getHistory(sessionId);
+      const history = await aiChatAPI.getHistory(state.sessionId);
       console.log('🔍 LoadChatHistory: Received history:', history);
       console.log('🔍 LoadChatHistory: Messages with attachments:', 
         history.messages.filter(msg => msg.attachments && msg.attachments.length > 0));
@@ -122,7 +216,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
         return message;
       });
       
-      setMessages(processedMessages);
+      dispatch({ type: 'SET_MESSAGES', payload: processedMessages });
     } catch (error) {
       console.error('Failed to load chat history:', error);
     }
@@ -130,7 +224,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
 
   const loadAvailableTools = async (forceRefresh: boolean = false) => {
     try {
-      setToolsLoading(true);
+      dispatch({ type: 'SET_TOOLS_LOADING', payload: true });
       console.log(`🔧 Loading MCP tools${forceRefresh ? ' (force refresh)' : ''}...`);
       
       // Log the exact URL being called
@@ -139,7 +233,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
       
       const toolsResponse = await aiChatAPI.getMCPTools(forceRefresh);
       console.log(`🔧 MCP Tools response:`, toolsResponse);
-      setAvailableTools(toolsResponse.tools);
+      dispatch({ type: 'SET_AVAILABLE_TOOLS', payload: toolsResponse.tools });
       console.log(`✅ ${toolsResponse.tools.length} MCP tools available:`, toolsResponse.tools.map(t => t.name));
     } catch (error) {
       console.error('❌ Failed to load MCP tools:', error);
@@ -148,9 +242,9 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
         stack: error instanceof Error ? error.stack : undefined,
       });
       // Set empty array on error to ensure UI updates
-      setAvailableTools([]);
+      dispatch({ type: 'SET_AVAILABLE_TOOLS', payload: [] });
     } finally {
-      setToolsLoading(false);
+      dispatch({ type: 'SET_TOOLS_LOADING', payload: false });
     }
   };
 
@@ -159,29 +253,24 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
   };
 
   // Create session on first message (removed automatic initialization)
-  const createSessionOnFirstMessage = async (): Promise<string> => {
+  const createSessionOnFirstMessage = useCallback(async (): Promise<string> => {
     console.log('🆕 Creating new session for first message...');
     
     // No need to create session explicitly - backend will create it automatically
     // Just return empty string and let backend handle session creation
     const newSessionId = ''; // Empty session ID triggers backend session creation
-    setSessionId(newSessionId);
-    setSessionInitialized(true);
+    dispatch({ type: 'SET_SESSION_ID', payload: newSessionId });
+    dispatch({ type: 'SET_SESSION_INITIALIZED', payload: true });
     console.log('✅ Session will be created automatically by backend on first message');
     return newSessionId;
-  };
+  }, []);
 
   // Session management handlers
   const handleSessionSelect = async (newSessionId: string) => {
-    console.log('🔄 Session select starting:', { newSessionId, currentSessionId: sessionId });
+    console.log('🔄 Session select starting:', { newSessionId, currentSessionId: state.sessionId });
     
-    setSessionId(newSessionId);
-    setMessages([]);
-    setStreamingMessage('');
-    setAttachments([]);
+    dispatch({ type: 'CLEAR_CHAT_STATE' });
     streamingContentRef.current = '';
-    setShowSessionSelector(false);
-    setSessionInitialized(true); // Mark as initialized when selecting existing session
     
     console.log('🔄 Session state cleared, loading history...');
     
@@ -204,11 +293,214 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
       });
       
       console.log('🔄 Setting processed messages:', processedMessages.length);
-      setMessages(processedMessages);
+      dispatch({ type: 'RESET_SESSION_STATE', payload: { sessionId: newSessionId, messages: processedMessages } });
     } catch (error) {
       console.error('❌ Failed to load session history:', error);
     }
   };
+
+  // Helper function to ensure session exists
+  const ensureSession = useCallback(async (): Promise<string> => {
+    let currentSessionId = state.sessionId;
+    if (!state.sessionInitialized || !currentSessionId) {
+      console.log('🆕 No session exists, creating session on first message...');
+      currentSessionId = await createSessionOnFirstMessage();
+    }
+    return currentSessionId;
+  }, [state.sessionId, state.sessionInitialized, createSessionOnFirstMessage]);
+
+  // Helper function to add user message to UI
+  const addUserMessage = useCallback((messageText: string, attachments: FileAttachment[] = []): ChatMessage => {
+    const newUserMessage: ChatMessage = {
+      id: `user_${Date.now()}`,
+      role: 'user',
+      content: messageText,
+      timestamp: new Date().toISOString(),
+      attachments: attachments,
+    };
+    dispatch({ type: 'ADD_MESSAGE', payload: newUserMessage });
+    return newUserMessage;
+  }, []);
+
+  // Helper function to handle file message uploads
+  const handleFileMessage = useCallback(async (
+    messageText: string,
+    attachments: FileAttachment[],
+    sessionId: string
+  ): Promise<string> => {
+    const response = await aiChatAPI.sendMessageWithFiles({
+      message: messageText,
+      session_id: sessionId,
+      attachments: attachments,
+    });
+
+    if (response.error) {
+      throw new Error(response.error);
+    }
+
+    if (response.message) {
+      dispatch({ type: 'ADD_MESSAGE', payload: response.message });
+    }
+
+    // Return updated session ID if backend created a new one
+    return response.session_id || sessionId;
+  }, []);
+
+  // Helper function to handle individual stream messages
+  const handleStreamMessage = useCallback((streamMessage: StreamMessage, currentSessionId: string): string => {
+    let updatedSessionId = currentSessionId;
+
+    // Update session ID if backend provides a new one in stream messages
+    if (streamMessage.session_id && streamMessage.session_id !== currentSessionId) {
+      console.log('🔄 Backend created new session via stream:', streamMessage.session_id);
+      dispatch({ type: 'SET_SESSION_ID', payload: streamMessage.session_id });
+      updatedSessionId = streamMessage.session_id;
+    }
+
+    if (streamMessage.type === 'message') {
+      const newContent = streamMessage.content || '';
+      streamingContentRef.current += newContent;
+      dispatch({ type: 'SET_STREAMING_MESSAGE', payload: streamingContentRef.current });
+    } else if (streamMessage.type === 'tool_approval_request') {
+      console.log('Tool approval request:', streamMessage.tool_calls, 'Request ID:', streamMessage.request_id);
+      if (streamMessage.tool_calls && streamMessage.tool_calls.length > 0 && streamMessage.request_id) {
+        const approvalMessage: ChatMessage = {
+          id: `approval_${Date.now()}`,
+          role: 'tool_approval',
+          content: `🔧 The assistant wants to execute ${streamMessage.tool_calls.length} tool(s). Please approve or deny the request.`,
+          timestamp: new Date().toISOString(),
+          tool_calls: streamMessage.tool_calls,
+          approval_request: {
+            request_id: streamMessage.request_id,
+            tool_calls: streamMessage.tool_calls,
+          },
+        };
+        dispatch({ type: 'ADD_MESSAGE', payload: approvalMessage });
+        dispatch({ type: 'SET_STREAMING_MESSAGE', payload: '' });
+        streamingContentRef.current = '';
+      }
+    } else if (streamMessage.type === 'tool_execution') {
+      console.log('Tool executions:', streamMessage.tool_executions);
+      if (streamMessage.tool_executions && streamMessage.tool_executions.length > 0) {
+        let toolContent = '\n\n**Tool Execution Results:**\n\n';
+        streamMessage.tool_executions.forEach(exec => {
+          toolContent += `🔧 **${exec.tool_name}** (${exec.duration_ms}ms)\n`;
+          if (exec.error) {
+            toolContent += `❌ Error: ${exec.error}\n\n`;
+          } else if (exec.result) {
+            const resultPreview = exec.result.length > 300 ? 
+              exec.result.substring(0, 300) + '...' : 
+              exec.result;
+            toolContent += `✅ Result:\n\`\`\`\n${resultPreview}\n\`\`\`\n\n`;
+          }
+        });
+        streamingContentRef.current += toolContent;
+        dispatch({ type: 'SET_STREAMING_MESSAGE', payload: streamingContentRef.current });
+      }
+    } else if (streamMessage.type === 'error') {
+      console.error('Stream error:', streamMessage.error);
+      
+      // Clear any streaming content since we have an error
+      dispatch({ type: 'SET_STREAMING_MESSAGE', payload: '' });
+      streamingContentRef.current = '';
+      
+      // Create a proper error message to display in the chat
+      const errorMessage: ChatMessage = {
+        id: `error_${Date.now()}`,
+        role: 'assistant',
+        content: `❌ **Error**: ${streamMessage.error}`,
+        timestamp: new Date().toISOString(),
+      };
+      
+      dispatch({ type: 'ADD_MESSAGE', payload: errorMessage });
+      dispatch({ type: 'SET_IS_LOADING', payload: false });
+    }
+
+    return updatedSessionId;
+  }, []);
+
+  // Helper function to handle streaming messages
+  const handleStreamingMessage = useCallback(async (
+    messageText: string,
+    sessionId: string,
+    onComplete?: () => void
+  ): Promise<void> => {
+    const cleanup = await aiChatAPI.streamChatWithSeparateEndpoints(
+      sessionId,
+      messageText,
+      (streamMessage: StreamMessage) => {
+        handleStreamMessage(streamMessage, sessionId);
+      },
+      (error: string) => {
+        console.error('Stream connection error:', error);
+        
+        // Clear any streaming content since we have an error
+        dispatch({ type: 'SET_STREAMING_MESSAGE', payload: '' });
+        streamingContentRef.current = '';
+        
+        // Create a proper error message to display in the chat
+        const errorMessage: ChatMessage = {
+          id: `connection_error_${Date.now()}`,
+          role: 'assistant',
+          content: `🔌 **Connection Error**: ${error}`,
+          timestamp: new Date().toISOString(),
+        };
+        
+        dispatch({ type: 'ADD_MESSAGE', payload: errorMessage });
+        dispatch({ type: 'SET_IS_LOADING', payload: false });
+        onComplete?.();
+      },
+      () => {
+        // Stream completed - use ref value (always current)
+        const finalContent = streamingContentRef.current;
+        if (finalContent) {
+          const assistantMessage: ChatMessage = {
+            id: `assistant_${Date.now()}`,
+            role: 'assistant',
+            content: finalContent,
+            timestamp: new Date().toISOString(),
+          };
+          dispatch({ type: 'ADD_MESSAGE', payload: assistantMessage });
+        }
+        
+        // Clear any processed approval requests
+        dispatch({ type: 'UPDATE_MESSAGES', payload: (messages) => 
+          messages.map(msg => 
+            msg.approval_request?.processed 
+              ? { ...msg, approval_request: undefined }
+              : msg
+          )
+        });
+        
+        dispatch({ type: 'SET_STREAMING_MESSAGE', payload: '' });
+        streamingContentRef.current = '';
+        dispatch({ type: 'SET_IS_LOADING', payload: false });
+        streamCleanupRef.current = null;
+        onComplete?.();
+      }
+    );
+    
+    streamCleanupRef.current = cleanup;
+  }, [handleStreamMessage]);
+
+  // Helper function to handle send errors
+  const handleSendError = useCallback((error: unknown, onComplete?: () => void): void => {
+    console.error('Error sending message:', error);
+    
+    // Create a proper error message to display in the chat
+    const errorMessage: ChatMessage = {
+      id: `send_error_${Date.now()}`,
+      role: 'assistant',
+      content: `❌ **Failed to send message**: ${error instanceof Error ? error.message : String(error)}`,
+      timestamp: new Date().toISOString(),
+    };
+    
+    dispatch({ type: 'ADD_MESSAGE', payload: errorMessage });
+    dispatch({ type: 'SET_IS_LOADING', payload: false });
+    dispatch({ type: 'SET_STREAMING_MESSAGE', payload: '' });
+    streamingContentRef.current = '';
+    onComplete?.();
+  }, []);
 
   // Unified function to send a message with streaming support
   const sendMessageWithStreaming = useCallback(async (
@@ -216,206 +508,42 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
     messageAttachments: FileAttachment[] = [],
     onComplete?: () => void
   ) => {
-    if (!messageText.trim() || isLoading) return;
+    if (!messageText.trim() || state.isLoading) return;
 
     const userMessage = messageText.trim();
     
-    // If no session exists, create one automatically (session creation on first message)
-    let currentSessionId = sessionId;
-    if (!sessionInitialized || !currentSessionId) {
-      console.log('🆕 No session exists, creating session on first message...');
-      currentSessionId = await createSessionOnFirstMessage();
-    }
-    
-    setIsLoading(true);
-    setStreamingMessage('');
-    streamingContentRef.current = '';
-
-    // Add user message to UI immediately
-    const newUserMessage: ChatMessage = {
-      id: `user_${Date.now()}`,
-      role: 'user',
-      content: userMessage,
-      timestamp: new Date().toISOString(),
-      attachments: messageAttachments,
-    };
-    setMessages(prev => [...prev, newUserMessage]);
-
     try {
-      // Use file upload endpoint if attachments are present
+      // Step 1: Ensure session exists
+      const currentSessionId = await ensureSession();
+      
+      // Step 2: Set loading state and clear streaming content
+      dispatch({ type: 'SET_IS_LOADING', payload: true });
+      dispatch({ type: 'SET_STREAMING_MESSAGE', payload: '' });
+      streamingContentRef.current = '';
+
+      // Step 3: Add user message to UI immediately
+      addUserMessage(userMessage, messageAttachments);
+
+      // Step 4: Handle message based on whether it has attachments
       if (messageAttachments.length > 0) {
-        const response = await aiChatAPI.sendMessageWithFiles({
-          message: userMessage,
-          session_id: currentSessionId,
-          attachments: messageAttachments,
-        });
-
-        if (response.error) {
-          throw new Error(response.error);
-        }
-
-        if (response.message) {
-          setMessages(prev => [...prev, response.message!]);
-          
-          // Update session ID if backend created a new one
-          if (response.session_id && response.session_id !== currentSessionId) {
-            console.log('🔄 Backend created new session:', response.session_id);
-            setSessionId(response.session_id);
-            currentSessionId = response.session_id;
-          }
-        }
-        
-        setIsLoading(false);
+        await handleFileMessage(userMessage, messageAttachments, currentSessionId);
+        dispatch({ type: 'SET_IS_LOADING', payload: false });
         onComplete?.();
       } else {
-        // Start streaming response for regular messages
-        const cleanup = await aiChatAPI.streamChatWithSeparateEndpoints(
-          currentSessionId,
-          userMessage,
-          (streamMessage: StreamMessage) => {
-            // Update session ID if backend provides a new one in stream messages
-            if (streamMessage.session_id && streamMessage.session_id !== currentSessionId) {
-              console.log('🔄 Backend created new session via stream:', streamMessage.session_id);
-              setSessionId(streamMessage.session_id);
-              currentSessionId = streamMessage.session_id;
-            }
-            
-            if (streamMessage.type === 'message') {
-              const newContent = streamMessage.content || '';
-              streamingContentRef.current += newContent;
-              setStreamingMessage(streamingContentRef.current);
-            } else if (streamMessage.type === 'tool_approval_request') {
-              console.log('Tool approval request:', streamMessage.tool_calls, 'Request ID:', streamMessage.request_id);
-              if (streamMessage.tool_calls && streamMessage.tool_calls.length > 0 && streamMessage.request_id) {
-                const approvalMessage: ChatMessage = {
-                  id: `approval_${Date.now()}`,
-                  role: 'tool_approval',
-                  content: `🔧 The assistant wants to execute ${streamMessage.tool_calls.length} tool(s). Please approve or deny the request.`,
-                  timestamp: new Date().toISOString(),
-                  tool_calls: streamMessage.tool_calls,
-                  approval_request: {
-                    request_id: streamMessage.request_id,
-                    tool_calls: streamMessage.tool_calls,
-                  },
-                };
-                setMessages(prev => [...prev, approvalMessage]);
-                setStreamingMessage('');
-                streamingContentRef.current = '';
-              }
-            } else if (streamMessage.type === 'tool_execution') {
-              console.log('Tool executions:', streamMessage.tool_executions);
-              if (streamMessage.tool_executions && streamMessage.tool_executions.length > 0) {
-                let toolContent = '\n\n**Tool Execution Results:**\n\n';
-                streamMessage.tool_executions.forEach(exec => {
-                  toolContent += `🔧 **${exec.tool_name}** (${exec.duration_ms}ms)\n`;
-                  if (exec.error) {
-                    toolContent += `❌ Error: ${exec.error}\n\n`;
-                  } else if (exec.result) {
-                    const resultPreview = exec.result.length > 300 ? 
-                      exec.result.substring(0, 300) + '...' : 
-                      exec.result;
-                    toolContent += `✅ Result:\n\`\`\`\n${resultPreview}\n\`\`\`\n\n`;
-                  }
-                });
-                streamingContentRef.current += toolContent;
-                setStreamingMessage(streamingContentRef.current);
-              }
-            } else if (streamMessage.type === 'error') {
-              console.error('Stream error:', streamMessage.error);
-              
-              // Clear any streaming content since we have an error
-              setStreamingMessage('');
-              streamingContentRef.current = '';
-              
-              // Create a proper error message to display in the chat
-              const errorMessage: ChatMessage = {
-                id: `error_${Date.now()}`,
-                role: 'assistant',
-                content: `❌ **Error**: ${streamMessage.error}`,
-                timestamp: new Date().toISOString(),
-              };
-              
-              setMessages(prev => [...prev, errorMessage]);
-              setIsLoading(false);
-            }
-          },
-          (error: string) => {
-            console.error('Stream connection error:', error);
-            
-            // Clear any streaming content since we have an error
-            setStreamingMessage('');
-            streamingContentRef.current = '';
-            
-            // Create a proper error message to display in the chat
-            const errorMessage: ChatMessage = {
-              id: `connection_error_${Date.now()}`,
-              role: 'assistant',
-              content: `🔌 **Connection Error**: ${error}`,
-              timestamp: new Date().toISOString(),
-            };
-            
-            setMessages(prev => [...prev, errorMessage]);
-            setIsLoading(false);
-            onComplete?.();
-          },
-          () => {
-            // Stream completed - use ref value (always current)
-            const finalContent = streamingContentRef.current;
-            if (finalContent) {
-              const assistantMessage: ChatMessage = {
-                id: `assistant_${Date.now()}`,
-                role: 'assistant',
-                content: finalContent,
-                timestamp: new Date().toISOString(),
-              };
-              setMessages(prev => [...prev, assistantMessage]);
-            }
-            
-            // Clear any processed approval requests
-            setMessages(prevMessages => 
-              prevMessages.map(msg => 
-                msg.approval_request?.processed 
-                  ? { ...msg, approval_request: undefined }
-                  : msg
-              )
-            );
-            
-            setStreamingMessage('');
-            streamingContentRef.current = '';
-            setIsLoading(false);
-            streamCleanupRef.current = null;
-            onComplete?.();
-          }
-        );
-        
-        streamCleanupRef.current = cleanup;
+        await handleStreamingMessage(userMessage, currentSessionId, onComplete);
       }
     } catch (error) {
-      console.error('Error sending message:', error);
-      
-      // Create a proper error message to display in the chat
-      const errorMessage: ChatMessage = {
-        id: `send_error_${Date.now()}`,
-        role: 'assistant',
-        content: `❌ **Failed to send message**: ${error instanceof Error ? error.message : String(error)}`,
-        timestamp: new Date().toISOString(),
-      };
-      
-      setMessages(prev => [...prev, errorMessage]);
-      setIsLoading(false);
-      setStreamingMessage('');
-      streamingContentRef.current = '';
-      onComplete?.();
+      handleSendError(error, onComplete);
     }
-  }, [sessionId, isLoading, sessionInitialized, createSessionOnFirstMessage]);
+  }, [state.isLoading, ensureSession, addUserMessage, handleFileMessage, handleStreamingMessage, handleSendError]);
 
   // Handle initial message - send it automatically when widget opens
   useEffect(() => {
-    if (initialMessage && isOpen) {
+    if (initialMessage && state.isOpen) {
       // Don't show the message in the input field, just send it directly
       // Use a timeout to ensure the widget is ready
       const timeoutId = setTimeout(async () => {
-        if (!isLoading) {
+        if (!state.isLoading) {
           await sendMessageWithStreaming(initialMessage, [], () => {
             // Call onMessageSent when the AI response is complete
             onMessageSent?.();
@@ -425,12 +553,12 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
 
       return () => clearTimeout(timeoutId);
     }
-  }, [initialMessage, isOpen, isLoading, onMessageSent, sendMessageWithStreaming]);
+  }, [initialMessage, state.isOpen, state.isLoading, onMessageSent, sendMessageWithStreaming]);
 
   // Expose methods to parent component
   useImperativeHandle(ref, () => ({
     openAndSendMessage: (message: string) => {
-      setIsOpen(true);
+      dispatch({ type: 'SET_IS_OPEN', payload: true });
       // Don't show the message in the input field, just send it directly
       // Use setTimeout to ensure the widget is open before sending
       setTimeout(() => {
@@ -440,14 +568,14 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
   }), [sendMessageWithStreaming]);
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
+    if (!state.inputMessage.trim() || state.isLoading) return;
 
-    const userMessage = inputMessage.trim();
-    const currentAttachments = [...attachments];
+    const userMessage = state.inputMessage.trim();
+    const currentAttachments = [...state.attachments];
     
     // Clear input and attachments immediately
-    setInputMessage('');
-    setAttachments([]);
+    dispatch({ type: 'SET_INPUT_MESSAGE', payload: '' });
+    dispatch({ type: 'SET_ATTACHMENTS', payload: [] });
 
     // Send the message using unified function
     await sendMessageWithStreaming(userMessage, currentAttachments);
@@ -455,10 +583,10 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
 
   const handleClearHistory = async () => {
     try {
-      await aiChatAPI.clearHistory(sessionId);
-      setMessages([]);
-      setStreamingMessage('');
-      setAttachments([]);
+      await aiChatAPI.clearHistory(state.sessionId);
+      dispatch({ type: 'SET_MESSAGES', payload: [] });
+      dispatch({ type: 'SET_STREAMING_MESSAGE', payload: '' });
+      dispatch({ type: 'SET_ATTACHMENTS', payload: [] });
       streamingContentRef.current = '';
     } catch (error) {
       console.error('Failed to clear history:', error);
@@ -478,47 +606,54 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
       streamCleanupRef.current();
       streamCleanupRef.current = null;
     }
-    setIsOpen(false);
+    dispatch({ type: 'SET_IS_OPEN', payload: false });
     onOpenChange?.(false);
   };
 
   const handleOpen = () => {
-    setIsOpen(true);
+    dispatch({ type: 'SET_IS_OPEN', payload: true });
     onOpenChange?.(true);
   };
 
-  const handleToolApproval = async (requestId: string, approvedIds?: string[]) => {
-    console.log('Tool approval:', requestId, approvedIds);
+  // Helper function to handle tool decisions (approval or denial)
+  const handleToolDecision = useCallback(async (
+    requestId: string, 
+    decision: 'approve' | 'deny', 
+    approvedIds?: string[]
+  ) => {
+    console.log(`Tool ${decision}:`, requestId, approvedIds);
     
     // Mark this approval request as processed to hide buttons
-    setMessages(prevMessages => 
-      prevMessages.map(msg => 
+    dispatch({ type: 'UPDATE_MESSAGES', payload: (messages) => 
+      messages.map(msg => 
         msg.approval_request?.request_id === requestId 
           ? { ...msg, approval_request: { ...msg.approval_request, processed: true } }
           : msg
       )
-    );
+    });
     
-    // Send approval as a special chat message
-    const approvalMessage = `[APPROVE_TOOLS:${requestId}]`;
+    // Send decision as a special chat message
+    const decisionMessage = decision === 'approve' 
+      ? `[APPROVE_TOOLS:${requestId}]` 
+      : `[DENY_TOOLS:${requestId}]`;
     
-    setIsLoading(true);
-    setStreamingMessage('');
+    dispatch({ type: 'SET_IS_LOADING', payload: true });
+    dispatch({ type: 'SET_STREAMING_MESSAGE', payload: '' });
     streamingContentRef.current = '';
     
-    // Store tool executions to preserve parameters
+    // Store tool executions to preserve parameters (only for approvals)
     let collectedToolExecutions: ToolExecution[] = [];
 
     // Use the same streaming chat endpoint
     const cleanup = await aiChatAPI.streamChatWithSeparateEndpoints(
-      sessionId,
-      approvalMessage,
+      state.sessionId,
+      decisionMessage,
       (streamMessage: StreamMessage) => {
         if (streamMessage.type === 'message') {
           const newContent = streamMessage.content || '';
           streamingContentRef.current += newContent;
-          setStreamingMessage(streamingContentRef.current);
-        } else if (streamMessage.type === 'tool_execution') {
+          dispatch({ type: 'SET_STREAMING_MESSAGE', payload: streamingContentRef.current });
+        } else if (streamMessage.type === 'tool_execution' && decision === 'approve') {
           console.log('Tool executions during approval:', streamMessage.tool_executions);
           if (streamMessage.tool_executions && streamMessage.tool_executions.length > 0) {
             // Store tool executions to preserve parameters for later display
@@ -546,44 +681,46 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
               }
             });
             streamingContentRef.current += toolContent;
-            setStreamingMessage(streamingContentRef.current);
+            dispatch({ type: 'SET_STREAMING_MESSAGE', payload: streamingContentRef.current });
           }
         } else if (streamMessage.type === 'error') {
-          console.error('Approval stream error:', streamMessage.error);
+          const actionType = decision === 'approve' ? 'Approval' : 'Denial';
+          console.error(`${actionType} stream error:`, streamMessage.error);
           
           // Clear any streaming content since we have an error
-          setStreamingMessage('');
+          dispatch({ type: 'SET_STREAMING_MESSAGE', payload: '' });
           streamingContentRef.current = '';
           
           // Create a proper error message to display in the chat
           const errorMessage: ChatMessage = {
-            id: `approval_error_${Date.now()}`,
+            id: `${decision}_error_${Date.now()}`,
             role: 'assistant',
-            content: `❌ **Tool Approval Error**: ${streamMessage.error}`,
+            content: `❌ **Tool ${actionType} Error**: ${streamMessage.error}`,
             timestamp: new Date().toISOString(),
           };
           
-          setMessages(prev => [...prev, errorMessage]);
-          setIsLoading(false);
+          dispatch({ type: 'ADD_MESSAGE', payload: errorMessage });
+          dispatch({ type: 'SET_IS_LOADING', payload: false });
         }
       },
       (error: string) => {
-        console.error('Approval stream connection error:', error);
+        const actionType = decision === 'approve' ? 'Approval' : 'Denial';
+        console.error(`${actionType} stream connection error:`, error);
         
         // Clear any streaming content since we have an error
-        setStreamingMessage('');
+        dispatch({ type: 'SET_STREAMING_MESSAGE', payload: '' });
         streamingContentRef.current = '';
         
         // Create a proper error message to display in the chat
         const errorMessage: ChatMessage = {
-          id: `approval_connection_error_${Date.now()}`,
+          id: `${decision}_connection_error_${Date.now()}`,
           role: 'assistant',
-          content: `🔌 **Tool Approval Connection Error**: ${error}`,
+          content: `🔌 **Tool ${actionType} Connection Error**: ${error}`,
           timestamp: new Date().toISOString(),
         };
         
-        setMessages(prev => [...prev, errorMessage]);
-        setIsLoading(false);
+        dispatch({ type: 'ADD_MESSAGE', payload: errorMessage });
+        dispatch({ type: 'SET_IS_LOADING', payload: false });
       },
       () => {
         // Stream completed - add final content as assistant message
@@ -596,122 +733,34 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
             timestamp: new Date().toISOString(),
             // tool_executions: collectedToolExecutions.length > 0 ? collectedToolExecutions : undefined,
           };
-          setMessages(prev => [...prev, assistantMessage]);
+          dispatch({ type: 'ADD_MESSAGE', payload: assistantMessage });
         }
         
         // Clear any processed approval requests to remove "Processing request..." status
-        setMessages(prevMessages => 
-          prevMessages.map(msg => 
+        dispatch({ type: 'UPDATE_MESSAGES', payload: (messages) => 
+          messages.map(msg => 
             msg.approval_request?.processed 
               ? { ...msg, approval_request: undefined }
               : msg
           )
-        );
+        });
         
-        setStreamingMessage('');
+        dispatch({ type: 'SET_STREAMING_MESSAGE', payload: '' });
         streamingContentRef.current = '';
-        setIsLoading(false);
+        dispatch({ type: 'SET_IS_LOADING', payload: false });
       }
     );
 
     // Store cleanup function
     streamCleanupRef.current = cleanup;
+  }, [state.sessionId]);
+
+  const handleToolApproval = async (requestId: string, approvedIds?: string[]) => {
+    await handleToolDecision(requestId, 'approve', approvedIds);
   };
 
   const handleToolDenial = async (requestId: string) => {
-    console.log('Tool denial:', requestId);
-    
-    // Mark this approval request as processed to hide buttons
-    setMessages(prevMessages => 
-      prevMessages.map(msg => 
-        msg.approval_request?.request_id === requestId 
-          ? { ...msg, approval_request: { ...msg.approval_request, processed: true } }
-          : msg
-      )
-    );
-    
-    // Send denial as a special chat message
-    const denialMessage = `[DENY_TOOLS:${requestId}]`;
-    
-    setIsLoading(true);
-    setStreamingMessage('');
-    streamingContentRef.current = '';
-
-    // Use the same streaming chat endpoint
-    const cleanup = await aiChatAPI.streamChatWithSeparateEndpoints(
-      sessionId,
-      denialMessage,
-      (streamMessage: StreamMessage) => {
-        if (streamMessage.type === 'message') {
-          const newContent = streamMessage.content || '';
-          streamingContentRef.current += newContent;
-          setStreamingMessage(streamingContentRef.current);
-        } else if (streamMessage.type === 'error') {
-          console.error('Denial stream error:', streamMessage.error);
-          
-          // Clear any streaming content since we have an error
-          setStreamingMessage('');
-          streamingContentRef.current = '';
-          
-          // Create a proper error message to display in the chat
-          const errorMessage: ChatMessage = {
-            id: `denial_error_${Date.now()}`,
-            role: 'assistant',
-            content: `❌ **Tool Denial Error**: ${streamMessage.error}`,
-            timestamp: new Date().toISOString(),
-          };
-          
-          setMessages(prev => [...prev, errorMessage]);
-          setIsLoading(false);
-        }
-      },
-      (error: string) => {
-        console.error('Denial stream connection error:', error);
-        
-        // Clear any streaming content since we have an error
-        setStreamingMessage('');
-        streamingContentRef.current = '';
-        
-        // Create a proper error message to display in the chat
-        const errorMessage: ChatMessage = {
-          id: `denial_connection_error_${Date.now()}`,
-          role: 'assistant',
-          content: `🔌 **Tool Denial Connection Error**: ${error}`,
-          timestamp: new Date().toISOString(),
-        };
-        
-        setMessages(prev => [...prev, errorMessage]);
-        setIsLoading(false);
-      },
-      () => {
-        // Stream completed - add final content as assistant message
-        const finalContent = streamingContentRef.current;
-        if (finalContent) {
-          const assistantMessage: ChatMessage = {
-            id: `assistant_${Date.now()}`,
-            role: 'assistant',
-            content: finalContent,
-            timestamp: new Date().toISOString(),
-          };
-          setMessages(prev => [...prev, assistantMessage]);
-        }
-        
-        // Clear any processed approval requests to remove "Processing request..." status
-        setMessages(prevMessages => 
-          prevMessages.map(msg => 
-            msg.approval_request?.processed 
-              ? { ...msg, approval_request: undefined }
-              : msg
-          )
-        );
-        
-        setStreamingMessage('');
-        streamingContentRef.current = '';
-        setIsLoading(false);
-      }
-    );
-
-    streamCleanupRef.current = cleanup;
+    await handleToolDecision(requestId, 'deny');
   };
 
   const positionStyles = {
@@ -720,7 +769,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
   };
 
   // Floating action button to open chat
-  if (!isOpen) {
+  if (!state.isOpen) {
     return (
       <Fab
         color="primary"
@@ -762,36 +811,36 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
           {/* Action buttons with better spacing and visibility */}
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             <Tooltip title={
-              toolsLoading 
+              state.toolsLoading 
                 ? "Loading MCP Tools..." 
-                : availableTools.length > 0 
-                  ? `View MCP Tools List (${availableTools.length} available)` 
+                : state.availableTools.length > 0 
+                  ? `View MCP Tools List (${state.availableTools.length} available)` 
                   : "No MCP Tools Available"
             } arrow>
               <IconButton
-                onClick={() => setShowTools(true)}
+                onClick={() => dispatch({ type: 'SET_SHOW_TOOLS', payload: true })}
                 size="medium"
-                disabled={toolsLoading || availableTools.length === 0}
+                disabled={state.toolsLoading || state.availableTools.length === 0}
                 sx={{ 
-                  backgroundColor: !toolsLoading && availableTools.length > 0 
+                  backgroundColor: !state.toolsLoading && state.availableTools.length > 0 
                     ? 'rgba(255, 255, 255, 0.15)' 
                     : 'rgba(255, 255, 255, 0.05)',
-                  '&:hover': !toolsLoading && availableTools.length > 0 ? { 
+                  '&:hover': !state.toolsLoading && state.availableTools.length > 0 ? { 
                     backgroundColor: 'rgba(255, 255, 255, 0.25)',
                     transform: 'scale(1.05)',
                   } : {},
                   borderRadius: 2,
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                   transition: 'all 0.2s ease-in-out',
-                  opacity: !toolsLoading && availableTools.length > 0 ? 1 : 0.5,
+                  opacity: !state.toolsLoading && state.availableTools.length > 0 ? 1 : 0.5,
                 }}
               >
-                {toolsLoading ? (
+                {state.toolsLoading ? (
                   <CircularProgress size={20} sx={{ color: '#ffffff' }} />
                 ) : (
                   <ListIcon sx={{ 
                     fontSize: 20, 
-                    color: availableTools.length > 0 ? '#ffffff' : 'rgba(255, 255, 255, 0.5)', 
+                    color: state.availableTools.length > 0 ? '#ffffff' : 'rgba(255, 255, 255, 0.5)', 
                     fontWeight: 'bold' 
                   }} />
                 )}
@@ -819,7 +868,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
             
             <Tooltip title="Chat Sessions" arrow>
               <IconButton 
-                onClick={() => setShowSessionSelector(true)} 
+                onClick={() => dispatch({ type: 'SET_SHOW_SESSION_SELECTOR', payload: true })} 
                 size="medium"
                 sx={{ 
                   backgroundColor: 'rgba(255, 255, 255, 0.15)',
@@ -879,16 +928,16 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
       </AppBar>
 
       {/* Tools indicator */}
-      {(toolsLoading || availableTools.length > 0) && (
+      {(state.toolsLoading || state.availableTools.length > 0) && (
         <Box sx={{ 
           p: 1.5, 
           borderBottom: '1px solid #e0e0e0',
-          backgroundColor: toolsLoading ? '#fff3e0' : '#f0f7ff',
+          backgroundColor: state.toolsLoading ? '#fff3e0' : '#f0f7ff',
           display: 'flex',
           alignItems: 'center',
           gap: 1,
         }}>
-          {toolsLoading ? (
+          {state.toolsLoading ? (
             <>
               <CircularProgress size={18} sx={{ color: '#ff9800' }} />
               <Typography variant="body2" sx={{ fontWeight: 600, color: '#f57c00' }}>
@@ -899,7 +948,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
             <>
               <ListIcon sx={{ fontSize: 18, color: '#1976d2', fontWeight: 'bold' }} />
               <Typography variant="body2" sx={{ fontWeight: 600, color: '#1565c0' }}>
-                {availableTools.length} MCP tool{availableTools.length !== 1 ? 's' : ''} available
+                {state.availableTools.length} MCP tool{state.availableTools.length !== 1 ? 's' : ''} available
               </Typography>
             </>
           )}
@@ -916,7 +965,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
           flexDirection: 'column',
         }}
       >
-        {messages.length === 0 && !streamingMessage && (
+        {state.messages.length === 0 && !state.streamingMessage && (
           <Box
             sx={{
               display: 'flex',
@@ -935,7 +984,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
               <Typography variant="body2" color="textSecondary">
                 Ask me anything! I can help with database queries, analysis, and more.
               </Typography>
-            {!sessionId && (
+            {!state.sessionId && (
               <Typography variant="caption" color="textSecondary" sx={{ mt: 1, fontStyle: 'italic' }}>
                 Your session will be created when you send your first message
               </Typography>
@@ -944,7 +993,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
         )}
 
         <List sx={{ p: 0 }}>
-          {messages.map((message) => (
+          {state.messages.map((message) => (
             <ListItem key={message.id} sx={{ p: 0, mb: 1 }}>
               <ChatMessageComponent 
                 message={message} 
@@ -956,13 +1005,13 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
         </List>
 
         {/* Streaming message */}
-        {streamingMessage && (
+        {state.streamingMessage && (
           <ListItem sx={{ p: 0, mb: 1 }}>
             <ChatMessageComponent
               message={{
                 id: 'streaming',
                 role: 'assistant',
-                content: streamingMessage,
+                content: state.streamingMessage,
                 timestamp: new Date().toISOString(),
               }}
               isStreaming
@@ -971,7 +1020,7 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
         )}
 
         {/* Loading indicator */}
-        {isLoading && !streamingMessage && (
+        {state.isLoading && !state.streamingMessage && (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
             <CircularProgress size={24} />
           </Box>
@@ -989,8 +1038,8 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
       >
         {/* File upload component (hidden, only for file processing) */}
         <FileUpload
-          attachments={attachments}
-          onAttachmentsChange={setAttachments}
+          attachments={state.attachments}
+          onAttachmentsChange={(attachments) => dispatch({ type: 'SET_ATTACHMENTS', payload: attachments })}
           triggerRef={fileUploadTriggerRef}
         />
         
@@ -998,8 +1047,8 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
         <Box sx={{ display: 'flex', gap: 1 }}>
           <FileUploadButton
             onClick={() => fileUploadTriggerRef.current?.()}
-            disabled={attachments.length >= 5}
-            hasAttachments={attachments.length > 0}
+            disabled={state.attachments.length >= 5}
+            hasAttachments={state.attachments.length > 0}
             maxFiles={5}
             maxFileSize={10 * 1024 * 1024}
           />
@@ -1008,17 +1057,17 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
             multiline
             maxRows={3}
             placeholder="Type your message..."
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
+            value={state.inputMessage}
+            onChange={(e) => dispatch({ type: 'SET_INPUT_MESSAGE', payload: e.target.value })}
             onKeyPress={handleKeyPress}
-            disabled={isLoading}
+            disabled={state.isLoading}
             variant="outlined"
             size="small"
           />
           <IconButton
             color="primary"
             onClick={handleSendMessage}
-            disabled={(!inputMessage.trim() && attachments.length === 0) || isLoading}
+            disabled={(!state.inputMessage.trim() && state.attachments.length === 0) || state.isLoading}
             sx={{ alignSelf: 'flex-end' }}
           >
             <SendIcon />
@@ -1028,17 +1077,17 @@ export const AIChatWidget = forwardRef<AIChatWidgetRef, AIChatWidgetProps>(({
 
       {/* MCP Tools Dialog */}
       <MCPToolsDialog
-        open={showTools}
-        onClose={() => setShowTools(false)}
-        tools={availableTools}
+        open={state.showTools}
+        onClose={() => dispatch({ type: 'SET_SHOW_TOOLS', payload: false })}
+        tools={state.availableTools}
       />
 
       {/* Session Selector Dialog */}
       <SessionSelector
-        open={showSessionSelector}
-        onClose={() => setShowSessionSelector(false)}
+        open={state.showSessionSelector}
+        onClose={() => dispatch({ type: 'SET_SHOW_SESSION_SELECTOR', payload: false })}
         onSessionSelect={handleSessionSelect}
-        currentSessionId={sessionId}
+        currentSessionId={state.sessionId}
       />
 
     </Paper>

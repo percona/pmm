@@ -79,7 +79,7 @@ The service is managed via supervisord with static configuration in `/etc/superv
 
 ```ini
 [program:aichat-backend]
-command=/usr/local/bin/aichat-backend
+command=/usr/sbin/aichat-backend
 args=--env-only
 directory=/srv/aichat-backend
 user=pmm
@@ -108,20 +108,27 @@ tail -f /srv/logs/aichat-backend.log
 ## API Endpoints
 
 The service exposes the following endpoints through nginx reverse proxy:
-
 - `POST /v1/chat/send` - Send chat message
-- `GET /v1/chat/history` - Get chat history
+- `POST /v1/chat/send-with-files` - Send chat message with files
+- `POST /v1/chat/sessions` - Create new session
+- `GET /v1/chat/sessions` - List user sessions
+- `GET /v1/chat/sessions/:id/messages` - Get session messages
 - `GET /v1/chat/stream` - Server-Sent Events streaming
 - `GET /v1/chat/mcp/tools` - List available MCP tools
 - `GET /v1/chat/health` - Health check
-
 ## File Locations
 
 ### Service Files (RPM Package)
-- **Binary**: `/usr/sbin/aichat-backend` (installed via RPM)
+- **Binary**: `/usr/sbin/aichat-backend` (RPM installation - standard deployment)
 - **Configuration**: `/etc/aichat-backend/config.yaml` (generated from template)
 - **MCP Config**: `/etc/aichat-backend/mcp-servers.json`
 - **Logs**: `/srv/logs/aichat-backend.log`
+
+### Manual Installation Files
+- **Binary**: `/usr/local/bin/aichat-backend` (manual installation/development)
+- **Configuration**: Same as RPM package
+
+> **Note**: The standard PMM deployment uses RPM packages with binaries in `/usr/sbin/`. Manual installations for development or custom deployments use `/usr/local/bin/`.
 
 ### System Files
 - **Supervisord Config**: `/etc/supervisord.d/ai-chat.ini`
@@ -229,6 +236,19 @@ npx @modelcontextprotocol/server-filesystem /srv
 
 ### Updating the Binary
 
+#### RPM Package Updates (Standard)
+```bash
+# Update via package manager (recommended)
+yum update pmm-aichat-backend
+
+# Or manually replace RPM-installed binary
+supervisorctl stop aichat-backend
+cp new-aichat-backend /usr/sbin/aichat-backend
+chmod +x /usr/sbin/aichat-backend
+supervisorctl start aichat-backend
+```
+
+#### Manual Installation Updates
 ```bash
 # Stop service
 supervisorctl stop aichat-backend

@@ -401,7 +401,9 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
-	addMCPHandler(mux, deps.mcpServer)
+	if err := addMCPHandler(mux, deps.mcpServer); err != nil {
+		l.Errorf("Failed to add MCP handler: %v", err)
+	}
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/", proxyMux)
 
@@ -426,17 +428,32 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	cancel()
 }
 
-func addMCPHandler(mux *http.ServeMux, mcpServer *mcp.Mcp) {
+func addMCPHandler(mux *http.ServeMux, mcpServer *mcp.Mcp) error {
+	if mcpServer == nil {
+		logrus.Error("MCP server is nil; cannot register MCP handlers")
+		return fmt.Errorf("MCP server is nil")
+	}
+
 	server := mcpServer.Server()
+	if server == nil {
+		logrus.Error("Failed to initialize MCP server; got nil server instance")
+		return fmt.Errorf("failed to initialize MCP server; got nil server instance")
+	}
 
 	sseServer := mcpserver.NewSSEServer(
 		server,
 		mcpserver.WithStaticBasePath("/v1/mcp"),
 		mcpserver.WithKeepAlive(true),
 	)
+	if sseServer == nil {
+		logrus.Error("Failed to initialize MCP SSE server; got nil instance")
+		return fmt.Errorf("failed to initialize MCP SSE server; got nil instance")
+	}
+
 	mux.Handle("/v1/mcp", sseServer)
 	mux.Handle("/v1/mcp/sse", sseServer.SSEHandler())
 	mux.Handle("/v1/mcp/message", sseServer.MessageHandler())
+	return nil
 }
 
 // runDebugServer runs debug server until context is canceled, then gracefully stops it.

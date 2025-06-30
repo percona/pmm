@@ -3,6 +3,7 @@ package providers
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"github.com/sirupsen/logrus"
 
@@ -41,108 +42,6 @@ func NewOpenAIProvider(cfg config.LLMConfig) (*OpenAIProvider, error) {
 	}, nil
 }
 
-// GenerateResponse generates a response using OpenAI API
-func (p *OpenAIProvider) GenerateResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (*models.Message, error) {
-	// Convert messages to OpenAI format
-	openaiMessages := make([]openai.ChatCompletionMessage, 0, len(messages))
-
-	for _, msg := range messages {
-		openaiMsg := openai.ChatCompletionMessage{
-			Role:    msg.Role,
-			Content: msg.Content,
-		}
-
-		// Handle tool calls if present
-		if len(msg.ToolCalls) > 0 {
-			toolCalls := make([]openai.ToolCall, 0, len(msg.ToolCalls))
-			for _, tc := range msg.ToolCalls {
-				toolCalls = append(toolCalls, openai.ToolCall{
-					ID:   tc.ID,
-					Type: openai.ToolTypeFunction,
-					Function: openai.FunctionCall{
-						Name:      tc.Function.Name,
-						Arguments: tc.Function.Arguments,
-					},
-				})
-			}
-			openaiMsg.ToolCalls = toolCalls
-		}
-
-		openaiMessages = append(openaiMessages, openaiMsg)
-	}
-
-	// Convert MCP tools to OpenAI tools
-	openaiTools := make([]openai.Tool, 0, len(tools))
-	for _, tool := range tools {
-		openaiTools = append(openaiTools, openai.Tool{
-			Type: openai.ToolTypeFunction,
-			Function: &openai.FunctionDefinition{
-				Name:        tool.Name,
-				Description: tool.Description,
-				Parameters:  tool.InputSchema,
-			},
-		})
-	}
-
-	// Create chat completion request
-	req := openai.ChatCompletionRequest{
-		Model:       p.config.Model,
-		Messages:    openaiMessages,
-		Tools:       openaiTools,
-		Temperature: 0.7,
-	}
-
-	// Make the request
-	resp, err := p.client.CreateChatCompletion(ctx, req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate response: %w", err)
-	}
-
-	if len(resp.Choices) == 0 {
-		return nil, fmt.Errorf("no response generated")
-	}
-
-	choice := resp.Choices[0]
-
-	// Convert response to our message format
-	message := &models.Message{
-		ID:      fmt.Sprintf("openai_%s", resp.ID),
-		Role:    choice.Message.Role,
-		Content: choice.Message.Content,
-	}
-
-	// Handle tool calls in response
-	if len(choice.Message.ToolCalls) > 0 {
-		p.l.WithField("tool_call_count", len(choice.Message.ToolCalls)).Debug("OpenAI returned tool calls in response")
-
-		for i, tc := range choice.Message.ToolCalls {
-			p.l.WithFields(logrus.Fields{
-				"call_index": i + 1,
-				"call_id":    tc.ID,
-				"type":       tc.Type,
-				"function":   tc.Function.Name,
-				"arguments":  tc.Function.Arguments,
-			}).Debug("OpenAI tool call details")
-
-			message.ToolCalls = append(message.ToolCalls, models.ToolCall{
-				ID:   tc.ID,
-				Type: string(tc.Type),
-				Function: struct {
-					Name      string `json:"name"`
-					Arguments string `json:"arguments"`
-				}{
-					Name:      tc.Function.Name,
-					Arguments: tc.Function.Arguments,
-				},
-			})
-		}
-	} else {
-		p.l.WithField("content", choice.Message.Content).Debug("OpenAI response (no tool calls)")
-	}
-
-	return message, nil
-}
-
 // GenerateStreamResponse generates a streaming response using OpenAI API
 func (p *OpenAIProvider) GenerateStreamResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (<-chan *models.StreamMessage, error) {
 	// Convert messages to OpenAI format
@@ -169,11 +68,16 @@ func (p *OpenAIProvider) GenerateStreamResponse(ctx context.Context, messages []
 	}
 
 	// Create streaming chat completion request
+	temp := p.config.Temperature
+	if temp == 0 {
+		temp = 0.7
+	}
+
 	req := openai.ChatCompletionRequest{
 		Model:       p.config.Model,
 		Messages:    openaiMessages,
 		Tools:       openaiTools,
-		Temperature: 0.7,
+		Temperature: float32(temp),
 		Stream:      true,
 	}
 
@@ -193,11 +97,12 @@ func (p *OpenAIProvider) GenerateStreamResponse(ctx context.Context, messages []
 		p.l.Debug("Starting streaming response processing")
 		var messageCount int
 		var totalContent string
+		var toolCalls []models.ToolCall
 
 		for {
 			response, err := stream.Recv()
 			if err != nil {
-				if err.Error() == "EOF" {
+				if err == io.EOF {
 					// Stream ended normally
 					p.l.WithFields(logrus.Fields{
 						"total_chunks":   messageCount,
@@ -253,10 +158,22 @@ func (p *OpenAIProvider) GenerateStreamResponse(ctx context.Context, messages []
 							"call_id":    tc.ID,
 							"function":   tc.Function.Name,
 						}).Debug("Stream tool call details")
-						responseChan <- &models.StreamMessage{
-							Type:    "tool_call",
-							Content: fmt.Sprintf("Tool call: %s", tc.Function.Name),
-						}
+						toolCalls = append(toolCalls, models.ToolCall{
+							ID:   tc.ID,
+							Type: string(tc.Type),
+							Function: struct {
+								Name      string `json:"name"`
+								Arguments string `json:"arguments"`
+							}{
+								Name:      tc.Function.Name,
+								Arguments: tc.Function.Arguments,
+							},
+						})
+					}
+
+					responseChan <- &models.StreamMessage{
+						Type:      "tool_call",
+						ToolCalls: toolCalls,
 					}
 				}
 

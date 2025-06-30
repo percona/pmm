@@ -50,7 +50,7 @@ export AICHAT_API_KEY="your-api-key-here"
 export AICHAT_MCP_SERVERS_FILE="/etc/aichat-backend/mcp-servers.json"
 
 # Database configuration (uses dedicated AI Chat database)
-export AICHAT_DATABASE_URL="postgres://ai_chat_user:ai_chat_secure_password@127.0.0.1:5432/ai_chat?sslmode=disable"
+export AICHAT_DATABASE_URL="postgresql://ai_chat_user:ai_chat_secure_password@127.0.0.1:5432/ai_chat?sslmode=disable"
 
 # Alternative: Individual database parameters (for backward compatibility)
 # export AICHAT_DB_HOST="127.0.0.1"
@@ -161,7 +161,7 @@ go build -o aichat-backend main.go
 
 ### Testing with Authentication
 
-For local development without PMM's auth server, the application falls back to a default user ID:
+For local development, you must provide the `X-User-ID` header. In production, requests without this header will fail authentication and be rejected.
 
 ```bash
 # Test with explicit user ID header
@@ -169,12 +169,9 @@ curl -X POST http://localhost:3001/v1/chat/send \
   -H "Content-Type: application/json" \
   -H "X-User-ID: 123" \
   -d '{"message": "Test message", "session_id": "test-session"}'
-
-# Test without header (uses default-user)
-curl -X POST http://localhost:3001/v1/chat/send \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Test message", "session_id": "test-session"}'
 ```
+
+> **Note:** All endpoints (except `/v1/chat/health`) require the `X-User-ID` header. There is no fallback to a default user in production deployments.
 
 ## Database Schema
 

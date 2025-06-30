@@ -140,15 +140,50 @@ class AIChatAPI {
     };
   }
 
+  /**
+   * Converts a base64 string to a Blob object
+   * @param base64 - The base64 encoded string
+   * @param mimeType - The MIME type for the blob
+   * @returns A Blob object
+   */
+  private base64ToBlob(base64: string, mimeType: string): Blob {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mimeType });
+  }
+
+  /**
+   * Conditionally logs debug messages only in development environment
+   * @param message - The message to log
+   * @param optionalParams - Additional parameters to log
+   */
+  private debugLog(message?: any, ...optionalParams: any[]): void {
+    // Check for development environment in a browser-safe way
+    const isDevelopment = import.meta.env?.DEV === true ||
+                         window.location.hostname === 'localhost' ||
+                         window.location.hostname === '127.0.0.1' ||
+                         window.location.port === '3000' ||
+                         window.location.port === '5173';
+    
+    if (isDevelopment) {
+      console.log(message, ...optionalParams);
+    }
+  }
+
   async sendMessage(request: ChatRequest): Promise<ChatResponse> {
-    const response = await fetch(`${this.baseURL}/send`, {
+    const url = `${this.baseURL}/send`;
+    const response = await fetch(url, {
       method: 'POST',
       headers: this.getDefaultHeaders(),
       body: JSON.stringify(request),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to send message: HTTP ${response.status} ${response.statusText} - POST ${url} - Session: ${request.session_id || 'new'}`);
     }
 
     return response.json();
@@ -166,49 +201,47 @@ class AIChatAPI {
     // Add files as form data
     if (request.attachments) {
       request.attachments.forEach((attachment, index) => {
-        // Convert base64 back to blob for multipart upload
-        const byteCharacters = atob(attachment.content);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: attachment.mime_type });
+        // Convert base64 to blob using helper function
+        const blob = this.base64ToBlob(attachment.content, attachment.mime_type);
         
-        // Add file to form data with field name starting with "file"
+        // Add file to form data with consistent field naming pattern
         formData.append(`file${index}`, blob, attachment.filename);
       });
     }
 
-    const response = await fetch(`${this.baseURL}/send-with-files`, {
+    const url = `${this.baseURL}/send-with-files`;
+    const response = await fetch(url, {
       method: 'POST',
       // Don't set Content-Type header - let browser set it with boundary for multipart
       body: formData,
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const fileCount = request.attachments?.length || 0;
+      const fileNames = request.attachments?.map(a => a.filename).join(', ') || 'none';
+      throw new Error(`Failed to send message with files: HTTP ${response.status} ${response.statusText} - POST ${url} - Session: ${request.session_id || 'new'} - Files: ${fileCount} (${fileNames})`);
     }
 
     return response.json();
   }
 
   async getHistory(sessionId: string): Promise<ChatHistory> {
-    const response = await fetch(`${this.baseURL}/sessions/${encodeURIComponent(sessionId)}/messages`, {
+    const url = `${this.baseURL}/sessions/${encodeURIComponent(sessionId)}/messages`;
+    const response = await fetch(url, {
       headers: this.getDefaultHeaders(),
     });
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to get chat history: HTTP ${response.status} ${response.statusText} - GET ${url} - Session: ${sessionId}`);
     }
 
     const data = await response.json();
-    console.log('🔍 API: getHistory response:', data);
+    this.debugLog('🔍 API: getHistory response:', data);
     
     // Debug attachments specifically
     if (data.messages) {
       const messagesWithAttachments = data.messages.filter((msg: ChatMessage) => msg.attachments && msg.attachments.length > 0);
-      console.log('🔍 API: Messages with attachments:', messagesWithAttachments);
+      this.debugLog('🔍 API: Messages with attachments:', messagesWithAttachments);
     }
 
     return {
@@ -218,13 +251,14 @@ class AIChatAPI {
   }
 
   async clearHistory(sessionId: string): Promise<void> {
-    const response = await fetch(`${this.baseURL}/sessions/${encodeURIComponent(sessionId)}/messages`, {
+    const url = `${this.baseURL}/sessions/${encodeURIComponent(sessionId)}/messages`;
+    const response = await fetch(url, {
       method: 'DELETE',
       headers: this.getDefaultHeaders(),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to clear chat history: HTTP ${response.status} ${response.statusText} - DELETE ${url} - Session: ${sessionId}`);
     }
   }
 
@@ -234,20 +268,20 @@ class AIChatAPI {
       url.searchParams.set('force_refresh', 'true');
     }
     
-    console.log(`🌐 API: Making request to ${url.toString()}`);
+    this.debugLog(`🌐 API: Making request to ${url.toString()}`);
     
     const response = await fetch(url.toString());
     
-    console.log(`🌐 API: Response status: ${response.status} ${response.statusText}`);
+    this.debugLog(`🌐 API: Response status: ${response.status} ${response.statusText}`);
     
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`🌐 API: Error response body:`, errorText);
-      throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+      throw new Error(`Failed to get MCP tools: HTTP ${response.status} ${response.statusText} - GET ${url.toString()} - Force refresh: ${forceRefresh || false} - Response: ${errorText}`);
     }
 
     const data = await response.json();
-    console.log(`🌐 API: Response data:`, data);
+    this.debugLog(`🌐 API: Response data:`, data);
     return data;
   }
 
@@ -257,17 +291,19 @@ class AIChatAPI {
     session_id: string;
     stream_url: string;
   }> {
-    const response = await fetch(`${this.baseURL}/send?streaming=true`, {
+    const url = `${this.baseURL}/send?streaming=true`;
+    const requestBody = {
+      message,
+      session_id: sessionId,
+    };
+    const response = await fetch(url, {
       method: 'POST',
       headers: this.getDefaultHeaders(),
-      body: JSON.stringify({
-        message,
-        session_id: sessionId,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to initiate stream: HTTP ${response.status} ${response.statusText} - POST ${url} - Session: ${sessionId} - Message length: ${message.length}`);
     }
 
     return response.json();
@@ -336,73 +372,79 @@ class AIChatAPI {
 
   // Session management methods
   async listSessions(page: number = 1, limit: number = 20): Promise<SessionListResponse> {
-    const response = await fetch(`${this.baseURL}/sessions?page=${page}&limit=${limit}`, {
+    const url = `${this.baseURL}/sessions?page=${page}&limit=${limit}`;
+    const response = await fetch(url, {
       headers: this.getDefaultHeaders(),
     });
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to list sessions: HTTP ${response.status} ${response.statusText} - GET ${url} - Page: ${page}, Limit: ${limit}`);
     }
 
     return response.json();
   }
 
   async createSession(request: CreateSessionRequest): Promise<ChatSession> {
-    const response = await fetch(`${this.baseURL}/sessions`, {
+    const url = `${this.baseURL}/sessions`;
+    const response = await fetch(url, {
       method: 'POST',
       headers: this.getDefaultHeaders(),
       body: JSON.stringify(request),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to create session: HTTP ${response.status} ${response.statusText} - POST ${url} - Title: "${request.title}"`);
     }
 
     return response.json();
   }
 
   async getSession(sessionId: string): Promise<ChatSession> {
-    const response = await fetch(`${this.baseURL}/sessions/${encodeURIComponent(sessionId)}`, {
+    const url = `${this.baseURL}/sessions/${encodeURIComponent(sessionId)}`;
+    const response = await fetch(url, {
       headers: this.getDefaultHeaders(),
     });
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to get session: HTTP ${response.status} ${response.statusText} - GET ${url} - Session: ${sessionId}`);
     }
 
     return response.json();
   }
 
   async updateSession(sessionId: string, request: UpdateSessionRequest): Promise<void> {
-    const response = await fetch(`${this.baseURL}/sessions/${encodeURIComponent(sessionId)}`, {
+    const url = `${this.baseURL}/sessions/${encodeURIComponent(sessionId)}`;
+    const response = await fetch(url, {
       method: 'PUT',
       headers: this.getDefaultHeaders(),
       body: JSON.stringify(request),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to update session: HTTP ${response.status} ${response.statusText} - PUT ${url} - Session: ${sessionId} - Title: "${request.title}"`);
     }
   }
 
   async deleteSession(sessionId: string): Promise<void> {
-    const response = await fetch(`${this.baseURL}/sessions/${encodeURIComponent(sessionId)}`, {
+    const url = `${this.baseURL}/sessions/${encodeURIComponent(sessionId)}`;
+    const response = await fetch(url, {
       method: 'DELETE',
       headers: this.getDefaultHeaders(),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to delete session: HTTP ${response.status} ${response.statusText} - DELETE ${url} - Session: ${sessionId}`);
     }
   }
 
   async getSessionMessages(sessionId: string, page: number = 1, limit: number = 50): Promise<{ messages: ChatMessage[] }> {
-    const response = await fetch(`${this.baseURL}/sessions/${encodeURIComponent(sessionId)}/messages?page=${page}&limit=${limit}`, {
+    const url = `${this.baseURL}/sessions/${encodeURIComponent(sessionId)}/messages?page=${page}&limit=${limit}`;
+    const response = await fetch(url, {
       headers: this.getDefaultHeaders(),
     });
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`Failed to get session messages: HTTP ${response.status} ${response.statusText} - GET ${url} - Session: ${sessionId} - Page: ${page}, Limit: ${limit}`);
     }
 
     return response.json();

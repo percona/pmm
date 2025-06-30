@@ -58,20 +58,22 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
   const [error, setError] = useState<string | null>(null);
   const [toolExecutions, setToolExecutions] = useState<ToolExecution[]>([]);
   const [analysisSessionId, setAnalysisSessionId] = useState<string>('');
-  const activeStreamCountRef = useRef(0);
+  const activeStreamsRef = useRef<Map<string, { type: string; timestamp: number }>>(new Map());
 
-  // Thread-safe counter operations
-  const incrementStreamCount = () => {
-    activeStreamCountRef.current += 1;
-    console.log('🔢 Overview analysis stream count incremented:', activeStreamCountRef.current);
+  // Stream management operations
+  const addStream = (streamId: string, type: string) => {
+    activeStreamsRef.current.set(streamId, { type, timestamp: Date.now() });
+    console.log('🔢 Overview stream added:', streamId, 'type:', type, 'total:', activeStreamsRef.current.size);
+    debugStreams();
   };
 
-  const decrementStreamCount = (sessionId: string) => {
-    activeStreamCountRef.current = Math.max(0, activeStreamCountRef.current - 1);
-    console.log('🔢 Overview analysis stream count decremented:', activeStreamCountRef.current);
+  const removeStream = (streamId: string, sessionId: string) => {
+    const wasRemoved = activeStreamsRef.current.delete(streamId);
+    console.log('🔢 Overview stream removed:', streamId, 'success:', wasRemoved, 'remaining:', activeStreamsRef.current.size);
+    debugStreams();
     
     // Check if we should cleanup the session
-    if (activeStreamCountRef.current === 0 && sessionId) {
+    if (activeStreamsRef.current.size === 0 && sessionId) {
       console.log('🧹 All overview analysis streams completed, cleaning up session:', sessionId);
       aiChatAPI.deleteSession(sessionId).catch(error => {
         console.warn('⚠️ Failed to cleanup overview analysis session:', error);
@@ -82,6 +84,15 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
     }
   };
 
+  const clearAllStreams = () => {
+    console.log('🧹 Clearing all overview streams, count:', activeStreamsRef.current.size);
+    activeStreamsRef.current.clear();
+  };
+
+  const debugStreams = () => {
+    console.log('🔍 Current active overview streams:', Array.from(activeStreamsRef.current.entries()));
+  };
+
   // Reset state when dialog opens/closes
   useEffect(() => {
     if (open && qanData) {
@@ -90,7 +101,7 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
       setAnalysisResult('');
       setToolExecutions([]);
       setAnalysisSessionId('');
-      activeStreamCountRef.current = 0;
+      activeStreamsRef.current.clear();
       
       // Start comprehensive analysis
       handleAnalyzeAllQueries();
@@ -98,7 +109,7 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
   }, [open, qanData]);
 
   // Extracted message handler for analysis stream
-  const handleAnalysisStreamMessage = (message: StreamMessage) => {
+  const handleAnalysisStreamMessage = (message: StreamMessage, currentStreamId?: string) => {
     // Update session ID if backend provides one
     if (message.session_id && analysisSessionId === '') {
       console.log('🔄 Backend created/provided overview session ID:', message.session_id);
@@ -113,7 +124,6 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
         break;
       case 'tool_approval_request':
         if (message.tool_calls && message.request_id) {
-          incrementStreamCount();
           // Add pending tool executions to state
           const newToolExecutions = message.tool_calls.map(tool => ({
             id: tool.id,
@@ -159,24 +169,21 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
         }
         break;
       case 'error':
-        handleStreamError(message.content || 'Analysis failed');
+        // Stream errors are now handled by stream-aware error handlers
+        console.log('📊 Overview analysis stream error for', currentStreamId, ':', message.content);
         break;
       case 'done':
-        handleStreamComplete();
-        decrementStreamCount(message.session_id);
+        // Stream completion is now handled by stream-aware complete handlers
+        console.log('📊 Overview analysis stream completed for', currentStreamId);
+        // But we still need to handle tool approval completion here
+        if (currentStreamId && currentStreamId.startsWith('tool_approval_')) {
+          removeStream(currentStreamId, message.session_id);
+        }
         break;
     }
   };
 
-  const handleStreamError = (error: string) => {
-    setError(error);
-    setLoading(false);
-    decrementStreamCount(analysisSessionId);
-  };
 
-  const handleStreamComplete = () => {
-    setLoading(false);
-  };
 
   const handleAnalyzeAllQueries = async () => {
     if (!qanData) return;
@@ -206,23 +213,45 @@ Focus on actionable insights that can immediately improve database performance.`
       // Create unique session ID for this analysis
       const sessionId = `qan_overview_${Date.now()}`;
       setAnalysisSessionId(sessionId);
-      incrementStreamCount();
+      
+      const streamId = 'main_overview_analysis';
+      addStream(streamId, 'comprehensive_analysis');
 
       console.log('🚀 Starting comprehensive QAN analysis with session:', sessionId);
+
+      // Create stream-aware handlers
+      const streamAwareMessageHandler = (message: StreamMessage) => {
+        handleAnalysisStreamMessage(message, streamId);
+      };
+
+      const streamAwareErrorHandler = (error: string) => {
+        console.error('Overview stream error for', streamId, ':', error);
+        setError(error || 'Analysis failed');
+        setLoading(false);
+        removeStream(streamId, sessionId);
+      };
+
+      const streamAwareCompleteHandler = () => {
+        console.log('Overview stream completed for', streamId);
+        setLoading(false);
+        removeStream(streamId, sessionId);
+      };
 
       // Start streaming analysis using new separate endpoints pattern
       await aiChatAPI.streamChatWithSeparateEndpoints(
         sessionId,
         enhancedPrompt,
-        handleAnalysisStreamMessage,
-        (error: string) => handleStreamError(error),
-        () => handleStreamComplete()
+        streamAwareMessageHandler,
+        streamAwareErrorHandler,
+        streamAwareCompleteHandler
       );
 
     } catch (error) {
       console.error('❌ Overview analysis failed:', error);
       setError(error instanceof Error ? error.message : 'Analysis failed');
       setLoading(false);
+      // Clear all streams on startup error
+      clearAllStreams();
     }
   };
 
@@ -251,12 +280,31 @@ Focus on actionable insights that can immediately improve database performance.`
         ? `[APPROVE_TOOLS:${message.request_id}]`
         : `[DENY_TOOLS:${message.request_id}]`;
 
+      const approvalStreamId = `approval_${message.request_id}`;
+      addStream(approvalStreamId, 'approval_message');
+
+      // Create stream-aware handlers for approval
+      const approvalMessageHandler = (msg: StreamMessage) => {
+        handleAnalysisStreamMessage(msg, approvalStreamId);
+      };
+
+      const approvalErrorHandler = (error: string) => {
+        console.error('Overview approval stream error for', approvalStreamId, ':', error);
+        setError('Failed to process tool approval');
+        removeStream(approvalStreamId, message.session_id);
+      };
+
+      const approvalCompleteHandler = () => {
+        console.log('Overview approval stream completed for', approvalStreamId);
+        removeStream(approvalStreamId, message.session_id);
+      };
+
       await aiChatAPI.streamChatWithSeparateEndpoints(
         message.session_id,
         approvalMessage,
-        handleAnalysisStreamMessage,
-        handleStreamError,
-        handleStreamComplete
+        approvalMessageHandler,
+        approvalErrorHandler,
+        approvalCompleteHandler
       );
     } catch (error) {
       console.error('Error handling tool approval:', error);

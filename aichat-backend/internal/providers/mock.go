@@ -21,35 +21,6 @@ func NewMockProvider(cfg config.LLMConfig) (*MockProvider, error) {
 	}, nil
 }
 
-// GenerateResponse generates a mock response
-func (p *MockProvider) GenerateResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (*models.Message, error) {
-	// Simulate processing time
-	select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	case <-time.After(100 * time.Millisecond):
-	}
-
-	// Find the last user message
-	var lastUserMessage string
-	for i := len(messages) - 1; i >= 0; i-- {
-		if messages[i].Role == "user" {
-			lastUserMessage = messages[i].Content
-			break
-		}
-	}
-
-	// Generate a mock response
-	mockResponse := fmt.Sprintf("Mock response to: '%s'. Available tools: %d", lastUserMessage, len(tools))
-
-	return &models.Message{
-		ID:        fmt.Sprintf("mock_%d", time.Now().UnixNano()),
-		Role:      "assistant",
-		Content:   mockResponse,
-		Timestamp: time.Now(),
-	}, nil
-}
-
 // GenerateStreamResponse generates a mock streaming response
 func (p *MockProvider) GenerateStreamResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (<-chan *models.StreamMessage, error) {
 	// Find the last user message

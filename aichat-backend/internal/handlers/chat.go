@@ -44,7 +44,7 @@ func (h *ChatHandler) collectStreamResponse(streamChan <-chan *models.StreamMess
 	}
 
 	message := &models.Message{
-		ID:        fmt.Sprintf("collected_%d", time.Now().UnixNano()),
+		ID:        generateID("collected"),
 		Role:      "assistant",
 		Content:   content.String(),
 		Timestamp: time.Now(),
@@ -387,7 +387,7 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 		}
 
 		// For file uploads with streaming, we'll store and return a stream ID
-		streamID := fmt.Sprintf("file_stream_%s_%d", userID, time.Now().UnixNano())
+		streamID := fmt.Sprintf("file_stream_%s_%s", userID, uuid.New().String())
 		h.chatService.GetStreamManager().StoreStream(streamID, userID, streamChan)
 
 		c.JSON(http.StatusOK, gin.H{
@@ -427,4 +427,8 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 		response := h.collectStreamResponse(streamChan, request.SessionID)
 		c.JSON(http.StatusOK, response)
 	}
+}
+
+func generateID(prefix string) string {
+	return fmt.Sprintf("%s_%s", prefix, uuid.New().String())
 }

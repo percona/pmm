@@ -33,6 +33,11 @@ interface ChatMessageProps {
   onToolDenial?: (requestId: string) => void;
 }
 
+// Helper to check if environment is development
+const isDevEnv = () =>
+  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) ||
+  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'));
+
 export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
   message,
   isStreaming = false,
@@ -47,7 +52,9 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
   // Debug logging for attachments
   React.useEffect(() => {
     if (message.attachments && message.attachments.length > 0) {
-      console.log('💾 ChatMessage: Message has attachments:', message.attachments);
+      if (isDevEnv()) {
+        console.log('💾 ChatMessage: Message has attachments:', message.attachments);
+      }
     }
   }, [message.attachments]);
 
@@ -56,7 +63,9 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
     try {
       await navigator.clipboard.writeText(text);
       // You could add a toast notification here if desired
-      console.log('Code copied to clipboard');
+      if (isDevEnv()) {
+        console.log('Code copied to clipboard');
+      }
     } catch (err) {
       console.error('Failed to copy code:', err);
     }
@@ -181,7 +190,9 @@ export const ChatMessageComponent: React.FC<ChatMessageProps> = ({
                   code: ({ inline, children }: any) => {
                     // Since inline prop is unreliable, detect based on content characteristics
                     const isInlineCode = inline !== false && !String(children).includes('\n');
-                    console.log('Code element:', { inline, isInlineCode, children: String(children).substring(0, 50) });
+                    if (isDevEnv()) {
+                      console.log('Code element:', { inline, isInlineCode, children: String(children).substring(0, 50) });
+                    }
                     return isInlineCode ? (
                       <code
                         style={{

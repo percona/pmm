@@ -1,6 +1,7 @@
 package mcp
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -33,6 +34,30 @@ func TestQANGetReportArgs(t *testing.T) {
 	assert.Equal(t, 100, args.Limit)
 	assert.Equal(t, "query_time", args.MainMetric)
 	assert.Equal(t, "SELECT", args.Search)
+
+	// Test JSON marshaling and unmarshaling
+	jsonData, err := json.Marshal(args)
+	assert.NoError(t, err, "Should be able to marshal qanGetReportArgs to JSON")
+	assert.NotEmpty(t, jsonData, "JSON data should not be empty")
+
+	var unmarshaledArgs qanGetReportArgs
+	err = json.Unmarshal(jsonData, &unmarshaledArgs)
+	assert.NoError(t, err, "Should be able to unmarshal JSON back to qanGetReportArgs")
+
+	// Verify that the unmarshaled struct matches the original
+	assert.Equal(t, args.PeriodStart, unmarshaledArgs.PeriodStart)
+	assert.Equal(t, args.PeriodEnd, unmarshaledArgs.PeriodEnd)
+	assert.Equal(t, args.GroupBy, unmarshaledArgs.GroupBy)
+	assert.Equal(t, args.Labels, unmarshaledArgs.Labels)
+	assert.Equal(t, args.Columns, unmarshaledArgs.Columns)
+	assert.Equal(t, args.OrderBy, unmarshaledArgs.OrderBy)
+	assert.Equal(t, args.Offset, unmarshaledArgs.Offset)
+	assert.Equal(t, args.Limit, unmarshaledArgs.Limit)
+	assert.Equal(t, args.MainMetric, unmarshaledArgs.MainMetric)
+	assert.Equal(t, args.Search, unmarshaledArgs.Search)
+
+	// Verify the entire struct equality
+	assert.Equal(t, args, unmarshaledArgs, "Original and unmarshaled structs should be identical")
 }
 
 func TestQANGetMetricsArgs(t *testing.T) {

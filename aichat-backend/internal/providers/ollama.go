@@ -29,16 +29,6 @@ func NewOllamaProvider(cfg config.LLMConfig) (*OllamaProvider, error) {
 	}, nil
 }
 
-// GenerateResponse generates a response using Ollama
-func (p *OllamaProvider) GenerateResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (*models.Message, error) {
-	// In a real implementation, you would:
-	// 1. Convert messages to Ollama chat format
-	// 2. Make HTTP request to Ollama API
-	// 3. Parse response and convert to our format
-
-	return nil, fmt.Errorf("Ollama provider not implemented yet")
-}
-
 // GenerateStreamResponse generates a streaming response using Ollama
 func (p *OllamaProvider) GenerateStreamResponse(ctx context.Context, messages []*models.Message, tools []models.MCPTool) (<-chan *models.StreamMessage, error) {
 	// In a real implementation, you would implement Ollama streaming

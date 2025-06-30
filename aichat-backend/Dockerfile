@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:1.24.4-alpine AS builder
 
 # Install required packages
 RUN apk add --no-cache git ca-certificates
@@ -22,7 +22,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o aichat-backend .
 FROM alpine:3.18
 
 # Install ca-certificates for HTTPS requests
-RUN apk --no-cache add ca-certificates
+RUN apk --no-cache add ca-certificates wget
 
 WORKDIR /root/
 
@@ -30,7 +30,16 @@ WORKDIR /root/
 COPY --from=builder /app/aichat-backend .
 
 # Copy config file (optional)
-COPY --from=builder /app/config.yaml .
+RUN if [ -f /app/config.yaml ]; then cp /app/config.yaml .; fi
+
+# Create a non-root user and group
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Set ownership of the working directory and files
+RUN chown -R appuser:appgroup /root/
+
+# Switch to the non-root user
+USER appuser
 
 # Expose port
 EXPOSE 8080

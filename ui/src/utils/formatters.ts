@@ -29,9 +29,8 @@ export const truncateQuery = (query: string | undefined | null, maxLength: numbe
 export const copyToClipboard = async (text: string): Promise<void> => {
   try {
     await navigator.clipboard.writeText(text);
-    console.log('Content copied to clipboard');
   } catch (err) {
-    console.error('Failed to copy content:', err);
+    throw new Error('Failed to copy content');
   }
 };
 

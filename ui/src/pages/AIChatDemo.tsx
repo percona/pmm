@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { Box, Typography, Container, Paper, Button, Alert, CircularProgress } from '@mui/material';
 import { AIChatWidget } from '../components/ai-chat-widget';
 import { QANDataDisplay } from '../components/qan-data-display';
-import { QueryAnalysisDialog } from '../components/qan-data-display/QueryAnalysisDialog';
 import { QANOverviewAnalysisDialog } from '../components/qan-data-display/QANOverviewAnalysisDialog';
 import { useRecentQANData } from '../hooks/api/useQAN';
 
-import { QANLabel, QANRow } from '../api/qan';
+import { QANLabel } from '../api/qan';
 
 /**
  * Demo page showing how to integrate the AI Chat Widget
@@ -16,10 +15,7 @@ const AIChatDemo: React.FC = () => {
   const [shouldOpenWithSample, setShouldOpenWithSample] = useState(false);
   const [sampleMessage, setSampleMessage] = useState('');
   
-  // Query Analysis Dialog state
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedQuery] = useState<QANRow | null>(null);
-  const [selectedQueryRank] = useState(1);
+
   
   // Overview Analysis Dialog state
   const [overviewDialogOpen, setOverviewDialogOpen] = useState(false);
@@ -82,7 +78,13 @@ const AIChatDemo: React.FC = () => {
   const handleAnalyzeRealQANData = async () => {
     if (!qanData || !qanData.rows || qanData.rows.length === 0) {
       // If no QAN data, try to fetch it first
-      await fetchQANData();
+      try {
+        await fetchQANData();
+      } catch (err) {
+        console.error('Failed to fetch QAN data:', err);
+        // Optionally, set a user notification state here
+        return;
+      }
       return;
     }
 
@@ -227,24 +229,24 @@ const AIChatDemo: React.FC = () => {
               {qanData && !isLoadingQAN && (
                 <>
 
-                  <QANDataDisplay 
-                    data={qanData}
-                    selectedServices={selectedServices}
-                    onServiceFilterChange={handleServiceFilterChange}
-                    timeRangeHours={timeRangeHours}
-                    onTimeRangeChange={handleTimeRangeChange}
+                <QANDataDisplay 
+                  data={qanData} 
+                  selectedServices={selectedServices}
+                  onServiceFilterChange={handleServiceFilterChange}
+                  timeRangeHours={timeRangeHours}
+                  onTimeRangeChange={handleTimeRangeChange}
                     orderBy={orderBy}
                     onSortChange={handleSortChange}
                     page={page}
                     pageSize={pageSize}
                     onPageChange={handlePageChange}
-                    onAnalyzeQuery={(queryData) => {
-                      setSampleMessage(queryData);
-                      setShouldOpenWithSample(true);
-                    }}
+                  onAnalyzeQuery={(queryData) => {
+                    setSampleMessage(queryData);
+                    setShouldOpenWithSample(true);
+                  }}
                     onRefresh={fetchQANData}
                     isRefreshing={isLoadingQAN}
-                  />
+                />
                 </>
               )}
             </Paper>
@@ -271,13 +273,7 @@ const AIChatDemo: React.FC = () => {
         }}
       />
 
-      {/* Query Analysis Dialog */}
-      <QueryAnalysisDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        selectedQuery={selectedQuery}
-        rank={selectedQueryRank}
-      />
+
       
       {/* QAN Overview Analysis Dialog */}
       <QANOverviewAnalysisDialog
@@ -287,6 +283,6 @@ const AIChatDemo: React.FC = () => {
       />
     </Container>
   );
-  };
+};
 
 export default AIChatDemo; 

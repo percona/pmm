@@ -113,14 +113,35 @@ sudo dnf install ./aichat-backend-1.0.0-1.el*.x86_64.rpm
 
 ### Configuration
 
-1. **Set OpenAI API Key**:
+1. **Set OpenAI API Key (Recommended: Secure Methods)**:
+   
+   It is important to avoid storing sensitive API keys in plain text files with broad permissions. Consider one of the following secure approaches:
+   
+   - **Environment Variable in Protected Shell Profile**:
+     Add the API key to a shell profile that is only readable by the service user (e.g., `~/.bash_profile`, `~/.bashrc`, or a systemd drop-in):
+     ```bash
+     echo 'export OPENAI_API_KEY=your-api-key-here' >> /home/aichat/.bash_profile
+     chown aichat:aichat /home/aichat/.bash_profile
+     chmod 600 /home/aichat/.bash_profile
+     # Or use a systemd drop-in for environment variables
+     sudo systemctl edit aichat-backend
+     # Add under [Service]:
+     # Environment="OPENAI_API_KEY=your-api-key-here"
+     ```
+   - **Secrets Manager**:
+     Use a secrets manager (such as HashiCorp Vault, AWS Secrets Manager, or your platform's equivalent) to inject the API key at runtime. Refer to your secrets manager documentation for integration steps.
+   - **Restrict File Permissions (if using a file)**:
+     If you must use a file (e.g., `/etc/sysconfig/aichat-backend`), ensure it is only readable by the service user:
    ```bash
-   # Create environment file
    sudo mkdir -p /etc/sysconfig
    sudo tee /etc/sysconfig/aichat-backend << EOF
    OPENAI_API_KEY=your-api-key-here
    EOF
+     sudo chown aichat:aichat /etc/sysconfig/aichat-backend
+     sudo chmod 600 /etc/sysconfig/aichat-backend
    ```
+   
+   **Never store API keys in world-readable files. Always prefer environment variables or a secrets manager for production deployments.**
 
 2. **Configure MCP Servers** (optional):
    ```bash
@@ -225,9 +246,13 @@ The spec file `aichat-backend.spec` can be customized for specific requirements:
 
 1. **Go version too old**:
    ```bash
-   # Install newer Go version
-   wget https://golang.org/dl/go1.23.0.linux-amd64.tar.gz
-   sudo tar -C /usr/local -xzf go1.23.0.linux-amd64.tar.gz
+   # Install newer Go version (with checksum verification)
+   GO_VERSION=1.23.0
+   wget https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz
+   wget https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz.sha256
+   sha256sum -c go${GO_VERSION}.linux-amd64.tar.gz.sha256
+   # The output should be: 'go${GO_VERSION}.linux-amd64.tar.gz: OK'
+   sudo tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
    export PATH=/usr/local/go/bin:$PATH
    ```
 
@@ -271,106 +296,3 @@ The spec file `aichat-backend.spec` can be customized for specific requirements:
    # Check SELinux
    sudo setsebool -P httpd_can_network_connect 1
    ```
-
-## Security Considerations
-
-### File Permissions
-
-The RPM sets secure permissions:
-- Configuration files: `0644` (readable by all, writable by root)
-- Binary: `0755` (executable)
-- Log directory: `0755` owned by `aichat:aichat`
-- Working directory: `0755` owned by `aichat:aichat`
-
-### Service Security
-
-The systemd service includes security hardening:
-- Runs as non-root user (`aichat`)
-- Private temporary directory
-- Protected system directories
-- Limited capabilities
-- No new privileges
-
-### Network Security
-
-- Service binds to all interfaces by default
-- Configure firewall rules appropriately
-- Consider using reverse proxy (nginx/apache) for SSL termination
-
-## Maintenance
-
-### Log Rotation
-
-Log rotation is configured automatically:
-- Daily rotation
-- Keep 30 days of logs
-- Compress old logs
-- Reload service after rotation
-
-### Updates
-
-To update the package:
-```bash
-# Build new version
-make rpm VERSION=1.1.0
-
-# Install update
-sudo rpm -Uvh aichat-backend-1.1.0-1.el*.x86_64.rpm
-
-# Service will restart automatically
-```
-
-### Backup
-
-Important files to backup:
-- `/etc/aichat-backend/` - Configuration
-- `/var/lib/aichat-backend/` - Working directory
-- `/var/log/aichat-backend/` - Logs (optional)
-
-## Uninstallation
-
-```bash
-# Stop and disable service
-sudo systemctl stop aichat-backend
-sudo systemctl disable aichat-backend
-
-# Remove package
-sudo rpm -e aichat-backend
-
-# Note: Configuration files marked as %config(noreplace) will be preserved
-# User and group will be removed automatically
-```
-
-## Building in CI/CD
-
-### GitHub Actions Example
-
-```yaml
-name: Build RPM
-on: [push, pull_request]
-
-jobs:
-  build-rpm:
-    runs-on: ubuntu-latest
-    container: rockylinux:8
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Install build dependencies
-      run: |
-        dnf install -y rpm-build golang git make nodejs npm
-        
-    - name: Build RPM
-      run: |
-        cd aichat-backend
-        make rpm
-        
-    - name: Upload RPM artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: rpm-packages
-        path: aichat-backend/build/rpm/RPMS/
-```
-
-This packaging approach provides a production-ready deployment method for the AI Chat Backend service on enterprise Linux distributions. 

@@ -63,6 +63,7 @@ export interface QANReportResponse {
   offset: number;
   limit: number;
   rows: QANRow[];
+  is_total_estimated?: boolean; // Indicates whether total_rows is an estimate or exact count
 }
 
 export interface QANMetricsNamesResponse {
@@ -101,21 +102,33 @@ export const getQANReport = async (request: QANReportRequest): Promise<QANReport
       total_rows: data.total_rows ?? data.totalRows ?? data.rows?.length ?? 0,
       offset: data.offset ?? 0,
       limit: data.limit ?? 0,
-      rows: data.rows ?? []
+      rows: data.rows ?? [],
+      is_total_estimated: false // Default to exact count if provided by API
     };
     
-    // If total_rows is still 0 but we have rows, calculate it properly
+    // If total_rows is still 0 but we have rows, we need to estimate it
     if (result.total_rows === 0 && result.rows.length > 0) {
       // Filter out TOTAL row (rank=0) and count actual query rows
       const queryRows = result.rows.filter(row => 
         row.fingerprint !== 'TOTAL' && row.dimension !== '' && (row.rank || 0) > 0
       );
       
-      // For real API responses, the total_rows should represent the total count across all pages
-      // Since we can't determine this from a single page, we'll use a reasonable estimate
-      result.total_rows = Math.max(queryRows.length, result.limit || 10);
+      // IMPORTANT: This is an estimate based on current page data only
+      // We cannot determine the actual total count across all pages from a single page response
+      // This estimate assumes there might be more data beyond the current page
+      if (queryRows.length === (result.limit || 10) && (result.offset || 0) === 0) {
+        // If we got a full page and we're on the first page, estimate there might be more
+        result.total_rows = Math.max(queryRows.length * 2, queryRows.length + 10);
+      } else {
+        // Otherwise, use the current page size as a conservative estimate
+        result.total_rows = queryRows.length + (result.offset || 0);
+      }
       
-           }
+      result.is_total_estimated = true; // Mark as estimated since we calculated it
+    } else if (data.total_rows === undefined && data.totalRows === undefined) {
+      // If API didn't provide total_rows at all, mark our fallback as estimated
+      result.is_total_estimated = true;
+    }
     
     return result;
   } catch (error) {
@@ -174,10 +187,11 @@ export const getRecentQANData = async (
     console.warn('QAN API not available, using mock data for demo:', error);
     
     // Return realistic mock data for development/demo purposes with multiple services
-    const mockData = {
+    const mockData: QANReportResponse = {
       total_rows: 7, // Count of actual query rows (excluding TOTAL row with rank=0)
       offset: offset || 0,
       limit: limit,
+      is_total_estimated: false, // Mock data provides exact count
       rows: [
         {
           rank: 0,
