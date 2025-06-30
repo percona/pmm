@@ -128,8 +128,6 @@ sudo dnf install ./aichat-backend-1.0.0-1.el*.x86_64.rpm
      # Add under [Service]:
      # Environment="OPENAI_API_KEY=your-api-key-here"
      ```
-   - **Secrets Manager**:
-     Use a secrets manager (such as HashiCorp Vault, AWS Secrets Manager, or your platform's equivalent) to inject the API key at runtime. Refer to your secrets manager documentation for integration steps.
    - **Restrict File Permissions (if using a file)**:
      If you must use a file (e.g., `/etc/sysconfig/aichat-backend`), ensure it is only readable by the service user:
    ```bash
