@@ -29,18 +29,26 @@ The dashboard contains three panels:
 
 ## Limitation: Missing query examples in MySQL Performance Schema
 
-When using MySQL Performance Schema, you may see *“Sorry, no examples found”* in query examples. This can happen due to high number of threads, a large volume of unique queries, or Performance Schema settings that cause the history buffer to be overwritten.
+When using MySQL's Performance Schema as the query source, you may encounter the message *“Sorry, no examples found” in the QAN dashboard. This typically occurs due to the way MySQL handles query sampling and can be influenced by the number of threads, volume of unique queries, and Performance Schema settings.
 
-All query metrics are collected normally - only examples are affected.
+Despite the absence of query examples, all other query metrics are still collected and displayed as expected.
 
-### Why This Happens
-MySQL Performance Schema uses two tables:
+### Why this happens
 
-- Summary table (`events_statements_summary_by_digest`) - stores query statistics (always available)
-- History table (`events_statements_history`) - stores individual query examples (limited buffer that gets overwritten)
+MySQL Performance Schema manages query data across two different tables, which can lead to missing query examples:
 
-In busy systems, examples get overwritten before PMM can collect them.
+- `events_statements_summary_by_digest`: stores aggregated metrics for each normalized query (digest). Each unique query appears only once, regardless of how many times it runs.
+
+- `events_statements_history` (`events_statements_history_long` in MariaDB): stores individual query executions in a rolling buffer. Multiple entries may exist for the same query, but older ones are overwritten as new queries are executed.
+
+A query may appear in the digest summary but not in the history table when:
+
+- it was executed frequently enough to appear in the digest summary.
+- all its individual executions were overwritten the history buffer due thigh query volume overwhelming the buffer and ongoing activity.
+
+When this happens, QAN can still display the query’s metrics, but cannot show an example query  because it's no longer available in `events_statements_history` table when PMM tries to capture it.
 
 ### Workaround
 
-If you are missing query examples, enable the `slowlog` log for reliable query examples. Then [configure PMM to use the `slow query log`](../../../docs/install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source) instead of `Performance Schema`. The slow query log retains actual query text over time and isn't subject to buffer limitations.
+If you're missing query examples, consider [using the slow query log (`slowlog`)](../../../docs/install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source) as the query source instead. 
+The `slowlog` retains actual query texts over time and can help capture examples even when Performance Schema history buffers are exhausted.
