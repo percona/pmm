@@ -28,7 +28,7 @@ require (
 	github.com/charmbracelet/bubbletea v1.3.5
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
-	github.com/docker/docker v28.2.2+incompatible
+	github.com/docker/docker v28.3.0+incompatible
 	github.com/docker/go-connections v0.5.0
 	github.com/envoyproxy/protoc-gen-validate v1.2.1
 	github.com/gin-contrib/cors v1.7.6
@@ -57,7 +57,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.94
 	github.com/percona/exporter_shared v0.7.6
 	github.com/percona/go-mysql v0.0.0-20250429063950-bc274ddba990
-	github.com/percona/percona-toolkit v0.0.0-20250514130928-84095fd7d7d9
+	github.com/percona/percona-toolkit v0.0.0-20250623101308-06d5966106f5
 	github.com/percona/promconfig v0.2.5
 	github.com/percona/saas v0.0.0-20250114002236-001872c9942d
 	github.com/pganalyze/pg_query_go/v6 v6.1.0
@@ -65,7 +65,7 @@ require (
 	github.com/pkg/sftp v1.13.9
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2
 	github.com/prometheus/client_golang v1.22.0
-	github.com/prometheus/common v0.64.0
+	github.com/prometheus/common v0.65.0
 	github.com/prometheus/prometheus v0.304.1
 	github.com/ramr/go-reaper v0.2.3
 	github.com/robfig/cron/v3 v3.0.1
@@ -86,6 +86,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822
 	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
+	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -159,7 +160,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.36.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/arch v0.18.0 // indirect
-	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22 // indirect
 )
 
 require (

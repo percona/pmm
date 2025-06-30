@@ -56,7 +56,7 @@ run-aichat: release-aichat        ## Replace aichat-backend from build and resta
 	echo -n > /srv/logs/aichat-backend.log
 	supervisorctl start aichat-backend
 
-run-all: run-agent run-managed       ## Run pmm-managed and pmm-agent
+run-all: run-agent run-managed run-qan run-vmproxy      ## Run all go services
 
 run: run-all                         ## Aliased to "run-all"
 	echo "run is aliased to run-all"
