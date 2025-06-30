@@ -97,6 +97,7 @@ func (p *OpenAIProvider) GenerateStreamResponse(ctx context.Context, messages []
 		var messageCount int
 		var totalContent string
 		var toolCalls []models.ToolCall
+		var toolCallIDs = make(map[string]struct{}) // Track unique tool call IDs
 
 		for {
 			response, err := stream.Recv()
@@ -151,28 +152,35 @@ func (p *OpenAIProvider) GenerateStreamResponse(ctx context.Context, messages []
 						"tool_call_count": len(choice.Delta.ToolCalls),
 					}).Debug("Tool calls detected in streaming chunk")
 
+					var newToolCalls []models.ToolCall
 					for i, tc := range choice.Delta.ToolCalls {
 						p.l.WithFields(logrus.Fields{
 							"call_index": i + 1,
 							"call_id":    tc.ID,
 							"function":   tc.Function.Name,
 						}).Debug("Stream tool call details")
-						toolCalls = append(toolCalls, models.ToolCall{
-							ID:   tc.ID,
-							Type: string(tc.Type),
-							Function: struct {
-								Name      string `json:"name"`
-								Arguments string `json:"arguments"`
-							}{
-								Name:      tc.Function.Name,
-								Arguments: tc.Function.Arguments,
-							},
-						})
+						if _, exists := toolCallIDs[tc.ID]; !exists {
+							tcModel := models.ToolCall{
+								ID:   tc.ID,
+								Type: string(tc.Type),
+								Function: struct {
+									Name      string `json:"name"`
+									Arguments string `json:"arguments"`
+								}{
+									Name:      tc.Function.Name,
+									Arguments: tc.Function.Arguments,
+								},
+							}
+							toolCalls = append(toolCalls, tcModel)
+							newToolCalls = append(newToolCalls, tcModel)
+							toolCallIDs[tc.ID] = struct{}{}
+						}
 					}
-
-					responseChan <- &models.StreamMessage{
-						Type:      "tool_call",
-						ToolCalls: toolCalls,
+					if len(newToolCalls) > 0 {
+						responseChan <- &models.StreamMessage{
+							Type:      "tool_call",
+							ToolCalls: newToolCalls,
+						}
 					}
 				}
 

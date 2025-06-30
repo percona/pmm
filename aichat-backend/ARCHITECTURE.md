@@ -286,12 +286,13 @@ llm:
 ## Error Handling
 
 The architecture includes comprehensive error handling:
-llm:
-  provider: "openai"          # openai, gemini, mock, claude, ollama
-  model: "gpt-4"             # Provider-specific model name
-  api_key: "your-api-key-here" # API key (use env vars in production)
-  base_url: ""               # Optional custom base URL
+## Error Handling
+
+The architecture includes comprehensive error handling:
+
 - Providers are initialized once at startup
+- Connection pooling is handled by individual provider implementations
+- Streaming responses use channels for efficient memory usage
 - Connection pooling is handled by individual provider implementations
 - Streaming responses use channels for efficient memory usage
 - Context cancellation is supported for request timeouts

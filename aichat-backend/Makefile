@@ -73,16 +73,17 @@ lint:
 .PHONY: build
 build: deps
 	@echo "Building $(BINARY)..."
-	@mkdir -p $(dir $(BINARY))
+	@mkdir -p $(BUILD_DIR)
 	CGO_ENABLED=$(CGO_ENABLED) GOOS=$(GOOS) GOARCH=$(GOARCH) \
 		go build -a -installsuffix cgo $(PMM_LD_FLAGS) \
-		-o $(BINARY) main.go
+		-o $(BUILD_DIR)/$(BINARY) main.go
 
 # Build binary for development
 .PHONY: build-dev
 build-dev:
 	@echo "Building $(BINARY) for development..."
-	go build $(PMM_RACE_FLAG) -gcflags="all=-N -l" $(PMM_LD_FLAGS) -o $(BINARY) main.go
+	@mkdir -p $(BUILD_DIR)
+	go build $(PMM_RACE_FLAG) -gcflags="all=-N -l" $(PMM_LD_FLAGS) -o $(BUILD_DIR)/$(BINARY) main.go
 
 # Build release binaries (following PMM managed pattern)
 .PHONY: release
@@ -100,13 +101,7 @@ release-dev:
 .PHONY: run
 run: build-dev
 	@echo "Running $(BINARY)..."
-	./$(BINARY)
-
-# Install dependencies for development
-.PHONY: dev-deps
-dev-deps:
-	@echo "Installing development dependencies..."
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	$(BUILD_DIR)/$(BINARY)
 
 # Format code
 .PHONY: fmt
@@ -173,7 +168,6 @@ help:
 	@echo "  lint           - Run linter"
 	@echo "  fmt            - Format code"
 	@echo "  deps           - Download dependencies"
-	@echo "  dev-deps       - Install development dependencies"
 	@echo "  clean          - Clean build artifacts"
 	@echo ""
 	@echo "Docker targets:"

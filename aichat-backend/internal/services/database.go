@@ -614,3 +614,39 @@ func (s *DatabaseService) MarkApprovalProcessed(ctx context.Context, sessionID, 
 func (s *DatabaseService) DB() *sql.DB {
 	return s.db
 }
+
+// GetUserSessionsCount returns the total number of sessions for a user
+func (s *DatabaseService) GetUserSessionsCount(ctx context.Context, userID string) (int, error) {
+	if err := s.ensureConnection(); err != nil {
+		return 0, fmt.Errorf("database connection failed: %w", err)
+	}
+
+	var count int
+	query := "SELECT COUNT(*) FROM chat_sessions WHERE user_id = $1"
+	row := s.db.QueryRowContext(ctx, query, userID)
+	if err := row.Scan(&count); err != nil {
+		return 0, fmt.Errorf("failed to count user sessions: %w", err)
+	}
+	return count, nil
+}
+
+// GetSessionMessagesCount returns the total number of messages for a session and user
+func (s *DatabaseService) GetSessionMessagesCount(ctx context.Context, sessionID, userID string) (int, error) {
+	if err := s.ensureConnection(); err != nil {
+		return 0, fmt.Errorf("database connection failed: %w", err)
+	}
+
+	// Verify session ownership
+	_, err := s.GetSession(ctx, sessionID, userID)
+	if err != nil {
+		return 0, err
+	}
+
+	var count int
+	query := "SELECT COUNT(*) FROM chat_messages WHERE session_id = $1"
+	row := s.db.QueryRowContext(ctx, query, sessionID)
+	if err := row.Scan(&count); err != nil {
+		return 0, fmt.Errorf("failed to count session messages: %w", err)
+	}
+	return count, nil
+}

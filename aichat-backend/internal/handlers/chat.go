@@ -272,6 +272,16 @@ func (h *ChatHandler) GetMCPTools(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// Define allowed MIME types at the top of the file or inside the function
+var allowedMIMETypes = map[string]struct{}{
+	"text/plain":       {},
+	"application/pdf":  {},
+	"image/png":        {},
+	"image/jpeg":       {},
+	"application/json": {},
+	// Add more as needed
+}
+
 // SendMessageWithFiles handles POST /v1/chat/send-with-files (multipart form)
 func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 	// Parse multipart form
@@ -312,10 +322,20 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 					})
 					return
 				}
-				defer file.Close()
+
+				// Validate MIME type
+				mimeType := fileHeader.Header.Get("Content-Type")
+				if _, ok := allowedMIMETypes[mimeType]; !ok {
+					file.Close()
+					c.JSON(http.StatusBadRequest, gin.H{
+						"error": "File type not allowed: " + mimeType,
+					})
+					return
+				}
 
 				// Read file content
 				content, err := io.ReadAll(file)
+				file.Close() // Explicitly close after reading
 				if err != nil {
 					c.JSON(http.StatusBadRequest, gin.H{
 						"error": "Failed to read file: " + err.Error(),
@@ -327,7 +347,7 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 				attachment := models.Attachment{
 					ID:       uuid.New().String(),
 					Filename: fileHeader.Filename,
-					MimeType: fileHeader.Header.Get("Content-Type"),
+					MimeType: mimeType,
 					Size:     fileHeader.Size,
 				}
 
@@ -336,8 +356,6 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 				if len(content) < 10*1024*1024 { // 10MB
 					attachment.Content = base64.StdEncoding.EncodeToString(content)
 				} else {
-					// For larger files, you might want to save to disk
-					// and store the path, or use cloud storage
 					c.JSON(http.StatusBadRequest, gin.H{
 						"error": "File too large. Maximum size is 10MB per file.",
 					})

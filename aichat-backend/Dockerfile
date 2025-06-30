@@ -24,19 +24,19 @@ FROM alpine:3.18
 # Install ca-certificates for HTTPS requests
 RUN apk --no-cache add ca-certificates wget
 
-WORKDIR /root/
-
-# Copy the binary from builder stage
-COPY --from=builder /app/aichat-backend .
-
-# Copy config file (optional)
-RUN if [ -f /app/config.yaml ]; then cp /app/config.yaml .; fi
-
 # Create a non-root user and group
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
+WORKDIR /app
+
+# Copy the binary from builder stage
+COPY --from=builder /app/aichat-backend ./
+
+# Copy config file (optional)
+COPY --from=builder /app/config.yaml ./config.yaml
+
 # Set ownership of the working directory and files
-RUN chown -R appuser:appgroup /root/
+RUN chown -R appuser:appgroup /app
 
 # Switch to the non-root user
 USER appuser

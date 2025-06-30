@@ -537,6 +537,27 @@ func (s *ChatService) executeToolCalls(ctx context.Context, toolCalls []models.T
 		go func(index int, tc models.ToolCall) {
 			defer wg.Done()
 
+			// Check if context is already cancelled
+			select {
+			case <-ctx.Done():
+				resultChan <- toolResult{
+					execution: models.ToolExecution{
+						ID:       tc.ID,
+						ToolName: tc.Function.Name,
+						Error:    "Context cancelled",
+					},
+					message: &models.Message{
+						ID:        fmt.Sprintf("tool_%s", tc.ID),
+						Role:      "tool",
+						Content:   "Tool execution cancelled",
+						Timestamp: time.Now(),
+					},
+					index: index,
+				}
+				return
+			default:
+			}
+
 			s.l.WithFields(logrus.Fields{
 				"tool_call_index": index + 1,
 				"tool_call_id":    tc.ID,

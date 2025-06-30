@@ -89,14 +89,23 @@ func (h *SessionHandler) ListSessions(c *gin.Context) {
 		return
 	}
 
-	// Note: For simplicity, we're not implementing total count query
-	// In production, you might want to add a separate count query
+	// After fetching sessions, get total count and add to response
+	total, err := h.dbService.GetUserSessionsCount(c.Request.Context(), userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Sprintf("Failed to get total session count: %v", err),
+		})
+		return
+	}
+	pages := (total + limit - 1) / limit
 	response := gin.H{
 		"sessions": sessions,
 		"pagination": gin.H{
 			"page":   page,
 			"limit":  limit,
 			"offset": offset,
+			"total":  total,
+			"pages":  pages,
 		},
 	}
 
@@ -258,14 +267,23 @@ func (h *SessionHandler) GetSessionMessages(c *gin.Context) {
 		messages = []*models.Message{}
 	}
 
-	// Note: For simplicity, we're not implementing total count query
-	// In production, you might want to add a separate count query
+	// After fetching messages, get total count and add to response
+	total, err := h.dbService.GetSessionMessagesCount(c.Request.Context(), sessionID, userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": fmt.Sprintf("Failed to get total message count: %v", err),
+		})
+		return
+	}
+	pages := (total + limit - 1) / limit
 	response := gin.H{
 		"messages": messages,
 		"pagination": gin.H{
 			"page":   page,
 			"limit":  limit,
 			"offset": offset,
+			"total":  total,
+			"pages":  pages,
 		},
 	}
 
