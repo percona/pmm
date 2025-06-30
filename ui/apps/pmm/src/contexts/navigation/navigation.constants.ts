@@ -1,8 +1,4 @@
-import {
-  PMM_BASE_PATH,
-  PMM_NEW_NAV_GRAFANA_PATH,
-  PMM_NEW_NAV_PATH,
-} from 'lib/constants';
+import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
 import { NavItem } from 'lib/types';
 
 export const PMM_NAV_OS: NavItem = {
