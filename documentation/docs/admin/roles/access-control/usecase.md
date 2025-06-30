@@ -39,12 +39,12 @@ The use case demonstrates the following scenario:
 
 **Roles**
 
-- role_postresql
+- role_postgresql
 - role_mysql
 
 
 |           |**Role assigned**|**Labels applied to the role**|**Accessible Metrics**                                                                                                  |
 |----------|--------|---------------------------------------------- |-------------------------------------------------------------------------------------------------------------|
-| **User 1**  | role_postresql|dev, service_name=postgresql|The metrics for service postgresql will be accessible.|                                          
+| **User 1**  | role_postgresql|dev, service_name=postgresql|The metrics for service postgresql will be accessible.|                                          
 | **User 2**  | role_mysql    |prod, service_name=mysql|The metrics for service mysql will be accessible.|                                          
-| **User 3**  | role_postgresql and role_mysql|dev, service_name=postgresql and </br> prod, service_name=mysql |The metrics for both the services mysql and postresql will be accessible.|   
+| **User 3**  | role_postgresql and role_mysql|dev, service_name=postgresql and </br> prod, service_name=mysql |The metrics for both the services mysql and postgresql will be accessible.|   
