@@ -644,3 +644,8 @@ func convertHistogramItems(items []*agentv1.HistogramItem) []string {
 
 	return res
 }
+
+// GetQANServiceClient returns the underlying QANServiceClient for use by other services
+func (c *Client) GetQANServiceClient() qanv1.QANServiceClient {
+	return c.qsc
+}

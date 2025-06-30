@@ -100,6 +100,11 @@ var rules = map[string]role{
 	"/graph":           none,
 	"/swagger":         viewer,
 
+	"/v1/mcp": viewer, // TODO: remove this once we have a proper auth for mcp
+
+	// AI Chat API - requires viewer role for basic access
+	"/v1/chat/": viewer,
+
 	"/v1/server/logs.zip": admin,
 
 	// kept for backwards compatibility with PMM v2
@@ -242,6 +247,11 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	var userID int
 	if authUser != nil {
 		userID = authUser.userID
+	}
+
+	// Set X-User-ID header for AI Chat endpoints
+	if s.isAIChatEndpoint(req) && userID > 0 {
+		rw.Header().Set("X-User-ID", fmt.Sprintf("%d", userID))
 	}
 
 	if err := s.maybeAddLBACFilters(ctx, rw, req, userID, l); err != nil {
@@ -573,4 +583,9 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	s.rw.Unlock()
 
 	return &authUser, nil
+}
+
+// isAIChatEndpoint checks if the request is for an AI Chat endpoint
+func (s *AuthServer) isAIChatEndpoint(req *http.Request) bool {
+	return strings.HasPrefix(req.URL.Path, "/v1/chat/")
 }

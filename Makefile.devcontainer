@@ -14,6 +14,9 @@ release-vmproxy:                  ## Build vmproxy
 release-qan:                      ## Build QAN
 	make -C qan-api2 release
 
+release-aichat:                   ## Build aichat-backend
+	make -C aichat-backend release-dev
+
 # used by host Makefile
 _bash:
 	/bin/bash
@@ -46,6 +49,12 @@ run-qan: release-qan
 	cp $(PMM_RELEASE_PATH)/qan-api2 /usr/sbin/percona-qan-api2
 	echo -n > /srv/logs/qan-api2.log
 	supervisorctl start qan-api2
+
+run-aichat: release-aichat        ## Replace aichat-backend from build and restart
+	supervisorctl stop aichat-backend
+	cp $(PMM_RELEASE_PATH)/aichat-backend /usr/sbin/aichat-backend
+	echo -n > /srv/logs/aichat-backend.log
+	supervisorctl start aichat-backend
 
 run-all: run-agent run-managed run-qan run-vmproxy      ## Run all go services
 

@@ -307,6 +307,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	s.addPostgresParams(templateParams)
 	s.addClusterParams(templateParams)
+	s.addAIChatParams(templateParams)
 
 	templateParams["PMMServerHost"] = ""
 	if settings.PMMPublicAddress != "" {
@@ -377,6 +378,39 @@ func (s *Service) addClusterParams(templateParams map[string]interface{}) {
 	// - GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
 }
 
+func (s *Service) addAIChatParams(templateParams map[string]interface{}) {
+	// AI Chat configuration parameters with environment variable support
+	templateParams["AIChatEnabled"] = envvars.GetEnv("PMM_AICHAT_ENABLED", "true")
+	templateParams["AIChatPort"] = "3001"
+
+	// Get provider and set appropriate default model
+	provider := envvars.GetEnv("AICHAT_LLM_PROVIDER", "openai")
+	templateParams["AIChatLLMProvider"] = provider
+
+	// Set default model based on provider
+	var defaultModel string
+	switch provider {
+	case "openai":
+		defaultModel = "gpt-4o-mini"
+	case "gemini":
+		defaultModel = "gemini-2.5-flash"
+	case "claude":
+		defaultModel = "claude-3-5-haiku-20241022"
+	case "ollama":
+		defaultModel = "llama3.1:8b"
+	case "mock":
+		defaultModel = "mock-model"
+	default:
+		defaultModel = "gpt-4o-mini" // fallback to OpenAI
+	}
+	templateParams["AIChatLLMModel"] = envvars.GetEnv("AICHAT_LLM_MODEL", defaultModel)
+
+	templateParams["AIChatAPIKey"] = envvars.GetEnv("AICHAT_API_KEY", "")
+	templateParams["AIChatMCPServersFile"] = envvars.GetEnv("AICHAT_MCP_SERVERS_FILE", "/etc/aichat-backend/mcp-servers.json")
+	templateParams["AIChatLogLevel"] = envvars.GetEnv("AICHAT_LOG_LEVEL", "info")
+	templateParams["AIChatCORSOrigins"] = envvars.GetEnv("AICHAT_CORS_ORIGINS", "http://localhost:8080,http://localhost:8443")
+}
+
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.
 // If configuration can't be reloaded for some reason, old file is restored, and configuration is reloaded again.
 // Returns true if configuration was changed.
@@ -441,6 +475,11 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 
 	for _, tmpl := range templates.Templates() {
 		if tmpl.Name() == "" || (tmpl.Name() == "victoriametrics" && s.vmParams.ExternalVM()) {
+			continue
+		}
+
+		// Skip aichat-backend if disabled
+		if tmpl.Name() == "aichat-backend" && envvars.GetEnv("PMM_AICHAT_ENABLED", "true") != "true" {
 			continue
 		}
 
@@ -663,5 +702,37 @@ stdout_logfile = /srv/logs/nomad-server.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
+{{end}}
+
+{{define "aichat-backend"}}
+{{- if eq .AIChatEnabled "true" }}
+[program:aichat-backend]
+priority = 16
+command = /usr/sbin/aichat-backend -config /etc/aichat-backend/config.yaml
+user = pmm
+autorestart = true
+autostart = true
+startretries = 1000
+startsecs = 1
+stopsignal = TERM
+stopwaitsecs = 300
+stdout_logfile = /srv/logs/aichat-backend.log
+stdout_logfile_maxbytes = 50MB
+stdout_logfile_backups = 2
+redirect_stderr = true
+environment =
+    PATH="/home/pmm/.local/bin:%(ENV_PATH)s",
+    AICHAT_PORT="{{ .AIChatPort }}",
+    AICHAT_LLM_PROVIDER="{{ .AIChatLLMProvider }}",
+    AICHAT_LLM_MODEL="{{ .AIChatLLMModel }}",
+    {{- if .AIChatAPIKey }}
+    AICHAT_API_KEY="{{ .AIChatAPIKey }}",
+    {{- end }}
+    AICHAT_MCP_SERVERS_FILE="{{ .AIChatMCPServersFile }}",
+    AICHAT_LOG_LEVEL="{{ .AIChatLogLevel }}",
+    AICHAT_CORS_ORIGINS="{{ .AIChatCORSOrigins }}",
+    AICHAT_DATABASE_URL="postgres://ai_chat_user:ai_chat_secure_password@127.0.0.1:5432/ai_chat?sslmode=disable",
+    GIN_MODE="release"
+{{end -}}
 {{end}}
 `))

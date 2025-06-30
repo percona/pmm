@@ -78,6 +78,34 @@
         when: not ansible_check_mode
     when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and need_initialization
 
+  - name: Create AI Chat DB
+    block:
+      - name: Create AI chat database user
+        postgresql_user:
+          name: ai_chat_user
+          password: ai_chat_secure_password
+          role_attr_flags: LOGIN
+          login_user: postgres
+          state: present
+
+      - name: Create AI chat database in postgres
+        postgresql_db:
+          name: ai_chat
+          owner: ai_chat_user
+          encoding: UTF8
+          login_user: postgres
+          state: present
+
+      - name: Grant privileges to AI chat user
+        postgresql_privs:
+          database: ai_chat
+          roles: ai_chat_user
+          type: database
+          privs: ALL
+          login_user: postgres
+          state: present
+        when: not ansible_check_mode
+
   - name: Upgrade/Install dashboards
     include_role:
       name: dashboards

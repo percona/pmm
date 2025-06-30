@@ -95,6 +95,7 @@
       - pmm-managed
       - pmm-dump
       - vmproxy
+      - aichat-backend
     state: installed
     enablerepo: local
 
@@ -143,6 +144,10 @@
     state: touch
     owner: pmm
     group: pmm
+
+- name: Install AI Chat with MCP support
+  include_role:
+    name: ai-chat
 
 # Launch pmm-managed-init first as it may update supervisord configuration on start
 - name: Generate new supervisor config

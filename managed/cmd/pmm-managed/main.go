@@ -41,6 +41,7 @@ import (
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	mcpserver "github.com/mark3labs/mcp-go/server"
 	"github.com/pkg/errors"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -90,6 +91,7 @@ import (
 	"github.com/percona/pmm/managed/services/management/common"
 	managementdump "github.com/percona/pmm/managed/services/management/dump"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
+	"github.com/percona/pmm/managed/services/mcp"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
 	"github.com/percona/pmm/managed/services/platform"
@@ -332,6 +334,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 type http1ServerDeps struct {
 	logs       *server.Logs
 	authServer *grafana.AuthServer
+	mcpServer  *mcp.Mcp
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -398,6 +401,9 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
+	if err := addMCPHandler(mux, deps.mcpServer); err != nil {
+		l.Errorf("Failed to add MCP handler: %v", err)
+	}
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/", proxyMux)
 
@@ -406,6 +412,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
 		Handler:  mux,
 	}
+
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			l.Panic(err)
@@ -419,6 +426,34 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
+}
+
+func addMCPHandler(mux *http.ServeMux, mcpServer *mcp.Mcp) error {
+	if mcpServer == nil {
+		logrus.Error("MCP server is nil; cannot register MCP handlers")
+		return fmt.Errorf("MCP server is nil")
+	}
+
+	server := mcpServer.Server()
+	if server == nil {
+		logrus.Error("Failed to initialize MCP server; got nil server instance")
+		return fmt.Errorf("failed to initialize MCP server; got nil server instance")
+	}
+
+	sseServer := mcpserver.NewSSEServer(
+		server,
+		mcpserver.WithStaticBasePath("/v1/mcp"),
+		mcpserver.WithKeepAlive(true),
+	)
+	if sseServer == nil {
+		logrus.Error("Failed to initialize MCP SSE server; got nil instance")
+		return fmt.Errorf("failed to initialize MCP SSE server; got nil instance")
+	}
+
+	mux.Handle("/v1/mcp", sseServer)
+	mux.Handle("/v1/mcp/sse", sseServer.SSEHandler())
+	mux.Handle("/v1/mcp/message", sseServer.MessageHandler())
+	return nil
 }
 
 // runDebugServer runs debug server until context is canceled, then gracefully stops it.
@@ -1147,6 +1182,7 @@ func main() { //nolint:maintidx,cyclop
 		runHTTP1Server(ctx, &http1ServerDeps{
 			logs:       logs,
 			authServer: authServer,
+			mcpServer:  mcp.New(managementgrpc.NewActionsServer(actionsService, db), qanClient.GetQANServiceClient()),
 		})
 	}()
 
