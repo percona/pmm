@@ -77,8 +77,7 @@ func saveConfig(path string, cfg []byte) (err error) {
 	return
 }
 
-var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Parse(`
-[unix_http_server]
+var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Parse(`[unix_http_server]
 chmod = 0700
 username = dummy
 password = dummy
