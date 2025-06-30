@@ -104,9 +104,32 @@ const AIChatDemo: React.FC = () => {
           This is a demonstration of how AI can be integrated into PMM Query Analytics (QAN).
           The AI assistant can analyze query performance data, suggest optimizations, and provide insights based on real QAN metrics.
         </Typography>
+        
+        <Alert severity="info" sx={{ mb: 4 }}>
+          <Typography variant="body2">
+            <strong>Note:</strong> This is a proof-of-concept demonstration created to showcase how AI can be integrated 
+            into QAN and to collect feedback from the community. There is currently no ETA for when this feature 
+            will be officially integrated into PMM.
+          </Typography>
+        </Alert>
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" gutterBottom>
-                AI Integration Features
+                AI-Powered Database Insights
+              </Typography>
+              <Typography variant="body2" paragraph>
+                The AI assistant is integrated with PMM's Query Analytics engine to provide 
+                intelligent insights about database performance. It can analyze real query metrics, 
+                identify bottlenecks, and suggest optimization strategies.
+              </Typography>
+              
+              <Typography variant="body2" paragraph>
+                This demonstration shows how AI can be seamlessly integrated into database monitoring tools 
+                to provide intelligent analysis and optimization recommendations. The AI assistant understands 
+                query performance metrics and can help database administrators identify issues and improve performance.
+              </Typography>
+              
+              <Typography variant="body2" paragraph>
+                <strong>Key Features:</strong>
               </Typography>
               <ul>
                 <li>AI-powered query performance analysis</li>
@@ -116,35 +139,11 @@ const AIChatDemo: React.FC = () => {
                 <li>Interactive query exploration and filtering</li>
                 <li>Persistent chat sessions with context retention</li>
               </ul>
-            </Paper>
-
-            <Paper sx={{ p: 3, mb: 4 }}>
-              <Typography variant="h6" gutterBottom>
-                Query Analytics Integration
-              </Typography>
+              
               <Typography variant="body2" paragraph>
-                The AI assistant is integrated with PMM's Query Analytics engine to provide 
-                intelligent insights about database performance. It can analyze real query metrics, 
-                identify bottlenecks, and suggest optimization strategies.
+                Key capabilities include analyzing slow queries, suggesting index optimizations, 
+                identifying resource bottlenecks, and providing best practices for database performance tuning.
               </Typography>
-              
-              {qanError && (
-                <Alert severity="info" sx={{ mb: 2 }}>
-                  <Typography variant="body2">
-                    <strong>QAN Data Status:</strong> Real QAN data is not available. 
-                    This is normal in development environments.
-                  </Typography>
-                </Alert>
-              )}
-              
-              {qanData && (
-                <Alert severity="success" sx={{ mb: 2 }}>
-                  <Typography variant="body2">
-                    <strong>QAN Data Status:</strong> Connected to live QAN data! 
-                    Found {qanData.total_rows} queries in the recent data.
-                  </Typography>
-                </Alert>
-              )}
             </Paper>
 
             <Paper sx={{ p: 3, mb: 4 }}>
@@ -184,37 +183,32 @@ const AIChatDemo: React.FC = () => {
               </Box>
             </Paper>
 
-            <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                AI-Powered Database Insights
-              </Typography>
-              <Typography variant="body2" paragraph>
-                This demonstration shows how AI can be seamlessly integrated into database monitoring tools 
-                to provide intelligent analysis and optimization recommendations. The AI assistant understands 
-                query performance metrics and can help database administrators identify issues and improve performance.
-              </Typography>
-              <Typography variant="body2" paragraph>
-                Key capabilities include analyzing slow queries, suggesting index optimizations, 
-                identifying resource bottlenecks, and providing best practices for database performance tuning.
-              </Typography>
-            </Paper>
-
             {/* QAN Data Section */}
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" gutterBottom>
                 Query Analytics Data
               </Typography>
               
-              {isLoadingQAN && (
-                <Box sx={{ textAlign: 'center', py: 3 }}>
-                  <CircularProgress sx={{ mb: 2 }} />
-                  <Typography variant="body1">
-                    Loading QAN data...
-                  </Typography>
-                </Box>
-              )}
-
+              {/* QAN Data Status - moved here from Query Analytics Integration */}
               {qanError && (
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  <Typography variant="body2">
+                    <strong>QAN Data Status:</strong> Real QAN data is not available. 
+                    This is normal in development environments.
+                  </Typography>
+                </Alert>
+              )}
+              
+              {qanData && (
+                <Alert severity="success" sx={{ mb: 2 }}>
+                  <Typography variant="body2">
+                    <strong>QAN Data Status:</strong> Connected to live QAN data! 
+                    Found {qanData.total_rows} queries in the recent data.
+                  </Typography>
+                </Alert>
+              )}
+              
+              {qanError && !qanData && (
                 <Alert severity="warning" sx={{ mb: 2 }}>
                   <Typography variant="body2">
                     <strong>Unable to load QAN data:</strong> {qanError.message}
@@ -226,28 +220,62 @@ const AIChatDemo: React.FC = () => {
                 </Alert>
               )}
 
-              {qanData && !isLoadingQAN && (
-                <>
+              {isLoadingQAN && !qanData && (
+                <Box sx={{ textAlign: 'center', py: 3 }}>
+                  <CircularProgress sx={{ mb: 2 }} />
+                  <Typography variant="body1">
+                    Loading QAN data...
+                  </Typography>
+                </Box>
+              )}
 
-                <QANDataDisplay 
-                  data={qanData} 
-                  selectedServices={selectedServices}
-                  onServiceFilterChange={handleServiceFilterChange}
-                  timeRangeHours={timeRangeHours}
-                  onTimeRangeChange={handleTimeRangeChange}
+              {qanData && (
+                <Box sx={{ position: 'relative' }}>
+                  {/* Loading overlay when refreshing */}
+                  {isLoadingQAN && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                        backdropFilter: 'blur(1px)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000,
+                        borderRadius: 1,
+                      }}
+                    >
+                      <CircularProgress sx={{ mb: 2 }} />
+                      <Typography variant="body2" color="primary">
+                        Refreshing QAN data...
+                      </Typography>
+                    </Box>
+                  )}
+
+                  <QANDataDisplay 
+                    data={qanData} 
+                    selectedServices={selectedServices}
+                    onServiceFilterChange={handleServiceFilterChange}
+                    timeRangeHours={timeRangeHours}
+                    onTimeRangeChange={handleTimeRangeChange}
                     orderBy={orderBy}
                     onSortChange={handleSortChange}
                     page={page}
                     pageSize={pageSize}
                     onPageChange={handlePageChange}
-                  onAnalyzeQuery={(queryData) => {
-                    setSampleMessage(queryData);
-                    setShouldOpenWithSample(true);
-                  }}
+                    onAnalyzeQuery={(queryData) => {
+                      setSampleMessage(queryData);
+                      setShouldOpenWithSample(true);
+                    }}
                     onRefresh={fetchQANData}
                     isRefreshing={isLoadingQAN}
-                />
-                </>
+                  />
+                </Box>
               )}
             </Paper>
       </Box>

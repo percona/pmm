@@ -14,6 +14,7 @@ export const useRecentQANData = (
     queryFn: () => getRecentQANData(hoursBack, limit, filters, orderBy, offset),
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1, // Only retry once since QAN data might not be available in dev
+    placeholderData: (previousData) => previousData, // Keep previous data during refetch to enable overlay loading
     ...options,
   });
 
