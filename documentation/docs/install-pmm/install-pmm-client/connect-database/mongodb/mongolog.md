@@ -4,7 +4,7 @@ PMM supports collecting MongoDB query metrics from slow query logs instead of th
 
 This solves connection pool exhaustion issues that occur with the traditional profiler approach, particularly in high-traffic environments with hundreds of databases.
 
-When using the standard profiler method, PMM-Agent queries compete with application traffic for database connections. In environments with 600+ databases this leads to severe errors like:
+When using the standard profiler method, PMM-Agent queries compete with application traffic for database connections. In environments with 100+ databases this leads to severe errors like:
 
 *couldn't create system.profile iterator, reason: timed out while checking out a connection from connection pool: context deadline exceeded; maxPoolSize: 100, connections in use by cursors: 0, connections in use by transactions: 0, connections in use by other operations: 100*
 
