@@ -164,7 +164,8 @@ type Config struct {
 	Debug    bool   `yaml:"debug"`
 	Trace    bool   `yaml:"trace"`
 
-	LogLinesCount uint `json:"log-lines-count"`
+	LogLinesCount         uint   `json:"log-lines-count"`
+	PerfschemaRefreshRate uint16 `yaml:"perfschema-refresh-rate,omitempty"`
 
 	WindowConnectedTime time.Duration `yaml:"window-connected-time"`
 
@@ -218,6 +219,9 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		}
 		if cfg.WindowConnectedTime == 0 {
 			cfg.WindowConnectedTime = time.Hour
+		}
+		if cfg.PerfschemaRefreshRate == 0 {
+			cfg.PerfschemaRefreshRate = 5
 		}
 
 		for sp, v := range map[*string]string{
@@ -428,6 +432,9 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	app.Flag("log-lines-count",
 		"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
 		Envar("PMM_AGENT_LOG_LINES_COUNT").Default("1024").UintVar(&cfg.LogLinesCount)
+	app.Flag("perfschema-refresh-rate",
+		"Change how often PMM scrapes data from Performance Schema (in seconds) [PMM_AGENT_PERFSCHEMA_REFRESH_RATE]").
+		Envar("PMM_AGENT_PERFSCHEMA_REFRESH_RATE").Uint16Var(&cfg.PerfschemaRefreshRate)
 	jsonF := app.Flag("json", "Enable JSON output").Action(func(*kingpin.ParseContext) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
 		return nil

@@ -172,3 +172,20 @@ func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent,
 		},
 	}
 }
+
+// qanMongoDBMongologAgentConfig returns desired configuration of qan-mongodb-mongolog-agent built-in agent.
+func qanMongoDBMongologAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
+	tdp := agent.TemplateDelimiters(service)
+
+	return &agentv1.SetStateRequest_BuiltinAgent{
+		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT,
+		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
+		DisableQueryExamples: agent.QANOptions.QueryExamplesDisabled,
+		MaxQueryLength:       agent.QANOptions.MaxQueryLength,
+		TextFiles: &agentv1.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+		},
+	}
+}

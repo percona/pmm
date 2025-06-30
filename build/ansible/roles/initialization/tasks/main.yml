@@ -54,7 +54,7 @@
       host: 127.0.0.1
       port: 5432
       timeout: 150
-    when: lookup('env','PMM_POSTGRES_ADDR') == '127.0.0.1:5432' and lookup('env','PMM_DISABLE_BUILTIN_POSTGRES') != '1'
+    when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and lookup('env','PMM_DISABLE_BUILTIN_POSTGRES') == ''
 
   - name: Create Grafana DB
     block:
