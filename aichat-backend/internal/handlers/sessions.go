@@ -1,13 +1,12 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-
-	"errors"
 
 	"github.com/percona/pmm/aichat-backend/internal/models"
 	"github.com/percona/pmm/aichat-backend/internal/services"

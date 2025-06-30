@@ -32,7 +32,6 @@ import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
 	_ "github.com/jstemmer/go-junit-report"
 	_ "github.com/quasilyte/go-consistent"
-	_ "github.com/redpanda-data/protoc-gen-go-mcp/cmd/protoc-gen-go-mcp"
 	_ "github.com/reviewdog/reviewdog/cmd/reviewdog"
 	_ "github.com/vburenin/ifacemaker"
 	_ "github.com/vektra/mockery/v2"
@@ -59,7 +58,6 @@ import (
 //go:generate go build -o ../bin/protoc-gen-go-grpc google.golang.org/grpc/cmd/protoc-gen-go-grpc
 //go:generate go build -o ../bin/protoc-gen-grpc-gateway github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
 //go:generate go build -o ../bin/protoc-gen-openapiv2 github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
-//go:generate go build -o ../bin/protoc-gen-go-mcp github.com/redpanda-data/protoc-gen-go-mcp/cmd/protoc-gen-go-mcp
 //go:generate go build -o ../bin/reform gopkg.in/reform.v1/reform
 //go:generate go build -o ../bin/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
 //go:generate go build -o ../bin/swagger github.com/go-swagger/go-swagger/cmd/swagger

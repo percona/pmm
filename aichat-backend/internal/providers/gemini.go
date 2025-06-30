@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/genai"
 
-	"github.com/google/uuid"
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/models"
-	"github.com/sirupsen/logrus"
 )
 
 // GeminiProvider implements the LLMProvider interface for Google Gemini

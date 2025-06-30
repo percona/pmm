@@ -857,7 +857,6 @@ func (s *ChatService) detectToolCallAttempts(content string) bool {
 
 // ProcessStreamMessageWithAttachmentsForUser processes a user message with file attachments and returns a streaming response for a specific user
 func (s *ChatService) ProcessStreamMessageWithAttachmentsForUser(ctx context.Context, userID, sessionID, userMessage string, attachments []*models.Attachment) (<-chan *models.StreamMessage, error) {
-
 	s.l.WithFields(logrus.Fields{
 		"user_id":     userID,
 		"session_id":  sessionID,

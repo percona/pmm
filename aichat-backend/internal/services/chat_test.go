@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/percona/pmm/aichat-backend/internal/models"
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/aichat-backend/internal/models"
 )
 
 type dummyOutput struct {

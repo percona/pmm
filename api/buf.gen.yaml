@@ -32,6 +32,3 @@ plugins:
       - simple_operation_ids=true
       - json_names_for_fields=false
       - proto3_optional_nullable=true
-  - local: ../bin/protoc-gen-go-mcp
-    out: .
-    opt: paths=source_relative

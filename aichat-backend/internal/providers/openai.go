@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/sirupsen/logrus"
-
 	openai "github.com/sashabaranov/go-openai"
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/aichat-backend/internal/config"
 	"github.com/percona/pmm/aichat-backend/internal/models"

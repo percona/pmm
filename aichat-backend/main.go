@@ -5,12 +5,11 @@ import (
 	"embed"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	"net/url"
 
 	"github.com/alecthomas/kong"
 	"github.com/gin-contrib/cors"
