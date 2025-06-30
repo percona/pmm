@@ -29,7 +29,7 @@ The dashboard contains three panels:
 
 ## Limitation: Missing query examples in MySQL Performance Schema
 
-When using MySQL's Performance Schema as the query source, you may encounter the message *“Sorry, no examples found” in the QAN dashboard. This typically occurs due to the way MySQL handles query sampling and can be influenced by the number of threads, volume of unique queries, and Performance Schema settings.
+When using MySQL's Performance Schema as the query source, you may encounter the message *“Sorry, no examples found”* in the QAN dashboard. This typically occurs due to the way MySQL handles query sampling and can be influenced by the number of threads, volume of unique queries, and Performance Schema settings.
 
 Despite the absence of query examples, all other query metrics are still collected and displayed as expected.
 
