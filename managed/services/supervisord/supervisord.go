@@ -401,7 +401,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	restore := true
 	defer func() {
 		if restore {
-			if err = os.WriteFile(path, oldCfg, 0o644); err != nil { //nolint:gosec
+			if err = os.WriteFile(path, oldCfg, 0o666); err != nil { //nolint:gosec
 				s.l.Errorf("Failed to restore: %s.", err)
 			}
 			if err = s.reload(name); err != nil {
@@ -411,7 +411,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	}()
 
 	// write and reload
-	if err = os.WriteFile(path, cfg, 0o644); err != nil { //nolint:gosec
+	if err = os.WriteFile(path, cfg, 0o666); err != nil { //nolint:gosec
 		return false, errors.WithStack(err)
 	}
 	if err = s.reload(name); err != nil {
@@ -502,7 +502,6 @@ command =
 		--http.pathPrefix=/prometheus
 		--envflag.enable
 		--envflag.prefix=VM_
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -530,7 +529,6 @@ command =
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}
 {{- end }}
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -552,7 +550,6 @@ command =
       --listen-port=8430
       --listen-address={{ .InterfaceToBind }}
       --header-name=X-Proxy-Filter
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -578,7 +575,6 @@ environment =
 	PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
 
 
-user = pmm
 autorestart = true
 autostart = true
 startretries = 1000
@@ -634,7 +630,6 @@ environment =
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_PEERS="{{ .HANodes }}"
     {{- end}}
-user = pmm
 directory = /usr/share/grafana
 autorestart = true
 autostart = true
@@ -652,7 +647,6 @@ redirect_stderr = true
 [program:nomad-server]
 priority = 5
 command = /usr/local/percona/pmm/tools/nomad agent -config /srv/nomad/nomad-server-{{ .PMMServerHost }}.hcl
-user = pmm
 autorestart = {{ .NomadEnabled }}
 autostart = {{ .NomadEnabled }}
 startretries = 10

@@ -16,7 +16,7 @@
     state: directory
     owner: pmm
     group: pmm
-    mode: 0744
+    mode: 0755
     recurse: true
 
 - name: Copy a custom version of grafana.ini

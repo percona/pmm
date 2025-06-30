@@ -25,7 +25,7 @@
     state: directory
     owner: pmm
     group: pmm
-    mode: 0775  
+    mode: 0777  
 
 - name: Create Postgres log file
   file:
@@ -34,7 +34,7 @@
     force: yes
     group: pmm
     owner: pmm
-    mode: 0644
+    mode: 0644  # Read-only for others, or 0664 if group write is needed
 
 - name: Create Postgres data dir
   file:
@@ -42,7 +42,7 @@
     state: directory
     owner: pmm
     group: pmm
-    mode: 0700
+    mode: 0750
 
 - name: Initialize Postgres database
   command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust
@@ -57,10 +57,10 @@
   become_method: su
 
 - name: Create postgres user
-  shell: /usr/pgsql-14/bin/createuser --echo --superuser --host=/run/postgresql --no-password postgres
+  shell: /usr/pgsql-14/bin/createuser --echo --superuser --no-password postgres
   become: true
   become_user: pmm
-  become_method: su      
+  become_method: su
 
 - name: Create pmm-managed database
   postgresql_db:
