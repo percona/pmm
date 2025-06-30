@@ -1,13 +1,13 @@
 import { locationService } from '@grafana/runtime';
 import { CrossFrameMessenger, DashboardVariablesMessage, LocationChangeMessage } from '@pmm/shared';
-import { GRAFANA_SUB_PATH, PMM_UI_PATH } from 'lib/constants';
+import { GRAFANA_LOGIN_PATH, GRAFANA_SUB_PATH, PMM_UI_PATH } from 'lib/constants';
 import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 
 export const initialize = () => {
-  if (!isWithinIframe()) {
+  if (!isWithinIframe() && !window.location.pathname.startsWith(GRAFANA_LOGIN_PATH)) {
     // redirect user to the new UI
     window.location.replace(window.location.href.replace(GRAFANA_SUB_PATH, PMM_UI_PATH));
     return;

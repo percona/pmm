@@ -554,7 +554,7 @@ export const PROFILE: NavItem = {
       id: 'sign-out',
       text: 'Sign out',
       icon: 'arrow-from-right',
-      url: PMM_BASE_PATH + '/graph/logout',
+      url: '/graph/logout',
       target: '_self',
     },
   ],

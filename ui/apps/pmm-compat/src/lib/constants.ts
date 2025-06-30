@@ -8,4 +8,5 @@ export const LOCATORS = {
 };
 
 export const GRAFANA_SUB_PATH = '/graph';
-export const PMM_UI_PATH = `/pmm-ui/next/${GRAFANA_SUB_PATH}`;
+export const GRAFANA_LOGIN_PATH = '/graph/login';
+export const PMM_UI_PATH = `/pmm-ui/next${GRAFANA_SUB_PATH}`;

@@ -15,7 +15,7 @@ import { AxiosError } from 'axios';
 import { ApiError } from 'types/api.types';
 
 export const useCheckUpdates = (
-  options?: UseQueryOptions<GetUpdatesResponse>
+  options?: Partial<UseQueryOptions<GetUpdatesResponse>>
 ) =>
   useQuery({
     queryKey: ['checkUpdates'],
