@@ -99,4 +99,4 @@
     dest: /usr/share/pmm-server/static/
     group: pmm
     owner: pmm
-    mode: 0666
+    mode: 0644  # or 0664 if group write access is required

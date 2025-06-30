@@ -37,22 +37,34 @@ if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "1000" ]; then
         # Set up NSS wrapper for arbitrary UID support
         export NSS_WRAPPER_PASSWD=$(mktemp)
         export NSS_WRAPPER_GROUP=$(mktemp)
-        
+
+        # Cleanup temp files on exit
+        cleanup_nss_wrapper() {
+            [ -f "$NSS_WRAPPER_PASSWD" ] && rm -f "$NSS_WRAPPER_PASSWD"
+            [ -f "$NSS_WRAPPER_GROUP" ] && rm -f "$NSS_WRAPPER_GROUP"
+        }
+        trap cleanup_nss_wrapper EXIT
+
         # Copy existing passwd and group entries
-        cat /etc/passwd > $NSS_WRAPPER_PASSWD
-        cat /etc/group > $NSS_WRAPPER_GROUP
-        
-        # Add current user if not exists
+        cat /etc/passwd > "$NSS_WRAPPER_PASSWD"
+        cat /etc/group > "$NSS_WRAPPER_GROUP"
+
+        # Add current user if not exists (suppress errors if NSS wrapper not yet active)
         if ! getent passwd $CURRENT_UID > /dev/null 2>&1; then
-            echo "${CURRENT_USER}:x:${CURRENT_UID}:${CURRENT_GID}:PMM User:/srv:/bin/bash" >> $NSS_WRAPPER_PASSWD
+            echo "${CURRENT_USER}:x:${CURRENT_UID}:${CURRENT_GID}:PMM User:/srv:/bin/bash" >> "$NSS_WRAPPER_PASSWD"
         fi
-        
-        # Add current group if not exists  
+
+        # Add current group if not exists (suppress errors if NSS wrapper not yet active)
         if ! getent group $CURRENT_GID > /dev/null 2>&1; then
-            echo "${CURRENT_USER}:x:${CURRENT_GID}:" >> $NSS_WRAPPER_GROUP
+            echo "${CURRENT_USER}:x:${CURRENT_GID}:" >> "$NSS_WRAPPER_GROUP"
         fi
-        
-        export LD_PRELOAD="${NSS_WRAPPER_LIB}:${LD_PRELOAD:-}"
+
+        # Fix LD_PRELOAD assignment to avoid leading colon
+        if [ -n "$LD_PRELOAD" ]; then
+            export LD_PRELOAD="$NSS_WRAPPER_LIB:$LD_PRELOAD"
+        else
+            export LD_PRELOAD="$NSS_WRAPPER_LIB"
+        fi
         echo "NSS wrapper enabled with $NSS_WRAPPER_LIB"
     else
         echo "NSS wrapper not available, using fallback approach..."

@@ -178,17 +178,6 @@ func (s *Service) Run(ctx context.Context) {
 	}
 }
 
-func (s *Service) subscribe(program string, eventTypes ...eventType) chan *event {
-	ch := make(chan *event, 1)
-	s.eventsM.Lock()
-	s.subs[ch] = sub{
-		program:    program,
-		eventTypes: eventTypes,
-	}
-	s.eventsM.Unlock()
-	return ch
-}
-
 func (s *Service) supervisorctl(args ...string) ([]byte, error) {
 	if s.supervisorctlPath == "" {
 		return nil, errors.New("supervisorctl not found")
@@ -218,41 +207,6 @@ func parseStatus(status string) *bool {
 		}
 	}
 	return nil
-}
-
-// UpdateRunning returns true if given supervisord program is running or being restarted,
-// false if it is not running / failed.
-func (s *Service) programRunning(program string) bool {
-	// First check with status command is case we missed that event during maintail or pmm-managed restart.
-	// See http://supervisord.org/subprocess.html#process-states
-	b, err := s.supervisorctl("status", program)
-	if err != nil {
-		s.l.Warn(err)
-	}
-	s.l.Debugf("Status result for %q: %q", program, string(b))
-	if status := parseStatus(string(b)); status != nil {
-		s.l.Debugf("Status result for %q parsed: %v", program, *status)
-		return *status
-	}
-
-	s.eventsM.Lock()
-	lastEvent := s.lastEvents[program]
-	s.eventsM.Unlock()
-
-	s.l.Debugf("Status result for %q not parsed, inspecting last event %q.", program, lastEvent)
-	switch lastEvent {
-	case stopping, starting, running:
-		return true
-	case exitedUnexpected: // will be restarted
-		return true
-	case exitedExpected, fatal: // will not be restarted
-		return false
-	case stopped: // we don't know
-		fallthrough
-	default:
-		s.l.Warnf("Unhandled status result for %q (last event %q), assuming it is not running.", program, lastEvent)
-		return false
-	}
 }
 
 // reload asks supervisord to reload configuration.
@@ -401,7 +355,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	restore := true
 	defer func() {
 		if restore {
-			if err = os.WriteFile(path, oldCfg, 0o666); err != nil { //nolint:gosec
+			if err = os.WriteFile(path, oldCfg, 0o644); err != nil { //nolint:gosec
 				s.l.Errorf("Failed to restore: %s.", err)
 			}
 			if err = s.reload(name); err != nil {
@@ -411,7 +365,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	}()
 
 	// write and reload
-	if err = os.WriteFile(path, cfg, 0o666); err != nil { //nolint:gosec
+	if err = os.WriteFile(path, cfg, 0o644); err != nil { //nolint:gosec
 		return false, errors.WithStack(err)
 	}
 	if err = s.reload(name); err != nil {
