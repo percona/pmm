@@ -1,14 +1,21 @@
 # About query analytics (QAN)
 
-The *Query Analytics* dashboard shows how queries are executed and where they spend their time.  It helps you analyze database queries over time, optimize database performance, and find and remedy the source of problems.
+The Query Analytics dashboard shows how queries are executed and where they spend their time. It helps you analyze database queries over time, optimize database performance, and find and remedy the source of problems.
 
 ![!image](../../images/PMM_Query_Analytics.jpg)
 
-Query Analytics supports MySQL, MongoDB and PostgreSQL. The minimum requirements for MySQL are:
+## Supported databases
+
+Query Analytics supports MySQL, MongoDB and PostgreSQL with the following minimum requirements:
+
+### MySQL requirements
 
 - MySQL 5.1 or later (if using the slow query log).
 - MySQL 5.6.9 or later (if using Performance Schema).
+- Percona Server 5.6+ (all Performance Schema and slow log features)
 
+
+### Dashboard components
 Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.
 
 The dashboard contains three panels:
@@ -20,37 +27,20 @@ The dashboard contains three panels:
 !!! note alert alert-primary "Note"
     Query Analytics data retrieval is not instantaneous and can be delayed due to network conditions. In such situations *no data* is reported and a gap appears in the sparkline.
 
-## Limitation: Missing Query Examples in MySQL Performance Schema
+## Limitation: Missing query examples in MySQL Performance Schema
 
-### Overview
+When using MySQL Performance Schema, you may see *“Sorry, no examples found”* in query examples. This can happen due to high number of threads, a large volume of unique queries, or Performance Schema settings that cause the history buffer to be overwritten.
 
-Depending on your MySQL configuration — including the number of threads, volume of unique queries, and Performance Schema settings — it's possible to **miss query examples** in certain cases. **All other query metrics will still be collected as expected.**
+All query metrics are collected normally - only examples are affected.
 
----
+### Why This Happens
+MySQL Performance Schema uses two tables:
 
-### What's Happening Under the Hood
+- Summary table (`events_statements_summary_by_digest`) - stores query statistics (always available)
+- History table (`events_statements_history`) - stores individual query examples (limited buffer that gets overwritten)
 
-- `events_statements_summary_by_digest`  
-  - This table stores **aggregated metrics** for each unique query (digest).  
-  - Each normalized query appears **only once**, regardless of how many times it was executed.
-
-- `events_statements_history` (or `events_statements_history_long` in MariaDB)  
-  - This table stores **individual query executions**, meaning **multiple rows** can exist for the same query.  
-  - It works as a **fixed-size rolling buffer** and is subject to being overwritten as new queries come in.
-
----
-
-### What Can Go Wrong
-
-A query may appear in the **digest summary** (`events_statements_summary_by_digest`) but **not in the history table**. This happens when:
-
-- The query was executed frequently enough to be included in the digest summary.
-- However, all individual executions have already been **removed from the history buffer** due to its size limit and ongoing activity.
-
-As a result QAN may show the query’s metrics, but **fail to display an example**, because it's no longer available in `events_statements_history` during capturing.
-
----
+In busy systems, examples get overwritten before PMM can collect them.
 
 ### Workaround
 
-If you are missing query examples, consider enabling and using the `slowlog` as an alternative query source. The `slowlog` retains actual query texts over time and can help capture examples even when Performance Schema history buffers are exhausted.
+If you are missing query examples, enable the `slowlog` log for reliable query examples. Then [configure PMM to use the `slow query log`](../../../docs/install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source) instead of `Performance Schema`. The slow query log retains actual query text over time and isn't subject to buffer limitations.
