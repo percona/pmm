@@ -204,9 +204,7 @@ nav:
           - Database monitoring:
             - Overview: install-pmm/install-pmm-client/connect-database/index.md
             - MySQL: install-pmm/install-pmm-client/connect-database/mysql/mysql.md
-            - MongoDB:
-              - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb/mongodb.md
-              - MongoDB Log: install-pmm/install-pmm-client/connect-database/mongodb/mongolog.md
+            - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb/mongodb.md
             - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
           - Cloud services monitoring:
             - AWS: install-pmm/install-pmm-client/connect-database/aws.md
