@@ -29,7 +29,8 @@ Query Analytics supports MySQL, MongoDB and PostgreSQL with the following minimu
 
     Mongolog:
     - Logging to a file is enabled (using a configuration file or the appropriate command-line flag for the MongoDB binary)
-    - ßThe MongoDB server has permission to write to the specified path, and both the directory and file exist
+    - The MongoDB server has permission to write to the specified path, and both the directory and file exist
+    - PMM agent needs permission to read the log file at the specified path
 
 ### Dashboard components
 Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.
