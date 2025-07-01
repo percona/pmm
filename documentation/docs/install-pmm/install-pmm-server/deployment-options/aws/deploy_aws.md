@@ -16,7 +16,7 @@ To launch  PMM Server via AWS Marketplace:
 
 5. In the **EC2 Instance Type** field, select an appropriate instance type based on your monitoring needs and anticipated load. For information on instance sizing and storage, see [Plan PMM Server deployment from AWS](../aws/plan_aws.md).
 
-6. In the **VPC Settings** field, choose an existing VPC or create a new one to host your PMM Server.
+6. In the **VPC Settings** field, choose an existing VPC or create a new one to host your PMM Server. Ensure that the selected VPC has an [Internet Gateway](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html) attached to it to be reachable over the Internet
 
 7. In the **Subnet Settings** field, select an existing subnet or create a new one within your VPC.
 
