@@ -22,7 +22,7 @@ Replace the self-signed certificate with a proper SSL certificate for production
     {.power-number}
 
     1. Make sure that the domain name is pointing to your PMM Server's IP address.
-    2. Check that port 80 temporarily open for certificate validation.
+    2. Check that port 80 is temporarily opened for certificate validation.
     3. Install and configure:
     ```bash
     # Install certbot
