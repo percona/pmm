@@ -295,9 +295,13 @@ PMM offers two methods for collecting MongoDB query analytics. Choose the one th
           slowOpThresholdMs: 100
         ```
 
-        **Important:**
-        - `mode: slowOp` logs operations to file only (does NOT populate system.profile)
-        - Set `slowOpThresholdMs` based on your performance requirements (100ms is a good starting point)
+        **Configuration details:**
+
+        - `destination: file` - Ensures MongoDB logs to a file (required for mongolog)
+        - `path` - Specifies the log file location that mongolog will read
+        - `logAppend: true` - Appends to existing log file instead of overwriting
+        - `mode: slowOp` - Logs operations to file only (does NOT populate system.profile)
+        - `slowOpThresholdMs: 100` - Set based on your performance requirements (100ms is a good starting point)
 
     === "Command-line flags"
         Start `mongod` with these flags:
@@ -320,7 +324,7 @@ PMM offers two methods for collecting MongoDB query analytics. Choose the one th
         | `--profile 1` | Enables logging of slow operations (not full profiling). Does **not** populate `system.profile` collection |
         | `--slowms 100` | Sets slow operation threshold (in milliseconds) |
 
-    **Configure log rotation for mongolog:**
+    **Configure log rotation:**
     
     Proper log rotation is critical for mongolog to continue functioning. Configure logrotate to ensure mongolog continues reading logs after rotation.
 
@@ -339,7 +343,8 @@ PMM offers two methods for collecting MongoDB query analytics. Choose the one th
     }
     ```
 
-    **Critical requirements:**
+    **Critical log rotation requirements:**
+
     - Use `copytruncate` as this preserves file handle for mongolog
     - Avoid moving/renaming log files because this breaks mongolog's file tail
     - Do not delete active log files during rotation
@@ -357,7 +362,8 @@ PMM offers two methods for collecting MongoDB query analytics. Choose the one th
     ```
     
     !!! note alert alert-primary "Setup required"
-       MongoDB must be configured to log slow operations to a file and pmm-agent should have access to those MongoDB log files. See the configuration steps above for complete setup instructions.
+    MongoDB must be configured to log slow operations to a file and pmm-agent should have access to those MongoDB log files. 
+    See the configuration steps above for complete setup instructions.
 
 ## Add MongoDB service to PMM
 
@@ -486,9 +492,10 @@ If you need to remove MongoDB service from PMM, follow these steps:
     2. In the **Status** column, check the box for the service you want to remove and click **Delete**.
     3. On the confirmation pop-up, click **Delete service** and select **Force mode** if you want to also delete associated Clients.
 
-!!! seealso alert alert-info "See also"
-    - [`pmm-admin add mongodb`](../../../../use/commands/pmm-admin.md#mongodb)
-    - [Troubleshooting connection difficulties]
+## Related topics
+
+- [`pmm-admin add mongodb`](../../../../use/commands/pmm-admin.md#mongodb)
+- [Troubleshooting connection difficulties]
 
 [MongoDB]: https://www.mongodb.com/
 [Percona Server for MongoDB]: https://www.percona.com/software/mongodb/percona-server-for-mongodb
