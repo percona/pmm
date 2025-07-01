@@ -327,7 +327,7 @@ PMM offers two methods for collecting MongoDB query analytics. Check the compari
         | `--profile 1` | Enables logging of slow operations (not full profiling). Does **not** populate `system.profile` collection |
         | `--slowms 100` | Sets slow operation threshold (in milliseconds) |
 
-    **Configure log rotation:**
+    #### Configure log rotation
     
     Proper log rotation is critical for mongolog to continue functioning. Configure logrotate to ensure mongolog continues reading logs after rotation.
 
@@ -363,8 +363,8 @@ PMM offers two methods for collecting MongoDB query analytics. Check the compari
     ```
     
     !!! note alert alert-primary "Setup required"
-    MongoDB must be configured to log slow operations to a file and pmm-agent should have access to those MongoDB log files. 
-    See the configuration steps above for complete setup instructions.
+        MongoDB must be configured to log slow operations to a file and pmm-agent should have access to those MongoDB log files. 
+        See the configuration steps above for complete setup instructions.
 
 ## Add MongoDB service to PMM
 
@@ -456,23 +456,21 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
 
     === "Via web UI"
         To check the service from the UI:
+        {.power-number}
 
-        - Select **PMM Configuration > Inventory > Services**. 
-        - Find your MongoDB service in the list and verify it shows **Active** status.
-        - Verify the **Service name**, **Addresses**, and other connection details are correct.
-        - In the **Options** column, expand the **Details** section to check that agents are properly connected.
+        1. Select **PMM Configuration > Inventory > Services**. 
+        2. Find your MongoDB service in the list and verify it shows **Active** status.
+        3. Verify the **Service name**, **Addresses**, and other connection details are correct.
+        4. In the **Options** column, expand the **Details** section to check that agents are properly connected.
 
-2. Verify data collection:
-
-    - Open the **MongoDB Instances Overview** dashboard.
-    - Set the **Service Name** to the newly-added service.
-    - Confirm that metrics are being displayed in the dashboard.
+2. On the **MongoDB Instances Overview** dashboard, set the **Service Name** to the newly-added service and confirm that metrics are being displayed in the dashboard.
 
 3. Verify Query Analytics for the service:
+    {.power-number}
 
-    - Open **PMM Query Analytics** dashboard and use the filters to select your MongoDB service. 
-    - Check that query data is visible (it may take a few minutes for data to appear after initial setup).
-    - Performance impact is virtually zero since metrics are sourced from existing log files (for mongolog) or real-time profiler data.
+    1. Open **PMM Query Analytics** dashboard and use the filters to select your MongoDB service. 
+    2. Check that query data is visible (it may take a few minutes for data to appear after initial setup).
+    3. Performance impact is virtually zero since metrics are sourced from existing log files (for mongolog) or real-time profiler data.
 
 ## Remove MongoDB Service
 
