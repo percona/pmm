@@ -708,7 +708,7 @@ redirect_stderr = true
 {{- if eq .AIChatEnabled "true" }}
 [program:aichat-backend]
 priority = 16
-command = /usr/sbin/aichat-backend -config /etc/aichat-backend/config.yaml
+command = /usr/sbin/aichat-backend --env-only
 user = pmm
 autorestart = true
 autostart = true

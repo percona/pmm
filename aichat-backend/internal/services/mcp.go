@@ -36,10 +36,10 @@ func NewMCPService(cfg *config.Config) *MCPService {
 	}
 }
 
-// Initialize connects to all enabled MCP servers from JSON file
+// Initialize connects to all MCP servers from JSON file
 func (s *MCPService) Initialize(ctx context.Context) error {
 	// Load MCP servers from JSON file
-	servers, err := s.config.GetEnabledMCPServers()
+	servers, err := s.config.GetMCPServers()
 	if err != nil {
 		return fmt.Errorf("failed to load MCP servers: %w", err)
 	}
@@ -48,7 +48,7 @@ func (s *MCPService) Initialize(ctx context.Context) error {
 	s.servers = servers
 	s.mu.Unlock()
 
-	s.l.WithField("enabled_servers_count", len(s.servers)).Info("Initializing MCP service")
+	s.l.WithField("servers_count", len(s.servers)).Info("Initializing MCP service")
 
 	// Connect to all configured servers
 	connectedCount, connectionErrors := s.connectToAllServers(ctx, s.servers, false)

@@ -99,8 +99,8 @@ func GetConfigFromDefaults() *Config {
 	}
 }
 
-// GetEnabledMCPServers returns only the enabled MCP servers as a map
-func (c *Config) GetEnabledMCPServers() (map[string]MCPServerConfig, error) {
+// GetMCPServers returns all configured MCP servers as a map
+func (c *Config) GetMCPServers() (map[string]MCPServerConfig, error) {
 	// Parse as mcpServers format
 	serversFilePath := c.MCP.ServersFile
 	if !filepath.IsAbs(serversFilePath) {
@@ -126,16 +126,14 @@ func (c *Config) GetEnabledMCPServers() (map[string]MCPServerConfig, error) {
 		return map[string]MCPServerConfig{}, nil
 	}
 
-	// Set defaults for missing fields and filter only enabled servers
-	enabledServers := make(map[string]MCPServerConfig)
+	// Set defaults for missing fields and return all servers
+	allServers := make(map[string]MCPServerConfig)
 	for name, serverConfig := range serversConfig.MCPServers {
 		if serverConfig.Timeout == 0 {
 			serverConfig.Timeout = 30 // Default timeout
 		}
-		if serverConfig.Enabled { // Only include enabled servers
-			enabledServers[name] = serverConfig
-		}
+		allServers[name] = serverConfig
 	}
 
-	return enabledServers, nil
+	return allServers, nil
 }

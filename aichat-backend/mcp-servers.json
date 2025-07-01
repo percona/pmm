@@ -1,35 +1,18 @@
 {
   "mcpServers": {
     "pmm": {
-      "url": "http://localhost:80/v1/mcp/sse"
-    },
-    "mcp-clickhouse": {
-      "command": "uv",
-      "args": [
-        "run",
-        "--with",
-        "mcp-clickhouse",
-        "--python",
-        "3.13",
-        "mcp-clickhouse"
-      ],
-      "env": {
-        "CLICKHOUSE_HOST": "localhost",
-        "CLICKHOUSE_PORT": "8123",
-        "CLICKHOUSE_USER": "default",
-        "CLICKHOUSE_PASSWORD": "clickhouse",
-        "CLICKHOUSE_SECURE": "false",
-        "CLICKHOUSE_VERIFY": "false",
-        "CLICKHOUSE_CONNECT_TIMEOUT": "30",
-        "CLICKHOUSE_SEND_RECEIVE_TIMEOUT": "30"
-      }
+      "description": "PMM MCP server providing PMM-specific tools and APIs",
+      "url": "http://localhost:80/v1/mcp/sse",
+      "timeout": 30
     },
     "mcp-victoriametrics": {
+      "description": "VictoriaMetrics MCP server for metrics and monitoring operations",
       "command": "./bin/mcp-victoriametrics",
       "args": [],
       "env": {
         "VICTORIAMETRICS_URL": "http://localhost:80/prometheus"
-      }
+      },
+      "timeout": 30
     }
   }
 } 
