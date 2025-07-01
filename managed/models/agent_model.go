@@ -266,7 +266,7 @@ func (c PostgreSQLOptions) IsEmpty() bool {
 }
 
 // ValkeyOptions represents a structure for special Valkey options.
-type ValkeyOptions struct { //nolint:recvcheck
+type ValkeyOptions struct {
 	TLS     bool   `json:"tls"`
 	SSLCa   string `json:"ssl_ca"`
 	SSLCert string `json:"ssl_cert"`
