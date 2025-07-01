@@ -461,7 +461,7 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
 
     - On the **MongoDB Instances Overview** dashboard
     - Set the **Service Name** to the newly-added service
-    - Confirm that metrics are being displayed in the dashboardf
+    - Confirm that metrics are being displayed in the dashboard
 
 3. Verify Query Analytics for the service:
 
