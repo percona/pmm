@@ -463,14 +463,17 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
         3. Verify the **Service name**, **Addresses**, and other connection details are correct.
         4. In the **Options** column, expand the **Details** section to check that agents are properly connected.
 
-2. On the **MongoDB Instances Overview** dashboard, set the **Service Name** to the newly-added service and confirm that metrics are being displayed in the dashboard.
+2. Verify data collection:
+
+    - On the **MongoDB Instances Overview** dashboard
+    - Set the **Service Name** to the newly-added service
+    - Confirm that metrics are being displayed in the dashboardf
 
 3. Verify Query Analytics for the service:
-    {.power-number}
 
-    1. Open **PMM Query Analytics** dashboard and use the filters to select your MongoDB service. 
-    2. Check that query data is visible (it may take a few minutes for data to appear after initial setup).
-    3. Performance impact is virtually zero since metrics are sourced from existing log files (for mongolog) or real-time profiler data.
+    - Open the **PMM Query Analytics** dashboard and use the filters to select your MongoDB service. 
+    - Check that query data is visible (it may take a few minutes for data to appear after initial setup).
+    - Performance impact is virtually zero since metrics are sourced from existing log files (for mongolog) or real-time profiler data.
 
 ## Remove MongoDB Service
 
