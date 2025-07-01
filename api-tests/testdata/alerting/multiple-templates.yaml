@@ -3,7 +3,6 @@ templates:
   - name: test_template_1
     version: 1
     summary: Test summary 1
-    tiers: [ anonymous, registered ]
     expr: "test expression"
     params:
       - name: param1
@@ -27,7 +26,6 @@ templates:
   - name: test_template_2
     version: 1
     summary: Test summary 2
-    tiers: [ anonymous, registered ]
     expr: "test expression"
     params:
       - name: param1

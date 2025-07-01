@@ -1,0 +1,43 @@
+---
+checks:
+  - version: 1
+    name: postgresql_max_connections_1
+    summary: PostgreSQL max_connections is too high.
+    description: This check returns a notice if the max_connections configuration option is set to a high value (above 300). PostgreSQL doesn't cope well with having many connections even if they are idle. Recommended value is below 300.
+    type: POSTGRESQL_SELECT
+    #family: postgresql
+    #author: Sergey Kuzmichev
+    advisor: configuration_connection
+    interval: standard
+    query: name, setting FROM pg_settings WHERE name = 'max_connections'
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+
+      # pg_advisor
+      # thresholds
+      THRESHOLD=300
+      RECOMMENDED_MAX_VALUE=300
+
+      def check(rows):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(rows, context)
+
+      def check_context(rows, context):
+          num = 0
+          for row in rows:
+              name, setting = row["name"], row["setting"]
+              if name == "max_connections":
+                  num = int(setting)
+          results = []
+          if num >= THRESHOLD:
+              results.append({
+                  "summary": "The current value of max_connections is set too high",
+                  "description": "Current value is {}, while we recommend staying within {}. PostgreSQL doesn't cope well with having many connections even if they are idle.".format(num, RECOMMENDED_MAX_VALUE),
+                  "read_more_url": read_url.format("configuration-pg-high-max-connections"),
+                  "severity": "notice"
+              })
+          return results

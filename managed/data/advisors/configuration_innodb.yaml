@@ -1,0 +1,7 @@
+---
+advisors:
+  - version: 1
+    name: configuration_innodb
+    summary: InnoDB Configuration
+    description: Advises on configuring InnoDB optimization for high performance.
+    category: configuration

@@ -1,0 +1,94 @@
+---
+checks:
+  - version: 2
+    name: postgresql_unsupported_check
+    summary: Check for unsupported PostgreSQL
+    description: Checks to see if the currently installed version is supported by percona
+    #author: Jorge Torralba
+    advisor: configuration_version
+    interval: standard
+    family: POSTGRESQL
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: "setting, (setting::int / 10000) major  FROM pg_settings WHERE name = 'server_version_num' "
+    script: |
+      eolversion = 100023
+      eolmajor = 10
+      # min major version Percona supports
+      perconaminmajor = 11
+
+      def format_version(major, ver):
+          if major >= 10:
+             minor = int(ver) % 100
+             fmt_version = "{}.{}".format(major, minor)
+
+          if major <= 9:
+             minor = int(ver) // 100  % 100
+             patch = int(ver) % 100
+             fmt_version = "{}.{}.{}".format(major, minor, patch)
+
+          return fmt_version
+
+      def check_context(rows, context):
+           results = []
+           read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+           description = ""
+           iseol = False
+           for row in rows[0]:
+               ver, major = row["setting"], row["major"]
+
+               #hard code for testing
+               #ver = 110013
+               #major = 11
+
+               if str(major) == "":
+                  results.append({
+                      "summary": "Could not determine version information",
+                      "description": "Unknown version",
+                      "read_more_url": "",
+                      "severity": "warning",
+                      "labels": {},
+                  })
+                  return results
+
+               if major < perconaminmajor:
+                  current_version = format_version(major, ver)
+                  results.append({
+                      "summary": "Unsupported PostgreSQL version found.",
+                      "description": "The installed version {} is not supported by Percona. Only versions {} and higher are.".format(current_version, perconaminmajor),
+                      "read_more_url": read_url.format("postgresql-unsupported-check"),
+                      "severity": "error",
+                      "labels": {},
+                  })
+                  return results
+
+
+               if major >= 10:
+                   current_version = format_version(major, ver)
+                   eol_version = format_version(eolmajor, eolversion)
+                   if int(ver) <= eolversion:
+                      iseol = True
+                      description = "Currently installed version ({}) is EOL and no longer supported.".format(current_version)
+
+               if major < 10:
+                   minor = int(ver) // 100  % 100
+                   realmajor = "{}.{}".format(major, minor)
+                   current_version = format_version(major, ver)
+                   eol_version = format_version(eolmajor, eolversion)
+                   if int(ver) <= eolversion:
+                      iseol = True
+                      description = "Currently installed version ({}) is EOL and no longer supported.".format(current_version)
+
+               results.append({
+                   "summary": "Unsupported PostgreSQL version found.",
+                   "description": description,
+                   "read_more_url":read_url.format("postgresql-unsupported-check"),
+                   "severity": "error",
+                   "labels": {},
+               })
+
+
+           if iseol == False:
+              return []
+
+           return results

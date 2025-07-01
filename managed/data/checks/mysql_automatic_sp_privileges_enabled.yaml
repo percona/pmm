@@ -1,0 +1,33 @@
+---
+checks:
+  - version: 2
+    name: mysql_automatic_sp_privileges_enabled
+    summary: Checks if automatic_sp_privileges configuration is ON.
+    description: This check reviews the automatic_sp_privileges configuration is ON.
+    family: MYSQL
+    #author: Kedar Vaijanapurkar
+    advisor: configuration_generic
+    interval: standard
+    queries:
+      - type: MYSQL_SELECT
+        query: "@@global.version as version, @@global.hostname as service, @@automatic_sp_privileges as automatic_sp_privileges"
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def check_context(docs,context):
+          results = []
+          for row in docs[0]:
+              version = row["version"]
+              service = row["service"]
+              automatic_sp_privileges = row["automatic_sp_privileges"]
+          if automatic_sp_privileges != 1:
+              results.append ({
+                  "summary": "automatic_sp_privileges is {}, not enabled.".format(automatic_sp_privileges),
+                  "description": "The automatic_sp_privileges when enabled, causes automatic grants or revokes of the EXECUTE and ALTER ROUTINE privileges to the creator of a stored routine upon creation or removal of the routine.",
+                  "severity": "error",
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  },
+                  "read_more_url":read_url.format("mysql_automatic_sp_privileges_enabled")
+              })
+          return results

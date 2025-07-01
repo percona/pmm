@@ -1,0 +1,37 @@
+---
+checks:
+  - version: 1
+    name: mongodb_authmech_scramsha256
+    summary: MongoDB Security AuthMech Check
+    description: This check returns warnings if MongoDB is not using the default SHA-256 hashing function as its SCRAM authentication method.
+    type: MONGODB_GETPARAMETER
+    #family: mongodb
+    #author: Kimberly Wilkins
+    advisor: security_configuration
+    interval: standard
+    script: |
+      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      def check(docs):
+          # for compatibility with PMM Server < 2.12
+          context = {
+              "format_version_num": format_version_num,
+              "parse_version": parse_version,
+          }
+          return check_context(docs, context)
+      def check_context(docs, context):
+          """
+          This check returns a warning if MongoDB authentication is not using the default SCRAM-SHA-256.
+          """
+          if len(docs) != 1:
+              return "Unexpected number of documents"
+          results = []
+          parsed = docs[0]["parsed"]
+          authMechanism = "SCRAM-SHA-256" not in parsed.get("authenicationMechanisms")
+          if authMechanism:
+              results.append({
+                  "summary": "MongoDB is not using the default SCRAM-SHA-256 authenticationMechanisms - v4.0 and above",
+                  "description": "To follow optimal security practices, see the following documentation",
+                  "read_more_url": read_url.format("mongodb-scram-sha-256"),
+                  "severity": "warning",
+              })
+          return results
