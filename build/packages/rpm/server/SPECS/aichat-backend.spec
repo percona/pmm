@@ -45,11 +45,10 @@ install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_sysconfdir}/%{name}
 
 # Install binary
-install -p -m 0755 src/github.com/percona/pmm/aichat-backend/aichat-backend %{buildroot}%{_sbindir}/aichat-backend
+install -p -m 0755 src/github.com/percona/pmm/aichat-backend/bin/aichat-backend %{buildroot}%{_sbindir}/aichat-backend
 
 # Install configuration files
 install -p -m 0644 src/github.com/percona/pmm/aichat-backend/config.yaml %{buildroot}%{_sysconfdir}/%{name}/config.yaml
-install -p -m 0644 src/github.com/percona/pmm/aichat-backend/mcp-servers.json %{buildroot}%{_sysconfdir}/%{name}/mcp-servers.json
 
 
 
