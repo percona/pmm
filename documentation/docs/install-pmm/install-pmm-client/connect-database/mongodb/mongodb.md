@@ -194,9 +194,9 @@ Choose one of the following methods to enable profiling:
 
 ## Configure query source for MongoDB
 
-PMM offers two methods for collecting MongoDB query analytics. Choose the one that best fits your environment:
+PMM offers two methods for collecting MongoDB query analytics. Check the comparison table below and choose the method that best fits your environment:
 
-## Compare query source methods
+### Compare query source methods
 
 | Feature                    | Traditional profiler | mongolog            |
 |----------------------------|----------------------|---------------------|
@@ -245,6 +245,7 @@ PMM offers two methods for collecting MongoDB query analytics. Choose the one th
     *couldn't create system.profile iterator, reason: timed out while checking out a connection from connection pool: context deadline exceeded; maxPoolSize: 100, connections in use by cursors: 0, connections in use by transactions: 0, connections in use by other operations: 100*
 
     This occurs because:
+
     - PMM-Agent tries to query `system.profile` collections across all databases
     - each query consumes a connection from the pool
     - with hundreds of databases, all 100 connections get exhausted
@@ -253,6 +254,7 @@ PMM offers two methods for collecting MongoDB query analytics. Choose the one th
     **How mongolog works:**
     
     The `mongolog` query source eliminates this problem by reading MongoDB's slow query logs directly from disk, completely bypassing database connections. This file-based approach:
+
     - does not query `system.profile` collections
     - uses one connection at startup to get log path, then zero connections for metrics collection
     - scales to any number of databases without performance degradation
@@ -273,6 +275,7 @@ PMM offers two methods for collecting MongoDB query analytics. Choose the one th
     - identical query analytics data in PMM
 
     **Prerequisites for mongolog:**
+    
     - MongoDB 5.0+ (tested with 5.0.20-17)
     - MongoDB server must have write access to the configured log directory
     - Log file readable by PMM Agent user
