@@ -4,7 +4,7 @@ import { Updates } from 'pages/updates';
 import { UpdateClients } from 'pages/update-clients/UpdateClients';
 import { MainWithNav } from 'components/main/MainWithNav';
 import { NotFoundPage } from 'pages/not-found';
-import { HelpPage } from 'pages/help';
+import { HelpCenter } from 'pages/help-center';
 import Providers from 'Providers';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 
@@ -32,7 +32,7 @@ const router = createBrowserRouter(
             },
             {
               path: 'help',
-              element: <HelpPage />,
+              element: <HelpCenter />,
             },
             // Grafana routes are handled at the Main component level
             {
