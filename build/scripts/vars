@@ -44,7 +44,7 @@ echo -e "\n\n\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_versio
 
 rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:3}
 # Support for Hetzner-based builds
-if [ "${USE_HETZNER_BUILD}" = "1" ]; then
+if [ "${USE_HETZNER_BUILD:-}" = "1" ]; then
     rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-perconalab/rpmbuild:3-hetzner}
 fi
 rpms_dir=${root_dir}/tmp/pmm-server/RPMS
