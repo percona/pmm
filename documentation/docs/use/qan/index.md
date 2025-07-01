@@ -36,7 +36,7 @@ The dashboard contains three panels:
 
 ### Data retrieval delays
 
-Query Analytics data retrieval is not instantaneous and can be delayed due to network conditions. In such situations *no data* is reported and a gap appears in the sparkline.
+Query Analytics data retrieval is not instantaneous because metrics are collected once per minute. When collection delays occur, no data is reported and gaps will appear in the sparkline.
 
 ## Limitation: Missing query examples in MySQL Performance Schema
 
