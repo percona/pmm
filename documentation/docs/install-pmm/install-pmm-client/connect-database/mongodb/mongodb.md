@@ -428,7 +428,7 @@ After configuring your database server, add a MongoDB service using either the u
 
     ![!](../../../../images/PMM_Add_Instance_MongoDB.jpg)
 
-## Verify MongoDB Service Configuration
+## Verify MongoDB service configuration
 
 After adding MongoDB service to PMM, verify that it's properly configured and collecting data. This ensures your monitoring setup is working correctly.
 {.power-number}
@@ -469,7 +469,7 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
     - Check that query data is visible (it may take a few minutes for data to appear after initial setup).
     - Performance impact is virtually zero since metrics are sourced from existing log files (for mongolog) or real-time profiler data.
 
-## Remove MongoDB Service
+## Remove MongoDB service
 
 If you need to remove MongoDB service from PMM, follow these steps:
 
