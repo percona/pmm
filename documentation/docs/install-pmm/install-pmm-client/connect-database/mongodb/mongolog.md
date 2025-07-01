@@ -39,7 +39,7 @@ Use mongolog when you:
 ## Prerequisites
 
 - MongoDB 5.0+ (tested with 5.0.20-17)
-- Write access to MongoDB log directory
+- MongoDB server must have write access to the configured log directory
 - Log file readable by PMM Agent user
 
 ## Configure MongoDB
@@ -108,7 +108,9 @@ pmm-admin add mongodb \
 
 ## Configure log rotation
 
-Proper log rotation is critical for mongolog to continue functioning. Ensure `mongolog` continues reading logs after rotation:
+Proper log rotation is critical for mongolog to continue functioning. Configure logrotate to ensure mongolog continues reading logs after rotation.
+
+Create a logrotate configuration file (e.g., `/etc/logrotate.d/mongodb`):
 
 ```txt
 /var/log/mongodb/mongod.log {
@@ -143,7 +145,7 @@ Performance impact is virtually zero since metrics are sourced from existing log
 
 | Feature                    | `profiler`           | `mongolog`          |
 |----------------------------|----------------------|---------------------|
-| Database connections       | Uses pool         | None required    |
+| Database connections       | Uses pool continuously | One connection at startup to get log path |
 | Connection pool impact     | High              | Zero             |
 | Requires `system.profile`  | Yes               | No               |
 | Supports `mongos`          | No                | Yes              |
@@ -151,3 +153,4 @@ Performance impact is virtually zero since metrics are sourced from existing log
 | File-based logging         | No                | Yes              |
 | Query history durability   | Volatile          | Disk-persisted   |
 | Scales with DB count       | Linear degradation| Constant         |
+| Support remote instances   | Yes               | No                  |

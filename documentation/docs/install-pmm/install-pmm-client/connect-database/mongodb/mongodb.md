@@ -224,7 +224,7 @@ PMM offers two methods for collecting MongoDB query analytics. Choose the one th
     ```
     
     !!! note alert alert-primary "Setup required"
-        MongoDB must be configured to log slow operations to a file. See [MongoDB Log-based Query Analytics (mongolog)](../mongodb/mongodb.md) for complete setup instructions including log rotation configuration.
+       MongoDB must be configured to log slow operations to a file and pmm-agent should have access to those MongoDB log files. See [MongoDB Log-based Query Analytics (mongolog)](../mongodb/mongolog.md) for complete setup instructions including log rotation configuration.
 
 === "Traditional profiler (default)"
     The standard method uses MongoDB's built-in profiler to collect query metrics from the `system.profile` collection.
@@ -234,6 +234,14 @@ PMM offers two methods for collecting MongoDB query analytics. Choose the one th
     - small to medium deployments (< 100 databases)
     - environments with available connection pool capacity
     - simple setups where profiler access is unrestricted
+    - remote instances
+    
+    Key advantages:
+    
+    - real-time query collection and analysis
+    - no additional file system access required
+    - works with managed MongoDB services
+    - immediate data availability after profiling is enabled
     
     How it works:
 
@@ -241,32 +249,7 @@ PMM offers two methods for collecting MongoDB query analytics. Choose the one th
     - requires active database connections
     - provides real-time query analytics
     
-    This is the default method when adding MongoDB services to PMM.ngos` routers or managed services with restricted `system.profile` access
-    
-    Key advantages:
-
-    - zero database connections** required for metrics collection
-    - eliminates connection pool errors** completely
-    - scales linearly regardless of database count
-    - identical query analytics** data in PMM
-    
-    To use mongolog, add the `--query-source=mongolog` parameter:
-    
-    ```bash
-    pmm-admin add mongodb \
-      --query-source=mongolog \
-      --username=pmm \
-      --password=your_secure_password \
-      127.0.0.1
-    ```
-    
-    !!! note alert alert-primary "Setup required"
-        MongoDB must be configured to log slow operations to a file. See [MongoDB Log-based Query Analytics (mongolog)](../mongodb/mongolog.md) for complete setup instructions including log rotation configuration.
-
-## MongoDB supports logging to a file
-Since PMM 3.3 there is new query source available for MongoDB. It is `Mongolog` and its collecting data from log files instead from profiler. For more details see:
-[`How to setup Mongolog`](../mongodb/mongolog.md)
-
+    This is the default method when adding MongoDB services to PMM.
 
 ## Add MongoDB service to PMM
 
