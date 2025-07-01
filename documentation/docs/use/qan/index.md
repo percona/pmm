@@ -8,38 +8,37 @@ The Query Analytics dashboard shows how queries are executed and where they spen
 
 Query Analytics supports MySQL, MongoDB and PostgreSQL with the following minimum requirements:
 
-=== "MySQL requirements"===
+=== "MySQL requirements"
     - MySQL 5.1 or later (if using the slow query log)
     - MySQL 5.6.9 or later (if using Performance Schema)
     - Percona Server 5.6+ (all Performance Schema and slow log features)
     - MariaDB 5.2+ (for user statistics), 10.0+ (for Performance Schema)
 
-=== "PostgreSQL requirements"===
+=== "PostgreSQL requirements"
     - PostgreSQL 11 or later
     - `pg_stat_monitor` extension (recommended) or `pg_stat_statements` extension
     - Appropriate `shared_preload_libraries` configuration
     - Superuser privileges for PMM monitoring account
 
-=== "MongoDB requirements"===
+=== "MongoDB requirements"
     - MongoDB 6.0 or later (4.4+ may work with limited features)
-
-    Profiler:
     - Profiling enabled for Query Analytics
     - Appropriate user roles: `clusterMonitor`, `read` (local), and custom monitoring roles. For MongoDB 8.0+: Additional `directShardOperations` role required for sharded clusters
 
-    Mongolog:
-    - Logging to a file is enabled (using a configuration file or the appropriate command-line flag for the MongoDB binary)
-    - The MongoDB server has permission to write to the specified path, and both the directory and file exist
-    - PMM agent needs permission to read the log file at the specified path
+    ### Additional requirements for Mongolog
 
-### Dashboard components
+    - MongoDB configured to log slow operations to a file
+    - MongoDB server has write permissions to the log directory and file
+    - PMM agent has read permissions to the MongoDB log file
+
+## Dashboard components
 Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.
 
 The dashboard contains three panels:
 
-- the [Filters panel](panels/filters.md);
-- the [Overview panel](panels/overview.md);
-- the [Details panel](panels/details.md).
+- the [Filters panel](panels/filters.md)
+- the [Overview panel](panels/overview.md)
+- the [Details panel](panels/details.md)
 
 ### Data retrieval delays
 
@@ -61,20 +60,25 @@ MySQL Performance Schema manages query data across two different tables, which c
 
 A query may appear in the digest summary but not in the history table when:
 
-- it was executed frequently enough to appear in the digest summary.
-- all its individual executions were overwritten the history buffer due to thigh query volume overwhelming the buffer and ongoing activity.
+- it was executed frequently enough to appear in the digest summary
+- all its individual executions were overwritten in the history buffer due to high query volume overwhelming the buffer and ongoing activity
 
 When this happens, QAN can still display the query’s metrics, but cannot show an example query because it's no longer available in `events_statements_history` table when PMM tries to capture it.
 
-## New option in PMM agent (to tune perfschema refrest rate)
+## Performance Schema refresh rate tuning
 
-There is a new property called "Perfschema Refresh Rate" which can help with missing examples. This property affects how often we scrape data from the history table. By using a shorter interval, you increase the likelihood that an example will be captured.
-The default value is 5 seconds. The minimum value is 1 second, and a value of 0 is reserved to indicate the default (5 seconds).
+PMM Agent includes a configurable **Performance Schema Refresh Rate** that can help capture more query examples. This setting controls how often PMM scrapes data from the history table. Using a shorter interval increases the likelihood that query examples will be captured before being overwritten.
 
+### Configuration options
+
+- Default value: 5 seconds
+- Minimum value: 1 second
+- Value of 0 uses the default (5 seconds)
+
+### How to configure 
 - environment variable: `PMM_AGENT_PERFSCHEMA_REFRESH_RATE`. 
 - flag for PMM agent binary: `--perfschema-refresh-rate=NUMBER`. 
 - property in PMM agent config: `perfschema-refresh-rate: NUMBER`. 
-
 
 ### Workaround
 
