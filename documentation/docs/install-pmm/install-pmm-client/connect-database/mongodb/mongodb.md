@@ -213,21 +213,21 @@ PMM offers two methods for collecting MongoDB query analytics. Check the compari
 === "Traditional profiler (default)"
     The standard method uses MongoDB's built-in profiler to collect query metrics from the `system.profile` collection.
     
-    **Best for:**
+    #### Best for
 
     - small to medium deployments (< 100 databases)
     - environments with available connection pool capacity
     - simple setups where profiler access is unrestricted
     - remote instances
     
-    **Key advantages:**
+    #### Key advantages
     
     - real-time query collection and analysis
     - no additional file system access required
     - works with managed MongoDB services
     - immediate data availability after profiling is enabled
     
-    **How it works:**
+    #### How it works
 
     - queries `system.profile` collections for each database
     - requires active database connections
@@ -238,11 +238,11 @@ PMM offers two methods for collecting MongoDB query analytics. Check the compari
 === "Log-based collection with mongolog (recommended for scale)"
     Since PMM 3.3.0, `mongolog` collects query metrics by parsing MongoDB's slow query logs directly from disk. This approach solves connection pool exhaustion issues that occur with the traditional profiler approach, particularly in high-traffic environments with hundreds of databases.
 
-    **When connection pool issues occur:**
+    #### When connection pool issues occur
     
     When using the standard profiler method, PMM-Agent queries compete with application traffic for database connections. In environments with 100+ databases this leads to severe errors like:
 
-    *couldn't create system.profile iterator, reason: timed out while checking out a connection from connection pool: context deadline exceeded; maxPoolSize: 100, connections in use by cursors: 0, connections in use by transactions: 0, connections in use by other operations: 100*
+    *"couldn't create system.profile iterator, reason: timed out while checking out a connection from connection pool: context deadline exceeded; maxPoolSize: 100, connections in use by cursors: 0, connections in use by transactions: 0, connections in use by other operations: 100"*
 
     This occurs because:
 
@@ -251,7 +251,7 @@ PMM offers two methods for collecting MongoDB query analytics. Check the compari
     - with hundreds of databases, all 100 connections get exhausted
     - new monitoring queries timeout waiting for connections, leading to missing query analytics data
 
-    **How mongolog works:**
+    #### How mongolog works
     
     The `mongolog` query source eliminates this problem by reading MongoDB's slow query logs directly from disk, completely bypassing database connections. This file-based approach:
 
@@ -260,27 +260,27 @@ PMM offers two methods for collecting MongoDB query analytics. Check the compari
     - scales to any number of databases without performance degradation
     - provides identical query analytics data in PMM
 
-    **Best for:**
+    #### Best for
 
     - high-scale environments with 100+ databases
     - production workloads requiring minimal overhead
     - environments experiencing connection pool exhaustion
     - `mongos` routers or managed services with restricted `system.profile` access
     
-    **Key advantages:**
+    #### Key advantages
 
     - zero database connections required for metrics collection
     - eliminates connection pool errors completely
     - scales linearly regardless of database count
     - identical query analytics data in PMM
 
-    **Prerequisites for mongolog:**
-    
+    #### Prerequisites for mongolog
+
     - MongoDB 5.0+ (tested with 5.0.20-17)
     - MongoDB server must have write access to the configured log directory
     - Log file readable by PMM Agent user
 
-    **Configure MongoDB for mongolog:**
+    ### Configure MongoDB for mongolog
     
     Configure MongoDB to log slow operations to a file using either a config file or command-line flags. This requires enabling slow operation logging (not full profiling).
 
@@ -298,7 +298,7 @@ PMM offers two methods for collecting MongoDB query analytics. Check the compari
           slowOpThresholdMs: 100
         ```
 
-        **Configuration details:**
+        #### Configuration details
 
         - `destination: file` - Ensures MongoDB logs to a file (required for mongolog)
         - `path` - Specifies the log file location that mongolog will read
@@ -318,7 +318,7 @@ PMM offers two methods for collecting MongoDB query analytics. Check the compari
           --slowms 100
         ```
 
-        **Flag descriptions:**
+        #### Flag descriptions
 
         | Flag | Purpose |
         |----------------|--------------------------------------------------------|
@@ -346,13 +346,11 @@ PMM offers two methods for collecting MongoDB query analytics. Check the compari
     }
     ```
 
-    **Critical log rotation requirements:**
+    #### Critical log rotation requirements
 
     - Use `copytruncate` as this preserves file handle for mongolog
     - Avoid moving/renaming log files because this breaks mongolog's file tail
     - Do not delete active log files during rotation
-
-    **Using mongolog:**
     
     To use mongolog, add the `--query-source=mongolog` parameter:
     
