@@ -37,7 +37,7 @@ const (
 )
 
 // MySQLOptionsParams contains methods to create MySQLOptions object.
-type MySQLOptionsParams interface {
+type MySQLOptionsParams interface { //nolint:iface
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
@@ -53,7 +53,7 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) MySQLOptions {
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
-type PostgreSQLOptionsParams interface {
+type PostgreSQLOptionsParams interface { //nolint:iface
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
@@ -173,6 +173,8 @@ type AgentFilters struct {
 	AgentType *AgentType
 	// Return only Agents that provide insights for that AWSAccessKey.
 	AWSAccessKey string
+	// IgnoreNomad is used to ignore Nomad agents.
+	IgnoreNomad bool
 }
 
 // FindAgents returns Agents by filters.
@@ -212,6 +214,11 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	if filters.AWSAccessKey != "" {
 		conditions = append(conditions, fmt.Sprintf("(aws_options ? 'aws_access_key' AND aws_options->>'aws_access_key' = %s)", q.Placeholder(idx)))
 		args = append(args, filters.AWSAccessKey)
+		idx++
+	}
+	if filters.IgnoreNomad {
+		conditions = append(conditions, fmt.Sprintf("agent_type != %s", q.Placeholder(idx)))
+		args = append(args, NomadAgentType)
 	}
 
 	var whereClause string
@@ -632,15 +639,16 @@ func CreateNodeExporter(q *reform.Querier,
 
 // CreateExternalExporterParams params for add external exporter.
 type CreateExternalExporterParams struct {
-	RunsOnNodeID string
-	ServiceID    string
-	Username     string
-	Password     string
-	Scheme       string
-	MetricsPath  string
-	ListenPort   uint32
-	CustomLabels map[string]string
-	PushMetrics  bool
+	RunsOnNodeID  string
+	ServiceID     string
+	Username      string
+	Password      string
+	Scheme        string
+	MetricsPath   string
+	ListenPort    uint32
+	CustomLabels  map[string]string
+	PushMetrics   bool
+	TLSSkipVerify bool
 }
 
 // CreateExternalExporter creates ExternalExporter.
@@ -701,6 +709,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 			MetricsPath:   metricsPath,
 			MetricsScheme: scheme,
 		},
+		TLSSkipVerify: params.TLSSkipVerify,
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
@@ -773,6 +782,9 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 			MongoDBServiceType,
 		},
 		QANMongoDBProfilerAgentType: {
+			MongoDBServiceType,
+		},
+		QANMongoDBMongologAgentType: {
 			MongoDBServiceType,
 		},
 		PostgresExporterType: {

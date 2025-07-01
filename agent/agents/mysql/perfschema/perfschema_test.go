@@ -15,7 +15,6 @@
 package perfschema
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -117,7 +116,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 			},
 		}
 		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
-		require.Len(t, actual, 0)
+		require.Empty(t, actual)
 	})
 
 	t.Run("Truncate", func(t *testing.T) {
@@ -131,7 +130,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 		}
 		current := make(map[string]*eventsStatementsSummaryByDigest)
 		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
-		require.Len(t, actual, 0)
+		require.Empty(t, actual)
 	})
 
 	t.Run("TruncateAndNew", func(t *testing.T) {
@@ -195,7 +194,7 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 
 	p, err := newPerfSchema(newParams)
 	require.NoError(t, err)
-	require.NoError(t, p.refreshHistoryCache())
+	require.NoError(t, p.refreshHistoryCache(t.Context()))
 	return p
 }
 
@@ -209,6 +208,12 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 		"SELECT ID FROM `city` LIMIT ?":                   {}, // waitForFixtures for MariaDB
 		"SELECT COUNT ( * ) FROM `city`":                  {}, // actions tests
 		"CREATE TABLE IF NOT EXISTS `t1` ( `col1` CHARACTER (?) ) CHARACTER SET `utf8mb4` COLLATE `utf8mb4_general_ci`": {}, // tests for invalid characters
+
+		// to test same query in different DBs (https://perconadev.atlassian.net/browse/PMM-12413).
+		"USE `world`":                          {}, // switching DBs
+		"USE `world2`":                         {}, // switching DBs
+		"CREATE SCHEMA IF NOT EXISTS `world2`": {}, // new DB
+		"CREATE TABLE IF NOT EXISTS `world2` . `city` AS SELECT * FROM `world` . `city`": {}, // copying of data
 	}
 	res := make([]*agentv1.MetricsBucket, 0, len(mb))
 	for _, b := range mb {
@@ -240,6 +245,26 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 	return res
 }
 
+func prepareDBCopy(t *testing.T, db *reform.DB) {
+	t.Helper()
+
+	_, err := db.Exec("CREATE DATABASE IF NOT EXISTS world2")
+	require.NoError(t, err)
+
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS world2.city AS SELECT * FROM world.city")
+	require.NoError(t, err)
+
+	query := "SELECT /* AllCities controller='test' */ * FROM city"
+	_, err = db.Exec(query)
+	require.NoError(t, err)
+	_, err = db.Exec("USE world2")
+	require.NoError(t, err)
+	_, err = db.Exec(query)
+	require.NoError(t, err)
+	_, err = db.Exec("USE world")
+	require.NoError(t, err)
+}
+
 func TestPerfSchema(t *testing.T) {
 	sqlDB := tests.OpenTestMySQL(t)
 	defer sqlDB.Close() //nolint:errcheck
@@ -257,8 +282,7 @@ func TestPerfSchema(t *testing.T) {
 	tests.LogTable(t, structs)
 
 	var rowsExamined float32
-	ctx := context.Background()
-	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, db.WithTag("pmm-agent-tests:MySQLVersion"))
+	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(t.Context(), db.WithTag("pmm-agent-tests:MySQLVersion"))
 	t.Logf("MySQL version: %s, vendor: %s", mySQLVersion, mySQLVendor)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
@@ -284,7 +308,7 @@ func TestPerfSchema(t *testing.T) {
 			"SELECT * FROM `city`": "9c799bdb2460f79b3423b77cd10403da",
 		}
 
-	case "8.0-oracle", "8.0-percona", "8.4-oracle", "9.0-oracle", "9.1-oracle", "9.2-oracle":
+	case "8.0-oracle", "8.0-percona", "8.4-oracle", "9.0-oracle", "9.1-oracle", "9.2-oracle", "9.3-oracle":
 		digests = map[string]string{
 			"SELECT `sleep` (?)":   "0b1b1c39d4ee2dda7df2a532d0a23406d86bd34e2cd7f22e3f7e9dedadff9b69",
 			"SELECT * FROM `city`": "950bdc225cf73c9096ba499351ed4376f4526abad3d8ceabc168b6b28cfc9eab",
@@ -344,7 +368,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err := db.Exec("SELECT /* Sleep controller='test' */ sleep(0.1)")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
@@ -391,7 +415,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err := db.Exec("SELECT /* AllCities controller='test' */ * FROM city")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)
@@ -434,6 +458,69 @@ func TestPerfSchema(t *testing.T) {
 		tests.AssertBucketsEqual(t, expected, actual)
 	})
 
+	t.Run("Same queries in different DBs", func(t *testing.T) {
+		m := setup(t, &setupParams{
+			db:                   db,
+			disableQueryExamples: false,
+		})
+
+		prepareDBCopy(t, db)
+		defer func() {
+			_, err := db.Exec("DROP DATABASE IF EXISTS world2")
+			require.NoError(t, err)
+		}()
+
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
+
+		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
+		require.NoError(t, err)
+		buckets = filter(buckets)
+		require.Len(t, buckets, 2, "%s", tests.FormatBuckets(buckets))
+
+		expectedSchemas := map[string]bool{"world": true, "world2": true}
+		actualSchemas := make(map[string]bool)
+		for _, b := range buckets {
+			assert.InDelta(t, 0, b.Common.MQueryTimeSum, 0.09)
+			assert.InDelta(t, 0, b.Mysql.MLockTimeSum, 0.09)
+
+			actualSchemas[b.Common.Schema] = true
+
+			expected := &agentv1.MetricsBucket{
+				Common: &agentv1.MetricsBucket_Common{
+					ExplainFingerprint:  "SELECT * FROM `city`",
+					Fingerprint:         "SELECT * FROM `city`",
+					Comments:            map[string]string{"controller": "test"},
+					Schema:              b.Common.Schema,
+					AgentId:             "agent_id",
+					PeriodStartUnixSecs: 1554116340,
+					PeriodLengthSecs:    60,
+					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
+					Example:             "SELECT /* AllCities controller='test' */ * FROM city",
+					ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
+					NumQueries:          1,
+					MQueryTimeCnt:       1,
+					MQueryTimeSum:       b.Common.MQueryTimeSum,
+				},
+				Mysql: &agentv1.MetricsBucket_MySQL{
+					MLockTimeCnt:     1,
+					MLockTimeSum:     b.Mysql.MLockTimeSum,
+					MRowsSentCnt:     1,
+					MRowsSentSum:     4079,
+					MRowsExaminedCnt: 1,
+					MRowsExaminedSum: 4079,
+					MFullScanCnt:     1,
+					MFullScanSum:     1,
+					MNoIndexUsedCnt:  1,
+					MNoIndexUsedSum:  1,
+				},
+			}
+			expected.Common.Queryid = digests[expected.Common.Fingerprint]
+			tests.AssertBucketsEqual(t, expected, b)
+		}
+
+		require.Equal(t, expectedSchemas, actualSchemas)
+	})
+
 	t.Run("Invalid UTF-8", func(t *testing.T) {
 		m := setup(t, &setupParams{
 			db:                   db,
@@ -450,8 +537,12 @@ func TestPerfSchema(t *testing.T) {
 		_, err = db.Exec("SELECT /* t1 controller='test' */ * FROM t1 where col1='Bu\xf1rk'")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 		var example string
+		isTruncated := true
+		if mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 8.0 {
+			isTruncated = false
+		}
 		switch {
 		// Perf schema truncates queries with non-utf8 characters.
 		case (mySQLVendor == version.PerconaVendor || mySQLVendor == version.OracleVendor) && mySQLVersion.Float() >= 8.0:
@@ -486,6 +577,7 @@ func TestPerfSchema(t *testing.T) {
 				AgentType:              inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:                example,
 				ExampleType:            agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
+				IsTruncated:            isTruncated,
 				NumQueries:             1,
 				NumQueriesWithWarnings: numQueriesWithWarnings,
 				MQueryTimeCnt:          1,
@@ -517,7 +609,7 @@ func TestPerfSchema(t *testing.T) {
 		_, err = db.Exec("SELECT 1, 2, 3, 4, id FROM city WHERE id = 1")
 		require.NoError(t, err)
 
-		require.NoError(t, m.refreshHistoryCache())
+		require.NoError(t, m.refreshHistoryCache(t.Context()))
 
 		buckets, err := m.getNewBuckets(time.Date(2019, 4, 1, 10, 59, 0, 0, time.UTC), 60)
 		require.NoError(t, err)

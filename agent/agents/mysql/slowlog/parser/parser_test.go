@@ -21,7 +21,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -29,6 +28,8 @@ import (
 	"github.com/percona/go-mysql/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/agent/utils/filereader"
 )
 
 var updateF = flag.Bool("update", false, "update golden .json files")
@@ -36,7 +37,7 @@ var updateF = flag.Bool("update", false, "update golden .json files")
 func parseSlowLog(t *testing.T, filepath string, opts log.Options) []log.Event {
 	t.Helper()
 
-	r, err := NewSimpleFileReader(filepath)
+	r, err := filereader.NewSimpleFileReader(filepath)
 	require.NoError(t, err)
 	defer func() {
 		assert.NoError(t, r.Close())
@@ -62,7 +63,6 @@ func TestParserGolden(t *testing.T) {
 	files, err := filepath.Glob(filepath.FromSlash("./testdata/*.log"))
 	require.NoError(t, err)
 	for _, file := range files {
-		file := file
 		goldenFile := strings.TrimSuffix(file, ".log") + ".json"
 		name := strings.TrimSuffix(filepath.Base(file), ".log")
 		t.Run(name, func(t *testing.T) {
@@ -273,9 +273,9 @@ func TestParseMetrics(t *testing.T) {
 				}
 			case Rate:
 				if actualEvent.RateLimit != tc.expected.RateLimit || actualEvent.RateType != tc.expected.RateType {
-					t.Fatalf("expected %s and %s got: %s and %s for input: %s",
-						strconv.Itoa(int(tc.expected.RateLimit)), tc.expected.RateType,
-						strconv.Itoa(int(actualEvent.RateLimit)), actualEvent.RateType, tc.input)
+					t.Fatalf("expected %d and %s got: %d and %s for input: %s",
+						tc.expected.RateLimit, tc.expected.RateType,
+						actualEvent.RateLimit, actualEvent.RateType, tc.input)
 				}
 			}
 		})
@@ -332,7 +332,7 @@ func TestParserSpecial(t *testing.T) {
 	t.Run("slow023", func(t *testing.T) {
 		t.Parallel()
 
-		r, err := NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
+		r, err := filereader.NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
 		require.NoError(t, err)
 		defer func() {
 			assert.NoError(t, r.Close())

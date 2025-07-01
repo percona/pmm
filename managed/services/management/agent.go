@@ -45,7 +45,7 @@ func (s *ManagementService) ListAgents(ctx context.Context, req *managementv1.Li
 	if req.ServiceId != "" {
 		agents, err = s.listAgentsByServiceID(ctx, req.ServiceId)
 	} else {
-		agents, err = s.listAgentsByNodeID(req.NodeId)
+		agents, err = s.listAgentsByNodeID(ctx, req.NodeId)
 	}
 	if err != nil {
 		return nil, err
@@ -61,8 +61,15 @@ func (s *ManagementService) listAgentsByServiceID(ctx context.Context, serviceID
 
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
+		filters := models.AgentFilters{}
 
-		agents, err = models.FindAgents(tx.Querier, models.AgentFilters{})
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		filters.IgnoreNomad = !settings.IsNomadEnabled()
+
+		agents, err = models.FindAgents(tx.Querier, filters)
 		if err != nil {
 			return err
 		}
@@ -95,10 +102,25 @@ func (s *ManagementService) listAgentsByServiceID(ctx context.Context, serviceID
 }
 
 // listAgentsByNodeID returns a list of Agents filtered by NodeID.
-func (s *ManagementService) listAgentsByNodeID(nodeID string) ([]*managementv1.UniversalAgent, error) {
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
-	if err != nil {
-		return nil, err
+func (s *ManagementService) listAgentsByNodeID(ctx context.Context, nodeID string) ([]*managementv1.UniversalAgent, error) {
+	var agents []*models.Agent
+
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		var err error
+		filters := models.AgentFilters{}
+
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		filters.IgnoreNomad = !settings.IsNomadEnabled()
+
+		agents, err = models.FindAgents(s.db.Querier, filters)
+		return err
+	})
+
+	if errTX != nil {
+		return nil, errTX
 	}
 
 	var res []*managementv1.UniversalAgent
@@ -222,12 +244,12 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 		var err error
 		agentType := models.PMMAgentType
 
-		agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{AgentType: &agentType})
+		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: &agentType})
 		if err != nil {
 			return err
 		}
 
-		nodes, err := models.FindNodes(s.db.Querier, models.NodeFilters{})
+		nodes, err := models.FindNodes(tx.Querier, models.NodeFilters{})
 		if err != nil {
 			return err
 		}
@@ -255,7 +277,7 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 			agentVersion, err := version.Parse(pointer.GetString(agent.Version))
 			if err != nil {
 				// We don't want to fail the whole request if we can't parse the agent version.
-				s.l.Warnf(errors.Wrap(err, fmt.Sprintf("could not parse the client version %s for agent %s", pointer.GetString(agent.Version), agent.AgentID)).Error())
+				s.l.WithError(err).Warnf("could not parse the client version %s for agent %s", pointer.GetString(agent.Version), agent.AgentID)
 				continue
 			}
 

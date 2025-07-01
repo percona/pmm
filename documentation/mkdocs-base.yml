@@ -9,7 +9,7 @@ site_url: ""
 use_directory_urls: false
 repo_name: percona/pmm
 repo_url: https://github.com/percona/pmm/
-edit_uri: edit/v3/documentation/docs/
+edit_uri: edit/v3-doc-prod/documentation/docs/
 
 theme:
   name: material
@@ -142,97 +142,97 @@ nav:
   - Install:
       - install-pmm/index.md
       - Plan your PMM installation:
+        - install-pmm/plan-pmm-installation/choose-deployment.md
         - install-pmm/plan-pmm-installation/hardware_and_system.md
         - install-pmm/plan-pmm-installation/network_and_firewall.md
       - Install PMM Server:
-        - install-pmm/install-pmm-server/index.md
-        - install-pmm/install-pmm-server/prerequisites.md
+        - Server installation overview: install-pmm/install-pmm-server/index.md
         - Deployment options:
           - Install on Docker:
             - install-pmm/install-pmm-server/deployment-options/docker/index.md
             - install-pmm/install-pmm-server/deployment-options/docker/easy-install.md
+            - Storage setup:
+              - Docker volumes (recommended): install-pmm/install-pmm-server/deployment-options/docker/run_with_vol.md
+              - Host directory (not recommended): install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.md
             - Setup and configuration:
-              - install-pmm/install-pmm-server/deployment-options/docker/run_with_vol.md
-              - install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.md
-              - install-pmm/install-pmm-server/deployment-options/docker/env_var.md
+              - Environment variables: install-pmm/install-pmm-server/deployment-options/docker/env_var.md
               - install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.md
               - install-pmm/install-pmm-server/deployment-options/docker/isolated_hosts.md
-            - Maintenance:
+            - Container settings:
               - install-pmm/install-pmm-server/deployment-options/docker/backup_container.md
               - install-pmm/install-pmm-server/deployment-options/docker/restore_container.md
               - install-pmm/install-pmm-server/deployment-options/docker/remove_container.md
               - install-pmm/install-pmm-server/deployment-options/docker/upgrade_container.md
           - Install on Podman:
             - install-pmm/install-pmm-server/deployment-options/podman/index.md
-            - Maintenance:
+            - Setup and configuration:
               - install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.md
               - install-pmm/install-pmm-server/deployment-options/podman/restore_container_podman.md
               - install-pmm/install-pmm-server/deployment-options/podman/remove_container_podman.md
           - Install on Virtual Appliance:
             - install-pmm/install-pmm-server/deployment-options/virtual/index.md
-            - Setup:
+            - Setup and configuration:
               - install-pmm/install-pmm-server/deployment-options/virtual/download_ova.md
               - install-pmm/install-pmm-server/deployment-options/virtual/vmware.md
               - install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.md
               - install-pmm/install-pmm-server/deployment-options/virtual/login_UI.md
-            - Maintenance:
               - install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.md
-          - Install on Helm:
+          - Install on Kubernetes:
             - install-pmm/install-pmm-server/deployment-options/helm/index.md
-            - Maintenance:
+            - Backup & maintenance:
               - install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.md
               - install-pmm/install-pmm-server/deployment-options/helm/restore_container_helm.md
-          - Install on AWS Marketplace:
-            - install-pmm/install-pmm-server/deployment-options/aws/aws.md
-            - Setup and configuration:
-              - install-pmm/install-pmm-server/deployment-options/aws/limit_access.md
-              - install-pmm/install-pmm-server/deployment-options/aws/settings.md
-              - install-pmm/install-pmm-server/deployment-options/aws/run.md
-            - Maintenance:
-              - install-pmm/install-pmm-server/deployment-options/aws/back_pmm_server.md
-              - install-pmm/install-pmm-server/deployment-options/aws/restore_pmm_server.md
-              - install-pmm/install-pmm-server/deployment-options/aws/remove_pmm_server.md
+    #      - Install on AWS Marketplace:
+    #         - install-pmm/install-pmm-server/deployment-options/aws/aws.md
+    #         - Setup and configuration:
+    #          - install-pmm/install-pmm-server/deployment-options/aws/limit_access.md
+    #          - install-pmm/install-pmm-server/deployment-options/aws/settings.md
+    #          - install-pmm/install-pmm-server/deployment-options/aws/run.md
+    #        - Maintenance:
+    #          - install-pmm/install-pmm-server/deployment-options/aws/back_pmm_server.md
+    #          - install-pmm/install-pmm-server/deployment-options/aws/restore_pmm_server.md
+    #          - install-pmm/install-pmm-server/deployment-options/aws/remove_pmm_server.md
       - Install PMM Client:
-        - install-pmm/install-pmm-client/index.md
-        - install-pmm/install-pmm-client/prerequisites.md
+        - Client installation overview: install-pmm/install-pmm-client/index.md
+        - Prerequisites: install-pmm/install-pmm-client/prerequisites.md
         - Deployment options:
           - Install from Percona repositories: install-pmm/install-pmm-client/package_manager.md
-          - Install on Docker: install-pmm/install-pmm-client/docker.md
           - Install from binaries: install-pmm/install-pmm-client/binary_package.md
-        - Configuration:
-          - Register Client node: install-pmm/register-client-node/index.md
-          - Configure monitoring:
-            - install-pmm/install-pmm-client/connect-database/index.md
-            - Databases:
-              - MySQL: install-pmm/install-pmm-client/connect-database/mysql.md
-              - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
-              - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
-            - Cloud services:
-              - AWS: install-pmm/install-pmm-client/connect-database/aws.md
-              - Azure: install-pmm/install-pmm-client/connect-database/azure.md
-              - Google Cloud: install-pmm/install-pmm-client/connect-database/google.md
-            - System monitoring:
-              - Linux: install-pmm/install-pmm-client/connect-database/linux.md
-              - Remote: install-pmm/install-pmm-client/connect-database/remote.md
-            - Proxy services:
-              - HAproxy: install-pmm/install-pmm-client/connect-database/haproxy.md
-              - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
-            - External services:
-               - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
-          - Maintenance:
-            - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md
+          - Install on Docker: install-pmm/install-pmm-client/docker.md
+        - Register Client node: install-pmm/register-client-node/index.md
+        - Configure monitoring:
+          - Database monitoring: 
+            - Overview: install-pmm/install-pmm-client/connect-database/index.md
+            - MySQL: install-pmm/install-pmm-client/connect-database/mysql/mysql.md
+            - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
+            - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
+          - Cloud services monitoring:
+            - AWS: install-pmm/install-pmm-client/connect-database/aws.md
+            - Azure: install-pmm/install-pmm-client/connect-database/azure.md
+            - Google Cloud: install-pmm/install-pmm-client/connect-database/google.md
+          - System monitoring:
+            - Linux: install-pmm/install-pmm-client/connect-database/linux.md
+            - Remote: install-pmm/install-pmm-client/connect-database/remote.md
+          - Proxy services monitoring:
+            - HAproxy: install-pmm/install-pmm-client/connect-database/haproxy.md
+            - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
+          - External services monitoring:
+            - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
+        - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md         
 
   - Upgrade:
     - Upgrade PMM Server:
       - pmm-upgrade/index.md
       - pmm-upgrade/ui_upgrade.md
+      - pmm-upgrade/external_postgres_pmm_upgrade.md
+    
       - Manual upgrade:
         - pmm-upgrade/upgrade_docker.md
         - pmm-upgrade/upgrade_podman.md
       - Upgrade PMM Server in K8s:
         - pmm-upgrade/upgrade_helm.md
       - pmm-upgrade/migrating_from_pmm_2.md
-      - pmm-upgrade/upgrade_aws.md
+#      - pmm-upgrade/upgrade_aws.md
     - Upgrade PMM Client:
       - pmm-upgrade/upgrade_client.md
 
@@ -256,10 +256,6 @@ nav:
       - PMM metrics:
         - use/metrics/index.md
         - use/metrics/extend_metrics.md
-      - Optimize:
-        - optimize/improve_perf.md
-        - optimize/disable_table_stats.md
-        - optimize/change_number_tables.md
       - Dashboards:
         - use/dashboards-panels/index.md
         - Manage dashboards:
@@ -305,10 +301,6 @@ nav:
         - backup/mysql-backup/restore_mysql_backup.md
       - backup/edit_scheduled.md
       - backup/delete_a_backup.md
-    - PMM commands:
-      - use/commands/index.md
-      - use/commands/pmm-admin.md
-      - use/commands/pmm-agent.md
   - Configure:
     - configure-pmm/configure.md
     - configure-pmm/metrics_res.md
@@ -341,7 +333,6 @@ nav:
         - admin/roles/access-control/assign_roles.md
         - admin/roles/access-control/usecase.md
 
-
   - Troubleshoot:
     - troubleshoot/index.md
     - troubleshoot/checklist.md
@@ -355,6 +346,7 @@ nav:
 
   - Release notes:
     - Release notes index: release-notes/index.md
+    - "PMM 3.2.0 (2025-05-29)": release-notes/3.2.0.md
     - "PMM 3.1.0 (2025-03-31)": release-notes/3.1.0.md
     - "PMM 3.0.0-1 (2025-02-10)": release-notes/3.0.0_1.md
     - "PMM 3.0.0 (2025-01-30)": release-notes/3.0.0.md
@@ -371,7 +363,10 @@ nav:
       - PMM API:
         - api/index.md
         - api/authentication.md
-
+      - PMM commands:
+        - use/commands/index.md
+        - use/commands/pmm-admin.md
+        - use/commands/pmm-agent.md
     - PMM dashboards:
       - Insight:
         - reference/dashboards/dashboard-home.md
@@ -430,6 +425,7 @@ nav:
         - reference/dashboards/dashboard-mongodb-inmemory-details.md
         - reference/dashboards/dashboard-mongodb-mmapv1-details.md
         - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
+        - reference/dashboards/dashboard-mongodb-PBM-details.md
       - PostgreSQL dashboards:
         - reference/dashboards/dashboard-postgresql-instances-overview.md
         - reference/dashboards/dashboard-postgresql-instance-summary.md
@@ -443,7 +439,7 @@ nav:
         - reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
         - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
         - reference/dashboards/dashboard-haproxy-instance-summary.md
-
+    -  reference/nomad.md
     -  reference/glossary.md
     -  reference/faq.md
     -  reference/trademark-policy.md

@@ -31,6 +31,7 @@ const (
 	AgentTypeQANMySQLPerfSchemaAgent         = "AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT"
 	AgentTypeQANMySQLSlowlogAgent            = "AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT"
 	AgentTypeQANMongoDBProfilerAgent         = "AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT"
+	AgentTypeQANMongoDBMongologAgent         = "AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT"
 	AgentTypeQANPostgreSQLPgStatementsAgent  = "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
 	AgentTypeQANPostgreSQLPgStatMonitorAgent = "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
 	AgentTypeRDSExporter                     = "AGENT_TYPE_RDS_EXPORTER"
@@ -51,6 +52,7 @@ var agentTypeNames = map[string]string{
 	AgentTypeQANMySQLPerfSchemaAgent:         "mysql_perfschema_agent",
 	AgentTypeQANMySQLSlowlogAgent:            "mysql_slowlog_agent",
 	AgentTypeQANMongoDBProfilerAgent:         "mongodb_profiler_agent",
+	AgentTypeQANMongoDBMongologAgent:         "mongodb_mongolog_agent",
 	AgentTypeQANPostgreSQLPgStatementsAgent:  "postgresql_pgstatements_agent",
 	AgentTypeQANPostgreSQLPgStatMonitorAgent: "postgresql_pgstatmonitor_agent",
 	AgentTypeRDSExporter:                     "rds_exporter",

@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package inventoryv1 provides the inventory API.
 package inventoryv1
 
 //go-sumtype:decl Agent
@@ -35,6 +36,7 @@ func (*ProxySQLExporter) sealedAgent()                {}
 func (*QANMySQLPerfSchemaAgent) sealedAgent()         {}
 func (*QANMySQLSlowlogAgent) sealedAgent()            {}
 func (*QANMongoDBProfilerAgent) sealedAgent()         {}
+func (*QANMongoDBMongologAgent) sealedAgent()         {}
 func (*QANPostgreSQLPgStatementsAgent) sealedAgent()  {}
 func (*QANPostgreSQLPgStatMonitorAgent) sealedAgent() {}
 func (*RDSExporter) sealedAgent()                     {}

@@ -194,7 +194,7 @@ install_deps() {
         exit 1
     fi
     if [ "$PACKAGE_MANAGER" = "rpm" ]; then
-        yum -y install git wget rpmdevtools bison yum-utils rpm-build systemd pkgconf-pkg-config
+        dnf -y install git wget rpmdevtools bison rpm-build systemd pkgconf-pkg-config
     else
         apt-get update
         apt-get -y install devscripts equivs debhelper
@@ -366,6 +366,7 @@ build_source_deb(){
     mv queries-mysqld-group-replication.yml ../${NAME}-${VERSION}_all/distro/
     mv example-queries-postgres.yml ../${NAME}-${VERSION}_all/distro/
     mv queries-postgres-uptime.yml ../${NAME}-${VERSION}_all/distro/
+    mv queries-hr.yml ../${NAME}-${VERSION}_all/distro/
     mv queries-mr.yaml ../${NAME}-${VERSION}_all/distro/
     mv queries-lr.yaml ../${NAME}-${VERSION}_all/distro/
     mv debian ../${NAME}-${VERSION}_all/

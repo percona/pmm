@@ -31,6 +31,8 @@ type LeaderService interface {
 type StandardService struct {
 	id string
 
+	mu sync.Mutex
+
 	startFunc func(context.Context) error
 	stopFunc  func()
 }
@@ -51,11 +53,15 @@ func (s *StandardService) ID() string {
 
 // Start starts the standard service.
 func (s *StandardService) Start(ctx context.Context) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	return s.startFunc(ctx)
 }
 
 // Stop stops the standard service.
 func (s *StandardService) Stop() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.stopFunc()
 }
 

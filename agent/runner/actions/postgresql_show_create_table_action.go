@@ -227,7 +227,7 @@ ORDER BY a.attnum;`, tableID)
 
 	tw := tabwriter.NewWriter(w, 0, 0, 1, ' ', tabwriter.Debug)
 
-	fmt.Fprintln(tw, "Column\tType\tCollation\tNullable\tDefault\tStorage\tStats target\tDescription")
+	fmt.Fprintln(tw, "Column\tType\tCollation\tNullable\tDefault\tStorage\tStats target\tDescription") //nolint:errcheck
 
 	for rows.Next() {
 		var ci columnInfo
@@ -294,7 +294,7 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	fmt.Fprintln(bw, "Indexes:")
+	fmt.Fprintln(bw, "Indexes:") //nolint:errcheck
 
 	for rows.Next() {
 		info := indexInfo{}
@@ -378,7 +378,7 @@ ORDER BY conname`, tableID)
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	fmt.Fprintln(bw, "Foreign-key constraints:")
+	fmt.Fprintln(bw, "Foreign-key constraints:") //nolint:errcheck
 
 	for rows.Next() {
 		var conname, condef string
@@ -419,7 +419,7 @@ ORDER BY conname`, tableID)
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	fmt.Fprintln(bw, "Referenced by:")
+	fmt.Fprintln(bw, "Referenced by:") //nolint:errcheck
 
 	for rows.Next() {
 		var conname, conrelid, condef string
@@ -460,7 +460,7 @@ ORDER BY conname`, tableID)
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	fmt.Fprintln(bw, "Check constraints:")
+	fmt.Fprintln(bw, "Check constraints:") //nolint:errcheck
 
 	for rows.Next() {
 		var conname, condef string

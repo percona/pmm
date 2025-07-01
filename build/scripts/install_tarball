@@ -72,6 +72,7 @@ ${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/postgresql/
 ${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/postgresql/medium-resolution
 ${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/postgresql/high-resolution
 ${INSTALL_COMMAND} -m 0755 queries-postgres-uptime.yml "${PMM_DIR}"/collectors/custom-queries/postgresql/high-resolution
+${INSTALL_COMMAND} -m 0755 queries-hr.yml "${PMM_DIR}"/collectors/custom-queries/postgresql/high-resolution
 ${INSTALL_COMMAND} -m 0755 queries-mr.yaml "${PMM_DIR}"/collectors/custom-queries/postgresql/medium-resolution
 ${INSTALL_COMMAND} -m 0755 queries-lr.yaml "${PMM_DIR}"/collectors/custom-queries/postgresql/low-resolution
 ${INSTALL_COMMAND} -m 0755 queries-mysqld-group-replication.yml "${PMM_DIR}"/collectors/custom-queries/mysql/high-resolution

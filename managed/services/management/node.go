@@ -137,7 +137,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 	return res, nil
 }
 
-// Unregister do unregistration of the node.
+// UnregisterNode unregisters the node.
 func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv1.UnregisterNodeRequest) (*managementv1.UnregisterNodeResponse, error) {
 	idsToKick := make(map[string]struct{})
 	idsToSetState := make(map[string]struct{})
@@ -226,17 +226,25 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 
-		nodes, err = models.FindNodes(s.db.Querier, filters)
+		nodes, err = models.FindNodes(tx.Querier, filters)
 		if err != nil {
 			return err
 		}
 
-		agents, err = models.FindAgents(s.db.Querier, models.AgentFilters{})
+		agentFilters := models.AgentFilters{}
+
+		settings, err := models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		agentFilters.IgnoreNomad = !settings.IsNomadEnabled()
+
+		agents, err = models.FindAgents(tx.Querier, agentFilters)
 		if err != nil {
 			return err
 		}
 
-		services, err = models.FindServices(s.db.Querier, models.ServiceFilters{})
+		services, err = models.FindServices(tx.Querier, models.ServiceFilters{})
 		if err != nil {
 			return err
 		}

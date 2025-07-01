@@ -33,7 +33,8 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/percona/pmm/agent/agents"
-	"github.com/percona/pmm/agent/agents/mongodb"
+	"github.com/percona/pmm/agent/agents/mongodb/mongolog"
+	mongoprofiler "github.com/percona/pmm/agent/agents/mongodb/profiler"
 	"github.com/percona/pmm/agent/agents/mysql/perfschema"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog"
 	"github.com/percona/pmm/agent/agents/noop"
@@ -455,7 +456,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 	}
 
 	ctx, cancel := context.WithCancel(s.ctx)
-	agentType := strings.ToLower(agentProcess.Type.String())
+	agentType := trimPrefix(agentProcess.Type.String())
 	logStore := tailog.NewStore(s.cfg.Get().LogLinesCount)
 	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-process",
@@ -542,7 +543,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 	cfg := s.cfg.Get()
 
 	ctx, cancel := context.WithCancel(s.ctx)
-	agentType := strings.ToLower(builtinAgent.Type.String())
+	agentType := trimPrefix(builtinAgent.Type.String())
 	logStore := tailog.NewStore(cfg.LogLinesCount)
 	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-builtin",
@@ -576,16 +577,25 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
 			TextFiles:              builtinAgent.GetTextFiles(),
 			TLSSkipVerify:          builtinAgent.TlsSkipVerify,
+			PerfschemaRefreshRate:  cfg.PerfschemaRefreshRate,
 		}
 		agent, err = perfschema.New(params, l)
 
 	case inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:
-		params := &mongodb.Params{
+		params := &mongoprofiler.Params{
 			DSN:            dsn,
 			AgentID:        agentID,
 			MaxQueryLength: builtinAgent.MaxQueryLength,
 		}
-		agent, err = mongodb.New(params, l)
+		agent, err = mongoprofiler.New(params, l)
+
+	case inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT:
+		params := &mongolog.Params{
+			DSN:            dsn,
+			AgentID:        agentID,
+			MaxQueryLength: builtinAgent.MaxQueryLength,
+		}
+		agent, err = mongolog.New(params, l)
 
 	case inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:
 		params := &slowlog.Params{
@@ -822,6 +832,11 @@ func (s *Supervisor) Collect(ch chan<- prometheus.Metric) {
 	for _, agent := range s.builtinAgents {
 		agent.collect(ch)
 	}
+}
+
+// trimPrefix converts AgentType to lowercase and removes "agent_type_" prefix from it.
+func trimPrefix(s string) string {
+	return strings.TrimPrefix(strings.ToLower(s), "agent_type_")
 }
 
 // check interfaces.
