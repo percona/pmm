@@ -1,6 +1,6 @@
 # Plan PMM Server deployment from AWS
 
-Deploy PMM Server with AWS Marketplace when you need quick setup with pre-configured settings, integrated billing, and enterprise-grade security for your existing AWS infrastructure.
+Deploy PMM Server with AWS Marketplace when you need a quick setup with pre-configured settings, integrated billing, and enterprise-grade security for your existing AWS infrastructure.
 
 ## Prerequisites
 
