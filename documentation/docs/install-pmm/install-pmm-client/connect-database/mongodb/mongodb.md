@@ -355,7 +355,7 @@ PMM offers two methods for collecting MongoDB query analytics. Use the compariso
         pmm-admin status
         ```
 
-        Look for `mongodb_profiler_agent` and confirm that the agent is running with mongolog as the query source.
+        Look for `mongod_mongolog_agent` and confirm that the agent is running with mongolog as the query source.
 
     !!! note alert alert-primary "Setup requirements"
         MongoDB must be configured to log slow operations to a file and pmm-agent should have access to those MongoDB log files. Ensure the log file is readable by the user running the PMM Agent.
@@ -446,7 +446,7 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
         ```sh
         pmm-admin status
         ```
-        Look for `mongodb_profiler_agent` - it should show the agent is running with mongolog as the query source.
+        Look for `mongodb_mongolog_agent` - it should show the agent is running with mongolog as the query source.
 
     === "Via web UI"
         To check the service from the UI:
