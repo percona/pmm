@@ -2,6 +2,7 @@ import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { Main } from 'components/main/Main';
 import { Updates } from 'pages/updates';
 import { UpdateClients } from 'pages/update-clients/UpdateClients';
+import { HelpCenter } from 'pages/help-center/HelpCenter';
 
 const router = createBrowserRouter(
   [
@@ -20,6 +21,10 @@ const router = createBrowserRouter(
         {
           path: 'updates/clients',
           element: <UpdateClients />,
+        },
+        {
+          path: 'help',
+          element: <HelpCenter />,
         },
       ],
     },
