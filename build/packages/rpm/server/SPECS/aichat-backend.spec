@@ -59,7 +59,6 @@ install -p -m 0644 src/github.com/percona/pmm/aichat-backend/config.yaml %{build
 %{_sbindir}/aichat-backend
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}/config.yaml
-%config(noreplace) %{_sysconfdir}/%{name}/mcp-servers.json
 
 %changelog
 * Wed Dec 18 2024 AI Assistant <ai@percona.com> - 1.0.0-1
