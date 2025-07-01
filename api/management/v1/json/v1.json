@@ -1426,7 +1426,6 @@
               "SERVICE_TYPE_MYSQL_SERVICE",
               "SERVICE_TYPE_MONGODB_SERVICE",
               "SERVICE_TYPE_POSTGRESQL_SERVICE",
-              "SERVICE_TYPE_VALKEY_SERVICE",
               "SERVICE_TYPE_PROXYSQL_SERVICE",
               "SERVICE_TYPE_HAPROXY_SERVICE",
               "SERVICE_TYPE_EXTERNAL_SERVICE"
@@ -2335,49 +2334,54 @@
                       "type": "boolean",
                       "x-order": 13
                     },
+                    "qan_mongodb_mongolog": {
+                      "description": "If true, adds qan-mongodb-mongolog-agent for provided service.",
+                      "type": "boolean",
+                      "x-order": 14
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels for Service.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "skip_connection_check": {
                       "description": "Skip connection check.",
                       "type": "boolean",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "tls_certificate_key": {
                       "description": "Client certificate and key.",
                       "type": "string",
-                      "x-order": 18
+                      "x-order": 19
                     },
                     "tls_certificate_key_file_password": {
                       "description": "Password for decrypting tls_certificate_key.",
                       "type": "string",
-                      "x-order": 19
+                      "x-order": 20
                     },
                     "tls_ca": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
-                      "x-order": 20
+                      "x-order": 21
                     },
                     "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 21
+                      "x-order": 22
                     },
                     "metrics_mode": {
                       "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.\n\n - METRICS_MODE_UNSPECIFIED: Auto",
@@ -2388,7 +2392,7 @@
                         "METRICS_MODE_PULL",
                         "METRICS_MODE_PUSH"
                       ],
-                      "x-order": 22
+                      "x-order": 23
                     },
                     "disable_collectors": {
                       "description": "List of collector names to disable in this exporter.",
@@ -2396,22 +2400,22 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 23
+                      "x-order": 24
                     },
                     "authentication_mechanism": {
                       "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                       "type": "string",
-                      "x-order": 24
+                      "x-order": 25
                     },
                     "authentication_database": {
                       "description": "Authentication database.",
                       "type": "string",
-                      "x-order": 25
+                      "x-order": 26
                     },
                     "agent_password": {
                       "description": "Custom password for exporter endpoint /metrics.",
                       "type": "string",
-                      "x-order": 26
+                      "x-order": 27
                     },
                     "stats_collections": {
                       "description": "List of collections to get stats from. Can use * .",
@@ -2419,18 +2423,18 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 27
+                      "x-order": 28
                     },
                     "collections_limit": {
                       "type": "integer",
                       "format": "int32",
                       "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
-                      "x-order": 28
+                      "x-order": 29
                     },
                     "enable_all_collectors": {
                       "type": "boolean",
                       "title": "Enable all collectors",
-                      "x-order": 29
+                      "x-order": 30
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -2445,12 +2449,12 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 30
+                      "x-order": 31
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 31
+                      "x-order": 32
                     }
                   },
                   "x-order": 1
@@ -3075,6 +3079,11 @@
                       "description": "Skip connection check.",
                       "type": "boolean",
                       "x-order": 15
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 16
                     }
                   },
                   "x-order": 4
@@ -3245,6 +3254,11 @@
                       "description": "Skip connection check.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 5
@@ -4465,6 +4479,98 @@
                         }
                       },
                       "x-order": 2
+                    },
+                    "qan_mongodb_mongolog": {
+                      "description": "QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                      "type": "object",
+                      "properties": {
+                        "agent_id": {
+                          "description": "Unique randomly generated instance identifier.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "pmm_agent_id": {
+                          "description": "The pmm-agent identifier which runs this instance.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "disabled": {
+                          "description": "Desired Agent status: enabled (false) or disabled (true).",
+                          "type": "boolean",
+                          "x-order": 2
+                        },
+                        "service_id": {
+                          "description": "Service identifier.",
+                          "type": "string",
+                          "x-order": 3
+                        },
+                        "username": {
+                          "description": "MongoDB username for getting profiler data.",
+                          "type": "string",
+                          "x-order": 4
+                        },
+                        "tls": {
+                          "description": "Use TLS for database connections.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "tls_skip_verify": {
+                          "description": "Skip TLS certificate and hostname validation.",
+                          "type": "boolean",
+                          "x-order": 6
+                        },
+                        "max_query_length": {
+                          "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 7
+                        },
+                        "custom_labels": {
+                          "description": "Custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 8
+                        },
+                        "status": {
+                          "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                          "type": "string",
+                          "default": "AGENT_STATUS_UNSPECIFIED",
+                          "enum": [
+                            "AGENT_STATUS_UNSPECIFIED",
+                            "AGENT_STATUS_STARTING",
+                            "AGENT_STATUS_INITIALIZATION_ERROR",
+                            "AGENT_STATUS_RUNNING",
+                            "AGENT_STATUS_WAITING",
+                            "AGENT_STATUS_STOPPING",
+                            "AGENT_STATUS_DONE",
+                            "AGENT_STATUS_UNKNOWN"
+                          ],
+                          "x-order": 9
+                        },
+                        "process_exec_path": {
+                          "description": "Path to exec process.",
+                          "type": "string",
+                          "x-order": 10
+                        },
+                        "log_level": {
+                          "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                          "type": "string",
+                          "title": "Log level for exporters",
+                          "default": "LOG_LEVEL_UNSPECIFIED",
+                          "enum": [
+                            "LOG_LEVEL_UNSPECIFIED",
+                            "LOG_LEVEL_FATAL",
+                            "LOG_LEVEL_ERROR",
+                            "LOG_LEVEL_WARN",
+                            "LOG_LEVEL_INFO",
+                            "LOG_LEVEL_DEBUG"
+                          ],
+                          "x-order": 11
+                        }
+                      },
+                      "x-order": 3
                     }
                   },
                   "x-order": 1
@@ -5236,6 +5342,11 @@
                             }
                           },
                           "x-order": 11
+                        },
+                        "tls_skip_verify": {
+                          "description": "Skip TLS certificate and hostname verification.",
+                          "type": "boolean",
+                          "x-order": 12
                         }
                       },
                       "x-order": 1
@@ -5380,6 +5491,11 @@
                             }
                           },
                           "x-order": 11
+                        },
+                        "tls_skip_verify": {
+                          "description": "Skip TLS certificate and hostname verification.",
+                          "type": "boolean",
+                          "x-order": 12
                         }
                       },
                       "x-order": 1
@@ -6673,7 +6789,6 @@
               "SERVICE_TYPE_MYSQL_SERVICE",
               "SERVICE_TYPE_MONGODB_SERVICE",
               "SERVICE_TYPE_POSTGRESQL_SERVICE",
-              "SERVICE_TYPE_VALKEY_SERVICE",
               "SERVICE_TYPE_PROXYSQL_SERVICE",
               "SERVICE_TYPE_HAPROXY_SERVICE",
               "SERVICE_TYPE_EXTERNAL_SERVICE"

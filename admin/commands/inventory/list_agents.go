@@ -48,6 +48,7 @@ var acceptableAgentTypes = map[string][]string{
 	types.AgentTypeQANMySQLPerfSchemaAgent:         {types.AgentTypeName(types.AgentTypeQANMySQLPerfSchemaAgent), "qan-mysql-perfschema-agent"},
 	types.AgentTypeQANMySQLSlowlogAgent:            {types.AgentTypeName(types.AgentTypeQANMySQLSlowlogAgent), "qan-mysql-slowlog-agent"},
 	types.AgentTypeQANMongoDBProfilerAgent:         {types.AgentTypeName(types.AgentTypeQANMongoDBProfilerAgent), "qan-mongodb-profiler-agent"},
+	types.AgentTypeQANMongoDBMongologAgent:         {types.AgentTypeName(types.AgentTypeQANMongoDBMongologAgent), "qan-mongodb-mongolog-agent"},
 	types.AgentTypeQANPostgreSQLPgStatementsAgent:  {types.AgentTypeName(types.AgentTypeQANPostgreSQLPgStatementsAgent), "qan-postgresql-pgstatements-agent"},
 	types.AgentTypeQANPostgreSQLPgStatMonitorAgent: {types.AgentTypeName(types.AgentTypeQANPostgreSQLPgStatMonitorAgent), "qan-postgresql-pgstatmonitor-agent"},
 	types.AgentTypeRDSExporter:                     {types.AgentTypeName(types.AgentTypeRDSExporter), "rds-exporter"},

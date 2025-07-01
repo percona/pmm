@@ -64,6 +64,7 @@ override_dh_auto_install:
 	cp -f distro/queries-mysqld-group-replication.yml $(TMP)/queries-mysqld-group-replication.yml
 	cp -f distro/example-queries-postgres.yml $(TMP)/example-queries-postgres.yml
 	cp -f distro/queries-postgres-uptime.yml $(TMP)/queries-postgres-uptime.yml
+	cp -f distro/queries-hr.yml $(TMP)/queries-hr.yml
 	cp -f distro/queries-mr.yaml $(TMP)/queries-mr.yaml
 	cp -f distro/queries-lr.yaml $(TMP)/queries-lr.yaml
 	cp -f distro/pt-summary $(TMP)/pt-summary

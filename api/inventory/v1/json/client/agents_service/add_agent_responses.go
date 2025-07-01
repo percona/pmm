@@ -216,6 +216,9 @@ type AddAgentBody struct {
 	// proxysql exporter
 	ProxysqlExporter *AddAgentParamsBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
 
+	// qan mongodb mongolog agent
+	QANMongodbMongologAgent *AddAgentParamsBodyQANMongodbMongologAgent `json:"qan_mongodb_mongolog_agent,omitempty"`
+
 	// qan mongodb profiler agent
 	QANMongodbProfilerAgent *AddAgentParamsBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent,omitempty"`
 
@@ -271,6 +274,10 @@ func (o *AddAgentBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateProxysqlExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANMongodbMongologAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -460,6 +467,25 @@ func (o *AddAgentBody) validateProxysqlExporter(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *AddAgentBody) validateQANMongodbMongologAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.QANMongodbMongologAgent) { // not required
+		return nil
+	}
+
+	if o.QANMongodbMongologAgent != nil {
+		if err := o.QANMongodbMongologAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddAgentBody) validateQANMongodbProfilerAgent(formats strfmt.Registry) error {
 	if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
 		return nil
@@ -626,6 +652,10 @@ func (o *AddAgentBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 	}
 
 	if err := o.contextValidateProxysqlExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANMongodbMongologAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -815,6 +845,26 @@ func (o *AddAgentBody) contextValidateProxysqlExporter(ctx context.Context, form
 				return ve.ValidateName("body" + "." + "proxysql_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "proxysql_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddAgentBody) contextValidateQANMongodbMongologAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.QANMongodbMongologAgent != nil {
+
+		if swag.IsZero(o.QANMongodbMongologAgent) { // not required
+			return nil
+		}
+
+		if err := o.QANMongodbMongologAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "qan_mongodb_mongolog_agent")
 			}
 			return err
 		}
@@ -1230,6 +1280,9 @@ type AddAgentOKBody struct {
 	// proxysql exporter
 	ProxysqlExporter *AddAgentOKBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
 
+	// qan mongodb mongolog agent
+	QANMongodbMongologAgent *AddAgentOKBodyQANMongodbMongologAgent `json:"qan_mongodb_mongolog_agent,omitempty"`
+
 	// qan mongodb profiler agent
 	QANMongodbProfilerAgent *AddAgentOKBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent,omitempty"`
 
@@ -1285,6 +1338,10 @@ func (o *AddAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateProxysqlExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANMongodbMongologAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1474,6 +1531,25 @@ func (o *AddAgentOKBody) validateProxysqlExporter(formats strfmt.Registry) error
 	return nil
 }
 
+func (o *AddAgentOKBody) validateQANMongodbMongologAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.QANMongodbMongologAgent) { // not required
+		return nil
+	}
+
+	if o.QANMongodbMongologAgent != nil {
+		if err := o.QANMongodbMongologAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addAgentOk" + "." + "qan_mongodb_mongolog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addAgentOk" + "." + "qan_mongodb_mongolog_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddAgentOKBody) validateQANMongodbProfilerAgent(formats strfmt.Registry) error {
 	if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
 		return nil
@@ -1640,6 +1716,10 @@ func (o *AddAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := o.contextValidateProxysqlExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANMongodbMongologAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1829,6 +1909,26 @@ func (o *AddAgentOKBody) contextValidateProxysqlExporter(ctx context.Context, fo
 				return ve.ValidateName("addAgentOk" + "." + "proxysql_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("addAgentOk" + "." + "proxysql_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddAgentOKBody) contextValidateQANMongodbMongologAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.QANMongodbMongologAgent != nil {
+
+		if swag.IsZero(o.QANMongodbMongologAgent) { // not required
+			return nil
+		}
+
+		if err := o.QANMongodbMongologAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addAgentOk" + "." + "qan_mongodb_mongolog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addAgentOk" + "." + "qan_mongodb_mongolog_agent")
 			}
 			return err
 		}
@@ -2339,6 +2439,9 @@ type AddAgentOKBodyExternalExporter struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddAgentOKBodyExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -4118,6 +4221,215 @@ func (o *AddAgentOKBodyProxysqlExporterMetricsResolutions) MarshalBinary() ([]by
 // UnmarshalBinary interface implementation
 func (o *AddAgentOKBodyProxysqlExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res AddAgentOKBodyProxysqlExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentOKBodyQANMongodbMongologAgent QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+swagger:model AddAgentOKBodyQANMongodbMongologAgent
+*/
+type AddAgentOKBodyQANMongodbMongologAgent struct {
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for getting profiler data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+}
+
+// Validate validates this add agent OK body QAN mongodb mongolog agent
+func (o *AddAgentOKBodyQANMongodbMongologAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum = append(addAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAgentOKBodyQANMongodbMongologAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddAgentOKBodyQANMongodbMongologAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyQanMongodbMongologAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentOKBodyQANMongodbMongologAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addAgentOk"+"."+"qan_mongodb_mongolog_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum = append(addAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentOKBodyQANMongodbMongologAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddAgentOKBodyQANMongodbMongologAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyQanMongodbMongologAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentOKBodyQANMongodbMongologAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addAgentOk"+"."+"qan_mongodb_mongolog_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this add agent OK body QAN mongodb mongolog agent based on context it is used
+func (o *AddAgentOKBodyQANMongodbMongologAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentOKBodyQANMongodbMongologAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentOKBodyQANMongodbMongologAgent) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyQANMongodbMongologAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -5944,6 +6256,9 @@ type AddAgentParamsBodyExternalExporter struct {
 
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `json:"push_metrics,omitempty"`
+
+	// Skip TLS certificate and hostname verification.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 }
 
 // Validate validates this add agent params body external exporter
@@ -6734,6 +7049,153 @@ func (o *AddAgentParamsBodyProxysqlExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddAgentParamsBodyProxysqlExporter) UnmarshalBinary(b []byte) error {
 	var res AddAgentParamsBodyProxysqlExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentParamsBodyQANMongodbMongologAgent add agent params body QAN mongodb mongolog agent
+swagger:model AddAgentParamsBodyQANMongodbMongologAgent
+*/
+type AddAgentParamsBodyQANMongodbMongologAgent struct {
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MongoDB username for getting profile data.
+	Username string `json:"username,omitempty"`
+
+	// MongoDB password for getting profile data.
+	Password string `json:"password,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Client certificate and key.
+	TLSCertificateKey string `json:"tls_certificate_key,omitempty"`
+
+	// Password for decrypting tls_certificate_key.
+	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
+
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Authentication mechanism.
+	// See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
+	// for details.
+	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
+
+	// Authentication database.
+	AuthenticationDatabase string `json:"authentication_database,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+}
+
+// Validate validates this add agent params body QAN mongodb mongolog agent
+func (o *AddAgentParamsBodyQANMongodbMongologAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addAgentParamsBodyQanMongodbMongologAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentParamsBodyQanMongodbMongologAgentTypeLogLevelPropEnum = append(addAgentParamsBodyQanMongodbMongologAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentParamsBodyQANMongodbMongologAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentParamsBodyQANMongodbMongologAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddAgentParamsBodyQANMongodbMongologAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentParamsBodyQANMongodbMongologAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddAgentParamsBodyQANMongodbMongologAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentParamsBodyQANMongodbMongologAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddAgentParamsBodyQANMongodbMongologAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentParamsBodyQANMongodbMongologAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddAgentParamsBodyQANMongodbMongologAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentParamsBodyQANMongodbMongologAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddAgentParamsBodyQANMongodbMongologAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentParamsBodyQANMongodbMongologAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddAgentParamsBodyQANMongodbMongologAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentParamsBodyQanMongodbMongologAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentParamsBodyQANMongodbMongologAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"qan_mongodb_mongolog_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this add agent params body QAN mongodb mongolog agent based on context it is used
+func (o *AddAgentParamsBodyQANMongodbMongologAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentParamsBodyQANMongodbMongologAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentParamsBodyQANMongodbMongologAgent) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyQANMongodbMongologAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

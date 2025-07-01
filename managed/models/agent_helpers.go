@@ -658,15 +658,16 @@ func CreateNodeExporter(q *reform.Querier,
 
 // CreateExternalExporterParams params for add external exporter.
 type CreateExternalExporterParams struct {
-	RunsOnNodeID string
-	ServiceID    string
-	Username     string
-	Password     string
-	Scheme       string
-	MetricsPath  string
-	ListenPort   uint32
-	CustomLabels map[string]string
-	PushMetrics  bool
+	RunsOnNodeID  string
+	ServiceID     string
+	Username      string
+	Password      string
+	Scheme        string
+	MetricsPath   string
+	ListenPort    uint32
+	CustomLabels  map[string]string
+	PushMetrics   bool
+	TLSSkipVerify bool
 }
 
 // CreateExternalExporter creates ExternalExporter.
@@ -727,6 +728,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 			MetricsPath:   metricsPath,
 			MetricsScheme: scheme,
 		},
+		TLSSkipVerify: params.TLSSkipVerify,
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
@@ -803,6 +805,9 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 			ValkeyServiceType,
 		},
 		QANMongoDBProfilerAgentType: {
+			MongoDBServiceType,
+		},
+		QANMongoDBMongologAgentType: {
 			MongoDBServiceType,
 		},
 		PostgresExporterType: {

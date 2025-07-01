@@ -181,7 +181,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 
 		case models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType:
 			continue
-		case models.QANMongoDBProfilerAgentType:
+		case models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType:
 			continue
 		case models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
 			continue

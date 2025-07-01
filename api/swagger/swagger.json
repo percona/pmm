@@ -4224,6 +4224,7 @@
               "AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT",
               "AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT",
               "AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT",
+              "AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT",
               "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
               "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
               "AGENT_TYPE_EXTERNAL_EXPORTER",
@@ -5388,6 +5389,101 @@
                   },
                   "x-order": 9
                 },
+                "qan_mongodb_mongolog_agent": {
+                  "type": "array",
+                  "items": {
+                    "description": "QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "service_id": {
+                        "description": "Service identifier.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "username": {
+                        "description": "MongoDB username for getting profiler data.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "tls": {
+                        "description": "Use TLS for database connections.",
+                        "type": "boolean",
+                        "x-order": 5
+                      },
+                      "tls_skip_verify": {
+                        "description": "Skip TLS certificate and hostname validation.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "max_query_length": {
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 7
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 8
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "AGENT_STATUS_UNSPECIFIED",
+                          "AGENT_STATUS_STARTING",
+                          "AGENT_STATUS_INITIALIZATION_ERROR",
+                          "AGENT_STATUS_RUNNING",
+                          "AGENT_STATUS_WAITING",
+                          "AGENT_STATUS_STOPPING",
+                          "AGENT_STATUS_DONE",
+                          "AGENT_STATUS_UNKNOWN"
+                        ],
+                        "x-order": 9
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 10
+                      },
+                      "log_level": {
+                        "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "LOG_LEVEL_UNSPECIFIED",
+                        "enum": [
+                          "LOG_LEVEL_UNSPECIFIED",
+                          "LOG_LEVEL_FATAL",
+                          "LOG_LEVEL_ERROR",
+                          "LOG_LEVEL_WARN",
+                          "LOG_LEVEL_INFO",
+                          "LOG_LEVEL_DEBUG"
+                        ],
+                        "x-order": 11
+                      }
+                    }
+                  },
+                  "x-order": 10
+                },
                 "qan_postgresql_pgstatements_agent": {
                   "type": "array",
                   "items": {
@@ -5486,7 +5582,7 @@
                       }
                     }
                   },
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "type": "array",
@@ -5591,7 +5687,7 @@
                       }
                     }
                   },
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "external_exporter": {
                   "type": "array",
@@ -5679,10 +5775,15 @@
                           }
                         },
                         "x-order": 11
+                      },
+                      "tls_skip_verify": {
+                        "description": "Skip TLS certificate and hostname verification.",
+                        "type": "boolean",
+                        "x-order": 12
                       }
                     }
                   },
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "rds_exporter": {
                   "type": "array",
@@ -5810,7 +5911,7 @@
                       }
                     }
                   },
-                  "x-order": 13
+                  "x-order": 14
                 },
                 "azure_database_exporter": {
                   "type": "array",
@@ -5927,7 +6028,7 @@
                       }
                     }
                   },
-                  "x-order": 14
+                  "x-order": 15
                 },
                 "nomad_agent": {
                   "type": "array",
@@ -5978,7 +6079,7 @@
                       }
                     }
                   },
-                  "x-order": 15
+                  "x-order": 16
                 },
                 "valkey_exporter": {
                   "type": "array",
@@ -6098,7 +6199,7 @@
                       }
                     }
                   },
-                  "x-order": 16
+                  "x-order": 17
                 }
               }
             }
@@ -6708,6 +6809,11 @@
                       "description": "Enables push metrics mode for exporter.",
                       "type": "boolean",
                       "x-order": 8
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname verification.",
+                      "type": "boolean",
+                      "x-order": 9
                     }
                   },
                   "x-order": 6
@@ -7151,6 +7257,101 @@
                   },
                   "x-order": 11
                 },
+                "qan_mongodb_mongolog_agent": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profile data.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "password": {
+                      "description": "MongoDB password for getting profile data.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_certificate_key": {
+                      "description": "Client certificate and key.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "tls_certificate_key_file_password": {
+                      "description": "Password for decrypting tls_certificate_key.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 9
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-order": 11
+                    },
+                    "authentication_mechanism": {
+                      "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "authentication_database": {
+                      "description": "Authentication database.",
+                      "type": "string",
+                      "x-order": 13
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 14
+                    }
+                  },
+                  "x-order": 12
+                },
                 "qan_postgresql_pgstatements_agent": {
                   "type": "object",
                   "properties": {
@@ -7239,7 +7440,7 @@
                       "x-order": 13
                     }
                   },
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "type": "object",
@@ -7334,7 +7535,7 @@
                       "x-order": 14
                     }
                   },
-                  "x-order": 13
+                  "x-order": 14
                 },
                 "valkey_exporter": {
                   "type": "object",
@@ -7421,7 +7622,7 @@
                       "x-order": 14
                     }
                   },
-                  "x-order": 14
+                  "x-order": 15
                 }
               }
             }
@@ -8255,6 +8456,11 @@
                         }
                       },
                       "x-order": 11
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname verification.",
+                      "type": "boolean",
+                      "x-order": 12
                     }
                   },
                   "x-order": 6
@@ -8830,6 +9036,98 @@
                   },
                   "x-order": 11
                 },
+                "qan_mongodb_mongolog_agent": {
+                  "description": "QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profiler data.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 11
+                    }
+                  },
+                  "x-order": 12
+                },
                 "qan_postgresql_pgstatements_agent": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
                   "type": "object",
@@ -8925,7 +9223,7 @@
                       "x-order": 12
                     }
                   },
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -9027,7 +9325,7 @@
                       "x-order": 13
                     }
                   },
-                  "x-order": 13
+                  "x-order": 14
                 },
                 "valkey_exporter": {
                   "description": "ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.",
@@ -9144,7 +9442,7 @@
                       "x-order": 14
                     }
                   },
-                  "x-order": 14
+                  "x-order": 15
                 }
               }
             }
@@ -10320,6 +10618,98 @@
                   },
                   "x-order": 9
                 },
+                "qan_mongodb_mongolog_agent": {
+                  "description": "QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profiler data.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 11
+                    }
+                  },
+                  "x-order": 10
+                },
                 "qan_postgresql_pgstatements_agent": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
                   "type": "object",
@@ -10415,7 +10805,7 @@
                       "x-order": 12
                     }
                   },
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -10517,7 +10907,7 @@
                       "x-order": 13
                     }
                   },
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "external_exporter": {
                   "description": "ExternalExporter runs on any Node type, including Remote Node.",
@@ -10603,9 +10993,14 @@
                         }
                       },
                       "x-order": 11
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname verification.",
+                      "type": "boolean",
+                      "x-order": 12
                     }
                   },
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
@@ -10730,7 +11125,7 @@
                       "x-order": 14
                     }
                   },
-                  "x-order": 13
+                  "x-order": 14
                 },
                 "azure_database_exporter": {
                   "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
@@ -10844,7 +11239,7 @@
                       "x-order": 12
                     }
                   },
-                  "x-order": 14
+                  "x-order": 15
                 },
                 "nomad_agent": {
                   "type": "object",
@@ -10892,7 +11287,7 @@
                       "x-order": 5
                     }
                   },
-                  "x-order": 15
+                  "x-order": 16
                 },
                 "valkey_exporter": {
                   "description": "ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.",
@@ -11009,7 +11404,7 @@
                       "x-order": 14
                     }
                   },
-                  "x-order": 16
+                  "x-order": 17
                 }
               }
             }
@@ -11673,7 +12068,7 @@
                   },
                   "x-order": 10
                 },
-                "qan_postgresql_pgstatements_agent": {
+                "qan_mongodb_mongolog_agent": {
                   "type": "object",
                   "properties": {
                     "enable": {
@@ -11728,7 +12123,7 @@
                   },
                   "x-order": 11
                 },
-                "qan_postgresql_pgstatmonitor_agent": {
+                "qan_postgresql_pgstatements_agent": {
                   "type": "object",
                   "properties": {
                     "enable": {
@@ -11783,6 +12178,61 @@
                   },
                   "x-order": 12
                 },
+                "qan_postgresql_pgstatmonitor_agent": {
+                  "type": "object",
+                  "properties": {
+                    "enable": {
+                      "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 0
+                    },
+                    "custom_labels": {
+                      "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                      "type": "object",
+                      "properties": {
+                        "values": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-nullable": true,
+                      "x-order": 1
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 2
+                    },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 13
+                },
                 "nomad_agent": {
                   "type": "object",
                   "properties": {
@@ -11793,7 +12243,7 @@
                       "x-order": 0
                     }
                   },
-                  "x-order": 13
+                  "x-order": 14
                 },
                 "valkey_exporter": {
                   "type": "object",
@@ -11848,7 +12298,7 @@
                       "x-order": 3
                     }
                   },
-                  "x-order": 14
+                  "x-order": 15
                 }
               }
             }
@@ -12647,6 +13097,11 @@
                         }
                       },
                       "x-order": 11
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname verification.",
+                      "type": "boolean",
+                      "x-order": 12
                     }
                   },
                   "x-order": 5
@@ -13222,6 +13677,98 @@
                   },
                   "x-order": 10
                 },
+                "qan_mongodb_mongolog_agent": {
+                  "description": "QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for getting profiler data.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 11
+                    }
+                  },
+                  "x-order": 11
+                },
                 "qan_postgresql_pgstatements_agent": {
                   "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
                   "type": "object",
@@ -13317,7 +13864,7 @@
                       "x-order": 12
                     }
                   },
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "qan_postgresql_pgstatmonitor_agent": {
                   "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
@@ -13419,7 +13966,7 @@
                       "x-order": 13
                     }
                   },
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "nomad_agent": {
                   "type": "object",
@@ -13467,7 +14014,7 @@
                       "x-order": 5
                     }
                   },
-                  "x-order": 13
+                  "x-order": 14
                 },
                 "valkey_exporter": {
                   "description": "ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.",
@@ -13584,7 +14131,7 @@
                       "x-order": 14
                     }
                   },
-                  "x-order": 14
+                  "x-order": 15
                 }
               }
             }
@@ -19895,49 +20442,54 @@
                       "type": "boolean",
                       "x-order": 13
                     },
+                    "qan_mongodb_mongolog": {
+                      "description": "If true, adds qan-mongodb-mongolog-agent for provided service.",
+                      "type": "boolean",
+                      "x-order": 14
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels for Service.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "skip_connection_check": {
                       "description": "Skip connection check.",
                       "type": "boolean",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 18
                     },
                     "tls_certificate_key": {
                       "description": "Client certificate and key.",
                       "type": "string",
-                      "x-order": 18
+                      "x-order": 19
                     },
                     "tls_certificate_key_file_password": {
                       "description": "Password for decrypting tls_certificate_key.",
                       "type": "string",
-                      "x-order": 19
+                      "x-order": 20
                     },
                     "tls_ca": {
                       "description": "Certificate Authority certificate chain.",
                       "type": "string",
-                      "x-order": 20
+                      "x-order": 21
                     },
                     "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 21
+                      "x-order": 22
                     },
                     "metrics_mode": {
                       "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.\n\n - METRICS_MODE_UNSPECIFIED: Auto",
@@ -19948,7 +20500,7 @@
                         "METRICS_MODE_PULL",
                         "METRICS_MODE_PUSH"
                       ],
-                      "x-order": 22
+                      "x-order": 23
                     },
                     "disable_collectors": {
                       "description": "List of collector names to disable in this exporter.",
@@ -19956,22 +20508,22 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 23
+                      "x-order": 24
                     },
                     "authentication_mechanism": {
                       "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                       "type": "string",
-                      "x-order": 24
+                      "x-order": 25
                     },
                     "authentication_database": {
                       "description": "Authentication database.",
                       "type": "string",
-                      "x-order": 25
+                      "x-order": 26
                     },
                     "agent_password": {
                       "description": "Custom password for exporter endpoint /metrics.",
                       "type": "string",
-                      "x-order": 26
+                      "x-order": 27
                     },
                     "stats_collections": {
                       "description": "List of collections to get stats from. Can use * .",
@@ -19979,18 +20531,18 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 27
+                      "x-order": 28
                     },
                     "collections_limit": {
                       "type": "integer",
                       "format": "int32",
                       "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
-                      "x-order": 28
+                      "x-order": 29
                     },
                     "enable_all_collectors": {
                       "type": "boolean",
                       "title": "Enable all collectors",
-                      "x-order": 29
+                      "x-order": 30
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -20005,12 +20557,12 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 30
+                      "x-order": 31
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 31
+                      "x-order": 32
                     }
                   },
                   "x-order": 1
@@ -20635,6 +21187,11 @@
                       "description": "Skip connection check.",
                       "type": "boolean",
                       "x-order": 15
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 16
                     }
                   },
                   "x-order": 4
@@ -20805,6 +21362,11 @@
                       "description": "Skip connection check.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 5
@@ -22025,6 +22587,98 @@
                         }
                       },
                       "x-order": 2
+                    },
+                    "qan_mongodb_mongolog": {
+                      "description": "QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                      "type": "object",
+                      "properties": {
+                        "agent_id": {
+                          "description": "Unique randomly generated instance identifier.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "pmm_agent_id": {
+                          "description": "The pmm-agent identifier which runs this instance.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "disabled": {
+                          "description": "Desired Agent status: enabled (false) or disabled (true).",
+                          "type": "boolean",
+                          "x-order": 2
+                        },
+                        "service_id": {
+                          "description": "Service identifier.",
+                          "type": "string",
+                          "x-order": 3
+                        },
+                        "username": {
+                          "description": "MongoDB username for getting profiler data.",
+                          "type": "string",
+                          "x-order": 4
+                        },
+                        "tls": {
+                          "description": "Use TLS for database connections.",
+                          "type": "boolean",
+                          "x-order": 5
+                        },
+                        "tls_skip_verify": {
+                          "description": "Skip TLS certificate and hostname validation.",
+                          "type": "boolean",
+                          "x-order": 6
+                        },
+                        "max_query_length": {
+                          "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 7
+                        },
+                        "custom_labels": {
+                          "description": "Custom user-assigned labels.",
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 8
+                        },
+                        "status": {
+                          "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                          "type": "string",
+                          "default": "AGENT_STATUS_UNSPECIFIED",
+                          "enum": [
+                            "AGENT_STATUS_UNSPECIFIED",
+                            "AGENT_STATUS_STARTING",
+                            "AGENT_STATUS_INITIALIZATION_ERROR",
+                            "AGENT_STATUS_RUNNING",
+                            "AGENT_STATUS_WAITING",
+                            "AGENT_STATUS_STOPPING",
+                            "AGENT_STATUS_DONE",
+                            "AGENT_STATUS_UNKNOWN"
+                          ],
+                          "x-order": 9
+                        },
+                        "process_exec_path": {
+                          "description": "Path to exec process.",
+                          "type": "string",
+                          "x-order": 10
+                        },
+                        "log_level": {
+                          "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                          "type": "string",
+                          "title": "Log level for exporters",
+                          "default": "LOG_LEVEL_UNSPECIFIED",
+                          "enum": [
+                            "LOG_LEVEL_UNSPECIFIED",
+                            "LOG_LEVEL_FATAL",
+                            "LOG_LEVEL_ERROR",
+                            "LOG_LEVEL_WARN",
+                            "LOG_LEVEL_INFO",
+                            "LOG_LEVEL_DEBUG"
+                          ],
+                          "x-order": 11
+                        }
+                      },
+                      "x-order": 3
                     }
                   },
                   "x-order": 1
@@ -22796,6 +23450,11 @@
                             }
                           },
                           "x-order": 11
+                        },
+                        "tls_skip_verify": {
+                          "description": "Skip TLS certificate and hostname verification.",
+                          "type": "boolean",
+                          "x-order": 12
                         }
                       },
                       "x-order": 1
@@ -22940,6 +23599,11 @@
                             }
                           },
                           "x-order": 11
+                        },
+                        "tls_skip_verify": {
+                          "description": "Skip TLS certificate and hostname verification.",
+                          "type": "boolean",
+                          "x-order": 12
                         }
                       },
                       "x-order": 1

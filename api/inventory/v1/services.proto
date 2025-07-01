@@ -13,7 +13,6 @@ enum ServiceType {
   SERVICE_TYPE_MYSQL_SERVICE = 1;
   SERVICE_TYPE_MONGODB_SERVICE = 2;
   SERVICE_TYPE_POSTGRESQL_SERVICE = 3;
-  SERVICE_TYPE_VALKEY_SERVICE = 7;
   SERVICE_TYPE_PROXYSQL_SERVICE = 4;
   SERVICE_TYPE_HAPROXY_SERVICE = 6;
   SERVICE_TYPE_EXTERNAL_SERVICE = 5;
@@ -110,35 +109,6 @@ message PostgreSQLService {
   int32 auto_discovery_limit = 13;
 }
 
-// ValkeyService represents a generic Valkey instance.
-message ValkeyService {
-  // Unique randomly generated instance identifier.
-  string service_id = 1;
-  // Unique across all Services user-defined name.
-  string service_name = 2;
-  // Node identifier where this instance runs.
-  string node_id = 3;
-  // Access address (DNS name or IP).
-  // Address (and port) or socket is required.
-  string address = 4;
-  // Access port.
-  // Port is required when the address present.
-  uint32 port = 5;
-  // Access unix socket.
-  // Address (and port) or socket is required.
-  string socket = 6;
-  // Environment name.
-  string environment = 7;
-  // Cluster name.
-  string cluster = 8;
-  // Replication set name.
-  string replication_set = 9;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Valkey version.
-  string version = 11;
-}
-
 // ProxySQLService represents a generic ProxySQL instance.
 message ProxySQLService {
   // Unique randomly generated instance identifier.
@@ -224,7 +194,6 @@ message ListServicesResponse {
   repeated ProxySQLService proxysql = 4;
   repeated HAProxyService haproxy = 5;
   repeated ExternalService external = 6;
-  repeated ValkeyService valkey = 7;
 }
 
 message ListActiveServiceTypesRequest {}
@@ -248,7 +217,6 @@ message GetServiceResponse {
     ProxySQLService proxysql = 4;
     HAProxyService haproxy = 5;
     ExternalService external = 6;
-    ValkeyService valkey = 7;
   }
 }
 
@@ -260,7 +228,6 @@ message AddServiceRequest {
     AddProxySQLServiceParams proxysql = 4;
     AddHAProxyServiceParams haproxy = 5;
     AddExternalServiceParams external = 6;
-    AddValkeyServiceParams valkey = 7;
   }
 }
 
@@ -272,7 +239,6 @@ message AddServiceResponse {
     ProxySQLService proxysql = 4;
     HAProxyService haproxy = 5;
     ExternalService external = 6;
-    ValkeyService valkey = 7;
   }
 }
 
@@ -473,7 +439,6 @@ message ChangeServiceResponse {
     ProxySQLService proxysql = 4;
     HAProxyService haproxy = 5;
     ExternalService external = 6;
-    ValkeyService valkey = 7;
   }
 }
 

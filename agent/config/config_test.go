@@ -129,7 +129,8 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			LogLinesCount: 1024,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 5,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Empty(t, configFilepath)
@@ -153,6 +154,7 @@ func TestGet(t *testing.T) {
 			Paths: Paths{
 				TempDir: tmpDir,
 			},
+			PerfschemaRefreshRate: 2,
 		})
 
 		configFilepath, err := get([]string{
@@ -192,7 +194,8 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			LogLinesCount: 1024,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 2,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -211,6 +214,7 @@ func TestGet(t *testing.T) {
 			Server: Server{
 				Address: "127.0.0.1",
 			},
+			PerfschemaRefreshRate: 2,
 		})
 
 		configFilepath, err := get([]string{
@@ -219,6 +223,7 @@ func TestGet(t *testing.T) {
 			"--id=flag-id",
 			"--log-level=info",
 			"--debug",
+			"--perfschema-refresh-rate=1",
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
@@ -254,9 +259,10 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			LogLevel:      "info",
-			Debug:         true,
-			LogLinesCount: 1024,
+			LogLevel:              "info",
+			Debug:                 true,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 1,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -324,8 +330,9 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug:         true,
-			LogLinesCount: 1024,
+			Debug:                 true,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 5,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -392,8 +399,9 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug:         true,
-			LogLinesCount: 1024,
+			Debug:                 true,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 5,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -458,8 +466,9 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug:         true,
-			LogLinesCount: 1024,
+			Debug:                 true,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 5,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -509,8 +518,9 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug:         true,
-			LogLinesCount: 1024,
+			Debug:                 true,
+			LogLinesCount:         1024,
+			PerfschemaRefreshRate: 5,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, filepath.Join(wd, name), configFilepath)

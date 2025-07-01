@@ -183,9 +183,10 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		}
 
 		request = &agentv1.CheckConnectionRequest{
-			Type:    inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE,
-			Dsn:     exporterURL,
-			Timeout: durationpb.New(3 * time.Second),
+			Type:          inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE,
+			Dsn:           exporterURL,
+			Timeout:       durationpb.New(3 * time.Second),
+			TlsSkipVerify: agent.TLSSkipVerify,
 		}
 	case models.HAProxyServiceType:
 		exporterURL, err := agent.ExporterURL(q)

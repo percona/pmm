@@ -748,6 +748,32 @@ func TestQanMongodbProfilerAgents(t *testing.T) {
 	assert.Equal(t, types.AgentTypeQANMongoDBProfilerAgent, result[0].AgentType)
 }
 
+func TestQanMongodbMongologAgents(t *testing.T) {
+	t.Parallel()
+
+	pmmAgentIDs := map[string]struct{}{
+		"pmm-agent-1": {},
+	}
+
+	agentsRes := &agents_service.ListAgentsOK{
+		Payload: &agents_service.ListAgentsOKBody{
+			QANMongodbMongologAgent: []*agents_service.ListAgentsOKBodyQANMongodbMongologAgentItems0{
+				{
+					AgentID:    "qan-mongodb-monoglog-1",
+					PMMAgentID: "pmm-agent-1",
+					ServiceID:  "mongodb-service-1",
+					Status:     pointer.ToString("AGENT_STATUS_RUNNING"),
+				},
+			},
+		},
+	}
+
+	result := qanMongodbMongologAgents(agentsRes, pmmAgentIDs)
+
+	assert.Len(t, result, 1)
+	assert.Equal(t, types.AgentTypeQANMongoDBMongologAgent, result[0].AgentType)
+}
+
 func TestQanPostgresqlPgstatementsAgents(t *testing.T) {
 	t.Parallel()
 
