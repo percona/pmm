@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"database/sql/driver"
 	"fmt"
+	"maps"
 	"net"
 	"net/url"
 	"strconv"
@@ -73,6 +74,7 @@ const (
 	ExternalExporterType                AgentType = "external-exporter"
 	VMAgentType                         AgentType = "vmagent"
 	NomadAgentType                      AgentType = "nomad-agent"
+	ValkeyExporterType                  AgentType = "valkey_exporter"
 )
 
 var v2_42 = version.MustParse("2.42.0-0")
@@ -284,11 +286,6 @@ func (c ValkeyOptions) IsEmpty() bool {
 		c.SSLKey == ""
 }
 
-// PMMAgentWithPushMetricsSupport - version of pmmAgent,
-// that support vmagent and push metrics mode
-// will be released with PMM Agent v2.12.
-var PMMAgentWithPushMetricsSupport = version.MustParse("2.11.99")
-
 // Agent represents Agent as stored in database.
 //
 //reform:agents
@@ -325,6 +322,7 @@ type Agent struct {
 	MongoDBOptions    MongoDBOptions    `reform:"mongo_options"`
 	MySQLOptions      MySQLOptions      `reform:"mysql_options"`
 	PostgreSQLOptions PostgreSQLOptions `reform:"postgresql_options"`
+	ValkeyOptions     ValkeyOptions     `reform:"valkey_options"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -391,9 +389,7 @@ func (s *Agent) UnifiedLabels() (map[string]string, error) {
 		"agent_id":   s.AgentID,
 		"agent_type": string(s.AgentType),
 	}
-	for name, value := range custom {
-		res[name] = value
-	}
+	maps.Copy(res, custom)
 
 	if err = prepareLabels(res, true); err != nil {
 		return nil, err

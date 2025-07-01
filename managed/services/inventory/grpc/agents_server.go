@@ -45,6 +45,7 @@ var agentTypes = map[inventoryv1.AgentType]models.AgentType{
 	inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER:                    models.MySQLdExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER:                   models.MongoDBExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER:                  models.PostgresExporterType,
+	inventoryv1.AgentType_AGENT_TYPE_VALKEY_EXPORTER:                    models.ValkeyExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER:                  models.ProxySQLExporterType,
 	inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT:         models.QANMySQLPerfSchemaAgentType,
 	inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:            models.QANMySQLSlowlogAgentType,
@@ -96,6 +97,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 			res.QanMysqlSlowlogAgent = append(res.QanMysqlSlowlogAgent, agent)
 		case *inventoryv1.PostgresExporter:
 			res.PostgresExporter = append(res.PostgresExporter, agent)
+		case *inventoryv1.ValkeyExporter:
+			res.ValkeyExporter = append(res.ValkeyExporter, agent)
 		case *inventoryv1.QANMongoDBProfilerAgent:
 			res.QanMongodbProfilerAgent = append(res.QanMongodbProfilerAgent, agent)
 		case *inventoryv1.QANMongoDBMongologAgent:
@@ -146,6 +149,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		res.Agent = &inventoryv1.GetAgentResponse_QanMysqlSlowlogAgent{QanMysqlSlowlogAgent: agent}
 	case *inventoryv1.PostgresExporter:
 		res.Agent = &inventoryv1.GetAgentResponse_PostgresExporter{PostgresExporter: agent}
+	case *inventoryv1.ValkeyExporter:
+		res.Agent = &inventoryv1.GetAgentResponse_ValkeyExporter{ValkeyExporter: agent}
 	case *inventoryv1.QANMongoDBProfilerAgent:
 		res.Agent = &inventoryv1.GetAgentResponse_QanMongodbProfilerAgent{QanMongodbProfilerAgent: agent}
 	case *inventoryv1.QANMongoDBMongologAgent:

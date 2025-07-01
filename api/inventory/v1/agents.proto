@@ -20,6 +20,7 @@ enum AgentType {
   AGENT_TYPE_MONGODB_EXPORTER = 4;
   AGENT_TYPE_POSTGRES_EXPORTER = 5;
   AGENT_TYPE_PROXYSQL_EXPORTER = 6;
+  AGENT_TYPE_VALKEY_EXPORTER = 17;
   AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT = 7;
   AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT = 8;
   AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT = 9;
@@ -743,6 +744,7 @@ message ListAgentsResponse {
   repeated RDSExporter rds_exporter = 14;
   repeated AzureDatabaseExporter azure_database_exporter = 15;
   repeated NomadAgent nomad_agent = 16;
+  repeated ValkeyExporter valkey_exporter = 17;
 }
 
 // Get
@@ -771,6 +773,7 @@ message GetAgentResponse {
     RDSExporter rds_exporter = 14;
     AzureDatabaseExporter azure_database_exporter = 15;
     NomadAgent nomad_agent = 16;
+    ValkeyExporter valkey_exporter = 17;
   }
 }
 
@@ -809,6 +812,7 @@ message AddAgentRequest {
     AddQANMongoDBMongologAgentParams qan_mongodb_mongolog_agent = 16;
     AddQANPostgreSQLPgStatementsAgentParams qan_postgresql_pgstatements_agent = 13;
     AddQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
+    AddValkeyExporterParams valkey_exporter = 15;
   }
 }
 
@@ -829,6 +833,7 @@ message AddAgentResponse {
     QANMongoDBMongologAgent qan_mongodb_mongolog_agent = 16;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
+    ValkeyExporter valkey_exporter = 15;
   }
 }
 
@@ -852,8 +857,8 @@ message ChangeAgentRequest {
     ChangeQANMongoDBMongologAgentParams qan_mongodb_mongolog_agent = 17;
     ChangeQANPostgreSQLPgStatementsAgentParams qan_postgresql_pgstatements_agent = 13;
     ChangeQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
-
     ChangeNomadAgentParams nomad_agent = 15;
+    ChangeValkeyExporterParams valkey_exporter = 16;
   }
 }
 
@@ -875,8 +880,8 @@ message ChangeAgentResponse {
     QANMongoDBMongologAgent qan_mongodb_mongolog_agent = 17;
     QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
-
     NomadAgent nomad_agent = 15;
+    ValkeyExporter valkey_exporter = 16;
   }
 }
 
