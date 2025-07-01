@@ -36,20 +36,10 @@ export const copyToClipboard = async (text: string): Promise<void> => {
 
 // QAN data extractors
 export const getQueryCount = (row: QANRow): number => {
-  // First try the direct field
-  if (row.num_queries !== undefined && row.num_queries !== null) {
-    return row.num_queries;
-  }
-  
-  // Then try the metrics object
-  if (row.metrics?.num_queries?.stats?.sum !== undefined) {
-    return row.metrics.num_queries.stats.sum;
-  }
-  if (row.metrics?.num_queries?.stats?.cnt !== undefined) {
-    return row.metrics.num_queries.stats.cnt;
-  }
-  
-  return 0;
+  return row.num_queries || 
+  row.numQueries || 
+  row.metrics?.num_queries?.stats?.sum || 
+  row.metrics?.numQueries?.stats?.sum || 0;
 };
 
 export const getLoadValue = (row: QANRow): number => {

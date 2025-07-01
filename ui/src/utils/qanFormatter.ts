@@ -104,16 +104,20 @@ Please check your PMM setup and ensure QAN is properly configured.`;
           if (lt.sum && lt.sum > 0) report += `   - Total Lock Time: ${lt.sum.toFixed(3)}s\n`;
         }
         
-        if (row.metrics.rowsExamined?.stats || row.metrics.rows_examined?.stats) {
-          const re = row.metrics.rowsExamined?.stats || row.metrics.rows_examined?.stats;
-          if (re.avg) report += `   - Rows Examined: ${re.avg.toLocaleString()} avg\n`;
-          if (re.sum) report += `   - Total Rows Examined: ${re.sum.toLocaleString()}\n`;
+        if (row.metrics.rowsExamined?.stats || row.metrics.rows_examined?.stats || 
+            row.metrics.docsExamined?.stats || row.metrics.docs_examined?.stats) {
+          const re = row.metrics.rowsExamined?.stats || row.metrics.rows_examined?.stats ||
+                     row.metrics.docsExamined?.stats || row.metrics.docs_examined?.stats;
+          if (re.avg) report += `   - Rows/Docs Examined: ${re.avg.toLocaleString()} avg\n`;
+          if (re.sum) report += `   - Total Rows/Docs Examined: ${re.sum.toLocaleString()}\n`;
         }
         
-        if (row.metrics.rowsSent?.stats || row.metrics.rows_sent?.stats) {
-          const rs = row.metrics.rowsSent?.stats || row.metrics.rows_sent?.stats;
-          if (rs.avg) report += `   - Rows Sent: ${rs.avg.toLocaleString()} avg\n`;
-          if (rs.sum) report += `   - Total Rows Sent: ${rs.sum.toLocaleString()}\n`;
+        if (row.metrics.rowsSent?.stats || row.metrics.rows_sent?.stats ||
+            row.metrics.docsReturned?.stats || row.metrics.docs_returned?.stats) {
+          const rs = row.metrics.rowsSent?.stats || row.metrics.rows_sent?.stats ||
+                     row.metrics.docsReturned?.stats || row.metrics.docs_returned?.stats;
+          if (rs.avg) report += `   - Rows/Docs Sent: ${rs.avg.toLocaleString()} avg\n`;
+          if (rs.sum) report += `   - Total Rows/Docs Sent: ${rs.sum.toLocaleString()}\n`;
         }
       }
       

@@ -117,6 +117,54 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
     // Note: No cleanup on close - let the stream counter handle session cleanup
   }, [open, selectedQuery]);
 
+  // Detect if query is MongoDB based on fingerprint patterns
+  const isMongoDBQuery = (query: string): boolean => {
+    if (!query || query === 'N/A') return false;
+    
+    // MongoDB queries typically start with "db." or contain MongoDB-specific patterns
+    const mongoPatterns = [
+      /^db\.\w+\./, // db.collection.method()
+      /^db\.runCommand\(/, // db.runCommand()
+      /\.find\(/, // .find()
+      /\.insert\(/, // .insert()
+      /\.update\(/, // .update()
+      /\.deleteOne\(/, // .deleteOne()
+      /\.deleteMany\(/, // .deleteMany()
+      /\.aggregate\(/, // .aggregate()
+    ];
+    
+    return mongoPatterns.some(pattern => pattern.test(query));
+  };
+
+  // Format MongoDB query for better readability
+  const formatMongoDBQuery = (query: string): string => {
+    try {
+      // Add line breaks and indentation for better readability
+      let formatted = query
+        // Add line breaks after method calls
+        .replace(/(\.)(?=find|insert|update|delete|aggregate|sort|limit|skip)/g, '$1\n  ')
+        // Add line breaks after major operators
+        .replace(/(\{[^}]*\})/g, (match) => {
+          // Only format if it's a complex object (contains commas or nested objects)
+          if (match.includes(',') || match.includes('{')) {
+            return match
+              .replace(/,\s*/g, ',\n    ')
+              .replace(/\{\s*/g, '{\n    ')
+              .replace(/\s*\}/g, '\n  }');
+          }
+          return match;
+        })
+        // Clean up extra whitespace
+        .replace(/\n\s*\n/g, '\n')
+        .trim();
+      
+      return formatted;
+    } catch (error) {
+      console.warn('Failed to format MongoDB query:', error);
+      return query; // Return original if formatting fails
+    }
+  };
+
   // Format SQL query
   const formatSQLQuery = (query: string): string => {
     try {
@@ -137,7 +185,11 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
   const getDisplayQuery = (): string => {
     const originalQuery = selectedQuery?.fingerprint || 'N/A';
     if (isQueryFormatted && originalQuery !== 'N/A') {
-      return formatSQLQuery(originalQuery);
+      if (isMongoDBQuery(originalQuery)) {
+        return formatMongoDBQuery(originalQuery);
+      } else {
+        return formatSQLQuery(originalQuery);
+      }
     }
     return originalQuery;
   };
@@ -415,7 +467,7 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
                   Query:
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
-                  <Tooltip title={isQueryFormatted ? "Show original query" : "Format SQL query"}>
+                  <Tooltip title={isQueryFormatted ? "Show original query" : "Format query"}>
                     <IconButton
                       onClick={toggleQueryFormatting}
                       size="small"
@@ -445,7 +497,7 @@ export const QueryAnalysisDialog: React.FC<QueryAnalysisDialogProps> = ({
                 overflow: 'hidden'
               }}>
                 <SyntaxHighlighter
-                  language="sql"
+                  language={isMongoDBQuery(selectedQuery?.fingerprint || '') ? 'javascript' : 'sql'}
                   style={oneLight}
                   customStyle={{
                     margin: 0,

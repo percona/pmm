@@ -29,8 +29,9 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { aiChatAPI, StreamMessage } from '../../api/aichat';
 import { QANReportResponse } from '../../api/qan';
-import { formatQANDataForAI } from '../../utils/qanFormatter';
 import { copyToClipboard } from '../../utils/formatters';
+import { generateAnalysisSessionId } from '../../utils/sessionUtils';
+import { generateComprehensiveQANAnalysisPrompt } from '../../utils/queryAnalysisPrompts';
 
 interface ToolExecution {
   id: string;
@@ -193,25 +194,10 @@ export const QANOverviewAnalysisDialog: React.FC<QANOverviewAnalysisDialogProps>
       setError(null);
 
       // Generate comprehensive analysis prompt
-      const analysisPrompt = formatQANDataForAI(qanData);
-      
-      const enhancedPrompt = `${analysisPrompt}
-
-**Comprehensive Analysis Request:**
-Please provide a detailed analysis of this QAN data including:
-
-1. **Performance Overview**: Overall database performance assessment
-2. **Query Patterns**: Common patterns and anti-patterns in the queries
-3. **Resource Bottlenecks**: Identify CPU, I/O, and memory bottlenecks
-4. **Optimization Priorities**: Top 3-5 optimization recommendations ranked by impact
-5. **Index Recommendations**: Specific index suggestions for the slowest queries
-6. **Schema Improvements**: Any schema-level improvements suggested
-7. **Monitoring Alerts**: Recommended thresholds and alerts to set up
-
-Focus on actionable insights that can immediately improve database performance.`;
+      const enhancedPrompt = generateComprehensiveQANAnalysisPrompt(qanData);
 
       // Create unique session ID for this analysis
-      const sessionId = `qan_overview_${Date.now()}`;
+      const sessionId = generateAnalysisSessionId('overview');
       setAnalysisSessionId(sessionId);
       
       const streamId = 'main_overview_analysis';

@@ -2,7 +2,7 @@ import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { getRecentQANData, getQANMetricsNames, getQANFilters, QANReportResponse, QANMetricsNamesResponse, QANFiltersResponse, QANFiltersRequest, QANLabel } from 'api/qan';
 
 export const useRecentQANData = (
-  hoursBack: number = 24,
+  hoursBack: number = 12,
   limit: number = 10,
   filters?: QANLabel[],
   orderBy?: string,

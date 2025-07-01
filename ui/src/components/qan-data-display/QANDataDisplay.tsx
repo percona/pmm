@@ -23,6 +23,7 @@ import {
   SelectChangeEvent,
   TableSortLabel,
   Pagination,
+  Switch,
 } from '@mui/material';
 import { QANReportResponse, QANRow } from '../../api/qan';
 import { useQANFilters } from '../../hooks/api/useQAN';
@@ -31,6 +32,7 @@ import RecommendIcon from '@mui/icons-material/Lightbulb';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import WarningIcon from '@mui/icons-material/Warning';
 import { QueryAnalysisDialog } from './QueryAnalysisDialog';
 import { generateDetailedQueryAnalysisPrompt } from '../../utils/queryAnalysisPrompts';
 import { 
@@ -41,6 +43,14 @@ import {
   getLoadValue, 
   getQueryRate
 } from '../../utils/formatters';
+import { 
+  detectQueryAnomalies, 
+  analyzeQANReport, 
+  analyzeQANReportWithAI,
+  AnomalyDetectionResult,
+  AnomalySeverity 
+} from '../../utils/queryAnomalyDetection';
+import AnomalyWarningIcon from './AnomalyWarningIcon';
 
 interface QANDataDisplayProps {
   data: QANReportResponse;
@@ -90,10 +100,123 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
   const [selectedQuery, setSelectedQuery] = useState<QANRow | null>(null);
   const [selectedQueryRank, setSelectedQueryRank] = useState<number>(0);
 
+  // AI detection state
+  const [useAIDetection, setUseAIDetection] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [aiAnalysisError, setAiAnalysisError] = useState<string | null>(null);
+
+  // Anomaly detection results
+  const [anomalyAnalysis, setAnomalyAnalysis] = useState(() => analyzeQANReport(data));
+  
+  // Update anomaly analysis when data changes
+  useEffect(() => {
+    const runAnalysis = async () => {
+      if (useAIDetection) {
+        setIsAnalyzing(true);
+        setAiAnalysisError(null);
+        try {
+          const result = await analyzeQANReportWithAI(data);
+          setAnomalyAnalysis(result);
+        } catch (error) {
+          setAiAnalysisError(error instanceof Error ? error.message : 'AI analysis failed');
+          // Fallback to rule-based analysis
+          setAnomalyAnalysis(analyzeQANReport(data));
+        } finally {
+          setIsAnalyzing(false);
+        }
+      } else {
+        setAnomalyAnalysis(analyzeQANReport(data));
+      }
+    };
+    
+    runAnalysis();
+  }, [data, useAIDetection]);
+
+  // Store individual query anomaly results for efficient lookup
+  const [queryAnomalies, setQueryAnomalies] = useState(new Map<string, AnomalyDetectionResult>());
+  
+  // Update individual query anomalies when needed (for rule-based analysis)
+  useEffect(() => {
+    if (!useAIDetection) {
+      const results = new Map<string, AnomalyDetectionResult>();
+      
+      if (data.rows && data.rows.length > 0) {
+        const queryRows = data.rows.filter(row => 
+          row.fingerprint !== 'TOTAL' && row.dimension !== '' && (row.rank || 0) > 0
+        );
+        
+        // Calculate average metrics for context
+        const avgMetrics = queryRows.reduce((acc, query) => {
+          const avgTime = query.metrics?.queryTime?.stats?.avg || query.metrics?.query_time?.stats?.avg || 0;
+          const load = getLoadValue(query);
+          const queryRate = getQueryRate(query);
+          
+          acc.avgTime += avgTime;
+          acc.avgLoad += load;
+          acc.avgQueryRate += queryRate;
+          
+          return acc;
+        }, { avgTime: 0, avgLoad: 0, avgQueryRate: 0 });
+        
+        const count = queryRows.length;
+        const normalizedAvgMetrics = {
+          avgTime: avgMetrics.avgTime / count,
+          avgLoad: avgMetrics.avgLoad / count,
+          avgQueryRate: avgMetrics.avgQueryRate / count
+        };
+        
+        queryRows.forEach(query => {
+          const result = detectQueryAnomalies(query, {
+            totalQueries: queryRows,
+            avgMetrics: normalizedAvgMetrics,
+            rank: query.rank || 0
+          });
+          results.set(query.dimension, result);
+        });
+      }
+      
+      setQueryAnomalies(results);
+    } else if ('batchAnalysis' in anomalyAnalysis && anomalyAnalysis.batchAnalysis) {
+      // For AI analysis, extract individual query results from batch analysis
+      const results = new Map<string, AnomalyDetectionResult>();
+      const batchAnalysis = (anomalyAnalysis as any).batchAnalysis;
+      
+      if (batchAnalysis && batchAnalysis.analyses) {
+        Object.entries(batchAnalysis.analyses).forEach(([queryId, analysis]: [string, any]) => {
+          // Convert AI analysis to our format
+          const result: AnomalyDetectionResult = {
+            queryId: queryId,
+            hasAnomalies: analysis.hasAnomalies,
+            anomalies: analysis.anomalies.map((a: any) => ({
+              type: a.type as any,
+              severity: a.severity as any,
+              description: a.description,
+              recommendation: a.recommendation,
+              confidence: a.confidence,
+              metrics: {
+                riskLevel: a.riskLevel,
+                estimatedFixTime: a.estimatedFixTime,
+                impact: `${a.severity} risk`
+              }
+            })),
+            overallSeverity: analysis.severity as any,
+            aiAnalysisPrompt: `AI detected ${analysis.anomalies.length} issues for this query.`
+          };
+          results.set(queryId, result);
+        });
+      }
+      
+      setQueryAnomalies(results);
+    } else {
+      // Clear if no batch analysis available
+      setQueryAnomalies(new Map());
+    }
+  }, [data, useAIDetection, anomalyAnalysis]);
+
   // Create filters request for the same time period as the data
   const filtersRequest = useMemo(() => {
     const now = new Date();
-    const hours = timeRangeHours ?? 24;
+    const hours = timeRangeHours ?? 12;
     const startTime = new Date(now.getTime() - hours * 60 * 60 * 1000); // Use prop instead of hardcoded 24
     
     return {
@@ -293,6 +416,14 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
     setSelectedQueryRank(0);
   };
 
+  // Handle AI analysis request from anomaly detection
+  const handleAnomalyAnalysis = (result: AnomalyDetectionResult) => {
+    const query = queryRows.find(q => q.dimension === result.queryId);
+    if (query) {
+      handleAnalyzeInPopup(query, query.rank);
+    }
+  };
+
   return (
     <Box>
       {/* Summary Section */}
@@ -334,6 +465,85 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
                 {totalRow.database || 'Multiple'}
               </Typography>
             </Box>
+            <Box>
+              <Typography variant="body2" color="textSecondary">
+                Query Anomalies
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {useAIDetection && isAnalyzing ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CircularProgress size={20} />
+                    <Typography variant="body2" color="textSecondary">
+                      AI analyzing...
+                    </Typography>
+                  </Box>
+                ) : (
+                  <>
+                    <Typography variant="h5">
+                      {anomalyAnalysis.anomalousQueries}/{anomalyAnalysis.totalQueries}
+                    </Typography>
+                    {anomalyAnalysis.criticalAnomalies > 0 && (
+                      <Chip 
+                        label={`${anomalyAnalysis.criticalAnomalies} Critical`}
+                        color="error"
+                        size="small"
+                        variant="filled"
+                      />
+                    )}
+                  </>
+                )}
+              </Box>
+            </Box>
+            
+            {/* AI Health Score (if available) */}
+            {useAIDetection && (
+              <Box>
+                <Typography variant="body2" color="textSecondary">
+                  Health Score
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {isAnalyzing ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CircularProgress size={20} />
+                      <Typography variant="body2" color="textSecondary">
+                        Computing...
+                      </Typography>
+                    </Box>
+                  ) : (
+                    'overallHealthScore' in anomalyAnalysis && (
+                      <Typography variant="h5" color={
+                        (anomalyAnalysis as any).overallHealthScore >= 80 ? 'success.main' :
+                        (anomalyAnalysis as any).overallHealthScore >= 60 ? 'warning.main' : 'error.main'
+                      }>
+                        {(anomalyAnalysis as any).overallHealthScore}/100
+                      </Typography>
+                    )
+                  )}
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </Paper>
+      )}
+
+      {/* Critical Anomalies Alert */}
+      {anomalyAnalysis.criticalAnomalies > 0 && anomalyAnalysis.topAnomalies.length > 0 && (
+        <Paper sx={{ mb: 3 }}>
+          <Box sx={{ p: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2, color: 'error.main' }}>
+              ⚠️ Critical Performance Anomalies Detected
+            </Typography>
+            {anomalyAnalysis.topAnomalies
+              .filter(({ result }) => result.overallSeverity === AnomalySeverity.CRITICAL)
+              .slice(0, 3)
+              .map(({ query, result }) => (
+                <AnomalyWarningIcon
+                  key={query.dimension}
+                  result={result}
+                  onAnalyzeClick={handleAnomalyAnalysis}
+                  variant="detailed"
+                />
+              ))}
           </Box>
         </Paper>
       )}
@@ -347,6 +557,35 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
             </Typography>
             
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              {/* AI Detection Toggle */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Tooltip title={
+                  isAnalyzing ? "AI analysis in progress..." :
+                  useAIDetection ? "Using AI-powered anomaly detection" : "Using rule-based anomaly detection"
+                }>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="body2" color="textSecondary">
+                      AI Anomaly Detection
+                    </Typography>
+                    <Switch
+                      checked={useAIDetection}
+                      onChange={(e) => setUseAIDetection(e.target.checked)}
+                      size="small"
+                      color="primary"
+                      disabled={isAnalyzing}
+                    />
+                    {isAnalyzing && (
+                      <CircularProgress size={16} />
+                    )}
+                  </Box>
+                </Tooltip>
+                {aiAnalysisError && (
+                  <Tooltip title={`AI Analysis Error: ${aiAnalysisError}`}>
+                    <WarningIcon color="warning" fontSize="small" />
+                  </Tooltip>
+                )}
+              </Box>
+
               {/* Refresh Button */}
               {onRefresh && (
                 <Tooltip title="Refresh Data">
@@ -372,7 +611,7 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
                     <InputLabel id="time-range-label">Time Range</InputLabel>
                     <Select
                       labelId="time-range-label"
-                      value={timeRangeHours || 24}
+                      value={timeRangeHours || 12}
                       onChange={(e) => onTimeRangeChange(Number(e.target.value))}
                       input={<OutlinedInput label="Time Range" />}
                     >
@@ -543,7 +782,7 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
                         direction={getSortDirection('rowsExamined')}
                         onClick={() => handleRequestSort('rowsExamined')}
                       >
-                        Rows Examined
+                        Rows/Docs Examined
                       </TableSortLabel>
                     </TableCell>
                 <TableCell align="center">Actions</TableCell>
@@ -553,17 +792,35 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
                   {queryRows.map((row) => {
                 const avgTime = row.metrics?.queryTime?.stats?.avg || row.metrics?.query_time?.stats?.avg || 0;
                 const maxTime = row.metrics?.queryTime?.stats?.max || row.metrics?.query_time?.stats?.max || 0;
-                  const rowsExamined = row.metrics?.rowsExamined?.stats?.sum || row.metrics?.rows_examined?.stats?.sum || 0;
+                const rowsExamined = row.metrics?.rowsExamined?.stats?.sum || row.metrics?.rows_examined?.stats?.sum || 
+                  row.metrics?.docsExamined?.stats?.sum || row.metrics?.docs_examined?.stats?.sum || 0;
                 const loadPercentage = maxLoad > 0 ? ((getLoadValue(row) / maxLoad) * 100) : 0;
+                const anomalyResult = queryAnomalies.get(row.dimension);
 
                 return (
                   <TableRow key={row.dimension} hover>
                     <TableCell>
-                      <Chip 
-                          label={row.rank}
-                        size="small" 
-                          color={row.rank <= 3 ? 'error' : 'default'}
-                      />
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Chip 
+                            label={row.rank}
+                          size="small" 
+                            color={row.rank <= 3 ? 'error' : 'default'}
+                        />
+                        {/* Show loading indicator while AI analysis is running, otherwise show anomaly icons */}
+                        {useAIDetection && isAnalyzing ? (
+                          <Tooltip title="AI Anomaly Detection in progress...">
+                            <CircularProgress size={16} />
+                          </Tooltip>
+                        ) : (
+                          anomalyResult && anomalyResult.hasAnomalies && (
+                            <AnomalyWarningIcon 
+                              result={anomalyResult}
+                              onAnalyzeClick={handleAnomalyAnalysis}
+                              variant="icon"
+                            />
+                          )
+                        )}
+                      </Box>
                     </TableCell>
                     <TableCell>
                       <Tooltip title={row.fingerprint || 'N/A'} placement="top">

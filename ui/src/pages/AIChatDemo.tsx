@@ -24,7 +24,7 @@ const AIChatDemo: React.FC = () => {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   
   // Time range filter state
-  const [timeRangeHours, setTimeRangeHours] = useState<number>(24); // Default to 24 hours
+  const [timeRangeHours, setTimeRangeHours] = useState<number>(12); // Default to 12 hours
   
   // Sorting and pagination state
   const [orderBy, setOrderBy] = useState<string>('-load'); // Default to load descending
