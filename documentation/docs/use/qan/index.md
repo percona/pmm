@@ -59,7 +59,17 @@ A query may appear in the digest summary but not in the history table when:
 
 When this happens, QAN can still display the query’s metrics, but cannot show an example query because it's no longer available in `events_statements_history` table when PMM tries to capture it.
 
+## New option in PMM agent (to tune perfschema refrest rate)
+
+There is a new property called "Perfschema Refresh Rate" which can help with missing examples. This property affects how often we scrape data from the history table. By using a shorter interval, you increase the likelihood that an example will be captured.
+The default value is 5 seconds. The minimum value is 1 second, and a value of 0 is reserved to indicate the default (5 seconds).
+
+- environment variable: `PMM_AGENT_PERFSCHEMA_REFRESH_RATE`. 
+- flag for PMM agent binary: `--perfschema-refresh-rate=NUMBER`. 
+- property in PMM agent config: `perfschema-refresh-rate: NUMBER`. 
+
+
 ### Workaround
 
-If you're missing query examples, consider [using the slow query log (`slowlog`)](../../../docs/install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source) as the query source instead. 
+If you're still missing some query examples, consider [using the slow query log (`slowlog`)](../../../docs/install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source) as the query source instead. 
 The `slowlog` retains actual query texts over time and can help capture examples even when Performance Schema history buffers are exhausted.
