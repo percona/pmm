@@ -8,28 +8,39 @@ The Query Analytics dashboard shows how queries are executed and where they spen
 
 Query Analytics supports MySQL, MongoDB and PostgreSQL with the following minimum requirements:
 
-### MySQL requirements
+=== "MySQL requirements"===
+    - MySQL 5.1 or later (if using the slow query log)
+    - MySQL 5.6.9 or later (if using Performance Schema)
+    - Percona Server 5.6+ (all Performance Schema and slow log features)
+    - MariaDB 5.2+ (for user statistics), 10.0+ (for Performance Schema)
 
-- MySQL 5.1 or later (if using the slow query log).
-- MySQL 5.6.9 or later (if using Performance Schema).
-- Percona Server 5.6+ (all Performance Schema and slow log features)
+=== "PostgreSQL requirements"===
+    - PostgreSQL 11 or later
+    - `pg_stat_monitor` extension (recommended) or `pg_stat_statements` extension
+    - Appropriate `shared_preload_libraries` configuration
+    - Superuser privileges for PMM monitoring account
 
+=== "MongoDB requirements"===
+    - MongoDB 6.0 or later (4.4+ may work with limited features)
+    - Profiling enabled for Query Analytics
+    - Appropriate user roles: `clusterMonitor`, `read` (local), and custom monitoring roles. For MongoDB 8.0+: Additional `directShardOperations` role required for sharded clusters
 
 ### Dashboard components
 Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.
 
 The dashboard contains three panels:
 
-- the [Filters Panel](panels/filters.md);
-- the [Overview Panel](panels/overview.md);
-- the [Details Panel](panels/details.md).
+- the [Filters panel](panels/filters.md);
+- the [Overview panel](panels/overview.md);
+- the [Details panel](panels/details.md).
 
-!!! note alert alert-primary "Note"
-    Query Analytics data retrieval is not instantaneous and can be delayed due to network conditions. In such situations *no data* is reported and a gap appears in the sparkline.
+### Data retrieval delays
+
+Query Analytics data retrieval is not instantaneous and can be delayed due to network conditions. In such situations *no data* is reported and a gap appears in the sparkline.
 
 ## Limitation: Missing query examples in MySQL Performance Schema
 
-When using MySQL's Performance Schema as the query source, you may encounter the message *“Sorry, no examples found”* in the QAN dashboard. This typically occurs due to the way MySQL handles query sampling and can be influenced by the number of threads, volume of unique queries, and Performance Schema settings.
+When using MySQL's Performance Schema as the query source, you may encounter the message *“Sorry, no examples found”* in the QAN dashboard. This typically occurs due to the way MySQL handles query sampling and can be influenced by the volume of unique queries, and Performance Schema settings.
 
 Despite the absence of query examples, all other query metrics are still collected and displayed as expected.
 
@@ -37,16 +48,16 @@ Despite the absence of query examples, all other query metrics are still collect
 
 MySQL Performance Schema manages query data across two different tables, which can lead to missing query examples:
 
-- `events_statements_summary_by_digest`: stores aggregated metrics for each normalized query (digest). Each unique query appears only once, regardless of how many times it runs.
+- Summary table (`events_statements_summary_by_digest`): stores aggregated metrics for each normalized query (digest) in a limited buffer. Each unique query appears only once, regardless of how many times it runs.
 
-- `events_statements_history` (`events_statements_history_long` in MariaDB): stores individual query executions in a rolling buffer. Multiple entries may exist for the same query, but older ones are overwritten as new queries are executed.
+- History table (`events_statements_history` or `events_statements_history_long` in MariaDB): stores individual query executions in a limited rolling buffer. Multiple entries may exist for the same query, but older ones are overwritten as new queries are executed.
 
 A query may appear in the digest summary but not in the history table when:
 
 - it was executed frequently enough to appear in the digest summary.
-- all its individual executions were overwritten the history buffer due thigh query volume overwhelming the buffer and ongoing activity.
+- all its individual executions were overwritten the history buffer due to thigh query volume overwhelming the buffer and ongoing activity.
 
-When this happens, QAN can still display the query’s metrics, but cannot show an example query  because it's no longer available in `events_statements_history` table when PMM tries to capture it.
+When this happens, QAN can still display the query’s metrics, but cannot show an example query because it's no longer available in `events_statements_history` table when PMM tries to capture it.
 
 ### Workaround
 
