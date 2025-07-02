@@ -183,11 +183,6 @@ func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
 		return nil
 	}
 
-	if !strings.Contains(grants, "RELOAD") && !strings.Contains(grants, "ALL PRIVILEGES") {
-		s.l.Error("RELOAD grant not enabled, cannot rotate slowlog")
-		return nil
-	}
-
 	if newInfo, err = s.getSlowLogInfo(ctx); err != nil {
 		s.l.Error(err)
 		return nil
@@ -199,6 +194,11 @@ func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
 	maxSize := s.params.MaxSlowlogFileSize
 	if maxSize <= 0 {
 		return newInfo
+	}
+
+	if !strings.Contains(grants, "RELOAD") && !strings.Contains(grants, "ALL PRIVILEGES") {
+		s.l.Error("RELOAD grant not enabled, cannot rotate slowlog")
+		return nil
 	}
 
 	fi, err := os.Stat(newInfo.path)
