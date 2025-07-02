@@ -83,7 +83,7 @@ func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]ty
 		Filters: []types.Filter{
 			{
 				Name:   aws.String("engine"),
-				Values: []string{"postgres", "mysql"},
+				Values: []string{"postgres", "mysql", "aurora-mysql", "aurora-postgresql"},
 			},
 		},
 	}
