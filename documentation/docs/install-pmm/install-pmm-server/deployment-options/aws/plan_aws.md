@@ -25,7 +25,7 @@ Start small and scale as your monitoring needs grow. EC2 instances can be resize
 
 ### Plan storage 
 
-PMM Server stores all monitoring data in the `/srv` partition. Plan storage based on:
+PMM Server stores all monitoring data in the `/srv` partition. Plan storage based on the:
 
 - number of monitored hosts
 - retention period for collected data
