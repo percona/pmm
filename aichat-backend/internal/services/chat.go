@@ -177,8 +177,6 @@ func (s *ChatService) ProcessStreamMessageForUser(ctx context.Context, userID, s
 		s.l.Debug("Starting stream message processing loop")
 
 		s.handleStreamMessage(ctx, actualSessionID, session, streamChan, outputChan, &fullContent, tools, &messageCount)
-
-		s.l.Warn("Stream channel closed without 'done' message")
 	}()
 
 	return outputChan, nil

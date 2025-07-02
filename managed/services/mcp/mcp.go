@@ -237,8 +237,75 @@ func parseQueryParams(queryID, periodStartStr, periodEndStr, filtersStr string) 
 	return params, nil
 }
 
+func (m *Mcp) getTablesFromExplainAction(ctx context.Context, params *QueryParams, metadata *QueryMetadata) ([]string, error) {
+	m.l.WithFields(logrus.Fields{
+		"query_id": params.QueryID,
+	}).Debug("Attempting to get MySQL table names from EXPLAIN JSON")
+
+	explainActionRequest := actionsv1.StartServiceActionRequest{
+		Action: &actionsv1.StartServiceActionRequest_MysqlExplain{
+			MysqlExplain: &actionsv1.StartMySQLExplainActionParams{
+				PmmAgentId: metadata.PMMAgentID,
+				ServiceId:  metadata.ServiceID,
+				Database:   metadata.Database,
+				QueryId:    params.QueryID,
+			},
+		},
+	}
+
+	explainAction, err := m.actionServer.StartServiceAction(ctx, &explainActionRequest)
+	if err != nil {
+		m.l.WithField("query_id", params.QueryID).WithError(err).Warn("Failed to start MySQL explain action for table name resolution")
+		return nil, fmt.Errorf("failed to start MySQL explain action: %w", err)
+	}
+
+	// Use responseActionOutput to get the action result
+	explainResult, err := m.responseActionOutput(ctx, explainAction.GetMysqlExplain().ActionId)
+	if err != nil {
+		return nil, err
+	}
+
+	// The result content is expected to be TextContent with the action.Output
+	if len(explainResult.Content) > 0 {
+		if textContent, ok := explainResult.Content[0].(mcpgo.TextContent); ok {
+			jsonOutput := textContent.Text
+
+			return extractTablesFromExplainJSON(jsonOutput)
+		}
+	}
+
+	return nil, fmt.Errorf("unexpected explain action output format")
+}
+
+// mysqlExplainOutput represents the structure of MySQL EXPLAIN FORMAT=JSON output
+type mysqlExplainOutput struct {
+	RealTableName string `json:"real_table_name,omitempty"`
+}
+
+func extractTablesFromExplainJSON(jsonData string) ([]string, error) {
+	var tables []string
+
+	// Parse the MySQL EXPLAIN JSON output
+	var explainOutput mysqlExplainOutput
+	if err := json.Unmarshal([]byte(jsonData), &explainOutput); err != nil {
+		return nil, fmt.Errorf("invalid JSON: %w", err)
+	}
+
+	// Check for "real_table_name" field
+	if explainOutput.RealTableName != "" {
+		tables = append(tables, explainOutput.RealTableName)
+	}
+
+	// If no real_table_name found, return empty slice
+	if len(tables) == 0 {
+		tables = make([]string, 0)
+	}
+
+	return tables, nil
+}
+
 // resolveQueryMetadata calls QAN APIs to get service details and query information from query_id
-func (m *Mcp) resolveQueryMetadata(ctx context.Context, params *QueryParams) (*QueryMetadata, error) {
+func (m *Mcp) resolveQueryMetadata(ctx context.Context, params *QueryParams, shouldGetAccurateTableNamesFromExplain bool) (*QueryMetadata, error) {
 	// Get query examples to get service details
 	exampleReq := &qanpb.GetQueryExampleRequest{
 		PeriodStartFrom: timestamppb.New(params.PeriodStart),
@@ -292,6 +359,16 @@ func (m *Mcp) resolveQueryMetadata(ctx context.Context, params *QueryParams) (*Q
 		TableNames:  allTableNames,
 	}
 
+	// For MySQL, try to get more accurate table names from EXPLAIN JSON output if requested
+	if metadata.ServiceType == "mysql" && shouldGetAccurateTableNamesFromExplain {
+		realTableNames, err := m.getTablesFromExplainAction(ctx, params, metadata)
+		if err != nil {
+			m.l.WithField("query_id", params.QueryID).WithError(err).Warn("Failed to get accurate MySQL table names from EXPLAIN JSON")
+		} else if len(realTableNames) > 0 {
+			metadata.TableNames = realTableNames
+		}
+	}
+
 	m.l.WithFields(logrus.Fields{
 		"query_id":     params.QueryID,
 		"service_id":   metadata.ServiceID,
@@ -315,7 +392,7 @@ func (m *Mcp) explain(ctx context.Context, req mcpgo.CallToolRequest, args expla
 		return nil, fmt.Errorf("failed to parse query parameters: %w", err)
 	}
 
-	metadata, err := m.resolveQueryMetadata(ctx, params)
+	metadata, err := m.resolveQueryMetadata(ctx, params, false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve metadata for query_id %s: %w", args.QueryID, err)
 	}
@@ -430,7 +507,7 @@ func (m *Mcp) processTablesAction(ctx context.Context, queryID, periodStart, per
 		return nil, fmt.Errorf("failed to parse query parameters: %w", err)
 	}
 
-	metadata, err := m.resolveQueryMetadata(ctx, params)
+	metadata, err := m.resolveQueryMetadata(ctx, params, true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to resolve metadata for query_id %s: %w", queryID, err)
 	}
