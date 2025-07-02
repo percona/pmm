@@ -1,7 +1,7 @@
 import { aiChatAPI } from '../api/aichat';
 import { QANRow, QANReportResponse } from '../api/qan';
 import { getQueryCount, getLoadValue, getQueryRate } from '../utils/formatters';
-import { AnomalyDetectionResult, AnomalySeverity } from '../utils/queryAnomalyDetection';
+import { AnomalyDetectionResult } from '../utils/queryAnomalyDetection';
 
 export interface AIAnomalyAnalysis {
   queryId: string;
