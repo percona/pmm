@@ -24,7 +24,7 @@ To configure PMM Server to connect to an external PostgreSQL database:
 !!! caution alert alert-warning "Important for PMM 3.2.0 and later"
     Due to a regression in Grafana 11.6 (included in PMM 3.2.0+), the `GF_DATABASE_URL` environment variable is no longer sufficient for configuring Grafana's connection to an external PostgreSQL database. When using PMM 3.2.0 or later with an external PostgreSQL, you must use the individual `GF_DATABASE_*` environment variables.
 
-### PMM PostreSQL variables
+### PMM PostgreSQL variables
 To use PostgreSQL as an external database instance, use the following environment variables:
 
 | Environment variable         | Flag                                                                                                    | Description                                                                                                                                                                                      |

@@ -345,7 +345,7 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add mongodb --username=pmm --password=<your_password>
         ```
    
-    For detailed instructions, see [Adding a MongoDB database for monitoring](../install-pmm/install-pmm-client/connect-database/mongodb/mongodb.md).
+    For detailed instructions, see [Adding a MongoDB database for monitoring](../install-pmm/install-pmm-client/connect-database/mongodb.md).
 
 === ":simple-nginxproxymanager: ProxySQL"
     To connect a ProxySQL service:

@@ -234,31 +234,7 @@ Property names are shared between API calls, database columns, and label values 
 - `custom_labels` key/value pairs of custom assigned labels
 - `status` (read only on responses) Actual agent status. See statuses list below.
 
-**QANMongoDBMongologAgent** runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
-
-- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
-- `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
-- `service_id` (required) Service identifier.
-- `username` MongoDB authentication user
-- `password` MongoDB authentication password.
-- `tls` Use TLS for database connections.
-- `tls_skip_verify` Skip TLS certificate and hostname validation.
-- `custom_labels` key/value pairs of custom assigned labels
-- `status` (read only on responses) Actual agent status. See statuses list below.
-
 **QANPostgreSQLPGStatementsAgent** runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
-
-- `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
-- `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
-- `service_id` (required) Service identifier.
-- `username` MongoDB authentication user
-- `password` MongoDB authentication password.
-- `tls` Use TLS for database connections.
-- `tls_skip_verify` Skip TLS certificate and hostname validation.
-- `custom_labels` key/value pairs of custom assigned labels
-- `status` (read only on responses) Actual agent status. See statuses list below.
-
-**QANPostgreSQLPGMonitorAgent** runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 
 - `agent_id` (required) Unique randomly generated instance identifier, can't be changed. Value format: "<uuid>".
 - `pmm_agent_id` (required) The pmm-agent identifier which runs this instance
@@ -331,7 +307,6 @@ As part of thetransition to UNKNOWN and DONE state we set listen_port to 0. It g
 | QANMySQLPerfSchemaAgent        | GenericNode, ContainerNode |                                              | MySQLService                        |
 | QANMySQLSlowlogAgent           | GenericNode, ContainerNode |                                              | MySQLService                        |
 | QANMongoDBProfilerAgent        | GenericNode, ContainerNode |                                              | MongoDBService                      |
-| QANMongoDBMongologAgent        | GenericNode, ContainerNode |                                              | MongoDBService                      |
 | QANPostgreSQLPgStatementsAgent | GenericNode, ContainerNode |                                              | PostgreSQLService                   |
 | RDSExporter                    | GenericNode, ContainerNode | RemoteAmazonRDSNode                          | AmazonRDSMySQLService               |
 | ExternalExporter               | Any                        | any                                          | any                                 |
