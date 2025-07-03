@@ -535,15 +535,21 @@ const QANDataDisplay: React.FC<QANDataDisplayProps> = ({
             </Typography>
             {anomalyAnalysis.topAnomalies
               .filter(({ result }) => result.overallSeverity === AnomalySeverity.CRITICAL)
-              .slice(0, 3)
-              .map(({ query, result }) => (
-                <AnomalyWarningIcon
-                  key={query.dimension}
-                  result={result}
-                  onAnalyzeClick={handleAnomalyAnalysis}
-                  variant="detailed"
-                />
-              ))}
+              .length > 0 && (
+                <Box 
+                  sx={{ 
+                    p: 2, 
+                    border: `1px solid #f44336`,
+                    borderRadius: 1,
+                    backgroundColor: '#ffebee',
+                    mb: 2
+                  }}
+                >
+                  {anomalyAnalysis.topAnomalies
+                    .filter(({ result }) => result.overallSeverity === AnomalySeverity.CRITICAL)
+                    .length} critical anomalies detected
+                </Box>
+              )}
           </Box>
         </Paper>
       )}
