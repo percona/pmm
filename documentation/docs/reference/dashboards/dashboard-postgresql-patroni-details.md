@@ -6,7 +6,7 @@ Use this dashboard when you need to monitor high-availability PostgreSQL cluster
 
 This is essential for database administrators managing production PostgreSQL clusters with automatic failover capabilities.
 
-![!image](../../images/PMM_PostgreSQL_Patroni_Details.png)
+![PMM PostgreSQL Patroni Details](../../images/PMM_PostgreSQL_Patroni_Details.png)
 
 ## Patroni 
 
