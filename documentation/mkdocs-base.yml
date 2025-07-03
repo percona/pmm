@@ -219,6 +219,7 @@ nav:
           - External services monitoring:
             - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
         - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md         
+      - Install PMM in HA mode: install-pmm/HA.md  
 
   - Upgrade:
     - Upgrade PMM Server:
