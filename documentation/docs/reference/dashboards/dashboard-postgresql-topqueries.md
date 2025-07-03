@@ -2,7 +2,7 @@
 
 This dashboard analyzes query performance across your PostgreSQL instances, helping you identify and optimize slow queries that impact database performance.
 
-![!image](../../images/PMM_PostgreSQL_Top_Queries.png)
+![PMM PostgreSQL Top Queries](../../images/PMM_PostgreSQL_Top_Queries.png)
 
 
 ### Transactions per Second
