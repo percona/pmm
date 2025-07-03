@@ -6,7 +6,7 @@ This information is essential for database administrators managing high-availabi
 
 Start here when you need to check if your replicas are keeping up with the primary, diagnose replication conflicts, or verify your disaster recovery setup is working properly.
 
-![!image](../../images/PMM_PostgreSQL_Replication_Overview.png)
+![PMM PostgreSQL Replication Overview](../../images/PMM_PostgreSQL_Replication_Overview.png)
 
 
 ## Primary Host
