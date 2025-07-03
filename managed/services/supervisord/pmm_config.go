@@ -77,8 +77,7 @@ func saveConfig(path string, cfg []byte) (err error) {
 	return
 }
 
-var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Parse(`
-[unix_http_server]
+var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Parse(`[unix_http_server]
 chmod = 0700
 username = dummy
 password = dummy
@@ -89,7 +88,6 @@ password = dummy
 
 [program:pmm-init]
 command = /usr/bin/ansible-playbook /opt/ansible/pmm-docker/init.yml
-user = pmm
 directory = /
 autorestart = unexpected
 priority=-1
@@ -103,6 +101,7 @@ stdout_logfile = /srv/logs/pmm-init.log
 stdout_logfile_maxbytes = 20MB
 stdout_logfile_backups = 3
 redirect_stderr = true
+environment = ANSIBLE_CONFIG="/opt/ansible/ansible.cfg"
 {{- if not .DisableInternalDB }}
 
 [program:postgresql]
@@ -115,7 +114,6 @@ command =
         -c pg_stat_statements.track=all
         -c pg_stat_statements.save=off
         -c logging_collector=off
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -134,7 +132,6 @@ redirect_stderr = true
 [program:clickhouse]
 priority = 2
 command = /usr/bin/clickhouse-server --config-file=/etc/clickhouse-server/config.xml
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -152,7 +149,6 @@ redirect_stderr = true
 [program:nginx]
 priority = 4
 command = nginx
-user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -170,7 +166,6 @@ command =
     /usr/sbin/pmm-managed
         --victoriametrics-config=/etc/victoriametrics-promscrape.yml
         --supervisord-config-dir=/etc/supervisord.d
-user = pmm
 autorestart = true
 autostart = true
 startretries = 1000
@@ -184,8 +179,7 @@ redirect_stderr = true
 
 [program:pmm-agent]
 priority = 15
-command = /usr/sbin/pmm-agent --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml --paths-nomad-data-dir=/srv/nomad/data
-user = pmm
+command = /usr/sbin/pmm-agent --config-file=/usr/share/pmm-server/pmm-agent.yaml --paths-tempdir=/srv/pmm-agent/tmp --paths-nomad-data-dir=/srv/nomad/data
 autorestart = true
 autostart = false
 startretries = 1000
