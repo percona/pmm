@@ -8,7 +8,7 @@ To launch  PMM Server via AWS Marketplace:
 
 1. Go to [AWS Marketplace](https://aws.amazon.com/marketplace) and search for **Percona Monitoring and Management Server** or [access the PMM Server listing](https://aws.amazon.com/marketplace/pp/prodview-uww55ejutsnom) directly.
 
-2. Click **Continue to Subscribe** on the PMM Server listing page, review the terms and conditions, then click **Continue to Configuration**.
+2. Click **View purchase options** on the PMM Server listing page, review the terms and conditions, then click **Continue to Configuration**.
 
 3. Select the latest version (recommended), choose the AWS region where you want to deploy PMM, then click **Continue to Launch**.
 

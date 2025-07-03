@@ -35,8 +35,6 @@ As a reference, the [PMM Demo](https://pmmdemo.percona.com/) site consumes appro
 
 For 50 hosts with 30-day retention: 50 × 6.9 GB = 345 GB minimum storage. 
 
-For more information, see our blog post [How much disk space should I allocate for Percona Monitoring and Management](https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/).
-
 ### Storage recommendations
 
 - include 20-30% buffer for unexpected spikes and growth
@@ -48,6 +46,7 @@ For more information, see our blog post [How much disk space should I allocate f
 Plan your network configuration before deployment:
 
 Required ports:
+
 - port 22 (SSH) for administrative access
 - port 443 (HTTPS) for PMM web interface
 - port 3306 (MySQL) if monitoring RDS instances
