@@ -4,7 +4,7 @@ This dashboard monitors PostgreSQL's checkpoint behavior, buffer management, and
 
 Use this to correlate checkpoint activity with disk I/O patterns and understand their impact on your storage subsystem.
 
-![!image](../../images/PMM_PostgreSQL_Checkpoints_Buffers_WAL.png)
+![PMM PostgreSQL Checkpoint Buffers WAL](../../images/PMM_PostgreSQL_Checkpoints_Buffers_WAL.png)
 
 ## Checkpointing and WAL
 
