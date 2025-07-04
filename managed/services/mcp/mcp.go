@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -237,14 +238,26 @@ func parseQueryParams(queryID, periodStartStr, periodEndStr, filtersStr string) 
 	return params, nil
 }
 
+// explainResponse represents the structure of the explain action response
+type explainResponse struct {
+	ExplainResult string `json:"explain_result"`
+	Query         string `json:"explained_query"`
+	IsDMLQuery    bool   `json:"is_dml"`
+}
+
+// mysqlExplainOutput represents the structure of MySQL EXPLAIN FORMAT=JSON output
+type mysqlExplainOutput struct {
+	RealTableName string `json:"real_table_name,omitempty"`
+}
+
 func (m *Mcp) getTablesFromExplainAction(ctx context.Context, params *QueryParams, metadata *QueryMetadata) ([]string, error) {
 	m.l.WithFields(logrus.Fields{
 		"query_id": params.QueryID,
 	}).Debug("Attempting to get MySQL table names from EXPLAIN JSON")
 
 	explainActionRequest := actionsv1.StartServiceActionRequest{
-		Action: &actionsv1.StartServiceActionRequest_MysqlExplain{
-			MysqlExplain: &actionsv1.StartMySQLExplainActionParams{
+		Action: &actionsv1.StartServiceActionRequest_MysqlExplainJson{
+			MysqlExplainJson: &actionsv1.StartMySQLExplainJSONActionParams{
 				PmmAgentId: metadata.PMMAgentID,
 				ServiceId:  metadata.ServiceID,
 				Database:   metadata.Database,
@@ -260,7 +273,7 @@ func (m *Mcp) getTablesFromExplainAction(ctx context.Context, params *QueryParam
 	}
 
 	// Use responseActionOutput to get the action result
-	explainResult, err := m.responseActionOutput(ctx, explainAction.GetMysqlExplain().ActionId)
+	explainResult, err := m.responseActionOutput(ctx, explainAction.GetMysqlExplainJson().ActionId)
 	if err != nil {
 		return nil, err
 	}
@@ -268,21 +281,29 @@ func (m *Mcp) getTablesFromExplainAction(ctx context.Context, params *QueryParam
 	// The result content is expected to be TextContent with the action.Output
 	if len(explainResult.Content) > 0 {
 		if textContent, ok := explainResult.Content[0].(mcpgo.TextContent); ok {
-			jsonOutput := textContent.Text
+			// Parse the explain response structure
+			var explainResp explainResponse
+			if err := json.Unmarshal([]byte(textContent.Text), &explainResp); err != nil {
+				return nil, fmt.Errorf("failed to parse explain response: %w", err)
+			}
+			m.l.WithField("explainResp", explainResp.ExplainResult).Info("Explain response")
 
-			return extractTablesFromExplainJSON(jsonOutput)
+			// Decode the base64 encoded explain result
+			decodedExplain, err := base64.StdEncoding.DecodeString(explainResp.ExplainResult)
+			if err != nil {
+				return nil, fmt.Errorf("failed to decode base64 explain result: %w", err)
+			}
+
+			m.l.WithField("decodedExplain", string(decodedExplain)).Info("Decoded explain result")
+
+			return m.extractTablesFromExplainJSON(string(decodedExplain))
 		}
 	}
 
 	return nil, fmt.Errorf("unexpected explain action output format")
 }
 
-// mysqlExplainOutput represents the structure of MySQL EXPLAIN FORMAT=JSON output
-type mysqlExplainOutput struct {
-	RealTableName string `json:"real_table_name,omitempty"`
-}
-
-func extractTablesFromExplainJSON(jsonData string) ([]string, error) {
+func (m *Mcp) extractTablesFromExplainJSON(jsonData string) ([]string, error) {
 	var tables []string
 
 	// Parse the MySQL EXPLAIN JSON output
@@ -290,6 +311,8 @@ func extractTablesFromExplainJSON(jsonData string) ([]string, error) {
 	if err := json.Unmarshal([]byte(jsonData), &explainOutput); err != nil {
 		return nil, fmt.Errorf("invalid JSON: %w", err)
 	}
+
+	m.l.WithField("explainOutput", explainOutput).Info("Explain output")
 
 	// Check for "real_table_name" field
 	if explainOutput.RealTableName != "" {
@@ -610,14 +633,26 @@ func (m *Mcp) processTablesAction(ctx context.Context, queryID, periodStart, per
 			}
 		}
 
-		result := fmt.Sprintf("=== Table: %s ===\nAction ID: %s\nService: %s (%s)\nDatabase: %s\n",
-			tableName, actionID, metadata.ServiceID, metadata.ServiceType, metadata.Database)
+		actionResult, err := m.responseActionOutput(ctx, actionID)
+		if err != nil {
+			allErrors = append(allErrors, fmt.Sprintf("Table %s: failed to get action result for action ID %s: %v", tableName, actionID, err))
+			continue
+		}
+
+		resultContent := ""
+		if len(actionResult.Content) > 0 {
+			if textContent, ok := actionResult.Content[0].(mcpgo.TextContent); ok {
+				resultContent = textContent.Text
+			}
+		}
+
+		result := fmt.Sprintf("=== Table: %s ===\nService: %s (%s)\nDatabase: %s\n%s\n",
+			tableName, metadata.ServiceID, metadata.ServiceType, metadata.Database, resultContent)
 		allResults = append(allResults, result)
 	}
 
 	// Combine all results
-	finalResult := fmt.Sprintf("%s for query_id: %s\nTotal tables: %d\nPeriod: %s to %s\n\n",
-		resultPrefix, queryID, len(metadata.TableNames), params.PeriodStart.Format(time.RFC3339), params.PeriodEnd.Format(time.RFC3339))
+	finalResult := ""
 
 	if len(params.Filters) > 0 {
 		filtersJson, err := json.Marshal(params.Filters)
@@ -629,7 +664,7 @@ func (m *Mcp) processTablesAction(ctx context.Context, queryID, periodStart, per
 	}
 
 	if len(allResults) > 0 {
-		finalResult += "Successfully started actions:\n" + strings.Join(allResults, "\n")
+		finalResult += strings.Join(allResults, "\n")
 	}
 
 	if len(allErrors) > 0 {

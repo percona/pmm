@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Button,
@@ -49,25 +49,49 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
   const [showNewSessionForm, setShowNewSessionForm] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [sessionIdToDelete, setSessionIdToDelete] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const loadingRef = useRef(false); // Ref to track loading state reliably in scroll handler
 
   useEffect(() => {
     if (open) {
-      loadSessions();
+      setSessions([]); // Clear sessions when opening the dialog
+      setPage(1); // Reset page to 1
+      setHasMore(true); // Assume there are more sessions to load initially
+      loadSessions(1, true); // Load first page when dialog opens
     }
   }, [open]);
 
-  const loadSessions = async () => {
+  const loadSessions = async (pageNumber: number, reset: boolean = false) => {
+    if (loadingRef.current) return; // Prevent multiple simultaneous loads
+    
+    loadingRef.current = true;
     setLoading(true);
     setError(null);
     try {
-      const response = await aiChatAPI.listSessions(1, 50); // Load first 50 sessions
-      setSessions(response.sessions);
-      console.log('📋 Loaded sessions:', response.sessions.length, 'current:', currentSessionId);
+      const pageSize = 20; // Define page size
+      const response = await aiChatAPI.listSessions(pageNumber, pageSize);
+      
+      if (reset) {
+        setSessions(response.sessions);
+      } else {
+        setSessions(prev => [...prev, ...response.sessions]);
+      }
+
+      setHasMore(response.sessions.length === pageSize); // If fewer than pageSize, no more sessions
+      setPage(pageNumber);
     } catch (error) {
       console.error('Failed to load sessions:', error);
       setError('Failed to load chat sessions');
     } finally {
       setLoading(false);
+      loadingRef.current = false;
+    }
+  };
+
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      loadSessions(page + 1);
     }
   };
 
@@ -176,7 +200,7 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
         </Box>
       </DialogTitle>
       
-      <DialogContent>
+      <DialogContent dividers>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
@@ -199,140 +223,142 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
                 fontSize: '0.875rem'
               }}
             >
-              Create New Session (or just start typing a message)
+              New Session
             </Button>
           ) : (
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               <TextField
-                size="small"
-                placeholder="Enter session title..."
+                autoFocus
+                margin="dense"
+                label="New Session Title"
+                type="text"
+                fullWidth
+                variant="outlined"
                 value={newSessionTitle}
                 onChange={(e) => setNewSessionTitle(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleCreateSession()}
-                sx={{ flexGrow: 1 }}
-              />
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleCreateSession}
-                disabled={!newSessionTitle.trim()}
-              >
-                Create
-              </Button>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => {
-                  setShowNewSessionForm(false);
-                  setNewSessionTitle('');
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleCreateSession();
+                  }
                 }}
-              >
-                Cancel
-              </Button>
+              />
+              <Button onClick={handleCreateSession} variant="contained">Create</Button>
+              <Button onClick={() => setShowNewSessionForm(false)} variant="outlined">Cancel</Button>
             </Box>
           )}
         </Box>
 
-        <Divider sx={{ mb: 2 }} />
-
-        {/* Sessions List */}
-        {loading ? (
-          <Box display="flex" justifyContent="center" p={3}>
-            <CircularProgress />
-          </Box>
-        ) : sessions.length === 0 ? (
-          <Box textAlign="center" p={3}>
-            <ChatIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
-            <Typography color="textSecondary" variant="body1" gutterBottom>
-              No chat sessions yet
+        <List dense>
+          {sessions.length === 0 && !loading && !error && (
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+              No chat sessions found.
             </Typography>
-            <Typography color="textSecondary" variant="body2">
-              Sessions are created automatically when you send your first message
-            </Typography>
-          </Box>
-        ) : (
-          <List>
-            {sessions.map((session) => (
-              <ListItem
-                key={session.id}
-                button
-                onClick={() => handleSessionSelect(session.id)}
-                sx={{
-                  border: 1,
-                  borderColor: session.id === currentSessionId ? 'primary.main' : 'divider',
-                  borderRadius: 1,
-                  mb: 1,
-                  backgroundColor: session.id === currentSessionId ? 'action.selected' : 'transparent',
-                }}
-              >
-                <ListItemText
-                  primary={
-                    editingSession?.id === session.id ? (
-                      <TextField
-                        size="small"
-                        value={editTitle}
-                        onChange={(e) => setEditTitle(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            handleEditSession(session);
-                          } else if (e.key === 'Escape') {
-                            setEditingSession(null);
-                            setEditTitle('');
-                          }
-                        }}
-                        onBlur={() => handleEditSession(session)}
-                        autoFocus
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    ) : (
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <Typography variant="subtitle2">{session.title}</Typography>
-                        {session.id === currentSessionId && (
-                          <Chip label="Current" size="small" color="primary" />
-                        )}
-                      </Box>
-                    )
-                  }
-                  secondary={`Created ${formatDate(session.created_at)} • Updated ${formatDate(session.updated_at)}`}
-                />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingSession(session);
-                      setEditTitle(session.title);
-                    }}
-                    disabled={editingSession?.id === session.id}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSessionIdToDelete(session.id);
-                      setDeleteDialogOpen(true);
-                    }}
-                    disabled={session.id === currentSessionId}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-        )}
+          )}
+          {sessions.map(session => (
+            <ListItem
+              key={session.id}
+              button
+              selected={session.id === currentSessionId}
+              onClick={() => handleSessionSelect(session.id)}
+              sx={{ borderRadius: 1, mb: 0.5 }}
+            >
+              <ListItemText 
+                primary={session.title || 'Untitled Session'}
+                secondary={formatDate(session.created_at)}
+              />
+              <ListItemSecondaryAction>
+                <IconButton
+                  edge="end"
+                  aria-label="edit"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingSession(session);
+                    setEditTitle(session.title || '');
+                  }}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSessionIdToDelete(session.id);
+                    setDeleteDialogOpen(true);
+                  }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </ListItemSecondaryAction>
+            </ListItem>
+          ))}
+          {loading && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+              <CircularProgress size={24} />
+            </Box>
+          )}
+          {!loading && hasMore && (
+            <Button
+              onClick={handleLoadMore}
+              fullWidth
+              variant="outlined"
+              sx={{ mt: 2 }}
+            >
+              Load More
+            </Button>
+          )}
+        </List>
       </DialogContent>
 
       <DialogActions>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
 
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle>Delete Session</DialogTitle>
+      {/* Edit Session Dialog */}
+      <Dialog
+        open={!!editingSession}
+        onClose={() => setEditingSession(null)}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Edit Session Title</DialogTitle>
         <DialogContent>
-          <Typography>Are you sure you want to delete this session?</Typography>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Session Title"
+            type="text"
+            fullWidth
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleEditSession(editingSession!); // eslint-disable-line @typescript-eslint/no-non-null-assertion
+              }
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditingSession(null)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={() => handleEditSession(editingSession!)} color="primary">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+        <DialogContent>
+          <Typography id="alert-dialog-description">
+            Are you sure you want to delete this session? This action cannot be undone.
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteDialogOpen(false)} color="primary">
@@ -342,12 +368,12 @@ export const SessionSelector: React.FC<SessionSelectorProps> = ({
             onClick={() => {
               if (sessionIdToDelete) {
                 handleDeleteSession(sessionIdToDelete);
+                setDeleteDialogOpen(false);
+                setSessionIdToDelete(null);
               }
-              setDeleteDialogOpen(false);
-              setSessionIdToDelete(null);
             }}
-            color="error"
-            variant="contained"
+            color="primary" 
+            autoFocus
           >
             Delete
           </Button>

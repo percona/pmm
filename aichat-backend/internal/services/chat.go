@@ -638,12 +638,9 @@ func (s *ChatService) executeToolCalls(ctx context.Context, toolCalls []models.T
 func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.ToolApprovalResponse) (<-chan *models.StreamMessage, error) {
 	s.l.WithField("request_id", approval.RequestID).Debug("Processing tool approval for request")
 
-	s.approvalsMu.Lock()
+	s.approvalsMu.RLock()
 	approvalRequest, exists := s.pendingApprovals[approval.RequestID]
-	if exists {
-		delete(s.pendingApprovals, approval.RequestID)
-	}
-	s.approvalsMu.Unlock()
+	s.approvalsMu.RUnlock()
 
 	if !exists {
 		return nil, fmt.Errorf("approval request %s not found or expired", approval.RequestID)
@@ -656,25 +653,70 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 	go func() {
 		defer close(outputChan)
 
+		s.sessionsMu.Lock()
+		session := s.getOrCreateSessionForUser(approval.UserID, approval.SessionID)
+		s.sessionsMu.Unlock()
+
 		if !approval.Approved {
 			s.l.WithField("request_id", approval.RequestID).Warn("Tool execution denied by user")
+
+			// Notify user about denial
 			outputChan <- &models.StreamMessage{
 				Type:      "message",
 				Content:   "❌ Tool execution was denied by user.",
 				SessionID: approval.SessionID,
 			}
+
+			// Add denial message to conversation context so LLM knows what happened
+			denialMessage := &models.Message{
+				ID:        s.generateID("tool_denial"),
+				Role:      "tool",
+				Content:   fmt.Sprintf("Tool execution was denied by the user. The following %d tool(s) were not executed: %s", len(approvalRequest.ToolCalls), s.formatToolNames(approvalRequest.ToolCalls)),
+				Timestamp: time.Now(),
+			}
+			s.addMessageToSession(ctx, approval.SessionID, session, denialMessage)
+
+			// Get updated messages for LLM
+			s.sessionsMu.Lock()
+			allMessages := make([]*models.Message, len(session.Messages))
+			copy(allMessages, session.Messages)
+			s.sessionsMu.Unlock()
+
+			// Send notification that LLM is processing the denial
 			outputChan <- &models.StreamMessage{
-				Type:      "done",
+				Type:      "message",
+				Content:   "\n🤖 Understanding your decision...\n\n",
 				SessionID: approval.SessionID,
 			}
+
+			// Get available tools for follow-up
+			tools := s.mcp.GetTools()
+
+			// Get follow-up response from LLM so it can acknowledge the denial and suggest alternatives
+			preparedMessages := s.prepareMessagesWithSystemPrompt(allMessages)
+			followUpChan, err := s.llmProvider.GenerateStreamResponse(ctx, preparedMessages, tools)
+			if err != nil {
+				s.l.WithError(err).Error("Failed to get follow-up response after tool denial")
+				outputChan <- &models.StreamMessage{
+					Type:      "error",
+					Error:     fmt.Sprintf("Failed to get follow-up response: %v", err),
+					SessionID: approval.SessionID,
+				}
+				outputChan <- &models.StreamMessage{
+					Type:      "done",
+					SessionID: approval.SessionID,
+				}
+				return
+			}
+
+			// Process follow-up streaming response
+			var fullContent string
+			var messageCount int
+			s.handleStreamMessage(ctx, approval.SessionID, session, followUpChan, outputChan, &fullContent, tools, &messageCount)
 			return
 		}
 
 		s.l.WithField("request_id", approval.RequestID).Debug("Tool execution approved by user")
-
-		s.sessionsMu.Lock()
-		session := s.getOrCreateSessionForUser(approval.UserID, approval.SessionID)
-		s.sessionsMu.Unlock()
 
 		s.l.WithFields(logrus.Fields{
 			"session_id": approval.SessionID,
@@ -731,6 +773,12 @@ func (s *ChatService) ProcessToolApproval(ctx context.Context, approval *models.
 				lastMsg.ToolExecutions = toolExecutions
 			}
 		}
+
+		s.approvalsMu.Lock()
+		if exists {
+			delete(s.pendingApprovals, approval.RequestID)
+		}
+		s.approvalsMu.Unlock()
 
 		// Tool result messages are already added to session by executeToolCalls
 		// Get updated messages for LLM
@@ -1111,4 +1159,13 @@ func (s *ChatService) loadPendingApprovalsFromDB(ctx context.Context, sessionID 
 // generateID generates a unique ID with a given prefix
 func (s *ChatService) generateID(prefix string) string {
 	return fmt.Sprintf("%s_%s", prefix, uuid.New().String())
+}
+
+// formatToolNames creates a comma-separated list of tool names for logging/messaging
+func (s *ChatService) formatToolNames(toolCalls []models.ToolCall) string {
+	var names []string
+	for _, tc := range toolCalls {
+		names = append(names, tc.Function.Name)
+	}
+	return strings.Join(names, ", ")
 }

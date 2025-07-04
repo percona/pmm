@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -135,6 +136,11 @@ func TestMCPServiceCreation(t *testing.T) {
 }
 
 func TestExtractTablesFromExplainJSON(t *testing.T) {
+	// Create a dummy Mcp instance for testing the method
+	dummyMcp := &Mcp{
+		l: logrus.NewEntry(logrus.New()), // Provide a logger to avoid nil panics
+	}
+
 	tests := []struct {
 		name     string
 		jsonData string
@@ -186,7 +192,7 @@ func TestExtractTablesFromExplainJSON(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := extractTablesFromExplainJSON(tt.jsonData)
+			got, err := dummyMcp.extractTablesFromExplainJSON(tt.jsonData)
 
 			if tt.wantErr {
 				assert.Error(t, err, "Expected error for test case: %s", tt.name)
@@ -200,6 +206,11 @@ func TestExtractTablesFromExplainJSON(t *testing.T) {
 }
 
 func TestExtractTablesFromExplainJSON_RealWorldExample(t *testing.T) {
+	// Create a dummy Mcp instance for testing the method
+	dummyMcp := &Mcp{
+		l: logrus.NewEntry(logrus.New()), // Provide a logger to avoid nil panics
+	}
+
 	realWorldJSON := `{
 		"query_block": {
 			"cost_info": {
@@ -327,7 +338,7 @@ func TestExtractTablesFromExplainJSON_RealWorldExample(t *testing.T) {
 
 	expected := []string{"users"}
 
-	got, err := extractTablesFromExplainJSON(realWorldJSON)
+	got, err := dummyMcp.extractTablesFromExplainJSON(realWorldJSON)
 	assert.NoError(t, err, "Should not error when parsing real-world JSON")
 
 	assert.Equal(t, expected, got, "Should extract the correct table name from real-world JSON")

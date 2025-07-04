@@ -12,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/aichat-backend/internal/models"
 	"github.com/percona/pmm/aichat-backend/internal/services"
@@ -20,12 +21,14 @@ import (
 // ChatHandler handles HTTP requests for chat functionality
 type ChatHandler struct {
 	chatService *services.ChatService
+	l           *logrus.Entry
 }
 
 // NewChatHandler creates a new chat handler
 func NewChatHandler(chatService *services.ChatService) *ChatHandler {
 	return &ChatHandler{
 		chatService: chatService,
+		l:           logrus.WithField("component", "chat-handler"),
 	}
 }
 
@@ -64,6 +67,7 @@ func (h *ChatHandler) collectStreamResponse(streamChan <-chan *models.StreamMess
 func (h *ChatHandler) SendMessage(c *gin.Context) {
 	var request models.ChatRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
+		h.l.WithError(err).Error("Failed to bind JSON request")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid request format",
 		})
@@ -86,6 +90,11 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 		// For streaming requests, initiate the stream and return stream info
 		streamID, err := h.chatService.InitiateStreamForUser(ctx, userID, request.SessionID, request.Message)
 		if err != nil {
+			h.l.WithFields(logrus.Fields{
+				"user_id":    userID,
+				"session_id": request.SessionID,
+				"error":      err,
+			}).Error("Failed to initiate stream")
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": fmt.Sprintf("Failed to initiate stream: %v", err),
 			})
@@ -111,6 +120,11 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 		// Non-streaming request - get stream channel and collect all results
 		streamChan, err := h.chatService.ProcessStreamMessageForUser(ctx, userID, request.SessionID, request.Message)
 		if err != nil {
+			h.l.WithFields(logrus.Fields{
+				"user_id":    userID,
+				"session_id": request.SessionID,
+				"error":      err,
+			}).Error("Failed to process message")
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": fmt.Sprintf("Failed to process message: %v", err),
 			})
@@ -127,6 +141,7 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 func (h *ChatHandler) ClearHistory(c *gin.Context) {
 	sessionID := c.Query("session_id")
 	if sessionID == "" {
+		h.l.Error("Clear history request missing session_id parameter")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "session_id parameter is required",
 		})
@@ -152,6 +167,7 @@ func (h *ChatHandler) StreamChat(c *gin.Context) {
 	message := c.Query("message")
 
 	if message == "" {
+		h.l.Error("Stream chat request missing message parameter")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "message parameter is required",
 		})
@@ -177,6 +193,11 @@ func (h *ChatHandler) StreamChat(c *gin.Context) {
 	// Process streaming message
 	streamChan, err := h.chatService.ProcessStreamMessageForUser(ctx, userID, sessionID, message)
 	if err != nil {
+		h.l.WithFields(logrus.Fields{
+			"user_id":    userID,
+			"session_id": sessionID,
+			"error":      err,
+		}).Error("Failed to process streaming message")
 		// Send error as SSE
 		c.SSEvent("error", gin.H{
 			"error": "Failed to process message: " + err.Error(),
@@ -201,6 +222,7 @@ func (h *ChatHandler) StreamChat(c *gin.Context) {
 func (h *ChatHandler) StreamByID(c *gin.Context) {
 	streamID := c.Param("streamId")
 	if streamID == "" {
+		h.l.Error("Stream by ID request missing streamId parameter")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "stream ID is required",
 		})
@@ -226,6 +248,11 @@ func (h *ChatHandler) StreamByID(c *gin.Context) {
 	streamChan, err := h.chatService.ConnectToStream(ctx, userID, streamID)
 	cancel() // Cancel immediately after connecting, the stream itself has its own timeout
 	if err != nil {
+		h.l.WithFields(logrus.Fields{
+			"user_id":   userID,
+			"stream_id": streamID,
+			"error":     err,
+		}).Error("Failed to connect to stream")
 		// Send error as SSE
 		c.SSEvent("error", gin.H{
 			"error": "Failed to connect to stream: " + err.Error(),
@@ -254,6 +281,7 @@ func (h *ChatHandler) GetMCPTools(c *gin.Context) {
 	if forceRefresh {
 		// Force refresh tools from MCP servers
 		if err := h.chatService.RefreshTools(); err != nil {
+			h.l.WithError(err).Error("Failed to refresh MCP tools")
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": fmt.Sprintf("Failed to refresh tools: %v", err),
 			})
@@ -287,6 +315,7 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 	// Parse multipart form
 	err := c.Request.ParseMultipartForm(64 << 20) // 64 MB max memory
 	if err != nil {
+		h.l.WithError(err).Error("Failed to parse multipart form")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to parse multipart form: " + err.Error(),
 		})
@@ -296,6 +325,7 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 	// Get message and session_id from form
 	message := c.PostForm("message")
 	if message == "" {
+		h.l.Error("Send message with files request missing message field")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "message field is required",
 		})
@@ -317,6 +347,10 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 				// Read file content
 				file, err := fileHeader.Open()
 				if err != nil {
+					h.l.WithFields(logrus.Fields{
+						"filename": fileHeader.Filename,
+						"error":    err,
+					}).Error("Failed to open uploaded file")
 					c.JSON(http.StatusBadRequest, gin.H{
 						"error": "Failed to open file: " + err.Error(),
 					})
@@ -327,6 +361,10 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 				mimeType := fileHeader.Header.Get("Content-Type")
 				if _, ok := allowedMIMETypes[mimeType]; !ok {
 					file.Close()
+					h.l.WithFields(logrus.Fields{
+						"filename":  fileHeader.Filename,
+						"mime_type": mimeType,
+					}).Error("File type not allowed")
 					c.JSON(http.StatusBadRequest, gin.H{
 						"error": "File type not allowed: " + mimeType,
 					})
@@ -337,6 +375,10 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 				content, err := io.ReadAll(file)
 				file.Close() // Explicitly close after reading
 				if err != nil {
+					h.l.WithFields(logrus.Fields{
+						"filename": fileHeader.Filename,
+						"error":    err,
+					}).Error("Failed to read uploaded file")
 					c.JSON(http.StatusBadRequest, gin.H{
 						"error": "Failed to read file: " + err.Error(),
 					})
@@ -356,6 +398,10 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 				if len(content) < 10*1024*1024 { // 10MB
 					attachment.Content = base64.StdEncoding.EncodeToString(content)
 				} else {
+					h.l.WithFields(logrus.Fields{
+						"filename": fileHeader.Filename,
+						"size":     len(content),
+					}).Error("File too large")
 					c.JSON(http.StatusBadRequest, gin.H{
 						"error": "File too large. Maximum size is 10MB per file.",
 					})
@@ -398,6 +444,12 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 		// Note: We could extend InitiateStreamForUser to support attachments, but for now use a different approach
 		streamChan, err := h.chatService.ProcessStreamMessageWithAttachmentsForUser(ctx, userID, request.SessionID, request.Message, attachmentPtrs)
 		if err != nil {
+			h.l.WithFields(logrus.Fields{
+				"user_id":          userID,
+				"session_id":       request.SessionID,
+				"attachment_count": len(attachments),
+				"error":            err,
+			}).Error("Failed to initiate stream with attachments")
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": fmt.Sprintf("Failed to initiate stream: %v", err),
 			})
@@ -422,6 +474,11 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 			// For tool approval messages, use the regular stream processing
 			streamChan, err := h.chatService.ProcessStreamMessageForUser(ctx, userID, request.SessionID, request.Message)
 			if err != nil {
+				h.l.WithFields(logrus.Fields{
+					"user_id":    userID,
+					"session_id": request.SessionID,
+					"error":      err,
+				}).Error("Failed to process tool approval message")
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"error": fmt.Sprintf("Failed to process message: %v", err),
 				})
@@ -435,6 +492,12 @@ func (h *ChatHandler) SendMessageWithFiles(c *gin.Context) {
 		// Non-streaming request - get stream channel and collect all results
 		streamChan, err := h.chatService.ProcessStreamMessageWithAttachmentsForUser(ctx, userID, request.SessionID, request.Message, attachmentPtrs)
 		if err != nil {
+			h.l.WithFields(logrus.Fields{
+				"user_id":          userID,
+				"session_id":       request.SessionID,
+				"attachment_count": len(attachments),
+				"error":            err,
+			}).Error("Failed to process message with attachments")
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": fmt.Sprintf("Failed to process message: %v", err),
 			})
