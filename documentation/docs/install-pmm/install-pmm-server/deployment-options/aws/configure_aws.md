@@ -198,7 +198,7 @@ free -h
 docker stats pmm-server
 
 # For t3.medium (4GB RAM), adjust memory limits:
-# Prometheus: 1GB, ClickHouse: 1GB, Grafana: 512MB
+# VictoriaMetrics: 1GB, ClickHouse: 1GB, Grafana: 512MB
 ```
 Scale memory allocations proportionally for larger instances.
 
