@@ -66,8 +66,8 @@ func (m *Mcp) Server() *server.MCPServer {
 		),
 	), mcpgo.NewTypedToolHandler(m.explain))
 
-	mcpServer.AddTool(mcpgo.NewTool("show_tables_definition",
-		mcpgo.WithDescription("Shows table DDL for all tables referenced in the query. Supports MySQL and PostgreSQL service types."),
+	mcpServer.AddTool(mcpgo.NewTool("show_table_info",
+		mcpgo.WithDescription("Shows comprehensive table information including DDL and indexes. Supports MySQL and PostgreSQL service types."),
 		mcpgo.WithString("query_id",
 			mcpgo.Description("Query ID"),
 			mcpgo.Required(),
@@ -81,24 +81,13 @@ func (m *Mcp) Server() *server.MCPServer {
 		mcpgo.WithString("filters",
 			mcpgo.Description("Additional filters in JSON format. Optional"),
 		),
-	), mcpgo.NewTypedToolHandler(m.ShowTables))
-
-	mcpServer.AddTool(mcpgo.NewTool("show_index",
-		mcpgo.WithDescription("Shows index details for all tables referenced in the query. Supports MySQL and PostgreSQL service types."),
-		mcpgo.WithString("query_id",
-			mcpgo.Description("Query ID"),
-			mcpgo.Required(),
+		mcpgo.WithString("tables",
+			mcpgo.Description("Comma-separated list of tables. Overrides tables discovered from query_id. Try to parse tables from query text if not provided. Optional."),
 		),
-		mcpgo.WithString("period_start",
-			mcpgo.Description("Period start time (RFC3339 format). Optional, defaults to 24 hours ago"),
+		mcpgo.WithString("info_types",
+			mcpgo.Description("Comma-separated list of info types to include: 'definition', 'indexes', or 'all'. Defaults to 'all'. Optional."),
 		),
-		mcpgo.WithString("period_end",
-			mcpgo.Description("Period end time (RFC3339 format). Optional, defaults to now"),
-		),
-		mcpgo.WithString("filters",
-			mcpgo.Description("Additional filters in JSON format. Optional"),
-		),
-	), mcpgo.NewTypedToolHandler(m.ShowIndex))
+	), mcpgo.NewTypedToolHandler(m.ShowTableInfo))
 
 	mcpServer.AddTool(mcpgo.NewTool("qan_get_report",
 		mcpgo.WithDescription("Gets QAN metrics report grouped by queryid or other dimensions. Returns aggregated performance metrics for queries over a specified time period."),
@@ -508,11 +497,13 @@ func (m *Mcp) responseActionOutput(ctx context.Context, actionID string) (*mcpgo
 	}
 }
 
-type showTablesArgs struct {
+type showTableInfoArgs struct {
 	QueryID     string `json:"query_id"`
 	PeriodStart string `json:"period_start,omitempty"`
 	PeriodEnd   string `json:"period_end,omitempty"`
 	Filters     string `json:"filters,omitempty"`
+	Tables      string `json:"tables,omitempty"`
+	InfoTypes   string `json:"info_types,omitempty"`
 }
 
 // actionType represents the type of database action to perform
@@ -523,8 +514,8 @@ const (
 	actionShowIndex  actionType = "show_index"
 )
 
-// processTablesAction is a helper method that processes tables for different action types
-func (m *Mcp) processTablesAction(ctx context.Context, queryID, periodStart, periodEnd, filters string, action actionType, logMessage, resultPrefix string) (*mcpgo.CallToolResult, error) {
+// processTableInfoAction is a helper method that processes comprehensive table information
+func (m *Mcp) processTableInfoAction(ctx context.Context, queryID, periodStart, periodEnd, filters, tables, infoTypes string) (*mcpgo.CallToolResult, error) {
 	params, err := parseQueryParams(queryID, periodStart, periodEnd, filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse query parameters: %w", err)
@@ -535,134 +526,149 @@ func (m *Mcp) processTablesAction(ctx context.Context, queryID, periodStart, per
 		return nil, fmt.Errorf("failed to resolve metadata for query_id %s: %w", queryID, err)
 	}
 
-	if len(metadata.TableNames) == 0 {
+	tableNames := metadata.TableNames
+	if tables != "" {
+		tableNames = strings.Split(tables, ",")
+		for i := range tableNames {
+			tableNames[i] = strings.TrimSpace(tableNames[i])
+		}
+	}
+
+	if len(tableNames) == 0 {
 		return nil, fmt.Errorf("no tables found for query_id %s", queryID)
 	}
 
-	m.l.WithFields(logrus.Fields{
-		"query_id":    queryID,
-		"table_count": len(metadata.TableNames),
-		"tables":      metadata.TableNames,
-	}).Info(logMessage)
+	// Parse info types
+	includeDefinition := true
+	includeIndexes := true
+	if infoTypes != "" {
+		includeDefinition = false
+		includeIndexes = false
+		types := strings.Split(infoTypes, ",")
+		for _, t := range types {
+			switch strings.TrimSpace(t) {
+			case "definition":
+				includeDefinition = true
+			case "indexes":
+				includeIndexes = true
+			case "all":
+				includeDefinition = true
+				includeIndexes = true
+			}
+		}
+	}
 
-	// Prepare to collect results for all tables
+	m.l.WithFields(logrus.Fields{
+		"query_id":           queryID,
+		"table_count":        len(tableNames),
+		"tables":             tableNames,
+		"include_definition": includeDefinition,
+		"include_indexes":    includeIndexes,
+	}).Info("Getting comprehensive table information")
+
+	// Create channels for results and errors
+	type tableResult struct {
+		tableName  string
+		definition string
+		indexes    string
+		defError   error
+		idxError   error
+	}
+
+	resultChan := make(chan tableResult, len(tableNames))
+
+	// Process all tables concurrently
+	for _, tableName := range tableNames {
+		go func(name string) {
+			result := tableResult{tableName: name}
+
+			// Create a channel for concurrent definition and index fetching
+			type actionResult struct {
+				actionType actionType
+				content    string
+				err        error
+			}
+			actionChan := make(chan actionResult, 2)
+
+			// Fetch definition and indexes concurrently for this table
+			if includeDefinition {
+				go func() {
+					content, err := m.executeTableAction(ctx, metadata, name, actionShowTables)
+					actionChan <- actionResult{actionShowTables, content, err}
+				}()
+			}
+
+			if includeIndexes {
+				go func() {
+					content, err := m.executeTableAction(ctx, metadata, name, actionShowIndex)
+					actionChan <- actionResult{actionShowIndex, content, err}
+				}()
+			}
+
+			// Collect results for this table
+			expectedResults := 0
+			if includeDefinition {
+				expectedResults++
+			}
+			if includeIndexes {
+				expectedResults++
+			}
+
+			for i := 0; i < expectedResults; i++ {
+				actionRes := <-actionChan
+				switch actionRes.actionType {
+				case actionShowTables:
+					result.definition = actionRes.content
+					result.defError = actionRes.err
+				case actionShowIndex:
+					result.indexes = actionRes.content
+					result.idxError = actionRes.err
+				}
+			}
+
+			resultChan <- result
+		}(tableName)
+	}
+
+	// Collect all results
 	var allResults []string
 	var allErrors []string
 
-	// Process each table
-	for _, tableName := range metadata.TableNames {
-		var actionRequest actionsv1.StartServiceActionRequest
-		switch metadata.ServiceType {
-		case "mysql":
-			switch action {
-			case actionShowTables:
-				actionRequest = actionsv1.StartServiceActionRequest{
-					Action: &actionsv1.StartServiceActionRequest_MysqlShowCreateTable{
-						MysqlShowCreateTable: &actionsv1.StartMySQLShowCreateTableActionParams{
-							PmmAgentId: metadata.PMMAgentID,
-							ServiceId:  metadata.ServiceID,
-							TableName:  tableName,
-							Database:   metadata.Database,
-						},
-					},
-				}
-			case actionShowIndex:
-				actionRequest = actionsv1.StartServiceActionRequest{
-					Action: &actionsv1.StartServiceActionRequest_MysqlShowIndex{
-						MysqlShowIndex: &actionsv1.StartMySQLShowIndexActionParams{
-							PmmAgentId: metadata.PMMAgentID,
-							ServiceId:  metadata.ServiceID,
-							TableName:  tableName,
-							Database:   metadata.Database,
-						},
-					},
-				}
-			}
-		case "postgresql":
-			switch action {
-			case actionShowTables:
-				actionRequest = actionsv1.StartServiceActionRequest{
-					Action: &actionsv1.StartServiceActionRequest_PostgresShowCreateTable{
-						PostgresShowCreateTable: &actionsv1.StartPostgreSQLShowCreateTableActionParams{
-							PmmAgentId: metadata.PMMAgentID,
-							ServiceId:  metadata.ServiceID,
-							TableName:  tableName,
-							Database:   metadata.Database,
-						},
-					},
-				}
-			case actionShowIndex:
-				actionRequest = actionsv1.StartServiceActionRequest{
-					Action: &actionsv1.StartServiceActionRequest_PostgresShowIndex{
-						PostgresShowIndex: &actionsv1.StartPostgreSQLShowIndexActionParams{
-							PmmAgentId: metadata.PMMAgentID,
-							ServiceId:  metadata.ServiceID,
-							TableName:  tableName,
-							Database:   metadata.Database,
-						},
-					},
-				}
-			}
-		default:
-			allErrors = append(allErrors, fmt.Sprintf("Table %s: unsupported service type: %s", tableName, metadata.ServiceType))
-			continue
-		}
+	for i := 0; i < len(tableNames); i++ {
+		result := <-resultChan
 
-		resp, err := m.actionServer.StartServiceAction(ctx, &actionRequest)
-		if err != nil {
-			allErrors = append(allErrors, fmt.Sprintf("Table %s: failed to start action: %v", tableName, err))
-			continue
-		}
+		var tableResult strings.Builder
+		tableResult.WriteString(fmt.Sprintf("=== Table: %s ===\n", result.tableName))
+		tableResult.WriteString(fmt.Sprintf("Service: %s (%s)\n", metadata.ServiceID, metadata.ServiceType))
+		tableResult.WriteString(fmt.Sprintf("Database: %s\n\n", metadata.Database))
 
-		// Extract action ID from response
-		var actionID string
-		switch metadata.ServiceType {
-		case "mysql":
-			switch action {
-			case actionShowTables:
-				actionID = resp.GetMysqlShowCreateTable().ActionId
-			case actionShowIndex:
-				actionID = resp.GetMysqlShowIndex().ActionId
-			}
-		case "postgresql":
-			switch action {
-			case actionShowTables:
-				actionID = resp.GetPostgresqlShowCreateTable().ActionId
-			case actionShowIndex:
-				actionID = resp.GetPostgresqlShowIndex().ActionId
+		// Add table definition if requested and successful
+		if includeDefinition {
+			if result.defError != nil {
+				allErrors = append(allErrors, fmt.Sprintf("Table %s definition: %v", result.tableName, result.defError))
+			} else {
+				tableResult.WriteString("--- Table Definition ---\n")
+				tableResult.WriteString(result.definition)
+				tableResult.WriteString("\n")
 			}
 		}
 
-		actionResult, err := m.responseActionOutput(ctx, actionID)
-		if err != nil {
-			allErrors = append(allErrors, fmt.Sprintf("Table %s: failed to get action result for action ID %s: %v", tableName, actionID, err))
-			continue
-		}
-
-		resultContent := ""
-		if len(actionResult.Content) > 0 {
-			if textContent, ok := actionResult.Content[0].(mcpgo.TextContent); ok {
-				resultContent = textContent.Text
+		// Add table indexes if requested and successful
+		if includeIndexes {
+			if result.idxError != nil {
+				allErrors = append(allErrors, fmt.Sprintf("Table %s indexes: %v", result.tableName, result.idxError))
+			} else {
+				tableResult.WriteString("--- Table Indexes ---\n")
+				tableResult.WriteString(result.indexes)
+				tableResult.WriteString("\n")
 			}
 		}
 
-		result := fmt.Sprintf("=== Table: %s ===\nService: %s (%s)\nDatabase: %s\n%s\n",
-			tableName, metadata.ServiceID, metadata.ServiceType, metadata.Database, resultContent)
-		allResults = append(allResults, result)
+		allResults = append(allResults, tableResult.String())
 	}
 
 	// Combine all results
 	finalResult := ""
-
-	if len(params.Filters) > 0 {
-		filtersJson, err := json.Marshal(params.Filters)
-		if err != nil {
-			m.l.WithError(err).Error("Failed to marshal filters for result output")
-			return nil, fmt.Errorf("failed to marshal filters: %w", err)
-		}
-		finalResult += fmt.Sprintf("Filters: %s\n\n", string(filtersJson))
-	}
-
 	if len(allResults) > 0 {
 		finalResult += strings.Join(allResults, "\n")
 	}
@@ -681,25 +687,107 @@ func (m *Mcp) processTablesAction(ctx context.Context, queryID, periodStart, per
 	}, nil
 }
 
-func (m *Mcp) ShowTables(ctx context.Context, request mcpgo.CallToolRequest, args showTablesArgs) (*mcpgo.CallToolResult, error) {
-	m.l.WithField("args", args).Info("Received show tables request")
+// executeTableAction executes a specific action for a table and returns the result content
+func (m *Mcp) executeTableAction(ctx context.Context, metadata *QueryMetadata, tableName string, action actionType) (string, error) {
+	var actionRequest actionsv1.StartServiceActionRequest
+	switch metadata.ServiceType {
+	case "mysql":
+		switch action {
+		case actionShowTables:
+			actionRequest = actionsv1.StartServiceActionRequest{
+				Action: &actionsv1.StartServiceActionRequest_MysqlShowCreateTable{
+					MysqlShowCreateTable: &actionsv1.StartMySQLShowCreateTableActionParams{
+						PmmAgentId: metadata.PMMAgentID,
+						ServiceId:  metadata.ServiceID,
+						TableName:  tableName,
+						Database:   metadata.Database,
+					},
+				},
+			}
+		case actionShowIndex:
+			actionRequest = actionsv1.StartServiceActionRequest{
+				Action: &actionsv1.StartServiceActionRequest_MysqlShowIndex{
+					MysqlShowIndex: &actionsv1.StartMySQLShowIndexActionParams{
+						PmmAgentId: metadata.PMMAgentID,
+						ServiceId:  metadata.ServiceID,
+						TableName:  tableName,
+						Database:   metadata.Database,
+					},
+				},
+			}
+		}
+	case "postgresql":
+		switch action {
+		case actionShowTables:
+			actionRequest = actionsv1.StartServiceActionRequest{
+				Action: &actionsv1.StartServiceActionRequest_PostgresShowCreateTable{
+					PostgresShowCreateTable: &actionsv1.StartPostgreSQLShowCreateTableActionParams{
+						PmmAgentId: metadata.PMMAgentID,
+						ServiceId:  metadata.ServiceID,
+						TableName:  tableName,
+						Database:   metadata.Database,
+					},
+				},
+			}
+		case actionShowIndex:
+			actionRequest = actionsv1.StartServiceActionRequest{
+				Action: &actionsv1.StartServiceActionRequest_PostgresShowIndex{
+					PostgresShowIndex: &actionsv1.StartPostgreSQLShowIndexActionParams{
+						PmmAgentId: metadata.PMMAgentID,
+						ServiceId:  metadata.ServiceID,
+						TableName:  tableName,
+						Database:   metadata.Database,
+					},
+				},
+			}
+		}
+	default:
+		return "", fmt.Errorf("unsupported service type: %s", metadata.ServiceType)
+	}
 
-	return m.processTablesAction(ctx, args.QueryID, args.PeriodStart, args.PeriodEnd, args.Filters,
-		actionShowTables, "Getting DDL for all tables", "Table DDL requests")
+	resp, err := m.actionServer.StartServiceAction(ctx, &actionRequest)
+	if err != nil {
+		return "", fmt.Errorf("failed to start action: %w", err)
+	}
+
+	// Extract action ID from response
+	var actionID string
+	switch metadata.ServiceType {
+	case "mysql":
+		switch action {
+		case actionShowTables:
+			actionID = resp.GetMysqlShowCreateTable().ActionId
+		case actionShowIndex:
+			actionID = resp.GetMysqlShowIndex().ActionId
+		}
+	case "postgresql":
+		switch action {
+		case actionShowTables:
+			actionID = resp.GetPostgresqlShowCreateTable().ActionId
+		case actionShowIndex:
+			actionID = resp.GetPostgresqlShowIndex().ActionId
+		}
+	}
+
+	actionResult, err := m.responseActionOutput(ctx, actionID)
+	if err != nil {
+		return "", fmt.Errorf("failed to get action result for action ID %s: %w", actionID, err)
+	}
+
+	resultContent := ""
+	if len(actionResult.Content) > 0 {
+		if textContent, ok := actionResult.Content[0].(mcpgo.TextContent); ok {
+			resultContent = textContent.Text
+		}
+	}
+
+	return resultContent, nil
 }
 
-type showIndexArgs struct {
-	QueryID     string `json:"query_id"`
-	PeriodStart string `json:"period_start,omitempty"`
-	PeriodEnd   string `json:"period_end,omitempty"`
-	Filters     string `json:"filters,omitempty"`
-}
+func (m *Mcp) ShowTableInfo(ctx context.Context, request mcpgo.CallToolRequest, args showTableInfoArgs) (*mcpgo.CallToolResult, error) {
+	m.l.WithField("args", args).Info("Received show table info request")
 
-func (m *Mcp) ShowIndex(ctx context.Context, request mcpgo.CallToolRequest, args showIndexArgs) (*mcpgo.CallToolResult, error) {
-	m.l.WithField("args", args).Info("Received show index request")
-
-	return m.processTablesAction(ctx, args.QueryID, args.PeriodStart, args.PeriodEnd, args.Filters,
-		actionShowIndex, "Getting indexes for all tables", "Index details requests")
+	return m.processTableInfoAction(ctx, args.QueryID, args.PeriodStart, args.PeriodEnd, args.Filters, args.Tables, args.InfoTypes)
 }
 
 type qanGetReportArgs struct {
@@ -808,7 +896,7 @@ func (m *Mcp) QANGetReport(ctx context.Context, request mcpgo.CallToolRequest, a
 	}
 
 	// Format response
-	result := fmt.Sprintf("QAN Metrics Report\n==================\n\n")
+	result := "QAN Metrics Report\n==================\n\n"
 	result += fmt.Sprintf("Period: %s to %s\n", periodStart.Format(time.RFC3339), periodEnd.Format(time.RFC3339))
 	result += fmt.Sprintf("Group By: %s\n", qanReq.GroupBy)
 	result += fmt.Sprintf("Order By: %s\n", args.OrderBy)
@@ -928,7 +1016,7 @@ func (m *Mcp) QANGetMetrics(ctx context.Context, request mcpgo.CallToolRequest, 
 	}
 
 	// Format response
-	result := fmt.Sprintf("QAN Detailed Metrics\n=====================\n\n")
+	result := "QAN Detailed Metrics\n=====================\n\n"
 	result += fmt.Sprintf("Period: %s to %s\n", periodStart.Format(time.RFC3339), periodEnd.Format(time.RFC3339))
 	result += fmt.Sprintf("Filter By: %s (%s)\n", args.FilterBy, args.GroupBy)
 	if args.Totals {
