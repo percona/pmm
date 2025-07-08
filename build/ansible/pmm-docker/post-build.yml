@@ -18,6 +18,15 @@
         owner: pmm
         group: pmm
 
+    - name: Set up pmm-agent
+      command: >
+        pmm-agent setup
+        --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml
+        --skip-registration
+        --id=pmm-server
+        --server-address=127.0.0.1:8443
+        --server-insecure-tls
+
     - name: Remove pmm-managed database from PostgreSQL
       postgresql_db:
         login_user: postgres

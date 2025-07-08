@@ -79,28 +79,17 @@ if [ ! -d "/usr/share/pmm-server" ] || [ -z "$(ls -A /usr/share/pmm-server 2>/de
     mkdir -p /run/postgresql
     echo "Creating nginx temp directories..."
     mkdir -p /usr/share/pmm-server/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp}
-    
-    echo "Setting up pmm-agent configuration..."
-    # Create pmm-agent temp directory with proper permissions
-    mkdir -p /srv/pmm-agent/tmp
-    chmod 775 /srv/pmm-agent/tmp
-    
-    # Set up pmm-agent configuration file in /usr/share/pmm-server/
-    pmm-agent setup \
-        --config-file=/usr/share/pmm-server/pmm-agent.yaml \
-        --skip-registration \
-        --id=pmm-server \
-        --server-address=127.0.0.1:8443 \
-        --server-insecure-tls \
-        --paths-tempdir=/srv/pmm-agent/tmp
-    
-    # Make pmm-agent.yaml readable by any user for OpenShift compatibility
-    chmod 660 /usr/share/pmm-server/pmm-agent.yaml
 else
     echo "PMM server directory is not empty, skipping directory creation..."
     # Still ensure critical directories exist, but don't create empty ones
     [ ! -d "/run/postgresql" ] && mkdir -p /run/postgresql
     [ ! -d "/usr/share/pmm-server/nginx" ] && mkdir -p /usr/share/pmm-server/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp}
+fi
+
+if [ ! -d "/srv/pmm-agent/tmp" ]; then
+    echo "Creating pmm-agent temp directory..."
+    mkdir -p /srv/pmm-agent/tmp
+    chmod 775 /srv/pmm-agent/tmp
 fi
 
 # Initialize /srv if empty
