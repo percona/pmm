@@ -85,5 +85,5 @@ PMM Agent includes a configurable **Performance Schema Refresh Rate** that can h
 
 ### Workaround
 
-If you're still missing some query examples, consider [using the slow query log (`slowlog`)](../../../docs/install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source) as the query source instead. 
+If you're still missing some query examples, consider [using the slow query log (`slowlog`)](../../install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source) as the query source instead. 
 The `slowlog` retains actual query texts over time and can help capture examples even when Performance Schema history buffers are exhausted.

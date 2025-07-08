@@ -57,8 +57,8 @@ If issues occur after upgrade:
 3. Revert PMM Clients if they were updated:
 
    ```bash
-   # Reinstall previous client version
-   pmm-admin config --server-url=https://original-pmm-server:443
+    # Reinstall previous client version
+    pmm-admin config --server-url=https://original-pmm-server:443
    ```
 
 ## Troubleshooting upgrades
