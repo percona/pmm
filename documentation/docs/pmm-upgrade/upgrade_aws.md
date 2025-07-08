@@ -25,12 +25,13 @@ docker exec pmm-server pmm-admin --version
 
     **Best for:** Minor version updates and patches
     {.power-number}
-
+    
     1. Create a backup snapshot of your PMM data volume:
 
-       ```bash
-       aws ec2 create-snapshot --volume-id vol-xxxxxxxxx --description "Pre-upgrade backup $(date)"
-       ```
+        ```bash
+        aws ec2 create-snapshot --volume-id vol-xxxxxxxxx --description "Pre-upgrade backup $(date)"
+        ```
+
     2. Update the PMM Server container:
 
        ```bash
@@ -57,6 +58,7 @@ docker exec pmm-server pmm-admin --version
        ```
     3. Verify the upgrade:
 
+    
        ```bash
        # Check container status
        sudo docker ps
