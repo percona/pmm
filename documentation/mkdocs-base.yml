@@ -147,6 +147,7 @@ nav:
         - install-pmm/plan-pmm-installation/network_and_firewall.md
       - Install PMM Server:
         - Server installation overview: install-pmm/install-pmm-server/index.md
+        - install-pmm/install-pmm-server/prerequisites.md
         - Deployment options:
           - Install on Docker:
             - install-pmm/install-pmm-server/deployment-options/docker/index.md

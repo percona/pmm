@@ -199,7 +199,7 @@ Select the appropriate instructions based on your access level:
 
     - Download the PMM Client tar.gz file
     - Extract it
-    - Run `./install_tarbal`l (or with `-u` flag to preserve existing config during upgrades)
+    - Run `./install_tarball` (or with `-u` flag to preserve existing config during upgrades)
 
 ## Related topics
 

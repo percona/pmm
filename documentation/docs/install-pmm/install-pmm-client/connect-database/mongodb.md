@@ -6,8 +6,8 @@ Connect a MongoDB instance to PMM to monitor a [MongoDB] or [Percona Server for 
 
 Before you start, ensure you have:
 
-- [PMM Server installed](../../../install-pmm-server/index.md) and running with a known IP address or hostname accessible from the Client node.
-- [PMM Client installed](../../../install-pmm-client/index.md) and the [nodes are registered with PMM Server](../../../register-client-node/index.md).
+- [PMM Server installed](../../install-pmm-server/index.md) and running with a known IP address or hostname accessible from the Client node.
+- [PMM Client installed](../../install-pmm-client/index.md) and the [nodes are registered with PMM Server](../../register-client-node/index.md).
 - Admin privileges to install and configure PMM Client on the host.
 - Preconfigured MongoDB user with appropriate monitoring privileges, or sufficient privileges to create the required roles and users.
 - MongoDB server version 6.0 or higher. PMM may work with MongoDB versions as old as 4.4, but we recommend using MongoDB 6.0+ for complete feature support.
@@ -411,7 +411,7 @@ After configuring your database server, add a MongoDB service using either the u
     When successful, PMM Client will print `MongoDB Service added` with the service's ID and name. Use the `--environment` and `--custom-labels` options to set tags for the service to help identify them.
 
     !!! hint alert alert-success "Tips"
-        - When adding nodes to a sharded cluster, ensure to add each node separately using the `--cluster mycluster` option. This allows the [MongoDB Cluster Summary](../../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard to populate correctly. 
+        - When adding nodes to a sharded cluster, ensure to add each node separately using the `--cluster mycluster` option. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard to populate correctly. 
         - You can also use the `--replication-set` option to specify a replication set. For instance, you can use `--replication-set config` for your config servers; `--replication-set rs1` for your servers in the first replica set, `--replication-set rs2` for your servers in the second replica set, and so on.
         - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
 
@@ -426,7 +426,7 @@ After configuring your database server, add a MongoDB service using either the u
 
     3. Click **Add service**.
 
-    ![!](../../../../images/PMM_Add_Instance_MongoDB.jpg)
+    ![!](../../../images/PMM_Add_Instance_MongoDB.jpg)
 
 ## Verify MongoDB service configuration
 
@@ -490,7 +490,7 @@ If you need to remove MongoDB service from PMM, follow these steps:
 
 ## Related topics
 
-- [`pmm-admin add mongodb`](../../../../use/commands/pmm-admin.md#mongodb)
+- [`pmm-admin add mongodb`](../../../use/commands/pmm-admin.md#mongodb)
 - [Troubleshooting connection difficulties]
 
 [MongoDB]: https://www.mongodb.com/
@@ -499,5 +499,5 @@ If you need to remove MongoDB service from PMM, follow these steps:
 [YAML]: http://yaml.org/spec/
 [MONGODB_CONFIG_OP_PROF]: https://docs.mongodb.com/manual/reference/configuration-options/#operationprofiling-options
 [PSMDB_RATELIMIT]: https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html#enabling-the-rate-limit
-[PMM_ADMIN_MAN_PAGE]: ../../../use/commands/pmm-admin.md#mongodb
-[Troubleshooting connection difficulties]: ../../../../troubleshoot/config_issues.md#connection-difficulties
+[PMM_ADMIN_MAN_PAGE]: ../../use/commands/pmm-admin.md#mongodb
+[Troubleshooting connection difficulties]: ../../../troubleshoot/config_issues.md#connection-difficulties
