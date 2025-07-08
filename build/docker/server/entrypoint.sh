@@ -73,7 +73,7 @@ fi
 
 # Check and create /usr/share/pmm-server directories on every start
 echo "Checking /usr/share/pmm-server directory..."
-if [ -z "$(ls -A /usr/share/pmm-server 2>/dev/null)" ]; then
+if [ ! -d "/usr/share/pmm-server" ] || [ -z "$(ls -A /usr/share/pmm-server 2>/dev/null)" ]; then
     echo "Creating PMM server directories (directory is empty)..."
     echo "Creating PostgreSQL socket directory..."
     mkdir -p /run/postgresql
