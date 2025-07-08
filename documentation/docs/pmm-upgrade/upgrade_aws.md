@@ -29,7 +29,7 @@ After upgrading PMM Server:
 
 1. Verify all services are running:
    ```bash
-   sudo docker exec pmm-server supervisorctl status
+   docker exec pmm-server supervisorctl status
    ```
 
 2. Check PMM client connectivity:
