@@ -20,7 +20,7 @@ To launch  PMM Server via AWS Marketplace:
 
 7. In the **Subnet Settings** field, select an existing subnet or create a new one within your VPC.
 
-8. In the **Security Group Settings** field, choose an existing security group or create a new one. Make sure the security group allows inbound traffic on the [Required Ports](#required-ports) listed below.
+8. In the **Security Group Settings** field, choose an existing security group or create a new one. Make sure the security group allows inbound traffic on the [Required ports](#required-ports) listed below.
 9. In the **Key Pair Settings** field, select an existing key pair for SSH access, or create a new one if necessary.
 
 10. Click **Launch** to deploy the PMM Server instance. Once the instance is launched, it will appear in the EC2 console.
@@ -53,7 +53,7 @@ Once your instance status shows "Running" and passes all status checks in the AW
 
 1. In the EC2 console, select your instance and copy its **IPv4 Public IP** in the instance details or the **Public IP** field from the **Properties** panel:
 
-    ![Public IP Field](../../../../images/aws-marketplace.pmm.ec2.properties)
+    ![Public IP Field](../../../../images/aws-marketplace.pmm.ec2.properties.png)
 
 2. Open the IP address in a web browser and log into PMM using the default credentials `admin`/`your instance ID`.
 
@@ -70,10 +70,10 @@ After initial access, configure your PMM Server's security groups and IP address
 
 For proper PMM Server functionality and access, ensure your security group allows communication via the following ports:
 
-- Port 22 (SSH): Administrative access to the instance
-- Port 80 (HTTP): Initial PMM web interface access
-- Port 443 (HTTPS): Secure PMM web interface access
-- Port 3306 (MySQL): If monitoring RDS instances directly
+- port `22` (SSH): Administrative access to the instance
+- port `80` (HTTP): Initial PMM web interface access
+- port `443` (HTTPS): Secure PMM web interface access
+- port `3306` (MySQL): If monitoring RDS instances directly
 
 !!! warning "Security reminder"
     Your PMM instance is now accessible via the internet. Ensure your security group settings restrict access to trusted IP addresses only.

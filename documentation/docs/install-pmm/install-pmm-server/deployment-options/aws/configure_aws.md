@@ -97,12 +97,14 @@ By default, your EC2 instance will have a private IP for internal VPC network ac
 
 === "Use private IP only"
     **During EC2 instance creation:**
+    {.power-number}
 
     1. In the **Network Settings** section, uncheck **Auto-assign public IP**.
     2. Do not assign an Elastic IP to the instance.
     3. To access PMM Server using only a private IP, ensure you're connected to your VPC and use the private IP address for access.
 
     **For an existing instance:**
+    {.power-number}
 
     1. If a public IP is assigned, remove it by disassociating it in the EC2 console.
     2. If an Elastic IP is assigned, disassociate it from the instance.
@@ -110,14 +112,13 @@ By default, your EC2 instance will have a private IP for internal VPC network ac
 
 === "Use Elastic IP"
     For a static, public-facing IP address:
+    {.power-number}
 
     1. Allocate an Elastic IP address in the EC2 console:
 
-    ![Allocate Elastic IP address](../images/aws-marketplace.pmm.ec2.ip.allocate.png)
-
+        ![Allocate Elastic IP address](../../../../images/aws-marketplace.pmm.ec2.ip.allocate.png)
     2. Associate the Elastic IP address with your EC2 instance's network interface ID:
-
-    ![Associate Elastic IP](../images/aws-marketplace.pmm.ec2.ip.associate.png)
+        ![Associate Elastic IP](../../../../images/aws-marketplace.pmm.ec2.ip.associate.png)
 
     !!! note
         Associating a new Elastic IP to an instance with an existing Elastic IP will disassociate the old one, but it will remain allocated to your account.
@@ -129,10 +130,9 @@ For detailed information on EC2 instance IP addressing, see the [AWS documentati
 ### Resize PMM data volume
 
 When monitoring more hosts or extending data retention, you may need additional storage space:
-
 {.power-number}
 
-1. [Increase the EBS volume size](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modify-volume.html) in the AWS Console following the AWS documentation. 
+1. Increase the EBS volume size in the AWS Console following the [AWS documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modify-volume.html). 
 
 2. Expand the file system to use the additional space:
 
@@ -162,23 +162,22 @@ When monitoring more hosts or extending data retention, you may need additional 
 
 3. PMM automatically detects the storage increase within ~5 minutes and adjusts its configuration.
 
-
-## Resize root volume
+### Resize root volume
 
 If the root filesystem runs low on space:
 {.power-number}
 
 1. Increase the root EBS volume in the AWS Console.
-2. Expand the disk from AWS Console/CLI to the desired capacity.
+2. Expand the disk from AWS Console/CLI to the desired capacity:
 
-    - Log in to the PMM EC2 instance and verify that the disk capacity has increased. For example, if you have expanded disk from 8G to 10G, `dmesg` output should look like below:
+    - Log in to the PMM EC2 instance and verify that the disk capacity has increased. For example, if you have expanded disk from 8G to 10G, `dmesg`:
 
         ```sh
         # dmesg | grep "capacity change"
         [63175.044762] nvme0n1: detected capacity change from 8589934592 to 10737418240
         ```
 
-    -  Use the `lsblk` command to see that our disk size has been identified by the kernel correctly, but LVM2 is not yet aware of the new size.
+    -  Use the `lsblk` command to see that our disk size has been identified by the kernel correctly, but LVM2 is not yet aware of the new size:
 
         ```sh
         # lsblk
@@ -188,14 +187,14 @@ If the root filesystem runs low on space:
         ...
         ```
 
-    -  For volumes that have a partition, such as the root volume shown in the previous step, use the `growpart` command to extend the partition.
+    -  For volumes that have a partition, such as the root volume shown in the previous step, use the `growpart` command to extend the partition:
 
         ```sh
         # growpart /dev/nvme0n1 1
         CHANGED: partition=1 start=2048 old: size=16775168 end=16777216 new: size=20969439 end=20971487
         ```
 
-    - To verify that the partition reflects the increased volume size, use the `lsblk` command again.
+    - Verify that the partition reflects the increased volume size, use the `lsblk` command again:
 
         ```txt
         # lsblk
@@ -205,7 +204,7 @@ If the root filesystem runs low on space:
         ...
         ```
 
-    -  Extend the XFS file system on the root volume by `xfs_growfs` command. I
+    -  Extend the XFS file system on the root volume by `xfs_growfs` command:
 
         ```sh
         # xfs_growfs -d /
@@ -221,7 +220,7 @@ If the root filesystem runs low on space:
         data blocks changed from 2096896 to 2621120
         ```
 
-    -  Verify that file system reflects the increased volume size
+    -  Verify that file system reflects the increased volume size:
 
         ```sh
         # df -hT /
@@ -239,7 +238,6 @@ PMM fully supports resizing EC2 instances, as long as you follow the steps outli
     PMM uses a separate EBS volume for monitoring data, so changing instance types doesn't affect your collected metrics or dashboards.
 
 To upgrade the instance type:
-
 {.power-number}
 
 1. Open the Amazon EC2 console.
@@ -250,13 +248,13 @@ To upgrade the instance type:
 
 4. In the **Change instance type** dialog box, select the instance type that you want.
 
-    ![Change instance](../images/aws-marketplace.pmm.ec2.instance.upgrade.png)
+    ![Change instance](../../../../images/aws-marketplace.pmm.ec2.instance.upgrade.png)
 
 5. Choose **Apply** to accept the new settings and start the stopped instance.
 
 ## Configure PMM Clients 
 
-### Set Server URL 
+### Set server URL 
 
 Configure the PMM Server URL for client connections:
 
@@ -298,7 +296,7 @@ curl -k -u admin:your-password https://<pmm-server-ip>:443/v1/readyz
 To configure security groups for RDS access:
 {.power-number}
 
-1. Modify your RDS security group to add inbound rule: MySQL/Aurora (3306) from PMM security group.
+1. Create an inbound rule allowing MySQL/Aurora traffic (port 3306) from your PMM Server's security group.
 2. Test connectivity:
    ```bash
    # From PMM Server
@@ -333,7 +331,7 @@ To restore PMM Server from a backup:
 
 3. Detach the current PMM data volume:
 
-![Detach Volume](../../../../images/aws-marketplace.pmm.ec2.backup3.png)
+    ![Detach Volume](../../../../images/aws-marketplace.pmm.ec2.backup3.png)
 
 4. Attach the new volume:
 
@@ -356,15 +354,12 @@ To permanently delete your PMM Server instance and clean up resources:
     1. Go to the **EC2 Console**.
 
     2. Find the instance you want to remove.
-        ![EC2 Console](../../../../images/aws-marketplace.pmm.ec2.remove1.png)
+       ![EC2 Console](../../../../images/aws-marketplace.pmm.ec2.remove1.png)
 
     3. Open the **Instance state** menu and select **Terminate instance**.
-
-        ![Terminate Instance](../../../../images/aws-marketplace.pmm.ec2.remove2.png)
+       ![Terminate Instance](../../../../images/aws-marketplace.pmm.ec2.remove2.png)
 
     4. Confirm termination.
-
-        ![Confirm Terminate](../../../../images/aws-marketplace.pmm.ec2.remove3.png)
 
 === "From AWS CLI"
     Use the AWS CLI when you want to automate termination with cleanup:
