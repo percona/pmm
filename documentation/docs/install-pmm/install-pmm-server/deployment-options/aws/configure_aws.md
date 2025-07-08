@@ -36,10 +36,10 @@ Replace the self-signed certificate with a proper SSL certificate for production
     sudo certbot certonly --standalone -d pmm.yourdomain.com
 
     # Configure PMM to use the certificate
-    sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/fullchain.pem /srv/pmm-certs/certificate.crt
-    sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/privkey.pem /srv/pmm-certs/certificate.key
-    sudo chown pmm:pmm /srv/pmm-certs/certificate.*
-    sudo chmod 600 /srv/pmm-certs/certificate.*
+    sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/fullchain.pem /home/admin/volume/pmm-certs/certificate.crt
+    sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/privkey.pem /home/admin/volume/pmm-certs/certificate.key
+    sudo chown pmm:pmm /home/admin/volume/pmm-certs/certificate.*
+    sudo chmod 600 /home/admin/volume/pmm-certs/certificate.*
 
     # Restart PMM Server
     sudo docker start pmm-server
@@ -57,10 +57,10 @@ Replace the self-signed certificate with a proper SSL certificate for production
 
     2. Install certificates:
        ```bash
-       sudo mv /tmp/certificate.crt /srv/pmm-certs/
-       sudo mv /tmp/private.key /srv/pmm-certs/certificate.key
-       sudo chown pmm:pmm /srv/pmm-certs/certificate.*
-       sudo chmod 600 /srv/pmm-certs/certificate.*
+       sudo mv /tmp/certificate.crt /home/admin/volume/pmm-certs/
+       sudo mv /tmp/private.key /home/admin/volume/pmm-certs/certificate.key
+       sudo chown pmm:pmm /home/admin/volume/pmm-certs/certificate.*
+       sudo chmod 600 /home/admin/volume/pmm-certs/certificate.*
        sudo docker restart pmm-server
        ```
 
@@ -153,10 +153,10 @@ When monitoring more hosts or extending data retention, you may need additional 
     sudo lvextend /dev/mapper/DataVG-DataLV -l 100%FREE
 
     # Grow the XFS filesystem
-    sudo xfs_growfs /srv
+    sudo xfs_growfs /home/admin/volume
 
     # Verify the expansion
-    df -h /srv
+    df -h /home/admin/volume
 
     ```
 

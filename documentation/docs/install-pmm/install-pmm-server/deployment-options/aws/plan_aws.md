@@ -25,7 +25,7 @@ Start small and scale as your monitoring needs grow. EC2 instances can be resize
 
 ### Plan storage 
 
-PMM Server stores all monitoring data in the `/srv` partition. Plan storage based on the:
+PMM Server stores all monitoring data in the `/home/admin/volume` partition. Plan storage based on the:
 
 - number of monitored hosts
 - retention period for collected data
@@ -59,9 +59,9 @@ Use the [AWS pricing calculator](https://calculator.aws/#/) to estimate monthly 
 
 ## Plan backups
 
-PMM Server uses a simple backup architecture - all monitoring data is stored in the `/srv` partition, which means you only need to back up one EBS volume to protect all your PMM data. This simplifies your backup strategy and reduces complexity.
+PMM Server uses a simple backup architecture - all monitoring data is stored in the `/home/admin/volume` partition, which means you only need to back up one EBS volume to protect all your PMM data. This simplifies your backup strategy and reduces complexity.
 
-When planning your deployment, consider that you'll need to create point-in-time snapshots of the EBS volume containing the `/srv` partition. Plan for snapshot storage costs and determine your backup frequency and retention requirements.
+When planning your deployment, consider that you'll need to create point-in-time snapshots of the EBS volume containing the `/home/admin/volume` partition. Plan for snapshot storage costs and determine your backup frequency and retention requirements.
 
 Follow the AWS documentation for [Create Amazon EBS snapshots](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-creating-snapshot.html) to understand the backup process you'll implement after deployment.
 
