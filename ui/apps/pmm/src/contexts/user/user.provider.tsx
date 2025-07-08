@@ -1,17 +1,18 @@
 import { FC, PropsWithChildren, useMemo } from 'react';
 import { UserContext } from './user.context';
 import { useCurrentUser } from 'hooks/api/useUser';
-import { useFrontendSettings, useSettings } from 'hooks/api/useSettings';
+import { useSettings } from 'hooks/api/useSettings';
 import { getPerconaUser, isAuthorized } from './user.utils';
+import { useAuth } from 'contexts/auth';
 
 export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
-  const frontendSettings = useFrontendSettings();
+  const auth = useAuth();
   const { data, isLoading: isLoadingUser } = useCurrentUser({
-    enabled: !frontendSettings.data?.anonymousEnabled,
+    enabled: auth.isLoggedIn,
   });
   const { error, isLoading: isLoadingSettings } = useSettings({
     retry: false,
-    enabled: !frontendSettings.data?.anonymousEnabled,
+    enabled: auth.isLoggedIn,
   });
   const user = useMemo(
     () => data && getPerconaUser(data, isAuthorized(error)),

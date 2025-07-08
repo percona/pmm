@@ -1,10 +1,16 @@
 import { locationService } from '@grafana/runtime';
-import { CrossFrameMessenger, DashboardVariablesMessage, LocationChangeMessage } from '@pmm/shared';
-import { GRAFANA_LOGIN_PATH, GRAFANA_SUB_PATH, PMM_UI_PATH } from 'lib/constants';
+import { CrossFrameMessenger, DashboardVariablesMessage, HistoryAction, LocationChangeMessage } from '@pmm/shared';
+import {
+  GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
+  GRAFANA_LOGIN_PATH,
+  GRAFANA_SUB_PATH,
+  PMM_UI_PATH,
+} from 'lib/constants';
 import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
+import { documentTitleObserver } from 'lib/utils/document';
 
 export const initialize = () => {
   if (!isWithinIframe() && !window.location.pathname.startsWith(GRAFANA_LOGIN_PATH)) {
@@ -19,6 +25,9 @@ export const initialize = () => {
     type: 'MESSENGER_READY',
   });
 
+  // set docked state to false
+  localStorage.setItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY, 'false');
+
   applyCustomStyles();
 
   adjustToolbar();
@@ -32,11 +41,28 @@ export const initialize = () => {
 
   messenger.addListener({
     type: 'LOCATION_CHANGE',
-    onMessage: (message: LocationChangeMessage) => locationService.push(message.payload!),
+    onMessage: ({ payload: location }: LocationChangeMessage) => {
+      if (!location) {
+        return;
+      }
+
+      locationService.replace(location);
+    },
+  });
+
+  messenger.sendMessage({
+    type: 'DOCUMENT_TITLE_CHANGE',
+    payload: { title: document.title },
+  });
+  documentTitleObserver.listen((title) => {
+    messenger.sendMessage({
+      type: 'DOCUMENT_TITLE_CHANGE',
+      payload: { title },
+    });
   });
 
   let prevLocation: Location | undefined;
-  locationService.getHistory().listen((location: Location) => {
+  locationService.getHistory().listen((location: Location, action: HistoryAction) => {
     // re-add custom toolbar buttons after closing kiosk mode
     if (prevLocation?.search.includes('kiosk') && !location.search.includes('kiosk')) {
       adjustToolbar();
@@ -44,7 +70,10 @@ export const initialize = () => {
 
     messenger.sendMessage({
       type: 'LOCATION_CHANGE',
-      payload: location,
+      payload: {
+        action,
+        ...location,
+      },
     });
 
     prevLocation = location;

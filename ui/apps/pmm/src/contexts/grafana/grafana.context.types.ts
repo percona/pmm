@@ -1,7 +1,7 @@
-import { MutableRefObject } from 'react';
+import { RefObject } from 'react';
 
 export interface GrafanaContextProps {
-  frameRef?: MutableRefObject<HTMLIFrameElement | undefined>;
+  frameRef?: RefObject<HTMLIFrameElement>;
   isOnGrafanaPage: boolean;
   isFrameLoaded: boolean;
 }

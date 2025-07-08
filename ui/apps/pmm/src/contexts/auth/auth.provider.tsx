@@ -10,7 +10,7 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   const settings = useFrontendSettings({
     retry: false,
   });
-  const { error, isLoading } = useQuery({
+  const { error, isLoading, data } = useQuery({
     queryKey: ['rotateToken'],
     queryFn: () => rotateToken(),
     refetchInterval: () => getRefetchInterval(),
@@ -40,7 +40,7 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ isLoading }}>
+    <AuthContext.Provider value={{ isLoading, isLoggedIn: !!data }}>
       {children}
     </AuthContext.Provider>
   );

@@ -7,6 +7,7 @@ import { NotFoundPage } from 'pages/not-found';
 import { HelpCenter } from 'pages/help-center';
 import Providers from 'Providers';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
+import React from 'react';
 
 const router = createBrowserRouter(
   [
@@ -37,6 +38,7 @@ const router = createBrowserRouter(
             // Grafana routes are handled at the Main component level
             {
               path: 'graph/*',
+              element: <React.Fragment />,
             },
             {
               path: '*',

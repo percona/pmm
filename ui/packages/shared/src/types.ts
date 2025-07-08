@@ -1,8 +1,11 @@
+export type HistoryAction = 'PUSH' | 'POP' | 'REPLACE';
+
 export type MessageType =
   | 'MESSENGER_READY'
   | 'LOCATION_CHANGE'
   | 'DASHBOARD_VARIABLES'
-  | 'GRAFANA_READY';
+  | 'GRAFANA_READY'
+  | 'DOCUMENT_TITLE_CHANGE';
 
 export interface Message<T extends MessageType = MessageType, V = undefined> {
   id?: string;
@@ -21,7 +24,10 @@ export interface MessageListener<
 
 export type MessengerReadyMessage = Message<'MESSENGER_READY', undefined>;
 
-export type LocationChangeMessage = Message<'LOCATION_CHANGE', Location>;
+export type LocationChangeMessage = Message<
+  'LOCATION_CHANGE',
+  Location & { title: string; action: HistoryAction }
+>;
 
 export type DashboardVariablesMessage = Message<
   'DASHBOARD_VARIABLES',
@@ -29,3 +35,10 @@ export type DashboardVariablesMessage = Message<
 >;
 
 export type DashboardVariablesResult = { url: string };
+
+export type DocumentTitleUpdateMessage = Message<
+  'DOCUMENT_TITLE_CHANGE',
+  {
+    title: string;
+  }
+>;
