@@ -4,14 +4,16 @@ import { render, screen } from '@testing-library/react';
 
 const setup = ({
   isLoading = false,
+  isLoggedIn = false,
   kioskModeActive = false,
 }: {
   isLoading?: boolean;
+  isLoggedIn?: boolean;
   kioskModeActive?: boolean;
 }) =>
   render(
     <TestWrapper
-      authContext={{ isLoading }}
+      authContext={{ isLoading, isLoggedIn }}
       routerProps={{
         initialEntries: kioskModeActive ? ['?kiosk=true'] : ['/'],
       }}
@@ -34,13 +36,13 @@ describe('MainWithNav', () => {
   });
 
   it('shows sidebar when kiosk mode is not active', () => {
-    setup({ isLoading: false, kioskModeActive: false });
+    setup({ isLoading: false, isLoggedIn: true, kioskModeActive: false });
 
     expect(screen.getByTestId('pmm-sidebar')).toBeInTheDocument();
   });
 
   it('does not show sidebar when kiosk mode is active', () => {
-    setup({ isLoading: false, kioskModeActive: true });
+    setup({ isLoading: false, isLoggedIn: true, kioskModeActive: true });
 
     expect(screen.queryByTestId('pmm-sidebar')).toBeNull();
   });

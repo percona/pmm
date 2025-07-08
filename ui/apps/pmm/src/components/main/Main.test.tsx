@@ -7,7 +7,7 @@ describe('Main', () => {
   it('shows loading', () => {
     render(
       <TestWrapper>
-        <AuthContext.Provider value={{ isLoading: true }}>
+        <AuthContext.Provider value={{ isLoading: true, isLoggedIn: false }}>
           <Main />
         </AuthContext.Provider>
       </TestWrapper>
@@ -19,7 +19,7 @@ describe('Main', () => {
   it("doesn't show loading", () => {
     render(
       <TestWrapper>
-        <AuthContext.Provider value={{ isLoading: false }}>
+        <AuthContext.Provider value={{ isLoading: false, isLoggedIn: false }}>
           <Main />
         </AuthContext.Provider>
       </TestWrapper>
