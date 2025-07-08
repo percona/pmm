@@ -28,7 +28,7 @@
   copy:
     src: /usr/share/percona-dashboards/VERSION
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
-    mode: 0644
+    mode: 0664
     remote_src: yes
 
 - name: Restart Grafana service with new plugins 

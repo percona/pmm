@@ -52,29 +52,12 @@ if [ ! -e /srv/nginx/certificate.conf ]; then
 fi
 
 if [ ! -e /srv/nginx/certificate.key ] || [ ! -e /srv/nginx/certificate.crt ]; then
-    # Check if we can write to /etc/nginx/ssl/ directory
-    if [ -w "/etc/nginx/ssl" ]; then
-        # Standard path: generate in /etc/nginx/ssl/ and copy to /srv/nginx/
-        if [ ! -e /etc/nginx/ssl/certificate.key ] || [ ! -e /etc/nginx/ssl/certificate.crt ]; then
-            openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-                -keyout /etc/nginx/ssl/certificate.key \
-                -out    /etc/nginx/ssl/certificate.crt \
-                -config /etc/nginx/ssl/certificate.conf
-        fi
-        cp /etc/nginx/ssl/certificate.key /srv/nginx/certificate.key
-        cp /etc/nginx/ssl/certificate.crt /srv/nginx/certificate.crt
-    else
-        # OpenShift/arbitrary UID path: generate directly in /srv/nginx/
-        echo "Cannot write to /etc/nginx/ssl/, generating certificates directly in /srv/nginx/"
-        # Copy certificate.conf to /srv/nginx/ for openssl to use
-        cp /etc/nginx/ssl/certificate.conf /srv/nginx/certificate.conf
+    if [ ! -e /etc/nginx/ssl/certificate.key ] || [ ! -e /etc/nginx/ssl/certificate.crt ]; then
         openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-            -keyout /srv/nginx/certificate.key \
-            -out    /srv/nginx/certificate.crt \
-            -config /srv/nginx/certificate.conf
+            -keyout /etc/nginx/ssl/certificate.key \
+            -out    /etc/nginx/ssl/certificate.crt \
+            -config /etc/nginx/ssl/certificate.conf
     fi
-    
-    # Set proper permissions for OpenShift compatibility
-    chmod 640 /srv/nginx/certificate.crt
-    chmod 640 /srv/nginx/certificate.key
+    cp /etc/nginx/ssl/certificate.key /srv/nginx/certificate.key
+    cp /etc/nginx/ssl/certificate.crt /srv/nginx/certificate.crt
 fi

@@ -47,7 +47,7 @@
     copy:
       src: maintenance.html
       dest: /usr/share/pmm-server/maintenance/
-      mode: 0644
+      mode: 0664
 
   - name: Wait for PostgreSQL to become responsive
     wait_for:

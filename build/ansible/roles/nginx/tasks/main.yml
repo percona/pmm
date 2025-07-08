@@ -79,6 +79,13 @@
     - /etc/nginx
     - /srv/nginx
 
+- name: Change permissions of nginx certificate
+  file:
+    path: /etc/nginx/ssl/certificate.key
+    mode: 0640  # or 0660 if group write access is required
+    group: pmm
+    owner: pmm
+
 - name: Provision empty Nginx configuration files
   file:
     path: "{{ item }}"

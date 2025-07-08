@@ -66,12 +66,12 @@ func saveConfig(path string, cfg []byte) (err error) {
 		if err == nil {
 			return
 		}
-		if resErr := os.WriteFile(path, oldCfg, 0o644); resErr != nil { //nolint:gosec
+		if resErr := os.WriteFile(path, oldCfg, 0o664); resErr != nil { //nolint:gosec
 			err = errors.Wrap(err, errors.Wrap(resErr, "failed to restore config").Error())
 		}
 	}()
 
-	if err = os.WriteFile(path, cfg, 0o644); err != nil { //nolint:gosec
+	if err = os.WriteFile(path, cfg, 0o664); err != nil { //nolint:gosec
 		err = errors.Wrap(err, "failed to write new config")
 	}
 	return
