@@ -9,11 +9,16 @@ Before upgrading your PMM Server, ensure you have:
 - a current backup of your PMM data volume
 - scheduled maintenance window for potential downtime
 
+## Upgrade process
+
+To upgrade PMM Server on AWS: 
+{.power-number}
+
 1. Create a backup snapshot of your PMM data volume:
 
-```sh
-aws ec2 create-snapshot --volume-id vol-xxxxxxxxx --description "Pre-upgrade backup $(date)"
-```
+    ```sh
+    aws ec2 create-snapshot --volume-id vol-xxxxxxxxx --description "Pre-upgrade backup $(date)"
+    ```
 
 2. Go to **PMM Configuration > Updates**  and click **Update now** if a newer version is available.
 
