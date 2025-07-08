@@ -1,6 +1,6 @@
 # Deploy PMM Server on AWS
-After [planning your instance size, storage, and network requirements](../aws/plan_aws.md), deploy PMM Server from AWS Marketplace to get monitoring running.
 
+After [planning your instance size, storage, and network requirements](../aws/plan_aws.md), deploy PMM Server from AWS Marketplace to get monitoring running.
 
 ## Launch PMM Server from  AWS Marketplace
 To launch  PMM Server via AWS Marketplace:
@@ -32,7 +32,7 @@ Monitor the deployment progress and access your instance through the EC2 console
 {.power-number}
 
 1. Click the **EC2 Console** link that appears at the top of the confirmation page after launching, or go directly to the [EC2 Console](https://console.aws.amazon.com/ec2/).
-2. Locate your new PMM instance in the EC2 instances table. Initially, its Status shows "Pending" while launching and the Name will be empty. 
+2. Locate your new PMM instance in the EC2 instances table. Initially, its Status shows **Pending** while launching and the Name will be empty. 
 
 ![EC2 Console Instance List](../../../../images/aws-marketplace.ec2-console.pmm.1.png)
 

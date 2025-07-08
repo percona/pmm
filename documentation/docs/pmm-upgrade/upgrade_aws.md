@@ -1,277 +1,191 @@
 # Upgrade PMM Server on AWS
 
-## Change public IP address
+Keep your PMM Server up to date with the latest features, security patches, and performance improvements.
 
-To assign a public IP address for an Amazon EC2 instance, follow these steps:
-{.power-number}
+## Prerequisites
 
-1. Allocate Elastic IP address:
+Before upgrading your PMM Server, ensure you have:
 
-    ![Allocate Elastic IP address](../images/aws-marketplace.pmm.ec2.ip.allocate.png)
+- a current backup of your PMM data volume
+- scheduled maintenance window for potential downtime
 
-2. Associate Elastic IP address with a Network interface ID of your EC2 instance.
+## Check current version
 
-    If you associate an Elastic IP address to an instance that already has an Elastic IP address associated, this previously associated Elastic IP address will be disassociated but still allocated to your account.
+Verify your current PMM Server version:
 
-    ![!image](../images/aws-marketplace.pmm.ec2.ip.associate.png)
+```bash
+# Via web interface: PMM Configuration > Updates
+# Or via command line:
+docker exec pmm-server pmm-admin --version
+```
 
-## Upgrade EC2 instance class
+## Upgrade methods
 
-Upgrading to a larger EC2 instance class is supported by PMM provided you follow the instructions from the [AWS manual](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html). The PMM AMI image uses a distinct EBS volume for the PMM data volume which permits independent resizing of the EC2 instance without impacting the EBS volume.
-{.power-number}
+### Method 1: In-place upgrade (Recommended)
 
-1. Open the Amazon EC2 console.
+For minor version updates and patches:
 
-2. In the navigation pane, choose PMM Server Instances.
+1. Create a backup snapshot of your PMM data volume:
 
-3. Select the instance and choose Actions, Instance state, Stop instance.
+   ```bash
+   aws ec2 create-snapshot --volume-id vol-xxxxxxxxx --description "Pre-upgrade backup $(date)"
+   ```
 
-4. In the Change instance type dialog box, select the instance type that you want.
+2. Update the PMM Server container**:
 
-    ![Change instance](../images/aws-marketplace.pmm.ec2.instance.upgrade.png)
+   ```bash
+   # SSH to your PMM instance
+   ssh -i /path/to/your-key.pem admin@<pmm-server-ip>
 
-5. Choose Apply to accept the new settings and start the stopped instance.
+   # Pull the latest PMM Server image
+   sudo docker pull percona/pmm-server:latest
 
-## Expand PMM Data EBS Volume
+   # Stop the current PMM Server
+   sudo docker stop pmm-server
 
-The PMM data volume is mounted as an XFS formatted volume on top of an LVM volume. There are two ways to increase this volume size:
-{.power-number}
+   # Remove the old container (data is preserved in volumes)
+   sudo docker rm pmm-server
 
-1. Add a new disk via EC2 console or API, and expand the LVM volume to include the new disk volume.
+   # Start the new container with the same configuration
+   sudo docker run -d \
+     -p 80:80 \
+     -p 443:443 \
+     --volumes-from pmm-data \
+     --name pmm-server \
+     --restart always \
+     percona/pmm-server:latest
+   ```
 
-2. Expand existing EBS volume and grow the LVM volume.
+3. Verify the upgrade:
 
-## Expand existing EBS volume
+   ```bash
+   # Check container status
+   sudo docker ps
+   
+   # Verify PMM is accessible
+   curl -k https://localhost/ping
+   
+   # Check version via web interface
+   ```
 
-To expand the existing EBS volume for increased capacity, follow these steps.
-{.power-number}
+### Method 2: Blue-green deployment
 
-1. Expand the disk from AWS Console/CLI to the desired capacity.
+For major version upgrades or when minimizing downtime is critical:
 
-2. Login to the PMM EC2 instance and verify that the disk capacity has increased. For example, if you have expanded your disk from 16G to 32G, `dmesg` output should look like below:
+1. Launch a new PMM instance with the latest version following the [deployment guide](../aws/deploy_aws.md).
 
-    ```txt
-    [  535.994494] xvdb: detected capacity change from 17179869184 to 34359738368
-    ```
+2. Create a volume from your PMM data snapshot and attach it to the new instance to restore data from backup.
 
-3. You can check information about volume groups and logical volumes with the `vgs` and `lvs` commands:
+3. Update PMM clients to point to the new server:
 
-    ```sh
-    vgs
-    ```
+   ```bash
+   # On each monitored host
+   pmm-admin config --server-url=https://new-pmm-server-ip:443
+   ```
 
-    ```txt
-    VG     #PV #LV #SN Attr   VSize  VFree
-    DataVG   1   2   0 wz--n- <16.00g    0
-    ```
+4. Decommission the old instance once verified.
 
-    ```sh
-    lvs
-    ```
+## Upgrade to specific versions
 
-    ```txt
-    LV       VG     Attr       LSize   Pool Origin Data%  Meta% Move Log Cpy%Sync Convert
-    DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.74
-    ThinPool DataVG twi-aotz--  15.96g 1.39  1.29
-    ```
+To upgrade to a specific PMM version instead of latest:
 
-4. Now we can use the `lsblk` command to see that our disk size has been identified by the kernel correctly, but LVM2 is not yet aware of the new size. We can use `pvresize` to make sure the PV device reflects the new size. Once `pvresize` is executed, we can see that the VG has the new free space available.
+```bash
+# Example: Upgrade to PMM 3.0.0
+sudo docker pull percona/pmm-server:3.0.0
 
-    ```sh
-    lsblk | grep xvdb
-    ```
+# Follow the same container replacement steps but use the specific tag
+sudo docker run -d \
+  -p 80:80 \
+  -p 443:443 \
+  --volumes-from pmm-data \
+  --name pmm-server \
+  --restart always \
+  percona/pmm-server:3.0.0
+```
 
-    ```txt
-    xvdb                      202:16 0 32G 0 disk
-    ```
+## Post-upgrade tasks
 
-    ```sh
-    pvscan
-    ```
+After upgrading PMM Server:
 
-    ```txt
-    PV /dev/xvdb   VG DataVG    lvm2 [<16.00 GiB / 0    free]
-    Total: 1 [<16.00 GiB] / in use: 1 [<16.00 GiB] / in no VG: 0 [0   ]
-    ```
+1. Verify all services are running:
+   ```bash
+   sudo docker exec pmm-server supervisorctl status
+   ```
 
-    ```sh
-    pvresize /dev/xvdb
-    ```
+2. Check PMM client connectivity:
+   ```bash
+   # On monitored hosts
+   pmm-admin status
+   pmm-admin list
+   ```
 
-    ```txt
-    Physical volume "/dev/xvdb" changed
-    1 physical volume(s) resized / 0 physical volume(s) not resized
-    ```
-
-    ```sh
-    pvs
-    ```
-
-    ```txt
-    PV         VG     Fmt  Attr PSize   PFree
-    /dev/xvdb  DataVG lvm2 a--  <32.00g 16.00g
-    ```
-
-5. We then extend our logical volume. Since the PMM image uses thin provisioning, we need to extend both the pool and the volume:
-
-    ```sh
-    lvs
-    ```
-
-    ```txt
-    LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
-    DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
-    ThinPool DataVG twi-aotz--  15.96g                 1.42   1.32
-    ```
-
-    ```sh
-    lvextend /dev/mapper/DataVG-ThinPool -l 100%VG
-    ```
-
-    ```txt
-    Size of logical volume DataVG/ThinPool_tdata changed from 16.00 GiB (4096 extents) to 31.96 GiB (8183 extents).
-    Logical volume DataVG/ThinPool_tdata successfully resized.
-    ```
-
-    ```sh
-    lvs
-    ```
-
-    ```txt
-    LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
-    DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
-    ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
-    ```
-
-6. Once the pool and volumes have been extended, we need to now extend the thin volume to consume the newly available space. In this example we’ve grown available space to almost 32GB, and already consumed 12GB, so we’re extending an additional 19GB:
-
-    ```sh
-    lvs
-    ```
-
-    ```txt
-    LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
-    DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
-    ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
-    ```
-
-    ```sh
-    lvextend /dev/mapper/DataVG-DataLV -L +19G
-    ```
-
-    ```txt
-    Size of logical volume DataVG/DataLV changed from <12.80 GiB (3276 extents) to <31.80 GiB (8140 extents).
-    Logical volume DataVG/DataLV successfully resized.
-    ```
-
-    ```sh
-    lvs
-    ```
-
-    ```txt
-    LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
-    DataLV   DataVG Vwi-aotz-- <31.80g ThinPool        0.71
-    ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
-    ```
-
-7. We then expand the XFS file system to reflect the new size using `xfs_growfs`, and confirm the file system is accurate using the `df` command.
-
-    ```sh
-    df -h /srv
-    ```
-
-    ```txt
-    Filesystem                  Size Used Avail Use% Mounted on
-    /dev/mapper/DataVG-DataLV    13G 249M   13G   2% /srv
-    ```
-
-    ```sh
-    xfs_growfs /srv
-    ```
-
-    ```txt
-    meta-data=/dev/mapper/DataVG-DataLV isize=512    agcount=103, agsize=32752 blks
-             =                          sectsz=512   attr=2, projid32bit=1
-             =                          crc=1        finobt=0 spinodes=0
-    data     =                          bsize=4096   blocks=3354624, imaxpct=25
-             =                          sunit=16     swidth=16 blks
-    naming   =version 2                 bsize=4096   ascii-ci=0 ftype=1
-    log      =internal                  bsize=4096   blocks=768, version=2
-             =                          sectsz=512   sunit=16 blks, lazy-count=1
-    realtime =none                      extsz=4096   blocks=0, rtextents=0
-    data blocks changed from 3354624 to 8335360
-    ```
-
-    ```sh
-    df -h /srv
-    ```
-
-    ```txt
-    Filesystem                 Size Used Avail Use% Mounted on
-    /dev/mapper/DataVG-DataLV   32G 254M   32G   1% /srv
-    ```
-
-## Expand Amazon EBS root volume
-
-To expand the Amazon EBS root volume:
-{.power-number}
-
-1. Expand the disk from AWS Console/CLI to the desired capacity.
-
-2. Login to the PMM EC2 instance and verify that the disk capacity has increased. For example, if you have expanded disk from 8G to 10G, `dmesg` output should look like below:
-
-    ```sh
-    # dmesg | grep "capacity change"
-    [63175.044762] nvme0n1: detected capacity change from 8589934592 to 10737418240
-    ```
-
-3. Use the `lsblk` command to see that our disk size has been identified by the kernel correctly, but LVM2 is not yet aware of the new size.
-
-    ```sh
-    # lsblk
-    NAME                      MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-    nvme0n1                   259:1    0    10G  0 disk
-    └─nvme0n1p1               259:2    0     8G  0 part /
-    ...
-    ```
-
-4. For volumes that have a partition, such as the root volume shown in the previous step, use the `growpart` command to extend the partition.
-
-    ```sh
-    # growpart /dev/nvme0n1 1
-    CHANGED: partition=1 start=2048 old: size=16775168 end=16777216 new: size=20969439 end=20971487
-    ```
-
-5. To verify that the partition reflects the increased volume size, use the `lsblk` command again.
-
-    ```txt
-    # lsblk
-    NAME                      MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-    nvme0n1                   259:1    0    10G  0 disk
-    └─nvme0n1p1               259:2    0    10G  0 part /
-    ...
-    ```
-
-6. Extend the XFS file system on the root volume by `xfs_growfs` command. I
-
-    ```sh
-    # xfs_growfs -d /
-    meta-data=/dev/nvme0n1p1         isize=512    agcount=4, agsize=524224 blks
-             =                       sectsz=512   attr=2, projid32bit=1
-             =                       crc=1        finobt=0 spinodes=0
-    data     =                       bsize=4096   blocks=2096896, imaxpct=25
-             =                       sunit=0      swidth=0 blks
-    naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
-    log      =internal               bsize=4096   blocks=2560, version=2
-             =                       sectsz=512   sunit=0 blks, lazy-count=1
-    realtime =none                   extsz=4096   blocks=0, rtextents=0
-    data blocks changed from 2096896 to 2621120
-    ```
-
-7. Verify that file system reflects the increased volume size
-
-    ```sh
-    # df -hT /
-    Filesystem     Type  Size  Used Avail Use% Mounted on
-    /dev/nvme0n1p1 xfs    10G  5,6G  4,5G  56% /
-    ```
+3. Update PMM clients if required for compatibility:
+   ```bash
+   # Download and install latest PMM Client
+   wget https://www.percona.com/downloads
+   ```
+
+4. Review dashboards and alerting rules** for any changes or new features.
+
+5. Test monitoring functionality to ensure data collection continues normally.
+
+## Rollback procedure
+
+If issues occur after upgrade:
+
+1. Stop the new PMM container:
+   ```bash
+   sudo docker stop pmm-server
+   sudo docker rm pmm-server
+   ```
+
+2. Restore from backup:
+
+   - Create volume from pre-upgrade snapshot
+   - Attach to instance
+   - Start previous PMM version
+
+3. Revert PMM Clients if they were updated:
+
+   ```bash
+   # Reinstall previous client version
+   pmm-admin config --server-url=https://original-pmm-server:443
+   ```
+
+## Troubleshooting upgrades
+
+### Container won't start after upgrade
+
+```bash
+# Check logs
+sudo docker logs pmm-server
+
+# Verify volume mounts
+sudo docker inspect pmm-server
+```
+
+### Database migration issues
+
+```bash
+# Access PMM container
+sudo docker exec -it pmm-server bash
+
+# Check database status
+pmm-admin status
+```
+## Automated upgrade scheduling
+
+Consider implementing automated upgrade workflows:
+
+1. Set up CloudWatch alarms to monitor PMM health
+2. Use AWS Systems Manager for automated patching schedules
+3. Implement backup automation before upgrades
+4. Create upgrade runbooks for your team
+
+## Next steps
+
+After successful upgrade:
+
+- [Configure new features](../aws/configure_aws.md) introduced in the latest version
+- [Update monitoring alerts](../../../../alert/index.md) to use new capabilities
+- [Review performance optimizations](../aws/configure_aws.md#optimize-memory-allocation) for the new version

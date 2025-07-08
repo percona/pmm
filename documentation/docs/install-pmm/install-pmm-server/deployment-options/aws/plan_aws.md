@@ -8,7 +8,7 @@ Before you begin, ensure you have:
 
 - an active AWS account with appropriate permissions
 - IAM permissions to create and manage EC2 instances, storage, VPC and security groups
-- an understanding of AWS networking concepts (VPC, subnets, security group concepts)
+- understanding of AWS networking concepts (VPC, subnets, security group concepts)
 
 ## Choose the right instance size
 
