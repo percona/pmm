@@ -13,8 +13,6 @@ import {
   IconButton,
   Typography,
   TextField,
-  Chip,
-  Divider,
   CircularProgress,
   Alert,
 } from '@mui/material';
@@ -22,7 +20,6 @@ import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
-  Chat as ChatIcon,
   History as HistoryIcon,
 } from '@mui/icons-material';
 import { aiChatAPI, ChatSession } from '../../api/aichat';
