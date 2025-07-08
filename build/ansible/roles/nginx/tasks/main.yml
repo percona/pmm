@@ -92,8 +92,9 @@
     state: touch
     group: pmm
     owner: pmm
+    mode: 0660
   loop:
-    - /usr/share/pmm-server/nginx.pid
+    - /run/nginx.pid
     - /srv/logs/nginx.log
 
 - name: Check nginx configuration
@@ -106,4 +107,4 @@
     dest: /usr/share/pmm-server/static/
     group: pmm
     owner: pmm
-    mode: 0644  # or 0664 if group write access is required
+    mode: 0644
