@@ -25,7 +25,7 @@
     state: directory
     owner: pmm
     group: pmm
-    mode: 0777  
+    mode: 0775  
 
 - name: Create Postgres log file
   file:

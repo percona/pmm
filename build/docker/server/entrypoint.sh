@@ -83,7 +83,7 @@ if [ -z "$(ls -A /usr/share/pmm-server 2>/dev/null)" ]; then
     echo "Setting up pmm-agent configuration..."
     # Create pmm-agent temp directory with proper permissions
     mkdir -p /srv/pmm-agent/tmp
-    chmod 777 /srv/pmm-agent/tmp
+    chmod 775 /srv/pmm-agent/tmp
     
     # Set up pmm-agent configuration file in /usr/share/pmm-server/
     pmm-agent setup \

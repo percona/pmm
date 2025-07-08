@@ -5,7 +5,7 @@
     state: directory
     owner: pmm
     group: pmm
-    mode: 0777
+    mode: 0775
   loop:
     - /usr/share/pmm-server/static/
     - /usr/share/pmm-server/nginx/

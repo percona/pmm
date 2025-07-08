@@ -31,6 +31,6 @@ if test "${diff}" -lt "$((${expire_limit}*24*3600))"; then
     fi
     
     # Set proper permissions for OpenShift compatibility  
-    chmod 644 /srv/nginx/certificate.crt
-    chmod 644 /srv/nginx/certificate.key
+    chmod 640 /srv/nginx/certificate.crt
+    chmod 640 /srv/nginx/certificate.key
 fi

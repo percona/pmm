@@ -63,7 +63,7 @@
     state: directory
     owner: pmm
     group: pmm
-    mode: 0777
+    mode: 0775
   loop:
     - /srv # otherwise it's owned by root
     - /srv/prometheus/rules
@@ -76,7 +76,7 @@
     state: directory
     owner: pmm
     group: pmm
-    mode: 0777
+    mode: 0775
     recurse: yes
 
 # Note a special mode required mainly by nginx
@@ -155,7 +155,7 @@
     state: touch
     owner: pmm
     group: pmm
-    mode: 0666
+    mode: 0664
 
 # Launch pmm-managed-init first as it may update supervisord configuration on start
 - name: Generate new supervisor config
