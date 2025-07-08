@@ -104,4 +104,4 @@ After confirming your environment meets these prerequisites:
 
 ## Troubleshooting
 
-If you encounter issues during installation or setup, refer to the [Troubleshooting checklist](../../troubleshoot/checklist.md).
+If you encounter issues during installation or setup, see the [Troubleshooting checklist](../../troubleshoot/checklist.md).
