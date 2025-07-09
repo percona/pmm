@@ -30,6 +30,6 @@ where:
 - [Install PMM Client with Docker](../install-pmm-client/docker.md) 
 - [Connect MySQL database](../install-pmm-client/connect-database/mysql/mysql.md)
 - [Connect PostgreSQL database](../install-pmm-client/connect-database/postgresql.md) 
-- [Connect MongoDB database](../install-pmm-client/connect-database/mongodb/mongodb.md)
+- [Connect MongoDB database](../install-pmm-client/connect-database/mongodb.md)
 - [Add Linux system monitoring](../install-pmm-client/connect-database/linux.md) 
 - [Unregister PMM Client](../../uninstall-pmm/unregister_client.md)
