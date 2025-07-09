@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Roles are a vital part of Access control. Roles provide users with access to specific, role-based metrics.">
+        <meta name="description" content="Roles are essential components of PMM’s access control system. They allow you to limit users’ access to specific metrics based on their responsibilities and permissions.">
       
       
         <meta name="author" content="Percona LLC">
@@ -16,14 +16,14 @@
         <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/admin/roles/access-control/create_roles.html">
       
       
-        <link rel="prev" href="config_access_cntrl.html">
+        <link rel="prev" href="enable_access_control.html">
       
       
         <link rel="next" href="manage_roles.html">
       
       
       <link rel="icon" href="../../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -2614,6 +2614,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../install-pmm/HA.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install PMM in HA mode
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3880,7 +3903,7 @@
   
   
   <span class="md-ellipsis">
-    About query analytics (QAN)
+    About Query Analytics (QAN)
     
   </span>
   
@@ -5532,7 +5555,7 @@
   
   
   <span class="md-ellipsis">
-    About access control in PMM
+    About label based access control (LBAC) in PMM
     
   </span>
   
@@ -5573,12 +5596,12 @@
   
   
     <li class="md-nav__item">
-      <a href="config_access_cntrl.html" class="md-nav__link">
+      <a href="enable_access_control.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Configure access control
+    Enable access control
     
   </span>
   
@@ -5605,6 +5628,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Create access roles
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="create_roles.html" class="md-nav__link md-nav__link--active">
         
   
@@ -5616,6 +5652,43 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-begin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Before you begin
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-new-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create a new role
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -5657,7 +5730,7 @@
   
   
   <span class="md-ellipsis">
-    Assign roles to users
+    Assign access roles to users
     
   </span>
   
@@ -5675,12 +5748,12 @@
   
   
     <li class="md-nav__item">
-      <a href="usecase.html" class="md-nav__link">
+      <a href="use_cases.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Use Case
+    Implementing LBAC: practical scenarios
     
   </span>
   
@@ -6017,6 +6090,29 @@
   
   <span class="md-ellipsis">
     Release notes index
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../release-notes/3.3.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PMM 3.3.0 (2025-07-09)
     
   </span>
   
@@ -6551,7 +6647,7 @@
   
   
   <span class="md-ellipsis">
-    pmm-admin - PMM Administration Tool
+    pmm-admin - PMM administration tool
     
   </span>
   
@@ -8179,12 +8275,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
+      <a href="../../../reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    PostgreSQL Instances Overview
+    PostgreSQL Checkpoints, Buffers and WAL Usage
     
   </span>
   
@@ -8248,12 +8344,104 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.html" class="md-nav__link">
+      <a href="../../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Experimental PostgreSQL Vacuum Monitoring
+    PostgreSQL Instances Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Instances Overview Extended
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-postgresql-patroni-details.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Patroni Details
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-postgresql-replication.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Replication Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-postgresql-topqueries.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Top Queries
     
   </span>
   
@@ -8658,6 +8846,32 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-begin" class="md-nav__link">
+    <span class="md-ellipsis">
+      Before you begin
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-new-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create a new role
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                     </div>
                     <div class="md-sidebar__inner">
@@ -8687,7 +8901,7 @@
 
 
   
-    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/admin/roles/access-control/create_roles.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/edit/v3-doc-prod/documentation/docs/admin/roles/access-control/create_roles.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -8696,7 +8910,7 @@
     
       
     
-    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/admin/roles/access-control/create_roles.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/v3-doc-prod/documentation/docs/admin/roles/access-control/create_roles.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
@@ -8704,36 +8918,38 @@
 
 
 <h1 id="create-access-roles">Create access roles<a class="headerlink" href="#create-access-roles" title="Permanent link">&para;</a></h1>
-<p>Roles are a vital part of Access control. Roles provide users with access to specific, role-based metrics.</p>
-<p class="power-number">To create access roles in PMM, do the following:</p>
+<p>Roles are essential components of PMM&rsquo;s access control system. They allow you to limit users&rsquo; access to specific metrics based on their responsibilities and permissions.</p>
+<h2 id="before-you-begin">Before you begin<a class="headerlink" href="#before-you-begin" title="Permanent link">&para;</a></h2>
+<ul>
+<li>You must have administrator privileges to create roles. For more information, see <a href="../../manage-users/index.html">Manage users</a>.</li>
+<li>Access control must be enabled in PMM settings</li>
+</ul>
+<h2 id="create-a-new-role">Create a new role<a class="headerlink" href="#create-a-new-role" title="Permanent link">&para;</a></h2>
+<p class="power-number">To create access roles in PMM:</p>
 <ol>
-<li>From the <a href="../../../reference/ui/ui_components.html">main menu</a>, go to <strong>PMM Configuration &gt; Settings &gt; Advanced Settings</strong> and enable the <strong>Access Roles</strong> option.</li>
+<li>From the <a href="../../../reference/ui/ui_components.html">main menu</a>, go to <strong>PMM Configuration &gt; Settings &gt; Advanced Settings</strong> and enable the <strong>Access control</strong> option.</li>
 <li>
 <p>Go to <strong>Administration &gt; Users and access &gt; Access Roles</strong>.</p>
-<p><img alt="!" src="../../../images/PMM_access_control_create_role.png" /></p>
+<p><img alt="PMM Access Control - Create role" src="../../../images/lbac/PMM_access_control_create_role.png" /></p>
 </li>
 <li>
 <p>Click <strong>Create</strong>.</p>
 </li>
 <li>On the <strong>Create role</strong> page, enter the Role name and Role description.</li>
 <li>
-<p>Select the following from the drop-downs for metrics access:</p>
+<p>Configure metrics access by setting label selectors:</p>
 <ul>
-<li>Label</li>
-<li>Operator</li>
-<li>Value of the label</li>
+<li>select a Label (e.g., &ldquo;service_name&rdquo;, &ldquo;environment&rdquo;)</li>
+<li>choose an Operator (e.g., &ldquo;=&rdquo;, &ldquo;!=&rdquo;, &ldquo;=~&rdquo;)</li>
+<li>enter the Value for the selected label</li>
 </ul>
 <p>If you want to add more than one label for a role, click <em>+</em> and select the values from the drop-down.</p>
 <p>For information on how the Prometheus selectors work, see <a href="https://prometheus.io/docs/prometheus/latest/querying/basics/#time-series-selectors">Prometheus selectors</a>.</p>
 </li>
 <li>
-<p>Click <strong>Create</strong> role.</p>
+<p>Review your selections, then click <strong>Create</strong> to finalize the role.</p>
 </li>
 </ol>
-<div class="admonition note alert alert-primary">
-<p class="admonition-title">Note</p>
-<p>To create roles, you must have admin privileges. For more information, see <a href="../../manage-users/index.html">Manage users</a>.</p>
-</div>
 
 
 
@@ -8754,7 +8970,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-02-17
+    2025-07-09
   </span>
 
     
@@ -8872,7 +9088,7 @@
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 
-      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
         <script src="../../../js/promptremover.js"></script>
       

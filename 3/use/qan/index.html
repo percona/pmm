@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="The Query Analytics dashboard shows how queries are executed and where they spend their time.  It helps you analyze database queries over time, optimize database performance, and find and remedy the source of problems.">
+        <meta name="description" content="The Query Analytics dashboard shows how queries are executed and where they spend their time. It helps you analyze database queries over time, optimize database performance, and find and remedy the source of problems.">
       
       
         <meta name="author" content="Percona LLC">
@@ -23,11 +23,11 @@
       
       
       <link rel="icon" href="../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
-        <title>About query analytics (QAN) - Percona Monitoring and Management</title>
+        <title>About Query Analytics (QAN) - Percona Monitoring and Management</title>
       
     
     
@@ -90,7 +90,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - About query analytics (QAN)" />
+                 <meta property="og:title" content="Percona Monitoring and Management - About Query Analytics (QAN)" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -188,7 +188,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              About query analytics (QAN)
+              About Query Analytics (QAN)
             
           </span>
         </div>
@@ -2614,6 +2614,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install PMM in HA mode
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3888,17 +3911,175 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    About Query Analytics (QAN)
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="index.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
-    About query analytics (QAN)
+    About Query Analytics (QAN)
     
   </span>
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#requirements-for-profiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      Requirements for Profiler
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements-for-mongolog" class="md-nav__link">
+    <span class="md-ellipsis">
+      Requirements for Mongolog
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard components
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard layout
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dashboard layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-retrieval-delays" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data retrieval delays
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#label-based-access-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Label-based access control
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitation-missing-query-examples-in-mysql-performance-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitation: Missing query examples in MySQL Performance Schema
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Limitation: Missing query examples in MySQL Performance Schema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-this-happens" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why this happens
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-schema-refresh-rate-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Schema refresh rate tuning
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Schema refresh rate tuning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration options
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to configure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workaround" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workaround
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -5540,7 +5721,7 @@
   
   
   <span class="md-ellipsis">
-    About access control in PMM
+    About label based access control (LBAC) in PMM
     
   </span>
   
@@ -5581,12 +5762,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../admin/roles/access-control/config_access_cntrl.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/enable_access_control.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Configure access control
+    Enable access control
     
   </span>
   
@@ -5655,7 +5836,7 @@
   
   
   <span class="md-ellipsis">
-    Assign roles to users
+    Assign access roles to users
     
   </span>
   
@@ -5673,12 +5854,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../admin/roles/access-control/usecase.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/use_cases.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Use Case
+    Implementing LBAC: practical scenarios
     
   </span>
   
@@ -6015,6 +6196,29 @@
   
   <span class="md-ellipsis">
     Release notes index
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.3.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PMM 3.3.0 (2025-07-09)
     
   </span>
   
@@ -6549,7 +6753,7 @@
   
   
   <span class="md-ellipsis">
-    pmm-admin - PMM Administration Tool
+    pmm-admin - PMM administration tool
     
   </span>
   
@@ -8177,12 +8381,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    PostgreSQL Instances Overview
+    PostgreSQL Checkpoints, Buffers and WAL Usage
     
   </span>
   
@@ -8246,12 +8450,104 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Experimental PostgreSQL Vacuum Monitoring
+    PostgreSQL Instances Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/dashboards/dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Instances Overview Extended
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/dashboards/dashboard-postgresql-patroni-details.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Patroni Details
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/dashboards/dashboard-postgresql-replication.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Replication Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/dashboards/dashboard-postgresql-topqueries.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Top Queries
     
   </span>
   
@@ -8656,6 +8952,140 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#requirements-for-profiler" class="md-nav__link">
+    <span class="md-ellipsis">
+      Requirements for Profiler
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements-for-mongolog" class="md-nav__link">
+    <span class="md-ellipsis">
+      Requirements for Mongolog
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard components
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dashboard-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dashboard layout
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dashboard layout">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-retrieval-delays" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data retrieval delays
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#label-based-access-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Label-based access control
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitation-missing-query-examples-in-mysql-performance-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitation: Missing query examples in MySQL Performance Schema
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Limitation: Missing query examples in MySQL Performance Schema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-this-happens" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why this happens
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-schema-refresh-rate-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Schema refresh rate tuning
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Schema refresh rate tuning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration options
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-to-configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to configure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workaround" class="md-nav__link">
+    <span class="md-ellipsis">
+      Workaround
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                     </div>
                     <div class="md-sidebar__inner">
@@ -8685,7 +9115,7 @@
 
 
   
-    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/use/qan/index.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/edit/v3-doc-prod/documentation/docs/use/qan/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -8694,32 +9124,109 @@
     
       
     
-    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/use/qan/index.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/v3-doc-prod/documentation/docs/use/qan/index.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="about-query-analytics-qan">About query analytics (QAN)<a class="headerlink" href="#about-query-analytics-qan" title="Permanent link">&para;</a></h1>
-<p>The <em>Query Analytics</em> dashboard shows how queries are executed and where they spend their time.  It helps you analyze database queries over time, optimize database performance, and find and remedy the source of problems.</p>
+<h1 id="about-query-analytics-qan">About Query Analytics (QAN)<a class="headerlink" href="#about-query-analytics-qan" title="Permanent link">&para;</a></h1>
+<p>The Query Analytics dashboard shows how queries are executed and where they spend their time. It helps you analyze database queries over time, optimize database performance, and find and remedy the source of problems.</p>
 <p><img alt="!image" src="../../images/PMM_Query_Analytics.jpg" /></p>
-<p>Query Analytics supports MySQL, MongoDB and PostgreSQL. The minimum requirements for MySQL are:</p>
+<p>Query Analytics supports MySQL, MongoDB and PostgreSQL with the following minimum requirements:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">MySQL requirements</label><label for="__tabbed_1_2">PostgreSQL requirements</label><label for="__tabbed_1_3">MongoDB requirements</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <ul>
-<li>MySQL 5.1 or later (if using the slow query log).</li>
-<li>MySQL 5.6.9 or later (if using Performance Schema).</li>
+<li>MySQL 5.1 or later (if using the slow query log)</li>
+<li>MySQL 5.6.9 or later (if using Performance Schema)</li>
+<li>Percona Server 5.6+ (all Performance Schema and slow log features)</li>
+<li>MariaDB 5.2+ (for user statistics), 10.0+ (for Performance Schema)</li>
 </ul>
+</div>
+<div class="tabbed-block">
+<ul>
+<li>PostgreSQL 11 or later</li>
+<li><code>pg_stat_monitor</code> extension (recommended) or <code>pg_stat_statements</code> extension</li>
+<li>Appropriate <code>shared_preload_libraries</code> configuration</li>
+<li>Superuser privileges for PMM monitoring account</li>
+</ul>
+</div>
+<div class="tabbed-block">
+<ul>
+<li>MongoDB 6.0 or later (4.4+ may work with limited features)</li>
+</ul>
+<h3 id="requirements-for-profiler">Requirements for Profiler<a class="headerlink" href="#requirements-for-profiler" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Profiling enabled for Query Analytics</li>
+<li>Appropriate user roles: <code>clusterMonitor</code>, <code>read</code> (local), and custom monitoring roles. For MongoDB 8.0+: Additional <code>directShardOperations</code> role required for sharded clusters</li>
+</ul>
+<h3 id="requirements-for-mongolog">Requirements for Mongolog<a class="headerlink" href="#requirements-for-mongolog" title="Permanent link">&para;</a></h3>
+<ul>
+<li>MongoDB configured to log slow operations to a file</li>
+<li>MongoDB server has write permissions to the log directory and file</li>
+<li>PMM agent has read permissions to the MongoDB log file</li>
+<li>Appropriate user roles: <code>clusterMonitor</code>, or custom monitoring roles (<code>getCmdLineOpts</code> privilege on <code>{ cluster: true }</code>)</li>
+</ul>
+</div>
+</div>
+</div>
+<h2 id="dashboard-components">Dashboard components<a class="headerlink" href="#dashboard-components" title="Permanent link">&para;</a></h2>
 <p>Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.</p>
+<h2 id="dashboard-layout">Dashboard layout<a class="headerlink" href="#dashboard-layout" title="Permanent link">&para;</a></h2>
 <p>The dashboard contains three panels:</p>
 <ul>
-<li>the <a href="panels/filters.html">Filters Panel</a>;</li>
-<li>the <a href="panels/overview.html">Overview Panel</a>;</li>
-<li>the <a href="panels/details.html">Details Panel</a>.</li>
+<li>the <a href="panels/filters.html">Filters panel</a></li>
+<li>the <a href="panels/overview.html">Overview panel</a></li>
+<li>the <a href="panels/details.html">Details panel</a></li>
 </ul>
-<div class="admonition note alert alert-primary">
-<p class="admonition-title">Note</p>
-<p>Query Analytics data retrieval is not instantaneous and can be delayed due to network conditions. In such situations <em>no data</em> is reported and a gap appears in the sparkline.</p>
-</div>
+<h3 id="data-retrieval-delays">Data retrieval delays<a class="headerlink" href="#data-retrieval-delays" title="Permanent link">&para;</a></h3>
+<p>Query Analytics data retrieval is not instantaneous because metrics are collected once per minute. When collection delays occur, no data is reported and gaps will appear in the sparkline.</p>
+<h2 id="label-based-access-control">Label-based access control<a class="headerlink" href="#label-based-access-control" title="Permanent link">&para;</a></h2>
+<p>Query Analytics integrates with PMM&rsquo;s<a href="../../admin/roles/access-control/intro.html">label-based access control (LBAC)</a> to enforce data security and user permissions. </p>
+<p>When LBAC is enabled:</p>
+<ul>
+<li>users see only queries from databases and services permitted by their assigned roles</li>
+<li>filter dropdown options are dynamically restricted based on user permissions</li>
+<li>data visibility is controlled through Prometheus-style label selectors</li>
+</ul>
+<h2 id="limitation-missing-query-examples-in-mysql-performance-schema">Limitation: Missing query examples in MySQL Performance Schema<a class="headerlink" href="#limitation-missing-query-examples-in-mysql-performance-schema" title="Permanent link">&para;</a></h2>
+<p>When using MySQL&rsquo;s Performance Schema as the query source, you may encounter the message <em>“Sorry, no examples found”</em> in the QAN dashboard. This typically occurs due to the way MySQL handles query sampling and can be influenced by the volume of unique queries, and Performance Schema settings.</p>
+<p>Despite the absence of query examples, all other query metrics are still collected and displayed as expected.</p>
+<h3 id="why-this-happens">Why this happens<a class="headerlink" href="#why-this-happens" title="Permanent link">&para;</a></h3>
+<p>MySQL Performance Schema manages query data across two different tables, which can lead to missing query examples:</p>
+<ul>
+<li>
+<p>Summary table (<code>events_statements_summary_by_digest</code>): stores aggregated metrics for each normalized query (digest) in a limited buffer. Each unique query appears only once, regardless of how many times it runs.</p>
+</li>
+<li>
+<p>History table (<code>events_statements_history</code> or <code>events_statements_history_long</code> in MariaDB): stores individual query executions in a limited rolling buffer. Multiple entries may exist for the same query, but older ones are overwritten as new queries are executed.</p>
+</li>
+</ul>
+<p>A query may appear in the digest summary but not in the history table when:</p>
+<ul>
+<li>it was executed frequently enough to appear in the digest summary</li>
+<li>all its individual executions were overwritten in the history buffer due to high query volume overwhelming the buffer and ongoing activity</li>
+</ul>
+<p>When this happens, QAN can still display the query’s metrics, but cannot show an example query because it&rsquo;s no longer available in <code>events_statements_history</code> table when PMM tries to capture it.</p>
+<h2 id="performance-schema-refresh-rate-tuning">Performance Schema refresh rate tuning<a class="headerlink" href="#performance-schema-refresh-rate-tuning" title="Permanent link">&para;</a></h2>
+<p>PMM Agent includes a configurable <strong>Performance Schema Refresh Rate</strong> that can help capture more query examples. This setting controls how often PMM scrapes data from the history table. Using a shorter interval increases the likelihood that query examples will be captured before being overwritten.</p>
+<h3 id="configuration-options">Configuration options<a class="headerlink" href="#configuration-options" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Default value: 5 seconds</li>
+<li>Minimum value: 1 second</li>
+<li>Value of 0 uses the default (5 seconds)</li>
+</ul>
+<h3 id="how-to-configure">How to configure<a class="headerlink" href="#how-to-configure" title="Permanent link">&para;</a></h3>
+<ul>
+<li>environment variable: <code>PMM_AGENT_PERFSCHEMA_REFRESH_RATE</code>. </li>
+<li>flag for PMM agent binary: <code>--perfschema-refresh-rate=NUMBER</code>. </li>
+<li>property in PMM agent config: <code>perfschema-refresh-rate: NUMBER</code>. </li>
+</ul>
+<h3 id="workaround">Workaround<a class="headerlink" href="#workaround" title="Permanent link">&para;</a></h3>
+<p>If you&rsquo;re still missing some query examples, consider <a href="../../../docs/install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source">using the slow query log (<code>slowlog</code>)</a> as the query source instead. 
+The <code>slowlog</code> retains actual query texts over time and can help capture examples even when Performance Schema history buffers are exhausted.</p>
 
 
 
@@ -8740,7 +9247,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-18
+    2025-07-09
   </span>
 
     
@@ -8858,7 +9365,7 @@
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
         <script src="../../js/promptremover.js"></script>
       

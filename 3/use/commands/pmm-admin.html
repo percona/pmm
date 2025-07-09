@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation">
+        <meta name="description" content="pmm-admin is a command-line tool for administering PMM using a set of COMMAND keywords and associated FLAGS. It communicates directly with the PMM Server.">
       
       
         <meta name="author" content="Percona LLC">
@@ -23,11 +23,11 @@
       
       
       <link rel="icon" href="../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
-        <title>pmm-admin - PMM Administration Tool - Percona Monitoring and Management</title>
+        <title>pmm-admin - PMM administration tool - Percona Monitoring and Management</title>
       
     
     
@@ -90,7 +90,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - pmm-admin - PMM Administration Tool" />
+                 <meta property="og:title" content="Percona Monitoring and Management - pmm-admin - PMM administration tool" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -188,7 +188,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              pmm-admin - PMM Administration Tool
+              pmm-admin - PMM administration tool
             
           </span>
         </div>
@@ -2614,6 +2614,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install PMM in HA mode
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3880,7 +3903,7 @@
   
   
   <span class="md-ellipsis">
-    About query analytics (QAN)
+    About Query Analytics (QAN)
     
   </span>
   
@@ -5526,7 +5549,7 @@
   
   
   <span class="md-ellipsis">
-    About access control in PMM
+    About label based access control (LBAC) in PMM
     
   </span>
   
@@ -5567,12 +5590,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../admin/roles/access-control/config_access_cntrl.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/enable_access_control.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Configure access control
+    Enable access control
     
   </span>
   
@@ -5641,7 +5664,7 @@
   
   
   <span class="md-ellipsis">
-    Assign roles to users
+    Assign access roles to users
     
   </span>
   
@@ -5659,12 +5682,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../admin/roles/access-control/usecase.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/use_cases.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Use Case
+    Implementing LBAC: practical scenarios
     
   </span>
   
@@ -6001,6 +6024,29 @@
   
   <span class="md-ellipsis">
     Release notes index
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.3.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PMM 3.3.0 (2025-07-09)
     
   </span>
   
@@ -6550,7 +6596,7 @@
   
   
   <span class="md-ellipsis">
-    pmm-admin - PMM Administration Tool
+    pmm-admin - PMM administration tool
     
   </span>
   
@@ -6563,7 +6609,7 @@
   
   
   <span class="md-ellipsis">
-    pmm-admin - PMM Administration Tool
+    pmm-admin - PMM administration tool
     
   </span>
   
@@ -6586,27 +6632,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#name" class="md-nav__link">
-    <span class="md-ellipsis">
-      NAME
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#synopsis" class="md-nav__link">
     <span class="md-ellipsis">
-      SYNOPSIS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#description" class="md-nav__link">
-    <span class="md-ellipsis">
-      DESCRIPTION
+      Synopsis
     </span>
   </a>
   
@@ -6615,7 +6643,7 @@
         <li class="md-nav__item">
   <a href="#common-flags" class="md-nav__link">
     <span class="md-ellipsis">
-      COMMON FLAGS
+      Common flags
     </span>
   </a>
   
@@ -6624,17 +6652,17 @@
         <li class="md-nav__item">
   <a href="#commands" class="md-nav__link">
     <span class="md-ellipsis">
-      COMMANDS
+      Commands
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="COMMANDS">
+    <nav class="md-nav" aria-label="Commands">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#general-commands" class="md-nav__link">
     <span class="md-ellipsis">
-      GENERAL COMMANDS
+      General commands
     </span>
   </a>
   
@@ -6643,7 +6671,7 @@
           <li class="md-nav__item">
   <a href="#information-commands" class="md-nav__link">
     <span class="md-ellipsis">
-      INFORMATION COMMANDS
+      Information commands
     </span>
   </a>
   
@@ -6652,11 +6680,11 @@
           <li class="md-nav__item">
   <a href="#configuration-commands" class="md-nav__link">
     <span class="md-ellipsis">
-      CONFIGURATION COMMANDS
+      Configuration commands
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="CONFIGURATION COMMANDS">
+    <nav class="md-nav" aria-label="Configuration commands">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -6712,31 +6740,21 @@
           <li class="md-nav__item">
   <a href="#database-commands" class="md-nav__link">
     <span class="md-ellipsis">
-      DATABASE COMMANDS
+      Database commands
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="DATABASE COMMANDS">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#mongodb" class="md-nav__link">
-    <span class="md-ellipsis">
-      MongoDB
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="MongoDB">
+    <nav class="md-nav" aria-label="Database commands">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#advanced-options" class="md-nav__link">
     <span class="md-ellipsis">
-      Advanced Options
+      Advanced options
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Advanced Options">
+    <nav class="md-nav" aria-label="Advanced options">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -6794,56 +6812,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#mysql" class="md-nav__link">
-    <span class="md-ellipsis">
-      MySQL
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#postgresql" class="md-nav__link">
-    <span class="md-ellipsis">
-      PostgreSQL
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#proxysql" class="md-nav__link">
-    <span class="md-ellipsis">
-      ProxySQL
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#haproxy" class="md-nav__link">
-    <span class="md-ellipsis">
-      HAProxy
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#other-commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      OTHER COMMANDS
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -6852,11 +6820,11 @@
         <li class="md-nav__item">
   <a href="#examples_1" class="md-nav__link">
     <span class="md-ellipsis">
-      EXAMPLES
+      Examples
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="EXAMPLES">
+    <nav class="md-nav" aria-label="Examples">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -8499,12 +8467,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    PostgreSQL Instances Overview
+    PostgreSQL Checkpoints, Buffers and WAL Usage
     
   </span>
   
@@ -8568,12 +8536,104 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Experimental PostgreSQL Vacuum Monitoring
+    PostgreSQL Instances Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/dashboards/dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Instances Overview Extended
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/dashboards/dashboard-postgresql-patroni-details.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Patroni Details
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/dashboards/dashboard-postgresql-replication.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Replication Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/dashboards/dashboard-postgresql-topqueries.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Top Queries
     
   </span>
   
@@ -8985,27 +9045,9 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#name" class="md-nav__link">
-    <span class="md-ellipsis">
-      NAME
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#synopsis" class="md-nav__link">
     <span class="md-ellipsis">
-      SYNOPSIS
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#description" class="md-nav__link">
-    <span class="md-ellipsis">
-      DESCRIPTION
+      Synopsis
     </span>
   </a>
   
@@ -9014,7 +9056,7 @@
         <li class="md-nav__item">
   <a href="#common-flags" class="md-nav__link">
     <span class="md-ellipsis">
-      COMMON FLAGS
+      Common flags
     </span>
   </a>
   
@@ -9023,17 +9065,17 @@
         <li class="md-nav__item">
   <a href="#commands" class="md-nav__link">
     <span class="md-ellipsis">
-      COMMANDS
+      Commands
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="COMMANDS">
+    <nav class="md-nav" aria-label="Commands">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#general-commands" class="md-nav__link">
     <span class="md-ellipsis">
-      GENERAL COMMANDS
+      General commands
     </span>
   </a>
   
@@ -9042,7 +9084,7 @@
           <li class="md-nav__item">
   <a href="#information-commands" class="md-nav__link">
     <span class="md-ellipsis">
-      INFORMATION COMMANDS
+      Information commands
     </span>
   </a>
   
@@ -9051,11 +9093,11 @@
           <li class="md-nav__item">
   <a href="#configuration-commands" class="md-nav__link">
     <span class="md-ellipsis">
-      CONFIGURATION COMMANDS
+      Configuration commands
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="CONFIGURATION COMMANDS">
+    <nav class="md-nav" aria-label="Configuration commands">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -9111,31 +9153,21 @@
           <li class="md-nav__item">
   <a href="#database-commands" class="md-nav__link">
     <span class="md-ellipsis">
-      DATABASE COMMANDS
+      Database commands
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="DATABASE COMMANDS">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#mongodb" class="md-nav__link">
-    <span class="md-ellipsis">
-      MongoDB
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="MongoDB">
+    <nav class="md-nav" aria-label="Database commands">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#advanced-options" class="md-nav__link">
     <span class="md-ellipsis">
-      Advanced Options
+      Advanced options
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Advanced Options">
+    <nav class="md-nav" aria-label="Advanced options">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -9193,56 +9225,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#mysql" class="md-nav__link">
-    <span class="md-ellipsis">
-      MySQL
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#postgresql" class="md-nav__link">
-    <span class="md-ellipsis">
-      PostgreSQL
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#proxysql" class="md-nav__link">
-    <span class="md-ellipsis">
-      ProxySQL
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#haproxy" class="md-nav__link">
-    <span class="md-ellipsis">
-      HAProxy
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#other-commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      OTHER COMMANDS
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -9251,11 +9233,11 @@
         <li class="md-nav__item">
   <a href="#examples_1" class="md-nav__link">
     <span class="md-ellipsis">
-      EXAMPLES
+      Examples
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="EXAMPLES">
+    <nav class="md-nav" aria-label="Examples">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -9303,7 +9285,7 @@
 
 
   
-    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/use/commands/pmm-admin.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/edit/v3-doc-prod/documentation/docs/use/commands/pmm-admin.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -9312,21 +9294,20 @@
     
       
     
-    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/use/commands/pmm-admin.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/v3-doc-prod/documentation/docs/use/commands/pmm-admin.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="pmm-admin-pmm-administration-tool">pmm-admin - PMM Administration Tool<a class="headerlink" href="#pmm-admin-pmm-administration-tool" title="Permanent link">&para;</a></h1>
-<h2 id="name">NAME<a class="headerlink" href="#name" title="Permanent link">&para;</a></h2>
-<p><code>pmm-admin</code> - Administer PMM</p>
-<h2 id="synopsis">SYNOPSIS<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h2>
+<h1 id="pmm-admin-pmm-administration-tool">pmm-admin - PMM administration tool<a class="headerlink" href="#pmm-admin-pmm-administration-tool" title="Permanent link">&para;</a></h1>
+<p><code>pmm-admin</code> is a command-line tool for administering PMM using a set of COMMAND keywords and associated FLAGS. It communicates directly with the PMM Server.</p>
+<h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h2>
 <p><code>pmm-admin [FLAGS]</code></p>
 <p><code>pmm-admin config [FLAGS] --server-url=server-url</code></p>
 <p><code>pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]</code></p>
-<p>DATABASE:= [<a href="#mongodb">MongoDB</a> | <a href="#mysql">MySQL</a> | <a href="#postgresql">PostgreSQL</a> | <a href="#proxysql">ProxySQL</a>]</p>
+<p>DATABASE:= <a href="#database-commands">MongoDB|MySQL|PostgreSQL|ProxySQL</a></p>
 <p><code>pmm-admin add --pmm-agent-listen-port=LISTEN_PORT DATABASE [FLAGS] [NAME] [ADDRESS]</code></p>
 <p><code>pmm-admin add haproxy [FLAGS] [NAME]</code></p>
 <p><code>pmm-admin add external [FLAGS] [NAME] [ADDRESS]</code></p>
@@ -9338,10 +9319,7 @@
 <p><code>pmm-admin summary [FLAGS] [node-address]</code></p>
 <p><code>pmm-admin annotate [--node|--service] [--tags &lt;tags&gt;] [node-name|service-name]</code></p>
 <p><code>pmm-admin help [COMMAND]</code></p>
-<h2 id="description">DESCRIPTION<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
-<p><code>pmm-admin</code> is a command-line tool for administering PMM using a set of COMMAND keywords and associated FLAGS.</p>
-<p>PMM communicates with the PMM Server via a PMM agent process.</p>
-<h2 id="common-flags">COMMON FLAGS<a class="headerlink" href="#common-flags" title="Permanent link">&para;</a></h2>
+<h2 id="common-flags">Common flags<a class="headerlink" href="#common-flags" title="Permanent link">&para;</a></h2>
 <dl>
 <dt><code>-h</code>, <code>--help</code></dt>
 <dd>Show help and exit.</dd>
@@ -9368,13 +9346,13 @@
 <dt><code>--expose-exporter</code></dt>
 <dd>If you enable this flag, any IP address on the local network and anywhere on the internet can access exporter endpoints. If the flag is disabled/not present, exporter endpoints can be accessed only locally. The flag is disabled by default</dd>
 </dl>
-<h2 id="commands">COMMANDS<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
-<h3 id="general-commands">GENERAL COMMANDS<a class="headerlink" href="#general-commands" title="Permanent link">&para;</a></h3>
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
+<h3 id="general-commands">General commands<a class="headerlink" href="#general-commands" title="Permanent link">&para;</a></h3>
 <dl>
 <dt><code>pmm-admin help [COMMAND]</code></dt>
 <dd>Show help for <code>COMMAND</code>.</dd>
 </dl>
-<h3 id="information-commands">INFORMATION COMMANDS<a class="headerlink" href="#information-commands" title="Permanent link">&para;</a></h3>
+<h3 id="information-commands">Information commands<a class="headerlink" href="#information-commands" title="Permanent link">&para;</a></h3>
 <dl>
 <dt><code>pmm-admin list --server-url=server-url [FLAGS]</code></dt>
 <dd>Show Services and Agents running on this Node, and the agent mode (push/pull).</dd>
@@ -9407,7 +9385,7 @@
 </dl>
 </dd>
 </dl>
-<h3 id="configuration-commands">CONFIGURATION COMMANDS<a class="headerlink" href="#configuration-commands" title="Permanent link">&para;</a></h3>
+<h3 id="configuration-commands">Configuration commands<a class="headerlink" href="#configuration-commands" title="Permanent link">&para;</a></h3>
 <h4 id="pmm-admin-config"><code>pmm-admin config</code><a class="headerlink" href="#pmm-admin-config" title="Permanent link">&para;</a></h4>
 <dl>
 <dt><code>pmm-admin config [FLAGS] [node-address] [node-type] [node-name]</code></dt>
@@ -9475,7 +9453,7 @@
 </dl>
 </dd>
 </dl>
-<p>DATABASE:= [<a href="#mongodb">MongoDB</a> | <a href="#mysql">MySQL</a> | <a href="#postgresql">PostgreSQL</a> | <a href="#proxysql">ProxySQL</a>]</p>
+<p>DATABASE:= <a href="#database-commands">MongoDB|MySQL|PostgreSQL|ProxySQL</a></p>
 <h4 id="pmm-admin-remove"><code>pmm-admin remove</code><a class="headerlink" href="#pmm-admin-remove" title="Permanent link">&para;</a></h4>
 <dl>
 <dt><code>pmm-admin remove [FLAGS] service-type [service-name]</code></dt>
@@ -9545,8 +9523,10 @@
 </div>
 </dd>
 </dl>
-<h3 id="database-commands">DATABASE COMMANDS<a class="headerlink" href="#database-commands" title="Permanent link">&para;</a></h3>
-<h4 id="mongodb">MongoDB<a class="headerlink" href="#mongodb" title="Permanent link">&para;</a></h4>
+<h3 id="database-commands">Database commands<a class="headerlink" href="#database-commands" title="Permanent link">&para;</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:5"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><input id="__tabbed_1_5" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">MongoDB</label><label for="__tabbed_1_2">MySQL</label><label for="__tabbed_1_3">PostgreSQL</label><label for="__tabbed_1_4">ProxySQL</label><label for="__tabbed_1_5">HAProxy</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <dl>
 <dt><code>pmm-admin add mongodb [FLAGS] [node-name] [node-address]</code></dt>
 <dd>
@@ -9568,8 +9548,12 @@
 <p>Avoid using special characters like &lsquo;', &lsquo;;&rsquo; and &lsquo;$&rsquo; in the custom password.</p>
 </div>
 </dd>
+</dl>
+</dd>
 <dt><code>--query-source=profiler</code></dt>
-<dd>Source of queries, one of: <code>profiler</code>, <code>none</code> (default: <code>profiler</code>).</dd>
+<dd>
+<p>Source of queries, one of: <code>profiler</code>, <code>mongolog</code>, <code>none</code> (default: <code>profiler</code>).</p>
+<dl>
 <dt><code>--environment=environment</code></dt>
 <dd>Environment name.</dd>
 <dt><code>--cluster=cluster</code></dt>
@@ -9608,7 +9592,7 @@
 </dl>
 </dd>
 </dl>
-<h5 id="advanced-options">Advanced Options<a class="headerlink" href="#advanced-options" title="Permanent link">&para;</a></h5>
+<h4 id="advanced-options">Advanced options<a class="headerlink" href="#advanced-options" title="Permanent link">&para;</a></h4>
 <p>PMM starts the MongoDB exporter by default only with <code>diagnosticdata</code> and <code>replicasetstatus</code> collectors enabled.</p>
 <p>FLAGS:</p>
 <dl>
@@ -9626,15 +9610,15 @@
 <dt><code>--stats-collections=db1,db2.col1</code></dt>
 <dd>Collections for collstats &amp; indexstats.</dd>
 </dl>
-<h6 id="enable-all-collectors">Enable all collectors<a class="headerlink" href="#enable-all-collectors" title="Permanent link">&para;</a></h6>
+<h5 id="enable-all-collectors">Enable all collectors<a class="headerlink" href="#enable-all-collectors" title="Permanent link">&para;</a></h5>
 <p>To enable all collectors, pass the parameter <code>--enable-all-collectors</code> in the <code>pmm-admin add mongodb</code> command.
 This will enable <code>collstats</code>, <code>dbstats</code>, <code>indexstats</code>, and <code>topmetrics</code> collectors.</p>
-<h6 id="disable-some-collectors">Disable some collectors<a class="headerlink" href="#disable-some-collectors" title="Permanent link">&para;</a></h6>
+<h5 id="disable-some-collectors">Disable some collectors<a class="headerlink" href="#disable-some-collectors" title="Permanent link">&para;</a></h5>
 <p>To enable only some collectors, pass the parameter <code>--enable-all-collectors</code> along with the parameter <code>--disable-collectors</code>.</p>
 <p>For example, if you want all collectors except <code>topmetrics</code>, specify:</p>
 <div class="highlight"><pre><span></span><code>--enable-all-collectors --disable-collectors=topmetrics
 </code></pre></div>
-<h6 id="limit-dbstats-collstats-and-indexstats">Limit <code>dbStats</code>, <code>collStats</code> and <code>indexStats</code><a class="headerlink" href="#limit-dbstats-collstats-and-indexstats" title="Permanent link">&para;</a></h6>
+<h5 id="limit-dbstats-collstats-and-indexstats">Limit <code>dbStats</code>, <code>collStats</code> and <code>indexStats</code><a class="headerlink" href="#limit-dbstats-collstats-and-indexstats" title="Permanent link">&para;</a></h5>
 <p>By default, PMM decides the limit for the number of collections to monitor the <code>collStats</code> and <code>indexStats</code> collectors.</p>
 <p>You can also set an additional limit for the <code>collStats</code>, <code>indexStats</code>, <code>dbStats</code>, and <code>topmetrics</code> collectors with the <code>--max-collections-limit</code> parameter.</p>
 <p>Set the value of the parameter <code>--max-collections-limit</code> to:</p>
@@ -9647,7 +9631,7 @@ This will enable <code>collstats</code>, <code>dbstats</code>, <code>indexstats<
 <ul>
 <li>Specify the databases and collections that <code>collStats</code> and <code>indexStats</code> will use to collect data using the parameter <code>--stats-collections</code>. This parameter receives a comma-separated list of name spaces in the form <code>database[.collection]</code>.</li>
 </ul>
-<h6 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h6>
+<h5 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h5>
 <p>To add MongoDB with all collectors (<code>diagnosticdata</code>, <code>replicasetstatus</code>, <code>collstats</code>, <code>dbstats</code>, <code>indexstats</code>, and <code>topmetrics</code>) with default limit detected by PMM (currently &lt;=200 collections, but subject to change):</p>
 <p><code>pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors mongodb_srv_1 127.0.0.1:27017</code></p>
 <p>To add MongoDB with all collectors (<code>diagnosticdata</code>, <code>replicasetstatus</code>, <code>collstats</code>, <code>dbstats</code>, <code>indexstats</code>, and <code>topmetrics</code>) with <code>max-collections-limit</code> set to 1000:</p>
@@ -9679,7 +9663,7 @@ This will enable <code>collstats</code>, <code>dbstats</code>, <code>indexstats<
 </table>
 <p>Enable all collectors and limit monitoring for <code>dbstats</code>, <code>indexstats</code>, <code>collstats</code> and <code>topmetrics</code> for all collections in <code>db1</code> and <code>col1</code> collection in <code>db2</code>, without limiting <code>max-collections-limit</code> for a number of collections in <code>db1</code>:</p>
 <p><code>pmm-admin add mongodb --username=admin --password=admin_pass --enable-all-collectors --max-collections-limit=0 --stats-collections=db1,db2.col1 mongodb_srv_1 127.0.0.1:27017</code></p>
-<h5 id="resolutions">Resolutions<a class="headerlink" href="#resolutions" title="Permanent link">&para;</a></h5>
+<h4 id="resolutions">Resolutions<a class="headerlink" href="#resolutions" title="Permanent link">&para;</a></h4>
 <p>PMM collects metrics in two <a href="../../configure-pmm/metrics_res.html">resolutions</a> to decrease CPU and Memory usage: high and low resolutions.</p>
 <p>In high resolution we collect metrics from collectors which work fast:
 - <code>diagnosticdata</code>
@@ -9689,7 +9673,8 @@ This will enable <code>collstats</code>, <code>dbstats</code>, <code>indexstats<
 - <code>dbstats</code>
 - <code>indexstats</code>
 - <code>collstats</code></p>
-<h4 id="mysql">MySQL<a class="headerlink" href="#mysql" title="Permanent link">&para;</a></h4>
+</div>
+<div class="tabbed-block">
 <dl>
 <dt><code>pmm-admin add mysql [FLAGS] node-name node-address | [--name=service-name] --address=address[:port] | --socket</code></dt>
 <dd>
@@ -9716,8 +9701,7 @@ This will enable <code>collstats</code>, <code>dbstats</code>, <code>indexstats<
 </div>
 </dd>
 <dt><code>--query-source=slowlog</code></dt>
-<dd>Source of SQL queries, one of: <code>slowlog</code>, <code>perfschema</code>, <code>none</code> (default: <code>slowlog</code>). For <code>slowlog</code> query source, you need change permissions for
-specific files. Root permissions are needed for this.</dd>
+<dd>Source of SQL queries, one of: <code>slowlog</code>, <code>perfschema</code>, <code>none</code> (default: <code>slowlog</code>). For <code>slowlog</code> query source, you need change permissions for specific files. Root permissions are needed for this.</dd>
 <dt><code>--size-slow-logs=N</code></dt>
 <dd>
 <p>Rotate slow log file at this size. If <code>0</code>, use server-defined default. Negative values disable log rotation. A unit suffix must be appended to the number and can be one of:</p>
@@ -9745,8 +9729,7 @@ specific files. Root permissions are needed for this.</dd>
 </ul>
 </dd>
 <dt><code>--disable-tablestats-limit=disable-tablestats-limit</code></dt>
-<dd>Table statistics collection will be disabled if there are more than specified number of tables
-(default: server-defined). 0=no limit. Negative value disables collection.</dd>
+<dd>Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined). 0=no limit. Negative value disables collection.</dd>
 <dt><code>--environment=environment</code></dt>
 <dd>Environment name.</dd>
 <dt><code>--cluster=cluster</code></dt>
@@ -9789,7 +9772,8 @@ specific files. Root permissions are needed for this.</dd>
 </dl>
 </dd>
 </dl>
-<h4 id="postgresql">PostgreSQL<a class="headerlink" href="#postgresql" title="Permanent link">&para;</a></h4>
+</div>
+<div class="tabbed-block">
 <dl>
 <dt><code>pmm-admin add postgresql [FLAGS] [node-name] [node-address]</code></dt>
 <dd>
@@ -9859,7 +9843,8 @@ specific files. Root permissions are needed for this.</dd>
 </dl>
 </dd>
 </dl>
-<h4 id="proxysql">ProxySQL<a class="headerlink" href="#proxysql" title="Permanent link">&para;</a></h4>
+</div>
+<div class="tabbed-block">
 <dl>
 <dt><code>pmm-admin add proxysql [FLAGS] [node-name] [node-address]</code></dt>
 <dd>
@@ -9905,7 +9890,8 @@ specific files. Root permissions are needed for this.</dd>
 </dl>
 </dd>
 </dl>
-<h4 id="haproxy">HAProxy<a class="headerlink" href="#haproxy" title="Permanent link">&para;</a></h4>
+</div>
+<div class="tabbed-block">
 <dl>
 <dt><code>pmm-admin add haproxy [FLAGS] [NAME]</code></dt>
 <dd>
@@ -9943,98 +9929,15 @@ specific files. Root permissions are needed for this.</dd>
 - <code>pull</code>: server scrapes metrics from agent.</dd>
 <dt><code>--skip-connection-check</code></dt>
 <dd>Skip connection check.</dd>
+<dt><code>--tls-skip-verify</code></dt>
+<dd>Skip TLS certificates validation when connecting to HAProxy endpoints with self-signed or invalid certificates.</dd>
 </dl>
 </dd>
 </dl>
-<h3 id="other-commands">OTHER COMMANDS<a class="headerlink" href="#other-commands" title="Permanent link">&para;</a></h3>
-<dl>
-<dt><code>pmm-admin add external [FLAGS]</code></dt>
-<dd>
-<p>Add External source of data (like a custom exporter running on a port) to be monitored.</p>
-<p>FLAGS:</p>
-<dl>
-<dt><code>--service-name="current-hostname"</code></dt>
-<dd>Service name (autodetected defaults to the hostname where <code>pmm-admin</code> is running).</dd>
-<dt><code>--agent-node-id=AGENT-NODE-ID</code></dt>
-<dd>Node ID where agent runs (default is autodetected).</dd>
-<dt><code>--username=USERNAME</code></dt>
-<dd>External username.</dd>
-<dt><code>--password=PASSWORD</code></dt>
-<dd>External password.</dd>
-<dt><code>--scheme=http or https</code></dt>
-<dd>Scheme to generate URI to exporter metrics endpoints.</dd>
-<dt><code>--metrics-path=/metrics</code></dt>
-<dd>Path under which metrics are exposed, used to generate URI.</dd>
-<dt><code>--listen-port=LISTEN-PORT</code></dt>
-<dd>Listen port of external exporter for scraping metrics. (Required.)</dd>
-<dt><code>--service-node-id=SERVICE-NODE-ID</code></dt>
-<dd>Node ID where service runs (default is autodetected).</dd>
-<dt><code>--environment=prod</code></dt>
-<dd>Environment name like &lsquo;production&rsquo; or &lsquo;qa&rsquo;.</dd>
-<dt><code>--cluster=east-cluster</code></dt>
-<dd>Cluster name.</dd>
-<dt><code>--replication-set=rs1</code></dt>
-<dd>Replication set name.</dd>
-<dt><code>--custom-labels=CUSTOM-LABELS</code></dt>
-<dd>Custom user-assigned labels. Example: <code>region=east,app=app1</code>.</dd>
-<dt><code>--metrics-mode=auto</code></dt>
-<dd>Metrics flow mode, can be <code>push</code>: agent will push metrics, <code>pull</code>: server scrape metrics from agent or <code>auto</code>: chosen by server.</dd>
-<dt><code>--group="external"</code></dt>
-<dd>Group name of external service. (Default: <code>external</code>.)</dd>
-</dl>
-</dd>
-<dt><code>pmm-admin add external-serverless [FLAGS]</code></dt>
-<dd>
-<p>Add External Service on Remote node to monitoring.</p>
-<p>Usage example: <code>pmm-admin add external-serverless --url=http://1.2.3.4:9093/metrics</code>.</p>
-<p>Also, individual parameters can be set instead of <code>--url</code> like: <code>pmm-admin add external-serverless --scheme=http --host=1.2.3.4 --listen-port=9093 --metrics-path=/metrics --container-name=ddd --external-name=e125</code>.</p>
-<p>Note that some parameters are mandatory depending on the context. For example, if you specify <code>--url</code>, <code>--schema</code> and other related parameters are not mandatory. But if you specify <code>--host</code> you must provide all other parameters needed to build the destination URL, or you can specify <code>--address</code> instead of host and port as individual parameters.</p>
-<p>FLAGS:</p>
-<dl>
-<dt><code>--url=URL</code></dt>
-<dd>Full URL to exporter metrics endpoints.</dd>
-<dt><code>--scheme=https</code></dt>
-<dd>Scheme to generate URL to exporter metrics endpoints.</dd>
-<dt><code>--username=USERNAME</code></dt>
-<dd>External username.</dd>
-<dt><code>--password=PASSWORD</code></dt>
-<dd>External password.</dd>
-<dt><code>--address=1.2.3.4:9000</code></dt>
-<dd>External exporter address and port.</dd>
-<dt><code>--host=1.2.3.4</code></dt>
-<dd>External exporters hostname or IP address.</dd>
-<dt><code>--listen-port=9999</code></dt>
-<dd>Listen port of external exporter for scraping metrics.</dd>
-<dt><code>--metrics-path=/metrics</code></dt>
-<dd>Path under which metrics are exposed, used to generate URL.</dd>
-<dt><code>--environment=testing</code></dt>
-<dd>Environment name.</dd>
-<dt><code>--cluster=CLUSTER</code></dt>
-<dd>Cluster name.</dd>
-<dt><code>--replication-set=rs1</code></dt>
-<dd>Replication set name.</dd>
-<dt><code>--custom-labels='app=myapp,region=s1'</code></dt>
-<dd>Custom user-assigned labels.</dd>
-<dt><code>--group="external"</code></dt>
-<dd>Group name of external service. (Default: <code>external</code>.)</dd>
-<dt><code>--machine-id=MACHINE-ID</code></dt>
-<dd>Node machine-id.</dd>
-<dt><code>--distro=DISTRO</code></dt>
-<dd>Node OS distribution.</dd>
-<dt><code>--container-id=CONTAINER-ID</code></dt>
-<dd>Container ID.</dd>
-<dt><code>--container-name=CONTAINER-NAME</code></dt>
-<dd>Container name.</dd>
-<dt><code>--node-model=NODE-MODEL</code></dt>
-<dd>Node model.</dd>
-<dt><code>--region=REGION</code></dt>
-<dd>Node region.</dd>
-<dt><code>--az=AZ</code></dt>
-<dd>Node availability zone.</dd>
-</dl>
-</dd>
-</dl>
-<h2 id="examples_1">EXAMPLES<a class="headerlink" href="#examples_1" title="Permanent link">&para;</a></h2>
+</div>
+</div>
+</div>
+<h2 id="examples_1">Examples<a class="headerlink" href="#examples_1" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mysql<span class="w"> </span>--query-source<span class="o">=</span>slowlog<span class="w"> </span>--username<span class="o">=</span>pmm<span class="w"> </span>--password<span class="o">=</span>pmm<span class="w"> </span>sl-mysql<span class="w"> </span><span class="m">127</span>.0.0.1:3306
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>MySQL Service added.
@@ -10042,6 +9945,15 @@ Service ID  : a89191d4-7d75-44a9-b37f-a528e2c4550f
 Service name: sl-mysql
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>add<span class="w"> </span>mysql<span class="w"> </span>--username<span class="o">=</span>pmm<span class="w"> </span>--password<span class="o">=</span>pmm<span class="w"> </span>--service-name<span class="o">=</span>ps-mysql<span class="w"> </span>--host<span class="o">=</span><span class="m">127</span>.0.0.1<span class="w"> </span>--port<span class="o">=</span><span class="m">3306</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Add external service with self-signed certificate</span>
+pmm-admin<span class="w"> </span>add<span class="w"> </span>external<span class="w"> </span>--listen-port<span class="o">=</span><span class="m">8008</span><span class="w"> </span>--scheme<span class="o">=</span>https<span class="w"> </span>--tls-skip-verify
+
+<span class="c1"># Add external serverless service with certificate issues</span>
+pmm-admin<span class="w"> </span>add<span class="w"> </span>external-serverless<span class="w"> </span>--url<span class="o">=</span>https://host.docker.internal:9218<span class="w"> </span>--tls-skip-verify
+
+<span class="c1"># Add HAProxy with self-signed certificate</span>
+pmm-admin<span class="w"> </span>add<span class="w"> </span>haproxy<span class="w"> </span>--listen-port<span class="o">=</span><span class="m">8404</span><span class="w"> </span>--scheme<span class="o">=</span>https<span class="w"> </span>--tls-skip-verify
 </code></pre></div>
 <div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>status
 pmm-admin<span class="w"> </span>status<span class="w"> </span>--wait<span class="o">=</span>30s
@@ -10090,7 +10002,7 @@ Agents: aeb42475-486c-4f48-a906-9546fc7859e8 mysql_slowlog_agent Running
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-04-25
+    2025-07-09
   </span>
 
     
@@ -10208,7 +10120,7 @@ Agents: aeb42475-486c-4f48-a906-9546fc7859e8 mysql_slowlog_agent Running
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
         <script src="../../js/promptremover.js"></script>
       

@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Label-based access control in PMM allows you to manage who has access to metrics based on labels. By creating roles, you can specify which data can be queried based on specific label criteria, for instance, allowing the QA team to view data related to test environments.">
+        <meta name="description" content="Label-based access control in PMM allows you to precisely manage which monitoring data users can access based on their roles and responsibilities.">
       
       
         <meta name="author" content="Percona LLC">
@@ -19,11 +19,11 @@
         <link rel="prev" href="intro.html">
       
       
-        <link rel="next" href="config_access_cntrl.html">
+        <link rel="next" href="enable_access_control.html">
       
       
       <link rel="icon" href="../../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -2614,6 +2614,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../install-pmm/HA.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install PMM in HA mode
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3880,7 +3903,7 @@
   
   
   <span class="md-ellipsis">
-    About query analytics (QAN)
+    About Query Analytics (QAN)
     
   </span>
   
@@ -5532,7 +5555,7 @@
   
   
   <span class="md-ellipsis">
-    About access control in PMM
+    About label based access control (LBAC) in PMM
     
   </span>
   
@@ -5600,6 +5623,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#how-lbac-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How LBAC works
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#standard-vs-custom-labels" class="md-nav__link">
     <span class="md-ellipsis">
       Standard vs custom labels
@@ -5609,35 +5641,20 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#adding-labels" class="md-nav__link">
+  <a href="#adding-labels-when-creating-services" class="md-nav__link">
     <span class="md-ellipsis">
-      Adding labels
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Adding labels">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#using-pmm-ui" class="md-nav__link">
-    <span class="md-ellipsis">
-      Using PMM UI
+      Adding labels when creating services
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#using-pmm-admin" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#modifying-existing-labels" class="md-nav__link">
     <span class="md-ellipsis">
-      Using pmm-admin
+      Modifying existing labels
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -5657,12 +5674,12 @@
   
   
     <li class="md-nav__item">
-      <a href="config_access_cntrl.html" class="md-nav__link">
+      <a href="enable_access_control.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Configure access control
+    Enable access control
     
   </span>
   
@@ -5731,7 +5748,7 @@
   
   
   <span class="md-ellipsis">
-    Assign roles to users
+    Assign access roles to users
     
   </span>
   
@@ -5749,12 +5766,12 @@
   
   
     <li class="md-nav__item">
-      <a href="usecase.html" class="md-nav__link">
+      <a href="use_cases.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Use Case
+    Implementing LBAC: practical scenarios
     
   </span>
   
@@ -6091,6 +6108,29 @@
   
   <span class="md-ellipsis">
     Release notes index
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../release-notes/3.3.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PMM 3.3.0 (2025-07-09)
     
   </span>
   
@@ -6625,7 +6665,7 @@
   
   
   <span class="md-ellipsis">
-    pmm-admin - PMM Administration Tool
+    pmm-admin - PMM administration tool
     
   </span>
   
@@ -8253,12 +8293,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
+      <a href="../../../reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    PostgreSQL Instances Overview
+    PostgreSQL Checkpoints, Buffers and WAL Usage
     
   </span>
   
@@ -8322,12 +8362,104 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.html" class="md-nav__link">
+      <a href="../../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Experimental PostgreSQL Vacuum Monitoring
+    PostgreSQL Instances Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Instances Overview Extended
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-postgresql-patroni-details.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Patroni Details
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-postgresql-replication.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Replication Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-postgresql-topqueries.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Top Queries
     
   </span>
   
@@ -8739,6 +8871,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#how-lbac-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How LBAC works
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#standard-vs-custom-labels" class="md-nav__link">
     <span class="md-ellipsis">
       Standard vs custom labels
@@ -8748,35 +8889,20 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#adding-labels" class="md-nav__link">
+  <a href="#adding-labels-when-creating-services" class="md-nav__link">
     <span class="md-ellipsis">
-      Adding labels
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Adding labels">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#using-pmm-ui" class="md-nav__link">
-    <span class="md-ellipsis">
-      Using PMM UI
+      Adding labels when creating services
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#using-pmm-admin" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#modifying-existing-labels" class="md-nav__link">
     <span class="md-ellipsis">
-      Using pmm-admin
+      Modifying existing labels
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -8811,7 +8937,7 @@
 
 
   
-    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/admin/roles/access-control/labels.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/edit/v3-doc-prod/documentation/docs/admin/roles/access-control/labels.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -8820,7 +8946,7 @@
     
       
     
-    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/admin/roles/access-control/labels.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/v3-doc-prod/documentation/docs/admin/roles/access-control/labels.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
@@ -8828,17 +8954,27 @@
 
 
 <h1 id="labels-for-access-control">Labels for access control<a class="headerlink" href="#labels-for-access-control" title="Permanent link">&para;</a></h1>
-<p>Label-based access control in PMM allows you to manage who has access to metrics based on labels. By creating roles, you can specify which data can be queried based on specific label criteria, for instance, allowing the QA team to view data related to test environments. </p>
-<p>With Label-based access control, you can associate multiple labels with a role, ensuring only data from series that match your defined labels is returned. </p>
+<p>Label-based access control in PMM allows you to precisely manage which monitoring data users can access based on their roles and responsibilities. </p>
+<p>This feature is essential for organizations with multiple teams, compliance requirements, or where different users need different levels of visibility.</p>
+<h2 id="how-lbac-works">How LBAC works<a class="headerlink" href="#how-lbac-works" title="Permanent link">&para;</a></h2>
+<p>Access control in PMM uses Prometheus label selectors to filter metrics and Query Analytics data.</p>
+<p class="power-number">Here&rsquo;s how it works: </p>
+<ol>
+<li>Create roles with specific label selectors. For example, you might allow the QA team to access only metrics related to test environments by assigning them a role with the <code>environment=test</code> label or limit visibility to metrics related only to MySQL services with the <code>service_type=mysql</code> label.</li>
+<li>Assign roles to users based on their responsibilities. Each role can include multiple labels, and only data series matching all associated labels will be visible to users with that role. This ensures precise, fine-grained access control to your data.</li>
+<li>Users see only the metrics and data that match their role&rsquo;s label selectors</li>
+</ol>
 <h2 id="standard-vs-custom-labels">Standard vs custom labels<a class="headerlink" href="#standard-vs-custom-labels" title="Permanent link">&para;</a></h2>
-<p>PMM supports standard as well as custom labels. PMM automatically assigns standard labels. You can also set standard labels when an object (Node, Service, or Agent) is created. Custom labels are assigned and updated only by a user.</p>
+<p>PMM supports two types of labels for access control. When a user adds a service to monitoring, PMM automatically assigns standard labels based on the service type, such as <code>service_type</code>, <code>agent_type</code>, and <code>node_name</code>. Additional labels like <code>service_id</code> and <code>node_id</code> are also auto-generated by PMM.</p>
+<p>You can override some standard labels when creating objects such as Nodes, Services, or Agents. You can also define and assign custom labels. Unlike standard labels, custom labels are user-defined and can only be added or updated manually.</p>
+<p>Both standard and custom labels are propagated to the relevant metrics collected by the PMM Client. These labels are preserved during metric collection and can be used in PromQL queries.</p>
 <p><strong>Examples</strong></p>
 <table>
 <thead>
 <tr>
 <th><strong>Label Type</strong></th>
 <th><strong>Object</strong></th>
-<th>**Label name **</th>
+<th><strong>Label name</strong></th>
 <th><strong>Example</strong></th>
 </tr>
 </thead>
@@ -8847,40 +8983,63 @@
 <td><strong>Standard</strong></td>
 <td>Node</td>
 <td>node_id</td>
-<td>123</td>
+<td>5bdfb1b4-c6c4-4086-83a2-e8daa0b84d4b</td>
 </tr>
 <tr>
-<td></td>
+<td><strong>Standard</strong></td>
 <td>Service</td>
 <td>service_type</td>
-<td>- mysql, mongodb, postgresql etc.</td>
+<td>mysql, mongodb, postgresql etc.</td>
 </tr>
 <tr>
 <td><strong>Custom</strong></td>
 <td>Node, Service, Agent</td>
-<td>Any string matching regular expression: <br /> [a-zA-Z_][a-zA-Z0-9_]*. <br /> Also, it cannot start with two underscores.</td>
+<td>Any string matching the regular expression: <br /> [a-zA-Z_][a-zA-Z0-9_]*. <br /> Also, it cannot start with two underscores.</td>
 <td>owner=&rdquo;joe&rdquo;<br/> _rack=&rdquo;12345&rdquo;</td>
 </tr>
 </tbody>
 </table>
-<h2 id="adding-labels">Adding labels<a class="headerlink" href="#adding-labels" title="Permanent link">&para;</a></h2>
-<p>You can add custom or standard labels in PMM while adding a service for monitoring in PMM.</p>
-<h3 id="using-pmm-ui">Using PMM UI<a class="headerlink" href="#using-pmm-ui" title="Permanent link">&para;</a></h3>
-<p class="power-number">To set the labels using the user interface:</p>
+<h2 id="adding-labels-when-creating-services">Adding labels when creating services<a class="headerlink" href="#adding-labels-when-creating-services" title="Permanent link">&para;</a></h2>
+<p>You can add standard or custom labels while adding a service to monitoring in PMM.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Using the PMM UI</label><label for="__tabbed_1_2">Using pmm-admin</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p class="power-number">To set the labels via the user interface:</p>
 <ol>
 <li>
 <p>From the <strong>Main</strong> menu, go to <strong>PMM Configuration &gt; PMM Services &gt; Add Service</strong>.</p>
 </li>
 <li>
-<p>Select the service you want to add to PMM for monitoring. The page to add the service opens.</p>
+<p>Select the service you want to monitor.</p>
 </li>
 <li>
-<p>Enter the details such as <em>Hostname, Service name, Port, Username, Password,</em> etc., along with Label or Custom labels.</p>
+<p>Complete the required connection details. </p>
+</li>
+<li>
+<p>Enter standard labels via the input section <code>Labels</code>.</p>
+</li>
+<li>
+<p>Enter custom labels via section <code>Custom labels</code>.</p>
 </li>
 </ol>
-<p><img alt="!" src="../../../images/PMM_access_control_add_labels_services.png" /></p>
-<h3 id="using-pmm-admin">Using pmm-admin<a class="headerlink" href="#using-pmm-admin" title="Permanent link">&para;</a></h3>
-<p>You can also assign labels using <a href="../../../use/commands/pmm-admin.html">pmm-admin</a>.</p>
+<p><img alt="PMM Inventory - Add Service" src="../../../images/lbac/PMM_access_control_add_labels_services.png" /></p>
+</div>
+<div class="tabbed-block">
+<p>You can also add standard and custom labels using <a href="../../../use/commands/pmm-admin.html">pmm-admin</a>.</p>
+</div>
+</div>
+</div>
+<h2 id="modifying-existing-labels">Modifying existing labels<a class="headerlink" href="#modifying-existing-labels" title="Permanent link">&para;</a></h2>
+<p>PMM allows modifying certain standard labels after a service is created:</p>
+<ul>
+<li><code>environment</code></li>
+<li><code>cluster</code></li>
+<li><code>replication_set</code></li>
+<li><code>external_group</code></li>
+</ul>
+<p>For other standard labels that cannot be modified directly, you must remove the service and re-add it with the desired labels.</p>
+<p>This can be done either via PMM UI or via an <a href="https://percona-pmm.readme.io/reference/changeservice">API endpoint</a>.</p>
+<p>Modifying the custom labels can be done as well via PMM UI of via the same <a href="https://percona-pmm.readme.io/reference/changeservice">API endpoint</a>.</p>
 
 
 
@@ -8901,7 +9060,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-02-17
+    2025-07-09
   </span>
 
     
@@ -9019,7 +9178,7 @@
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 
-      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
         <script src="../../../js/promptremover.js"></script>
       

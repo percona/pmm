@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation">
+        <meta name="description" content="This dashboard shows a high-level overview of all your PostgreSQL instances to help you quickly identify performance trends across your entire database infrastructure.">
       
       
         <meta name="author" content="Percona LLC">
@@ -16,14 +16,14 @@
         <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-postgresql-instances-overview.html">
       
       
-        <link rel="prev" href="dashboard-mongodb-PBM-details.html">
+        <link rel="prev" href="dashboard-postgresql-instances-compare.html">
       
       
-        <link rel="next" href="dashboard-postgresql-instance-summary.html">
+        <link rel="next" href="dashboard-postgresql-instances-overview-extended.html">
       
       
       <link rel="icon" href="../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -2614,6 +2614,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install PMM in HA mode
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3880,7 +3903,7 @@
   
   
   <span class="md-ellipsis">
-    About query analytics (QAN)
+    About Query Analytics (QAN)
     
   </span>
   
@@ -5526,7 +5549,7 @@
   
   
   <span class="md-ellipsis">
-    About access control in PMM
+    About label based access control (LBAC) in PMM
     
   </span>
   
@@ -5567,12 +5590,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../admin/roles/access-control/config_access_cntrl.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/enable_access_control.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Configure access control
+    Enable access control
     
   </span>
   
@@ -5641,7 +5664,7 @@
   
   
   <span class="md-ellipsis">
-    Assign roles to users
+    Assign access roles to users
     
   </span>
   
@@ -5659,12 +5682,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../admin/roles/access-control/usecase.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/use_cases.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Use Case
+    Implementing LBAC: practical scenarios
     
   </span>
   
@@ -6001,6 +6024,29 @@
   
   <span class="md-ellipsis">
     Release notes index
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.3.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PMM 3.3.0 (2025-07-09)
     
   </span>
   
@@ -6537,7 +6583,7 @@
   
   
   <span class="md-ellipsis">
-    pmm-admin - PMM Administration Tool
+    pmm-admin - PMM administration tool
     
   </span>
   
@@ -8166,224 +8212,20 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    PostgreSQL Instances Overview
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="dashboard-postgresql-instances-overview.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="dashboard-postgresql-checkpoints-buffers-wal-usage.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    PostgreSQL Instances Overview
+    PostgreSQL Checkpoints, Buffers and WAL Usage
     
   </span>
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#connected" class="md-nav__link">
-    <span class="md-ellipsis">
-      Connected
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#version" class="md-nav__link">
-    <span class="md-ellipsis">
-      Version
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#shared-buffers" class="md-nav__link">
-    <span class="md-ellipsis">
-      Shared Buffers
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#disk-page-buffers" class="md-nav__link">
-    <span class="md-ellipsis">
-      Disk-Page Buffers
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#memory-size-for-each-sort" class="md-nav__link">
-    <span class="md-ellipsis">
-      Memory Size for each Sort
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#disk-cache-size" class="md-nav__link">
-    <span class="md-ellipsis">
-      Disk Cache Size
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#autovacuum" class="md-nav__link">
-    <span class="md-ellipsis">
-      Autovacuum
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#postgresql-connections" class="md-nav__link">
-    <span class="md-ellipsis">
-      PostgreSQL Connections
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#postgresql-tuples" class="md-nav__link">
-    <span class="md-ellipsis">
-      PostgreSQL Tuples
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#postgresql-transactions" class="md-nav__link">
-    <span class="md-ellipsis">
-      PostgreSQL Transactions
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#temp-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      Temp Files
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#conflicts-and-locks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Conflicts and Locks
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#buffers-and-blocks-operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Buffers and Blocks Operations
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#canceled-queries" class="md-nav__link">
-    <span class="md-ellipsis">
-      Canceled Queries
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cache-hit-ratio" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cache Hit Ratio
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#checkpoint-stats" class="md-nav__link">
-    <span class="md-ellipsis">
-      Checkpoint Stats
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#postgresql-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      PostgreSQL Settings
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#system-summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      System Summary
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -8439,15 +8281,203 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="dashboard-postgresql-vacuum-monitoring-experimental.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Instances Overview
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="dashboard-postgresql-instances-overview.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
-    Experimental PostgreSQL Vacuum Monitoring
+    PostgreSQL Instances Overview
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#databases-monitored" class="md-nav__link">
+    <span class="md-ellipsis">
+      Databases Monitored
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#executed-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Executed Queries
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#slow-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Slow Queries
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transactions-per-second" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transactions per Second
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execution Time
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Queries
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Instances Overview Extended
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dashboard-postgresql-patroni-details.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Patroni Details
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dashboard-postgresql-replication.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Replication Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dashboard-postgresql-topqueries.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Top Queries
     
   </span>
   
@@ -8859,162 +8889,54 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#connected" class="md-nav__link">
+  <a href="#databases-monitored" class="md-nav__link">
     <span class="md-ellipsis">
-      Connected
+      Databases Monitored
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#version" class="md-nav__link">
+  <a href="#executed-queries" class="md-nav__link">
     <span class="md-ellipsis">
-      Version
+      Executed Queries
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#shared-buffers" class="md-nav__link">
+  <a href="#slow-queries" class="md-nav__link">
     <span class="md-ellipsis">
-      Shared Buffers
+      Slow Queries
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#disk-page-buffers" class="md-nav__link">
+  <a href="#transactions-per-second" class="md-nav__link">
     <span class="md-ellipsis">
-      Disk-Page Buffers
+      Transactions per Second
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#memory-size-for-each-sort" class="md-nav__link">
+  <a href="#execution-time" class="md-nav__link">
     <span class="md-ellipsis">
-      Memory Size for each Sort
+      Execution Time
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#disk-cache-size" class="md-nav__link">
+  <a href="#queries" class="md-nav__link">
     <span class="md-ellipsis">
-      Disk Cache Size
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#autovacuum" class="md-nav__link">
-    <span class="md-ellipsis">
-      Autovacuum
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#postgresql-connections" class="md-nav__link">
-    <span class="md-ellipsis">
-      PostgreSQL Connections
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#postgresql-tuples" class="md-nav__link">
-    <span class="md-ellipsis">
-      PostgreSQL Tuples
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#postgresql-transactions" class="md-nav__link">
-    <span class="md-ellipsis">
-      PostgreSQL Transactions
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#temp-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      Temp Files
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#conflicts-and-locks" class="md-nav__link">
-    <span class="md-ellipsis">
-      Conflicts and Locks
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#buffers-and-blocks-operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Buffers and Blocks Operations
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#canceled-queries" class="md-nav__link">
-    <span class="md-ellipsis">
-      Canceled Queries
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cache-hit-ratio" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cache Hit Ratio
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#checkpoint-stats" class="md-nav__link">
-    <span class="md-ellipsis">
-      Checkpoint Stats
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#postgresql-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      PostgreSQL Settings
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#system-summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      System Summary
+      Queries
     </span>
   </a>
   
@@ -9051,7 +8973,7 @@
 
 
   
-    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/reference/dashboards/dashboard-postgresql-instances-overview.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/edit/v3-doc-prod/documentation/docs/reference/dashboards/dashboard-postgresql-instances-overview.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -9060,7 +8982,7 @@
     
       
     
-    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/reference/dashboards/dashboard-postgresql-instances-overview.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/v3-doc-prod/documentation/docs/reference/dashboards/dashboard-postgresql-instances-overview.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
@@ -9068,95 +8990,23 @@
 
 
 <h1 id="postgresql-instances-overview">PostgreSQL Instances Overview<a class="headerlink" href="#postgresql-instances-overview" title="Permanent link">&para;</a></h1>
+<p>This dashboard shows a high-level overview of all your PostgreSQL instances to help you quickly identify performance trends across your entire database infrastructure.</p>
+<p>Start here when you need to compare performance across all your databases, identify slow queries affecting multiple services, or get a bird&rsquo;s-eye view of your PostgreSQL infrastructure health.</p>
 <p><img alt="!image" src="../../images/PMM_PostgreSQL_Instances_Overview.jpg" /></p>
-<h2 id="connected">Connected<a class="headerlink" href="#connected" title="Permanent link">&para;</a></h2>
-<p>Reports whether PMM Server can connect to the PostgreSQL instance.</p>
-<h2 id="version">Version<a class="headerlink" href="#version" title="Permanent link">&para;</a></h2>
-<p>The version of the PostgreSQL instance.</p>
-<h2 id="shared-buffers">Shared Buffers<a class="headerlink" href="#shared-buffers" title="Permanent link">&para;</a></h2>
-<p>Defines the amount of memory the database server uses for shared memory buffers. Default is <code>128MB</code>. Guidance on tuning is <code>25%</code> of RAM, but generally doesn’t exceed <code>40%</code>.</p>
-<h2 id="disk-page-buffers">Disk-Page Buffers<a class="headerlink" href="#disk-page-buffers" title="Permanent link">&para;</a></h2>
-<p>The setting <code>wal_buffers</code> defines how much memory is used for caching the write-ahead log entries. Generally this value is small (<code>3%</code> of <code>shared_buffers</code> value), but it may need to be modified for heavily loaded servers.</p>
-<h2 id="memory-size-for-each-sort">Memory Size for each Sort<a class="headerlink" href="#memory-size-for-each-sort" title="Permanent link">&para;</a></h2>
-<p>The parameter <code>work_mem</code> defines the amount of memory assigned for internal sort operations and hash tables before writing to temporary disk files. The default is <code>4MB</code>.</p>
-<h2 id="disk-cache-size">Disk Cache Size<a class="headerlink" href="#disk-cache-size" title="Permanent link">&para;</a></h2>
-<p>PostgreSQL’s <code>effective_cache_size</code> variable tunes how much RAM you expect to be available for disk caching. Generally adding Linux free+cached will give you a good idea. This value is used by the query planner whether plans will fit in memory, and when defined too low, can lead to some plans rejecting certain indexes.</p>
-<h2 id="autovacuum">Autovacuum<a class="headerlink" href="#autovacuum" title="Permanent link">&para;</a></h2>
-<p>Whether autovacuum process is enabled or not. Generally the solution is to vacuum more often, not less.</p>
-<h2 id="postgresql-connections">PostgreSQL Connections<a class="headerlink" href="#postgresql-connections" title="Permanent link">&para;</a></h2>
-<dl>
-<dt>Max Connections</dt>
-<dd>The maximum number of client connections allowed. Change this value with care as there are some memory resources that are allocated on a per-client basis, so setting <code>max_connections</code> higher will generally increase overall PostgreSQL memory usage.</dd>
-<dt>Connections</dt>
-<dd>The number of connection attempts (successful or not) to the PostgreSQL server.</dd>
-<dt>Active Connections</dt>
-<dd>The number of open connections to the PostgreSQL server.</dd>
-</dl>
-<h2 id="postgresql-tuples">PostgreSQL Tuples<a class="headerlink" href="#postgresql-tuples" title="Permanent link">&para;</a></h2>
-<dl>
-<dt>Tuples</dt>
-<dd>The total number of rows processed by PostgreSQL server: fetched, returned, inserted, updated, and deleted.</dd>
-<dt>Read Tuple Activity</dt>
-<dd>The number of rows read from the database: as returned so fetched ones.</dd>
-<dt>Tuples Changed per 5 min</dt>
-<dd>The number of rows changed in the last 5 minutes: inserted, updated, and deleted ones.</dd>
-</dl>
-<h2 id="postgresql-transactions">PostgreSQL Transactions<a class="headerlink" href="#postgresql-transactions" title="Permanent link">&para;</a></h2>
-<dl>
-<dt>Transactions</dt>
-<dd>The total number of transactions that have been either been committed or rolled back.</dd>
-<dt>Duration of Transactions</dt>
-<dd>Maximum duration in seconds any active transaction has been running.</dd>
-</dl>
-<h2 id="temp-files">Temp Files<a class="headerlink" href="#temp-files" title="Permanent link">&para;</a></h2>
-<dl>
-<dt>Number of Temp Files</dt>
-<dd>The number of temporary files created by queries.</dd>
-<dt>Size of Temp files</dt>
-<dd>The total amount of data written to temporary files by queries in bytes.</dd>
-</dl>
-<div class="admonition note alert alert-primary">
-<p>All temporary files are taken into account by these two gauges, regardless of why the temporary file was created (e.g., sorting or hashing), and regardless of the <code>log_temp_files</code> setting.</p>
-</div>
-<h2 id="conflicts-and-locks">Conflicts and Locks<a class="headerlink" href="#conflicts-and-locks" title="Permanent link">&para;</a></h2>
-<dl>
-<dt>Conflicts/Deadlocks</dt>
-<dd>The number of queries canceled due to conflicts with recovery in the database (due to dropped tablespaces, lock timeouts, old snapshots, pinned buffers, or deadlocks).</dd>
-<dt>Number of Locks</dt>
-<dd>The number of deadlocks detected by PostgreSQL.</dd>
-</dl>
-<h2 id="buffers-and-blocks-operations">Buffers and Blocks Operations<a class="headerlink" href="#buffers-and-blocks-operations" title="Permanent link">&para;</a></h2>
-<dl>
-<dt>Operations with Blocks</dt>
-<dd>The time spent reading and writing data file blocks by back ends, in milliseconds.</dd>
-</dl>
-<div class="admonition hint alert alert-success">
-<p class="admonition-title">Tip</p>
-<p>Capturing read and write time statistics is possible only if <code>track_io_timing</code> setting is enabled. This can be done either in configuration file or with the following query executed on the running system:</p>
-</div>
-<div class="highlight"><pre><span></span><code><span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">track_io_timing</span><span class="o">=</span><span class="k">ON</span><span class="p">;</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="n">pg_reload_conf</span><span class="p">();</span>
-</code></pre></div>
-<dl>
-<dt>Buffers</dt>
-<dd>The number of buffers allocated by PostgreSQL.</dd>
-</dl>
-<h2 id="canceled-queries">Canceled Queries<a class="headerlink" href="#canceled-queries" title="Permanent link">&para;</a></h2>
-<p>The number of queries that have been canceled due to dropped tablespaces, lock timeouts, old snapshots, pinned buffers, and deadlocks.</p>
-<div class="admonition note alert alert-primary">
-<p>Data shown by this gauge are based on the <code>pg_stat_database_conflicts</code> view.</p>
-</div>
-<h2 id="cache-hit-ratio">Cache Hit Ratio<a class="headerlink" href="#cache-hit-ratio" title="Permanent link">&para;</a></h2>
-<p>The number of times disk blocks were found already in the buffer cache, so that a read was not necessary.</p>
-<div class="admonition note alert alert-primary">
-<p>This only includes hits in the PostgreSQL buffer cache, not the operating system’s file system cache.</p>
-</div>
-<h2 id="checkpoint-stats">Checkpoint Stats<a class="headerlink" href="#checkpoint-stats" title="Permanent link">&para;</a></h2>
-<p>The total amount of time that has been spent in the portion of checkpoint processing where files are either written or synchronized to disk, in milliseconds.</p>
-<h2 id="postgresql-settings">PostgreSQL Settings<a class="headerlink" href="#postgresql-settings" title="Permanent link">&para;</a></h2>
-<p>The list of all settings of the PostgreSQL server.</p>
-<h2 id="system-summary">System Summary<a class="headerlink" href="#system-summary" title="Permanent link">&para;</a></h2>
-<p>This section contains the following system parameters of the PostgreSQL server: CPU Usage, CPU Saturation and Max Core Usage, Disk I/O Activity, and Network Traffic.</p>
+<h2 id="databases-monitored">Databases Monitored<a class="headerlink" href="#databases-monitored" title="Permanent link">&para;</a></h2>
+<p>Shows a summary of your PostgreSQL monitoring coverage including the number of clusters, total nodes, and nodes without cluster configuration. The <strong>Databases monitored</strong> link takes you to the full inventory of monitored services for detailed management.</p>
+<h2 id="executed-queries">Executed Queries<a class="headerlink" href="#executed-queries" title="Permanent link">&para;</a></h2>
+<p>Shows query execution trends for your top 5 busiest PostgreSQL services over time. Sudden spikes may indicate performance issues or unexpected workload changes that need investigation.</p>
+<h2 id="slow-queries">Slow Queries<a class="headerlink" href="#slow-queries" title="Permanent link">&para;</a></h2>
+<p>Shows the total count of queries that exceeded your configured slow query threshold across all monitored services over the selected time range. </p>
+<p>Focus on reducing this number across your infrastructure. High slow query counts indicate widespread performance problems that need systematic optimization.</p>
+<h2 id="transactions-per-second">Transactions per Second<a class="headerlink" href="#transactions-per-second" title="Permanent link">&para;</a></h2>
+<p>Shows the current transaction rate across all your PostgreSQL services combined. Use this as a high-level health indicator. Dramatic changes in TPS may indicate infrastructure issues, application problems, or significant workload shifts.</p>
+<h2 id="execution-time">Execution Time<a class="headerlink" href="#execution-time" title="Permanent link">&para;</a></h2>
+<p>Shows average query execution time trends for your PostgreSQL services over time. </p>
+<p>Watch for services with increasing execution times. Rising trends indicate performance degradation that needs investigation and optimization.</p>
+<h2 id="queries">Queries<a class="headerlink" href="#queries" title="Permanent link">&para;</a></h2>
+<p>Shows a detailed table of recent queries across all your PostgreSQL services with execution times, sorted by performance. Focus optimization efforts on queries with the highest execution times. This cross-service view helps you identify the most impactful slow queries across your entire infrastructure.</p>
 
 
 
@@ -9177,7 +9027,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-18
+    2025-07-09
   </span>
 
     
@@ -9295,7 +9145,7 @@
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
         <script src="../../js/promptremover.js"></script>
       

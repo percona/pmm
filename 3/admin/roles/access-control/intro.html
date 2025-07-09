@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Access control in PMM allows you to manage who has access to individual Prometheus (Victoria Metrics)  metrics based on labels. Thus, access management provides a standardized way of granting, changing, and revoking access to metrics based on the role assigned to the users.">
+        <meta name="description" content="Access control in PMM allows you to manage access to data. By using access control you can restrict access to monitoring metrics and Query Analytics data.">
       
       
         <meta name="author" content="Percona LLC">
@@ -23,11 +23,11 @@
       
       
       <link rel="icon" href="../../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
-        <title>About access control in PMM - Percona Monitoring and Management</title>
+        <title>About label based access control (LBAC) in PMM - Percona Monitoring and Management</title>
       
     
     
@@ -90,7 +90,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - About access control in PMM" />
+                 <meta property="og:title" content="Percona Monitoring and Management - About label based access control (LBAC) in PMM" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -113,7 +113,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#about-access-control-in-pmm" class="md-skip">
+        <a href="#about-label-based-access-control-lbac-in-pmm" class="md-skip">
           Skip to content
         </a>
       
@@ -188,7 +188,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              About access control in PMM
+              About label based access control (LBAC) in PMM
             
           </span>
         </div>
@@ -2614,6 +2614,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../install-pmm/HA.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install PMM in HA mode
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3880,7 +3903,7 @@
   
   
   <span class="md-ellipsis">
-    About query analytics (QAN)
+    About Query Analytics (QAN)
     
   </span>
   
@@ -5536,17 +5559,94 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    About label based access control (LBAC) in PMM
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="intro.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
-    About access control in PMM
+    About label based access control (LBAC) in PMM
     
   </span>
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-lbac-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How LBAC works
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key benefits
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example scenarios
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started-with-lbac" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started with LBAC
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-topics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related topics
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -5583,12 +5683,12 @@
   
   
     <li class="md-nav__item">
-      <a href="config_access_cntrl.html" class="md-nav__link">
+      <a href="enable_access_control.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Configure access control
+    Enable access control
     
   </span>
   
@@ -5657,7 +5757,7 @@
   
   
   <span class="md-ellipsis">
-    Assign roles to users
+    Assign access roles to users
     
   </span>
   
@@ -5675,12 +5775,12 @@
   
   
     <li class="md-nav__item">
-      <a href="usecase.html" class="md-nav__link">
+      <a href="use_cases.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Use Case
+    Implementing LBAC: practical scenarios
     
   </span>
   
@@ -6017,6 +6117,29 @@
   
   <span class="md-ellipsis">
     Release notes index
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../release-notes/3.3.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PMM 3.3.0 (2025-07-09)
     
   </span>
   
@@ -6551,7 +6674,7 @@
   
   
   <span class="md-ellipsis">
-    pmm-admin - PMM Administration Tool
+    pmm-admin - PMM administration tool
     
   </span>
   
@@ -8179,12 +8302,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
+      <a href="../../../reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    PostgreSQL Instances Overview
+    PostgreSQL Checkpoints, Buffers and WAL Usage
     
   </span>
   
@@ -8248,12 +8371,104 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../reference/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.html" class="md-nav__link">
+      <a href="../../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Experimental PostgreSQL Vacuum Monitoring
+    PostgreSQL Instances Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Instances Overview Extended
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-postgresql-patroni-details.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Patroni Details
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-postgresql-replication.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Replication Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/dashboards/dashboard-postgresql-topqueries.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Top Queries
     
   </span>
   
@@ -8658,6 +8873,59 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-lbac-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How LBAC works
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key benefits
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example scenarios
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started-with-lbac" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started with LBAC
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-topics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related topics
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                     </div>
                     <div class="md-sidebar__inner">
@@ -8687,7 +8955,7 @@
 
 
   
-    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/admin/roles/access-control/intro.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/edit/v3-doc-prod/documentation/docs/admin/roles/access-control/intro.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -8696,25 +8964,79 @@
     
       
     
-    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/admin/roles/access-control/intro.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/v3-doc-prod/documentation/docs/admin/roles/access-control/intro.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="about-access-control-in-pmm">About access control in PMM<a class="headerlink" href="#about-access-control-in-pmm" title="Permanent link">&para;</a></h1>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Caution</p>
-<p>PMM Access Control is currently in <a href="../../../reference/glossary.html#technical-preview">technical preview</a> and is subject to change. We recommend that early adopters use this feature for testing purposes only.</p>
-</div>
-<p>Access control in PMM allows you to manage who has access to individual Prometheus (Victoria Metrics)  metrics based on <strong>labels</strong>. Thus, access management provides a standardized way of granting, changing, and revoking access to metrics based on the role assigned to the users.</p>
-<p>The following topics are covered as part of access control:</p>
+<h1 id="about-label-based-access-control-lbac-in-pmm">About label based access control (LBAC) in PMM<a class="headerlink" href="#about-label-based-access-control-lbac-in-pmm" title="Permanent link">&para;</a></h1>
+<p>Access control in PMM allows you to manage access to data. By using access control you can restrict access to monitoring metrics and Query Analytics data. </p>
+<p>This is particularly important in environments where sensitive data is involved, and it helps ensure that only authorized users can access specific information, which is crucial for maintaining security and compliance.</p>
+<h2 id="how-lbac-works">How LBAC works<a class="headerlink" href="#how-lbac-works" title="Permanent link">&para;</a></h2>
+<p>PMM uses Prometheus label selectors to control access to metrics and Query Analytics data. </p>
+<p class="power-number">Here&rsquo;s how LBAC works:</p>
+<ol>
+<li>Create roles with label selectors. For example <code>environment=prod</code> for a specific environment or <code>service_type=mysql</code> for specific databases.</li>
+<li>Assign roles to users based on their responsibilities.</li>
+<li>Users see only the metrics and (Query Analytics) QAN data that match their role&rsquo;s label selectors.</li>
+</ol>
+<h2 id="key-benefits">Key benefits<a class="headerlink" href="#key-benefits" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="config_access_cntrl.html">Configure access control</a></li>
-<li><a href="labels.html">Labels for access control</a></li>
-<li><a href="create_roles.html">Create access roles</a></li>
-<li><a href="usecase.html">Use case</a></li>
+<li>Granular permissions: Restrict access to specific services, environments, or regions.</li>
+<li>Enhanced security: Prevent unauthorized access to sensitive database metrics and query data.</li>
+<li>Compliance support: Meet regulatory requirements for data access control.</li>
+<li>Team-specific views: Allow teams to focus only on their relevant systems and queries.</li>
+<li>Simplified management: Manage access through roles instead of individual user permissions.</li>
+</ul>
+<h2 id="example-scenarios">Example scenarios<a class="headerlink" href="#example-scenarios" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>User type</th>
+<th>Possible role configuration</th>
+<th>What they can see</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DBA team lead</td>
+<td>All services across environments</td>
+<td>Complete monitoring data for all databases and queries</td>
+</tr>
+<tr>
+<td>MySQL administrators</td>
+<td><code>service_type=mysql</code></td>
+<td>Only MySQL-related metrics and queries</td>
+</tr>
+<tr>
+<td>Production support</td>
+<td><code>environment=production</code></td>
+<td>Only production environment metrics and queries</td>
+</tr>
+<tr>
+<td>Regional team</td>
+<td><code>region=us-east</code></td>
+<td>Only metrics and queries from a specific region</td>
+</tr>
+</tbody>
+</table>
+<h2 id="getting-started-with-lbac">Getting started with LBAC<a class="headerlink" href="#getting-started-with-lbac" title="Permanent link">&para;</a></h2>
+<p class="power-number">To implement label-based access control in PMM:</p>
+<ol>
+<li><a href="enable_access_control.html">Enable access control</a> in your PMM settings</li>
+<li>Learn about the <a href="labels.html">labels available for filtering</a></li>
+<li><a href="create_roles.html">Create access roles</a> based on your organizational needs</li>
+<li>Review common <a href="use_cases.html">use cases and examples</a> for inspiration</li>
+</ol>
+<div class="admonition tip">
+<p class="admonition-title">Best practice</p>
+<p>Start with broader access controls and refine them over time as you understand your organization&rsquo;s specific needs. Test LBAC behavior in both dashboards and QAN to ensure proper access control.</p>
+</div>
+<h2 id="related-topics">Related topics<a class="headerlink" href="#related-topics" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../manage-users/index.html">Manage PMM users</a></li>
 </ul>
 
 
@@ -8736,7 +9058,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-02-17
+    2025-07-09
   </span>
 
     
@@ -8854,7 +9176,7 @@
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 
-      <script src="../../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
         <script src="../../../js/promptremover.js"></script>
       

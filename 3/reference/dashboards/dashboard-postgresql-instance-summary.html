@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation">
+        <meta name="description" content="This dashboard shows a detailed overview of a single PostgreSQL instance, monitor its performance metrics, and dive deep into query activity.">
       
       
         <meta name="author" content="Percona LLC">
@@ -16,14 +16,14 @@
         <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-postgresql-instance-summary.html">
       
       
-        <link rel="prev" href="dashboard-postgresql-instances-overview.html">
+        <link rel="prev" href="dashboard-postgresql-checkpoints-buffers-wal-usage.html">
       
       
         <link rel="next" href="dashboard-postgresql-instances-compare.html">
       
       
       <link rel="icon" href="../../assets/pmm-fav.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -2614,6 +2614,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/HA.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install PMM in HA mode
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3880,7 +3903,7 @@
   
   
   <span class="md-ellipsis">
-    About query analytics (QAN)
+    About Query Analytics (QAN)
     
   </span>
   
@@ -5526,7 +5549,7 @@
   
   
   <span class="md-ellipsis">
-    About access control in PMM
+    About label based access control (LBAC) in PMM
     
   </span>
   
@@ -5567,12 +5590,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../admin/roles/access-control/config_access_cntrl.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/enable_access_control.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Configure access control
+    Enable access control
     
   </span>
   
@@ -5641,7 +5664,7 @@
   
   
   <span class="md-ellipsis">
-    Assign roles to users
+    Assign access roles to users
     
   </span>
   
@@ -5659,12 +5682,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../admin/roles/access-control/usecase.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/use_cases.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Use Case
+    Implementing LBAC: practical scenarios
     
   </span>
   
@@ -6001,6 +6024,29 @@
   
   <span class="md-ellipsis">
     Release notes index
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.3.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PMM 3.3.0 (2025-07-09)
     
   </span>
   
@@ -6537,7 +6583,7 @@
   
   
   <span class="md-ellipsis">
-    pmm-admin - PMM Administration Tool
+    pmm-admin - PMM administration tool
     
   </span>
   
@@ -8169,12 +8215,12 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboard-postgresql-instances-overview.html" class="md-nav__link">
+      <a href="dashboard-postgresql-checkpoints-buffers-wal-usage.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    PostgreSQL Instances Overview
+    PostgreSQL Checkpoints, Buffers and WAL Usage
     
   </span>
   
@@ -8242,45 +8288,81 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#number-of-temp-files" class="md-nav__link">
+  <a href="#service" class="md-nav__link">
     <span class="md-ellipsis">
-      Number of Temp Files
+      Service
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#size-of-temp-files" class="md-nav__link">
+  <a href="#connections" class="md-nav__link">
     <span class="md-ellipsis">
-      Size of Temp Files
+      Connections
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#temp-files-activity" class="md-nav__link">
+  <a href="#slow-queries" class="md-nav__link">
     <span class="md-ellipsis">
-      Temp Files Activity
+      Slow Queries
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#temp-files-utilization" class="md-nav__link">
+  <a href="#connections-overview" class="md-nav__link">
     <span class="md-ellipsis">
-      Temp Files Utilization
+      Connections Overview
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#canceled-queries" class="md-nav__link">
+  <a href="#connections-per-database" class="md-nav__link">
     <span class="md-ellipsis">
-      Canceled Queries
+      Connections per Database
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qps-queries-per-second" class="md-nav__link">
+    <span class="md-ellipsis">
+      QPS (Queries Per Second)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#number-of-locks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Number of Locks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tuples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tuples
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Queries
     </span>
   </a>
   
@@ -8325,12 +8407,104 @@
   
   
     <li class="md-nav__item">
-      <a href="dashboard-postgresql-vacuum-monitoring-experimental.html" class="md-nav__link">
+      <a href="dashboard-postgresql-instances-overview.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Experimental PostgreSQL Vacuum Monitoring
+    PostgreSQL Instances Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Instances Overview Extended
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dashboard-postgresql-patroni-details.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Patroni Details
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dashboard-postgresql-replication.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Replication Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="dashboard-postgresql-topqueries.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PostgreSQL Top Queries
     
   </span>
   
@@ -8742,45 +8916,81 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#number-of-temp-files" class="md-nav__link">
+  <a href="#service" class="md-nav__link">
     <span class="md-ellipsis">
-      Number of Temp Files
+      Service
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#size-of-temp-files" class="md-nav__link">
+  <a href="#connections" class="md-nav__link">
     <span class="md-ellipsis">
-      Size of Temp Files
+      Connections
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#temp-files-activity" class="md-nav__link">
+  <a href="#slow-queries" class="md-nav__link">
     <span class="md-ellipsis">
-      Temp Files Activity
+      Slow Queries
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#temp-files-utilization" class="md-nav__link">
+  <a href="#connections-overview" class="md-nav__link">
     <span class="md-ellipsis">
-      Temp Files Utilization
+      Connections Overview
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#canceled-queries" class="md-nav__link">
+  <a href="#connections-per-database" class="md-nav__link">
     <span class="md-ellipsis">
-      Canceled Queries
+      Connections per Database
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qps-queries-per-second" class="md-nav__link">
+    <span class="md-ellipsis">
+      QPS (Queries Per Second)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#number-of-locks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Number of Locks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tuples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tuples
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Queries
     </span>
   </a>
   
@@ -8817,7 +9027,7 @@
 
 
   
-    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/reference/dashboards/dashboard-postgresql-instance-summary.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/edit/v3-doc-prod/documentation/docs/reference/dashboards/dashboard-postgresql-instance-summary.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -8826,7 +9036,7 @@
     
       
     
-    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/reference/dashboards/dashboard-postgresql-instance-summary.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/v3-doc-prod/documentation/docs/reference/dashboards/dashboard-postgresql-instance-summary.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
@@ -8834,17 +9044,29 @@
 
 
 <h1 id="postgresql-instance-summary">PostgreSQL Instance Summary<a class="headerlink" href="#postgresql-instance-summary" title="Permanent link">&para;</a></h1>
+<p>This dashboard shows a detailed overview of a single PostgreSQL instance, monitor its performance metrics, and dive deep into query activity.</p>
+<p>This is essential for database administrators who need to troubleshoot specific PostgreSQL services, analyze query performance, investigate connection issues, or monitor database activity patterns. </p>
+<p>Start here when you need to focus on one specific PostgreSQL instance, investigate slow queries, check connection usage, or analyze database-specific performance trends.</p>
 <p><img alt="!image" src="../../images/PMM_PostgreSQL_Instance_Summary.jpg" /></p>
-<h2 id="number-of-temp-files">Number of Temp Files<a class="headerlink" href="#number-of-temp-files" title="Permanent link">&para;</a></h2>
-<p>Cumulative number of temporary files created by queries in this database since service start. All temporary files are counted, regardless of why the temporary file was created (e.g., sorting or hashing), and regardless of the <code>log_temp_files</code> setting.</p>
-<h2 id="size-of-temp-files">Size of Temp Files<a class="headerlink" href="#size-of-temp-files" title="Permanent link">&para;</a></h2>
-<p>Cumulative amount of data written to temporary files by queries in this database since service start. All temporary files are counted, regardless of why the temporary file was created, and regardless of the <code>log_temp_files</code> setting.</p>
-<h2 id="temp-files-activity">Temp Files Activity<a class="headerlink" href="#temp-files-activity" title="Permanent link">&para;</a></h2>
-<p>Number of temporary files created by queries in this database. All temporary files are counted, regardless of why the temporary file was created (e.g., sorting or hashing), and regardless of the <code>log_temp_files</code> setting.</p>
-<h2 id="temp-files-utilization">Temp Files Utilization<a class="headerlink" href="#temp-files-utilization" title="Permanent link">&para;</a></h2>
-<p>Total amount of data written to temporary files by queries in this database. All temporary files are counted, regardless of why the temporary file was created, and regardless of the <code>log_temp_files</code> setting.</p>
-<h2 id="canceled-queries">Canceled Queries<a class="headerlink" href="#canceled-queries" title="Permanent link">&para;</a></h2>
-<p>Based on <code>pg_stat_database_conflicts</code> view</p>
+<h2 id="service">Service<a class="headerlink" href="#service" title="Permanent link">&para;</a></h2>
+<p>Shows essential information about your PostgreSQL instance including service name, version, uptime in days, and the server hostname. The server name is clickable to navigate to detailed node monitoring. This gives you quick access to basic instance identification and health information.</p>
+<h2 id="connections">Connections<a class="headerlink" href="#connections" title="Permanent link">&para;</a></h2>
+<p>Shows current connection counts with total open connections and currently active connections highlighted. Monitor this to ensure you&rsquo;re not approaching connection limits. High connection counts may indicate connection pooling issues or application problems.</p>
+<h2 id="slow-queries">Slow Queries<a class="headerlink" href="#slow-queries" title="Permanent link">&para;</a></h2>
+<p>Shows the count of queries that exceeded your configured slow query threshold over the selected time range. Focus on reducing this number, considering that high slow query counts indicate performance problems that need query optimization or indexing improvements.</p>
+<h2 id="connections-overview">Connections Overview<a class="headerlink" href="#connections-overview" title="Permanent link">&para;</a></h2>
+<p>Shows connection trends over time broken down by connection state (active, idle, etc.) with a total connections line. Watch for spikes in total connections or unusual patterns. Sudden increases may indicate application issues or connection leaks.</p>
+<h2 id="connections-per-database">Connections per Database<a class="headerlink" href="#connections-per-database" title="Permanent link">&para;</a></h2>
+<p>Shows the distribution of connections across different databases in your PostgreSQL instance as a donut chart. </p>
+<p>Use this to identify which databases consume the most connections. Uneven distribution may indicate workload imbalances or specific database issues.</p>
+<h2 id="qps-queries-per-second">QPS (Queries Per Second)<a class="headerlink" href="#qps-queries-per-second" title="Permanent link">&para;</a></h2>
+<p>Shows the top 5 databases by transaction commit rate, indicating query throughput. Monitor this to understand your workload patterns. Consistent QPS indicates steady performance while spikes may require investigation.</p>
+<h2 id="number-of-locks">Number of Locks<a class="headerlink" href="#number-of-locks" title="Permanent link">&para;</a></h2>
+<p>Shows current lock counts by lock type and database over time. Watch for lock spikes or sustained high lock counts as these can indicate lock contention issues, long-running transactions, or deadlock situations that need attention.</p>
+<h2 id="tuples">Tuples<a class="headerlink" href="#tuples" title="Permanent link">&para;</a></h2>
+<p>Shows tuple operation rates (fetched, returned, inserted, updated, deleted) as horizontal bar gauges. Use this to understand your database activity patterns. High fetch-to-return ratios may indicate inefficient queries reading more data than needed.</p>
+<h2 id="queries">Queries<a class="headerlink" href="#queries" title="Permanent link">&para;</a></h2>
+<p>Shows a detailed table of recent queries with execution times, sorted by performance. Focus optimization efforts on queries with the highest execution times. This table helps you identify specific slow queries that need indexing or rewriting for better performance.</p>
 
 
 
@@ -8865,7 +9087,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2024-12-18
+    2025-07-09
   </span>
 
     
@@ -8983,7 +9205,7 @@
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
         <script src="../../js/promptremover.js"></script>
       
