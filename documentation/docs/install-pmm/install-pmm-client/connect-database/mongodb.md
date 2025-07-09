@@ -499,5 +499,5 @@ If you need to remove MongoDB service from PMM, follow these steps:
 [YAML]: http://yaml.org/spec/
 [MONGODB_CONFIG_OP_PROF]: https://docs.mongodb.com/manual/reference/configuration-options/#operationprofiling-options
 [PSMDB_RATELIMIT]: https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html#enabling-the-rate-limit
-[PMM_ADMIN_MAN_PAGE]: ../../use/commands/pmm-admin.md#mongodb
+[PMM_ADMIN_MAN_PAGE]: ../../../use/commands/pmm-admin.md#database-commands
 [Troubleshooting connection difficulties]: ../../../troubleshoot/config_issues.md#connection-difficulties
