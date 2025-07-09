@@ -328,11 +328,11 @@ nav:
       - Label-based access control:
         - admin/roles/access-control/intro.md
         - admin/roles/access-control/labels.md
-        - admin/roles/access-control/config_access_cntrl.md
+        - admin/roles/access-control/enable_access_control.md
         - admin/roles/access-control/create_roles.md
         - admin/roles/access-control/manage_roles.md
         - admin/roles/access-control/assign_roles.md
-        - admin/roles/access-control/usecase.md
+        - admin/roles/access-control/use_cases.md
 
   - Troubleshoot:
     - troubleshoot/index.md
