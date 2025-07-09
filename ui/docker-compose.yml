@@ -15,6 +15,9 @@ services:
 
       # Uncomment to use custom (FE) grafana code
       #- '../../grafana/public:/usr/share/grafana/public'
+
+      # PMM compat plugin
+      - ./apps/pmm-compat/dist:/srv/grafana/plugins/pmm-compat
     environment:
       - PMM_DEBUG=1
       - GF_DEFAULT_APP_MODE=development
@@ -25,6 +28,12 @@ services:
       - PMM_WATCHTOWER_TOKEN=123
       # Uncomment to specify to which docker image to update
       # - PMM_DEV_UPDATE_DOCKER_IMAGE=${PMM_UPDATE_IMAGE:-perconalab/pmm-server:3-dev-container}
+    command: >
+      bash -c "
+        # Inject livereload script into grafana index.html
+        sed -i 's|</body>|<script src="http://localhost:35729/livereload.js"></script></body>|g' /usr/share/grafana/public/views/index.html;
+        /opt/entrypoint.sh;
+      "
 
   mysql:
     image: percona:5.7.30
