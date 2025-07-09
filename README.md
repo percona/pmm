@@ -33,15 +33,13 @@ See the [PMM Documentation](https://docs.percona.com/percona-monitoring-and-mana
 
 ## Architecture
 
-Check [PMM documentation](../pmm/documentation/docs/index.md) for the actual architecture.
-
-![Overall Architecture](../pmm/documentation/docs/images/C_S_Architecture.jpg "Client Server Architecture")
+![Overall Architecture](./documentation/docs/images/C_S_Architecture.jpg "Client Server Architecture")
 
 
-![PMM Server](https://docs.percona.com/percona-monitoring-and-management/images/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
+![PMM Server](./documentation/docs/images/PMM-Server-Component-Based-View.jpg 'PMM Server Architecture')
 
 
-![PMM Client](../pmm/documentation/docs/images/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
+![PMM Client](./documentation/docs/images/PMM-Client-Component-Based-View.jpg 'PMM Client Architecture')
 
 ## Installation
 
@@ -67,14 +65,14 @@ percona/pmm-server:3
 ```
 4. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
 
-<img src="documentation/docs/images/PMM_Login.png" width="280">
+<img src="./documentation/docs/images/PMM_Login.png" width="280" alt="PMM Login Page" />
 
 Enter the username and password. The defaults are username: **admin** and password: **admin**
 
 # Need help?
 
 | **Commercial Support** | **Community Support** |
-|:--|:--|
+|:-----------------------|:----------------------|
 | **Enterprise-grade support** for mission-critical monitoring deployments with Percona Monitoring and Management. <br/><br/>Get expert guidance for complex monitoring scenarios across hybrid environments—from cloud providers to bare metal infrastructures. | Connect with our engineers and community members to troubleshoot issues, share best practices, and discuss monitoring strategies. |
 | **[Get Percona Support](https://hubs.ly/Q02_Fs100)** | **[Visit our Forum](https://forums.percona.com/c/percona-monitoring-and-management-pmm)** |
 
@@ -89,9 +87,9 @@ We're looking forward to your contributions and hope to hear from you soon on ou
 
 ## Submitting bug reports
 
-If you find a bug in Percona Monitoring and Management  or one of the related projects, you should submit a report to that project's [JIRA](https://jira.percona.com) issue tracker. Some of related project also have GitHub Issues enabled, so you also could submit there.
+If you find a bug in Percona Monitoring and Management  or one of the related projects, you should submit a report to that project's [JIRA](https://perconadev.atlassian.net) issue tracker. Some of related projects also have GitHub Issues enabled, so you could also submit there.
 
-Your first step should be [to search](https://jira.percona.com/issues/?jql=project=PMM) the existing set of open tickets for a similar report. If you find that someone else has already reported your problem, then you can upvote that report to increase its visibility.
+Your first step should be [to search](https://perconadev.atlassian.net/issues/?jql=project=PMM) the existing set of open tickets for a similar report. If you find that someone else has already reported your problem, then you can upvote that report to increase its visibility.
 
 If there is no existing report, submit a report following these steps:
 
@@ -111,4 +109,4 @@ As a general rule of thumb, please try to create bug reports that are:
 
 ## Licensing
 
-Percona is dedicated to **keeping open source open**. Wherever possible, we strive to include permissive licensing for both our software and documentation. For this project, we are using the [GNU AGPLv3](./LICENSE) license.
+Percona is dedicated to **keeping open source open**. Wherever possible, we strive to apply a permissive license to both our software and documentation. For this project, we are using the [GNU AGPLv3](./LICENSE) license.
