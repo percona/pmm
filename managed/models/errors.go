@@ -22,4 +22,9 @@ var (
 	ErrNotFound = errors.New("not found")
 	// ErrAlreadyExists returned when an entity with the same value already exists and has unique constraint on the requested field.
 	ErrAlreadyExists = errors.New("already exists")
+
+	// ErrRoleNotFound is returned when a role is not found.
+	ErrRoleNotFound = errors.New("role not found")
+	// ErrRoleIsDefaultRole is returned when trying to delete a default role.
+	ErrRoleIsDefaultRole = errors.New("role is a DefaultRole")
 )
