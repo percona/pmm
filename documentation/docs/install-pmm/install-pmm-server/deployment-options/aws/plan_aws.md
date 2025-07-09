@@ -47,8 +47,9 @@ Plan your network configuration before deployment:
 
 Required ports:
 
-- port `22` (SSH) for administrative access
-- port `443` (HTTPS) for PMM web interface
+- port `22` (SSH): Administrative access to the instance
+- port `80` (HTTP): Initial PMM web interface access
+- port `443` (HTTPS): Secure PMM web interface access
 
 ## Estimate costs
 

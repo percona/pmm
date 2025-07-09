@@ -55,8 +55,10 @@ Once your instance status shows "Running" and passes all status checks in the AW
 
     ![Public IP Field](../../../../images/aws-marketplace.pmm.ec2.properties.png)
 
-2. Open the IP address in a web browser and log into PMM using the default credentials `admin`/`your instance ID`.
-
+2. Open the IP address in a web browser and log into PMM using the default credentials:
+   - **Username:** `admin` 
+   - **Password:** Your EC2 instance ID  available in the **Instance ID** field in the EC2 console.
+   
     ![PMM Login](../../../../images/PMM_Login.png)
 
 3. Change the default credentials then use the new ones to log in to the PMM Server home page. You will reuse these credentials when configuring PMM Clients on other hosts.
@@ -65,17 +67,6 @@ Once your instance status shows "Running" and passes all status checks in the AW
 
 ## Configure PMM Server and IP settings
 After initial access, configure your PMM Server's security groups and IP addressing.
-
-### Required ports
-
-For proper PMM Server functionality and access, ensure your security group allows communication via the following ports:
-
-- port `22` (SSH): Administrative access to the instance
-- port `80` (HTTP): Initial PMM web interface access
-- port `443` (HTTPS): Secure PMM web interface access
-
-!!! warning "Security reminder"
-    Your PMM instance is now accessible via the internet. Ensure your security group settings restrict access to trusted IP addresses only.
 
 ### SSH access
 For SSH access instructions, see [Connecting to Your Linux Instance Using SSH](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html).
