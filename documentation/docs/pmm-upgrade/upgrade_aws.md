@@ -32,7 +32,8 @@ After upgrading PMM Server:
    podman exec pmm-server supervisorctl status
    ```
 
-2. Check PMM client connectivity:
+2. Run these commands on each monitored client instance to check PMM client connectivity: 
+
    ```bash
    # On monitored hosts
    pmm-admin status
