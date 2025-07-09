@@ -1,18 +1,24 @@
 import { FC, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { GrafanaContext } from './grafana.context';
 import { useLocation, useNavigate, useNavigationType } from 'react-router';
-import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
+import {
+  GRAFANA_SUB_PATH,
+  PMM_NEW_NAV_GRAFANA_PATH,
+  PMM_NEW_NAV_PATH,
+} from 'lib/constants';
 import { DocumentTitleUpdateMessage, LocationChangeMessage } from '@pmm/shared';
 import messenger from 'lib/messenger';
 import { getLocationUrl } from './grafana.utils';
 import { updateDocumentTitle } from 'lib/utils/document.utils';
+import { useColorMode } from 'hooks/theme';
 
 export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const navigationType = useNavigationType();
   const location = useLocation();
   const src = location.pathname.replace(PMM_NEW_NAV_PATH, '');
-  const isGrafanaPage = src.startsWith('/graph');
+  const isGrafanaPage = src.startsWith(GRAFANA_SUB_PATH);
   const [isLoaded, setIsloaded] = useState(false);
+  const { colorMode } = useColorMode();
   const frameRef = useRef<HTMLIFrameElement>(null);
   const navigate = useNavigate();
 
@@ -50,6 +56,16 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       .setTargetWindow(frameRef.current?.contentWindow!, '#grafana-iframe')
       .register();
 
+    // send current PMM theme to Grafana
+    messenger.waitForMessage('MESSENGER_READY').then(() => {
+      messenger.sendMessage({
+        type: 'CHANGE_THEME',
+        payload: {
+          theme: colorMode,
+        },
+      });
+    });
+
     messenger.addListener({
       type: 'LOCATION_CHANGE',
       onMessage: ({ payload: location }: LocationChangeMessage) => {
@@ -76,6 +92,19 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded]);
+
+  useEffect(() => {
+    if (!isLoaded) {
+      return;
+    }
+
+    messenger.sendMessage({
+      type: 'CHANGE_THEME',
+      payload: {
+        theme: colorMode,
+      },
+    });
+  }, [isLoaded, colorMode]);
 
   return (
     <GrafanaContext.Provider

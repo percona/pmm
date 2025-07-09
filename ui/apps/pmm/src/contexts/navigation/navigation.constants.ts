@@ -1,121 +1,78 @@
 import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
 import { NavItem } from 'lib/types';
 
-export const PMM_NAV_OS: NavItem = {
-  id: 'system',
-  text: 'Operating system',
-  icon: 'percona-system',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-instance-overview/nodes-overview`,
-  children: [
-    {
-      id: 'node-overview',
-      text: 'Overview',
-      icon: 'percona-nav-overview',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-instance-overview/nodes-overview`,
-    },
-    {
-      id: 'node-summary',
-      text: 'Summary',
-      icon: 'percona-nav-summary',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-instance-summary/node-summary`,
-    },
-    {
-      id: 'cpu-utilization',
-      text: 'CPU utilization',
-      icon: 'percona-cpu',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-cpu/cpu-utilization-details`,
-    },
-    {
-      id: 'disk',
-      text: 'Disk',
-      icon: 'percona-disk',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-disk/disk-details`,
-    },
-    {
-      id: 'memory',
-      text: 'Memory',
-      icon: 'percona-memory',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-memory/memory-details`,
-    },
-    {
-      id: 'network',
-      text: 'Network',
-      icon: 'percona-network',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-network/network-details`,
-    },
-    {
-      id: 'temperature',
-      text: 'Temperature',
-      icon: 'percona-temperature',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-temp/node-temperature-details`,
-    },
-    {
-      id: 'numa',
-      text: 'NUMA',
-      icon: 'percona-cluster-network',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-memory-numa/numa-details`,
-    },
-    {
-      id: 'processes',
-      text: 'Processes',
-      icon: 'percona-process',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-cpu-process/processes-details`,
-    },
-  ],
+export const NAV_DIVIDERS = {
+  home: {
+    id: 'home-divider',
+    isDivider: true,
+  },
+  inventory: {
+    id: 'inventory-divider',
+    isDivider: true,
+  },
+  backups: {
+    id: 'backups-divider',
+    isDivider: true,
+  },
 };
 
-export const PMM_NAV_MYSQL: NavItem = {
+export const NAV_HOME_PAGE: NavItem = {
+  id: 'home-page',
+  icon: 'home',
+  text: 'Home page',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home`,
+};
+
+//
+// MySQL dashboards
+//
+export const NAV_MYSQL: NavItem = {
   id: 'mysql',
   text: 'MySQL',
-  icon: 'percona-database-mysql',
+  icon: 'mysql',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-instance-overview/mysql-instances-overview`,
   children: [
     {
       id: 'mysql-overview',
+      icon: 'overview',
       text: 'Overview',
-      icon: 'percona-nav-overview',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-instance-overview/mysql-instances-overview`,
     },
     {
       id: 'mysql-summary',
+      icon: 'summary',
       text: 'Summary',
-      icon: 'percona-nav-summary',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-instance-summary/mysql-instance-summary`,
     },
     {
-      id: 'mysql-ha',
-      text: 'High availability',
-      icon: 'percona-cluster',
+      id: 'mysql-high-availability',
+      icon: 'high-availability',
+      text: 'High Availability',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-group-replicaset-summary`,
       children: [
         {
           id: 'mysql-group-replication-summary',
-          text: 'Group replication summary',
-          icon: 'percona-cluster',
+          text: 'Group replication',
           url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-group-replicaset-summary/mysql-group-replication-summary`,
         },
         {
           id: 'mysql-replication-summary',
-          text: 'Replication summary',
-          icon: 'percona-cluster',
+          text: 'Replication',
           url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-replicaset-summary/mysql-replication-summary`,
         },
         {
           id: 'pxc-cluster-summary',
-          text: 'PXC/Galera cluster summary',
-          icon: 'percona-cluster',
+          text: 'PXC/Galera cluster',
           url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pxc-cluster-summary/pxc-galera-cluster-summary`,
         },
         {
           id: 'pxc-node-summary',
-          text: 'PXC/Galera node summary',
-          icon: 'percona-cluster',
+          text: 'PXC/Galera node',
           url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pxc-node-summary/pxc-galera-node-summary`,
         },
         {
           id: 'pxc-nodes-compare',
-          text: 'PXC/Galera nodes compare',
-          icon: 'percona-cluster',
+          text: 'PXC/Galera nodes',
           url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pxc-nodes-compare/pxc-galera-nodes-compare`,
         },
       ],
@@ -123,88 +80,81 @@ export const PMM_NAV_MYSQL: NavItem = {
     {
       id: 'mysql-command-handler-counters-compare',
       text: 'Command/Handler counters compare',
-      icon: 'sitemap',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-commandhandler-compare/mysql-command-handler-counters-compare`,
     },
     {
       id: 'mysql-innodb-details',
       text: 'InnoDB details',
-      icon: 'sitemap',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-innodb/mysql-innodb-details`,
     },
     {
       id: 'mysql-innodb-compression-details',
       text: 'InnoDB compression',
-      icon: 'sitemap',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-innodb-compression/mysql-innodb-compression-details`,
     },
     {
       id: 'mysql-performance-schema-details',
       text: 'Performance schema',
-      icon: 'sitemap',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-performance-schema/mysql-performance-schema-details`,
     },
     {
       id: 'mysql-query-response-time-details',
       text: 'Query response time',
-      icon: 'sitemap',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-queryresponsetime/mysql-query-response-time-details`,
     },
     {
       id: 'mysql-table-details',
       text: 'Table details',
-      icon: 'sitemap',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-table/mysql-table-details`,
     },
     {
       id: 'mysql-tokudb-details',
       text: 'TokuDB details',
-      icon: 'sitemap',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-tokudb/mysql-tokudb-details`,
     },
   ],
 };
 
-export const PMM_NAV_MONGO: NavItem = {
+//
+// MongoDB dashboards
+//
+export const NAV_MONGO: NavItem = {
   id: 'mongo',
+  icon: 'mongo',
   text: 'MongoDB',
-  icon: 'percona-database-mongodb',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-instance-overview/mongodb-instances-overview`,
   children: [
     {
       id: 'mongo-overview',
+      icon: 'overview',
       text: 'Overview',
-      icon: 'percona-nav-overview',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-instance-overview/mongodb-instances-overview`,
     },
     {
       id: 'mongo-summary',
+      icon: 'summary',
       text: 'Summary',
-      icon: 'percona-nav-summary',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-instance-summary/mongodb-instance-summary`,
     },
     {
-      id: 'mongo-ha',
+      id: 'mongo-high-availability',
+      icon: 'high-availability',
       text: 'High availability',
-      icon: 'percona-cluster',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-cluster-summary`,
       children: [
         {
           id: 'mongo-cluster-summary',
-          text: 'Cluster summary',
-          icon: 'percona-cluster',
+          text: 'Cluster',
           url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-cluster-summary/mongodb-sharded-cluster-summary`,
         },
         {
           id: 'mongo-rplset-summary',
-          text: 'ReplSet summary',
-          icon: 'percona-cluster',
+          text: 'ReplSet',
           url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-replicaset-summary/mongodb-replset-summary`,
         },
         {
           id: 'mongo-router-summary',
-          text: 'Router summary',
-          icon: 'percona-cluster',
+          text: 'Router',
           url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-router-summary/mongodb-router-summary`,
         },
       ],
@@ -212,82 +162,364 @@ export const PMM_NAV_MONGO: NavItem = {
     {
       id: 'mongo-memory-details',
       text: 'InMemory',
-      icon: 'sitemap',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-inmemory/mongodb-inmemory-details`,
     },
     {
       id: 'mondo-wiredtiger-details',
       text: 'WiredTiger',
-      icon: 'sitemap',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-wiredtiger/mongodb-wiredtiger-details`,
     },
     {
       id: 'mongo-collections-overview',
       text: 'Collections',
-      icon: 'sitemap',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-collections-overview/mongodb-collections-overview`,
     },
     {
       id: 'mongo-oplog-details',
       text: 'Oplog',
-      icon: 'sitemap',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-oplog-details/mongodb-oplog-details`,
     },
   ],
 };
 
-export const PMM_NAV_POSTGRE: NavItem = {
+//
+// PostgreSQL
+//
+export const NAV_POSTGRESQL: NavItem = {
   id: 'postgre',
   text: 'PostgreSQL',
-  icon: 'percona-database-postgresql',
+  icon: 'postgresql',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-instance-overview/postgresql-instances-overview`,
   children: [
     {
-      id: 'postgre-overwiew',
+      id: 'postgresql-overwiew',
       text: 'Overview',
-      icon: 'percona-nav-overview',
+      icon: 'overview',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-instance-overview/postgresql-instances-overview`,
     },
     {
-      id: 'postgre-summary',
+      id: 'postgresql-summary',
       text: 'Summary',
-      icon: 'percona-nav-summary',
+      icon: 'summary',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-instance-summary/postgresql-instance-summary`,
+    },
+    {
+      id: 'postgresql-ha',
+      text: 'High availability',
+      icon: 'high-availability',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-replication-overview`,
+      children: [
+        {
+          id: 'postgresql-replication',
+          text: 'Replication',
+          url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-replication-overview/postgresql-replication-overview`,
+        },
+        {
+          id: 'postgresql-patroni',
+          text: 'Patroni',
+          url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-patroni-details/postgresql-patroni-details`,
+        },
+      ],
+    },
+    {
+      id: 'postgresql-top-queries',
+      text: 'Top queries',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-top-queries/postgresql-top-queries`,
     },
   ],
 };
 
-export const PMM_NAV_PROXYSQL: NavItem = {
-  id: 'proxysql',
-  text: 'ProxySQL',
-  icon: 'percona-database-proxysql',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/proxysql-instance-summary/proxysql-instance-summary`,
+//
+// OS dashboards
+//
+export const NAV_OS: NavItem = {
+  id: 'system',
+  icon: 'operating-system',
+  text: 'Operating system',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-instance-overview/nodes-overview`,
+  children: [
+    {
+      id: 'node-overview',
+      icon: 'overview',
+      text: 'Overview',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-instance-overview/nodes-overview`,
+    },
+    {
+      id: 'node-summary',
+      icon: 'summary',
+      text: 'Summary',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-instance-summary/node-summary`,
+    },
+    {
+      id: 'cpu-utilization',
+      text: 'CPU utilization',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-cpu/cpu-utilization-details`,
+    },
+    {
+      id: 'disk',
+      text: 'Disk',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-disk/disk-details`,
+    },
+    {
+      id: 'memory',
+      text: 'Memory',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-memory/memory-details`,
+    },
+    {
+      id: 'network',
+      text: 'Network',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-network/network-details`,
+    },
+    {
+      id: 'temperature',
+      text: 'Temperature',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-temp/node-temperature-details`,
+    },
+    {
+      id: 'numa',
+      text: 'NUMA',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-memory-numa/numa-details`,
+    },
+    {
+      id: 'processes',
+      text: 'Processes',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-cpu-process/processes-details`,
+    },
+  ],
 };
 
-export const PMM_NAV_HAPROXY: NavItem = {
+//
+// HAProxy
+//
+export const NAV_HAPROXY: NavItem = {
   id: 'haproxy',
+  icon: 'haproxy',
   text: 'HAProxy',
-  icon: 'percona-database-haproxy',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/haproxy-instance-summary/haproxy-instance-summary`,
 };
 
-export const PMM_NAV_QAN: NavItem = {
+//
+// ProxySQL
+//
+export const NAV_PROXYSQL: NavItem = {
+  id: 'proxysql',
+  icon: 'proxysql',
+  text: 'ProxySQL',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/proxysql-instance-summary/proxysql-instance-summary`,
+};
+
+//
+// QAN
+//
+export const NAV_QAN: NavItem = {
   id: 'qan',
+  icon: 'qan',
   text: 'Query Analytics (QAN)',
-  icon: 'qan-logo',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`,
 };
 
-export const PMM_BACKUP_PAGE: NavItem = {
-  id: 'backup',
-  icon: 'history',
-  text: 'Backup',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup`,
+//
+// All Dashbaords
+//
+export const NAV_DASHBOARDS: NavItem = {
+  id: 'dashboards',
+  icon: 'dashboards',
+  text: 'All dashboards',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards`,
+};
+
+export const NAV_DASHBOARDS_BROWSE: NavItem = {
+  id: 'dashboards-browse',
+  icon: 'browse-dashboards',
+  text: 'Browse all dashboards',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards`,
+};
+
+export const NAV_DASHBOARDS_SHARED: NavItem = {
+  id: 'dashboards-shared',
+  text: 'Shared dashboards',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboard/public`,
+};
+
+export const NAV_DASHBOARDS_PLAYLISTS: NavItem = {
+  id: 'dashboards-playlists',
+  text: 'Playlists',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/playlists`,
+};
+
+export const NAV_DASHBOARDS_SNAPSHOTS: NavItem = {
+  id: 'dashboards-snapshots',
+  text: 'Snapshots',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboard/snapshots`,
+};
+
+export const NAV_DASHBOARDS_LIBRARY_PANELS = {
+  id: 'dashboards-library-panels',
+  text: 'Library panels',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/library-panels`,
+};
+
+//
+// Explore
+//
+export const NAV_EXPLORE_METRICS: NavItem = {
+  id: 'explore-metrics',
+  text: 'Explore metrics',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/explore/metrics`,
+};
+
+export const NAV_EXPLORE_BUILDER: NavItem = {
+  id: 'explore-promsql-builder',
+  text: 'PromSQL builder',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/explore`,
+};
+
+export const NAV_EXPLORE: NavItem = {
+  id: 'explore',
+  icon: 'explore',
+  text: 'Explore',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/explore`,
+};
+
+//
+// Alerting
+//
+export const NAV_ALERTS_TEMPLATES = {
+  id: 'alerts-templates',
+  text: 'Percona Alert Templates',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alert-rule-templates`,
+};
+
+export const NAV_ALERTS_FIRED: NavItem = {
+  id: 'alerts-fired',
+  text: 'Fired Alerts',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alerts`,
+};
+
+export const NAV_ALERTS_CONTACT_POINTS: NavItem = {
+  id: 'alerts-contact-points',
+  text: 'Contact points',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/notifications`,
+};
+
+export const NAV_ALERTS_NOTIFICATION_POLICIES: NavItem = {
+  id: 'alerts-policies',
+  text: 'Notification policies',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/routes`,
+};
+
+export const NAV_ALERTS_SETTINGS: NavItem = {
+  id: 'alerts-settings',
+  text: 'Alert Settings',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/admin`,
+};
+
+export const NAV_ALERTS: NavItem = {
+  id: 'alerts',
+  icon: 'alerts',
+  text: 'Alerts',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alerts`,
+};
+
+//
+// Percona Intelligence
+//
+export const NAV_INTELLIGENCE_TEMPLATES = {
+  ...NAV_ALERTS_TEMPLATES,
+  id: 'intelligence-alerts-templates',
+};
+
+export const NAV_INTELLIGENCE: NavItem = {
+  id: 'percona-intelligence',
+  icon: 'intelligence',
+  text: 'Percona Intelligence',
+  url: NAV_INTELLIGENCE_TEMPLATES.url,
+};
+
+export const NAV_ADVISORS = {
+  id: 'advisors',
+  text: 'Percona Advisors',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors`,
+};
+
+export const NAV_ADVISORS_INSIGHTS = {
+  id: 'advisors-insights',
+  text: 'Advisor Insights',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/insights`,
+};
+
+//
+// Inventory
+//
+export const NAV_INVENTORY: NavItem = {
+  id: 'inventory',
+  icon: 'inventory',
+  text: 'Inventory',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory`,
+  children: [
+    {
+      id: 'add-instance',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
+      text: 'Add Service',
+      children: [
+        {
+          id: 'add-instance-form',
+          url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`,
+          text: 'Add Service',
+          hidden: true,
+        },
+      ],
+    },
+    {
+      id: 'inventory-services',
+      text: 'Services',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/services`,
+      children: [
+        {
+          id: 'inventory-services-agents',
+          text: 'Services / Agents',
+          url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/services/:serviceId/agents`,
+          hidden: true,
+        },
+      ],
+    },
+    {
+      id: 'inventory-nodes',
+      text: 'Nodes',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes`,
+      children: [
+        {
+          id: 'inventory-nodes-agents',
+          text: 'Nodes / Agents',
+          url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes/:nodeId/agents`,
+          hidden: true,
+        },
+      ],
+    },
+  ],
+};
+
+//
+// Backups
+//
+export const NAV_BACKUPS: NavItem = {
+  id: 'backups',
+  icon: 'backups',
+  text: 'Backups',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
   children: [
     {
       id: 'backup-inventory',
       text: 'All Backups',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
+      children: [
+        {
+          id: 'backups-new',
+          text: 'Create backup',
+          url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/new`,
+          hidden: true,
+        },
+      ],
     },
     {
       id: 'scheduled-backups',
@@ -307,334 +539,119 @@ export const PMM_BACKUP_PAGE: NavItem = {
   ],
 };
 
-export const PMM_ALERTING_CREATE_ALERT_TEMPLATE: NavItem = {
-  id: 'integrated-alerting-new-from-template',
-  text: 'Create alert rule from template',
-  icon: 'brackets-curly',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/new-from-template`,
-};
-
-export const PMM_ALERTING_FIRED_ALERTS: NavItem = {
-  id: 'integrated-alerting-alerts',
-  text: 'Fired alerts',
-  icon: 'info-circle',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alerts`,
-};
-
-export const PMM_ALERTING_RULE_TEMPLATES: NavItem = {
-  id: 'integrated-alerting-templates',
-  text: 'Alert rule templates',
-  icon: 'brackets-curly',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alert-rule-templates`,
-};
-
-export const PMM_ALERTING_PERCONA_ALERTS: NavItem[] = [
-  PMM_ALERTING_FIRED_ALERTS,
-  PMM_ALERTING_RULE_TEMPLATES,
-  PMM_ALERTING_CREATE_ALERT_TEMPLATE,
-];
-
-export const PMM_SERVICES_PAGE: NavItem = {
-  id: 'inventory-services',
-  text: 'Services',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/services`,
-};
-
-export const PMM_NODES_PAGE: NavItem = {
-  id: 'inventory-nodes',
-  text: 'Nodes',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes`,
-};
-
-export const PMM_INVENTORY_PAGE: NavItem = {
-  id: 'inventory',
-  icon: 'server-network',
-  text: 'Inventory',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory`,
-  children: [PMM_SERVICES_PAGE, PMM_NODES_PAGE],
-};
-
-export const PMM_SETTINGS = {
-  id: 'settings',
-  icon: 'percona-setting',
-  text: 'Settings',
+//
+// Configuration
+//
+export const NAV_CONFIGURATION: NavItem = {
+  id: 'configuration',
+  icon: 'configuration',
+  text: 'Configuration',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/settings`,
-  subTitle: 'Percona Settings',
   children: [
     {
-      id: 'settings-metrics-resolution',
-      text: 'Metrics Resolution',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/settings/metrics-resolution`,
-    },
-    {
-      id: 'settings-advanced',
-      text: 'Advanced Settings',
+      id: 'configuration-settings',
+      text: 'Settings',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/settings/advanced-settings`,
     },
     {
-      id: 'settings-ssh',
-      text: 'SSH Key',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/settings/ssh-key`,
+      id: 'updates',
+      text: 'Updates',
+      url: `${PMM_NEW_NAV_PATH}/updates`,
     },
     {
-      id: 'settings-percona-platform',
-      text: 'Percona Platform',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/settings/percona-platform`,
-    },
-  ],
-};
-
-export const PMM_UPDATES = {
-  id: 'updates',
-  text: 'Updates',
-  url: PMM_NEW_NAV_PATH + '/updates',
-};
-
-export const PMM_ADD_INSTANCE_PAGE: NavItem = {
-  id: 'add-instance',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
-  icon: 'plus',
-  text: 'Add Service',
-};
-
-export const PMM_CONFIGURATION: NavItem = {
-  id: 'pmmcfg',
-  text: 'Configuration',
-  icon: 'percona-nav-logo',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory`,
-  children: [
-    PMM_ADD_INSTANCE_PAGE,
-    PMM_INVENTORY_PAGE,
-    PMM_SETTINGS,
-    PMM_UPDATES,
-  ],
-};
-
-const PMM_ADVISORS: NavItem = {
-  id: `advisors`,
-  icon: 'percona-database-checks',
-  text: 'Advisors',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors`,
-  children: [
-    {
-      id: 'advisors-insights',
-      text: 'Advisor Insights',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/insights`,
-    },
-  ],
-};
-
-export const GRAFANA_ADMINISTRATION: NavItem = {
-  id: 'cfg',
-  text: 'Administration',
-  icon: 'cog',
-  url: '/admin',
-  children: [
-    {
-      id: 'cfg/general',
-      text: 'General',
-      icon: 'shield',
-      url: '/admin/general',
+      id: 'org-management',
+      text: 'Org. management',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/admin/orgs`,
       children: [
         {
-          id: 'upgrading',
-          text: 'Stats and license',
-          icon: 'unlock',
-          url: PMM_NEW_NAV_PATH + '/graph/admin/upgrading',
-        },
-        {
-          id: 'org-settings',
-          text: 'Default preferences',
-          icon: 'sliders-v-alt',
-          url: PMM_NEW_NAV_PATH + '/graph/org',
-        },
-        {
-          id: 'server-settings',
-          text: 'Settings',
-          icon: 'sliders-v-alt',
-          url: PMM_NEW_NAV_PATH + '/graph/admin/settings',
-        },
-        {
-          id: 'global-orgs',
+          id: 'organizations',
           text: 'Organizations',
-          icon: 'building',
-          url: PMM_NEW_NAV_PATH + '/graph/admin/orgs',
+          url: `${PMM_NEW_NAV_GRAFANA_PATH}/admin/orgs`,
+        },
+        {
+          id: 'stats-and-licenses',
+          text: 'Stats and licenses',
+          url: `${PMM_NEW_NAV_GRAFANA_PATH}/admin/upgrading`,
+        },
+        {
+          id: 'default-preferences',
+          text: 'Default preferences',
+          url: `${PMM_NEW_NAV_GRAFANA_PATH}/org`,
         },
       ],
-    },
-    {
-      id: 'cfg/plugins',
-      text: 'Plugins and data',
-      icon: 'shield',
-      url: '/admin/plugins',
-      children: [
-        {
-          id: 'plugins',
-          text: 'Plugins',
-          icon: 'plug',
-          url: PMM_NEW_NAV_PATH + '/graph/plugins',
-        },
-        {
-          id: 'correlations',
-          text: 'Correlations',
-          icon: 'gf-glue',
-          url: PMM_NEW_NAV_PATH + '/graph/datasources/correlations',
-        },
-        {
-          id: 'extensions',
-          text: 'Extensions',
-          icon: 'plug',
-          url: PMM_NEW_NAV_PATH + '/graph/admin/extensions',
-        },
-      ],
-    },
-    {
-      id: 'cfg/access',
-      text: 'Users and access',
-      icon: 'shield',
-      url: '/admin/access',
-      children: [
-        {
-          id: 'global-users',
-          text: 'Users',
-          icon: 'user',
-          url: PMM_NEW_NAV_PATH + '/graph/admin/users',
-        },
-        {
-          id: 'teams',
-          text: 'Teams',
-          icon: 'users-alt',
-          url: PMM_NEW_NAV_PATH + '/graph/org/teams',
-        },
-        {
-          id: 'serviceaccounts',
-          text: 'Service accounts',
-          icon: 'gf-service-account',
-          url: PMM_NEW_NAV_PATH + '/graph/org/serviceaccounts',
-        },
-      ],
-    },
-    {
-      id: 'authentication',
-      text: 'Authentication',
-      icon: 'signin',
-      url: PMM_NEW_NAV_PATH + '/graph/admin/authentication',
     },
   ],
 };
 
-export const PROFILE: NavItem = {
-  id: 'profile',
+//
+// Users and Access
+//
+export const NAV_USERS_AND_ACCESS: NavItem = {
+  id: 'users-and-access',
+  icon: 'encrypted',
+  text: 'Users and access',
+  url: PMM_NEW_NAV_GRAFANA_PATH + '/admin/access',
+  children: [
+    {
+      id: 'users',
+      text: 'Users',
+      url: PMM_NEW_NAV_GRAFANA_PATH + '/admin/users',
+    },
+    {
+      id: 'teams',
+      text: 'Teams',
+      url: PMM_NEW_NAV_GRAFANA_PATH + '/org/teams',
+    },
+    {
+      id: 'service-accounts',
+      text: 'Services accounts',
+      url: PMM_NEW_NAV_GRAFANA_PATH + '/org/serviceaccounts',
+    },
+  ],
+};
+
+//
+// Account
+//
+export const NAV_ACCOUNT: NavItem = {
+  id: 'account',
+  icon: 'account',
   text: 'Account',
-  url: PMM_NEW_NAV_PATH + '/graph/profile',
+  url: PMM_NEW_NAV_GRAFANA_PATH + '/profile',
   children: [
     {
-      id: 'profile/settings',
+      id: 'profile',
       text: 'Profile',
-      icon: 'sliders-v-alt',
-      url: PMM_NEW_NAV_PATH + '/graph/profile',
+      url: PMM_NEW_NAV_GRAFANA_PATH + '/profile',
     },
     {
-      id: 'profile/notifications',
+      id: 'notification-history',
       text: 'Notification history',
-      icon: 'bell',
-      url: PMM_NEW_NAV_PATH + '/graph/profile/notifications',
+      url: PMM_NEW_NAV_GRAFANA_PATH + '/profile/notifications',
     },
     {
-      id: 'profile/password',
+      id: 'password-change',
       text: 'Change password',
-      icon: 'lock',
-      url: PMM_NEW_NAV_PATH + '/graph/profile/password',
-    },
-    {
-      id: 'sign-out',
-      text: 'Sign out',
-      icon: 'arrow-from-right',
-      url: '/graph/logout',
-      target: '_self',
+      url: PMM_NEW_NAV_GRAFANA_PATH + '/profile/password',
     },
   ],
 };
 
-const PMM_ALERTING: NavItem = {
-  id: 'alerting',
-  text: 'Alerting',
-  icon: 'bell',
-  url: PMM_NEW_NAV_PATH + '/graph/alerting',
-  children: [
-    {
-      id: 'integrated-alerting-alerts',
-      text: 'Fired alerts',
-      icon: 'info-circle',
-      url: PMM_NEW_NAV_PATH + '/graph/alerting/alerts',
-    },
-    {
-      id: 'integrated-alerting-templates',
-      text: 'Alert rule templates',
-      icon: 'brackets-curly',
-      url: PMM_NEW_NAV_PATH + '/graph/alerting/alert-rule-templates',
-    },
-    {
-      id: 'alert-list',
-      text: 'Alert rules',
-      icon: 'list-ul',
-      url: PMM_NEW_NAV_PATH + '/graph/alerting/list',
-    },
-    {
-      id: 'receivers',
-      text: 'Contact points',
-      icon: 'comment-alt-share',
-      url: PMM_NEW_NAV_PATH + '/graph/alerting/notifications',
-    },
-    {
-      id: 'am-routes',
-      text: 'Notification policies',
-      icon: 'sitemap',
-      url: PMM_NEW_NAV_PATH + '/graph/alerting/routes',
-    },
-    {
-      id: 'silences',
-      text: 'Silences',
-      icon: 'bell-slash',
-      url: PMM_NEW_NAV_PATH + '/graph/alerting/silences',
-    },
-    {
-      id: 'groups',
-      text: 'Alert groups',
-      icon: 'layer-group',
-      url: PMM_NEW_NAV_PATH + '/graph/alerting/groups',
-    },
-    {
-      id: 'alerting-admin',
-      text: 'Settings',
-      icon: 'cog',
-      url: PMM_NEW_NAV_PATH + '/graph/alerting/admin',
-    },
-  ],
+export const NAV_THEME_TOGGLE = {
+  id: 'theme-toggle',
+  text: 'Change to Dark Theme',
 };
 
-export const INITIAL_ITEMS: NavItem[] = [
-  {
-    id: 'home-page',
-    text: 'Home page',
-    url: PMM_NEW_NAV_PATH + '/graph/d/pmm-home',
-  },
-  PMM_NAV_OS,
-  PMM_NAV_MYSQL,
-  PMM_NAV_MONGO,
-  PMM_NAV_POSTGRE,
-  PMM_NAV_PROXYSQL,
-  PMM_NAV_HAPROXY,
-  PMM_NAV_QAN,
-  PMM_ALERTING,
-  PMM_ADVISORS,
-  PMM_BACKUP_PAGE,
-  PMM_CONFIGURATION,
-  GRAFANA_ADMINISTRATION,
-  PROFILE,
-  {
-    id: 'help',
-    text: 'Help',
-    url: PMM_NEW_NAV_PATH + '/help',
-  },
-];
+export const NAV_SIGN_OUT = {
+  id: 'sign-out',
+  text: 'Sign out',
+  url: '/graph/logout',
+  target: '_self',
+};
+
+export const NAV_HELP: NavItem = {
+  id: 'help',
+  icon: 'help',
+  text: 'Help',
+  url: `${PMM_NEW_NAV_PATH}/help`,
+};

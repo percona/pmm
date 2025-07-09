@@ -1,6 +1,19 @@
-export interface Settings {
+export interface ReadonlySettings {
   updatesEnabled: boolean;
+  telemetryEnabled: boolean;
+  advisorEnabled: boolean;
+  alertingEnabled: boolean;
+  pmmPublicAddress: string;
+  backupManagementEnabled: boolean;
+  azurediscoverEnabled: boolean;
+  enableAccessControl: boolean;
 }
+
+export interface GetReadonlySettingsResponse {
+  settings: ReadonlySettings;
+}
+
+export interface Settings extends ReadonlySettings {}
 
 export interface FrontendSettings extends GetFrontendSettingsResponse {}
 
@@ -13,6 +26,10 @@ export interface GetFrontendSettingsResponse {
   appSubUrl: string;
   apps: Record<string, GrafanaApp>;
   buildInfo: GrafanaBuildInfo;
+  exploreEnabled: boolean;
+  featureToggles: {
+    exploreMetrics: boolean;
+  };
 }
 
 export interface GrafanaBuildInfo {

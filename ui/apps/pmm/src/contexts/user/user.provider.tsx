@@ -1,28 +1,33 @@
 import { FC, PropsWithChildren, useMemo } from 'react';
 import { UserContext } from './user.context';
-import { useCurrentUser } from 'hooks/api/useUser';
-import { useSettings } from 'hooks/api/useSettings';
+import { useCurrentUser, useCurrentUserOrgs } from 'hooks/api/useUser';
 import { getPerconaUser, isAuthorized } from './user.utils';
 import { useAuth } from 'contexts/auth';
 
 export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
   const auth = useAuth();
-  const { data, isLoading: isLoadingUser } = useCurrentUser({
+  const userQuery = useCurrentUser({
     enabled: auth.isLoggedIn,
   });
-  const { error, isLoading: isLoadingSettings } = useSettings({
-    retry: false,
+  const orgsQuery = useCurrentUserOrgs({
     enabled: auth.isLoggedIn,
   });
-  const user = useMemo(
-    () => data && getPerconaUser(data, isAuthorized(error)),
-    [data, error]
-  );
+  const user = useMemo(() => {
+    if (!userQuery.data || !orgsQuery.data) {
+      return;
+    }
+
+    return getPerconaUser(
+      userQuery.data,
+      orgsQuery.data,
+      isAuthorized(userQuery.error)
+    );
+  }, [userQuery, orgsQuery]);
 
   return (
     <UserContext.Provider
       value={{
-        isLoading: isLoadingSettings || isLoadingUser,
+        isLoading: userQuery.isLoading || orgsQuery.isLoading,
         user,
       }}
     >

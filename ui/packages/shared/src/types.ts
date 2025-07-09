@@ -1,3 +1,5 @@
+export type Theme = 'light' | 'dark';
+
 export type HistoryAction = 'PUSH' | 'POP' | 'REPLACE';
 
 export type MessageType =
@@ -5,7 +7,8 @@ export type MessageType =
   | 'LOCATION_CHANGE'
   | 'DASHBOARD_VARIABLES'
   | 'GRAFANA_READY'
-  | 'DOCUMENT_TITLE_CHANGE';
+  | 'DOCUMENT_TITLE_CHANGE'
+  | 'CHANGE_THEME';
 
 export interface Message<T extends MessageType = MessageType, V = undefined> {
   id?: string;
@@ -40,5 +43,12 @@ export type DocumentTitleUpdateMessage = Message<
   'DOCUMENT_TITLE_CHANGE',
   {
     title: string;
+  }
+>;
+
+export type ChangeThemeMessage = Message<
+  'CHANGE_THEME',
+  {
+    theme: Theme;
   }
 >;
