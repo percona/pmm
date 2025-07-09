@@ -1,14 +1,13 @@
 # Connect Linux databases to PMM
 
-
-## Supported Linux Distributions
+## Supported Linux distributions
 
 PMM Client supports collecting system metrics from various Linux distributions:
 
 - Red Hat/CentOS/Oracle Linux 8 and 9
 - Amazon Linux 2023 (native support added in PMM 3.2.0)
 - Debian 11 (Bullseye) and 12 (Bookworm)
-- Ubuntu 20.04 (Focal), 22.04 (Jammy), and 24.04 (Noble)
+- Ubuntu 22.04 (Jammy) and 24.04 (Noble)
 
 ## Add Linux monitoring
 
