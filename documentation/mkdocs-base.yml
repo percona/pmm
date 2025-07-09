@@ -195,10 +195,10 @@ nav:
           - Install on Docker: install-pmm/install-pmm-client/docker.md
         - Register Client node: install-pmm/register-client-node/index.md
         - Configure monitoring:
-          - Database monitoring:
+          - Database monitoring: 
             - Overview: install-pmm/install-pmm-client/connect-database/index.md
             - MySQL: install-pmm/install-pmm-client/connect-database/mysql/mysql.md
-            - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb/mongodb.md
+            - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
             - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
           - Cloud services monitoring:
             - AWS: install-pmm/install-pmm-client/connect-database/aws.md
@@ -312,22 +312,22 @@ nav:
           - configure-pmm/percona_platform/account-info.md
 
   - Administer:
-      - admin/index.md
-      - Manage users:
-          - admin/manage-users/index.md
-          - admin/manage-users/add_users.md
-          - admin/manage-users/edit_users.md
-          - admin/manage-users/delete_users.md
-      - Roles and permissions:
-          - admin/roles/index.md
-          - Label-based access control:
-              - admin/roles/access-control/intro.md
-              - admin/roles/access-control/labels.md
-              - admin/roles/access-control/config_access_cntrl.md
-              - admin/roles/access-control/create_roles.md
-              - admin/roles/access-control/manage_roles.md
-              - admin/roles/access-control/assign_roles.md
-              - admin/roles/access-control/usecase.md
+    - admin/index.md
+    - Manage users:
+      - admin/manage-users/index.md
+      - admin/manage-users/add_users.md
+      - admin/manage-users/edit_users.md
+      - admin/manage-users/delete_users.md
+    - Roles and permissions:
+      - admin/roles/index.md
+      - Label-based access control:
+        - admin/roles/access-control/intro.md
+        - admin/roles/access-control/labels.md
+        - admin/roles/access-control/enable_access_control.md
+        - admin/roles/access-control/create_roles.md
+        - admin/roles/access-control/manage_roles.md
+        - admin/roles/access-control/assign_roles.md
+        - admin/roles/access-control/use_cases.md
 
   - Troubleshoot:
       - troubleshoot/index.md
@@ -341,102 +341,102 @@ nav:
       - troubleshoot/data_issues.md
 
   - Release notes:
-      - Release notes index: release-notes/index.md
-      - "PMM 3.2.0 (2025-05-29)": release-notes/3.2.0.md
-      - "PMM 3.1.0 (2025-03-31)": release-notes/3.1.0.md
-      - "PMM 3.0.0-1 (2025-02-10)": release-notes/3.0.0_1.md
-      - "PMM 3.0.0 (2025-01-30)": release-notes/3.0.0.md
+    - Release notes index: release-notes/index.md
+    - "PMM 3.2.0 (2025-05-29)": release-notes/3.2.0.md
+    - "PMM 3.1.0 (2025-03-31)": release-notes/3.1.0.md
+    - "PMM 3.0.0-1 (2025-02-10)": release-notes/3.0.0_1.md
+    - "PMM 3.0.0 (2025-01-30)": release-notes/3.0.0.md
 
   - Reference:
-      - Architecture:
-          - reference/index.md
-          - Third-party components in PMM:
-              - reference/third-party/victoria.md
-              - reference/third-party/clickhouse.md
-              - reference/third-party/postgresql.md
-          - reference/pmm_components_and_versions.md
-          - reference/personal_data_handling.md
-          - PMM API:
-              - api/index.md
-              - api/authentication.md
-          - PMM commands:
-              - use/commands/index.md
-              - use/commands/pmm-admin.md
-              - use/commands/pmm-agent.md
-      - PMM dashboards:
-          - Insight:
-              - reference/dashboards/dashboard-home.md
-              - reference/dashboards/dashboard-advanced-data-exploration.md
-              - reference/dashboards/dashboard-victoriametrics.md
-              - reference/dashboards/dashboard-victoriametrics-agents-overview.md
-          - Environments:
-              - reference/dashboards/dashboard-env-overview.md
-              - reference/dashboards/dashboard-environment-summary.md
-          - Kubernetes:
-              - reference/dashboards/kubernetes_cluster_summary.md
-              - reference/dashboards/kubernetes_monitor_operators.md
-              - reference/dashboards/kubernetes_monitor_db_clusters_managed.md
-          - OS Dashboards:
-              - reference/dashboards/dashboard-cpu-utilization-details.md
-              - reference/dashboards/dashboard-disk-details.md
-              - reference/dashboards/dashboard-network-details.md
-              - reference/dashboards/dashboard-memory-details.md
-              - reference/dashboards/dashboard-node-temperature-details.md
-              - reference/dashboards/dashboard-nodes-compare.md
-              - reference/dashboards/dashboard-nodes-overview.md
-              - reference/dashboards/dashboard-node-summary.md
-              - reference/dashboards/dashboard-numa-details.md
-              - reference/dashboards/dashboard-processes-details.md
-          - Prometheus dashboards:
-              - reference/dashboards/dashboard-prometheus-exporter-status.md
-              - reference/dashboards/dashboard-prometheus-exporters-overview.md
-          - MySQL dashboards:
-              - reference/dashboards/dashboard-mysql-amazon-aurora-details.md
-              - reference/dashboards/dashboard-mysql-command-handler-counters-compare.md
-              - reference/dashboards/dashboard-mysql-innodb-compression-details.md
-              - reference/dashboards/dashboard-mysql-innodb-details.md
-              - reference/dashboards/dashboard-mysql-myisam-aria-details.md
-              - reference/dashboards/dashboard-mysql-myrocks-details.md
-              - reference/dashboards/dashboard-mysql-instance-summary.md
-              - reference/dashboards/dashboard-mysql-instances-compare.md
-              - reference/dashboards/dashboard-mysql-instances-overview.md
-              - reference/dashboards/dashboard-mysql-wait-event-analyses-details.md
-              - reference/dashboards/dashboard-mysql-performance-schema-details.md
-              - reference/dashboards/dashboard-mysql-query-response-time-details.md
-              - reference/dashboards/dashboard-mysql-replication-summary.md
-              - reference/dashboards/dashboard-mysql-group-replication-summary.md
-              - reference/dashboards/dashboard-mysql-table-details.md
-              - reference/dashboards/dashboard-mysql-user-details.md
-              - reference/dashboards/dashboard-mysql-tokudb-details.md
-          - MongoDB dashboards:
-              - reference/dashboards/dashboard-mongodb-experimental_collection_overview.md
-              - reference/dashboards/dashboard-mongodb-experimental_collection_details.md
-              - reference/dashboards/dashboard-mongodb-experimental_oplog.md
-              - reference/dashboards/dashboard-mongodb-cluster-summary.md
-              - reference/dashboards/dashboard-mongodb-instance-summary.md
-              - reference/dashboards/dashboard-mongodb-instances-overview.md
-              - reference/dashboards/dashboard-mongodb-instances-compare.md
-              - reference/dashboards/dashboard-mongodb-replset-summary.md
-              - reference/dashboards/dashboard-mongodb-router-summary.md
-              - reference/dashboards/dashboard-mongodb-inmemory-details.md
-              - reference/dashboards/dashboard-mongodb-mmapv1-details.md
-              - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
-              - reference/dashboards/dashboard-mongodb-PBM-details.md
-          - PostgreSQL dashboards:
-              - reference/dashboards/dashboard-postgresql-instances-overview.md
-              - reference/dashboards/dashboard-postgresql-instance-summary.md
-              - reference/dashboards/dashboard-postgresql-instances-compare.md
-              - reference/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.md
-          - ProxySQL dashboards:
-              - reference/dashboards/dashboard-proxysql-instance-summary.md
-          - HA dashboards:
-              - reference/dashboards/dashboard-pxc-galera-node-summary.md
-              - reference/dashboards/dashboard-pxc-galera-cluster-summary.md
-              - reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
-              - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
-              - reference/dashboards/dashboard-haproxy-instance-summary.md
-      - reference/nomad.md
-      - reference/glossary.md
-      - reference/faq.md
-      - reference/trademark-policy.md
-      - reference/copyright.md
+    - Architecture:
+      - reference/index.md
+      - Third-party components in PMM:
+        - reference/third-party/victoria.md
+        - reference/third-party/clickhouse.md
+        - reference/third-party/postgresql.md
+      - reference/pmm_components_and_versions.md
+      - reference/personal_data_handling.md
+      - PMM API:
+        - api/index.md
+        - api/authentication.md
+      - PMM commands:
+        - use/commands/index.md
+        - use/commands/pmm-admin.md
+        - use/commands/pmm-agent.md
+    - PMM dashboards:
+      - Insight:
+        - reference/dashboards/dashboard-home.md
+        - reference/dashboards/dashboard-advanced-data-exploration.md
+        - reference/dashboards/dashboard-victoriametrics.md
+        - reference/dashboards/dashboard-victoriametrics-agents-overview.md
+      - Environments:
+        - reference/dashboards/dashboard-env-overview.md
+        - reference/dashboards/dashboard-environment-summary.md
+      - Kubernetes:
+        - reference/dashboards/kubernetes_cluster_summary.md
+        - reference/dashboards/kubernetes_monitor_operators.md
+        - reference/dashboards/kubernetes_monitor_db_clusters_managed.md
+      - OS Dashboards:
+        - reference/dashboards/dashboard-cpu-utilization-details.md
+        - reference/dashboards/dashboard-disk-details.md
+        - reference/dashboards/dashboard-network-details.md
+        - reference/dashboards/dashboard-memory-details.md
+        - reference/dashboards/dashboard-node-temperature-details.md
+        - reference/dashboards/dashboard-nodes-compare.md
+        - reference/dashboards/dashboard-nodes-overview.md
+        - reference/dashboards/dashboard-node-summary.md
+        - reference/dashboards/dashboard-numa-details.md
+        - reference/dashboards/dashboard-processes-details.md
+      - Prometheus dashboards:
+        - reference/dashboards/dashboard-prometheus-exporter-status.md
+        - reference/dashboards/dashboard-prometheus-exporters-overview.md
+      - MySQL dashboards:
+        - reference/dashboards/dashboard-mysql-amazon-aurora-details.md
+        - reference/dashboards/dashboard-mysql-command-handler-counters-compare.md
+        - reference/dashboards/dashboard-mysql-innodb-compression-details.md
+        - reference/dashboards/dashboard-mysql-innodb-details.md
+        - reference/dashboards/dashboard-mysql-myisam-aria-details.md
+        - reference/dashboards/dashboard-mysql-myrocks-details.md
+        - reference/dashboards/dashboard-mysql-instance-summary.md
+        - reference/dashboards/dashboard-mysql-instances-compare.md
+        - reference/dashboards/dashboard-mysql-instances-overview.md
+        - reference/dashboards/dashboard-mysql-wait-event-analyses-details.md
+        - reference/dashboards/dashboard-mysql-performance-schema-details.md
+        - reference/dashboards/dashboard-mysql-query-response-time-details.md
+        - reference/dashboards/dashboard-mysql-replication-summary.md
+        - reference/dashboards/dashboard-mysql-group-replication-summary.md
+        - reference/dashboards/dashboard-mysql-table-details.md
+        - reference/dashboards/dashboard-mysql-user-details.md
+        - reference/dashboards/dashboard-mysql-tokudb-details.md
+      - MongoDB dashboards:
+        - reference/dashboards/dashboard-mongodb-experimental_collection_overview.md
+        - reference/dashboards/dashboard-mongodb-experimental_collection_details.md
+        - reference/dashboards/dashboard-mongodb-experimental_oplog.md
+        - reference/dashboards/dashboard-mongodb-cluster-summary.md
+        - reference/dashboards/dashboard-mongodb-instance-summary.md
+        - reference/dashboards/dashboard-mongodb-instances-overview.md
+        - reference/dashboards/dashboard-mongodb-instances-compare.md
+        - reference/dashboards/dashboard-mongodb-replset-summary.md
+        - reference/dashboards/dashboard-mongodb-router-summary.md
+        - reference/dashboards/dashboard-mongodb-inmemory-details.md
+        - reference/dashboards/dashboard-mongodb-mmapv1-details.md
+        - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
+        - reference/dashboards/dashboard-mongodb-PBM-details.md
+      - PostgreSQL dashboards:
+        - reference/dashboards/dashboard-postgresql-instances-overview.md
+        - reference/dashboards/dashboard-postgresql-instance-summary.md
+        - reference/dashboards/dashboard-postgresql-instances-compare.md
+        - reference/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.md
+      - ProxySQL dashboards:
+        - reference/dashboards/dashboard-proxysql-instance-summary.md
+      - HA dashboards:
+        - reference/dashboards/dashboard-pxc-galera-node-summary.md
+        - reference/dashboards/dashboard-pxc-galera-cluster-summary.md
+        - reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
+        - reference/dashboards/dashboard-pxc-galera-nodes-compare.md
+        - reference/dashboards/dashboard-haproxy-instance-summary.md
+    -  reference/nomad.md
+    -  reference/glossary.md
+    -  reference/faq.md
+    -  reference/trademark-policy.md
+    -  reference/copyright.md
