@@ -60,7 +60,7 @@ Replace the self-signed certificate with a proper SSL certificate for production
        sudo mv /tmp/private.key /home/admin/volume/pmm-certs/certificate.key
        sudo chown pmm:pmm /home/admin/volume/pmm-certs/certificate.*
        sudo chmod 600 /home/admin/volume/pmm-certs/certificate.*
-       sudo docker restart pmm-server
+       podman restart pmm-server
        ```
 
 ### Harden network access
@@ -350,7 +350,7 @@ To permanently delete your PMM Server instance and clean up resources:
 
     3. Export configuration:
        ```bash
-       sudo docker exec pmm-server pmm-admin summary > pmm-final-config.txt
+       podman  exec pmm-server pmm-admin summary > pmm-final-config.txt
        ```
 
     4. Stop PMM services:

@@ -29,7 +29,7 @@ After upgrading PMM Server:
 
 1. Verify all services are running:
    ```bash
-   docker exec pmm-server supervisorctl status
+   podman exec pmm-server supervisorctl status
    ```
 
 2. Check PMM client connectivity:
@@ -49,7 +49,7 @@ If issues occur after upgrade:
 1. Stop the new PMM container:
    ```bash
    podman stop pmm-server
-   sudo docker rm pmm-server
+   podman rm pmm-server
    ```
 
 2. Restore from backup by creating a volume from your pre-upgrade snapshot, attaching it to the instance, and starting the previous PMM version.
@@ -57,7 +57,7 @@ If issues occur after upgrade:
 3. Revert PMM Clients if they were updated:
 
    ```bash
-    # Reinstall previous client version
+    # Reconnect client to the restored server
     pmm-admin config --server-url=https://original-pmm-server:443
    ```
 
@@ -67,19 +67,19 @@ If issues occur after upgrade:
 
 ```bash
 # Check logs
-sudo docker logs pmm-server
+podman logs pmm-server
 
 # Verify volume mounts
-sudo docker inspect pmm-server
+podman inspect pmm-server
 ```
 
 ### Database migration issues
 
 ```bash
 # Access PMM container
-sudo docker exec -it pmm-server bash
+podman exec -it pmm-server bash
 
-# Check database status
+# Check database status on client instance
 pmm-admin status
 ```
 ## Automated upgrade scheduling
