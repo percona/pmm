@@ -48,7 +48,7 @@ If issues occur after upgrade:
 
 1. Stop the new PMM container:
    ```bash
-   sudo docker stop pmm-server
+   podman stop pmm-server
    sudo docker rm pmm-server
    ```
 

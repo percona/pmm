@@ -22,7 +22,6 @@ Replace the self-signed certificate with a proper SSL certificate for production
     {.power-number}
 
     1. Make sure that the domain name is pointing to your PMM Server's IP address.
-    2. Check that port 80 is temporarily opened for certificate validation.
     3. Install and configure:
     ```bash
     # Install certbot
@@ -30,7 +29,7 @@ Replace the self-signed certificate with a proper SSL certificate for production
     sudo apt install certbot
 
     # Stop PMM temporarily
-    sudo docker stop pmm-server
+    sudo podman stop pmm-server
 
     # Obtain certificate (replace yourdomain.com)
     sudo certbot certonly --standalone -d pmm.yourdomain.com
@@ -42,7 +41,7 @@ Replace the self-signed certificate with a proper SSL certificate for production
     sudo chmod 600 /home/admin/volume/pmm-certs/certificate.*
 
     # Restart PMM Server
-    sudo docker start pmm-server
+    podman start pmm-server
     ```
 
 === "Commercial certificate"
@@ -356,7 +355,7 @@ To permanently delete your PMM Server instance and clean up resources:
 
     4. Stop PMM services:
        ```bash
-       sudo docker stop pmm-server
+       podman stop pmm-server
        ```
 
     5. Terminate the instance:
