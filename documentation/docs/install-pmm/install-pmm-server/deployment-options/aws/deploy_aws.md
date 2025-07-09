@@ -73,7 +73,6 @@ For proper PMM Server functionality and access, ensure your security group allow
 - port `22` (SSH): Administrative access to the instance
 - port `80` (HTTP): Initial PMM web interface access
 - port `443` (HTTPS): Secure PMM web interface access
-- port `3306` (MySQL): If monitoring RDS instances directly
 
 !!! warning "Security reminder"
     Your PMM instance is now accessible via the internet. Ensure your security group settings restrict access to trusted IP addresses only.

@@ -47,9 +47,8 @@ Plan your network configuration before deployment:
 
 Required ports:
 
-- port 22 (SSH) for administrative access
-- port 443 (HTTPS) for PMM web interface
-- port 3306 (MySQL) if monitoring RDS instances
+- port `22` (SSH) for administrative access
+- port `443` (HTTPS) for PMM web interface
 
 ## Estimate costs
 
