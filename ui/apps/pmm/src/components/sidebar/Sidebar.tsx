@@ -17,6 +17,7 @@ export const Sidebar: FC = () => {
       sx={(theme) => ({
         color: theme.palette.text.primary,
       })}
+      data-testid="pmm-sidebar"
     >
       <NavigationHeading
         sidebarOpen={open}
