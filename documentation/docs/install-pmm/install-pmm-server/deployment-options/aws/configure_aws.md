@@ -291,33 +291,6 @@ curl -k -u admin:your-password https://<pmm-server-ip>:443/v1/readyz
 # Expected response: {"status":"ok"}
 ```
 
-## Set up RDS monitoring
-
-To configure security groups for RDS access:
-{.power-number}
-
-1. Create an inbound rule allowing MySQL/Aurora traffic (port 3306) from your PMM Server's security group.
-2. Test connectivity:
-   ```bash
-   # From PMM Server
-   nc -zv your-rds-endpoint.amazonaws.com 3306
-   ```
-3. Add RDS instance in PMM using the RDS endpoint hostname. 
-
-## Optimize memory allocation
-
-To optimize memory allocation based on instance size:
-
-```bash
-# Check current memory usage
-free -h
-docker stats pmm-server
-
-# For t3.medium (4GB RAM), adjust memory limits:
-# VictoriaMetrics: 1GB, ClickHouse: 1GB, Grafana: 512MB
-```
-Scale memory allocations proportionally for larger instances.
-
 ## Back up and restore 
 
 To restore PMM Server from a backup:
