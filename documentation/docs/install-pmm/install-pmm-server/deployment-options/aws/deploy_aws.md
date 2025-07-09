@@ -20,7 +20,7 @@ To launch  PMM Server via AWS Marketplace:
 
 7. In the **Subnet Settings** field, select an existing subnet or create a new one within your VPC.
 
-8. In the **Security Group Settings** field, choose an existing security group or create a new one. Make sure the security group allows inbound traffic on the [Required ports](#required-ports) listed below.
+8. In the **Security Group Settings** field, choose an existing security group or create a new one. Make sure the security group allows inbound traffic on the [Required ports](../aws/plan_aws.md#network-and-security-planning).
 9. In the **Key Pair Settings** field, select an existing key pair for SSH access, or create a new one if necessary.
 
 10. Click **Launch** to deploy the PMM Server instance. Once the instance is launched, it will appear in the EC2 console.
