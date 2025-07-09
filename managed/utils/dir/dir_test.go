@@ -68,7 +68,7 @@ func TestCreateDataDir(t *testing.T) {
 			t.Parallel()
 			defer os.Remove(tc.path) //nolint:errcheck
 
-			err := CreateDataDir(tc.path, tc.username, tc.groupname, tc.perm)
+			err := CreateDataDir(tc.path, tc.perm)
 			if tc.err != "" {
 				assert.EqualError(t, err, tc.err)
 				return

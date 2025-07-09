@@ -18,15 +18,13 @@ package dir
 
 import (
 	"os"
-	"os/user"
 	"path/filepath"
-	"strconv"
 
 	"github.com/pkg/errors"
 )
 
 // CreateDataDir creates/updates directories with the given permissions in the persistent volume.
-func CreateDataDir(path, username, groupname string, perm os.FileMode) error {
+func CreateDataDir(path string, perm os.FileMode) error {
 	// store the first encountered error, but continue as far as possible
 	var storedErr error
 
@@ -36,10 +34,6 @@ func CreateDataDir(path, username, groupname string, perm os.FileMode) error {
 
 	if err := os.Chmod(path, perm); err != nil && storedErr == nil {
 		storedErr = errors.Wrapf(err, "cannot chmod path %q", path)
-	}
-
-	if err := chown(path, username, groupname); err != nil && storedErr == nil {
-		storedErr = err // already wrapped
 	}
 
 	return storedErr
@@ -72,31 +66,4 @@ func FindFilesWithExtensions(path string, extensions ...string) ([]string, error
 		}
 	}
 	return paths, nil
-}
-
-// chown is like os.Chown, but with names instead of numerical IDs.
-func chown(path, username, groupname string) error {
-	userInfo, err := user.Lookup(username)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	groupInfo, err := user.LookupGroup(groupname)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
-	uid, err := strconv.Atoi(userInfo.Uid)
-	if err != nil {
-		return errors.Wrapf(err, "cannot convert uid %q", userInfo.Uid)
-	}
-	gid, err := strconv.Atoi(groupInfo.Gid)
-	if err != nil {
-		return errors.Wrapf(err, "cannot convert gid %q", groupInfo.Gid)
-	}
-
-	if err = os.Chown(path, uid, gid); err != nil {
-		return errors.Wrapf(err, "cannot chown path %q", path)
-	}
-
-	return nil
 }
