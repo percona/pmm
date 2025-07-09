@@ -78,6 +78,7 @@ You can choose from the following Agent types:
 - qan_mysql_perfschema_agent
 - qan_mysql_slowlog_agent
 - qan_mongodb_profiler_agent
+- qan_mongodb_mongolog_agent
 - qan_postgresql_pgstatements_agent
 - qan_postgresql_pgstatmonitor_agent
 

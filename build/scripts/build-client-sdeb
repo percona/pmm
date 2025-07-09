@@ -9,7 +9,7 @@ bin_dir=$(cd $(dirname $0); pwd -P)
 tmp_dir=${root_dir}/tmp
 
 main() {
-    local IMAGE=${1:-ubuntu:focal}
+    local IMAGE=${1:-ubuntu:jammy}
     docker run --rm -e DEBIAN_FRONTEND=noninteractive \
                     -v ${bin_dir}:/home/builder/bin \
                     -v ${root_dir}/results:/home/builder/results ${IMAGE} sh -c "
@@ -20,7 +20,7 @@ main() {
         OS_VERSION=\$(cat /etc/os-release | grep VERSION_ID | awk -F'\"' '{print \$2}')
 
         apt-get update
-        DEBIAN_FRONTEND=noninteractive apt-get -y install git lsb-release devscripts dh-make dh-systemd
+        DEBIAN_FRONTEND=noninteractive apt-get -y install git lsb-release devscripts dh-make
         mkdir -p /tmp/pmm
         cd /home/builder/results
             bash /home/builder/bin/build-client-packages \

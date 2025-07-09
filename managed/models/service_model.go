@@ -16,7 +16,6 @@
 package models
 
 import (
-	"maps"
 	"time"
 
 	"gopkg.in/reform.v1"
@@ -45,7 +44,6 @@ const (
 	ProxySQLServiceType   ServiceType = "proxysql"
 	HAProxyServiceType    ServiceType = "haproxy"
 	ExternalServiceType   ServiceType = "external"
-	ValkeyServiceType     ServiceType = "valkey"
 )
 
 // Service represents Service as stored in database.
@@ -127,7 +125,9 @@ func (s *Service) UnifiedLabels() (map[string]string, error) {
 		"replication_set": s.ReplicationSet,
 		"external_group":  s.ExternalGroup,
 	}
-	maps.Copy(res, custom)
+	for name, value := range custom {
+		res[name] = value
+	}
 
 	if err = prepareLabels(res, true); err != nil {
 		return nil, err

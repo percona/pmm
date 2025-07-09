@@ -56,7 +56,7 @@ func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentv
 		tb.Skip("-short flag is passed, skipping test with real database.")
 	}
 
-	dsn := "mongodb://localhost:27018/admin/?ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}"
+	dsn := "mongodb://localhost:27018/admin/?tls=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}"
 
 	caFile, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "ca.crt")) //nolint:gosec
 	require.NoError(tb, err)
@@ -82,7 +82,7 @@ func GetTestMongoDBReplicatedWithSSLDSN(tb testing.TB, pathToRoot string) (strin
 		tb.Skip("-short flag is passed, skipping test with real database.")
 	}
 
-	dsn := "mongodb://localhost:27022,localhost:27023/admin/?ssl=true&tlsCaFile=" +
+	dsn := "mongodb://localhost:27022,localhost:27023/admin/?tls=true&tlsCaFile=" +
 		"{{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}"
 
 	caFile, err := os.ReadFile(filepath.Join(filepath.Clean(pathToRoot), "utils/tests/testdata/", "mongodb/", "ca.crt"))
@@ -119,7 +119,7 @@ func OpenTestMongoDB(tb testing.TB, dsn string) *mongo.Client {
 }
 
 // MongoDBVersion returns Mongo DB version.
-func MongoDBVersion(tb testing.TB, client *mongo.Client) *version.Parsed {
+func MongoDBVersion(tb testing.TB, client *mongo.Client) (*version.Parsed, bool) {
 	tb.Helper()
 
 	res := client.Database("admin").RunCommand(context.Background(), primitive.M{"buildInfo": 1})
@@ -127,7 +127,8 @@ func MongoDBVersion(tb testing.TB, client *mongo.Client) *version.Parsed {
 		tb.Fatalf("Cannot get buildInfo: %s", res.Err())
 	}
 	bi := struct {
-		Version string
+		Version      string `bson:"version"`
+		PSMDBVersion string `bson:"psmdbVersion"`
 	}{}
 	if err := res.Decode(&bi); err != nil {
 		tb.Fatalf("Cannot decode buildInfo response: %s", err)
@@ -136,5 +137,11 @@ func MongoDBVersion(tb testing.TB, client *mongo.Client) *version.Parsed {
 	if err != nil {
 		tb.Fatalf("Cannot parse version: %s", err)
 	}
-	return parsed
+
+	var isPercona bool
+	if bi.PSMDBVersion != "" {
+		isPercona = true
+	}
+
+	return parsed, isPercona
 }

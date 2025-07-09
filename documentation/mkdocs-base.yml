@@ -9,7 +9,7 @@ site_url: ""
 use_directory_urls: false
 repo_name: percona/pmm
 repo_url: https://github.com/percona/pmm/
-edit_uri: edit/v3/documentation/docs/
+edit_uri: edit/v3-doc-prod/documentation/docs/
 
 theme:
   name: material
@@ -201,10 +201,10 @@ nav:
           - Install on Docker: install-pmm/install-pmm-client/docker.md
         - Register Client node: install-pmm/register-client-node/index.md
         - Configure monitoring:
-          - Database monitoring: 
+          - Database monitoring:
             - Overview: install-pmm/install-pmm-client/connect-database/index.md
             - MySQL: install-pmm/install-pmm-client/connect-database/mysql/mysql.md
-            - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
+            - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb/mongodb.md
             - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
           - Cloud services monitoring:
             - AWS: install-pmm/install-pmm-client/connect-database/aws.md
@@ -219,6 +219,7 @@ nav:
           - External services monitoring:
             - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
         - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md         
+      - Install PMM in HA mode: install-pmm/HA.md  
 
   - Upgrade:
     - Upgrade PMM Server:
