@@ -56,9 +56,9 @@ Once your instance status shows "Running" and passes all status checks in the AW
     ![Public IP Field](../../../../images/aws-marketplace.pmm.ec2.properties.png)
 
 2. Open the IP address in a web browser and log into PMM using the default credentials:
-   - **Username:** `admin` 
-   - **Password:** Your EC2 instance ID  available in the **Instance ID** field in the EC2 console.
-   
+    - **Username:** `admin` 
+    - **Password:** Your EC2 instance ID  available in the **Instance ID** field in the EC2 console.
+    
     ![PMM Login](../../../../images/PMM_Login.png)
 
 3. Change the default credentials then use the new ones to log in to the PMM Server home page. You will reuse these credentials when configuring PMM Clients on other hosts.
