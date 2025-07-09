@@ -34,7 +34,7 @@ Follow these steps to deploy PMM Client using Docker:
     docker volume create pmm-client-data
     ```
 
-3. Start the [pmm-agent](../../use/commands/pmm-agent.md) in Setup mode to connect to PMM Server. Replace `X.X.X.X` with the IP address of your PMM Server:
+3. Start the [pmm-agent](../../use/commands/pmm-agent.md) in Setup mode to connect to PMM Server. Replace `X.X.X.X` with the IP address of your PMM Server and update `PMM_AGENT_SERVER_PASSWORD` value if you changed the default `admin` password during setup:
 
     ```sh
      docker run \
