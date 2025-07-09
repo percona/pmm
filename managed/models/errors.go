@@ -26,5 +26,5 @@ var (
 	// ErrRoleNotFound is returned when a role is not found.
 	ErrRoleNotFound = errors.New("role not found")
 	// ErrRoleIsDefaultRole is returned when trying to delete a default role.
-	ErrRoleIsDefaultRole = errors.New("role is a DefaultRole")
+	ErrRoleIsDefaultRole = errors.New("role is a default role")
 )
