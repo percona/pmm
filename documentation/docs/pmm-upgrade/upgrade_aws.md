@@ -40,7 +40,7 @@ If issues occur after upgrade:
 
 1. Stop the new PMM container:
    ```bash
-   systemctl stop pmm-server
+   systemctl --user stop pmm-server
    ```
 
 2. Restore using your pre-upgrade snapshot. Create a volume from the snapshot, attach it to the instance, and start the previous PMM version.
