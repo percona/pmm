@@ -11,6 +11,7 @@ import { KnowledgeBaseIcon } from 'icons';
 import { FC, ReactNode, useCallback } from 'react';
 import { CARD_IDS, START_ICON } from '../HelpCenter.constants';
 import { HelpCenterCardProps, HelpCardButton } from './HelpCenterCard.types';
+import { Link } from 'react-router-dom';
 
 export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
   const { id, title, borderColor, description, buttons } = card;
@@ -41,15 +42,6 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
     }
   }, []);
 
-  const onButtonClick = useCallback((button: HelpCardButton) => {
-    if (button.target) {
-      window.open(button.url, button.target, 'noopener,noreferrer');
-    } else {
-      // TODO: use react router once the grafana iframe is in place
-      button.url && window.location.assign(button.url);
-    }
-  }, []);
-
   return (
     <Card key={id} data-testid={`help-card-${id}`} variant="outlined">
       <CardContent
@@ -72,19 +64,27 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
             {title}
           </Typography>
         </Stack>
-
         <Typography>{description}</Typography>
         <Stack paddingTop={2} flexDirection="row">
           {buttons.map((button) => (
             <Button
-              key={button.url}
+              key={button.url || button.to || button.text}
               variant="outlined"
-              component="a"
               size="small"
               sx={{ mr: 1 }}
               startIcon={getButtonStartIcon(button.startIconName)}
               endIcon={button.target && <NorthEast />}
-              onClick={() => onButtonClick(button)}
+              {...(button.to
+                ? {
+                    component: Link,
+                    to: button.to,
+                  }
+                : {
+                    component: 'a',
+                    target: button.target,
+                    rel: 'noopener noreferrer',
+                    href: button.url,
+                  })}
             >
               {button.text}
             </Button>

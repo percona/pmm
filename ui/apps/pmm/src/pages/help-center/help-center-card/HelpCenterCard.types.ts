@@ -2,6 +2,7 @@ export interface HelpCardButton {
   text: string;
   target?: string;
   url?: string;
+  to?: string;
   startIconName?: string;
 }
 

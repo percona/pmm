@@ -1,3 +1,4 @@
+import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 import { HelpCard } from './help-center-card/HelpCenterCard.types';
 
 export const CARD_IDS = {
@@ -68,7 +69,7 @@ export const CARDS_DATA: HelpCard[] = [
     buttons: [
       {
         text: 'Manage datasets',
-        url: '/graph/pmm-dump',
+        to: `${PMM_NEW_NAV_GRAFANA_PATH}/pmm-dump`,
       },
     ],
     adminOnly: true,
@@ -99,10 +100,6 @@ export const CARDS_DATA: HelpCard[] = [
       {
         text: 'Start PMM tour',
         startIconName: START_ICON.map,
-      },
-      {
-        text: 'Shortcuts',
-        url: 'https://per.co.na/pmm_documentation',
       },
     ],
   },

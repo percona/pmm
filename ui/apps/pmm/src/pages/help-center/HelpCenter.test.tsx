@@ -3,6 +3,7 @@ import { HelpCenter } from './HelpCenter';
 import { CARD_IDS } from './HelpCenter.constants';
 import * as useUserModule from 'contexts/user';
 import { OrgRole, User } from 'types/user.types';
+import { MemoryRouter } from 'react-router-dom';
 
 const getUser = (user: Partial<User> = {}): User => ({
   id: 1,
@@ -18,6 +19,13 @@ const getUser = (user: Partial<User> = {}): User => ({
   ...user,
 });
 
+const renderHelpCenter = () =>
+  render(
+    <MemoryRouter>
+      <HelpCenter />
+    </MemoryRouter>
+  );
+
 describe('HelpCenter', () => {
   it('should show pmm dump and pmm logs if user is admin', () => {
     vi.spyOn(useUserModule, 'useUser').mockReturnValue({
@@ -25,7 +33,7 @@ describe('HelpCenter', () => {
       user: getUser(),
     });
 
-    render(<HelpCenter />);
+    renderHelpCenter();
 
     expect(
       screen.queryByTestId(`help-card-${CARD_IDS.pmmDump}`)
@@ -47,7 +55,7 @@ describe('HelpCenter', () => {
       }),
     });
 
-    render(<HelpCenter />);
+    renderHelpCenter();
 
     expect(
       screen.queryByTestId(`help-card-${CARD_IDS.pmmDump}`)
@@ -69,7 +77,7 @@ describe('HelpCenter', () => {
       }),
     });
 
-    render(<HelpCenter />);
+    renderHelpCenter();
 
     expect(
       screen.queryByTestId(`help-card-${CARD_IDS.pmmDump}`)
@@ -91,7 +99,7 @@ describe('HelpCenter', () => {
       }),
     });
 
-    render(<HelpCenter />);
+    renderHelpCenter();
 
     expect(
       screen.queryByTestId(`help-card-${CARD_IDS.pmmDump}`)
