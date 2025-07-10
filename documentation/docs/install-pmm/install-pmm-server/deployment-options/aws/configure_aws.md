@@ -60,7 +60,7 @@ Replace the self-signed certificate with a proper SSL certificate for production
        sudo mv /tmp/private.key /home/admin/volume/pmm-certs/certificate.key
        sudo chown pmm:pmm /home/admin/volume/pmm-certs/certificate.*
        sudo chmod 600 /home/admin/volume/pmm-certs/certificate.*
-       systemctl restart pmm-server
+       systemctl --user restart pmm-server
        ```
 
 ### Harden network access
