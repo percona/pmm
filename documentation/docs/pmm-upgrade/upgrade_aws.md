@@ -27,20 +27,11 @@ To upgrade PMM Server on AWS:
 After upgrading PMM Server:
 {.power-number}
 
-1. Verify all services are running:
-   ```bash
-   podman exec pmm-server supervisorctl status
-   ```
+1. Go to **Dashboards > Experimental > PMM Health** and check that all services are running. 
 
-2. Run these commands on each monitored client instance to check PMM client connectivity: 
+2. Go to **PMM Configuration > Inventory > Services** and verify that all monitored nodes and services are listed, their status is **Up**, and the **Labels** section shows recent data collection timestamps.
 
-   ```bash
-   # On monitored hosts
-   pmm-admin status
-   pmm-admin list
-   ```
 3. Test monitoring functionality to ensure data collection continues normally.
-
 
 ## Rollback procedure
 
@@ -54,13 +45,6 @@ If issues occur after upgrade:
 
 2. Restore from backup by creating a volume from your pre-upgrade snapshot, attaching it to the instance, and starting the previous PMM version.
 
-3. Revert PMM Clients if they were updated:
-
-   ```bash
-    # Reconnect client to the restored server
-    pmm-admin config --server-url=https://original-pmm-server:443
-   ```
-
 ## Troubleshooting upgrades
 
 ### Container won't start after upgrade
@@ -72,21 +56,3 @@ podman logs pmm-server
 # Verify volume mounts
 podman inspect pmm-server
 ```
-
-### Database migration issues
-
-```bash
-# Access PMM container
-podman exec -it pmm-server bash
-
-# Check database status on client instance
-pmm-admin status
-```
-## Automated upgrade scheduling
-
-Consider implementing automated upgrade workflows:
-
-- set up CloudWatch alarms to monitor PMM health
-- use AWS Systems Manager for automated patching schedules
-- implement backup automation before upgrades
-- create upgrade runbooks for your team
