@@ -21,6 +21,13 @@ export const NAV_HOME_PAGE: NavItem = {
   icon: 'home',
   text: 'Home page',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home`,
+  children: [
+    {
+      id: 'home-page-dashboard',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`,
+      hidden: true,
+    },
+  ],
 };
 
 //
@@ -637,13 +644,15 @@ export const NAV_ACCOUNT: NavItem = {
   ],
 };
 
-export const NAV_THEME_TOGGLE = {
+export const NAV_THEME_TOGGLE: NavItem = {
   id: 'theme-toggle',
+  icon: 'theme',
   text: 'Change to Dark Theme',
 };
 
-export const NAV_SIGN_OUT = {
+export const NAV_SIGN_OUT: NavItem = {
   id: 'sign-out',
+  icon: 'sign-out',
   text: 'Sign out',
   url: '/graph/logout',
   target: '_self',

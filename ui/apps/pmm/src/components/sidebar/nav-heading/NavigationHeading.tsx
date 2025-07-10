@@ -4,13 +4,12 @@ import { IconButton } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import { PmmRoundedIcon, PmmWithTextIcon } from 'icons';
 import { FC } from 'react';
+import { NavigationHeadingProps } from './NavigationHeading.types';
 
-interface Props {
-  sidebarOpen: boolean;
-  onToggleSidebar: () => void;
-}
-
-const NavigationHeading: FC<Props> = ({ sidebarOpen, onToggleSidebar }) => (
+const NavigationHeading: FC<NavigationHeadingProps> = ({
+  sidebarOpen,
+  onToggleSidebar,
+}) => (
   <Stack
     direction="row"
     justifyContent="space-between"

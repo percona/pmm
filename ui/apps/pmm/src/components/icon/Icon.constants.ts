@@ -20,6 +20,8 @@ import Inventory from 'icons/inventory.svg?react';
 import Backups from 'icons/backups.svg?react';
 import Configuration from 'icons/configuration.svg?react';
 import Encrypted from 'icons/users-and-access.svg?react';
+import SignOut from 'icons/sign-out.svg?react';
+import Theme from 'icons/theme.svg?react';
 
 export const ICON_MAP = {
   home: Home,
@@ -45,4 +47,6 @@ export const ICON_MAP = {
   'browse-dashboards': BrowseDashboards,
   'high-availability': HighAvailability,
   'operating-system': OperatingSystem,
+  'sign-out': SignOut,
+  theme: Theme,
 };
