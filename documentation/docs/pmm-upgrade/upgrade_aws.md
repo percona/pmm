@@ -29,7 +29,7 @@ After upgrading PMM Server:
 
 1. Go to **Dashboards > Experimental > PMM Health** and check that all services are running. 
 
-2. Go to **PMM Configuration > Inventory > Services** and verify that all monitored nodes and services are listed, their status is **Up**, and the **Labels** section shows recent data collection timestamps.
+2. Go to **PMM Configuration > Inventory > Services** and verify that all monitored nodes and services are listed, their status is **Up**.
 
 3. Test monitoring functionality to ensure data collection continues normally.
 
@@ -47,11 +47,14 @@ If issues occur after upgrade:
 
 ## Troubleshooting upgrades
 
-If the c container won't start after the upgrade:
+If the container won't start after the upgrade:
 
 ```bash
-# Check logs
+# Check container logs
 podman logs pmm-server
+
+# Check systemd service logs
+journalctl -u pmm-server.service
 
 # Verify volume mounts
 podman inspect pmm-server
