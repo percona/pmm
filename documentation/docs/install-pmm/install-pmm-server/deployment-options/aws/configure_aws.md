@@ -28,11 +28,11 @@ Replace the self-signed certificate with a proper SSL certificate for production
     sudo apt update
     sudo apt install certbot
 
-    # Stop PMM temporarily
-    sudo podman stop pmm-server
-
     # Obtain certificate (replace yourdomain.com)
     sudo certbot certonly --standalone -d pmm.yourdomain.com
+
+    # Stop PMM temporarily
+    systemctl stop pmm-server
 
     # Configure PMM to use the certificate
     sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/fullchain.pem /home/admin/volume/pmm-certs/certificate.crt
@@ -41,7 +41,7 @@ Replace the self-signed certificate with a proper SSL certificate for production
     sudo chmod 600 /home/admin/volume/pmm-certs/certificate.*
 
     # Restart PMM Server
-    podman start pmm-server
+    systemctl start pmm-server
     ```
 
 === "Commercial certificate"
