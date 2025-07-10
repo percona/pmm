@@ -79,6 +79,14 @@ func TestServiceHelpers(t *testing.T) {
 				Port:        pointer.ToUint16OrNil(3306),
 			},
 			&models.Service{
+				ServiceID:   "S21",
+				ServiceType: models.ValkeyServiceType,
+				ServiceName: "Standalone Valkey Service",
+				NodeID:      "N1",
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16OrNil(6379),
+			},
+			&models.Service{
 				ServiceID:   "S3",
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Third service",
@@ -153,11 +161,11 @@ func TestServiceHelpers(t *testing.T) {
 
 		services, err := models.FindServices(q, models.ServiceFilters{})
 		assert.NoError(t, err)
-		assert.Len(t, services, 8)
+		assert.Len(t, services, 9)
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1"})
 		assert.NoError(t, err)
-		assert.Len(t, services, 3)
+		assert.Len(t, services, 4)
 		assert.Equal(t, services, []*models.Service{{
 			ServiceID:   "S1",
 			ServiceType: models.MongoDBServiceType,
@@ -174,6 +182,15 @@ func TestServiceHelpers(t *testing.T) {
 			NodeID:      "N1",
 			Address:     pointer.ToString("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(3306),
+			CreatedAt:   now,
+			UpdatedAt:   now,
+		}, {
+			ServiceID:   "S21",
+			ServiceType: models.ValkeyServiceType,
+			ServiceName: "Standalone Valkey Service",
+			NodeID:      "N1",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(6379),
 			CreatedAt:   now,
 			UpdatedAt:   now,
 		}, {
@@ -274,7 +291,7 @@ func TestServiceHelpers(t *testing.T) {
 
 		types, err := models.FindActiveServiceTypes(q)
 		assert.NoError(t, err)
-		assert.Len(t, types, 5)
+		assert.Len(t, types, 6)
 	})
 
 	t.Run("RemoveService", func(t *testing.T) {

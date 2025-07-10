@@ -168,8 +168,10 @@ type UniversalAgent struct {
 	IsConnected bool `protobuf:"varint,39,opt,name=is_connected,json=isConnected,proto3" json:"is_connected,omitempty"`
 	// True if an exporter agent is exposed on all host addresses.
 	ExposeExporter bool `protobuf:"varint,40,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Options for connecting to Valkey.
+	ValkeyOptions *UniversalAgent_ValkeyOptions `protobuf:"bytes,41,opt,name=valkey_options,json=valkeyOptions,proto3" json:"valkey_options,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UniversalAgent) Reset() {
@@ -480,6 +482,13 @@ func (x *UniversalAgent) GetExposeExporter() bool {
 		return x.ExposeExporter
 	}
 	return false
+}
+
+func (x *UniversalAgent) GetValkeyOptions() *UniversalAgent_ValkeyOptions {
+	if x != nil {
+		return x.ValkeyOptions
+	}
+	return nil
 }
 
 type ListAgentsRequest struct {
@@ -1022,11 +1031,47 @@ func (x *UniversalAgent_PostgreSQLOptions) GetMaxExporterConnections() int32 {
 	return 0
 }
 
+type UniversalAgent_ValkeyOptions struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UniversalAgent_ValkeyOptions) Reset() {
+	*x = UniversalAgent_ValkeyOptions{}
+	mi := &file_management_v1_agent_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UniversalAgent_ValkeyOptions) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UniversalAgent_ValkeyOptions) ProtoMessage() {}
+
+func (x *UniversalAgent_ValkeyOptions) ProtoReflect() protoreflect.Message {
+	mi := &file_management_v1_agent_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UniversalAgent_ValkeyOptions.ProtoReflect.Descriptor instead.
+func (*UniversalAgent_ValkeyOptions) Descriptor() ([]byte, []int) {
+	return file_management_v1_agent_proto_rawDescGZIP(), []int{0, 4}
+}
+
 var File_management_v1_agent_proto protoreflect.FileDescriptor
 
 const file_management_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cinventory/v1/log_level.proto\"\xfc\x15\n" +
+	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cinventory/v1/log_level.proto\"\xe1\x16\n" +
 	"\x0eUniversalAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x121\n" +
 	"\x15is_agent_password_set\x18\x02 \x01(\bR\x12isAgentPasswordSet\x12\x1d\n" +
@@ -1075,7 +1120,8 @@ const file_management_v1_agent_proto_rawDesc = "" +
 	"updated_at\x18% \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x18\n" +
 	"\aversion\x18& \x01(\tR\aversion\x12!\n" +
 	"\fis_connected\x18' \x01(\bR\visConnected\x12'\n" +
-	"\x0fexpose_exporter\x18( \x01(\bR\x0eexposeExporter\x1a3\n" +
+	"\x0fexpose_exporter\x18( \x01(\bR\x0eexposeExporter\x12R\n" +
+	"\x0evalkey_options\x18) \x01(\v2+.management.v1.UniversalAgent.ValkeyOptionsR\rvalkeyOptions\x1a3\n" +
 	"\fMySQLOptions\x12#\n" +
 	"\x0eis_tls_key_set\x18\x01 \x01(\bR\visTlsKeySet\x1a\xc9\x01\n" +
 	"\fAzureOptions\x12\x1b\n" +
@@ -1095,7 +1141,8 @@ const file_management_v1_agent_proto_rawDesc = "" +
 	"\x11PostgreSQLOptions\x12#\n" +
 	"\x0eis_ssl_key_set\x18\x01 \x01(\bR\visSslKeySet\x120\n" +
 	"\x14auto_discovery_limit\x18\x02 \x01(\x05R\x12autoDiscoveryLimit\x128\n" +
-	"\x18max_exporter_connections\x18\x03 \x01(\x05R\x16maxExporterConnections\x1a?\n" +
+	"\x18max_exporter_connections\x18\x03 \x01(\x05R\x16maxExporterConnections\x1a\x0f\n" +
+	"\rValkeyOptions\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"K\n" +
@@ -1136,7 +1183,7 @@ func file_management_v1_agent_proto_rawDescGZIP() []byte {
 
 var (
 	file_management_v1_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_management_v1_agent_proto_msgTypes  = make([]protoimpl.MessageInfo, 11)
+	file_management_v1_agent_proto_msgTypes  = make([]protoimpl.MessageInfo, 12)
 	file_management_v1_agent_proto_goTypes   = []any{
 		(UpdateSeverity)(0),                      // 0: management.v1.UpdateSeverity
 		(*UniversalAgent)(nil),                   // 1: management.v1.UniversalAgent
@@ -1149,29 +1196,31 @@ var (
 		(*UniversalAgent_AzureOptions)(nil),      // 8: management.v1.UniversalAgent.AzureOptions
 		(*UniversalAgent_MongoDBOptions)(nil),    // 9: management.v1.UniversalAgent.MongoDBOptions
 		(*UniversalAgent_PostgreSQLOptions)(nil), // 10: management.v1.UniversalAgent.PostgreSQLOptions
-		nil,                                      // 11: management.v1.UniversalAgent.CustomLabelsEntry
-		(*timestamppb.Timestamp)(nil),            // 12: google.protobuf.Timestamp
-		(v1.LogLevel)(0),                         // 13: inventory.v1.LogLevel
+		(*UniversalAgent_ValkeyOptions)(nil),     // 11: management.v1.UniversalAgent.ValkeyOptions
+		nil,                                      // 12: management.v1.UniversalAgent.CustomLabelsEntry
+		(*timestamppb.Timestamp)(nil),            // 13: google.protobuf.Timestamp
+		(v1.LogLevel)(0),                         // 14: inventory.v1.LogLevel
 	}
 )
 
 var file_management_v1_agent_proto_depIdxs = []int32{
 	8,  // 0: management.v1.UniversalAgent.azure_options:type_name -> management.v1.UniversalAgent.AzureOptions
-	12, // 1: management.v1.UniversalAgent.created_at:type_name -> google.protobuf.Timestamp
-	11, // 2: management.v1.UniversalAgent.custom_labels:type_name -> management.v1.UniversalAgent.CustomLabelsEntry
-	13, // 3: management.v1.UniversalAgent.log_level:type_name -> inventory.v1.LogLevel
+	13, // 1: management.v1.UniversalAgent.created_at:type_name -> google.protobuf.Timestamp
+	12, // 2: management.v1.UniversalAgent.custom_labels:type_name -> management.v1.UniversalAgent.CustomLabelsEntry
+	14, // 3: management.v1.UniversalAgent.log_level:type_name -> inventory.v1.LogLevel
 	9,  // 4: management.v1.UniversalAgent.mongo_db_options:type_name -> management.v1.UniversalAgent.MongoDBOptions
 	7,  // 5: management.v1.UniversalAgent.mysql_options:type_name -> management.v1.UniversalAgent.MySQLOptions
 	10, // 6: management.v1.UniversalAgent.postgresql_options:type_name -> management.v1.UniversalAgent.PostgreSQLOptions
-	12, // 7: management.v1.UniversalAgent.updated_at:type_name -> google.protobuf.Timestamp
-	1,  // 8: management.v1.ListAgentsResponse.agents:type_name -> management.v1.UniversalAgent
-	0,  // 9: management.v1.AgentVersions.severity:type_name -> management.v1.UpdateSeverity
-	4,  // 10: management.v1.ListAgentVersionsResponse.agent_versions:type_name -> management.v1.AgentVersions
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	13, // 7: management.v1.UniversalAgent.updated_at:type_name -> google.protobuf.Timestamp
+	11, // 8: management.v1.UniversalAgent.valkey_options:type_name -> management.v1.UniversalAgent.ValkeyOptions
+	1,  // 9: management.v1.ListAgentsResponse.agents:type_name -> management.v1.UniversalAgent
+	0,  // 10: management.v1.AgentVersions.severity:type_name -> management.v1.UpdateSeverity
+	4,  // 11: management.v1.ListAgentVersionsResponse.agent_versions:type_name -> management.v1.AgentVersions
+	12, // [12:12] is the sub-list for method output_type
+	12, // [12:12] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_agent_proto_init() }
@@ -1185,7 +1234,7 @@ func file_management_v1_agent_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_management_v1_agent_proto_rawDesc), len(file_management_v1_agent_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -1847,6 +1847,8 @@ type CheckConnectionRequest struct {
 	TextFiles *TextFiles `protobuf:"bytes,4,opt,name=text_files,json=textFiles,proto3" json:"text_files,omitempty"`
 	// TLS certificate wont be verified.
 	TlsSkipVerify bool `protobuf:"varint,5,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
+	// If true, use TLS for database connections.
+	Tls           bool `protobuf:"varint,6,opt,name=tls,proto3" json:"tls,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1916,6 +1918,13 @@ func (x *CheckConnectionRequest) GetTlsSkipVerify() bool {
 	return false
 }
 
+func (x *CheckConnectionRequest) GetTls() bool {
+	if x != nil {
+		return x.Tls
+	}
+	return false
+}
+
 // CheckConnectionResponse is an AgentMessage containing the result of a connection check.
 type CheckConnectionResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1975,6 +1984,8 @@ type ServiceInfoRequest struct {
 	TextFiles *TextFiles `protobuf:"bytes,4,opt,name=text_files,json=textFiles,proto3" json:"text_files,omitempty"`
 	// TLS certificate wont be verified.
 	TlsSkipVerify bool `protobuf:"varint,5,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
+	// If true, use TLS for database connections.
+	Tls           bool `protobuf:"varint,6,opt,name=tls,proto3" json:"tls,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2040,6 +2051,13 @@ func (x *ServiceInfoRequest) GetTextFiles() *TextFiles {
 func (x *ServiceInfoRequest) GetTlsSkipVerify() bool {
 	if x != nil {
 		return x.TlsSkipVerify
+	}
+	return false
+}
+
+func (x *ServiceInfoRequest) GetTls() bool {
+	if x != nil {
+		return x.Tls
 	}
 	return false
 }
@@ -6798,26 +6816,28 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x05limit\x18\x02 \x01(\rR\x05limit\"g\n" +
 	"\x11AgentLogsResponse\x12\x12\n" +
 	"\x04logs\x18\x01 \x03(\tR\x04logs\x12>\n" +
-	"\x1cagent_config_log_lines_count\x18\x02 \x01(\rR\x18agentConfigLogLinesCount\"\xea\x01\n" +
+	"\x1cagent_config_log_lines_count\x18\x02 \x01(\rR\x18agentConfigLogLinesCount\"\xfc\x01\n" +
 	"\x16CheckConnectionRequest\x12-\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\x04type\x12\x10\n" +
 	"\x03dsn\x18\x02 \x01(\tR\x03dsn\x123\n" +
 	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x122\n" +
 	"\n" +
 	"text_files\x18\x04 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x12&\n" +
-	"\x0ftls_skip_verify\x18\x05 \x01(\bR\rtlsSkipVerify\"Y\n" +
+	"\x0ftls_skip_verify\x18\x05 \x01(\bR\rtlsSkipVerify\x12\x10\n" +
+	"\x03tls\x18\x06 \x01(\bR\x03tls\"Y\n" +
 	"\x17CheckConnectionResponse\x12\x14\n" +
 	"\x05error\x18\x01 \x01(\tR\x05error\x1a(\n" +
 	"\x05Stats\x12\x1f\n" +
 	"\vtable_count\x18\x01 \x01(\x05R\n" +
-	"tableCount\"\xe6\x01\n" +
+	"tableCount\"\xf8\x01\n" +
 	"\x12ServiceInfoRequest\x12-\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\x04type\x12\x10\n" +
 	"\x03dsn\x18\x02 \x01(\tR\x03dsn\x123\n" +
 	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x122\n" +
 	"\n" +
 	"text_files\x18\x04 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x12&\n" +
-	"\x0ftls_skip_verify\x18\x05 \x01(\bR\rtlsSkipVerify\"\xc4\x01\n" +
+	"\x0ftls_skip_verify\x18\x05 \x01(\bR\rtlsSkipVerify\x12\x10\n" +
+	"\x03tls\x18\x06 \x01(\bR\x03tls\"\xc4\x01\n" +
 	"\x13ServiceInfoResponse\x12\x14\n" +
 	"\x05error\x18\x01 \x01(\tR\x05error\x12\x1f\n" +
 	"\vtable_count\x18\x02 \x01(\x05R\n" +

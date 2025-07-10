@@ -54,6 +54,7 @@ type AddAgentCommand struct {
 	PMMAgent         AddPMMAgentCommand              `cmd:"" help:"Add PMM agent to inventory"`
 	PostgresExporter AddAgentPostgresExporterCommand `cmd:"" help:"Add postgres_exporter to inventory"`
 	ProxysqlExporter AddAgentProxysqlExporterCommand `cmd:"" help:"Add proxysql_exporter to inventory"`
+	ValkeyExporter   AddAgentValkeyExporterCommand   `cmd:"" help:"Add valkey_exporter to inventory"`
 
 	QANMongoDBProfilerAgent         AddAgentQANMongoDBProfilerAgentCommand         `cmd:"" name:"qan-mongodb-profiler-agent" help:"Add QAN MongoDB profiler agent to inventory"`
 	QANMongoDBMongologAgent         AddAgentQANMongoDBMongologAgentCommand         `cmd:"" name:"qan-mongodb-mongolog-agent" help:"Add QAN MongoDB mongolog agent to inventory"`
@@ -81,6 +82,7 @@ type AddServiceCommand struct {
 	MySQL      AddServiceMySQLCommand      `cmd:"" name:"mysql" help:"Add MySQL service to inventory"`
 	PostgreSQL AddServicePostgreSQLCommand `cmd:"" name:"postgresql" help:"Add PostgreSQL service to inventory"`
 	ProxySQL   AddServiceProxySQLCommand   `cmd:"" name:"proxysql" help:"Add ProxySQL service to inventory"`
+	Valkey     AddServiceValkeyCommand     `cmd:"" name:"valkey" help:"Add Valkey service to inventory"`
 }
 
 // RemoveCommand is used by Kong for CLI flags and commands.

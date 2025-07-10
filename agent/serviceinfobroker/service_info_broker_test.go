@@ -206,6 +206,32 @@ func TestServiceInfoBroker(t *testing.T) {
 			expectedErr: `unknown service type: 12345`,
 			panic:       true,
 		},
+		{
+			name: "Valkey",
+			req: &agentv1.ServiceInfoRequest{
+				Dsn:     "redis://default:pmm-agent_password@127.0.0.1:6379",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+				Timeout: durationpb.New(3 * time.Second),
+			},
+		},
+		{
+			name: "Valkey wrong params",
+			req: &agentv1.ServiceInfoRequest{
+				Dsn:     "redis://default:pmm-agent_wrong_password@127.0.0.1:6379",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+				Timeout: durationpb.New(3 * time.Second),
+			},
+			expectedErr: `WRONGPASS invalid username-password pair or user is disabled.`,
+		},
+		{
+			name: "Valkey timeout",
+			req: &agentv1.ServiceInfoRequest{
+				Dsn:     "redis://default:pmm-agent_password@127.0.0.1:6379",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+				Timeout: durationpb.New(time.Nanosecond),
+			},
+			expectedErr: `dial tcp 127.0.0.1:6379: i/o timeout`,
+		},
 	}
 
 	for _, tt := range testCases {
@@ -280,4 +306,81 @@ func TestServiceInfoBroker(t *testing.T) {
 		require.NotNil(t, resp)
 		assert.Empty(t, resp.Error)
 	})
+}
+
+func TestExtractValkeyVersion(t *testing.T) {
+	t.Parallel()
+	type testCase struct {
+		name            string
+		input           string
+		expectedVersion string
+		expectedError   string
+	}
+
+	cases := []testCase{
+		{
+			name: "Valid Valkey version",
+			input: `# Server
+redis_version:7.2.4
+server_name:valkey
+valkey_version:8.1.1
+valkey_release_stage:ga
+redis_git_sha1:00000000
+redis_git_dirty:0
+redis_build_id:5beb99de11516a6b
+server_mode:standalone
+os:Linux 6.13.7-orbstack-00283-g9d1400e7e9c6 aarch64
+arch_bits:64
+monotonic_clock:POSIX clock_gettime
+multiplexing_api:epoll
+gcc_version:12.2.0
+process_id:1
+process_supervised:no
+run_id:db51448e49fb73ce02ccbab88ff56f6eddef6a90
+tcp_port:6379
+`,
+			expectedVersion: "8.1.1",
+		},
+		{
+			name: "No Valkey version, but Redis version present",
+			input: `# Server
+redis_version:7.2.4
+server_name:valkey
+valkey_release_stage:ga
+redis_git_sha1:00000000
+redis_git_dirty:0
+redis_build_id:5beb99de11516a6b
+server_mode:standalone
+os:Linux 6.13.7-orbstack-00283-g9d1400e7e9c6 aarch64
+arch_bits:64
+monotonic_clock:POSIX clock_gettime
+multiplexing_api:epoll
+gcc_version:12.2.0
+process_id:1
+process_supervised:no
+run_id:db51448e49fb73ce02ccbab88ff56f6eddef6a90
+tcp_port:6379
+`,
+			expectedVersion: "7.2.4",
+		},
+		{
+			name:          "Empty INFO string",
+			input:         "",
+			expectedError: "failed to get Valkey version",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			extractedVersion, err := extractValkeyVersion(tc.input)
+			if tc.expectedError != "" {
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), tc.expectedError)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, tc.expectedVersion, extractedVersion)
+			}
+		})
+	}
 }

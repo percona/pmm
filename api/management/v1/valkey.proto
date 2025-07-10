@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package management.v1;
+
+import "inventory/v1/agents.proto";
+import "inventory/v1/log_level.proto";
+import "inventory/v1/services.proto";
+import "management/v1/metrics.proto";
+import "management/v1/node.proto";
+import "validate/validate.proto";
+
+message AddValkeyServiceParams {
+  // Node identifier on which the service is running.
+  // Only one of these parameters should be present: node_id, node_name, add_node.
+  string node_id = 1 [(validate.rules).string = {
+    min_len: 1
+    ignore_empty: true
+  }];
+  // Node name on which a service is running.
+  // Only one of these parameters should be present: node_id, node_name, add_node.
+  string node_name = 2 [(validate.rules).string = {
+    min_len: 1
+    ignore_empty: true
+  }];
+  // Create a new Node with those parameters.
+  // Only one of these parameters should be present: node_id, node_name, add_node.
+  AddNodeParams add_node = 3;
+  // User-defined name, it is required and should be unique across all services.
+  string service_name = 4 [(validate.rules).string.min_len = 1];
+  // Node and Service access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 5;
+  // Service access port.
+  // Port is required when the address is present.
+  uint32 port = 6;
+  // Service access socket.
+  // Address (and port) or socket is required.
+  string socket = 7;
+  // The "pmm-agent" identifier which should run agents. Required.
+  string pmm_agent_id = 8 [(validate.rules).string.min_len = 1];
+  // Valkey username for scraping metrics.
+  string username = 9;
+  // Valkey password for scraping metrics.
+  string password = 10;
+  // Environment name.
+  string environment = 11;
+  // Cluster name.
+  string cluster = 12;
+  // Replication set name.
+  string replication_set = 13;
+  // Custom user-assigned labels for Service.
+  map<string, string> custom_labels = 14;
+  // Skip connection check.
+  bool skip_connection_check = 15;
+  // Use TLS for connection.
+  bool tls = 16;
+  // Skip TLS verification.
+  bool tls_skip_verify = 17;
+  // Defines metrics flow model for the Valkey exporter.
+  // Metrics could be pushed to the server with vmagent,
+  // pulled by the server, or the server could choose behavior automatically.
+  MetricsMode metrics_mode = 18;
+  // Exporter log level
+  inventory.v1.LogLevel log_level = 19;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 20;
+  // TLS CA certificate.
+  string tls_ca = 21;
+  // TLS Certifcate.
+  string tls_cert = 22;
+  // TLS Certificate Key.
+  string tls_key = 23;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 24;
+  // Custom password for exporter endpoint /metrics.
+  string agent_password = 25;
+}
+
+message ValkeyServiceResult {
+  inventory.v1.ValkeyService service = 1;
+  inventory.v1.ValkeyExporter valkey_exporter = 2;
+}

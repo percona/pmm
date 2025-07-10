@@ -44,7 +44,7 @@ echo -e "\n\n\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_versio
 
 rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:3}
 # Support for Hetzner-based builds
-if [ "${USE_HETZNER_BUILD}" = "1" ]; then
+if [ "${USE_HETZNER_BUILD:-}" = "1" ]; then
     rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-perconalab/rpmbuild:3-hetzner}
 fi
 rpms_dir=${root_dir}/tmp/pmm-server/RPMS
@@ -65,3 +65,6 @@ binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}.tar.gz
 vmagent_commit_hash=a5e3c6d4492db765800363dfae48a04b4d7888be
 # https://github.com/hashicorp/nomad/releases/tag/v1.10.2
 nomad_commit_hash=df4c764f6703e99e4df6f4d6c46c916d97ef8f84
+# https://github.com/oliver006/redis_exporter/releases/tag/v1.72.1
+redis_exporter_commit_hash=8d5f9dea4a8863ce7cad62352957ae5e75047346
+

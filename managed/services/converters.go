@@ -154,6 +154,20 @@ func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //noli
 			CustomLabels:   labels,
 		}, nil
 
+	case models.ValkeyServiceType:
+		return &inventoryv1.ValkeyService{
+			ServiceId:      service.ServiceID,
+			ServiceName:    service.ServiceName,
+			NodeId:         service.NodeID,
+			Address:        pointer.GetString(service.Address),
+			Port:           uint32(pointer.GetUint16(service.Port)),
+			Socket:         pointer.GetString(service.Socket),
+			Environment:    service.Environment,
+			Cluster:        service.Cluster,
+			ReplicationSet: service.ReplicationSet,
+			CustomLabels:   labels,
+		}, nil
+
 	case models.ProxySQLServiceType:
 		return &inventoryv1.ProxySQLService{
 			ServiceId:      service.ServiceID,
@@ -318,6 +332,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
 
 		return exporter, nil
+
 	case models.QANMySQLPerfSchemaAgentType:
 		return &inventoryv1.QANMySQLPerfSchemaAgent{
 			AgentId:                agent.AgentID,
@@ -521,8 +536,28 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ListenPort:      uint32(pointer.GetUint16(agent.ListenPort)),
 		}, nil
 
+	case models.ValkeyExporterType:
+		exporter := &inventoryv1.ValkeyExporter{
+			AgentId:            agent.AgentID,
+			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
+			ServiceId:          serviceID,
+			Username:           pointer.GetString(agent.Username),
+			Disabled:           agent.Disabled,
+			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:       labels,
+			Tls:                agent.TLS,
+			TlsSkipVerify:      agent.TLSSkipVerify,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
+			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
+			ProcessExecPath:    processExecPath,
+			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
+		}
+		return exporter, nil
+
 	default:
-		panic(fmt.Errorf("unhandled Agent type %s", agent.AgentType))
+		panic(fmt.Errorf("cannot convert unknown agent type %s", agent.AgentType))
 	}
 }
 
@@ -585,6 +620,7 @@ var ServiceTypes = map[inventoryv1.ServiceType]models.ServiceType{
 	inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
 	inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:    models.HAProxyServiceType,
 	inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE:   models.ExternalServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE:     models.ValkeyServiceType,
 }
 
 // ProtoToModelServiceType converts a ServiceType from protobuf to model.

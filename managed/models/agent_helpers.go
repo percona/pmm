@@ -81,6 +81,25 @@ func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) PostgreSQLOpti
 	return res
 }
 
+// ValkeyOptionsParams contains methods to create a ValkeyOptions object.
+type ValkeyOptionsParams interface {
+	GetTls() bool
+	GetTlsCa() string
+	GetTlsCert() string
+	GetTlsKey() string
+}
+
+// ValkeyOptionsFromRequest creates ValkeyOptions object from request.
+func ValkeyOptionsFromRequest(params ValkeyOptionsParams) ValkeyOptions {
+	res := ValkeyOptions{}
+	res.TLS = params.GetTls()
+	res.SSLCa = params.GetTlsCa()
+	res.SSLCert = params.GetTlsCert()
+	res.SSLKey = params.GetTlsKey()
+
+	return res
+}
+
 // MongoDBOptionsParams contains methods to create MongoDBOptions object.
 type MongoDBOptionsParams interface {
 	GetTlsCertificateKey() string
@@ -743,6 +762,7 @@ type CreateAgentParams struct {
 	MongoDBOptions    MongoDBOptions
 	MySQLOptions      MySQLOptions
 	PostgreSQLOptions PostgreSQLOptions
+	ValkeyOptions     ValkeyOptions
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -780,6 +800,9 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 		},
 		MongoDBExporterType: {
 			MongoDBServiceType,
+		},
+		ValkeyExporterType: {
+			ValkeyServiceType,
 		},
 		QANMongoDBProfilerAgentType: {
 			MongoDBServiceType,
@@ -878,6 +901,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		MongoDBOptions:    params.MongoDBOptions,
 		MySQLOptions:      params.MySQLOptions,
 		PostgreSQLOptions: params.PostgreSQLOptions,
+		ValkeyOptions:     params.ValkeyOptions,
 		LogLevel:          pointer.ToStringOrNil(params.LogLevel),
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
