@@ -197,7 +197,7 @@ nav:
         - Client installation overview: install-pmm/install-pmm-client/index.md
         - Prerequisites: install-pmm/install-pmm-client/prerequisites.md
         - Deployment options:
-          - Install from Percona repositories: install-pmm/install-pmm-client/package_manager.md
+          - Install with Package Manager: install-pmm/install-pmm-client/package_manager.md
           - Install from binaries: install-pmm/install-pmm-client/binary_package.md
           - Install on Docker: install-pmm/install-pmm-client/docker.md
         - Register Client node: install-pmm/register-client-node/index.md

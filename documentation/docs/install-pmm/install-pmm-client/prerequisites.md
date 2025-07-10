@@ -17,6 +17,7 @@ PMM Client is designed to be lightweight but requires:
 - **Architecture**: x86_64 or ARM64
 - **RAM**: Minimal (100-200 MB per monitored database instance)
 - **Storage**:
+
     - 100 MB for installation
     - VM Agent reserves 1 GB for caching during network outages
 
@@ -35,7 +36,7 @@ For a complete list of ports and detailed network configuration options, see [Ne
 
 ## Required software
 
-- Ensure these packages are installed before proceeding: curl, gnupg,  sudo, wget.
+- Ensure these packages are installed before proceeding: curl, gnupg, sudo, wget.
 
 - For Docker-based deployment, you'll also need [Docker Engine](https://docs.docker.com/get-started/get-docker/) properly installed and configured. 
 

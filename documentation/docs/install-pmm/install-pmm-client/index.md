@@ -33,7 +33,6 @@ Before starting the installation, make sure:
 - Monitoring users for your database are created and have the necessary permissions
 - You have administrator access to install PMM Client
 
-
 ## Deployment options
 
 Install PMM Client using one of the following deployment methods:
@@ -43,10 +42,6 @@ Install PMM Client using one of the following deployment methods:
 | **Production** environments on supported Linux distributions | **[Package Manager →](package_manager.md)** |
 | Unsupported Linux distributions or **non-root** installation | **[Binary Package →](binary_package.md)** |
 | **Containerized** environments or testing | **[Docker →](docker.md)** |
-
-## Next steps
-
-Before installing the PMM client, check [Prerequisites to install PMM client](./prerequisites.md).
 
 ## Connect services
 
@@ -64,8 +59,11 @@ Each database service requires specific configuration parameters. Configure your
 - [HAProxy](connect-database/haproxy.md)
 - [Remote instances](connect-database/remote.md)
 
-!!! hint alert alert-success "Tip"
-    To change the parameters of a previously-added service, remove the service and re-add it with new parameters.
+### Modifying service configurations
+
+If you need to modify the configuration of a service you've already added, you'll need to remove the service and re-add it with the new parameters.
+
+## Next steps
 
 - [Register your Client node](../register-client-node/index.md) with PMM Server
 - [Connect database services](connect-database/index.md) for monitoring
