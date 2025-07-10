@@ -62,7 +62,7 @@ type AddServiceValkeyCommand struct {
 
 // RunCmd runs the command for AddServiceValkeyCommand.
 func (cmd *AddServiceValkeyCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 	params := &services.AddServiceParams{
 		Body: services.AddServiceBody{
 			Valkey: &services.AddServiceParamsBodyValkey{
@@ -74,7 +74,7 @@ func (cmd *AddServiceValkeyCommand) RunCmd() (commands.Result, error) {
 				Environment:    cmd.Environment,
 				Cluster:        cmd.Cluster,
 				ReplicationSet: cmd.ReplicationSet,
-				CustomLabels:   customLabels,
+				CustomLabels:   *customLabels,
 			},
 		},
 		Context: commands.Ctx,

@@ -130,14 +130,13 @@ func (cmd *ChangeAgentValkeyExporterCommand) RunCmd() (commands.Result, error) {
 		Password:          cmd.Password,
 		TLS:               cmd.TLS,
 		TLSSkipVerify:     cmd.TLSSkipVerify,
+		AgentPassword:     cmd.AgentPassword,
 		TLSCa:             tlsCa,
 		TLSCert:           tlsCert,
 		TLSKey:            tlsKey,
 		DisableCollectors: cmd.DisableCollectors,
-		AgentPassword:     cmd.AgentPassword,
 		ExposeExporter:    cmd.ExposeExporter,
 		EnablePushMetrics: cmd.PushMetrics,
-		LogLevel:          convertLogLevelPtr(cmd.LogLevel),
 	}
 
 	if customLabels != nil {

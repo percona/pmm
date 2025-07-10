@@ -1500,6 +1500,28 @@ message ChangeQANMongoDBMongologAgentParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // MongoDB username for getting mongolog data.
+  optional string username = 5;
+  // MongoDB password for getting mongolog data.
+  optional string password = 6;
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // Client certificate and key.
+  optional string tls_certificate_key = 9;
+  // Password for decrypting tls_certificate_key.
+  optional string tls_certificate_key_file_password = 10;
+  // Certificate Authority certificate chain.
+  optional string tls_ca = 11;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  optional int32 max_query_length = 12;
+  // Authentication mechanism.
+  optional string authentication_mechanism = 13;
+  // Authentication database.
+  optional string authentication_database = 14;
+  // Log level for exporter.
+  optional LogLevel log_level = 15;
 }
 
 // Add/Change QANPostgreSQLPgStatementsAgent
@@ -1828,6 +1850,26 @@ message ChangeValkeyExporterParams {
   optional bool enable_push_metrics = 3;
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
+  // Valkey username for scraping metrics.
+  optional string username = 5 [(validate.rules).string.min_len = 1];
+  // Valkey password for scraping metrics.
+  optional string password = 6;
+  // Use TLS for database connections.
+  optional bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 8;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 9;
+  // TLS CA certificate.
+  optional string tls_ca = 10;
+  // TLS Certifcate.
+  optional string tls_cert = 11;
+  // TLS Certificate Key.
+  optional string tls_key = 12;
+  // Custom password for exporter endpoint /metrics.
+  optional string agent_password = 13;
+  // Optionally expose the exporter process on all public interfaces
+  optional bool expose_exporter = 14;
 }
 
 // Remove

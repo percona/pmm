@@ -839,24 +839,44 @@ func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.A
 }
 
 // ChangeValkeyExporter updates valkey_exporter Agent with given parameters.
-func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeValkeyExporterParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
-	commonParams := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeValkeyExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		AgentPassword: p.AgentPassword,
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
 	}
-	ag, err := as.changeAgent(ctx, agentID, commonParams)
+
+	// Set ValkeyOptions
+	params.ValkeyOptions = &models.ChangeValkeyOptions{
+		SSLCa:   p.TlsCa,
+		SSLCert: p.TlsCert,
+		SSLKey:  p.TlsKey,
+	}
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		DisabledCollectors: p.DisableCollectors,
+		ExposeExporter:     p.ExposeExporter,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.ValkeyExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	valkeyExporter := agent.(*inventoryv1.ValkeyExporter) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, valkeyExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_ValkeyExporter{
-			ValkeyExporter: agent,
+			ValkeyExporter: valkeyExporter,
 		},
 	}
 	return res, nil
@@ -1029,23 +1049,48 @@ func (as *AgentsService) AddQANMongoDBMongologAgent(ctx context.Context, p *inve
 //
 //nolint:lll,dupl
 func (as *AgentsService) ChangeQANMongoDBMongologAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMongoDBMongologAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
-	common := &commonAgentParams{
-		Enable:             p.Enable,
-		EnablePushMetrics:  p.EnablePushMetrics,
-		CustomLabels:       p.CustomLabels,
-		MetricsResolutions: p.MetricsResolutions,
+	// Convert protobuf parameters to model parameters
+	params := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		LogLevel:      convertLogLevel(p.LogLevel),
 	}
-	ag, err := as.changeAgent(ctx, agentID, common)
+
+	// Set QANOptions
+	params.QANOptions = &models.ChangeQANOptions{
+		MaxQueryLength: p.MaxQueryLength,
+	}
+
+	// Set MongoDBOptions
+	params.MongoDBOptions = &models.ChangeMongoDBOptions{
+		TLSCertificateKey:             p.TlsCertificateKey,
+		TLSCertificateKeyFilePassword: p.TlsCertificateKeyFilePassword,
+		TLSCa:                         p.TlsCa,
+		AuthenticationMechanism:       p.AuthenticationMechanism,
+		AuthenticationDatabase:        p.AuthenticationDatabase,
+	}
+
+	// Set ExporterOptions
+	params.ExporterOptions = &models.ChangeExporterOptions{
+		PushMetrics:        p.EnablePushMetrics,
+		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
+	}
+
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.QANMongoDBMongologAgent) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+	mongodbMongologAgent := agent.(*inventoryv1.QANMongoDBMongologAgent) //nolint:forcetypeassert
+	as.state.RequestStateUpdate(ctx, mongodbMongologAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_QanMongodbMongologAgent{
-			QanMongodbMongologAgent: agent,
+			QanMongodbMongologAgent: mongodbMongologAgent,
 		},
 	}
 	return res, nil
@@ -1638,51 +1683,6 @@ func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, p
 	res := &inventoryv1.ChangeAgentResponse{
 		Agent: &inventoryv1.ChangeAgentResponse_NomadAgent{
 			NomadAgent: nomadAgent,
-		},
-	}
-	return res, nil
-}
-
-// ChangeValkeyExporter updates valkey_exporter Agent with given parameters.
-func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeValkeyExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
-	// Convert protobuf parameters to model parameters
-	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		AgentPassword: p.AgentPassword,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
-	}
-
-	// Set ValkeyOptions
-	params.ValkeyOptions = &models.ChangeValkeyOptions{
-		SSLCa:   p.TlsCa,
-		SSLCert: p.TlsCert,
-		SSLKey:  p.TlsKey,
-	}
-
-	// Set ExporterOptions
-	params.ExporterOptions = &models.ChangeExporterOptions{
-		PushMetrics:        p.EnablePushMetrics,
-		DisabledCollectors: p.DisableCollectors,
-		ExposeExporter:     p.ExposeExporter,
-		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
-	}
-
-	agent, err := as.executeAgentChange(ctx, agentID, params)
-	if err != nil {
-		return nil, err
-	}
-
-	valkeyExporter := agent.(*inventoryv1.ValkeyExporter) //nolint:forcetypeassert
-	as.state.RequestStateUpdate(ctx, valkeyExporter.PmmAgentId)
-
-	res := &inventoryv1.ChangeAgentResponse{
-		Agent: &inventoryv1.ChangeAgentResponse_ValkeyExporter{
-			ValkeyExporter: valkeyExporter,
 		},
 	}
 	return res, nil

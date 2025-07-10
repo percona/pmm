@@ -90,7 +90,7 @@ func (cmd *AddValkeyCommand) GetSocket() string {
 
 // RunCmd runs the command for AddValkeyCommand.
 func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 
 	var (
 		err                    error
@@ -147,7 +147,7 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 				Username:       cmd.Username,
 				Password:       cmd.Password,
 				AgentPassword:  cmd.AgentPassword,
-				CustomLabels:   customLabels,
+				CustomLabels:   *customLabels,
 
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 

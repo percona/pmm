@@ -12883,6 +12883,138 @@
                       "x-order": 3
                     },
                     "username": {
+                      "description": "MongoDB username for getting mongolog data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "password": {
+                      "description": "MongoDB password for getting mongolog data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_certificate_key": {
+                      "description": "Client certificate and key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_certificate_key_file_password": {
+                      "description": "Password for decrypting tls_certificate_key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "authentication_mechanism": {
+                      "description": "Authentication mechanism.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "authentication_database": {
+                      "description": "Authentication database.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 13
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 14
+                    }
+                  },
+                  "x-order": 11
+                },
+                "qan_postgresql_pgstatements_agent": {
+                  "type": "object",
+                  "properties": {
+                    "enable": {
+                      "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 0
+                    },
+                    "custom_labels": {
+                      "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                      "type": "object",
+                      "properties": {
+                        "values": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-nullable": true,
+                      "x-order": 1
+                    },
+                    "enable_push_metrics": {
+                      "description": "Enables push metrics with vmagent.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 2
+                    },
+                    "metrics_resolutions": {
+                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
+                      "type": "object",
+                      "properties": {
+                        "hr": {
+                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 0
+                        },
+                        "mr": {
+                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "lr": {
+                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 3
+                    },
+                    "username": {
                       "description": "PostgreSQL username for getting pg stat statements data.",
                       "type": "string",
                       "x-nullable": true,
@@ -12954,9 +13086,9 @@
                       "x-order": 13
                     }
                   },
-                  "x-order": 11
+                  "x-order": 12
                 },
-                "qan_postgresql_pgstatements_agent": {
+                "qan_postgresql_pgstatmonitor_agent": {
                   "type": "object",
                   "properties": {
                     "enable": {
@@ -13086,9 +13218,21 @@
                       "x-order": 14
                     }
                   },
-                  "x-order": 12
+                  "x-order": 13
                 },
-                "qan_postgresql_pgstatmonitor_agent": {
+                "nomad_agent": {
+                  "type": "object",
+                  "properties": {
+                    "enable": {
+                      "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 0
+                    }
+                  },
+                  "x-order": 14
+                },
+                "valkey_exporter": {
                   "type": "object",
                   "properties": {
                     "enable": {
@@ -13179,7 +13323,7 @@
                       "x-order": 9
                     },
                     "tls_cert": {
-                      "description": "TLS Certificate.",
+                      "description": "TLS Certifcate.",
                       "type": "string",
                       "x-nullable": true,
                       "x-order": 10
@@ -13196,94 +13340,11 @@
                       "x-nullable": true,
                       "x-order": 12
                     },
-                    "log_level": {
-                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                      "type": "string",
-                      "title": "Log level for exporters",
-                      "default": "LOG_LEVEL_UNSPECIFIED",
-                      "enum": [
-                        "LOG_LEVEL_UNSPECIFIED",
-                        "LOG_LEVEL_FATAL",
-                        "LOG_LEVEL_ERROR",
-                        "LOG_LEVEL_WARN",
-                        "LOG_LEVEL_INFO",
-                        "LOG_LEVEL_DEBUG"
-                      ],
-                      "x-nullable": true,
-                      "x-order": 13
-                    },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-nullable": true,
-                      "x-order": 14
-                    }
-                  },
-                  "x-order": 13
-                },
-                "nomad_agent": {
-                  "type": "object",
-                  "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Agents are enabled by default when they get added.",
-                      "type": "boolean",
-                      "x-nullable": true,
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 14
-                },
-                "valkey_exporter": {
-                  "type": "object",
-                  "properties": {
-                    "enable": {
-                      "description": "Enable this Agent. Agents are enabled by default when they get added.",
-                      "type": "boolean",
-                      "x-nullable": true,
-                      "x-order": 0
-                    },
-                    "custom_labels": {
-                      "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
-                      "type": "object",
-                      "properties": {
-                        "values": {
-                          "type": "object",
-                          "additionalProperties": {
-                            "type": "string"
-                          },
-                          "x-order": 0
-                        }
-                      },
-                      "x-nullable": true,
-                      "x-order": 1
-                    },
-                    "enable_push_metrics": {
-                      "description": "Enables push metrics with vmagent.",
-                      "type": "boolean",
-                      "x-nullable": true,
-                      "x-order": 2
-                    },
-                    "metrics_resolutions": {
-                      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
-                      "type": "object",
-                      "properties": {
-                        "hr": {
-                          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "mr": {
-                          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
-                          "type": "string",
-                          "x-order": 1
-                        },
-                        "lr": {
-                          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.",
-                          "type": "string",
-                          "x-order": 2
-                        }
-                      },
-                      "x-order": 3
+                      "x-order": 13
                     }
                   },
                   "x-order": 15
