@@ -32,7 +32,7 @@ Replace the self-signed certificate with a proper SSL certificate for production
     sudo certbot certonly --standalone -d pmm.yourdomain.com
 
     # Stop PMM temporarily
-    systemctl stop pmm-server
+    systemctl --user stop pmm-server
 
     # Configure PMM to use the certificate
     sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/fullchain.pem /home/admin/volume/pmm-certs/certificate.crt
