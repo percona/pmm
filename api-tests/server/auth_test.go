@@ -119,14 +119,26 @@ func TestSwagger(t *testing.T) {
 				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
-				resp, _ := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
-
+				resp, err := http.DefaultClient.Do(req)
 				require.NoError(t, err)
-				assert.Equal(t, 200, resp.StatusCode)
+				defer resp.Body.Close() //nolint:errcheck
+
+				assert.Equal(t, 401, resp.StatusCode)
 			})
 
 			t.Run("Auth", func(t *testing.T) {
 				t.Parallel()
+
+				// Create a client that preserves credentials during redirects
+				client := &http.Client{
+					CheckRedirect: func(req *http.Request, via []*http.Request) error {
+						// Copy authentication from original request
+						if len(via) > 0 && via[0].URL.User != nil {
+							req.URL.User = via[0].URL.User
+						}
+						return nil
+					},
+				}
 
 				uri := pmmapitests.BaseURL.ResolveReference(&url.URL{
 					Path: path,
@@ -135,9 +147,10 @@ func TestSwagger(t *testing.T) {
 				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				require.NoError(t, err)
 
-				resp, _ := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
-
+				resp, err := client.Do(req)
 				require.NoError(t, err)
+				defer resp.Body.Close() //nolint:errcheck
+
 				assert.Equal(t, 200, resp.StatusCode)
 			})
 		})

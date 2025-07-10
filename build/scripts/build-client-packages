@@ -366,6 +366,7 @@ build_source_deb(){
     mv queries-mysqld-group-replication.yml ../${NAME}-${VERSION}_all/distro/
     mv example-queries-postgres.yml ../${NAME}-${VERSION}_all/distro/
     mv queries-postgres-uptime.yml ../${NAME}-${VERSION}_all/distro/
+    mv queries-hr.yml ../${NAME}-${VERSION}_all/distro/
     mv queries-mr.yaml ../${NAME}-${VERSION}_all/distro/
     mv queries-lr.yaml ../${NAME}-${VERSION}_all/distro/
     mv debian ../${NAME}-${VERSION}_all/

@@ -1,5 +1,5 @@
 export PACKER_CACHE_DIR := .cache
-export PACKER_VERSION := 1.11.2
+export PACKER_VERSION := 1.9.4
 # check available versions at https://vagrantcloud.com/api/v2/vagrant/bento/oraclelinux-9
 export BOX_VERSION := 202502.21.0
 export PMM_SERVER_IMAGE ?= docker.io/perconalab/pmm-server:3-dev-latest
@@ -42,6 +42,15 @@ pmm-ami:
 		-var 'watchtower_image_name=${WATCHTOWER_IMAGE}' \
 		-only amazon-ebs -color=false packer/pmm.json | tee build.log
 ## ----------------- PACKER ------------------
+
+## RPM Build Images
+rpmbuild-el9: ## Build rpmbuild Docker image for EL9 (Oracle Linux 9)
+	cd docker/rpmbuild && docker build -t perconalab/rpmbuild:3 -f Dockerfile.el9 .
+
+rpmbuild-hetzner-el9: ## Build rpmbuild Docker image for Hetzner (Rocky Linux 9)
+	cd docker/rpmbuild && docker build -t perconalab/rpmbuild:3-hetzner -f Dockerfile.hetzner-el9 .
+
+rpmbuild-all: rpmbuild-el9 rpmbuild-hetzner-el9 ## Build all rpmbuild Docker images
 
 check:
 	echo "TODO: Since update.yml has been deprecated, see if other playbooks need to be linted"

@@ -1,7 +1,7 @@
 export const Messages = {
   title: 'Step 1 of 2: Update PMM Server',
   upgrading:
-    'Upgrading will pause, update, and subsequently restart PMM. While this occurs, data observation will be temporarily halted but will promtly resume, ensuring all peding data from PMM Clients is recovered.',
+    'Upgrading will pause, update, and subsequently restart PMM. While this occurs, data observation will be temporarily halted but will promptly resume, ensuring all pending data from PMM Clients is recovered.',
   readMore: 'Read more',
   whatsNext: "What's next",
   afterCompleting:
