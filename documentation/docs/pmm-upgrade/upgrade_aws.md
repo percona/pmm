@@ -49,8 +49,7 @@ If issues occur after upgrade:
 
 1. Stop the new PMM container:
    ```bash
-   podman stop pmm-server
-   podman rm pmm-server
+   systemctl stop pmm-server
    ```
 
 2. Restore from backup by creating a volume from your pre-upgrade snapshot, attaching it to the instance, and starting the previous PMM version.
