@@ -109,6 +109,7 @@ type AddMySQLCommand struct {
 	Cluster                string            `help:"Cluster name"`
 	ReplicationSet         string            `help:"Replication set name"`
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	ExtraDSNParams         map[string]string `name:"extra-dsn-params" mapsep:"," help:"Additional DSN parameters, e.g. 'param1=value1,param2=value2'"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
 	TLS                    bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify          bool              `help:"Skip TLS certificate verification"`
@@ -148,6 +149,7 @@ func (cmd *AddMySQLCommand) GetSocket() string {
 // RunCmd runs the command for AddMySQLCommand.
 func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	extraDSNParams := commands.ParseExtraDSNParams(cmd.ExtraDSNParams)
 
 	if cmd.CreateUser {
 		return nil, errors.New("Unrecognized option. To create a user, see " +
@@ -219,6 +221,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				Password:       cmd.Password,
 				AgentPassword:  cmd.AgentPassword,
 				CustomLabels:   customLabels,
+				ExtraDsnParams: extraDSNParams,
 
 				QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
 				QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,

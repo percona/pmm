@@ -53,6 +53,7 @@ Skip TLS verification : false
 Status                : RUNNING
 Disabled              : false
 Custom labels         : map[]
+Extra DSN params      : map[]
 
 Tablestat collectors  : enabled (the limit is 1000, the actual table count is 500).
 		`)
@@ -87,6 +88,7 @@ Skip TLS verification : false
 Status                : RUNNING
 Disabled              : false
 Custom labels         : map[]
+Extra DSN params      : map[]
 
 Tablestat collectors  : enabled (the table count limit is not set).
 		`)
@@ -121,6 +123,7 @@ Skip TLS verification : false
 Status                : RUNNING
 Disabled              : false
 Custom labels         : map[]
+Extra DSN params      : map[]
 
 Tablestat collectors  : enabled (the limit is 1000, the actual table count is unknown).
 		`)
@@ -155,6 +158,7 @@ Skip TLS verification : false
 Status                : RUNNING
 Disabled              : false
 Custom labels         : map[]
+Extra DSN params      : map[]
 
 Tablestat collectors  : disabled (the limit is 1000, the actual table count is 2000).
 		`)
@@ -189,9 +193,47 @@ Skip TLS verification : false
 Status                : RUNNING
 Disabled              : false
 Custom labels         : map[]
+Extra DSN params      : map[]
 
 Tablestat collectors  : disabled (always).
 		`)
+		assert.Equal(t, expected, strings.TrimSpace(res.String()))
+	})
+
+	t.Run("with allowCleartextPassword DSN param", func(t *testing.T) {
+		res := &addAgentMysqldExporterResult{
+			Agent: &agents.AddAgentOKBodyMysqldExporter{
+				AgentID:    "1",
+				PMMAgentID: "2",
+				Username:   "username",
+				ServiceID:  "1",
+				ListenPort: 42001,
+				Status:     pointer.ToString("RUNNING"),
+
+				ExtraDsnParams: map[string]string{
+					"allowCleartextPassword": "1",
+				},
+			},
+			TableCount: 0,
+		}
+		expected := strings.TrimSpace(`
+Mysqld Exporter added.
+Agent ID              : 1
+PMM-Agent ID          : 2
+Service ID            : 1
+Username              : username
+Listen port           : 42001
+TLS enabled           : false
+Skip TLS verification : false
+
+Status                : RUNNING
+Disabled              : false
+Custom labels         : map[]
+Extra DSN params      : map[allowCleartextPassword:1]
+
+Tablestat collectors  : enabled (the table count limit is not set).
+		`)
+
 		assert.Equal(t, expected, strings.TrimSpace(res.String()))
 	})
 }

@@ -206,6 +206,9 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		}
 		ua.TableCount = pointer.GetInt32(agent.MySQLOptions.TableCount)
 		ua.TableCountTablestatsGroupLimit = agent.MySQLOptions.TableCountTablestatsGroupLimit
+		if (agent.MySQLOptions.ExtraDSNParams != nil) && len(agent.MySQLOptions.ExtraDSNParams) > 0 {
+			ua.MysqlOptions.ExtraDsnParams = agent.MySQLOptions.ExtraDSNParams
+		}
 	case models.PostgresExporterType, models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
 		ua.PostgresqlOptions = &managementv1.UniversalAgent_PostgreSQLOptions{
 			IsSslKeySet:            agent.PostgreSQLOptions.SSLKey != "",

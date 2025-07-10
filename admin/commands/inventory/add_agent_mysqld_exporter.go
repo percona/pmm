@@ -37,6 +37,7 @@ Skip TLS verification : {{ .Agent.TLSSkipVerify }}
 Status                : {{ .Agent.Status }}
 Disabled              : {{ .Agent.Disabled }}
 Custom labels         : {{ .Agent.CustomLabels }}
+Extra DSN params      : {{ .Agent.ExtraDsnParams }}
 
 Tablestat collectors  : {{ .TablestatStatus }}
 `)
@@ -89,6 +90,7 @@ type AddAgentMysqldExporterCommand struct {
 	Password                  string            `help:"MySQL password for scraping metrics"`
 	AgentPassword             string            `help:"Custom password for /metrics endpoint"`
 	CustomLabels              map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	ExtraDSNParams            map[string]string `mapsep:"," help:"Extra parameters to be passed to the MySQL DSN, e.g. 'param1=value1,param2=value2'"`
 	SkipConnectionCheck       bool              `help:"Skip connection check"`
 	TLS                       bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify             bool              `help:"Skip TLS certificate verification"`
@@ -137,6 +139,7 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 				Password:                  cmd.Password,
 				AgentPassword:             cmd.AgentPassword,
 				CustomLabels:              customLabels,
+				ExtraDsnParams:            cmd.ExtraDSNParams,
 				SkipConnectionCheck:       cmd.SkipConnectionCheck,
 				TLS:                       cmd.TLS,
 				TLSSkipVerify:             cmd.TLSSkipVerify,
