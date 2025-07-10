@@ -211,7 +211,7 @@ Tablestat collectors  : disabled (always).
 				Status:     pointer.ToString("RUNNING"),
 
 				ExtraDsnParams: map[string]string{
-					"allowCleartextPassword": "1",
+					"allowCleartextPasswords": "1",
 				},
 			},
 			TableCount: 0,
@@ -229,7 +229,7 @@ Skip TLS verification : false
 Status                : RUNNING
 Disabled              : false
 Custom labels         : map[]
-Extra DSN params      : map[allowCleartextPassword:1]
+Extra DSN params      : map[allowCleartextPasswords:1]
 
 Tablestat collectors  : enabled (the table count limit is not set).
 		`)
