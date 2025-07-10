@@ -43,11 +43,11 @@ If issues occur after upgrade:
    systemctl stop pmm-server
    ```
 
-2. Restore from backup by creating a volume from your pre-upgrade snapshot, attaching it to the instance, and starting the previous PMM version.
+2. Restore using your pre-upgrade snapshot. Create a volume from the snapshot, attach it to the instance, and start the previous PMM version.
 
 ## Troubleshooting upgrades
 
-### Container won't start after upgrade
+If the c container won't start after the upgrade:
 
 ```bash
 # Check logs
