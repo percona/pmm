@@ -41,7 +41,7 @@ Replace the self-signed certificate with a proper SSL certificate for production
     sudo chmod 600 /home/admin/volume/pmm-certs/certificate.*
 
     # Restart PMM Server
-    systemctl start pmm-server
+    systemctl --user start pmm-server
     ```
 
 === "Commercial certificate"
