@@ -72,7 +72,7 @@ require (
 	go.mongodb.org/mongo-driver v1.17.4
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	golang.org/x/crypto v0.39.0
-	golang.org/x/sync v0.15.0
+	golang.org/x/sync v0.16.0
 	golang.org/x/sys v0.33.0
 	golang.org/x/text v0.26.0
 	golang.org/x/tools v0.34.0
