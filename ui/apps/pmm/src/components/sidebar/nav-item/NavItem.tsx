@@ -28,6 +28,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
   const theme = useTheme();
   const styles = getStyles(theme, active, drawerOpen, level);
   const children = item.children?.filter((i) => !i.hidden);
+  const dataTestid = `navitem-${item.id}`;
 
   useEffect(() => {
     if (active) {
@@ -43,6 +44,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
           disableGutters
           sx={[styles.listItemButton, styles.listItemButtonCollapsible]}
           onClick={() => setIsOpen(!open)}
+          data-testid={dataTestid}
         >
           {item.icon && (
             <ListItemIcon sx={styles.listItemIcon}>
@@ -90,9 +92,10 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
     <ListItem key={item.url} disablePadding>
       <ListItemButton
         disableGutters
-        sx={[styles.listItemButton]}
+        sx={styles.listItemButton}
         selected={active}
         {...linkProps}
+        data-testid={dataTestid}
       >
         {item.icon && (
           <ListItemIcon sx={styles.listItemIcon}>

@@ -153,6 +153,7 @@ export const addAccount = (
 
   children.push({
     ...NAV_THEME_TOGGLE,
+    icon: colorMode === 'light' ? 'theme-dark' : 'theme-light',
     text: `Change to ${targetTheme} Theme`,
     onClick: toggleMode,
   });

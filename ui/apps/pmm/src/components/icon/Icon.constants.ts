@@ -21,7 +21,8 @@ import Backups from 'icons/backups.svg?react';
 import Configuration from 'icons/configuration.svg?react';
 import Encrypted from 'icons/users-and-access.svg?react';
 import SignOut from 'icons/sign-out.svg?react';
-import Theme from 'icons/theme.svg?react';
+import ThemeDark from 'icons/theme-dark.svg?react';
+import ThemeLight from 'icons/theme-light.svg?react';
 
 export const ICON_MAP = {
   home: Home,
@@ -48,5 +49,6 @@ export const ICON_MAP = {
   'high-availability': HighAvailability,
   'operating-system': OperatingSystem,
   'sign-out': SignOut,
-  theme: Theme,
+  'theme-dark': ThemeDark,
+  'theme-light': ThemeLight,
 };

@@ -13,7 +13,7 @@ export const getStyles = (
 ) => ({
   listItemButton: {
     pl: drawerOpen ? levelPadding[level] || 0 : 0,
-    borderRadius: 50,
+    borderRadius: drawerOpen ? 50 : 0,
 
     [`.${typographyClasses.root}`]: {
       fontWeight: 600,
@@ -34,7 +34,7 @@ export const getStyles = (
   },
   listCollapsible:
     level !== 1
-      ? { ml: 2 }
+      ? { ml: 1.5 }
       : {
           pl: 1,
           ml: 6,

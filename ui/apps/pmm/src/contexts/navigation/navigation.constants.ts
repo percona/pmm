@@ -646,7 +646,6 @@ export const NAV_ACCOUNT: NavItem = {
 
 export const NAV_THEME_TOGGLE: NavItem = {
   id: 'theme-toggle',
-  icon: 'theme',
   text: 'Change to Dark Theme',
 };
 
