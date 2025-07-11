@@ -1,0 +1,173 @@
+# Grafana alert rules configuration
+# This should be added to your Grafana provisioning/alerting directory
+
+apiVersion: 1
+
+groups:
+  - name: security-alerts
+    orgId: 1
+    folder: Security
+    interval: 1m
+    rules:
+      - uid: admin-password-change
+        title: Admin Password Change Alert
+        condition: C
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasource:
+              type: clickhouse
+              uid: clickhouse-logs
+            model:
+              # Query to detect admin password changes in logs
+              rawSql: |
+                SELECT 
+                  Timestamp as timestamp,
+                  SeverityText as level,
+                  Body,
+                  LogAttributes['uname'] as user,
+                  LogAttributes['msg'] as message,
+                  ServiceName as service
+                FROM logs 
+                WHERE 
+                  Timestamp >= now() - INTERVAL 5 MINUTE
+                  AND ServiceName = 'grafana'
+                  AND LogAttributes['msg'] = 'Admin password has been reset.'
+                ORDER BY Timestamp DESC
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasource:
+              type: __expr__
+              uid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - A
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              expression: A
+              hide: false
+              intervalMs: 1000
+              maxDataPoints: 43200
+              reducer: last
+              type: reduce
+          - refId: C
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasource:
+              type: __expr__
+              uid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - B
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              expression: B > 0
+              hide: false
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: threshold
+        noDataState: NoData
+        execErrState: Alerting
+        for: 0s
+        annotations:
+          description: "Admin password change detected in logs. Service: {{ $labels.service }}, User: {{ $labels.user }}, Message: {{ $labels.message }}"
+          summary: "Admin Password Change"
+        labels:
+          severity: critical
+          team: security
+        notification_settings:
+          receiver: email-log-alerts
+
+      - uid: admin-password-change-failed
+        title: Admin Password Change Failed
+        condition: C
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasource:
+              type: clickhouse
+              uid: clickhouse-logs
+            model:
+              # Query to detect failed admin password change attempts in logs
+              rawSql: |
+                SELECT
+                  Timestamp as timestamp,
+                  SeverityText as level,
+                  ServiceName as service,
+                  LogAttributes['msg'] as message
+                FROM logs 
+                WHERE 
+                  Timestamp >= now() - INTERVAL 5 MINUTE
+                  AND ServiceName = 'grafana' 
+                  AND SeverityText = 'error'
+                  AND LogAttributes['msg'] = 'Failed to reset admin password.'
+                ORDER BY Timestamp DESC
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasource:
+              type: __expr__
+              uid: __expr__
+            model:
+              expression: A
+              reducer: last
+              type: reduce
+          - refId: C
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasource:
+              type: __expr__
+              uid: __expr__
+            model:
+              expression: B > 0
+              type: threshold
+        noDataState: NoData
+        execErrState: Alerting
+        for: 0s
+        annotations:
+          description: "Failed attempt to change admin password detected. Service: {{ $labels.service }}, Error: {{ $labels.message }}"
+          summary: "Admin Password Change Failed"
+        labels:
+          severity: critical
+          team: security
+        notification_settings:
+          receiver: email-log-alerts

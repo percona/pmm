@@ -1,0 +1,142 @@
+receivers:
+  # File log receiver for Nginx access logs
+  filelog/nginx_access:
+    include: [/srv/logs/nginx.log]
+    operators:
+      - type: json_parser
+        parse_from: body
+        parse_to: attributes
+      - type: move
+        from: attributes.timestamp
+        to: attributes.temp_timestamp
+      - type: time_parser
+        parse_from: attributes.temp_timestamp
+        layout: '2006-01-02T15:04:05-07:00'
+        layout_type: gotime
+      # Add a severity level based on HTTP status code
+      - type: add
+        field: attributes.level
+        value: 'EXPR(int(attributes.status) >= 500 ? "error" : (int(attributes.status) >= 400 ? "warn" : "info"))'
+      # Parse the severity from the log level we just set
+      - type: severity_parser
+        parse_from: attributes.level
+        preset: none
+        mapping:
+          info: info
+          warn: warn
+          error: error
+
+  # File log receiver for Nginx error logs
+  filelog/nginx_error:
+    include: [/srv/logs/nginx-error.log]
+    operators:
+      - type: regex_parser
+        regex: '^(?P<timestamp>\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] (?P<pid>\d+)#(?P<tid>\d+): (?P<message>.*?)(?:, client: (?P<client_ip>[^,]+))?(?:, server: (?P<server>[^,]+))?(?:, request: "(?P<request>[^"]*)")?(?:, host: "(?P<host>[^"]*)")?.*'
+        parse_from: body
+        parse_to: attributes
+      - type: time_parser
+        parse_from: attributes.timestamp
+        layout: '2006/01/02 15:04:05'
+        layout_type: gotime
+      - type: severity_parser
+        parse_from: attributes.level
+        preset: none
+        mapping:
+          debug: debug
+          info: info
+          notice: info
+          warn: warn
+          error: error
+          crit: fatal
+          alert: fatal
+          emerg: fatal
+
+  # File log receiver for Grafana logs
+  filelog/grafana:
+    include: [/srv/logs/grafana.log]
+    operators:
+      - type: key_value_parser
+        parse_from: body
+        parse_to: attributes
+        pair_delimiter: " "
+        key_value_delimiter: "="
+      - type: time_parser
+        parse_from: attributes.t
+        layout: '2006-01-02T15:04:05.000000000Z07:00'
+        layout_type: gotime
+      - type: severity_parser
+        parse_from: attributes.level
+        preset: none
+        mapping:
+          debug: debug
+          info: info
+          warn: warn
+          error: error
+      # Move the parsed message to body for consistency
+      - type: move
+        from: attributes.msg
+        to: body
+
+processors:
+  # Batch processor to optimize performance
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+
+  # Transform processor to handle log.file.name attribute and service names
+  transform:
+    error_mode: ignore
+    log_statements:
+      # Copy log.file.name to log_file and remove original
+      - set(log.attributes["log_file"], log.attributes["log.file.name"]) where log.attributes["log.file.name"] != nil
+      - delete_key(log.attributes, "log.file.name") where log.attributes["log.file.name"] != nil
+      - delete_key(log.attributes, "level") where log.attributes["level"] != nil
+        
+      # Set service attributes based on log file
+      - set(resource.attributes["service.name"], "nginx") where log.attributes["log_file"] == "nginx.log" or log.attributes["log_file"] == "nginx-access.log"
+      - set(resource.attributes["service.version"], "1.20.1") where log.attributes["log_file"] == "nginx.log" or log.attributes["log_file"] == "nginx-access.log"
+
+      - set(resource.attributes["service.name"], "grafana") where log.attributes["log_file"] == "grafana.log"
+      - set(resource.attributes["service.version"], "11.6.1") where log.attributes["log_file"] == "grafana.log"
+
+  # Memory limiter to prevent OOM
+  memory_limiter:
+    limit_mib: 512
+    check_interval: 1s
+
+exporters:
+  # ClickHouse exporter for logs
+  clickhouse:
+    endpoint: tcp://pmm-server:9000
+    database: otel
+    username: default
+    password: clickhouse
+    logs_table_name: logs
+    ttl: 72h
+    create_schema: true
+    timeout: 5s
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
+
+  # Debug exporter for troubleshooting
+  debug:
+    verbosity: basic
+
+service:
+  pipelines:
+    logs:
+      receivers: [filelog/nginx_access, filelog/nginx_error, filelog/grafana]
+      processors: [memory_limiter, transform, batch]
+      exporters: [clickhouse, debug]
+
+  extensions: []
+
+  telemetry:
+    logs:
+      level: "info"
+    metrics:
+      level: basic

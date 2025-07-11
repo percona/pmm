@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <!-- Enable SSL configuration with proper certificate paths -->
+    <openSSL>
+        <server>
+            <!-- SSL certificate files -->
+            <certificateFile>/etc/clickhouse-server/certs/server.crt</certificateFile>
+            <privateKeyFile>/etc/clickhouse-server/certs/server.key</privateKeyFile>
+            <dhParamsFile>/etc/clickhouse-server/certs/dhparam.pem</dhParamsFile>
+            <verificationMode>relaxed</verificationMode>
+            <loadDefaultCAFile>true</loadDefaultCAFile>
+            <cacheSessions>true</cacheSessions>
+            <disableProtocols>sslv2,sslv3</disableProtocols>
+            <preferServerCiphers>true</preferServerCiphers>
+        </server>
+        <client>
+            <verificationMode>relaxed</verificationMode>
+            <loadDefaultCAFile>true</loadDefaultCAFile>
+            <cacheSessions>true</cacheSessions>
+            <disableProtocols>sslv2,sslv3</disableProtocols>
+            <preferServerCiphers>true</preferServerCiphers>
+        </client>
+    </openSSL>
+
+    <!-- Listen on all interfaces for external access -->
+    <listen_host>0.0.0.0</listen_host>
+    
+    <!-- Startup scripts for database initialization -->
+    <startup_scripts>
+        <throw_on_error>false</throw_on_error>
+        <scripts>
+            <query>CREATE DATABASE IF NOT EXISTS otel</query>
+        </scripts>
+    </startup_scripts>
+</clickhouse>

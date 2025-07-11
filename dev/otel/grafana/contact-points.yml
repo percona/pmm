@@ -1,0 +1,36 @@
+# Grafana contact points configuration (modern alerting)
+# This should be added to your Grafana provisioning/alerting directory
+
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: email-log-alerts
+    receivers:
+      - uid: email-log-alerts-receiver
+        type: email
+        settings:
+          addresses:
+            - admin@yourcompany.com
+            - security@yourcompany.com
+          subject: "PMM Log Alert: {{ .GroupLabels.alertname }}"
+          message: |
+            <h2>PMM Log Alert</h2>
+            <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+            <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+            <p><strong>Team:</strong> {{ .GroupLabels.team }}</p>
+            <p><strong>Time:</strong> {{ .StartsAt.Format "2006-01-02 15:04:05" }}</p>
+            
+            <h3>Alert Details:</h3>
+            {{ range .Alerts }}
+            <div style="border: 1px solid #ddd; padding: 10px; margin: 5px 0;">
+              <p><strong>Description:</strong> {{ .Annotations.description }}</p>
+              <p><strong>Summary:</strong> {{ .Annotations.summary }}</p>
+              {{ if .Labels.service }}<p><strong>Service:</strong> {{ .Labels.service }}</p>{{ end }}
+              {{ if .Labels.user }}<p><strong>User:</strong> {{ .Labels.user }}</p>{{ end }}
+              {{ if .Labels.message }}<p><strong>Message:</strong> {{ .Labels.message }}</p>{{ end }}
+            </div>
+            {{ end }}
+            
+            <p><em>Please investigate this security event immediately.</em></p>
+        disableResolveMessage: false

@@ -1,0 +1,46 @@
+# Grafana notification policies configuration (modern alerting)
+# This should be added to your Grafana provisioning/alerting directory
+
+apiVersion: 1
+
+policies:
+  - orgId: 1
+    receiver: grafana-default-email
+    group_by:
+      - grafana_folder
+      - alertname
+    routes:
+      # Route for security alerts
+      - receiver: email-log-alerts
+        object_matchers:
+          - ["team", "=", "security"]
+        group_by:
+          - alertname
+          - severity
+        group_wait: 10s
+        group_interval: 10s
+        repeat_interval: 1h
+        continue: false
+        
+      # Route for critical alerts
+      - receiver: email-log-alerts
+        object_matchers:
+          - ["severity", "=", "critical"]
+        group_by:
+          - alertname
+          - service
+        group_wait: 5s
+        group_interval: 5s
+        repeat_interval: 30m
+        continue: false
+        
+      # Route for warning alerts
+      - receiver: email-log-alerts
+        object_matchers:
+          - ["severity", "=", "warning"]
+        group_by:
+          - alertname
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 2h
+        continue: false
