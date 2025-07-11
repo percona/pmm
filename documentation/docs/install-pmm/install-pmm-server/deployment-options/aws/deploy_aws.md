@@ -81,6 +81,5 @@ With your PMM Server deployed and accessible:
 
 - [Configure PMM Server](../aws/configure_aws.md) for security and authentication
 - [Configure PMM Clients](../../../install-pmm-client/index.md) to start monitoring your infrastructure
-- [Register client nodes](../../../register-client-node/index.md) with your PMM Server
 - [Improve PMM EC2 instance resilience using CloudWatch Alarm actions](https://www.percona.com/blog/2021/04/29/improving-percona-monitoring-and-management-ec2-instance-resilience-using-cloudwatch-alarm-actions/)
 - [Simplify use of ENV eariables in PMM AMI](https://www.percona.com/blog/simplify-use-of-env-variables-in-percona-monitoring-and-management-ami/)

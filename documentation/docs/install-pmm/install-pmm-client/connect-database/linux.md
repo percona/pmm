@@ -13,19 +13,9 @@ PMM Client supports collecting system metrics from various Linux distributions:
 
 When you register a node using the PMM Client, system metrics collection is enabled by default:
 
-=== "Via command line"
-    ```bash
-    pmm-admin config --server-url=https://admin:admin@pmm-server-ip:443
-    ```
-
-=== "Via web UI"
-    To configure monitoring via the web user interface:
-    {.power-number}
-
-    1. Navigate to **PMM Configuration > PMM Inventory > Add Service**.
-    2. Select **Linux > Add a new Linux instance**.
-    3. Complete the required fields.
-    4. Click **Add Service**.
+```bash
+pmm-admin config --server-url=https://admin:admin@pmm-server-ip:443
+```
 
 ## Viewing Linux metrics
 
