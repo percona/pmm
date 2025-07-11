@@ -13,9 +13,9 @@
   },
   "dependencies": {
     "@playwright/test": "^1.53.0",
-    "@types/luxon": "^3.4.2",
+    "@types/luxon": "^3.6.2",
     "dotenv": "^17.2.0",
-    "luxon": "^3.6.0",
+    "luxon": "^3.7.1",
     "playwright": "^1.51.1",
     "promise-retry": "^2.0.1",
     "shelljs": "^0.10.0",
