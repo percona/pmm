@@ -44,7 +44,6 @@ theme:
         name: Color theme set to Dark Mode. Click to change
 
   # Theme features
-
   features:
     - search.highlight
     - navigation.top
@@ -89,9 +88,9 @@ markdown_extensions:
   pymdownx.tasklist:
     custom_checkbox: true
   pymdownx.snippets:
-      base_path: ["snippets"]
-      auto_append:
-        - services-banner.md
+    base_path: ["snippets"]
+    auto_append:
+      - services-banner.md
   pymdownx.highlight:
     use_pygments: true
   pymdownx.emoji:
@@ -136,15 +135,15 @@ nav:
   - Home: index.md
   - Get help from Percona: get-help.md
   - Discover:
-    - discover-pmm/why-pmm.md
-    - discover-pmm/features.md
+      - discover-pmm/why-pmm.md
+      - discover-pmm/features.md
   - Quickstart guide: quickstart/quickstart.md
   - Install:
       - install-pmm/index.md
       - Plan your PMM installation:
-        - install-pmm/plan-pmm-installation/choose-deployment.md
-        - install-pmm/plan-pmm-installation/hardware_and_system.md
-        - install-pmm/plan-pmm-installation/network_and_firewall.md
+          - install-pmm/plan-pmm-installation/choose-deployment.md
+          - install-pmm/plan-pmm-installation/hardware_and_system.md
+          - install-pmm/plan-pmm-installation/network_and_firewall.md
       - Install PMM Server:
         - Server installation overview: install-pmm/install-pmm-server/index.md
         - install-pmm/install-pmm-server/prerequisites.md
@@ -218,22 +217,22 @@ nav:
             - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
           - External services monitoring:
             - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
-      - Install PMM in HA mode: install-pmm/HA.md  
+        - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md         
+      - Install PMM in HA mode: install-pmm/HA.md 
   - Upgrade:
-    - Upgrade PMM Server:
-      - pmm-upgrade/index.md
-      - pmm-upgrade/ui_upgrade.md
-      - pmm-upgrade/external_postgres_pmm_upgrade.md
-    
-      - Manual upgrade:
-        - pmm-upgrade/upgrade_docker.md
-        - pmm-upgrade/upgrade_podman.md
-      - Upgrade PMM Server in K8s:
-        - pmm-upgrade/upgrade_helm.md
-      - pmm-upgrade/migrating_from_pmm_2.md
-#      - pmm-upgrade/upgrade_aws.md
-    - Upgrade PMM Client:
-      - pmm-upgrade/upgrade_client.md
+      - Upgrade PMM Server:
+          - pmm-upgrade/index.md
+          - pmm-upgrade/ui_upgrade.md
+          - pmm-upgrade/external_postgres_pmm_upgrade.md
+          - Manual upgrade:
+              - pmm-upgrade/upgrade_docker.md
+              - pmm-upgrade/upgrade_podman.md
+          - Upgrade PMM Server in K8s:
+              - pmm-upgrade/upgrade_helm.md
+          - pmm-upgrade/migrating_from_pmm_2.md
+          - pmm-upgrade/upgrade_aws.md
+      - Upgrade PMM Client:
+          - pmm-upgrade/upgrade_client.md
 
   - Uninstall:
     - uninstall-pmm/unregister_client.md
@@ -303,19 +302,20 @@ nav:
       - backup/edit_scheduled.md
       - backup/delete_a_backup.md
   - Configure:
-    - configure-pmm/configure.md
-    - configure-pmm/metrics_res.md
-    - configure-pmm/advanced_settings.md
-    - configure-pmm/ssh.md
-    - Security in PMM:
-      - admin/security/index.md
-      - admin/security/ssl_encryption.md
-      - admin/security/grafana_cookies.md
-      - admin/security/data_encryption.md
-    - Percona Platform:
-      - configure-pmm/percona_platform/integrate_with_percona_platform.md
-      - configure-pmm/percona_platform/check_percona_platform.md
-      - configure-pmm/percona_platform/account-info.md
+      - configure-pmm/configure.md
+      - configure-pmm/metrics_res.md
+      - configure-pmm/advanced_settings.md
+      - configure-pmm/ssh.md
+      - Security in PMM:
+          - admin/security/index.md
+          - admin/security/ssl_encryption.md
+          - admin/security/grafana_cookies.md
+          - admin/security/data_encryption.md
+      - Percona Platform:
+          - configure-pmm/percona_platform/integrate_with_percona_platform.md
+          - configure-pmm/percona_platform/check_percona_platform.md
+          - configure-pmm/percona_platform/account-info.md
+
   - Administer:
     - admin/index.md
     - Manage users:
@@ -328,26 +328,26 @@ nav:
       - Label-based access control:
         - admin/roles/access-control/intro.md
         - admin/roles/access-control/labels.md
-        - admin/roles/access-control/config_access_cntrl.md
+        - admin/roles/access-control/enable_access_control.md
         - admin/roles/access-control/create_roles.md
         - admin/roles/access-control/manage_roles.md
         - admin/roles/access-control/assign_roles.md
-        - admin/roles/access-control/usecase.md
+        - admin/roles/access-control/use_cases.md
 
   - Troubleshoot:
-    - troubleshoot/index.md
-    - troubleshoot/checklist.md
-    - troubleshoot/upgrade_issues.md
-    - troubleshoot/config_issues.md
-    - troubleshoot/alerting_issues.md
-    - troubleshoot/qan_issues.md
-    - troubleshoot/plugin_issues.md
-    - troubleshoot/pmm_dump.md
-    - troubleshoot/data_issues.md
+      - troubleshoot/index.md
+      - troubleshoot/checklist.md
+      - troubleshoot/upgrade_issues.md
+      - troubleshoot/config_issues.md
+      - troubleshoot/alerting_issues.md
+      - troubleshoot/qan_issues.md
+      - troubleshoot/plugin_issues.md
+      - troubleshoot/pmm_dump.md
+      - troubleshoot/data_issues.md
 
   - Release notes:
     - Release notes index: release-notes/index.md
-    - "PMM 3.3.0 (2025-07-07)": release-notes/3.3.0.md
+    - "PMM 3.3.0 (2025-07-09)": release-notes/3.3.0.md
     - "PMM 3.2.0 (2025-05-29)": release-notes/3.2.0.md
     - "PMM 3.1.0 (2025-03-31)": release-notes/3.1.0.md
     - "PMM 3.0.0-1 (2025-02-10)": release-notes/3.0.0_1.md
