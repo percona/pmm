@@ -130,7 +130,6 @@ where:
 
 ## Related topics
 
-- [Register a PMM Client](../register-client-node/index.md) 
 - [Install PMM Client using Docker](../install-pmm-client/docker.md) 
 - [Connect database services](../install-pmm-client/connect-database/index.md) 
 - [PMM Client command reference](../../use/commands/pmm-admin.md) 

@@ -200,7 +200,6 @@ nav:
           - Install with Package Manager: install-pmm/install-pmm-client/package_manager.md
           - Install from binaries: install-pmm/install-pmm-client/binary_package.md
           - Install on Docker: install-pmm/install-pmm-client/docker.md
-        - Register Client node: install-pmm/register-client-node/index.md
         - Configure monitoring:
           - Database monitoring: 
             - Overview: install-pmm/install-pmm-client/connect-database/index.md
@@ -219,9 +218,7 @@ nav:
             - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
           - External services monitoring:
             - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
-        - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md         
       - Install PMM in HA mode: install-pmm/HA.md  
-
   - Upgrade:
     - Upgrade PMM Server:
       - pmm-upgrade/index.md
@@ -239,12 +236,13 @@ nav:
       - pmm-upgrade/upgrade_client.md
 
   - Uninstall:
+    - uninstall-pmm/unregister_client.md
     - Uninstall PMM Client:
       - uninstall-pmm/index.md
       - Docker: uninstall-pmm/uninstall_docker.md
       - Helm: uninstall-pmm/uninstall_helm.md
       - Package manager: uninstall-pmm/uninstall_package_manager.md
-    - uninstall-pmm/unregister_client.md
+
 
   - Use:
     - use/using-pmm.md
@@ -253,6 +251,7 @@ nav:
       - reference/ui/log_in.md
       - reference/ui/timezone.md
     - PMM Inventory: use/dashboard-inventory.md
+    - Remove services: use/remove-services.md      
     - Metrics monitoring:
       - use/monitor.md
       - PMM metrics:

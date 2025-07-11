@@ -37,6 +37,5 @@ To view collected Linux metrics:
 ## Related topics
 
 - [Install PMM Client](../../install-pmm-client/index.md)
-- [Register a PMM Client](../connect-database/../../register-client-node/index.md)
 - [Operating System dashboard reference](../../../reference/dashboards/dashboard-node-summary.md)
 - [Troubleshooting PMM](../../../troubleshoot/index.md)

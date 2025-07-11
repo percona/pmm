@@ -78,15 +78,14 @@ To ensure successful database monitoring with PMM, confirm the following:
     - [External services monitoring](../install-pmm-client/connect-database/external.md)  
     - [Remote instances monitoring](../install-pmm-client/connect-database/remote.md#recommended-settings)
 
+## Troubleshooting
+
+If you encounter issues during installation or setup, see the [Troubleshooting checklist](../../troubleshoot/checklist.md).
+
 ## Next steps
 
 After confirming your environment meets these prerequisites:
 {.power-number}
 
-1. [Install PMM Client](../install-pmm-client/index.md) using your preferred method
-2. [Register the Client node](../register-client-node/index.md) with your PMM Server
-3. [Add database instances](../install-pmm-client/connect-database/index.md) for monitoring
-
-## Troubleshooting
-
-If you encounter issues during installation or setup, see the [Troubleshooting checklist](../../troubleshoot/checklist.md).
+- [Install PMM Client](../install-pmm-client/index.md) using your preferred method
+- [Add database instances](../install-pmm-client/connect-database/index.md) for monitoring

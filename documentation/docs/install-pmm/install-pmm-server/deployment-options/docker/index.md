@@ -143,5 +143,4 @@ After basic installation, you may want to customize your PMM Server setup:
 
 ## Next steps
 - [Install PMM Client on hosts you want to monitor](../../../install-pmm-client/index.md)
-- [Register Client nodes with your PMM Server](../../../register-client-node/index.md)
 - [Connect databases for monitoring](../../../install-pmm-client/connect-database/index.md)

@@ -90,7 +90,7 @@ Select the appropriate instructions based on your access level:
     6. Run the installer:
 
         ```sh
-        ./install_tarball
+        sudo ./install_tarball
         ```
 
     7. Update your PATH:
@@ -98,22 +98,27 @@ Select the appropriate instructions based on your access level:
         ```sh
         PATH=$PATH:$PMM_DIR/bin
         ```
-
-    8. Set up the agent:
+    8. Create symbolic links to make PMM commands available system-wide:
 
         ```sh
-        pmm-agent setup --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml --server-address=192.168.1.123 --server-insecure-tls --server-username=admin --server-password=admin
+        sudo ln -s /usr/local/percona/pmm/bin/pmm-agent /usr/local/bin/pmm-agent
+        sudo ln -s /usr/local/percona/pmm/bin/pmm-admin /usr/local/bin/pmm-admin
+        ```
+    9. Set up the agent:
+
+        ```sh
+        sudo pmm-agent setup --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml --server-address=192.168.1.123 --server-insecure-tls --server-username=admin --server-password=admin
         ```
 
-    9. Run the agent:
+    10. Run the agent:
 
         ```sh
-        pmm-agent --config-file=${PMM_DIR}/config/pmm-agent.yaml
+        sudo pmm-agent --config-file=${PMM_DIR}/config/pmm-agent.yaml
         ```
-    10. Register your nodes to be monitored by PMM Server using the PMM Client:
+    11. Register your nodes to be monitored by PMM Server using the PMM Client:
 
         ```sh
-        pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:443
+        sudo pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:443
         ```
 
         where: 
@@ -130,12 +135,12 @@ Select the appropriate instructions based on your access level:
             Register a node with IP address 192.168.33.23, type generic, and name mynode on a PMM Server with IP address 192.168.33.14:
 
             ```sh
-            pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
+            sudo pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
             ```
-    11. Verify the installation in a new terminal:
+    12. Verify the installation in a new terminal:
 
         ```sh
-        pmm-admin status
+        sudo pmm-admin status
         ```
 
 === "Without root permissions"
@@ -261,7 +266,6 @@ Select the appropriate instructions based on your access level:
 ## Related topics
 
 - [Prerequisites for PMM Client](prerequisites.md)
-- [Register client node](../register-client-node/index.md) 
 - [Connect databases for monitoring](connect-database/index.md)
 - [Uninstall PMM Client](../../uninstall-pmm/unregister_client.md)
 - [Docker installation option](../install-pmm-client/docker.md) 

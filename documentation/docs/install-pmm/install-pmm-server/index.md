@@ -34,5 +34,4 @@ While specific steps vary by deployment method, the general installation process
 After installing PMM Server:
 
 - [Install PMM Client](../install-pmm-client/index.md) on hosts you want to monitor
-- [Register Client nodes](../register-client-node/index.md) with your PMM Server
 - [Connect databases for monitoring](../install-pmm-client/connect-database/index.md)

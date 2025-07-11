@@ -100,5 +100,4 @@ After the initial login:
 
 - [Set up trusted SSL certificates](../../../../admin/security/ssl_encryption.md) (recommended for production)
 - [Install PMM Clients](../../../install-pmm-client/index.md) on database servers
-- [Register clients](../../../register-client-node/index.md) with your PMM Server
 - [Connect databases for monitoring](../../../install-pmm-client/connect-database/index.md)

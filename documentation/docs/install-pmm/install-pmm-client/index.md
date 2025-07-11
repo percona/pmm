@@ -65,6 +65,5 @@ If you need to modify the configuration of a service you've already added, you'l
 
 ## Next steps
 
-- [Register your Client node](../register-client-node/index.md) with PMM Server
 - [Connect database services](connect-database/index.md) for monitoring
 - [Configure optimization settings](connect-database/mysql/improve_perf.md) for specific database types
