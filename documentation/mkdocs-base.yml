@@ -182,16 +182,10 @@ nav:
             - Backup & maintenance:
               - install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.md
               - install-pmm/install-pmm-server/deployment-options/helm/restore_container_helm.md
-    #      - Install on AWS Marketplace:
-    #         - install-pmm/install-pmm-server/deployment-options/aws/aws.md
-    #         - Setup and configuration:
-    #          - install-pmm/install-pmm-server/deployment-options/aws/limit_access.md
-    #          - install-pmm/install-pmm-server/deployment-options/aws/settings.md
-    #          - install-pmm/install-pmm-server/deployment-options/aws/run.md
-    #        - Maintenance:
-    #          - install-pmm/install-pmm-server/deployment-options/aws/back_pmm_server.md
-    #          - install-pmm/install-pmm-server/deployment-options/aws/restore_pmm_server.md
-    #          - install-pmm/install-pmm-server/deployment-options/aws/remove_pmm_server.md
+          - Install on AWS Marketplace:
+              - install-pmm/install-pmm-server/deployment-options/aws/plan_aws.md
+              - install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md
+              - install-pmm/install-pmm-server/deployment-options/aws/configure_aws.md
       - Install PMM Client:
         - Client installation overview: install-pmm/install-pmm-client/index.md
         - Prerequisites: install-pmm/install-pmm-client/prerequisites.md
