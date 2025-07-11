@@ -4,7 +4,7 @@
     path: "{{ item }}"
     state: directory
     owner: pmm
-    group: pmm
+    group: 0
     mode: 0775
   loop:
     - /usr/share/pmm-server/static/
@@ -72,7 +72,7 @@
   file:
     path: "{{ item }}"
     state: directory
-    group: pmm
+    group: 0
     owner: pmm
     recurse: yes
   loop:
@@ -83,14 +83,14 @@
   file:
     path: /etc/nginx/ssl/certificate.key
     mode: 0640  # or 0660 if group write access is required
-    group: pmm
+    group: 0
     owner: pmm
 
 - name: Provision empty Nginx configuration files
   file:
     path: "{{ item }}"
     state: touch
-    group: pmm
+    group: 0
     owner: pmm
     mode: 0660
   loop:
@@ -105,6 +105,6 @@
   copy:
     src: local-rss.xml
     dest: /usr/share/pmm-server/static/
-    group: pmm
+    group: 0
     owner: pmm
     mode: 0644

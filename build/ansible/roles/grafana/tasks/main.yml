@@ -4,7 +4,7 @@
     path: "{{ item }}"
     state: directory
     owner: pmm
-    group: pmm
+    group: 0
     mode: 0755
   loop:
     - /srv/grafana
@@ -15,7 +15,7 @@
     path: /etc/grafana
     state: directory
     owner: pmm
-    group: pmm
+    group: 0
     mode: 0755
     recurse: true
 
@@ -24,13 +24,13 @@
     src: grafana.ini
     dest: /etc/grafana/grafana.ini
     owner: pmm
-    group: pmm
+    group: 0
 
 - name: Create provisioning directory
   file:
     path: "/usr/share/grafana/conf/provisioning/{{ item }}"
     owner: pmm
-    group: pmm
+    group: 0
     state: directory
   loop:
     - datasources
@@ -42,7 +42,7 @@
     src: "{{ item }}.yml"
     dest: "/usr/share/grafana/conf/provisioning/{{ item }}/default.yml"
     owner: pmm
-    group: pmm
+    group: 0
   loop:
     - datasources
     - plugins
