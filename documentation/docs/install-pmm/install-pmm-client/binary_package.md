@@ -3,11 +3,25 @@ This method allows you to install PMM Client using pre-compiled binary packages 
 
 Installing from binaries offers these advantages:
 
-- Supports Linux distributions not covered by package managers
-- Doesn't require package managers
-- Allows installation without root permissions (unique to this method)
-- Provides complete control over the installation location
+- supports Linux distributions not covered by package managers
+- doesn't require package managers
+- allows installation without root permissions (unique to this method)
+- provides complete control over the installation location
 
+## Prerequisites
+
+Complete these essential steps before installation:
+{.power-number}
+
+1. Check [system requirements](prerequisites.md) to ensure your environment meets the minimum criteria.
+
+2. [Install and configure PMM Server](../install-pmm-server/index.md)as you'll its IP address or hostname to configure the Client.
+
+3. [Set up firewall rules](../plan-pmm-installation/network_and_firewall.md) to allow communication between PMM Client and PMM Server.
+
+4. [Create database monitoring users](prerequisites.md#database-monitoring-requirements) with appropriate permissions for the databases you plan to monitor.
+
+5. Check that you have root or sudo privileges to install PMM Client. Alternatively, use [binary installation](binary_package.md) for non-root environments.
 
 !!! note "Version information"
     The commands below are for the latest PMM release. If you want to install a different release, make sure to update the commands with your required version number.
@@ -96,8 +110,29 @@ Select the appropriate instructions based on your access level:
         ```sh
         pmm-agent --config-file=${PMM_DIR}/config/pmm-agent.yaml
         ```
+    10. Register your nodes to be monitored by PMM Server using the PMM Client:
 
-    10. Open a new terminal and verify the installation:
+        ```sh
+        pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:443
+        ```
+
+        where: 
+
+        - `X.X.X.X` is the address of your PMM Server
+        - `443` is the default port number
+        - `admin`/`admin` is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.
+
+        !!! caution alert alert-warning "HTTPS connection required"
+            Nodes *must* be registered with the PMM Server using a secure HTTPS connection. If you try to use HTTP in your server URL, PMM will automatically attempt to establish an HTTPS connection on port 443. If a TLS connection cannot be established, you will receive an error message and must explicitly use HTTPS with the appropriate secure port.
+
+        ??? info "Registration example"
+
+            Register a node with IP address 192.168.33.23, type generic, and name mynode on a PMM Server with IP address 192.168.33.14:
+
+            ```sh
+            pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
+            ```
+    11. Verify the installation in a new terminal:
 
         ```sh
         pmm-admin status
@@ -187,8 +222,30 @@ Select the appropriate instructions based on your access level:
         ```sh
         pmm-agent --config-file=${PMM_DIR}/config/pmm-agent.yaml
         ```
+    10. Register your nodes to be monitored by PMM Server using the PMM Client:
 
-    10. Open a new terminal and verify the installation:
+        ```sh
+        pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:443
+        ```
+
+        where: 
+
+        - `X.X.X.X` is the address of your PMM Server
+        - `443` is the default port number
+        - `admin`/`admin` is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.
+
+        !!! caution alert alert-warning "HTTPS connection required"
+            Nodes *must* be registered with the PMM Server using a secure HTTPS connection. If you try to use HTTP in your server URL, PMM will automatically attempt to establish an HTTPS connection on port 443. If a TLS connection cannot be established, you will receive an error message and must explicitly use HTTPS with the appropriate secure port.
+
+        ??? info "Registration example"
+
+            Register a node with IP address 192.168.33.23, type generic, and name mynode on a PMM Server with IP address 192.168.33.14:
+
+            ```sh
+            pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
+            ```
+
+    11. Open a new terminal and verify the installation:
 
         ```sh
         pmm-admin status

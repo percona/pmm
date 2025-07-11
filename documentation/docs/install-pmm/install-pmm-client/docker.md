@@ -4,17 +4,26 @@ The [PMM Client Docker image](https://hub.docker.com/r/percona/pmm-client/tags/)
 
 Using the Docker container approach offers several advantages:
 
-- No need to install PMM Client directly on your host system
-- Consistent environment across different operating systems
-- Simplified setup and configuration process
-- Automatic architecture detection (x86_64/ARM64)
+- no need to install PMM Client directly on your host system
+- consistent environment across different operating systems
+- simplified setup and configuration process
+- automatic architecture detection (x86_64/ARM64)
 
 ## Prerequisites
-Before you begin, make sure you have:
+Complete these essential steps before installation:
+{.power-number}
 
-- [Docker Engine](https://docs.docker.com/get-docker/) installed and running
-- Network connectivity to your PMM Server
-- Basic familiarity with Docker commands
+1. Install [Docker Engine](https://docs.docker.com/get-docker/)
+
+2. Check [system requirements](prerequisites.md) to ensure your environment meets the minimum criteria.
+
+3. [Install and configure PMM Server](../install-pmm-server/index.md)as you'll need its IP address or hostname to configure the Client.
+
+4. [Set up firewall rules](../plan-pmm-installation/network_and_firewall.md) to allow communication between PMM Client and PMM Server.
+
+5. [Create database monitoring users](prerequisites.md#database-monitoring-requirements) with appropriate permissions for the databases you plan to monitor.
+
+6. Check that you have root or sudo privileges to install PMM Client. Alternatively, use [binary installation](binary_package.md) for non-root environments.
 
 ## Installation and setup
 
@@ -66,8 +75,30 @@ Follow these steps to deploy PMM Client using Docker:
       -v pmm-client-data:/usr/local/percona/pmm/tmp \
       percona/pmm-client:3
     ```
+5. Register your nodes to be monitored by PMM Server using the PMM Client:
 
-5. Verify the PMM Client status. If the connection is successful, you should also see an an increased number of monitored nodes in the PMM user interface:
+    ```sh
+    docker exec pmm-client pmm-admin config --server-insecure-tls --server-url=https://admin:admin@X.X.X.X:443
+    ```
+
+    where: 
+
+    - `X.X.X.X` is the address of your PMM Server
+    - `443` is the default port number
+    - `admin`/`admin` is the default PMM username and password. This is the same account you use to log into the PMM user interface, which you had the option to change when first logging in.
+
+    !!! caution alert alert-warning "HTTPS connection required"
+        Nodes *must* be registered with the PMM Server using a secure HTTPS connection. If you try to use HTTP in your server URL, PMM will automatically attempt to establish an HTTPS connection on port 443. If a TLS connection cannot be established, you will receive an error message and must explicitly use HTTPS with the appropriate secure port.
+
+    ??? info "Registration example"
+
+        Register a node with IP address 192.168.33.23, type generic, and name mynode on a PMM Server with IP address 192.168.33.14:
+
+        ```sh
+        docker exec pmm-client pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
+        ```
+
+6. Verify the PMM Client status. If the connection is successful, you should also see an increased number of monitored nodes in the PMM user interface:
 
     ```bash
     docker exec -t pmm-client pmm-admin status
@@ -81,8 +112,8 @@ When running PMM in Docker, prefix all pmm-admin commands with `docker exec pmm-
 
 !!! hint alert alert-success "Tips for Docker configuration"
 
-    - Firewall and routing rules: Ensure your host's firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see to the [troubleshooting checklist](../../troubleshoot/checklist.md).
-    - Help command: If you need assistance with PMM Client, you can run the following command to display help information: `docker run --rm percona/pmm-client:3 --help`.
+    - Ensure your host's firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see to the [troubleshooting checklist](../../troubleshoot/checklist.md).
+    - If you need assistance with PMM Client, run: `docker run --rm percona/pmm-client:3 --help`.
 
 ## View your monitored node
 To confirm your node is being monitored:
