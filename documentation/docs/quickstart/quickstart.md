@@ -18,9 +18,9 @@ This is the simplest and most efficient way to install PMM with Docker.
 Before you start installing PMM, verify that your system meets the compatibility requirements:
 
 ??? info "Verify system compatibility"
-   - System: Linux-compatible system with `sudo` privileges or `root` access
-   - Network: Internet connectivity to download PMM components
-   - Ports: Your system's firewall should allow TCP traffic on port `443`
+    - System: Linux-compatible system with `sudo` privileges or `root` access
+    - Network: Internet connectivity to download PMM components
+    - Ports: Your system's firewall should allow TCP traffic on port `443`
 
 ## Install PMM
 

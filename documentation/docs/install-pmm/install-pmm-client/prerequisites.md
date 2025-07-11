@@ -45,14 +45,6 @@ For a complete list of ports and detailed network configuration options, see [Ne
 
 ## Database monitoring requirements
 
-To monitor database instances, you'll need:
-
-- **Monitoring users**: Database accounts with appropriate permissions
-- **Log access**: File system access to database logs where applicable
-- **Performance schema**: Enabled for MySQL monitoring (recommended)
-
-## Database monitoring requirements
-
 To ensure successful database monitoring with PMM, confirm the following:
 
 - **Monitoring users**: Create database accounts with the required permissions  

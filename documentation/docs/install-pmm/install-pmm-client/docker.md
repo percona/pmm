@@ -75,6 +75,7 @@ Follow these steps to deploy PMM Client using Docker:
       -v pmm-client-data:/usr/local/percona/pmm/tmp \
       percona/pmm-client:3
     ```
+    
 5. Register your nodes to be monitored by PMM Server using the PMM Client:
 
     ```sh

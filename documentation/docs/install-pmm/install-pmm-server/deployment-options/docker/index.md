@@ -28,7 +28,7 @@ To ensure a secure setup when using Watchtower:
 
 ### Container setup summary
 
-!!! info "Container setup at a glance"
+??? info "Container setup at a glance"
     - **Pull the Docker image**: `docker pull percona/pmm-server:3`
     - **Choose storage**: Docker volumes (recommended) or host directory
     - **Run the container**: Using the appropriate `docker run` command
