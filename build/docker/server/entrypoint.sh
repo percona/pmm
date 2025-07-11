@@ -86,7 +86,7 @@ fi
 if [ ! -d "/srv/pmm-agent/tmp" ]; then
     echo "Creating pmm-agent temp directory..."
     mkdir -p /srv/pmm-agent/tmp
-    chmod 775 /srv/pmm-agent/tmp
+    chmod 770 /srv/pmm-agent/tmp
 fi
 
 # Initialize /srv if empty
