@@ -147,6 +147,7 @@ nav:
       - Install PMM Server:
         - Server installation overview: install-pmm/install-pmm-server/index.md
         - install-pmm/install-pmm-server/prerequisites.md
+        - install-pmm/install-pmm-server/prerequisites.md
         - Deployment options:
           - Install on Docker:
             - install-pmm/install-pmm-server/deployment-options/docker/index.md
@@ -211,7 +212,6 @@ nav:
             - ProxySQL: install-pmm/install-pmm-client/connect-database/proxysql.md
           - External services monitoring:
             - Connect external instance: install-pmm/install-pmm-client/connect-database/external.md
-        - Remove services: install-pmm/install-pmm-client/connect-database/remove-services/index.md         
       - Install PMM in HA mode: install-pmm/HA.md 
   - Upgrade:
       - Upgrade PMM Server:
@@ -235,7 +235,6 @@ nav:
       - Docker: uninstall-pmm/uninstall_docker.md
       - Helm: uninstall-pmm/uninstall_helm.md
       - Package manager: uninstall-pmm/uninstall_package_manager.md
-
 
   - Use:
     - use/using-pmm.md

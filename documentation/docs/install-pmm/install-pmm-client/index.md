@@ -2,36 +2,26 @@
 
 PMM Client is the component of Percona Monitoring and Management (PMM) that collects metrics from your database servers and sends them to PMM Server for analysis and visualization.
 
-## Common installation process
+??? info "Common installation process at a glance"
+    While specific steps vary by deployment method, the general installation process includes:
+    {.power-number}
+    
+    1. Install PMM Client using your preferred method and register the Client node with your PMM Server.
+    2. Add database services for monitoring.
+    3. Verify monitoring data in the PMM web interface.
 
-While specific steps vary by deployment method, the general installation process includes: 
-{.power-number}
-
-1. Install PMM Client using your preferred method.
-2. Register the Client node with your PMM Server.
-3. Add database services for monitoring.
-4. Verify monitoring data in the PMM web interface.
-
-## Before you begin
+## Prerequisites
 
 Complete these steps to prepare your system for PMM installation:
 
-### Prerequisites
+- [Check system requirements](prerequisites.md) to ensure your environment meets the minimum criteria.
 
-1. [Check system requirements](prerequisites.md) to ensure your environment meets the minimum criteria.
+- [Install and configure PMM Server](../install-pmm-server/index.md) using your preferred deployment method. You'll need PMM Server's IP address or hostname to configure PMM Client.
 
-2. [Install and configure PMM Server](../install-pmm-server/index.md) using your preferred deployment method. You'll need PMM Server's IP address or hostname to configure PMM Client.
+- [Set up firewall rules](../plan-pmm-installation/network_and_firewall.md) to allow communication between PMM Client and PMM Server.
+- Create monitoring users with necessary permissions for your database
 
-3. [Set up firewall rules](../plan-pmm-installation/network_and_firewall.md) to allow communication between PMM Client and PMM Server.
-
-### Planning checklist
-
-Before starting the installation, make sure:
-
-- PMM Server is installed and reacheable
-- Network connectivity is configured  
-- Monitoring users for your database are created and have the necessary permissions
-- You have administrator access to install PMM Client
+- Check that you have administrator access to install PMM Client
 
 ## Deployment options
 
@@ -61,7 +51,7 @@ Each database service requires specific configuration parameters. Configure your
 
 ### Modifying service configurations
 
-If you need to modify the configuration of a service you've already added, you'll need to remove the service and re-add it with the new parameters.
+If you need to modify the configuration of a service you've already added, you'll need to [remove the service](../../use/remove-services.md) and re-add it with the new parameters.
 
 ## Next steps
 
