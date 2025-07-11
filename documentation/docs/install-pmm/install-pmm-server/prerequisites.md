@@ -73,17 +73,21 @@ Choose your deployment method and ensure it meets these specific requirements:
 
 === ":simple-docker: Docker"
     **Version requirements:**
+    
     - Docker version 17.03 or higher
     - CPU with `x86-64-v2` support
     
     **System resources:**
+
     - Recommended: 2+ CPU cores, 4+ GB RAM, 100+ GB disk space
     
     **Optional but recommended:**
+
     - Watchtower for UI-based updates
     - Docker Compose for multi-container setups
     
     **Security considerations for Watchtower:**
+
     - Limit Watchtower's access to Docker network or localhost
     - Configure network to ensure only PMM Server is exposed externally
     - Secure Docker socket access for Watchtower
@@ -91,15 +95,18 @@ Choose your deployment method and ensure it meets these specific requirements:
 
 === ":simple-podman: Podman"
     **Version requirements:**
+
     - Recent Podman version with systemd support
     - Rootless Podman configuration
     
     **System configuration:**
+
     - Allow non-root users to bind to privileged ports (port 443)
     - Podman socket enabled for Watchtower integration
     - systemd user services enabled
     
     **Required setup commands:**
+
     ```sh
     # Configure privileged port access
     echo "net.ipv4.ip_unprivileged_port_start=443" | sudo tee /etc/sysctl.d/99-pmm.conf
@@ -110,35 +117,42 @@ Choose your deployment method and ensure it meets these specific requirements:
     ```
     
     **Security advantages:**
+
     - Enhanced security isolation with rootless containers
     - Better systemd integration for service management
     - Fine-grained permission control
 
 === ":simple-kubernetes: Kubernetes"
     **Cluster requirements:**
+
     - Kubernetes 1.19+ with supported version
     - kubectl configured to communicate with your cluster
     
     **Helm requirements:**
+
     - Helm v3 installed and configured
     - Access to Percona Helm charts repository
     
     **Storage requirements:**
+
     - Storage driver with snapshot support (for backups)
     - Dynamic provisioning capability
     - Persistent Volume support
     
     **Production considerations:**
+
     - Separate PMM Server from monitored systems
     - High availability configuration for continuous monitoring
     - Workload separation through node configurations and affinity rules
 
 === ":material-harddisk: Virtual Appliance (OVA)"
     **Hypervisor compatibility:**
+
     - VMware ESXi 6.0+, Workstation 12.0+, Fusion 10.0+
     - VirtualBox 6.0+
     
     **VM specifications (default):**
+
     - OS: Oracle Linux 9.3
     - CPU: 1 (adjustable after deployment)
     - Memory: 4096 MB (adjustable after deployment)
@@ -146,28 +160,33 @@ Choose your deployment method and ensure it meets these specific requirements:
     - Disk 2: 400 GB (data)
     
     **Network access:**
+
     - Outbound internet access for updates (optional)
     - Access to monitored database instances
     - Access from client browsers to PMM web interface
     
     **Security note:**
+
     - Default users: `admin/admin` and `root/percona`
     - **Must change default passwords immediately after installation**
 
 ## Security considerations
 
 ### SSL/TLS certificates
+
 - **Self-signed**: PMM Server generates these automatically
 - **Custom certificates**: Prepare SSL certificates for production deployments
 - **Certificate authority**: Consider using trusted CA certificates for public access
 
 ### Access control
+
 - **Admin credentials**: Plan initial admin username/password strategy
 - **Default passwords**: Change immediately (especially for OVA deployment)
 - **User management**: Consider integration with existing authentication systems
 - **Network security**: Plan firewall rules and network segmentation
 
 ### Data protection
+
 - **Backup strategy**: Plan for PMM Server data backup and recovery
 - **Encryption**: Consider encryption for data at rest and in transit
 - **Compliance**: Ensure deployment meets organizational security requirements
@@ -192,6 +211,7 @@ After confirming your environment meets these prerequisites:
 
 1. [Choose your deployment method](../plan-pmm-installation/choose-deployment.md) based on your infrastructure
 2. Install PMM Server  using your selected method:
+
    - [Docker installation](../install-pmm-server/deployment-options/docker/index.md)
    - [Podman installation](../install-pmm-server/deployment-options/podman/index.md)
    - [Kubernetes/Helm installation](../install-pmm-server/deployment-options/helm/index.md)
