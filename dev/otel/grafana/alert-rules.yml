@@ -78,9 +78,9 @@ groups:
               maxDataPoints: 43200
               refId: C
               type: threshold
-        noDataState: NoData
+        noDataState: OK
         execErrState: Alerting
-        for: 0s
+        for: 1m
         annotations:
           description: "Admin password change detected in logs. Service: {{ $labels.service }}, User: {{ $labels.user }}, Message: {{ $labels.message }}"
           summary: "Admin Password Change"
@@ -158,9 +158,9 @@ groups:
               maxDataPoints: 43200
               refId: C
               type: threshold
-        noDataState: NoData
+        noDataState: OK
         execErrState: Alerting
-        for: 0s
+        for: 1m
         annotations:
           description: "Failed attempt to change admin password detected. Service: {{ $labels.service }}, Error: {{ $labels.message }}"
           summary: "Admin Password Change Failed"
