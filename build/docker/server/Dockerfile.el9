@@ -1,4 +1,4 @@
-FROM oraclelinux:9-slim
+FROM oraclelinux:10-slim
 
 ARG VERSION
 ARG BUILD_DATE
