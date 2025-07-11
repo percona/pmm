@@ -21,6 +21,7 @@ services:
     image: perconalab/pmm-server:3-dev-latest
     platform: linux/amd64
     container_name: pmm-server
+    hostname: pmm-server
     restart: always
     # depends_on:
     #   cert-generator:
@@ -31,11 +32,11 @@ services:
       - GF_REPORTING_ENABLED=false
       - GF_NEWS_NEWS_FEED_ENABLED=false
       - GF_SECURITY_DISABLE_GRAVATAR=true
-      - GF_SECURITY_ADMIN_EMAIL=${GF_SECURITY_ADMIN_EMAIL:?Need to define GF_SECURITY_ADMIN_EMAIL}
+      - GF_SECURITY_ADMIN_EMAIL=${GF_SECURITY_ADMIN_EMAIL:?GF_SECURITY_ADMIN_EMAIL must be set}
       - GF_SMTP_ENABLED=true
       - GF_SMTP_HOST=mailhog:1025
       - GF_SMTP_FROM_NAME=Percona
-      - GF_SMTP_FROM_ADDRESS=${GF_SMTP_FROM_ADDRESS:?Need to define GF_SMTP_FROM_ADDRESS}
+      - GF_SMTP_FROM_ADDRESS=${GF_SMTP_FROM_ADDRESS:?GF_SMTP_FROM_ADDRESS must be set}
       - GF_LOG_FILTERS=ngalert.api:error
     ports:
       - "443:8443"
@@ -44,10 +45,10 @@ services:
       - pmm-data:/srv
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./grafana/change-admin-password:/usr/local/sbin/change-admin-password:ro
-      - ./grafana/datasources.yml:/usr/share/grafana/conf/provisioning/datasources/otel-ds.yml
-      - ./grafana/alert-rules.yml:/usr/share/grafana/conf/provisioning/alerting/otel-alert-rules.yml
-      - ./grafana/contact-points.yml:/usr/share/grafana/conf/provisioning/alerting/otel-contactpoints.yml
-      - ./grafana/notification-policies.yml:/usr/share/grafana/conf/provisioning/alerting/otel-policies.yml
+      - ./grafana/datasources.yml:/usr/share/grafana/conf/provisioning/datasources/otel-ds.yml:ro
+      - ./grafana/alert-rules.yml:/usr/share/grafana/conf/provisioning/alerting/otel-alert-rules.yml:ro
+      - ./grafana/contact-points.yml:/usr/share/grafana/conf/provisioning/alerting/otel-contactpoints.yml:ro
+      - ./grafana/notification-policies.yml:/usr/share/grafana/conf/provisioning/alerting/otel-policies.yml:ro
       - ./clickhouse/config.d/config-override.xml:/etc/clickhouse-server/config.d/config-override.xml:ro
       - clickhouse-certs:/etc/clickhouse-server/certs:ro
     networks:
@@ -70,8 +71,6 @@ services:
     ports:
       - "4317:4317"   # OTLP gRPC receiver
       - "4318:4318"   # OTLP HTTP receiver
-      - "8888:8888"   # Prometheus metrics
-      - "8889:8889"   # Prometheus exporter metrics
     networks:
       - otel
   

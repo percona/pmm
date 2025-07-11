@@ -13,9 +13,8 @@ datasources:
   - name: ClickHouse-Logs
     uid: clickhouse-logs
     orgId: 1
-    version: 1
+    version: 2
     type: grafana-clickhouse-datasource
-    # access: proxy
     isDefault: false
     jsonData:
       defaultDatabase: otel
@@ -23,7 +22,7 @@ datasources:
       host: ${PMM_CLICKHOUSE_HOST}
       port: ${PMM_CLICKHOUSE_PORT}
       username: ${PMM_CLICKHOUSE_USER}
-      tlsSkipVerify: true
+      tlsSkipVerify: false
       logs:
         defaultDatabase: otel
         defaultTable: logs
@@ -34,4 +33,3 @@ datasources:
         messageColumn: Body
     secureJsonData:
       password: ${PMM_CLICKHOUSE_PASSWORD}
-    editable: false

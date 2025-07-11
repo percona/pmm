@@ -130,11 +130,10 @@ ORDER BY TimestampTime DESC
 
 To connect to ClickHouse, you can run `docker exec -it pmm-server clickhouse-client --user=default --password=clickhouse -d otel`. This will leverage the ClickHouse client available from the PMM server container.
 
-
 ### Common Issues
 - **Logs Not Appearing**: Ensure that the logging configuration is correctly set up and that the PMM server has permission to write to the specified log file.
-- **Log Levels Not Working**: Verify that the log level is correctly set in the configuration file and that the PMM server has been restarted after making changes.
-- **Log Rotation Issues**: If log files are not rotating as expected, check the log rotation configuration and ensure that the `logrotate` service is running correctly.
+- **Log Levels Not Working**: Verify that the log level is correctly set in the configuration file and that otel-collector has been restarted after making changes.
+- **Log Rotation Issues**: Log rotation is the reponsibility of the underlying system where the logs get sourced from. OpenTelemetry Collector does not handle log rotation itself. Ensure that your system's log rotation settings are correctly configured to manage log file sizes and retention.
 
 ## Conclusion
 PMM's logging functionality provides a comprehensive solution for monitoring and managing database environments. By leveraging the structured logging architecture, users can effectively troubleshoot issues, monitor system health, and gain insights into their database operations. Proper configuration and management of logs are essential for maintaining an efficient and reliable monitoring system.
@@ -174,9 +173,9 @@ PMM follows the **OpenTelemetry specification** for log severity levels, which u
 
 In PMM's web server log processing, HTTP status codes are automatically mapped to appropriate severity levels:
 
-- **2xx Status Codes** → `INFO` (SeverityNumber: 9) - Successful requests
+- **2xx Status Codes** → `INFO` (SeverityNumber: 9) - Successful requests (e.g., 200, 201, 202, 301, 303, etc.)
 - **4xx Status Codes** → `WARN` (SeverityNumber: 13) - Client errors (e.g., 404, 403)
-- **5xx Status Codes** → `ERROR` (SeverityNumber: 17) - Server errors
+- **5xx Status Codes** → `ERROR` (SeverityNumber: 17) - Server errors (e.g., 500, 502, 503)
 
 This mapping ensures that log severity accurately reflects the nature of each request and helps with monitoring and alerting.
 
