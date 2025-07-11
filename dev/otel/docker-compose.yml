@@ -36,6 +36,7 @@ services:
       - GF_SMTP_HOST=mailhog:1025
       - GF_SMTP_FROM_NAME=Percona
       - GF_SMTP_FROM_ADDRESS=${GF_SMTP_FROM_ADDRESS:?Need to define GF_SMTP_FROM_ADDRESS}
+      - GF_LOG_FILTERS=ngalert.api:error
     ports:
       - "443:8443"
       - "9000:9000"

@@ -9,10 +9,11 @@ deleteDatasources:
 
 datasources:
   # ClickHouse data source for OpenTelemetry logs
+  # https://github.com/grafana/clickhouse-datasource?tab=readme-ov-file#with-a-configuration-file
   - name: ClickHouse-Logs
     uid: clickhouse-logs
     orgId: 1
-    version: 2
+    version: 1
     type: grafana-clickhouse-datasource
     # access: proxy
     isDefault: false

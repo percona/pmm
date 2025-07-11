@@ -1,5 +1,6 @@
 # Grafana alert rules configuration
 # This should be added to your Grafana provisioning/alerting directory
+# Ref: https://github.com/grafana/grafana/blob/main/devenv/alert_rules.yaml
 
 apiVersion: 1
 
@@ -18,28 +19,27 @@ groups:
             relativeTimeRange:
               from: 300
               to: 0
-            datasource:
-              type: clickhouse
-              uid: clickhouse-logs
+            datasourceUid: clickhouse-logs
             model:
               # Query to detect admin password changes in logs
               rawSql: |
                 SELECT 
                   Timestamp as timestamp,
                   SeverityText as level,
-                  Body,
-                  LogAttributes['uname'] as user,
-                  LogAttributes['msg'] as message,
+                  Body as message,
                   ServiceName as service
-                FROM logs 
+                FROM logs
                 WHERE 
                   Timestamp >= now() - INTERVAL 5 MINUTE
                   AND ServiceName = 'grafana'
-                  AND LogAttributes['msg'] = 'Admin password has been reset.'
+                  AND SeverityText = 'error'                  
+                  AND Body = 'Admin password has been reset.'
                 ORDER BY Timestamp DESC
               intervalMs: 1000
               maxDataPoints: 43200
+              refId: A
           - refId: B
+            datasourceUid: __expr__
             queryType: ""
             relativeTimeRange:
               from: 600
@@ -51,7 +51,9 @@ groups:
               expression: A
               reducer: last
               type: reduce
+              refId: B
           - refId: C
+            datasourceUid: __expr__
             queryType: ""
             relativeTimeRange:
               from: 600
@@ -60,7 +62,21 @@ groups:
               type: __expr__
               uid: __expr__
             model:
-              expression: B > 0
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [B]
+                  reducer:
+                    type: last
+                  type: query
+              expression: B
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
               type: threshold
         noDataState: NoData
         execErrState: Alerting
@@ -83,9 +99,7 @@ groups:
             relativeTimeRange:
               from: 300
               to: 0
-            datasource:
-              type: clickhouse
-              uid: clickhouse-logs
+            datasourceUid: clickhouse-logs
             model:
               # Query to detect failed admin password change attempts in logs
               rawSql: |
@@ -93,17 +107,19 @@ groups:
                   Timestamp as timestamp,
                   SeverityText as level,
                   ServiceName as service,
-                  LogAttributes['msg'] as message
+                  Body as message
                 FROM logs 
                 WHERE 
                   Timestamp >= now() - INTERVAL 5 MINUTE
-                  AND ServiceName = 'grafana' 
+                  AND ServiceName = 'grafana'
                   AND SeverityText = 'error'
-                  AND LogAttributes['msg'] = 'Failed to reset admin password.'
+                  AND Body LIKE '%Failed to reset admin password%'
                 ORDER BY Timestamp DESC
               intervalMs: 1000
               maxDataPoints: 43200
+              refId: A
           - refId: B
+            datasourceUid: __expr__
             queryType: ""
             relativeTimeRange:
               from: 600
@@ -115,7 +131,9 @@ groups:
               expression: A
               reducer: last
               type: reduce
+              refId: B
           - refId: C
+            datasourceUid: __expr__
             queryType: ""
             relativeTimeRange:
               from: 600
@@ -124,7 +142,21 @@ groups:
               type: __expr__
               uid: __expr__
             model:
-              expression: B > 0
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [B]
+                  reducer:
+                    type: last
+                  type: query
+              expression: B
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: C
               type: threshold
         noDataState: NoData
         execErrState: Alerting
