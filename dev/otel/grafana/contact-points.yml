@@ -10,9 +10,7 @@ contactPoints:
       - uid: email-log-alerts-receiver
         type: email
         settings:
-          addresses:
-            - admin@yourcompany.com
-            - security@yourcompany.com
+          addresses: "admin@yourcompany.com;security@yourcompany.com"
           subject: "PMM Log Alert: {{ .GroupLabels.alertname }}"
           message: |
             <h2>PMM Log Alert</h2>

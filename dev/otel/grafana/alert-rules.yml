@@ -42,59 +42,25 @@ groups:
           - refId: B
             queryType: ""
             relativeTimeRange:
-              from: 0
+              from: 600
               to: 0
             datasource:
               type: __expr__
               uid: __expr__
             model:
-              conditions:
-                - evaluator:
-                    params:
-                      - 0
-                    type: gt
-                  operator:
-                    type: and
-                  query:
-                    params:
-                      - A
-                  reducer:
-                    params: []
-                    type: last
-                  type: query
               expression: A
-              hide: false
-              intervalMs: 1000
-              maxDataPoints: 43200
               reducer: last
               type: reduce
           - refId: C
             queryType: ""
             relativeTimeRange:
-              from: 0
+              from: 600
               to: 0
             datasource:
               type: __expr__
               uid: __expr__
             model:
-              conditions:
-                - evaluator:
-                    params:
-                      - 0
-                    type: gt
-                  operator:
-                    type: and
-                  query:
-                    params:
-                      - B
-                  reducer:
-                    params: []
-                    type: last
-                  type: query
               expression: B > 0
-              hide: false
-              intervalMs: 1000
-              maxDataPoints: 43200
               type: threshold
         noDataState: NoData
         execErrState: Alerting
@@ -140,7 +106,7 @@ groups:
           - refId: B
             queryType: ""
             relativeTimeRange:
-              from: 0
+              from: 600
               to: 0
             datasource:
               type: __expr__
@@ -152,7 +118,7 @@ groups:
           - refId: C
             queryType: ""
             relativeTimeRange:
-              from: 0
+              from: 600
               to: 0
             datasource:
               type: __expr__
