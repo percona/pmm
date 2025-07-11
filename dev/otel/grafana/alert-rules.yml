@@ -32,7 +32,7 @@ groups:
                 WHERE 
                   Timestamp >= now() - INTERVAL 5 MINUTE
                   AND ServiceName = 'grafana'
-                  AND SeverityText = 'error'                  
+                  AND SeverityText = 'info'                  
                   AND Body = 'Admin password has been reset.'
                 ORDER BY Timestamp DESC
               intervalMs: 1000
