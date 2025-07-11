@@ -21,12 +21,12 @@ This PoC has the following directory structure:
 ├── nginx
 │   └── nginx.conf
 ├── test
-│   └── clickhouse-test.sh
+│   ├── clickhouse-test.sh
+│   └── setup-test.sh
 ├── .env.example
 ├── config.yml
 ├── docker-compose.yml
 ├── README.md
-├── setup-alerting.sh
 └── SETUP.md
 
 ```
@@ -137,6 +137,9 @@ grep "ngalert" /srv/logs/grafana.log
 # Navigate to Alerting > Contact Points
 # Navigate to Alerting > Notification Policies
 ```
+
+### 10. Adding more Logs
+You can add more log sources to PMM server by modifying the `config.yml` file. If you want to add an external log source, you can configure the OpenTelemetry Collector to scrape logs from that source. To read more, refer to the [OpenTelemetry Collector documentation](https://opentelemetry.io/docs/collector/configuration).
 
 ## Troubleshooting
 
