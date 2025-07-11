@@ -47,7 +47,7 @@ services:
       - ./grafana/alert-rules.yml:/usr/share/grafana/conf/provisioning/alerting/otel-alert-rules.yml
       - ./grafana/contact-points.yml:/usr/share/grafana/conf/provisioning/alerting/otel-contactpoints.yml
       - ./grafana/notification-policies.yml:/usr/share/grafana/conf/provisioning/alerting/otel-policies.yml
-      - ./clickhouse/config.d/config-override.xml:/etc/clickhouse-server/config.d/config-override:ro
+      - ./clickhouse/config.d/config-override.xml:/etc/clickhouse-server/config.d/config-override.xml:ro
       - clickhouse-certs:/etc/clickhouse-server/certs:ro
     networks:
       - otel
