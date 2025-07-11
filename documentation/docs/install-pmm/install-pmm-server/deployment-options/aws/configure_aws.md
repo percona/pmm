@@ -374,6 +374,7 @@ To permanently delete your PMM Server instance and clean up resources:
 With your PMM Server fully configured and secured:
 
 - [Configure PMM clients](../../../install-pmm-client/index.md) to start monitoring your infrastructure
+- [Register client nodes](../../../register-client-node/index.md) with your PMM Server
 - [Configure SSL certificates](../../../../admin/security/ssl_encryption.md) for production use
 - [Set up monitoring alerts](../../../../alert/index.md) for proactive monitoring
 
