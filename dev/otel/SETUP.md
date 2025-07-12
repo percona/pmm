@@ -1,7 +1,7 @@
-# OpenTelemetry PoC Setup Instructions
+# OpenTelemetry Logging Setup Instructions (PoC)
 
 ## Project Structure
-This PoC has the following directory structure:
+This project has the following directory structure:
 
 ```
 ├── clickhouse
@@ -28,7 +28,6 @@ This PoC has the following directory structure:
 ├── docker-compose.yml
 ├── README.md
 └── SETUP.md
-
 ```
 
 ## Setup Steps
