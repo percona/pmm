@@ -188,10 +188,10 @@ This PoC includes a complete security alerting system that monitors:
 
 ## Cleanup
 ```bash
-# Stop and remove all containers
+# Stop and remove all containers (keep the data)
 docker compose down
 
-# Remove volumes (this will delete all data)
+# Stop and remove all container and volumes (this will delete all data)
 docker compose down -v
 
 # Remove images

@@ -1,19 +1,19 @@
 services:
   # Certificate generator - runs once to create SSL certificates
-  # cert-generator:
-  #   image: alpine:latest
-  #   container_name: cert-generator
-  #   restart: on-failure
-  #   volumes:
-  #     - clickhouse-certs:/certs
-  #     - ./clickhouse/generate-certs.sh:/app/generate-certs.sh
-  #   command: |
-  #     sh -c "
-  #       apk add --no-cache openssl && \
-  #       CHOWN_TO=1000 /app/generate-certs.sh
-  #     "
-  #   networks:
-  #     - otel
+  cert-generator:
+    image: alpine:latest
+    container_name: cert-generator
+    restart: on-failure
+    volumes:
+      - clickhouse-certs:/certs
+      - ./clickhouse/generate-certs.sh:/app/generate-certs.sh
+    command: |
+      sh -c "
+        apk add --no-cache openssl && \
+        CHOWN_TO=1000 /app/generate-certs.sh
+      "
+    networks:
+      - otel
 
   # PMM Server with built-in ClickHouse
   pmm-server:
@@ -23,9 +23,9 @@ services:
     container_name: pmm-server
     hostname: pmm-server
     restart: always
-    # depends_on:
-    #   cert-generator:
-    #     condition: service_completed_successfully
+    depends_on:
+      cert-generator:
+        condition: service_completed_successfully
     environment:
       - GF_ANALYTICS_ENABLED=false
       - GF_ANALYTICS_REPORTING_ENABLED=false
@@ -95,4 +95,4 @@ volumes:
     name: pmm-data
   clickhouse-certs:
     name: clickhouse-certs
-    external: true
+    # external: true
