@@ -6,21 +6,32 @@ Percona Monitoring and Management (PMM) provides a robust logging system that al
 ## Architecture
 PMM's logging architecture is designed to extract logs produced by various components, be they internal or external to PMM. The logs are collected, processed and then persisted to facilitate easy searching and filtering, making it easier for users to identify issues and monitor system health.
 
+### Architecture Diagram
+The architecture diagram illustrates the flow of logs from various sources through the OpenTelemetry Collector to the PMM server, where they are stored in ClickHouse and visualized in Grafana.
+
+![PMM Logging Architecture](/dev/otel/doc/otel-collector.png)
+
+
 ###  Logging Components
 PMM's logging functionality consists of several key components:
 - **PMM Server**: The central component that collects and stores logs from various sources.
 - **ClickHouse**: The underlying storage system where logs are stored, which can be local or remote.
 - **Open Telemetry (Otel) Collector**: Collector agents installed on systems that gather, process and send logs to PMM server.
-- **Grafana**: A user interface component that allows users to view and search logs collected by PMM.
+- **Grafana**: A user interface component that allows users to view and search logs persisted to PMM.
 - **Clickhouse Datasource**: A Grafana-authorded ClickHouse datasource used to visualize and query logs.
 
 ## Features
-- **Centralized Logging**: PMM collects logs from various sources, including PMM Server components, and stores them in once central place.
+- **Centralized Logging**: Collects logs from multiple sources into a single system for easier management and analysis.
 - **Log Levels**: Supports multiple log levels (debug, info, warn, error, fatal) to allow the user to filter through log severity.
 - **Log Retention**: Defined the log lifetime duration and automatically drops stale records to save on disk space.
-- **Search and Filter**: Provides capabilities to search and filter logs based on various criteria, such as time range, log level, and message content.
-- **Integration with Grafana Alerting**: Allows users to visualize logs in Grafana dashboards, enabling better insights and monitoring.
-- **Integration with External Tools**: PMM can integrate with external logging tools and services for enhanced log management and analysis.
+- **Scalability**: Built on ClickHouse, which can handle large volumes of log data efficiently.
+- **Integration with Grafana**: Provides a powerful visualization layer for logs, enabling users to create custom dashboards and alerts.
+- **Flexible Configuration**: Allows users to customize log collection, processing, and storage according to their needs.
+- **Alerting Capabilities**: Integrates with Grafana's alerting system to notify users of critical log events.
+- **Search and Filter**: Provides a user-friendly interface for searching and filtering logs, making it accessible even for non-technical users.
+- **OpenTelemetry Compliance**: Follows OpenTelemetry standards, ensuring compatibility with a wide range of logging tools and services.
+- **Dev friendly**: The architecture is designed to be easily extendable, allowing developers to add new log sources or modify existing configurations without significant overhead. The change-deploy-test cycle is streamlined, enabling rapid iteration and testing of new log sources or configurations in a local dev environment.
+
 
 ## Database Schema
 PMM uses a structured schema to store logs in ClickHouse. The schema follows the OpenTelemetry recommendations for log data, ensuring compatibility and ease of use. You can find the schema definition in the PMM documentation or read more about it in the [OpenTelemetry documentation](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/exporter/clickhouseexporter/example/default_ddl/logs.sql).
@@ -144,7 +155,7 @@ PMM's logging functionality provides a comprehensive solution for monitoring and
 - [ClickHouse Documentation](https://clickhouse.com/docs/en/)
 - [Grafana Documentation](https://grafana.com/docs/)
 
-## Additional Resources
+## Additional Notes
 
 ### OpenTelemetry Severity Numbers
 
@@ -179,6 +190,32 @@ In PMM's web server log processing, HTTP status codes are automatically mapped t
 
 This mapping ensures that log severity accurately reflects the nature of each request and helps with monitoring and alerting.
 
-## Architecture Diagram
+### Comparison with Other Systems
+Previously, we have explored other logging systems like Grafana Loki and VictoriaLogs. While these systems offer similar functionalities, the current solution using OpenTelemetry Collector and ClickHouse provides several advantages:
 
-![PMM Logging Architecture](/dev/otel/doc/otel-collector.png)
+- **Disk Usage**: ClickHouse's columnar storage is very efficient in storing large volumes of log data and comsumes minimal disk space compared to other systems.
+- **Performance**: ClickHouse is optimized for high-performance queries, making it suitable for real
+- **Scalability**: The architecture is designed to handle high log volumes efficiently, making it suitable for large-scale deployments.
+- **Flexibility**: OpenTelemetry's modular architecture allows for easy integration with various log sources and sinks, enabling users to customize their logging setup according to their needs.
+- **Rich Ecosystem**: The combination of OpenTelemetry, ClickHouse, and Grafana provides a powerful ecosystem for log management, visualization, and alerting, leveraging the strengths of each component
+
+#### Comparison Table
+It's important to note that all solutions have their own strengths and weaknesses, and the choice of logging system should be based on specific use cases and requirements. Below is a comparison table summarizing the key features of OpenTelemtry-based logging solution against Grafana Loki and VictoriaLogs:
+
+| Feature                | PMM (OpenTelemetry + ClickHouse) | Grafana Loki | VictoriaLogs |
+|------------------------|----------------------------------|--------------|--------------|
+| Disk Usage             | Low                              | High         | Moderate     |
+| Performance            | High                             | Low          | Moderate     |
+| Scalability            | High (designed for large volumes)| Moderate     | Moderate     |
+| HA Support             | Yes (ClickHouse replication)     | Yes          | Yes          |
+| Extensibility          | High                             | Moderate     | Moderate     |
+| Ecosystem              | Rich                             | Moderate     | Low          |
+| Log Retention          | Yes (via TTL in ClickHouse)      | Yes          | Yes          |
+| Log Visualization      | Yes                              | Yes          | Yes          |
+| Log Search & Filtering | Yes                              | Yes          | Yes          |
+| Alerting Integration   | Yes                              | Yes          | Yes          |
+| Query language         | SQL (ClickHouse)                 | LogQL        | Custom       |
+| Licensing              | Apache 2.0                       | AGPL         | Apache 2.0   |
+| External Dependencies  | OpenTelemetry Collector          | Loki, Log collector | VictoriaLogs, Log collector |
+| Community Support      | Strong                           | Strong       | Moderate     |
+| Documentation          | Comprehensive                    | Moderate     | Good         |

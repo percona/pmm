@@ -7,10 +7,14 @@ This project has the following directory structure:
 ├── clickhouse
 │   ├── config.d
 │   │   └── config-override.xml
+│   ├── client-config.xml
+│   ├── config-override.xml
 │   ├── generate-certs.sh
 │   └── test.sql
 ├── doc
-│   └── otel-collector.png
+│   ├── otel-collector.png
+│   ├── password-change-failure-alert.png
+│   └── password-change-success-alert.png
 ├── grafana
 │   ├── alert-rules.yml
 │   ├── change-admin-password
@@ -53,16 +57,9 @@ vim .env  # or use your preferred editor
 
 **Example .env configuration:**
 ```bash
-# Email configuration for Grafana SMTP notifications
+# Email configuration for Grafana SMTP notifications (required)
 GF_SMTP_FROM_ADDRESS=admin@yourcompany.com
-GF_SECURITY_ADMIN_EMAIL=admin@yourcompany.com
-
-# ClickHouse connection settings (optional - defaults provided)
-# PMM_CLICKHOUSE_HOST=pmm-server
-# PMM_CLICKHOUSE_PORT=9000
-# PMM_CLICKHOUSE_USER=default
-# PMM_CLICKHOUSE_PASSWORD=clickhouse
-# PMM_DISABLE_BUILTIN_CLICKHOUSE=1
+GF_SECURITY_ADMIN_EMAIL=security@yourcompany.com
 ```
 
 ### 3. Update Email Addresses for Alerts
@@ -110,17 +107,24 @@ docker exec -it pmm-server clickhouse-client --user=default --password=clickhous
 Execute the test queries from the `clickhouse/test.sql` file in the ClickHouse client.
 
 ### 8. Test Security Alerts
-To test the admin password change alert system:
+To test the admin password change alert, you can change the admin password in Grafana. This will trigger an alert if configured correctly:
 
 ```bash
 # Use the command line tool:
-docker exec -it pmm-server /usr/local/sbin/change-admin-password <new-password>
+docker exec -it pmm-server change-admin-password "<new-password>"
 ```
 
 **Expected behavior:**
 - The alert should trigger within 1 minute of password change
-- You should receive an email notification at the configured addresses
+- You should receive an email notification delivered to the configured addresses
 - Check MailHog UI at http://localhost:8025 to see emails sent by triggered alerts
+
+Respectively, to test the admin password change failure alert, you can pass an empty password or one, that does not meet the password requirements:
+
+```bash
+# Use the command line tool with an empty password
+docker exec -it pmm-server change-admin-password ""
+```
 
 ### 9. Monitor Alert System
 ```bash

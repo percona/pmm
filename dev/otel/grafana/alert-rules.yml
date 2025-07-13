@@ -83,7 +83,7 @@ groups:
         execErrState: Alerting
         for: 10s
         annotations:
-          description: "Admin password change detected in Grafana logs. A security event requiring immediate attention."
+          description: "Admin password change detected in Grafana logs."
           summary: "Admin Password Change"
         labels:
           severity: critical
@@ -164,7 +164,7 @@ groups:
         execErrState: Alerting
         for: 10s
         annotations:
-          description: "Failed attempt to change admin password detected in Grafana logs. Potential security threat requiring immediate investigation."
+          description: "Failed attempt to change admin password detected in Grafana logs."
           summary: "Admin Password Change Failed"
         labels:
           severity: critical

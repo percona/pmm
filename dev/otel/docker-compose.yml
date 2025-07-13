@@ -50,6 +50,7 @@ services:
       - ./grafana/contact-points.yml:/usr/share/grafana/conf/provisioning/alerting/otel-contactpoints.yml:ro
       - ./grafana/notification-policies.yml:/usr/share/grafana/conf/provisioning/alerting/otel-policies.yml:ro
       - ./clickhouse/config.d/config-override.xml:/etc/clickhouse-server/config.d/config-override.xml:ro
+      - ./clickhouse/client-config.xml:/etc/clickhouse-client/config.xml:ro
       - clickhouse-certs:/etc/clickhouse-server/certs:ro
     networks:
       - otel
@@ -68,9 +69,6 @@ services:
         condition: service_healthy
       mailhog:
         condition: service_started
-    ports:
-      - "4317:4317"   # OTLP gRPC receiver
-      - "4318:4318"   # OTLP HTTP receiver
     networks:
       - otel
   

@@ -9,30 +9,18 @@ policies:
     group_by:
       - grafana_folder
       - alertname
-    group_wait: 30s
+    group_wait: 10s
     group_interval: 5m
-    repeat_interval: 12h
+    repeat_interval: 24h
     routes:
-      # Route for security alerts (most specific first)
+      # Single route for all security alerts
       - receiver: email-log-alerts
         object_matchers:
           - ["team", "=", "security"]
-          - ["severity", "=", "critical"]
         group_by:
           - alertname
           - severity
-        group_wait: 5s
-        group_interval: 10s
-        repeat_interval: 30m
-        continue: false
-        
-      # Fallback route for any security team alerts
-      - receiver: email-log-alerts
-        object_matchers:
-          - ["team", "=", "security"]
-        group_by:
-          - alertname
         group_wait: 10s
-        group_interval: 30s
-        repeat_interval: 1h
+        group_interval: 5m
+        repeat_interval: 24h
         continue: false
