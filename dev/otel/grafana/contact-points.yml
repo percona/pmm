@@ -26,8 +26,8 @@ contactPoints:
             - Summary: {{ .Annotations.summary }}
             - Alert Time: {{ .StartsAt }}
             {{ if .Labels.service }}  - Service: {{ .Labels.service }}{{ end }}
-            {{ if .Labels.user }}  - User: {{ .Labels.user }}{{ end }}
             {{ if .Labels.message }}  - Message: {{ .Labels.message }}{{ end }}
+            {{ if .Labels.user }}  - User: {{ .Labels.user }}{{ end }}
             
             {{ end }}
             Please investigate this security event immediately.

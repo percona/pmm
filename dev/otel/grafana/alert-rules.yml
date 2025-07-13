@@ -24,16 +24,17 @@ groups:
               # Query to detect admin password changes in logs
               rawSql: |
                 SELECT 
-                  Timestamp as timestamp,
-                  SeverityText as level,
-                  Body as message,
-                  ServiceName as service
+                  Timestamp as time,
+                  toInt32(COUNT(*)) as value,
+                  ServiceName as service,
+                  Body as message
                 FROM logs
                 WHERE 
                   Timestamp >= now() - INTERVAL 5 MINUTE
                   AND ServiceName = 'grafana'
                   AND SeverityText = 'info'                  
                   AND Body = 'Admin password has been reset.'
+                GROUP BY time, service, message
                 ORDER BY Timestamp DESC
               intervalMs: 1000
               maxDataPoints: 43200
@@ -80,9 +81,9 @@ groups:
               type: threshold
         noDataState: OK
         execErrState: Alerting
-        for: 1m
+        for: 10s
         annotations:
-          description: "Admin password change detected in logs. Service: {{ $labels.service }}, User: {{ $labels.user }}, Message: {{ $labels.message }}"
+          description: "Admin password change detected in Grafana logs. A security event requiring immediate attention."
           summary: "Admin Password Change"
         labels:
           severity: critical
@@ -104,8 +105,8 @@ groups:
               # Query to detect failed admin password change attempts in logs
               rawSql: |
                 SELECT
-                  Timestamp as timestamp,
-                  SeverityText as level,
+                  Timestamp as time,
+                  toInt32(COUNT(*)) as value,
                   ServiceName as service,
                   Body as message
                 FROM logs 
@@ -114,6 +115,7 @@ groups:
                   AND ServiceName = 'grafana'
                   AND SeverityText = 'error'
                   AND Body LIKE '%Failed to reset admin password%'
+                GROUP BY time, service, message
                 ORDER BY Timestamp DESC
               intervalMs: 1000
               maxDataPoints: 43200
@@ -160,9 +162,9 @@ groups:
               type: threshold
         noDataState: OK
         execErrState: Alerting
-        for: 1m
+        for: 10s
         annotations:
-          description: "Failed attempt to change admin password detected. Service: {{ $labels.service }}, Error: {{ $labels.message }}"
+          description: "Failed attempt to change admin password detected in Grafana logs. Potential security threat requiring immediate investigation."
           summary: "Admin Password Change Failed"
         labels:
           severity: critical
