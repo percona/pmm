@@ -7,34 +7,34 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="To stop monitoring a service, use the pmm-admin remove command with the appropriate service type and name:">
+        <meta name="description" content="Before installing PMM Server, ensure your environment meets these requirements.">
       
       
         <meta name="author" content="Percona LLC">
       
       
-        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/remove-services/index.html">
+        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/prerequisites.html">
       
       
-        <link rel="prev" href="../external.html">
+        <link rel="prev" href="index.html">
       
       
-        <link rel="next" href="../../../HA.html">
+        <link rel="next" href="deployment-options/docker/index.html">
       
       
-      <link rel="icon" href="../../../../assets/pmm-fav.svg">
+      <link rel="icon" href="../../assets/pmm-fav.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
-        <title>Remove services - Percona Monitoring and Management</title>
+        <title>Prerequisites for PMM Server - Percona Monitoring and Management</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -57,17 +57,17 @@
     
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
     
-      <link rel="stylesheet" href="../../../../css/nocopy.css">
+      <link rel="stylesheet" href="../../css/nocopy.css">
     
-      <link rel="stylesheet" href="../../../../css/design.css">
+      <link rel="stylesheet" href="../../css/design.css">
     
-      <link rel="stylesheet" href="../../../../css/osano.css">
+      <link rel="stylesheet" href="../../css/osano.css">
     
-      <link rel="stylesheet" href="../../../../css/pmm.css">
+      <link rel="stylesheet" href="../../css/pmm.css">
     
-      <link rel="stylesheet" href="../../../../css/extra.css">
+      <link rel="stylesheet" href="../../css/extra.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -90,7 +90,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Remove services" />
+                 <meta property="og:title" content="Percona Monitoring and Management - Prerequisites for PMM Server" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -113,7 +113,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#remove-services-from-monitoring" class="md-skip">
+        <a href="#prerequisites-for-pmm-server" class="md-skip">
           Skip to content
         </a>
       
@@ -160,14 +160,14 @@
 
     <!-- Link to home -->
     <a
-      href="../../../../index.html"
+      href="../../index.html"
       title="Percona Monitoring and Management"
       class="md-header__button md-logo"
       aria-label="Percona Monitoring and Management"
       data-md-component="logo"
     >
       
-  <img src="../../../../assets/pmm-mark.svg" alt="logo">
+  <img src="../../assets/pmm-mark.svg" alt="logo">
 
     </a>
 
@@ -180,7 +180,7 @@
     <!-- Header title -->
     <div class="md-header__title">
       <div class="md-header__ellipsis">
-        <a href="../../../../index.html" class="md-header__topic">
+        <a href="../../index.html" class="md-header__topic">
           <span class="md-ellipsis">
             Percona Monitoring and Management
           </span>
@@ -188,7 +188,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Remove services
+              Prerequisites for PMM Server
             
           </span>
         </div>
@@ -327,9 +327,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../../index.html" title="Percona Monitoring and Management" class="md-nav__button md-logo" aria-label="Percona Monitoring and Management" data-md-component="logo">
+    <a href="../../index.html" title="Percona Monitoring and Management" class="md-nav__button md-logo" aria-label="Percona Monitoring and Management" data-md-component="logo">
       
-  <img src="../../../../assets/pmm-mark.svg" alt="logo">
+  <img src="../../assets/pmm-mark.svg" alt="logo">
 
     </a>
     Percona Monitoring and Management
@@ -356,7 +356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../index.html" class="md-nav__link">
+      <a href="../../index.html" class="md-nav__link">
         
   
   
@@ -378,7 +378,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../get-help.html" class="md-nav__link">
+      <a href="../../get-help.html" class="md-nav__link">
         
   
   
@@ -438,7 +438,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../discover-pmm/why-pmm.html" class="md-nav__link">
+      <a href="../../discover-pmm/why-pmm.html" class="md-nav__link">
         
   
   
@@ -461,7 +461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../discover-pmm/features.html" class="md-nav__link">
+      <a href="../../discover-pmm/features.html" class="md-nav__link">
         
   
   
@@ -491,7 +491,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../quickstart/quickstart.html" class="md-nav__link">
+      <a href="../../quickstart/quickstart.html" class="md-nav__link">
         
   
   
@@ -553,7 +553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../index.html" class="md-nav__link">
+      <a href="../index.html" class="md-nav__link">
         
   
   
@@ -614,7 +614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plan-pmm-installation/choose-deployment.html" class="md-nav__link">
+      <a href="../plan-pmm-installation/choose-deployment.html" class="md-nav__link">
         
   
   
@@ -637,7 +637,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plan-pmm-installation/hardware_and_system.html" class="md-nav__link">
+      <a href="../plan-pmm-installation/hardware_and_system.html" class="md-nav__link">
         
   
   
@@ -660,7 +660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plan-pmm-installation/network_and_firewall.html" class="md-nav__link">
+      <a href="../plan-pmm-installation/network_and_firewall.html" class="md-nav__link">
         
   
   
@@ -688,18 +688,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" checked>
         
           
           <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
@@ -715,7 +717,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_3">
             <span class="md-nav__icon md-icon"></span>
             Install PMM Server
@@ -729,7 +731,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/index.html" class="md-nav__link">
+      <a href="index.html" class="md-nav__link">
         
   
   
@@ -740,6 +742,200 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Prerequisites for PMM Server
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="prerequisites.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prerequisites for PMM Server
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-requirements-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick requirements checklist
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#system-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      System requirements
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hardware-specifications-by-deployment-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hardware specifications by deployment size
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#architecture-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Architecture requirements
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage-planning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Storage planning
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-connectivity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Network connectivity
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment-specific-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment-specific prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ssltls-certificates" class="md-nav__link">
+    <span class="md-ellipsis">
+      SSL/TLS certificates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#access-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access control
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data protection
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      Before you install
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next steps
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -760,10 +956,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_2" id="__nav_5_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3" id="__nav_5_3_3_label" tabindex="0">
             
   
   
@@ -776,8 +972,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3">
             <span class="md-nav__icon md-icon"></span>
             Deployment options
           </label>
@@ -798,10 +994,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_1" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_2_1" id="__nav_5_3_2_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_1" id="__nav_5_3_3_1_label" tabindex="0">
             
   
   
@@ -814,8 +1010,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2_1">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_1">
             <span class="md-nav__icon md-icon"></span>
             Install on Docker
           </label>
@@ -828,7 +1024,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/docker/index.html" class="md-nav__link">
+      <a href="deployment-options/docker/index.html" class="md-nav__link">
         
   
   
@@ -851,7 +1047,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/docker/easy-install.html" class="md-nav__link">
+      <a href="deployment-options/docker/easy-install.html" class="md-nav__link">
         
   
   
@@ -882,10 +1078,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_1_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_2_1_3" id="__nav_5_3_2_1_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_1_3" id="__nav_5_3_3_1_3_label" tabindex="0">
             
   
   
@@ -898,8 +1094,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_1_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2_1_3">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_1_3">
             <span class="md-nav__icon md-icon"></span>
             Storage setup
           </label>
@@ -912,7 +1108,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/docker/run_with_vol.html" class="md-nav__link">
+      <a href="deployment-options/docker/run_with_vol.html" class="md-nav__link">
         
   
   
@@ -935,7 +1131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/docker/run_with_host_dir.html" class="md-nav__link">
+      <a href="deployment-options/docker/run_with_host_dir.html" class="md-nav__link">
         
   
   
@@ -974,10 +1170,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_1_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_2_1_4" id="__nav_5_3_2_1_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_1_4" id="__nav_5_3_3_1_4_label" tabindex="0">
             
   
   
@@ -990,8 +1186,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_1_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2_1_4">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_1_4">
             <span class="md-nav__icon md-icon"></span>
             Setup and configuration
           </label>
@@ -1004,7 +1200,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/docker/env_var.html" class="md-nav__link">
+      <a href="deployment-options/docker/env_var.html" class="md-nav__link">
         
   
   
@@ -1027,7 +1223,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/docker/preview_env_var.html" class="md-nav__link">
+      <a href="deployment-options/docker/preview_env_var.html" class="md-nav__link">
         
   
   
@@ -1050,7 +1246,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/docker/isolated_hosts.html" class="md-nav__link">
+      <a href="deployment-options/docker/isolated_hosts.html" class="md-nav__link">
         
   
   
@@ -1089,10 +1285,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_1_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_1_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_2_1_5" id="__nav_5_3_2_1_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_1_5" id="__nav_5_3_3_1_5_label" tabindex="0">
             
   
   
@@ -1105,8 +1301,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_1_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2_1_5">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_1_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_1_5">
             <span class="md-nav__icon md-icon"></span>
             Container settings
           </label>
@@ -1119,7 +1315,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/docker/backup_container.html" class="md-nav__link">
+      <a href="deployment-options/docker/backup_container.html" class="md-nav__link">
         
   
   
@@ -1142,7 +1338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/docker/restore_container.html" class="md-nav__link">
+      <a href="deployment-options/docker/restore_container.html" class="md-nav__link">
         
   
   
@@ -1165,7 +1361,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/docker/remove_container.html" class="md-nav__link">
+      <a href="deployment-options/docker/remove_container.html" class="md-nav__link">
         
   
   
@@ -1188,7 +1384,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/docker/upgrade_container.html" class="md-nav__link">
+      <a href="deployment-options/docker/upgrade_container.html" class="md-nav__link">
         
   
   
@@ -1235,10 +1431,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_2_2" id="__nav_5_3_2_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_2" id="__nav_5_3_3_2_label" tabindex="0">
             
   
   
@@ -1251,8 +1447,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_2">
             <span class="md-nav__icon md-icon"></span>
             Install on Podman
           </label>
@@ -1265,7 +1461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/podman/index.html" class="md-nav__link">
+      <a href="deployment-options/podman/index.html" class="md-nav__link">
         
   
   
@@ -1296,10 +1492,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_2_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_2_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_2_2_2" id="__nav_5_3_2_2_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_2_2" id="__nav_5_3_3_2_2_label" tabindex="0">
             
   
   
@@ -1312,8 +1508,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2_2_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_2_2">
             <span class="md-nav__icon md-icon"></span>
             Setup and configuration
           </label>
@@ -1326,7 +1522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/podman/backup_container_podman.html" class="md-nav__link">
+      <a href="deployment-options/podman/backup_container_podman.html" class="md-nav__link">
         
   
   
@@ -1349,7 +1545,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/podman/restore_container_podman.html" class="md-nav__link">
+      <a href="deployment-options/podman/restore_container_podman.html" class="md-nav__link">
         
   
   
@@ -1372,7 +1568,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/podman/remove_container_podman.html" class="md-nav__link">
+      <a href="deployment-options/podman/remove_container_podman.html" class="md-nav__link">
         
   
   
@@ -1419,10 +1615,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_2_3" id="__nav_5_3_2_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_3" id="__nav_5_3_3_3_label" tabindex="0">
             
   
   
@@ -1435,8 +1631,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2_3">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_3">
             <span class="md-nav__icon md-icon"></span>
             Install on Virtual Appliance
           </label>
@@ -1449,7 +1645,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/virtual/index.html" class="md-nav__link">
+      <a href="deployment-options/virtual/index.html" class="md-nav__link">
         
   
   
@@ -1480,10 +1676,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_2_3_2" id="__nav_5_3_2_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_3_2" id="__nav_5_3_3_3_2_label" tabindex="0">
             
   
   
@@ -1496,8 +1692,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2_3_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_3_2">
             <span class="md-nav__icon md-icon"></span>
             Setup and configuration
           </label>
@@ -1510,7 +1706,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/virtual/download_ova.html" class="md-nav__link">
+      <a href="deployment-options/virtual/download_ova.html" class="md-nav__link">
         
   
   
@@ -1533,7 +1729,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/virtual/vmware.html" class="md-nav__link">
+      <a href="deployment-options/virtual/vmware.html" class="md-nav__link">
         
   
   
@@ -1556,7 +1752,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/virtual/virtualbox.html" class="md-nav__link">
+      <a href="deployment-options/virtual/virtualbox.html" class="md-nav__link">
         
   
   
@@ -1579,7 +1775,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/virtual/login_UI.html" class="md-nav__link">
+      <a href="deployment-options/virtual/login_UI.html" class="md-nav__link">
         
   
   
@@ -1602,7 +1798,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/virtual/remove_virtual_machine.html" class="md-nav__link">
+      <a href="deployment-options/virtual/remove_virtual_machine.html" class="md-nav__link">
         
   
   
@@ -1649,10 +1845,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_2_4" id="__nav_5_3_2_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_4" id="__nav_5_3_3_4_label" tabindex="0">
             
   
   
@@ -1665,8 +1861,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2_4">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_4">
             <span class="md-nav__icon md-icon"></span>
             Install on Kubernetes
           </label>
@@ -1679,7 +1875,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/helm/index.html" class="md-nav__link">
+      <a href="deployment-options/helm/index.html" class="md-nav__link">
         
   
   
@@ -1710,10 +1906,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_4_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_4_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_2_4_2" id="__nav_5_3_2_4_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_4_2" id="__nav_5_3_3_4_2_label" tabindex="0">
             
   
   
@@ -1726,8 +1922,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_2_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2_4_2">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_4_2">
             <span class="md-nav__icon md-icon"></span>
             Backup & maintenance
           </label>
@@ -1740,7 +1936,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/helm/backup_container_helm.html" class="md-nav__link">
+      <a href="deployment-options/helm/backup_container_helm.html" class="md-nav__link">
         
   
   
@@ -1763,7 +1959,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/helm/restore_container_helm.html" class="md-nav__link">
+      <a href="deployment-options/helm/restore_container_helm.html" class="md-nav__link">
         
   
   
@@ -1810,10 +2006,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_2_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_3_2_5" id="__nav_5_3_2_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_3_3_5" id="__nav_5_3_3_5_label" tabindex="0">
             
   
   
@@ -1826,8 +2022,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_2_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_2_5">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_5">
             <span class="md-nav__icon md-icon"></span>
             Install on AWS Marketplace
           </label>
@@ -1840,7 +2036,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/aws/plan_aws.html" class="md-nav__link">
+      <a href="deployment-options/aws/plan_aws.html" class="md-nav__link">
         
   
   
@@ -1863,7 +2059,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/aws/deploy_aws.html" class="md-nav__link">
+      <a href="deployment-options/aws/deploy_aws.html" class="md-nav__link">
         
   
   
@@ -1886,7 +2082,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-server/deployment-options/aws/configure_aws.html" class="md-nav__link">
+      <a href="deployment-options/aws/configure_aws.html" class="md-nav__link">
         
   
   
@@ -1930,20 +2126,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
         
           
           <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
@@ -1959,7 +2153,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_4">
             <span class="md-nav__icon md-icon"></span>
             Install PMM Client
@@ -1973,7 +2167,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../index.html" class="md-nav__link">
+      <a href="../install-pmm-client/index.html" class="md-nav__link">
         
   
   
@@ -1996,7 +2190,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../prerequisites.html" class="md-nav__link">
+      <a href="../install-pmm-client/prerequisites.html" class="md-nav__link">
         
   
   
@@ -2057,12 +2251,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../package_manager.html" class="md-nav__link">
+      <a href="../install-pmm-client/package_manager.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Install from Percona repositories
+    Install with Package Manager
     
   </span>
   
@@ -2080,7 +2274,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../binary_package.html" class="md-nav__link">
+      <a href="../install-pmm-client/binary_package.html" class="md-nav__link">
         
   
   
@@ -2103,7 +2297,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../docker.html" class="md-nav__link">
+      <a href="../install-pmm-client/docker.html" class="md-nav__link">
         
   
   
@@ -2133,29 +2327,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../../../register-client-node/index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Register Client node
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
@@ -2165,10 +2336,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_5" id="__nav_5_4_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_4" id="__nav_5_4_4_label" tabindex="0">
             
   
   
@@ -2181,8 +2352,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_5">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_4">
             <span class="md-nav__icon md-icon"></span>
             Configure monitoring
           </label>
@@ -2203,10 +2374,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_1" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_5_1" id="__nav_5_4_5_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_4_1" id="__nav_5_4_4_1_label" tabindex="0">
             
   
   
@@ -2219,8 +2390,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_5_1">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_4_1">
             <span class="md-nav__icon md-icon"></span>
             Database monitoring
           </label>
@@ -2233,7 +2404,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../index.html" class="md-nav__link">
+      <a href="../install-pmm-client/connect-database/index.html" class="md-nav__link">
         
   
   
@@ -2256,7 +2427,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mysql/mysql.html" class="md-nav__link">
+      <a href="../install-pmm-client/connect-database/mysql/mysql.html" class="md-nav__link">
         
   
   
@@ -2279,7 +2450,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mongodb.html" class="md-nav__link">
+      <a href="../install-pmm-client/connect-database/mongodb.html" class="md-nav__link">
         
   
   
@@ -2302,7 +2473,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../postgresql.html" class="md-nav__link">
+      <a href="../install-pmm-client/connect-database/postgresql.html" class="md-nav__link">
         
   
   
@@ -2341,10 +2512,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_5_2" id="__nav_5_4_5_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_4_2" id="__nav_5_4_4_2_label" tabindex="0">
             
   
   
@@ -2357,8 +2528,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_5_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_4_2">
             <span class="md-nav__icon md-icon"></span>
             Cloud services monitoring
           </label>
@@ -2371,7 +2542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../aws.html" class="md-nav__link">
+      <a href="../install-pmm-client/connect-database/aws.html" class="md-nav__link">
         
   
   
@@ -2394,7 +2565,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../azure.html" class="md-nav__link">
+      <a href="../install-pmm-client/connect-database/azure.html" class="md-nav__link">
         
   
   
@@ -2417,7 +2588,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../google.html" class="md-nav__link">
+      <a href="../install-pmm-client/connect-database/google.html" class="md-nav__link">
         
   
   
@@ -2456,10 +2627,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_5_3" id="__nav_5_4_5_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_4_3" id="__nav_5_4_4_3_label" tabindex="0">
             
   
   
@@ -2472,8 +2643,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_5_3">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_4_3">
             <span class="md-nav__icon md-icon"></span>
             System monitoring
           </label>
@@ -2486,7 +2657,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../linux.html" class="md-nav__link">
+      <a href="../install-pmm-client/connect-database/linux.html" class="md-nav__link">
         
   
   
@@ -2509,7 +2680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../remote.html" class="md-nav__link">
+      <a href="../install-pmm-client/connect-database/remote.html" class="md-nav__link">
         
   
   
@@ -2548,10 +2719,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_5_4" id="__nav_5_4_5_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_4_4" id="__nav_5_4_4_4_label" tabindex="0">
             
   
   
@@ -2564,8 +2735,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_5_4">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_4_4">
             <span class="md-nav__icon md-icon"></span>
             Proxy services monitoring
           </label>
@@ -2578,7 +2749,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../haproxy.html" class="md-nav__link">
+      <a href="../install-pmm-client/connect-database/haproxy.html" class="md-nav__link">
         
   
   
@@ -2601,7 +2772,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../proxysql.html" class="md-nav__link">
+      <a href="../install-pmm-client/connect-database/proxysql.html" class="md-nav__link">
         
   
   
@@ -2640,10 +2811,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_5_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_4_5_5" id="__nav_5_4_5_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5_4_4_5" id="__nav_5_4_4_5_label" tabindex="0">
             
   
   
@@ -2656,8 +2827,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_5_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4_5_5">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_4_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_4_5">
             <span class="md-nav__icon md-icon"></span>
             External services monitoring
           </label>
@@ -2670,7 +2841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../external.html" class="md-nav__link">
+      <a href="../install-pmm-client/connect-database/external.html" class="md-nav__link">
         
   
   
@@ -2702,107 +2873,6 @@
 
               
             
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Remove services
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="index.html" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    Remove services
-    
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#command-reference" class="md-nav__link">
-    <span class="md-ellipsis">
-      Command reference
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      Example
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#verify-service-removal" class="md-nav__link">
-    <span class="md-ellipsis">
-      Verify service removal
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-topics" class="md-nav__link">
-    <span class="md-ellipsis">
-      Related topics
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -2818,7 +2888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../HA.html" class="md-nav__link">
+      <a href="../HA.html" class="md-nav__link">
         
   
   
@@ -2864,7 +2934,7 @@
   
   
   <span class="md-ellipsis">
-    Upgrade
+    Use
     
   </span>
   
@@ -2875,45 +2945,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
-            Upgrade
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Upgrade PMM Server
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_1">
-            <span class="md-nav__icon md-icon"></span>
-            Upgrade PMM Server
+            Use
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -2924,278 +2956,17 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/index.html" class="md-nav__link">
+      <a href="../../use/using-pmm.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    About PMM Server upgrade
+    About using PMM
     
   </span>
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/ui_upgrade.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Upgrade PMM v3 Server from the UI
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/external_postgres_pmm_upgrade.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Migrate external PostgreSQL configuration for PMM 3.2.0+ upgrades
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_1_4" id="__nav_6_1_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Manual upgrade
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_1_4">
-            <span class="md-nav__icon md-icon"></span>
-            Manual upgrade
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_docker.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Manual upgrade: Upgrade PMM Server using Docker
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_podman.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Manual upgrade: Upgrade PMM Server using Podman
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_1_5" id="__nav_6_1_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Upgrade PMM Server in K8s
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_1_5">
-            <span class="md-nav__icon md-icon"></span>
-            Upgrade PMM Server in K8s
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_helm.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Upgrade PMM Server using Helm
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/migrating_from_pmm_2.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Migrate PMM 2 to PMM 3
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Upgrade PMM Server on AWS
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -3224,7 +2995,7 @@
   
   
   <span class="md-ellipsis">
-    Upgrade PMM Client
+    PMM user interface
     
   </span>
   
@@ -3235,7 +3006,7 @@
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6_2">
             <span class="md-nav__icon md-icon"></span>
-            Upgrade PMM Client
+            PMM user interface
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -3246,12 +3017,1484 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_client.html" class="md-nav__link">
+      <a href="../../reference/ui/ui_components.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Upgrade PMM Client
+    UI components
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/ui/log_in.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Log into PMM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/ui/timezone.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Set timezones
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/dashboard-inventory.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    PMM Inventory
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/remove-services.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Remove services
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_5" id="__nav_6_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Metrics monitoring
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_5">
+            <span class="md-nav__icon md-icon"></span>
+            Metrics monitoring
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/monitor.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    About monitoring in PMM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_5_2" id="__nav_6_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    PMM metrics
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            PMM metrics
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/metrics/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    About PMM metrics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/metrics/extend_metrics.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Extend metrics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_5_3" id="__nav_6_5_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Dashboards
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            Dashboards
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/dashboards-panels/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dashboards overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_5_3_2" id="__nav_6_5_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Manage dashboards
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_5_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_5_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Manage dashboards
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/dashboards-panels/manage-dashboards/create-folders.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Create dashboard folders
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/dashboards-panels/manage-dashboards/manage-folders.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Manage dashboard folders
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/dashboards-panels/manage-dashboards/set-custom-dashboard.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Setting custom Home dashboard
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/dashboards-panels/share-dashboards/share_dashboard.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Share dashboards and panels
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/dashboards-panels/annotate/annotate.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Annotate
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_6" id="__nav_6_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Query Analytics
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6">
+            <span class="md-nav__icon md-icon"></span>
+            Query Analytics
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/qan/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    About Query Analytics (QAN)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/qan/qan_mongo.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Query Analytics for MongoDB
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/qan/share_link.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Share a link for Query Analytics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_6_4" id="__nav_6_6_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Panels on QAN dashboard
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_6_4">
+            <span class="md-nav__icon md-icon"></span>
+            Panels on QAN dashboard
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/qan/panels/overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview Panel
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/qan/panels/filters.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    QAN Filters panel
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../use/qan/panels/details.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Details panel
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_7" id="__nav_6_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Advisors
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_7">
+            <span class="md-nav__icon md-icon"></span>
+            Advisors
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advisors/advisors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advisors
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advisors/advisor-details.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advisor details
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advisors/develop-advisor-checks.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Developing Advisor checks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_8" id="__nav_6_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Percona Alerting
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8">
+            <span class="md-nav__icon md-icon"></span>
+            Percona Alerting
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../alert/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    About Percona Alerting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../alert/alert_rules.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Alert rules and alert templates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../alert/contact_points.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contact points
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../alert/templates_list.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    List of available alert templates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../alert/silence_alerts.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Silence alerts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../alert/disable_alerts.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Disable Percona Alerting
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_9" id="__nav_6_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Backup and restore
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_9">
+            <span class="md-nav__icon md-icon"></span>
+            Backup and restore
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Back up and restore
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/prepare_storage_location.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prepare a storage location
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_9_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_9_3" id="__nav_6_9_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    MongoDB backups
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_9_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_9_3">
+            <span class="md-nav__icon md-icon"></span>
+            MongoDB backups
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/mongodb-backup/backup_mongo.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Supported setups for MongoDB backups
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/mongodb-backup/mongo_prerequisites.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MongoDB backup prerequisites
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/mongodb-backup/create_mongo_on_demand.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Create MongoDB on-demand and scheduled backups
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/mongodb-backup/create_PITR_mongo.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Create MongoDB PITR backups
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/mongodb-backup/restore_MongoDB_backups.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Restore a MongoDB backup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/mongodb-backup/mongodb_limitations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MongoDB Backup and Restore support matrix
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_9_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_9_4" id="__nav_6_9_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    MySQL backups
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_9_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_9_4">
+            <span class="md-nav__icon md-icon"></span>
+            MySQL backups
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/mysql-backup/mysql_prerequisites.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MySQL backup prerequisites
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/mysql-backup/backup_mysql.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Supported setups for MySQL backups
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/mysql-backup/create_mysql_backup.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Create a MySQL backup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/mysql-backup/restore_mysql_backup.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Restore a MySQL backup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/edit_scheduled.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Edit a scheduled backup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backup/delete_a_backup.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Delete a backup
     
   </span>
   
@@ -3300,7 +4543,7 @@
   
   
   <span class="md-ellipsis">
-    Uninstall
+    Configure
     
   </span>
   
@@ -3310,1798 +4553,6 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_7">
-            <span class="md-nav__icon md-icon"></span>
-            Uninstall
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_1" >
-        
-          
-          <label class="md-nav__link" for="__nav_7_1" id="__nav_7_1_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Uninstall PMM Client
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_1">
-            <span class="md-nav__icon md-icon"></span>
-            Uninstall PMM Client
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    About uninstalling PMM
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/uninstall_docker.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Docker
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/uninstall_helm.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Helm
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/uninstall_package_manager.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Package manager
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/unregister_client.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Unregister PMM Client from PMM Server
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
-        
-          
-          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Use
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8">
-            <span class="md-nav__icon md-icon"></span>
-            Use
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/using-pmm.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    About using PMM
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_2" id="__nav_8_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    PMM user interface
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_2">
-            <span class="md-nav__icon md-icon"></span>
-            PMM user interface
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../reference/ui/ui_components.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    UI components
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../reference/ui/log_in.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Log into PMM
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../reference/ui/timezone.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Set timezones
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/dashboard-inventory.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    PMM Inventory
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_4" id="__nav_8_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Metrics monitoring
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_4">
-            <span class="md-nav__icon md-icon"></span>
-            Metrics monitoring
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/monitor.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    About monitoring in PMM
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_4_2" id="__nav_8_4_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    PMM metrics
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_4_2">
-            <span class="md-nav__icon md-icon"></span>
-            PMM metrics
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/metrics/index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    About PMM metrics
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/metrics/extend_metrics.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Extend metrics
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_4_3" id="__nav_8_4_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Dashboards
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_4_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_4_3">
-            <span class="md-nav__icon md-icon"></span>
-            Dashboards
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Dashboards overview
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_4_3_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_4_3_2" id="__nav_8_4_3_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Manage dashboards
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_8_4_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_4_3_2">
-            <span class="md-nav__icon md-icon"></span>
-            Manage dashboards
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/manage-dashboards/create-folders.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Create dashboard folders
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/manage-dashboards/manage-folders.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Manage dashboard folders
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/manage-dashboards/set-custom-dashboard.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Setting custom Home dashboard
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/share-dashboards/share_dashboard.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Share dashboards and panels
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/annotate/annotate.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Annotate
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_5" id="__nav_8_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Query Analytics
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_5">
-            <span class="md-nav__icon md-icon"></span>
-            Query Analytics
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/qan/index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    About Query Analytics (QAN)
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/qan/qan_mongo.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Query Analytics for MongoDB
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/qan/share_link.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Share a link for Query Analytics
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_5_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_5_4" id="__nav_8_5_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Panels on QAN dashboard
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_5_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_5_4">
-            <span class="md-nav__icon md-icon"></span>
-            Panels on QAN dashboard
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/qan/panels/overview.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Overview Panel
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/qan/panels/filters.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    QAN Filters panel
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../use/qan/panels/details.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Details panel
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_6" id="__nav_8_6_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Advisors
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_6">
-            <span class="md-nav__icon md-icon"></span>
-            Advisors
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../advisors/advisors.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Advisors
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../advisors/advisor-details.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Advisor details
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../advisors/develop-advisor-checks.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Developing Advisor checks
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_7" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_7" id="__nav_8_7_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Percona Alerting
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_7">
-            <span class="md-nav__icon md-icon"></span>
-            Percona Alerting
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../alert/index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    About Percona Alerting
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../alert/alert_rules.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Alert rules and alert templates
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../alert/contact_points.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Contact points
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../alert/templates_list.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    List of available alert templates
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../alert/silence_alerts.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Silence alerts
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../alert/disable_alerts.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Disable Percona Alerting
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_8" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_8" id="__nav_8_8_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Backup and restore
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_8">
-            <span class="md-nav__icon md-icon"></span>
-            Backup and restore
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/index.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Back up and restore
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/prepare_storage_location.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Prepare a storage location
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_8_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_8_3" id="__nav_8_8_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    MongoDB backups
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_8_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_8_3">
-            <span class="md-nav__icon md-icon"></span>
-            MongoDB backups
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/backup_mongo.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Supported setups for MongoDB backups
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/mongo_prerequisites.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    MongoDB backup prerequisites
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/create_mongo_on_demand.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Create MongoDB on-demand and scheduled backups
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/create_PITR_mongo.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Create MongoDB PITR backups
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/restore_MongoDB_backups.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Restore a MongoDB backup
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/mongodb_limitations.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    MongoDB Backup and Restore support matrix
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_8_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_8_4" id="__nav_8_8_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    MySQL backups
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_8_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_8_4">
-            <span class="md-nav__icon md-icon"></span>
-            MySQL backups
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/mysql-backup/mysql_prerequisites.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    MySQL backup prerequisites
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/mysql-backup/backup_mysql.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Supported setups for MySQL backups
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/mysql-backup/create_mysql_backup.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Create a MySQL backup
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/mysql-backup/restore_mysql_backup.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Restore a MySQL backup
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/edit_scheduled.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Edit a scheduled backup
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../backup/delete_a_backup.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Delete a backup
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Configure
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             Configure
           </label>
@@ -5114,7 +4565,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/configure.html" class="md-nav__link">
+      <a href="../../configure-pmm/configure.html" class="md-nav__link">
         
   
   
@@ -5137,7 +4588,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/metrics_res.html" class="md-nav__link">
+      <a href="../../configure-pmm/metrics_res.html" class="md-nav__link">
         
   
   
@@ -5160,7 +4611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/advanced_settings.html" class="md-nav__link">
+      <a href="../../configure-pmm/advanced_settings.html" class="md-nav__link">
         
   
   
@@ -5183,7 +4634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/ssh.html" class="md-nav__link">
+      <a href="../../configure-pmm/ssh.html" class="md-nav__link">
         
   
   
@@ -5214,10 +4665,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_5" >
         
           
-          <label class="md-nav__link" for="__nav_9_5" id="__nav_9_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7_5" id="__nav_7_5_label" tabindex="0">
             
   
   
@@ -5230,8 +4681,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9_5">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_5">
             <span class="md-nav__icon md-icon"></span>
             Security in PMM
           </label>
@@ -5244,7 +4695,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/security/index.html" class="md-nav__link">
+      <a href="../../admin/security/index.html" class="md-nav__link">
         
   
   
@@ -5267,7 +4718,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/security/ssl_encryption.html" class="md-nav__link">
+      <a href="../../admin/security/ssl_encryption.html" class="md-nav__link">
         
   
   
@@ -5290,7 +4741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/security/grafana_cookies.html" class="md-nav__link">
+      <a href="../../admin/security/grafana_cookies.html" class="md-nav__link">
         
   
   
@@ -5313,7 +4764,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/security/data_encryption.html" class="md-nav__link">
+      <a href="../../admin/security/data_encryption.html" class="md-nav__link">
         
   
   
@@ -5352,10 +4803,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" >
         
           
-          <label class="md-nav__link" for="__nav_9_6" id="__nav_9_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
             
   
   
@@ -5368,8 +4819,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_6">
             <span class="md-nav__icon md-icon"></span>
             Percona Platform
           </label>
@@ -5382,7 +4833,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/percona_platform/integrate_with_percona_platform.html" class="md-nav__link">
+      <a href="../../configure-pmm/percona_platform/integrate_with_percona_platform.html" class="md-nav__link">
         
   
   
@@ -5405,7 +4856,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/percona_platform/check_percona_platform.html" class="md-nav__link">
+      <a href="../../configure-pmm/percona_platform/check_percona_platform.html" class="md-nav__link">
         
   
   
@@ -5428,7 +4879,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/percona_platform/account-info.html" class="md-nav__link">
+      <a href="../../configure-pmm/percona_platform/account-info.html" class="md-nav__link">
         
   
   
@@ -5474,10 +4925,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
         
           
-          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
             
   
   
@@ -5490,8 +4941,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             Administer
           </label>
@@ -5504,7 +4955,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/index.html" class="md-nav__link">
+      <a href="../../admin/index.html" class="md-nav__link">
         
   
   
@@ -5535,10 +4986,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" >
         
           
-          <label class="md-nav__link" for="__nav_10_2" id="__nav_10_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8_2" id="__nav_8_2_label" tabindex="0">
             
   
   
@@ -5551,8 +5002,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_2">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_2">
             <span class="md-nav__icon md-icon"></span>
             Manage users
           </label>
@@ -5565,7 +5016,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/manage-users/index.html" class="md-nav__link">
+      <a href="../../admin/manage-users/index.html" class="md-nav__link">
         
   
   
@@ -5588,7 +5039,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/manage-users/add_users.html" class="md-nav__link">
+      <a href="../../admin/manage-users/add_users.html" class="md-nav__link">
         
   
   
@@ -5611,7 +5062,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/manage-users/edit_users.html" class="md-nav__link">
+      <a href="../../admin/manage-users/edit_users.html" class="md-nav__link">
         
   
   
@@ -5634,7 +5085,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/manage-users/delete_users.html" class="md-nav__link">
+      <a href="../../admin/manage-users/delete_users.html" class="md-nav__link">
         
   
   
@@ -5673,10 +5124,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3" >
         
           
-          <label class="md-nav__link" for="__nav_10_3" id="__nav_10_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8_3" id="__nav_8_3_label" tabindex="0">
             
   
   
@@ -5689,8 +5140,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3">
             <span class="md-nav__icon md-icon"></span>
             Roles and permissions
           </label>
@@ -5703,7 +5154,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/index.html" class="md-nav__link">
+      <a href="../../admin/roles/index.html" class="md-nav__link">
         
   
   
@@ -5734,10 +5185,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_10_3_2" id="__nav_10_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_8_3_2" id="__nav_8_3_2_label" tabindex="0">
             
   
   
@@ -5750,8 +5201,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10_3_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8_3_2">
             <span class="md-nav__icon md-icon"></span>
             Label-based access control
           </label>
@@ -5764,7 +5215,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/intro.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/intro.html" class="md-nav__link">
         
   
   
@@ -5787,7 +5238,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/labels.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/labels.html" class="md-nav__link">
         
   
   
@@ -5810,7 +5261,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/enable_access_control.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/enable_access_control.html" class="md-nav__link">
         
   
   
@@ -5833,7 +5284,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/create_roles.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/create_roles.html" class="md-nav__link">
         
   
   
@@ -5856,7 +5307,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/manage_roles.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/manage_roles.html" class="md-nav__link">
         
   
   
@@ -5879,7 +5330,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/assign_roles.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/assign_roles.html" class="md-nav__link">
         
   
   
@@ -5902,7 +5353,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/use_cases.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/use_cases.html" class="md-nav__link">
         
   
   
@@ -5921,6 +5372,602 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Upgrade
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            Upgrade
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_9_1" id="__nav_9_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Upgrade PMM Server
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_9_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9_1">
+            <span class="md-nav__icon md-icon"></span>
+            Upgrade PMM Server
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pmm-upgrade/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    About PMM Server upgrade
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pmm-upgrade/ui_upgrade.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Upgrade PMM v3 Server from the UI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pmm-upgrade/external_postgres_pmm_upgrade.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Migrate external PostgreSQL configuration for PMM 3.2.0+ upgrades
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_9_1_4" id="__nav_9_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Manual upgrade
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_9_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            Manual upgrade
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pmm-upgrade/upgrade_docker.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Manual upgrade: Upgrade PMM Server using Docker
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pmm-upgrade/upgrade_podman.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Manual upgrade: Upgrade PMM Server using Podman
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_1_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_9_1_5" id="__nav_9_1_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Upgrade PMM Server in K8s
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_9_1_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9_1_5">
+            <span class="md-nav__icon md-icon"></span>
+            Upgrade PMM Server in K8s
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pmm-upgrade/upgrade_helm.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Upgrade PMM Server using Helm
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pmm-upgrade/migrating_from_pmm_2.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Migrate PMM 2 to PMM 3
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Upgrade PMM Server on AWS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pmm-upgrade/upgrade_client.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Upgrade PMM Client
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Uninstall
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Uninstall
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../uninstall-pmm/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    About uninstalling PMM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../uninstall-pmm/unregister_client.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Unregister PMM Client from PMM Server
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_3" id="__nav_10_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Uninstall PMM Client
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_3">
+            <span class="md-nav__icon md-icon"></span>
+            Uninstall PMM Client
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../uninstall-pmm/uninstall_docker.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Docker
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../uninstall-pmm/uninstall_helm.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Helm
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../uninstall-pmm/uninstall_package_manager.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Package manager
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -5986,7 +6033,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/index.html" class="md-nav__link">
+      <a href="../../troubleshoot/index.html" class="md-nav__link">
         
   
   
@@ -6009,7 +6056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/checklist.html" class="md-nav__link">
+      <a href="../../troubleshoot/checklist.html" class="md-nav__link">
         
   
   
@@ -6032,7 +6079,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/upgrade_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/upgrade_issues.html" class="md-nav__link">
         
   
   
@@ -6055,7 +6102,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/config_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/config_issues.html" class="md-nav__link">
         
   
   
@@ -6078,7 +6125,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/alerting_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/alerting_issues.html" class="md-nav__link">
         
   
   
@@ -6101,7 +6148,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/qan_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/qan_issues.html" class="md-nav__link">
         
   
   
@@ -6124,7 +6171,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/plugin_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/plugin_issues.html" class="md-nav__link">
         
   
   
@@ -6147,7 +6194,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/pmm_dump.html" class="md-nav__link">
+      <a href="../../troubleshoot/pmm_dump.html" class="md-nav__link">
         
   
   
@@ -6170,7 +6217,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/data_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/data_issues.html" class="md-nav__link">
         
   
   
@@ -6238,7 +6285,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/index.html" class="md-nav__link">
+      <a href="../../release-notes/index.html" class="md-nav__link">
         
   
   
@@ -6261,7 +6308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.3.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.3.0.html" class="md-nav__link">
         
   
   
@@ -6284,7 +6331,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.2.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.2.0.html" class="md-nav__link">
         
   
   
@@ -6307,7 +6354,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.1.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.1.0.html" class="md-nav__link">
         
   
   
@@ -6330,7 +6377,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.0.0_1.html" class="md-nav__link">
+      <a href="../../release-notes/3.0.0_1.html" class="md-nav__link">
         
   
   
@@ -6353,7 +6400,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.0.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.0.0.html" class="md-nav__link">
         
   
   
@@ -6459,7 +6506,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/index.html" class="md-nav__link">
+      <a href="../../reference/index.html" class="md-nav__link">
         
   
   
@@ -6520,7 +6567,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/third-party/victoria.html" class="md-nav__link">
+      <a href="../../reference/third-party/victoria.html" class="md-nav__link">
         
   
   
@@ -6543,7 +6590,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/third-party/clickhouse.html" class="md-nav__link">
+      <a href="../../reference/third-party/clickhouse.html" class="md-nav__link">
         
   
   
@@ -6566,7 +6613,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/third-party/postgresql.html" class="md-nav__link">
+      <a href="../../reference/third-party/postgresql.html" class="md-nav__link">
         
   
   
@@ -6597,7 +6644,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/pmm_components_and_versions.html" class="md-nav__link">
+      <a href="../../reference/pmm_components_and_versions.html" class="md-nav__link">
         
   
   
@@ -6620,7 +6667,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/personal_data_handling.html" class="md-nav__link">
+      <a href="../../reference/personal_data_handling.html" class="md-nav__link">
         
   
   
@@ -6681,7 +6728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/index.html" class="md-nav__link">
+      <a href="../../api/index.html" class="md-nav__link">
         
   
   
@@ -6704,7 +6751,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/authentication.html" class="md-nav__link">
+      <a href="../../api/authentication.html" class="md-nav__link">
         
   
   
@@ -6773,7 +6820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/commands/index.html" class="md-nav__link">
+      <a href="../../use/commands/index.html" class="md-nav__link">
         
   
   
@@ -6796,7 +6843,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/commands/pmm-admin.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-admin.html" class="md-nav__link">
         
   
   
@@ -6819,7 +6866,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/commands/pmm-agent.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-agent.html" class="md-nav__link">
         
   
   
@@ -6934,7 +6981,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-home.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-home.html" class="md-nav__link">
         
   
   
@@ -6957,7 +7004,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-advanced-data-exploration.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-advanced-data-exploration.html" class="md-nav__link">
         
   
   
@@ -6980,7 +7027,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-victoriametrics.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-victoriametrics.html" class="md-nav__link">
         
   
   
@@ -7003,7 +7050,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-victoriametrics-agents-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-victoriametrics-agents-overview.html" class="md-nav__link">
         
   
   
@@ -7072,7 +7119,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-env-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-env-overview.html" class="md-nav__link">
         
   
   
@@ -7095,7 +7142,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-environment-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-environment-summary.html" class="md-nav__link">
         
   
   
@@ -7164,7 +7211,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/kubernetes_cluster_summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/kubernetes_cluster_summary.html" class="md-nav__link">
         
   
   
@@ -7187,7 +7234,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/kubernetes_monitor_operators.html" class="md-nav__link">
+      <a href="../../reference/dashboards/kubernetes_monitor_operators.html" class="md-nav__link">
         
   
   
@@ -7210,7 +7257,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/kubernetes_monitor_db_clusters_managed.html" class="md-nav__link">
+      <a href="../../reference/dashboards/kubernetes_monitor_db_clusters_managed.html" class="md-nav__link">
         
   
   
@@ -7279,7 +7326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-cpu-utilization-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-cpu-utilization-details.html" class="md-nav__link">
         
   
   
@@ -7302,7 +7349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-disk-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-disk-details.html" class="md-nav__link">
         
   
   
@@ -7325,7 +7372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-network-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-network-details.html" class="md-nav__link">
         
   
   
@@ -7348,7 +7395,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-memory-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-memory-details.html" class="md-nav__link">
         
   
   
@@ -7371,7 +7418,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-node-temperature-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-node-temperature-details.html" class="md-nav__link">
         
   
   
@@ -7394,7 +7441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-nodes-compare.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-nodes-compare.html" class="md-nav__link">
         
   
   
@@ -7417,7 +7464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-nodes-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-nodes-overview.html" class="md-nav__link">
         
   
   
@@ -7440,7 +7487,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-node-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-node-summary.html" class="md-nav__link">
         
   
   
@@ -7463,7 +7510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-numa-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-numa-details.html" class="md-nav__link">
         
   
   
@@ -7486,7 +7533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-processes-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-processes-details.html" class="md-nav__link">
         
   
   
@@ -7555,7 +7602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-prometheus-exporter-status.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-prometheus-exporter-status.html" class="md-nav__link">
         
   
   
@@ -7578,7 +7625,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-prometheus-exporters-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-prometheus-exporters-overview.html" class="md-nav__link">
         
   
   
@@ -7647,7 +7694,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-amazon-aurora-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-amazon-aurora-details.html" class="md-nav__link">
         
   
   
@@ -7670,7 +7717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-command-handler-counters-compare.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-command-handler-counters-compare.html" class="md-nav__link">
         
   
   
@@ -7693,7 +7740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-innodb-compression-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-innodb-compression-details.html" class="md-nav__link">
         
   
   
@@ -7716,7 +7763,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-innodb-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-innodb-details.html" class="md-nav__link">
         
   
   
@@ -7739,7 +7786,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-myisam-aria-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-myisam-aria-details.html" class="md-nav__link">
         
   
   
@@ -7762,7 +7809,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-myrocks-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-myrocks-details.html" class="md-nav__link">
         
   
   
@@ -7785,7 +7832,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-instance-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -7808,7 +7855,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-instances-compare.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-instances-compare.html" class="md-nav__link">
         
   
   
@@ -7831,7 +7878,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-instances-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-instances-overview.html" class="md-nav__link">
         
   
   
@@ -7854,7 +7901,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-wait-event-analyses-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-wait-event-analyses-details.html" class="md-nav__link">
         
   
   
@@ -7877,7 +7924,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-performance-schema-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-performance-schema-details.html" class="md-nav__link">
         
   
   
@@ -7900,7 +7947,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-query-response-time-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-query-response-time-details.html" class="md-nav__link">
         
   
   
@@ -7923,7 +7970,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-replication-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-replication-summary.html" class="md-nav__link">
         
   
   
@@ -7946,7 +7993,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-group-replication-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-group-replication-summary.html" class="md-nav__link">
         
   
   
@@ -7969,7 +8016,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-table-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-table-details.html" class="md-nav__link">
         
   
   
@@ -7992,7 +8039,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-user-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-user-details.html" class="md-nav__link">
         
   
   
@@ -8015,7 +8062,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-tokudb-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-tokudb-details.html" class="md-nav__link">
         
   
   
@@ -8084,7 +8131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-experimental_collection_overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-experimental_collection_overview.html" class="md-nav__link">
         
   
   
@@ -8107,7 +8154,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-experimental_collection_details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-experimental_collection_details.html" class="md-nav__link">
         
   
   
@@ -8130,7 +8177,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-experimental_oplog.html" class="md-nav__link">
         
   
   
@@ -8153,7 +8200,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-cluster-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-cluster-summary.html" class="md-nav__link">
         
   
   
@@ -8176,7 +8223,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-instance-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-instance-summary.html" class="md-nav__link">
         
   
   
@@ -8199,7 +8246,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-instances-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-instances-overview.html" class="md-nav__link">
         
   
   
@@ -8222,7 +8269,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-instances-compare.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-instances-compare.html" class="md-nav__link">
         
   
   
@@ -8245,7 +8292,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-replset-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-replset-summary.html" class="md-nav__link">
         
   
   
@@ -8268,7 +8315,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-router-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-router-summary.html" class="md-nav__link">
         
   
   
@@ -8291,7 +8338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-inmemory-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-inmemory-details.html" class="md-nav__link">
         
   
   
@@ -8314,7 +8361,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-mmapv1-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-mmapv1-details.html" class="md-nav__link">
         
   
   
@@ -8337,7 +8384,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-wiredtiger-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-wiredtiger-details.html" class="md-nav__link">
         
   
   
@@ -8360,7 +8407,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-PBM-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-PBM-details.html" class="md-nav__link">
         
   
   
@@ -8429,7 +8476,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-checkpoints-buffers-wal-usage.html" class="md-nav__link">
         
   
   
@@ -8452,7 +8499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-instance-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -8475,7 +8522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-instances-compare.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-instances-compare.html" class="md-nav__link">
         
   
   
@@ -8498,7 +8545,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
         
   
   
@@ -8521,7 +8568,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
         
   
   
@@ -8544,7 +8591,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-patroni-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-patroni-details.html" class="md-nav__link">
         
   
   
@@ -8567,7 +8614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-replication.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-replication.html" class="md-nav__link">
         
   
   
@@ -8590,7 +8637,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-topqueries.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-topqueries.html" class="md-nav__link">
         
   
   
@@ -8659,7 +8706,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-proxysql-instance-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-proxysql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -8728,7 +8775,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-pxc-galera-node-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-pxc-galera-node-summary.html" class="md-nav__link">
         
   
   
@@ -8751,7 +8798,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
         
   
   
@@ -8774,7 +8821,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-pxc-galera-cluster-summary-experimental.html" class="md-nav__link">
         
   
   
@@ -8797,7 +8844,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-pxc-galera-nodes-compare.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-pxc-galera-nodes-compare.html" class="md-nav__link">
         
   
   
@@ -8820,7 +8867,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
   
@@ -8859,7 +8906,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/nomad.html" class="md-nav__link">
+      <a href="../../reference/nomad.html" class="md-nav__link">
         
   
   
@@ -8882,7 +8929,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/glossary.html" class="md-nav__link">
+      <a href="../../reference/glossary.html" class="md-nav__link">
         
   
   
@@ -8905,7 +8952,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/faq.html" class="md-nav__link">
+      <a href="../../reference/faq.html" class="md-nav__link">
         
   
   
@@ -8928,7 +8975,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/trademark-policy.html" class="md-nav__link">
+      <a href="../../reference/trademark-policy.html" class="md-nav__link">
         
   
   
@@ -8951,7 +8998,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/copyright.html" class="md-nav__link">
+      <a href="../../reference/copyright.html" class="md-nav__link">
         
   
   
@@ -9007,36 +9054,129 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#command-reference" class="md-nav__link">
+  <a href="#quick-requirements-checklist" class="md-nav__link">
     <span class="md-ellipsis">
-      Command reference
+      Quick requirements checklist
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
+  <a href="#system-requirements" class="md-nav__link">
     <span class="md-ellipsis">
-      Example
+      System requirements
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hardware-specifications-by-deployment-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hardware specifications by deployment size
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#architecture-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Architecture requirements
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#storage-planning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Storage planning
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#verify-service-removal" class="md-nav__link">
+  <a href="#network-connectivity" class="md-nav__link">
     <span class="md-ellipsis">
-      Verify service removal
+      Network connectivity
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#related-topics" class="md-nav__link">
+  <a href="#deployment-specific-prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
-      Related topics
+      Deployment-specific prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ssltls-certificates" class="md-nav__link">
+    <span class="md-ellipsis">
+      SSL/TLS certificates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#access-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access control
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data protection
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      Before you install
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next steps
     </span>
   </a>
   
@@ -9073,7 +9213,7 @@
 
 
   
-    <a href="https://github.com/percona/pmm/edit/v3-doc-prod/documentation/docs/install-pmm/install-pmm-client/connect-database/remove-services/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/percona/pmm/edit/v3-doc-prod/documentation/docs/install-pmm/install-pmm-server/prerequisites.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -9082,35 +9222,257 @@
     
       
     
-    <a href="https://github.com/percona/pmm/raw/v3-doc-prod/documentation/docs/install-pmm/install-pmm-client/connect-database/remove-services/index.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/v3-doc-prod/documentation/docs/install-pmm/install-pmm-server/prerequisites.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="remove-services-from-monitoring">Remove services from monitoring<a class="headerlink" href="#remove-services-from-monitoring" title="Permanent link">&para;</a></h1>
-<p>To stop monitoring a service, use the <code>pmm-admin remove</code> command with the appropriate service type and name:</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>remove<span class="w"> </span>&lt;service-type&gt;<span class="w"> </span>&lt;service-name&gt;
-</code></pre></div>
-<h2 id="command-reference">Command reference<a class="headerlink" href="#command-reference" title="Permanent link">&para;</a></h2>
+<h1 id="prerequisites-for-pmm-server">Prerequisites for PMM Server<a class="headerlink" href="#prerequisites-for-pmm-server" title="Permanent link">&para;</a></h1>
+<p>Before installing PMM Server, ensure your environment meets these requirements.</p>
+<h2 id="quick-requirements-checklist">Quick requirements checklist<a class="headerlink" href="#quick-requirements-checklist" title="Permanent link">&para;</a></h2>
+<p>✓ <strong>Hardware</strong>: CPU with SSE4.2 support, 4+ cores, 8+ GB RAM, 100+ GB storage<br />
+✓ <strong>OS</strong>: Modern 64-bit Linux or container platform (Docker/Podman/Kubernetes)<br />
+✓ <strong>Network</strong>: Ports 80/443 accessible to PMM Clients and users<br />
+✓ <strong>Container runtime</strong>: Docker 17.03+ or Podman (for containerized deployments)<br />
+✓ <strong>Storage</strong>: Persistent storage solution for data retention  </p>
+<h2 id="system-requirements">System requirements<a class="headerlink" href="#system-requirements" title="Permanent link">&para;</a></h2>
+<p>PMM Server requirements scale with the number of monitored nodes:</p>
+<h3 id="hardware-specifications-by-deployment-size">Hardware specifications by deployment size<a class="headerlink" href="#hardware-specifications-by-deployment-size" title="Permanent link">&para;</a></h3>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Small (1-30 nodes)</label><label for="__tabbed_1_2">Medium (31-200 nodes)</label><label for="__tabbed_1_3">Large (200+ nodes)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <ul>
-<li><code>service-type</code>: The type of service to remove: mysql, mongodb, postgresql, proxysql, haproxy, or external</li>
-<li><code>service-name</code>: The name of the service as displayed in PMM inventory</li>
+<li><strong>CPU</strong>: 4 cores with SSE4.2 support</li>
+<li><strong>Memory</strong>: 8 GB RAM</li>
+<li><strong>Storage</strong>: 100 GB</li>
+<li><strong>Use cases</strong>: Development, small businesses, initial deployments</li>
 </ul>
-<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<p>To remove a MySQL service:
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>remove<span class="w"> </span>mysql<span class="w"> </span>mysql-prod-db1
-</code></pre></div></p>
-<h2 id="verify-service-removal">Verify service removal<a class="headerlink" href="#verify-service-removal" title="Permanent link">&para;</a></h2>
-<p>After removing a service, you can verify it&rsquo;s no longer being monitored by listing all monitored services:</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>list
-</code></pre></div>
-<h2 id="related-topics">Related topics<a class="headerlink" href="#related-topics" title="Permanent link">&para;</a></h2>
+</div>
+<div class="tabbed-block">
 <ul>
-<li><a href="https://www.percona.com/doc/percona-repo-config/percona-release.html">Percona release</a></li>
-<li><a href="../../../../reference/index.html#pmm-client">PMM Client architecture</a></li>
+<li><strong>CPU</strong>: 8-16 cores with SSE4.2 support</li>
+<li><strong>Memory</strong>: 16-32 GB RAM</li>
+<li><strong>Storage</strong>: 200+ GB</li>
+<li><strong>Use cases</strong>: Production environments, mid-sized companies</li>
 </ul>
+</div>
+<div class="tabbed-block"></div>
+</div>
+</div>
+<p>w1
+    - <strong>CPU</strong>: 16+ cores with SSE4.2 support
+    - <strong>Memory</strong>: 32+ GB RAM
+    - <strong>Storage</strong>: 500+ GB
+    - <strong>Use cases</strong>: Large enterprises, mission-critical database fleets</p>
+<p>For detailed sizing calculations, see <a href="../plan-pmm-installation/hardware_and_system.html">Hardware and system requirements</a>.</p>
+<h3 id="architecture-requirements">Architecture requirements<a class="headerlink" href="#architecture-requirements" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>CPU</strong>: Must support SSE4.2 instruction set (required for Query Analytics)</li>
+<li><strong>x86_64</strong>: Native support for optimal performance</li>
+<li><strong>ARM64</strong>: Supported via Docker emulation using <code>--platform linux/amd64</code></li>
+</ul>
+<h2 id="storage-planning">Storage planning<a class="headerlink" href="#storage-planning" title="Permanent link">&para;</a></h2>
+<p>PMM Server stores metrics data, requiring persistent storage:</p>
+<ul>
+<li><strong>Storage type</strong>: Use persistent volumes (Docker volumes, cloud storage or host directories)</li>
+<li><strong>Capacity planning</strong>: <code>nodes × retention_period_in_weeks × 1 GB</code></li>
+<li><strong>Quick estimate</strong>: <code>number_of_nodes × 4 GB</code> for default 30-day retention</li>
+<li><strong>Performance</strong>: SSD recommended for better I/O performance</li>
+</ul>
+<h2 id="network-connectivity">Network connectivity<a class="headerlink" href="#network-connectivity" title="Permanent link">&para;</a></h2>
+<p>PMM Server requires these network connections:</p>
+<table>
+<thead>
+<tr>
+<th>Connection</th>
+<th>Port</th>
+<th>Purpose</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Users &gt; PMM Server</td>
+<td>443 (HTTPS)</td>
+<td>Web interface access</td>
+<td>Essential</td>
+</tr>
+<tr>
+<td>Users &gt; PMM Server</td>
+<td>80 (HTTP)</td>
+<td>Web interface (insecure)</td>
+<td>Optional</td>
+</tr>
+<tr>
+<td>PMM Clients &gt; PMM Server</td>
+<td>443/80</td>
+<td>Metrics reporting</td>
+<td>Essential</td>
+</tr>
+<tr>
+<td>PMM Server &gt; Internet</td>
+<td>443</td>
+<td>Updates, telemetry</td>
+<td>Optional</td>
+</tr>
+</tbody>
+</table>
+<p>For complete port specifications, see <a href="../plan-pmm-installation/network_and_firewall.html">Network and firewall requirements</a>.</p>
+<h2 id="deployment-specific-prerequisites">Deployment-specific prerequisites<a class="headerlink" href="#deployment-specific-prerequisites" title="Permanent link">&para;</a></h2>
+<p>Choose your deployment method and ensure it meets these specific requirements:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:4"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.983 11.078h2.119a.186.186 0 0 0 .186-.185V9.006a.186.186 0 0 0-.186-.186h-2.119a.185.185 0 0 0-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 0 0 .186-.186V3.574a.186.186 0 0 0-.186-.185h-2.118a.185.185 0 0 0-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 0 0 .186-.186V6.29a.186.186 0 0 0-.186-.185h-2.118a.185.185 0 0 0-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 0 0 .184-.186V6.29a.185.185 0 0 0-.185-.185H8.1a.185.185 0 0 0-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 0 0 .185-.186V6.29a.185.185 0 0 0-.185-.185H5.136a.186.186 0 0 0-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 0 0 .186-.185V9.006a.186.186 0 0 0-.186-.186h-2.118a.185.185 0 0 0-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 0 0 .184-.185V9.006a.185.185 0 0 0-.184-.186h-2.12a.185.185 0 0 0-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 0 0 .185-.185V9.006a.185.185 0 0 0-.184-.186h-2.12a.186.186 0 0 0-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 0 0 .184-.185V9.006a.185.185 0 0 0-.184-.186h-2.12a.185.185 0 0 0-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51q-.508.001-1.01.087c-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.75.75 0 0 0-.75.748 11.4 11.4 0 0 0 .692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137a15.7 15.7 0 0 0 2.93-.266 12.3 12.3 0 0 0 3.823-1.389 10.5 10.5 0 0 0 2.61-2.136c1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z"/></svg></span> Docker</label><label for="__tabbed_2_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.2.275 6.75.308a.26.26 0 0 0-.203.098L.056 8.602a.26.26 0 0 0-.05.219l2.356 10.194a.26.26 0 0 0 .14.174l9.43 4.511a.26.26 0 0 0 .224-.002l9.401-4.566a.26.26 0 0 0 .141-.175L23.993 8.75a.26.26 0 0 0-.051-.22L17.403.374A.26.26 0 0 0 17.2.275m-.123.517 6.385 7.966-2.242 9.964-9.177 4.457-9.205-4.402L.54 8.827 6.875.824zM11.46 2.857c-.933 0-1.84.1-2.426.332h-.002c-1.554.569-2.725 2.105-3.074 3.952v.004c-.309 1.463-.392 2.703-.556 3.824-.07.481-.159.94-.283 1.387-.628.497-1.079 1.263-1.244 2.138v.004c-.116.547-.181 1.04-.237 1.5h-.644v.518h8.891c-.061.464-.122.996-.181 1.42H7.596v.517h7.939c-.242-.078-.486-.218-.756-.502h-.697l-.85.488-.232-.396.162-.092h-1.069c.113-.776.17-1.601.373-2.564v-.004c.22-1.164.96-2.112 1.895-2.453l.004-.002h.002c.318-.127.928-.205 1.543-.205.613 0 1.244.075 1.622.207.935.341 1.676 1.29 1.895 2.453v.004c.204.963.26 1.788.373 2.564h-.742l.162.092-.233.396-.85-.488h-.75c-.219.25-.474.412-.747.502h4.392v-.518h-.842c-.103-.743-.181-1.67-.382-2.623v-.002a4 4 0 0 0-.264-.863h1.863v-.517h-2.13a3.5 3.5 0 0 0-.8-.906h1.8v-.518H17.95a9 9 0 0 1-.193-.775h1.484v-.518h-1.576q-.02-.12-.039-.244c-.164-1.12-.246-2.36-.555-3.824v-.004c-.348-1.848-1.52-3.383-3.075-3.952l-.002-.002h-.002c-.65-.227-1.596-.33-2.531-.33zm0 .386c.904 0 1.833.11 2.404.309h.002c1.4.514 2.5 1.934 2.826 3.666v.003c.303 1.436.385 2.66.552 3.805.076.515.173 1.013.315 1.505-.449-.135-1.05-.197-1.648-.197q-.179 0-.352.008l-1.863-1.865a2 2 0 0 0 .11-.246l2.13 1.23.13-.224-2.185-1.262q.023-.104.036-.21l2.302.616.068-.248-2.354-.63c-.02-1.153-1.008-2.078-2.208-2.078-1.205 0-2.196.931-2.206 2.091l-2.303.617.066.25 2.252-.605q.015.114.041.224L7.436 11.24l.129.222 2.087-1.207q.051.134.12.258l-1.266 1.266a7 7 0 0 0-1.045-.075c-.603 0-1.186.064-1.578.22a3 3 0 0 0-.285.124q.113-.502.187-1.021c.168-1.144.248-2.37.551-3.805l.002-.001v-.002c.326-1.733 1.426-3.153 2.828-3.666h.002l.004-.002c.488-.194 1.381-.307 2.287-.307zM8.473 5.194a1.3 1.3 0 0 0-.965.502l-.117.153.306.236.12-.152a.92.92 0 0 1 .673-.352.92.92 0 0 1 .67.262l.139.134.271-.275-.136-.137a1.3 1.3 0 0 0-.961-.37zm6.39 0a1.3 1.3 0 0 0-.96.371l-.138.137.274.275.136-.134a.92.92 0 0 1 .672-.262.92.92 0 0 1 .674.352l.119.152.307-.236-.12-.153c-.23-.3-.587-.486-.964-.502M8.53 6.708c-.642 0-1.164.538-1.164 1.19 0 .65.522 1.187 1.164 1.187.643 0 1.164-.536 1.164-1.188s-.521-1.19-1.164-1.19zm6.273 0c-.643 0-1.162.538-1.162 1.19 0 .65.52 1.187 1.162 1.187.643 0 1.164-.536 1.164-1.188s-.521-1.19-1.164-1.19zm-6.273.387c.428 0 .776.355.776.802s-.348.8-.776.8a.785.785 0 0 1-.775-.8q0-.053.006-.103c.07.191.248.318.445.318a.487.487 0 0 0 .477-.496.49.49 0 0 0-.383-.486.8.8 0 0 1 .23-.035m6.273 0c.428 0 .777.355.777.802s-.349.8-.777.8a.785.785 0 0 1-.77-.9c.072.19.248.315.444.315a.486.486 0 0 0 .479-.496.49.49 0 0 0-.383-.484.8.8 0 0 1 .23-.037m-3.08.716c1.012 0 1.819.775 1.819 1.723 0 .947-.807 1.722-1.819 1.722s-1.82-.775-1.82-1.722c0-.948.808-1.723 1.82-1.723m-.002.528c-.142 0-.258.043-.355.076a.8.8 0 0 1-.232.054c-.107 0-.2.047-.268.127a.6.6 0 0 0-.104.207c-.04.134-.062.268-.08.315a.28.28 0 0 0 .032.25c.033.056.071.1.117.146.09.092.206.183.322.268.12.088.237.166.326.224l-.008.09c-.043.036-.14.102-.324.178a.53.53 0 0 1-.299.025.43.43 0 0 1-.236-.172c.015-.138.044-.293.068-.449l-.376-.095c-.05.238-.067.43-.094.64l.037.059c.143.224.318.344.506.392a.9.9 0 0 0 .52-.033 1.6 1.6 0 0 0 .444-.242c.088.067.244.174.446.242a.9.9 0 0 0 .52.033.87.87 0 0 0 .507-.392l.037-.059a6 6 0 0 0-.096-.637l-.377.092c.032.148.051.32.07.451a.43.43 0 0 1-.237.17.53.53 0 0 1-.3-.025c-.178-.068-.272-.14-.325-.178l-.006-.084c.09-.058.209-.137.336-.23.115-.085.231-.176.322-.268a.7.7 0 0 0 .117-.146.27.27 0 0 0 .031-.25c-.018-.047-.039-.181-.08-.315a.6.6 0 0 0-.103-.207.34.34 0 0 0-.268-.127.8.8 0 0 1-.234-.054c-.097-.033-.212-.076-.354-.076zm.002.386c.057 0 .134.024.23.057.09.03.208.07.337.076.04.102.06.237.09.338a.4.4 0 0 1-.041.045 3 3 0 0 1-.276.228c-.165.122-.271.188-.342.233a5 5 0 0 1-.34-.233 3 3 0 0 1-.275-.228.3.3 0 0 1-.04-.047c.035-.119.046-.234.089-.34.08.012.246-.042.336-.072a.8.8 0 0 1 .232-.057m-3.234.61a.635.635 0 0 0-.611.517l1.084-.289a.61.61 0 0 0-.473-.228m6.336 0a.6.6 0 0 0-.436.187c.352.096.69.184 1.033.275a.63.63 0 0 0-.597-.462m-.623.607c-.007.035-.002.07-.002.103l.921.532a.65.65 0 0 0 .276-.313zm-5.086.05-1.18.315c.078.15.207.264.362.316l.797-.46c.018-.059.015-.12.021-.17zm4.441.714 1.656 1.658a4.2 4.2 0 0 0-.826.146l-.95-1.647a3 3 0 0 0 .12-.157m-3.646.03c.04.055.083.118.129.169l-.658 1.134a3 3 0 0 0-.276-.119l-.002-.002a3 3 0 0 0-.292-.082zm3.338.317.892 1.547c-.623.251-1.149.725-1.523 1.33h-1.652c-.262-.75-.741-1.38-1.358-1.764l.623-1.082c.394.347.919.559 1.492.559a2.25 2.25 0 0 0 1.526-.59M7.46 12.09c.574 0 1.167.073 1.518.195.867.319 1.555 1.203 1.76 2.285l.001.002v.002c.109.513.173.98.227 1.424H9.86a.386.386 0 0 0-.494 0H9.11a1.4 1.4 0 0 0-.078-.418.8.8 0 0 0 .569.238c.45 0 .814-.375.814-.828a.824.824 0 0 0-.814-.828.822.822 0 0 0-.791 1.016 1.5 1.5 0 0 0-1.18-.559c-.798 0-1.46.611-1.48 1.38h-.342a.386.386 0 0 0-.494 0H4.028c.054-.445.116-.912.224-1.425l.002-.002v-.002c.205-1.084.894-1.97 1.764-2.287h.002l.004-.002c.295-.117.863-.191 1.437-.19zm-1.91 1.105a.9.9 0 0 0-.67.348l-.119.154.307.237.119-.155a.53.53 0 0 1 .379-.197.52.52 0 0 1 .377.147l.138.136.272-.275-.137-.137a.9.9 0 0 0-.666-.258m4.094 0a.9.9 0 0 0-.668.258l-.137.137.273.275.137-.136a.52.52 0 0 1 .377-.147.53.53 0 0 1 .379.197l.119.155.307-.237-.12-.154a.9.9 0 0 0-.667-.348m4.222.735a.95.95 0 0 0-.707.365l-.117.154.306.237.12-.155a.57.57 0 0 1 .413-.213.57.57 0 0 1 .414.159l.14.136.27-.275-.138-.137a.94.94 0 0 0-.701-.271m4.374 0a.94.94 0 0 0-.7.271l-.14.137.272.275.139-.136a.57.57 0 0 1 .414-.159.57.57 0 0 1 .414.213l.119.155.306-.237-.117-.154a.95.95 0 0 0-.707-.365m-12.65.232a.824.824 0 0 0-.815.828c0 .453.365.828.814.828.45 0 .815-.375.815-.828a.824.824 0 0 0-.815-.828zm5.518.285h1.242a4 4 0 0 0-.263.864v.002q-.075.354-.127.685h-.602a17 17 0 0 0-.236-1.5l-.002-.002q-.006-.024-.012-.049m-5.519.102a.43.43 0 0 1 .426.441.43.43 0 0 1-.426.442c-.22 0-.4-.171-.422-.397a.3.3 0 0 0 .215.092.31.31 0 0 0 .305-.316.32.32 0 0 0-.129-.258q.015-.003.031-.004m4.014 0c.235 0 .427.193.427.441a.433.433 0 0 1-.427.442.427.427 0 0 1-.422-.405.3.3 0 0 0 .256.145.31.31 0 0 0 .304-.317.31.31 0 0 0-.207-.298q.034-.007.069-.008m4.304.414a.865.865 0 0 0-.856.87c0 .478.382.874.856.874a.87.87 0 0 0 .857-.873.867.867 0 0 0-.857-.871m4.292 0a.867.867 0 0 0-.814 1.14 1.6 1.6 0 0 0-1.295-.652c-.846 0-1.546.65-1.568 1.463l-1.525.408.066.248 1.477-.394c.004.028.009.06.015.087l-1.418.817.131.222 1.367-.789c.235.552.801.94 1.455.94.66 0 1.233-.397 1.463-.957l1.398.806.13-.222-1.45-.836q.007-.039.012-.078l1.511.404.067-.248-1.563-.418a1.4 1.4 0 0 0-.107-.5c.157.186.39.303.648.303a.867.867 0 0 0 .856-.873.865.865 0 0 0-.856-.871m-10.567.043c.598 0 1.071.444 1.092.992h-.41q.011-.014.023-.033a.24.24 0 0 0 .025-.22c-.005-.016-.021-.102-.05-.196a.4.4 0 0 0-.078-.156.28.28 0 0 0-.225-.108.5.5 0 0 1-.129-.031c-.062-.021-.142-.05-.248-.05s-.188.029-.25.05a.5.5 0 0 1-.127.031.29.29 0 0 0-.225.108.4.4 0 0 0-.08.156c-.029.094-.043.18-.048.195a.24.24 0 0 0 .023.22q.012.02.025.034h-.41c.02-.548.494-.992 1.092-.992m6.275.344c.259 0 .47.211.47.484a.477.477 0 0 1-.47.486.47.47 0 0 1-.467-.453.32.32 0 0 0 .246.115c.18 0 .326-.15.326-.338a.34.34 0 0 0-.156-.289q.025-.004.05-.005zm4.292 0c.26 0 .469.211.469.484 0 .272-.21.486-.469.486a.477.477 0 0 1-.47-.486q0-.024.004-.047a.33.33 0 0 0 .312.24c.18 0 .326-.15.326-.338a.34.34 0 0 0-.256-.332 1 1 0 0 1 .084-.007m-10.567.24q.032 0 .125.031c.086.03.117.039.186.049.012.041.022.088.033.129a1.5 1.5 0 0 1-.168.138c-.038.028-.064.045-.088.061h-.176c-.024-.016-.052-.033-.09-.06a2 2 0 0 1-.168-.14l.034-.128c.107-.014.146-.04.185-.049a.5.5 0 0 1 .127-.031m8.458.25c.661 0 1.184.502 1.184 1.113 0 .156-.035.304-.096.44l-.002-.024-.022-.156a2 2 0 0 0-.04-.24l-.377.093.044.274a.24.24 0 0 1-.115.074.3.3 0 0 1-.168-.014c-.087-.03-.132-.063-.18-.094.057-.037.13-.084.198-.134.08-.06.16-.123.226-.19a.5.5 0 0 0 .092-.111.25.25 0 0 0 .026-.225c-.008-.019-.022-.112-.053-.21a.44.44 0 0 0-.084-.163.29.29 0 0 0-.23-.107.6.6 0 0 1-.14-.037c-.065-.022-.152-.055-.263-.055-.11 0-.195.032-.262.055a.6.6 0 0 1-.14.037.3.3 0 0 0-.23.107.4.4 0 0 0-.083.162c-.03.1-.045.192-.052.211a.25.25 0 0 0 .025.225.5.5 0 0 0 .09.111c.066.067.146.13.226.19.068.05.138.095.194.132a.6.6 0 0 1-.18.096.3.3 0 0 1-.17.014.24.24 0 0 1-.111-.076c.008-.09.026-.177.04-.272l-.376-.094c-.032.146-.045.286-.063.409a1.05 1.05 0 0 1-.09-.428c0-.611.521-1.113 1.182-1.113m0 .623q.04 0 .14.033c.066.025.169.052.206.055l.035.156c-.04.04-.112.1-.184.152-.095.07-.14.095-.197.131-.056-.036-.1-.061-.195-.13a1.2 1.2 0 0 1-.184-.157l.035-.152a1 1 0 0 0 .206-.055.5.5 0 0 1 .138-.033m-2.22.353a.43.43 0 0 0-.385.272l.656-.176a.42.42 0 0 0-.271-.096m4.333 0a.4.4 0 0 0-.22.07l.603.16a.43.43 0 0 0-.383-.23m-4.054.567-.607.162a.4.4 0 0 0 .125.113zm3.925.002.407.234a.4.4 0 0 0 .087-.102zm-1.986.234c.067.047.165.108.285.148a.7.7 0 0 0 .389.024.6.6 0 0 0 .232-.121 1.2 1.2 0 0 1-.904.394c-.356 0-.67-.145-.885-.375a.6.6 0 0 0 .207.102c.144.036.28.014.391-.024.12-.04.218-.1.285-.148m-9.524 1.61v.517h6.214v-.518zm3.619 1.292v.517H15.3v-.517z"/></svg></span> Podman</label><label for="__tabbed_2_3"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m10.204 14.35.007.01-.999 2.413a5.17 5.17 0 0 1-2.075-2.597l2.578-.437.004.005a.44.44 0 0 1 .484.606zm-.833-2.129a.44.44 0 0 0 .173-.756l.002-.011L7.585 9.7a5.14 5.14 0 0 0-.73 3.255l2.514-.725zm1.145-1.98a.44.44 0 0 0 .699-.337l.01-.005.15-2.62a5.14 5.14 0 0 0-3.01 1.442l2.147 1.523zm.76 2.75.723.349.722-.347.18-.78-.5-.623h-.804l-.5.623.179.779zm1.5-3.095a.44.44 0 0 0 .7.336l.008.003 2.134-1.513a5.2 5.2 0 0 0-2.992-1.442l.148 2.615zm10.876 5.97-5.773 7.181a1.6 1.6 0 0 1-1.248.594l-9.261.003a1.6 1.6 0 0 1-1.247-.596l-5.776-7.18a1.58 1.58 0 0 1-.307-1.34L2.1 5.573c.108-.47.425-.864.863-1.073L11.305.513a1.6 1.6 0 0 1 1.385 0l8.345 3.985c.438.209.755.604.863 1.073l2.062 8.955c.108.47-.005.963-.308 1.34m-3.289-2.057c-.042-.01-.103-.026-.145-.034-.174-.033-.315-.025-.479-.038-.35-.037-.638-.067-.895-.148-.105-.04-.18-.165-.216-.216l-.201-.059a6.5 6.5 0 0 0-.105-2.332 6.5 6.5 0 0 0-.936-2.163c.052-.047.15-.133.177-.159.008-.09.001-.183.094-.282.197-.185.444-.338.743-.522.142-.084.273-.137.415-.242.032-.024.076-.062.11-.089.24-.191.295-.52.123-.736s-.506-.236-.745-.045c-.034.027-.08.062-.111.088-.134.116-.217.23-.33.35-.246.25-.45.458-.673.609-.097.056-.239.037-.303.033l-.19.135a6.55 6.55 0 0 0-4.146-2.003l-.012-.223c-.065-.062-.143-.115-.163-.25-.022-.268.015-.557.057-.905.023-.163.061-.298.068-.475.001-.04-.001-.099-.001-.142 0-.306-.224-.555-.5-.555-.275 0-.499.249-.499.555l.001.014c0 .041-.002.092 0 .128.006.177.044.312.067.475.042.348.078.637.056.906a.55.55 0 0 1-.162.258l-.012.211a6.42 6.42 0 0 0-4.166 2.003l-.18-.128c-.09.012-.18.04-.297-.029-.223-.15-.427-.358-.673-.608-.113-.12-.195-.234-.329-.349l-.111-.088a.6.6 0 0 0-.348-.132.48.48 0 0 0-.398.176c-.172.216-.117.546.123.737l.007.005.104.083c.142.105.272.159.414.242.299.185.546.338.743.522.076.082.09.226.1.288l.16.143a6.46 6.46 0 0 0-1.02 4.506l-.208.06c-.055.072-.133.184-.215.217-.257.081-.546.11-.895.147-.164.014-.305.006-.48.039-.037.007-.09.02-.133.03l-.004.002-.007.002c-.295.071-.484.342-.423.608.061.267.349.429.645.365l.007-.001.01-.003.129-.029c.17-.046.294-.113.448-.172.33-.118.604-.217.87-.256.112-.009.23.069.288.101l.217-.037a6.5 6.5 0 0 0 2.88 3.596l-.09.218c.033.084.069.199.044.282-.097.252-.263.517-.452.813-.091.136-.185.242-.268.399-.02.037-.045.095-.064.134-.128.275-.034.591.213.71.248.12.556-.007.69-.282v-.002c.02-.039.046-.09.062-.127.07-.162.094-.301.144-.458.132-.332.205-.68.387-.897.05-.06.13-.082.215-.105l.113-.205a6.45 6.45 0 0 0 4.609.012l.106.192c.086.028.18.042.256.155.136.232.229.507.342.84.05.156.074.295.145.457.016.037.043.09.062.129.133.276.442.402.69.282.247-.118.341-.435.213-.71-.02-.039-.045-.096-.065-.134-.083-.156-.177-.261-.268-.398-.19-.296-.346-.541-.443-.793-.04-.13.007-.21.038-.294-.018-.022-.059-.144-.083-.202a6.5 6.5 0 0 0 2.88-3.622c.064.01.176.03.213.038.075-.05.144-.114.28-.104.266.039.54.138.87.256.154.06.277.128.448.173.036.01.088.019.13.028l.009.003.007.001c.297.064.584-.098.645-.365.06-.266-.128-.537-.423-.608M16.4 9.701l-1.95 1.746v.005a.44.44 0 0 0 .173.757l.003.01 2.526.728a5.2 5.2 0 0 0-.108-1.674A5.2 5.2 0 0 0 16.4 9.7zm-4.013 5.325a.44.44 0 0 0-.404-.232.44.44 0 0 0-.372.233h-.002l-1.268 2.292a5.16 5.16 0 0 0 3.326.003l-1.27-2.296zm1.888-1.293a.44.44 0 0 0-.27.036.44.44 0 0 0-.214.572l-.003.004 1.01 2.438a5.15 5.15 0 0 0 2.081-2.615l-2.6-.44z"/></svg></span> Kubernetes</label><label for="__tabbed_2_4"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m6 2a6 6 0 0 0-6 6c0 3.31 2.69 6 6.1 6l-.88-2.23a1.01 1.01 0 0 1 .37-1.37l.86-.5a1.01 1.01 0 0 1 1.37.37l1.92 2.42A5.98 5.98 0 0 0 18 10a6 6 0 0 0-6-6m0 5a1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1 1 1 0 0 1 1-1m-5 9a1 1 0 0 0-1 1 1 1 0 0 0 1 1 1 1 0 0 0 1-1 1 1 0 0 0-1-1m5.09-4.73 2.49 6.31 2.59-1.5-4.22-5.31z"/></svg></span> Virtual Appliance (OVA)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p><strong>Version requirements:</strong></p>
+<ul>
+<li>Docker version 17.03 or higher</li>
+<li>CPU with <code>x86-64-v2</code> support</li>
+</ul>
+<p><strong>System resources:</strong></p>
+<ul>
+<li>Recommended: 2+ CPU cores, 4+ GB RAM, 100+ GB disk space</li>
+</ul>
+<p><strong>Optional but recommended:</strong></p>
+<ul>
+<li>Watchtower for UI-based updates</li>
+<li>Docker Compose for multi-container setups</li>
+</ul>
+<p><strong>Security considerations for Watchtower:</strong></p>
+<ul>
+<li>Limit Watchtower&rsquo;s access to Docker network or localhost</li>
+<li>Configure network to ensure only PMM Server is exposed externally</li>
+<li>Secure Docker socket access for Watchtower</li>
+<li>Place both Watchtower and PMM Server on the same Docker network</li>
+</ul>
+</div>
+<div class="tabbed-block">
+<p><strong>Version requirements:</strong></p>
+<ul>
+<li>Recent Podman version with systemd support</li>
+<li>Rootless Podman configuration</li>
+</ul>
+<p><strong>System configuration:</strong></p>
+<ul>
+<li>Allow non-root users to bind to privileged ports (port 443)</li>
+<li>Podman socket enabled for Watchtower integration</li>
+<li>systemd user services enabled</li>
+</ul>
+<p><strong>Required setup commands:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Configure privileged port access</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;net.ipv4.ip_unprivileged_port_start=443&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>tee<span class="w"> </span>/etc/sysctl.d/99-pmm.conf
+sudo<span class="w"> </span>sysctl<span class="w"> </span>-p<span class="w"> </span>/etc/sysctl.d/99-pmm.conf
+
+<span class="c1"># Enable Podman socket</span>
+systemctl<span class="w"> </span>--user<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>podman.socket
+</code></pre></div>
+<p><strong>Security advantages:</strong></p>
+<ul>
+<li>Enhanced security isolation with rootless containers</li>
+<li>Better systemd integration for service management</li>
+<li>Fine-grained permission control</li>
+</ul>
+</div>
+<div class="tabbed-block">
+<p><strong>Cluster requirements:</strong></p>
+<ul>
+<li>Kubernetes 1.19+ with supported version</li>
+<li>kubectl configured to communicate with your cluster</li>
+</ul>
+<p><strong>Helm requirements:</strong></p>
+<ul>
+<li>Helm v3 installed and configured</li>
+<li>Access to Percona Helm charts repository</li>
+</ul>
+<p><strong>Storage requirements:</strong></p>
+<ul>
+<li>Storage driver with snapshot support (for backups)</li>
+<li>Dynamic provisioning capability</li>
+<li>Persistent Volume support</li>
+</ul>
+<p><strong>Production considerations:</strong></p>
+<ul>
+<li>Separate PMM Server from monitored systems</li>
+<li>High availability configuration for continuous monitoring</li>
+<li>Workload separation through node configurations and affinity rules</li>
+</ul>
+</div>
+<div class="tabbed-block">
+<p><strong>Hypervisor compatibility:</strong></p>
+<ul>
+<li>VMware ESXi 6.0+, Workstation 12.0+, Fusion 10.0+</li>
+<li>VirtualBox 6.0+</li>
+</ul>
+<p><strong>VM specifications (default):</strong></p>
+<ul>
+<li>OS: Oracle Linux 9.3</li>
+<li>CPU: 1 (adjustable after deployment)</li>
+<li>Memory: 4096 MB (adjustable after deployment)</li>
+<li>Disk 1: 40 GB (system)</li>
+<li>Disk 2: 400 GB (data)</li>
+</ul>
+<p><strong>Network access:</strong></p>
+<ul>
+<li>Outbound internet access for updates (optional)</li>
+<li>Access to monitored database instances</li>
+<li>Access from client browsers to PMM web interface</li>
+</ul>
+<p><strong>Security note:</strong></p>
+<ul>
+<li>Default users: <code>admin/admin</code> and <code>root/percona</code></li>
+<li><strong>Must change default passwords immediately after installation</strong></li>
+</ul>
+</div>
+</div>
+</div>
+<h2 id="security-considerations">Security considerations<a class="headerlink" href="#security-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="ssltls-certificates">SSL/TLS certificates<a class="headerlink" href="#ssltls-certificates" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Self-signed</strong>: PMM Server generates these automatically</li>
+<li><strong>Custom certificates</strong>: Prepare SSL certificates for production deployments</li>
+<li><strong>Certificate authority</strong>: Consider using trusted CA certificates for public access</li>
+</ul>
+<h3 id="access-control">Access control<a class="headerlink" href="#access-control" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Admin credentials</strong>: Plan initial admin username/password strategy</li>
+<li><strong>Default passwords</strong>: Change immediately (especially for OVA deployment)</li>
+<li><strong>User management</strong>: Consider integration with existing authentication systems</li>
+<li><strong>Network security</strong>: Plan firewall rules and network segmentation</li>
+</ul>
+<h3 id="data-protection">Data protection<a class="headerlink" href="#data-protection" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Backup strategy</strong>: Plan for PMM Server data backup and recovery</li>
+<li><strong>Encryption</strong>: Consider encryption for data at rest and in transit</li>
+<li><strong>Compliance</strong>: Ensure deployment meets organizational security requirements</li>
+</ul>
+<h2 id="before-you-install">Before you install<a class="headerlink" href="#before-you-install" title="Permanent link">&para;</a></h2>
+<p class="power-number">Complete these preparation steps:</p>
+<ol>
+<li>Choose deployment method based on your <a href="../plan-pmm-installation/choose-deployment.html">environment and requirements</a></li>
+<li>Prepare infrastructure (servers, storage, networking)</li>
+<li>Plan capacity using sizing guidelines above</li>
+<li>Configure security (certificates, firewall rules, access controls)</li>
+<li>Prepare persistent storage for data retention</li>
+<li>Install required tools (Docker/Podman/Helm/kubectl as needed)</li>
+<li>Document configuration for maintenance and disaster recovery</li>
+</ol>
+<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<p class="power-number">After confirming your environment meets these prerequisites:</p>
+<ol>
+<li><a href="../plan-pmm-installation/choose-deployment.html">Choose your deployment method</a> based on your infrastructure</li>
+<li>
+<p>Install PMM Server  using your selected method:</p>
+</li>
+<li>
+<p><a href="deployment-options/docker/index.html">Docker installation</a></p>
+</li>
+<li><a href="deployment-options/podman/index.html">Podman installation</a></li>
+<li><a href="deployment-options/helm/index.html">Kubernetes/Helm installation</a></li>
+<li><a href="deployment-options/virtual/index.html">Virtual Appliance deployment</a></li>
+<li><a href="../../admin/security/index.html">Configure security settings</a> for production use</li>
+<li><a href="../install-pmm-client/index.html">Install PMM Clients</a> on systems you want to monitor</li>
+</ol>
 
 
 
@@ -9131,7 +9493,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    2025-05-29
+    2025-07-14
   </span>
 
     
@@ -9244,18 +9606,18 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "../../../..", "features": ["search.highlight", "navigation.top", "content.tabs.link", "content.code.copy", "navigation.tracking", "content.action.edit", "content.action.view"], "search": "../../../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["search.highlight", "navigation.top", "content.tabs.link", "content.code.copy", "navigation.tracking", "content.action.edit", "content.action.view"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
 <script src="https://cmp.osano.com/Azqe5vTyLOSbN3OuT/49ad85b5-0418-4794-ab81-7599dddd534c/osano.js"></script>
 
-      <script src="../../../../assets/javascripts/bundle.56ea9cef.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
-        <script src="../../../../js/promptremover.js"></script>
+        <script src="../../js/promptremover.js"></script>
       
-        <script src="../../../../js/consent.js"></script>
+        <script src="../../js/consent.js"></script>
       
-        <script src="../../../../js/version-select.js"></script>
+        <script src="../../js/version-select.js"></script>
       
     
 
