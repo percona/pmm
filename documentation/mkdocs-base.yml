@@ -227,9 +227,9 @@ nav:
       - Upgrade PMM Client:
           - pmm-upgrade/upgrade_client.md
   - Uninstall:
+      - uninstall-pmm/index.md
       - uninstall-pmm/unregister_client.md
       - Uninstall PMM Client:
-          - uninstall-pmm/index.md
           - Docker: uninstall-pmm/uninstall_docker.md
           - Helm: uninstall-pmm/uninstall_helm.md
           - Package manager: uninstall-pmm/uninstall_package_manager.md

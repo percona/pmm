@@ -1,6 +1,6 @@
 # Unregister PMM Client from PMM Server
 
-Unregistering disconnects your PMM Client from the PMM Server and removes all monitoring services for this node. This should be done before uninstalling the PMM Client software.
+Unregistering disconnects your PMM Client from the PMM Server and removes all monitoring services for this node. This should be done before uninstalling the PMM Client.
 
 To unregister PMM Client from PMM Server, run the following command:
 
@@ -8,7 +8,7 @@ To unregister PMM Client from PMM Server, run the following command:
 pmm-admin unregister --force
 ```
 
-What this does:
+This command: 
 
 - stops all monitoring services on this node
 - removes the node from PMM Server's inventory

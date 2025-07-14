@@ -1,6 +1,15 @@
-# Uninstall PMM client using package manager
+# Uninstall PMM Client using package manager
 
-To uninstall PMM client with package manager, do the following steps:
+This removes PMM Client installed via system package managers (APT, YUM, etc.).
+
+## Prerequisites
+
+- [Unregister PMM Client](unregister_client.md) from PMM Server
+- Root or sudo access to the system
+
+## Uninstall steps
+
+To uninstall PMM client with package manager:
 
 === "Debian-based distributions"
 
