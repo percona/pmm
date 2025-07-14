@@ -1,5 +1,15 @@
 # Logging Functionality in Percona Monitoring and Management (PMM)
 
+## Goals
+While the overarching goal it provide a robust logging system that allows users to monitor and troubleshoot their database environments effectively, the specific requirements for the logging functionality in PMM are as follows:
+- ability to collect logs from various sources and in various formats, including logs generated within PMM
+- integrate with PMM and provide an interface for viewing anf querying the logs
+- support log retention policies to manage disk space
+- support alerting based on log events and notify users via available channels (e.g., email, slack, etc.)
+- support a developer-friendly architecture that allows for easy extension and modification
+- ability to scale with the growing needs of users and handle large volumes of log data efficiently
+- stay true to open source principles
+
 ## Overview
 Percona Monitoring and Management (PMM) provides a robust logging system that allows users to monitor and troubleshoot their database environments effectively. This document outlines the logging functionality available in PMM, including how to configure, view, and manage logs.
 
@@ -214,8 +224,9 @@ It's important to note that all solutions have their own strengths and weaknesse
 | Log Visualization      | Yes                              | Yes          | Yes          |
 | Log Search & Filtering | Yes                              | Yes          | Yes          |
 | Alerting Integration   | Yes                              | Yes          | Yes          |
-| Query language         | SQL (ClickHouse)                 | LogQL        | Custom       |
-| Licensing              | Apache 2.0                       | AGPL         | Apache 2.0   |
+| Query language         | SQL (ClickHouse)                 | LogQL        | LogsQL       |
+| Licensing              | Apache 2.0                       | AGPLv3       | Apache 2.0   |
 | External Dependencies  | OpenTelemetry Collector          | Loki, Log collector | VictoriaLogs, Log collector |
 | Community Support      | Strong                           | Strong       | Moderate     |
 | Documentation          | Comprehensive                    | Moderate     | Good         |
+| Requires Build         | No                               | Yes          | Yes          |
