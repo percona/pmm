@@ -16,11 +16,13 @@ Percona Monitoring and Management (PMM) provides a robust logging system that al
 ## Architecture
 PMM's logging architecture is designed to extract logs produced by various components, be they internal or external to PMM. The logs are collected, processed and then persisted to facilitate easy searching and filtering, making it easier for users to identify issues and monitor system health.
 
-### Architecture Diagram
-The architecture diagram illustrates the flow of logs from various sources through the OpenTelemetry Collector to the PMM server, where they are stored in ClickHouse and visualized in Grafana.
+### Architecture Diagrams
+These architecture diagrams illustrate the flow of logs from various sources through the OpenTelemetry Collector to the PMM server, where they are stored in ClickHouse and visualized in Grafana.
 
 ![PMM Logging Architecture](/dev/otel/doc/otel-collector.png)
-
+![PMM Log Collection Diagram](/dev/otel/doc/PMM%20Log%20Collection%20Diagram.jpg)
+![PMM Logging Diagram - Internal Storage](/dev/otel/doc/PMM%20Logging%20Diagram%20-%20Internal%20Storage.jpg)
+![PMM Logging Diagram - External Storage](/dev/otel/doc/PMM%20Logging%20Diagram%20-%20External%20Storage.jpg)
 
 ###  Logging Components
 PMM's logging functionality consists of several key components:
