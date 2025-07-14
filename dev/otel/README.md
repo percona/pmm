@@ -94,7 +94,7 @@ SETTINGS index_granularity = 8192, ttl_only_drop_parts = 1
 
 ## Logging Configuration
 
-PMM's logging configuration is managed through a YAML file mounted as [`/etc/otel/config.yaml`](/dev/otel/config.yml) to `otel-collector` container. This file allows users to customize various aspects of logging, including log file locations, severity levels, output formats, in-flight transformations and more.
+PMM's logging configuration is managed through a [YAML file](/dev/otel/config.yml) mounted as `/etc/otel/config.yaml` to `otel-collector` container. This file allows users to customize various aspects of logging, including log file locations, severity levels, output formats, in-flight transformations and more.
 
 To read about the configuration options, refer to the [OpenTelemetry Collector Configuration](https://opentelemetry.io/docs/collector/configuration/) documentation. The configuration file is structured in a way that allows users to define receivers, processors, exporters, and other components that control how logs are collected, processed, and stored.
 
