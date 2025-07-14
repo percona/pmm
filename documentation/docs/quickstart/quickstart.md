@@ -15,12 +15,12 @@ This is the simplest and most efficient way to install PMM with Docker.
 
 #### Prerequisites
 
-Before you start installing PMM, verify that your system meets the compatibility requirements.
+Before you start installing PMM, verify that your system meets the compatibility requirements:
 
 ??? info "Verify system compatibility"
-    - **Disk**: Approximately 1 GB of storage per monitored database node with data retention set to one week. By default, retention is 30 days.
-    - **Memory**: A minimum of 2 GB per monitored database node. The increase in memory usage is not proportional to the number of nodes. For example, the data from 20 nodes should be easily handled with 16 GB.
-    - **Ports**: Your system’s firewall should allow TCP traffic on port 443.
+    - System: Linux-compatible system with `sudo` privileges or `root` access
+    - Network: Internet connectivity to download PMM components
+    - Ports: Your system's firewall should allow TCP traffic on port `443`
 
 ## Install PMM
 
@@ -345,7 +345,7 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add mongodb --username=pmm --password=<your_password>
         ```
    
-    For detailed instructions, see [Adding a MongoDB database for monitoring](../install-pmm/install-pmm-client/connect-database/mongodb/mongodb.md).
+    For detailed instructions, see [Adding a MongoDB database for monitoring](../install-pmm/install-pmm-client/connect-database/mongodb.md).
 
 === ":simple-nginxproxymanager: ProxySQL"
     To connect a ProxySQL service:
