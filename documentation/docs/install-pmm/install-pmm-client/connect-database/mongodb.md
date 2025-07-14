@@ -329,7 +329,10 @@ PMM offers two methods for collecting MongoDB query analytics. Use the compariso
            copytruncate
            missingok
            notifempty
-           create 640 mongodb mongodb
+           create 640 mongod mongod
+           postrotate
+            /bin/kill -SIGUSR1 `cat /var/run/mongod.pid >/dev/null` /dev/null 2>&1
+           endscript
         }
         ```
 
