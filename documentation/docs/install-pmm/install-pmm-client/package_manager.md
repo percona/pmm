@@ -142,5 +142,5 @@ pmm-admin status
 - [Connect database services](../install-pmm-client/connect-database/index.md) 
 - [PMM Client command reference](../../use/commands/pmm-admin.md) 
 - [Upgrade PMM Client](../../pmm-upgrade/upgrade_client.md) 
-- [Uninstall PMM Client](../../uninstall-pmm/unregister_client.md)
+- [Uninstall PMM Client](../../uninstall-pmm/index.md)
 - [Unregister PMM Client](../../uninstall-pmm/unregister_client.md)
