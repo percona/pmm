@@ -4,7 +4,7 @@ templates:
     version: 1
     summary: MySQL replication running SQL
     expr: |-
-      mysql_slave_status_master_server_id > 0 and ON (instance) mysql_slave_status_slave_sql_running == 0
+      mysql_slave_status_source_server_id > 0 and ON (instance) mysql_slave_status_replica_sql_running == 0
     for: 1m
     severity: critical
     annotations:
