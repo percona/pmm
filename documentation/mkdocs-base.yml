@@ -224,8 +224,7 @@ nav:
               - pmm-upgrade/upgrade_helm.md
           - pmm-upgrade/migrating_from_pmm_2.md
           - pmm-upgrade/upgrade_aws.md
-      - Upgrade PMM Client:
-          - pmm-upgrade/upgrade_client.md
+      - Upgrade PMM Client: pmm-upgrade/upgrade_client.md
   - Uninstall:
       - uninstall-pmm/index.md
       - uninstall-pmm/unregister_client.md

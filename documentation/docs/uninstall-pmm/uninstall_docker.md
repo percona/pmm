@@ -1,11 +1,6 @@
 # Uninstall PMM client using Docker container
 
-This completely removes the PMM Client Docker container, image, and all associated data from your system.
-
-To remove (uninstall) PMM Client, do the following steps in Docker:
-
-!!! caution alert alert-warning "Caution"
-    These steps delete the PMM Client Docker image and client services configuration data.
+Completely remove the PMM Client Docker container, image, and client services configuration data.
 
 ## Prerequisites
 

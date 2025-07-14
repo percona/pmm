@@ -127,6 +127,14 @@ where:
     ```sh
     pmm-admin config --server-insecure-tls --server-url=https://admin:admin@192.168.33.14:443 192.168.33.23 generic mynode
     ```
+    
+### Step 5: Verify the connection
+
+Check that PMM Client is properly connected and registered:
+
+```sh
+pmm-admin status
+```
 
 ## Related topics
 

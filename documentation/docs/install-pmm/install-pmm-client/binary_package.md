@@ -8,6 +8,13 @@ Installing from binaries offers these advantages:
 - allows installation without root permissions (unique to this method)
 - provides complete control over the installation location
 
+!!! hint alert alert-success "Tip for quick installation"
+    For a quick installation:
+
+    - Download the PMM Client tar.gz file
+    - Extract it
+    - Run `./install_tarball` (or with `-u` flag to preserve existing config during upgrades)
+
 ## Prerequisites
 
 Complete these essential steps before installation:
@@ -15,7 +22,7 @@ Complete these essential steps before installation:
 
 1. Check [system requirements](prerequisites.md) to ensure your environment meets the minimum criteria.
 
-2. [Install and configure PMM Server](../install-pmm-server/index.md)as you'll its IP address or hostname to configure the Client.
+2. [Install and configure PMM Server](../install-pmm-server/index.md) as you'll its IP address or hostname to configure the Client.
 
 3. [Set up firewall rules](../plan-pmm-installation/network_and_firewall.md) to allow communication between PMM Client and PMM Server.
 
@@ -256,12 +263,6 @@ Select the appropriate instructions based on your access level:
         pmm-admin status
         ```
         
-!!! hint alert alert-success "Tip for quick installation"
-    For a quick installation:
-
-    - Download the PMM Client tar.gz file
-    - Extract it
-    - Run `./install_tarball` (or with `-u` flag to preserve existing config during upgrades)
 
 ## Related topics
 
