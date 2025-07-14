@@ -53,7 +53,7 @@
     shell: "{{ item.shell }}"
     group: "{{ item.group }}"
   loop:
-    - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: pmm, }
+    - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: 0, }
     - { name: nginx, uid: 1001, comment: "Nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
     - { name: clickhouse, uid: 1002, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/dev/null", group: clickhouse, }
 
