@@ -17,7 +17,7 @@ Complete these essential steps before installation:
 
 2. Check [system requirements](prerequisites.md) to ensure your environment meets the minimum criteria.
 
-3. [Install and configure PMM Server](../install-pmm-server/index.md)as you'll need its IP address or hostname to configure the Client.
+3. [Install and configure PMM Server](../install-pmm-server/index.md) as you'll need its IP address or hostname to configure the Client.
 
 4. [Set up firewall rules](../plan-pmm-installation/network_and_firewall.md) to allow communication between PMM Client and PMM Server.
 
@@ -46,7 +46,6 @@ Follow these steps to deploy PMM Client using Docker:
 
     ```sh
      docker run \
-     --rm \
      --name pmm-client \
      -e PMM_AGENT_SERVER_ADDRESS=X.X.X.X:443 \
      -e PMM_AGENT_SERVER_USERNAME=admin \
