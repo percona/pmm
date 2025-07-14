@@ -66,7 +66,7 @@ Before connecting MySQL to PMM, review the prerequisites for your monitoring set
 
 === "Local MySQL monitoring"
     - [PMM Server is installed](../../../install-pmm-server/index.md) and running.
-    - [PMM Client is installed](../../../install-pmm-client/index.md) and the [nodes are registered with PMM Server](../../../register-client-node/index.md).
+    - [PMM Client is installed](../../../install-pmm-client/index.md) and the nodes are registered with PMM Server.
     - `Root`/`sudo` access is required if PMM Client was installed from packages (RPM/DEB) or if you need to access MySQL slow query logs. Non-root access may be sufficient if PMM Client was installed via tarball or if you're only monitoring performance schema metrics
 
 === "Remote MySQL monitoring"
