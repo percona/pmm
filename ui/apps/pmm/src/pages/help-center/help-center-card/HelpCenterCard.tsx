@@ -1,17 +1,15 @@
 import { Button, CardContent, Typography, Card, Stack } from '@mui/material';
-import {
-  Support,
-  ForumOutlined,
-  DatasetOutlined,
-  NorthEast,
-  SaveAlt,
-  MapOutlined,
-} from '@mui/icons-material';
-import { KnowledgeBaseIcon } from 'icons';
+import Support from '@mui/icons-material/Support';
+import ForumOutlined from '@mui/icons-material/ForumOutlined';
+import DatasetOutlined from '@mui/icons-material/DatasetOutlined';
+import NorthEast from '@mui/icons-material/NorthEast';
+import SaveAlt from '@mui/icons-material/SaveAlt';
+import MapOutlined from '@mui/icons-material/MapOutlined';
 import { FC, ReactNode, useCallback } from 'react';
 import { CARD_IDS, START_ICON } from '../HelpCenter.constants';
-import { HelpCenterCardProps, HelpCardButton } from './HelpCenterCard.types';
+import { HelpCenterCardProps } from './HelpCenterCard.types';
 import { Link } from 'react-router-dom';
+import { Icon } from 'components/icon';
 
 export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
   const { id, title, borderColor, description, buttons } = card;
@@ -19,7 +17,7 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
   const getIcon = useCallback((cardId: string): ReactNode => {
     switch (cardId) {
       case CARD_IDS.pmmDocs:
-        return <KnowledgeBaseIcon />;
+        return <Icon name="knowledge-base" />;
       case CARD_IDS.support:
         return <Support />;
       case CARD_IDS.forum:

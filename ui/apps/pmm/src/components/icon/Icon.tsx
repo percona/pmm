@@ -1,12 +1,20 @@
-import { FC, memo } from 'react';
+import { FC, memo, lazy, Suspense } from 'react';
 import { IconProps } from './Icon.types';
-import { ICON_MAP } from './Icon.constants';
-import { SvgIcon } from '@mui/material';
+import { DYNAMIC_ICON_IMPORT_MAP, VIEWBOX_MAP } from './Icon.constants';
+import SvgIcon from '@mui/material/SvgIcon';
 
 const Icon: FC<IconProps> = memo(({ name, ...props }) => {
-  const Icon = ICON_MAP[name];
+  if (!DYNAMIC_ICON_IMPORT_MAP[name]) {
+    return null;
+  }
 
-  return <SvgIcon component={Icon} {...props} />;
+  const Icon = lazy(DYNAMIC_ICON_IMPORT_MAP[name]);
+
+  return (
+    <Suspense fallback={null}>
+      <SvgIcon component={Icon} viewBox={VIEWBOX_MAP[name]} {...props} />
+    </Suspense>
+  );
 });
 
 export default Icon;

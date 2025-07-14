@@ -1,4 +1,4 @@
-export type Theme = 'light' | 'dark';
+export type ColorMode = 'light' | 'dark';
 
 export type HistoryAction = 'PUSH' | 'POP' | 'REPLACE';
 
@@ -49,6 +49,6 @@ export type DocumentTitleUpdateMessage = Message<
 export type ChangeThemeMessage = Message<
   'CHANGE_THEME',
   {
-    theme: Theme;
+    theme: ColorMode;
   }
 >;

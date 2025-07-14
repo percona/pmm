@@ -6,11 +6,11 @@ import {
   Link,
   Stack,
 } from '@mui/material';
-import { HelpFilledIcon, PmmRoundedIcon } from 'icons';
 import { Breadcrumbs } from 'components/breadcrumbs';
 import { PMM_SUPPORT_URL } from 'lib/constants';
 import { Messages } from './AppBar.messages';
 import { HomeLink } from 'components/home-link';
+import { Icon } from 'components/icon';
 
 export const AppBar = () => (
   <MuiAppBar position="sticky" color="primary">
@@ -24,7 +24,7 @@ export const AppBar = () => (
         data-testid="appbar-pmm-link"
       >
         <Stack gap={1} direction="row" alignItems="center">
-          <PmmRoundedIcon sx={{ height: '40px', width: 'auto' }} />
+          <Icon name="pmm-rounded" sx={{ height: '40px', width: 'auto' }} />
           <Typography>{Messages.title}</Typography>
         </Stack>
       </HomeLink>
@@ -39,7 +39,7 @@ export const AppBar = () => (
           data-testid="appbar-support-link"
         >
           <Stack gap={1} direction="row" alignItems="center">
-            <HelpFilledIcon />
+            <Icon name="help-fill" />
             <Typography>{Messages.support}</Typography>
           </Stack>
         </Link>

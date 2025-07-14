@@ -5,7 +5,7 @@ import { FrontendSettings, Settings } from 'types/settings.types';
 import { Advisor } from 'types/advisors.types';
 import { groupAdvisorsIntoCategories } from 'lib/utils/advisors.utils';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
-import { Theme } from '@pmm/shared';
+import { ColorMode } from '@pmm/shared';
 import {
   NAV_ACCOUNT,
   NAV_ADVISORS,
@@ -144,7 +144,7 @@ export const addAdvisors = (advisors: Advisor[]): NavItem => {
 
 export const addAccount = (
   user: User,
-  colorMode: Theme,
+  colorMode: ColorMode,
   toggleMode: () => void
 ): NavItem => {
   const name = (user.name || '').split(' ')[0];

@@ -1,28 +1,26 @@
-import { List } from '@mui/material';
-import { FC, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 import { useNavigation } from 'contexts/navigation';
 import { NavigationHeading } from './nav-heading';
 import { Drawer } from './drawer';
 import { NavItem } from './nav-item';
+import List from '@mui/material/List';
 
 export const Sidebar: FC = () => {
   const { navTree } = useNavigation();
   const [open, setIsOpen] = useState(true);
+
+  const toggleSidebar = useCallback(() => {
+    setIsOpen((prev) => !prev);
+  }, []);
 
   return (
     <Drawer
       open={open}
       variant="permanent"
       anchor="left"
-      sx={(theme) => ({
-        color: theme.palette.text.primary,
-      })}
       data-testid="pmm-sidebar"
     >
-      <NavigationHeading
-        sidebarOpen={open}
-        onToggleSidebar={() => setIsOpen(!open)}
-      />
+      <NavigationHeading sidebarOpen={open} onToggleSidebar={toggleSidebar} />
       <List disablePadding sx={{ width: '100%', overflowY: 'auto' }}>
         {navTree.map((item) => (
           <NavItem key={item.url} item={item} drawerOpen={open} />

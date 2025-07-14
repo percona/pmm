@@ -1,54 +1,44 @@
-import Account from 'icons/account.svg?react';
-import MySQL from 'icons/mysql.svg?react';
-import Home from 'icons/home.svg?react';
-import Overview from 'icons/overview.svg?react';
-import Summary from 'icons/summary.svg?react';
-import Help from 'icons/help.svg?react';
-import HighAvailability from 'icons/high-availability.svg?react';
-import Mongo from 'icons/mongo.svg?react';
-import PostgreSQL from 'icons/postgresql.svg?react';
-import OperatingSystem from 'icons/operating-system.svg?react';
-import HAproxy from 'icons/haproxy.svg?react';
-import ProxySQL from 'icons/proxysql.svg?react';
-import Dashboards from 'icons/dashboards.svg?react';
-import BrowseDashboards from 'icons/browse-dashboards.svg?react';
-import QAN from 'icons/qan.svg?react';
-import Explore from 'icons/explore.svg?react';
-import Alerts from 'icons/alerts.svg?react';
-import Intelligence from 'icons/percona-intelligence.svg?react';
-import Inventory from 'icons/inventory.svg?react';
-import Backups from 'icons/backups.svg?react';
-import Configuration from 'icons/configuration.svg?react';
-import Encrypted from 'icons/users-and-access.svg?react';
-import SignOut from 'icons/sign-out.svg?react';
-import ThemeDark from 'icons/theme-dark.svg?react';
-import ThemeLight from 'icons/theme-light.svg?react';
+export const DYNAMIC_ICON_IMPORT_MAP = {
+  account: () => import('icons/account.svg?react'),
+  alerts: () => import('icons/alerts.svg?react'),
+  backups: () => import('icons/backups.svg?react'),
+  'browse-dashboards': () => import('icons/browse-dashboards.svg?react'),
+  configuration: () => import('icons/configuration.svg?react'),
+  dashboards: () => import('icons/dashboards.svg?react'),
+  encrypted: () => import('icons/users-and-access.svg?react'),
+  explore: () => import('icons/explore.svg?react'),
+  haproxy: () => import('icons/haproxy.svg?react'),
+  help: () => import('icons/help.svg?react'),
+  'help-fill': () => import('icons/help-fill.svg?react'),
+  'high-availability': () => import('icons/high-availability.svg?react'),
+  home: () => import('icons/home.svg?react'),
+  intelligence: () => import('icons/percona-intelligence.svg?react'),
+  inventory: () => import('icons/inventory.svg?react'),
+  mongo: () => import('icons/mongo.svg?react'),
+  mysql: () => import('icons/mysql.svg?react'),
+  node: () => import('icons/home.svg?react'),
+  overview: () => import('icons/overview.svg?react'),
+  postgresql: () => import('icons/postgresql.svg?react'),
+  'pmm-titled': () => import('icons/pmm-titled.svg?react'),
+  'pmm-rounded': () => import('icons/pmm-rounded.svg?react'),
+  proxysql: () => import('icons/proxysql.svg?react'),
+  qan: () => import('icons/qan.svg?react'),
+  'operating-system': () => import('icons/operating-system.svg?react'),
+  'sign-out': () => import('icons/sign-out.svg?react'),
+  summary: () => import('icons/summary.svg?react'),
+  'theme-dark': () => import('icons/theme-dark.svg?react'),
+  'theme-light': () => import('icons/theme-light.svg?react'),
+  'graph-6': () => import('icons/graph-6.svg?react'),
+  percona: () => import('icons/percona.svg?react'),
+  check: () => import('icons/check.svg?react'),
+  'knowledge-base': () => import('icons/knowledge-base.svg?react'),
+};
 
-export const ICON_MAP = {
-  home: Home,
-  node: Home,
-  help: Help,
-  account: Account,
-  mysql: MySQL,
-  mongo: Mongo,
-  postgresql: PostgreSQL,
-  overview: Overview,
-  summary: Summary,
-  proxysql: ProxySQL,
-  haproxy: HAproxy,
-  dashboards: Dashboards,
-  qan: QAN,
-  explore: Explore,
-  alerts: Alerts,
-  intelligence: Intelligence,
-  inventory: Inventory,
-  backups: Backups,
-  configuration: Configuration,
-  encrypted: Encrypted,
-  'browse-dashboards': BrowseDashboards,
-  'high-availability': HighAvailability,
-  'operating-system': OperatingSystem,
-  'sign-out': SignOut,
-  'theme-dark': ThemeDark,
-  'theme-light': ThemeLight,
+export const VIEWBOX_MAP: Partial<
+  Record<keyof typeof DYNAMIC_ICON_IMPORT_MAP, string>
+> = {
+  percona: '0 0 180 155',
+  'knowledge-base': '0 0 28 28',
+  'pmm-rounded': '0 0 160 160',
+  'pmm-titled': '0 0 363 128',
 };

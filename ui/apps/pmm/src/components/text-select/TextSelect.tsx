@@ -1,4 +1,6 @@
-import { ArrowDropDown, ArrowDropUp, Check } from '@mui/icons-material';
+import ArrowDropUp from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
+import Check from '@mui/icons-material/Check';
 import {
   Button,
   ListItem,
