@@ -32,7 +32,7 @@ release:                        ## Build static pmm-agent release binary (Linux 
 
 release-gssapi:                 ## Build dynamic pmm-agent release binary (for GSSAPI support)
 	CGO_ENABLED=1 go build -v -ldflags "$(VERSION_FLAGS)" -tags 'osusergo netgo gssapi' -o $(PMM_RELEASE_PATH)/pmm-agent-gssapi
-	$(PMM_RELEASE_PATH)/pmm-agent-gssapi --version
+	$(PMM_RELEASE_PATH)/pmm-agent --version
 
 release-dev:
 	CGO_ENABLED=1 go build -race -v -ldflags "$(VERSION_FLAGS)" -o $(PMM_RELEASE_PATH)/pmm-agent
