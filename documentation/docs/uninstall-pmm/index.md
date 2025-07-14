@@ -10,5 +10,5 @@ To completely remove PMM from your system:
     - [Uninstall PMM using Helm](uninstall_helm.md)
     - [Uninstall PMM client with package manager](uninstall_package_manager.md)
 
-    !!! warning
-         Always unregister before uninstalling to avoid orphaned monitoring data on your PMM Server.
+!!! warning
+    Always unregister before uninstalling to avoid orphaned monitoring data on your PMM Server.

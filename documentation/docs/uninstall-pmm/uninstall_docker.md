@@ -2,6 +2,10 @@
 
 Completely remove the PMM Client Docker container, image, and client services configuration data.
 
+!!! warning "Data loss warning"
+    This permanently removes PMM Server and all monitoring data. Ensure you have backed up any important data before uninstalling.
+
+
 ## Prerequisites
 
 - [Unregister PMM Client](unregister_client.md) from PMM Server
