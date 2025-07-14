@@ -24,4 +24,4 @@ pmm-admin list
 
 ## Related topics
 - [Percona release](https://www.percona.com/doc/percona-repo-config/percona-release.html)
-- [PMM Client architecture](../../../../reference/index.md#pmm-client)
+- [PMM Client architecture](../reference/index.md#pmm-client)
