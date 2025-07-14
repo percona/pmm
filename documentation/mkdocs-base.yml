@@ -188,7 +188,7 @@ nav:
                   - install-pmm/install-pmm-server/deployment-options/aws/configure_aws.md
       - Install PMM Client:
           - Client installation overview: install-pmm/install-pmm-client/index.md
-          - Prerequisites: install-pmm/install-pmm-client/prerequisites.md
+          - install-pmm/install-pmm-client/prerequisites.md
           - Deployment options:
               - Install with Package Manager: install-pmm/install-pmm-client/package_manager.md
               - Install from binaries: install-pmm/install-pmm-client/binary_package.md
