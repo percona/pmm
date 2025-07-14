@@ -482,6 +482,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
 			ProcessExecPath:    processExecPath,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
+			TlsSkipVerify:      agent.TLSSkipVerify,
 		}, nil
 
 	case models.AzureDatabaseExporterType:
