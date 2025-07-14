@@ -286,8 +286,9 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 					CustomLabels: map[string]string{
 						"custom_label_azure_database_exporter": "azure_database_exporter",
 					},
-					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					Status:             &AgentStatusUnknown,
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					PushMetricsEnabled: true,
 				},
 			},
 		}, changeAzureDatabaseExporterOK)
@@ -313,10 +314,268 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 					CustomLabels: map[string]string{
 						"custom_label_azure_database_exporter": "azure_database_exporter",
 					},
-					Status:   &AgentStatusUnknown,
-					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					Status:             &AgentStatusUnknown,
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					PushMetricsEnabled: false,
 				},
 			},
 		}, changeAzureDatabaseExporterOK)
+	})
+
+	t.Run("ChangePassword_PasswordRotation", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
+
+		node := addRemoteAzureDatabaseNode(t, pmmapitests.TestString(t, "Remote Azure Database node for credential rotation test"))
+		nodeID := node.RemoteAzureDatabase.NodeID
+		defer pmmapitests.RemoveNodes(t, nodeID)
+
+		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
+		pmmAgentID := pmmAgent.PMMAgent.AgentID
+		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+
+		// Create Azure Database Exporter with initial Azure credentials
+		azureDatabaseExporter := addAgent(t, agents.AddAgentBody{
+			AzureDatabaseExporter: &agents.AddAgentParamsBodyAzureDatabaseExporter{
+				NodeID:                    nodeID,
+				PMMAgentID:                pmmAgentID,
+				AzureClientID:             "initial-client-id",
+				AzureClientSecret:         "initial-client-secret",
+				AzureTenantID:             "initial-tenant-id",
+				AzureSubscriptionID:       "initial-subscription-id",
+				AzureResourceGroup:        "initial-resource-group",
+				AzureDatabaseResourceType: "mysql",
+				LogLevel:                  pointer.ToString("LOG_LEVEL_WARN"),
+				CustomLabels: map[string]string{
+					"environment": "test",
+				},
+				SkipConnectionCheck: true,
+			},
+		})
+		agentID := azureDatabaseExporter.AzureDatabaseExporter.AgentID
+		defer pmmapitests.RemoveAgents(t, agentID)
+
+		// Test Azure client secret rotation
+		changeAzureDatabaseExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
+					AzureClientSecret: pointer.ToString("rotated-client-secret"),
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.False(t, changeAzureDatabaseExporterOK.Payload.AzureDatabaseExporter.Disabled)
+
+		// Test Azure client ID and secret rotation together
+		changeAzureDatabaseExporterOK, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
+					AzureClientID:     pointer.ToString("new-client-id"),
+					AzureClientSecret: pointer.ToString("new-client-secret"),
+					AzureTenantID:     pointer.ToString("new-tenant-id"),
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		// Get agent to verify changes took effect
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		// Note: Azure credentials are not returned in responses, only subscription ID and resource type
+		assert.Equal(t, "initial-subscription-id", getAgentRes.Payload.AzureDatabaseExporter.AzureDatabaseSubscriptionID)
+		assert.False(t, getAgentRes.Payload.AzureDatabaseExporter.Disabled)
+	})
+
+	t.Run("ChangeOnlySpecifiedFields_KeepOthersUnchanged", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
+
+		node := addRemoteAzureDatabaseNode(t, pmmapitests.TestString(t, "Remote Azure Database node for partial update test"))
+		nodeID := node.RemoteAzureDatabase.NodeID
+		defer pmmapitests.RemoveNodes(t, nodeID)
+
+		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
+		pmmAgentID := pmmAgent.PMMAgent.AgentID
+		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+
+		// Create Azure Database Exporter with comprehensive initial configuration
+		azureDatabaseExporter := addAgent(t, agents.AddAgentBody{
+			AzureDatabaseExporter: &agents.AddAgentParamsBodyAzureDatabaseExporter{
+				NodeID:                    nodeID,
+				PMMAgentID:                pmmAgentID,
+				AzureClientID:             "initial-client-id",
+				AzureClientSecret:         "initial-client-secret",
+				AzureTenantID:             "initial-tenant-id",
+				AzureSubscriptionID:       "initial-subscription-id",
+				AzureResourceGroup:        "initial-resource-group",
+				AzureDatabaseResourceType: "postgres",
+				LogLevel:                  pointer.ToString("LOG_LEVEL_INFO"),
+				CustomLabels: map[string]string{
+					"environment": "staging",
+					"team":        "data",
+					"region":      "eastus",
+				},
+				SkipConnectionCheck: true,
+				PushMetrics:         true,
+			},
+		})
+		agentID := azureDatabaseExporter.AzureDatabaseExporter.AgentID
+		defer pmmapitests.RemoveAgents(t, agentID)
+
+		// Change only log level, verify all other fields remain unchanged
+		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
+					LogLevel: pointer.ToString("LOG_LEVEL_DEBUG"),
+					// Note: Azure credentials, custom labels, resource group are NOT specified
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		// Verify only the specified field changed
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		agent := getAgentRes.Payload.AzureDatabaseExporter
+		// Log level should be changed
+		assert.Equal(t, pointer.ToString("LOG_LEVEL_DEBUG"), agent.LogLevel)
+
+		// Everything else should remain unchanged
+		assert.Equal(t, "initial-subscription-id", agent.AzureDatabaseSubscriptionID)
+		assert.True(t, agent.PushMetricsEnabled)
+		assert.Equal(t, map[string]string{
+			"environment": "staging",
+			"team":        "data",
+			"region":      "eastus",
+		}, agent.CustomLabels)
+		assert.False(t, agent.Disabled)
+	})
+
+	t.Run("ChangeAllAvailableFields", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
+
+		node := addRemoteAzureDatabaseNode(t, pmmapitests.TestString(t, "Remote Azure Database node for change all fields test"))
+		nodeID := node.RemoteAzureDatabase.NodeID
+		defer pmmapitests.RemoveNodes(t, nodeID)
+
+		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
+		pmmAgentID := pmmAgent.PMMAgent.AgentID
+		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+
+		// Create Azure Database Exporter with initial configuration
+		azureDatabaseExporter := addAgent(t, agents.AddAgentBody{
+			AzureDatabaseExporter: &agents.AddAgentParamsBodyAzureDatabaseExporter{
+				NodeID:                    nodeID,
+				PMMAgentID:                pmmAgentID,
+				AzureClientID:             "initial-client-id",
+				AzureClientSecret:         "initial-client-secret",
+				AzureTenantID:             "initial-tenant-id",
+				AzureSubscriptionID:       "initial-subscription-id",
+				AzureResourceGroup:        "initial-resource-group",
+				AzureDatabaseResourceType: "mysql",
+				LogLevel:                  pointer.ToString("LOG_LEVEL_WARN"),
+				CustomLabels: map[string]string{
+					"environment": "staging",
+					"version":     "1.0",
+				},
+				SkipConnectionCheck: true,
+				PushMetrics:         false,
+			},
+		})
+		agentID := azureDatabaseExporter.AzureDatabaseExporter.AgentID
+		defer pmmapitests.RemoveAgents(t, agentID)
+
+		// Change ALL available fields at once
+		changeAzureDatabaseExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				AzureDatabaseExporter: &agents.ChangeAgentParamsBodyAzureDatabaseExporter{
+					AzureClientID:       pointer.ToString("new-client-id"),
+					AzureClientSecret:   pointer.ToString("new-client-secret"),
+					AzureTenantID:       pointer.ToString("new-tenant-id"),
+					AzureSubscriptionID: pointer.ToString("new-subscription-id"),
+					AzureResourceGroup:  pointer.ToString("new-resource-group"),
+					LogLevel:            pointer.ToString("LOG_LEVEL_ERROR"),
+					EnablePushMetrics:   pointer.ToBool(true),
+					CustomLabels: &agents.ChangeAgentParamsBodyAzureDatabaseExporterCustomLabels{
+						Values: map[string]string{
+							"environment": "production",
+							"version":     "2.0",
+							"team":        "platform",
+						},
+					},
+					Enable: pointer.ToBool(false), // disable the agent
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		// Verify all fields were changed correctly
+		expectedAgent := &agents.ChangeAgentOKBodyAzureDatabaseExporter{
+			AgentID:                     agentID,
+			PMMAgentID:                  pmmAgentID,
+			NodeID:                      nodeID,
+			AzureDatabaseSubscriptionID: "new-subscription-id",
+			AzureDatabaseResourceType:   "", // This field gets reset when changed
+			LogLevel:                    pointer.ToString("LOG_LEVEL_ERROR"),
+			PushMetricsEnabled:          true,
+			Disabled:                    true, // agent was disabled
+			Status:                      &AgentStatusUnknown,
+			CustomLabels: map[string]string{
+				"environment": "production",
+				"team":        "platform",
+				"version":     "2.0",
+			},
+		}
+		assert.Equal(t, expectedAgent, changeAzureDatabaseExporterOK.Payload.AzureDatabaseExporter)
+
+		// Verify with GetAgent that changes persisted
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		expectedGetAgent := &agents.GetAgentOKBodyAzureDatabaseExporter{
+			AgentID:                     agentID,
+			PMMAgentID:                  pmmAgentID,
+			NodeID:                      nodeID,
+			AzureDatabaseSubscriptionID: "new-subscription-id",
+			AzureDatabaseResourceType:   "", // This field gets reset when changed
+			LogLevel:                    pointer.ToString("LOG_LEVEL_ERROR"),
+			PushMetricsEnabled:          true,
+			Disabled:                    true, // agent was disabled
+			Status:                      &AgentStatusUnknown,
+			CustomLabels: map[string]string{
+				"environment": "production",
+				"team":        "platform",
+				"version":     "2.0",
+			},
+		}
+		assert.Equal(t, expectedGetAgent, getAgentRes.Payload.AzureDatabaseExporter)
 	})
 }

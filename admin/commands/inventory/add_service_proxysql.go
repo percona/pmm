@@ -62,7 +62,7 @@ type AddServiceProxySQLCommand struct {
 
 // RunCmd executes the AddServiceProxySQLCommand and returns the result.
 func (cmd *AddServiceProxySQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 	params := &services.AddServiceParams{
 		Body: services.AddServiceBody{
 			Proxysql: &services.AddServiceParamsBodyProxysql{
@@ -74,7 +74,7 @@ func (cmd *AddServiceProxySQLCommand) RunCmd() (commands.Result, error) {
 				Environment:    cmd.Environment,
 				Cluster:        cmd.Cluster,
 				ReplicationSet: cmd.ReplicationSet,
-				CustomLabels:   customLabels,
+				CustomLabels:   *customLabels,
 			},
 		},
 		Context: commands.Ctx,

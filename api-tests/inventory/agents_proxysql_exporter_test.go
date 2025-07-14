@@ -401,4 +401,276 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 		}, changeProxySQLExporterOK)
 	})
+
+	t.Run("ChangePassword_PasswordRotation", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
+
+		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for proxysql exporter"))
+		nodeID := node.Remote.NodeID
+		defer pmmapitests.RemoveNodes(t, nodeID)
+
+		service := addService(t, services.AddServiceBody{
+			Proxysql: &services.AddServiceParamsBodyProxysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        6033,
+				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for password rotation test"),
+			},
+		})
+		serviceID := service.Proxysql.ServiceID
+		defer pmmapitests.RemoveServices(t, serviceID)
+
+		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
+		pmmAgentID := pmmAgent.PMMAgent.AgentID
+		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+
+		// Create agent with initial credentials
+		ProxySQLExporter := addAgent(t, agents.AddAgentBody{
+			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
+				ServiceID:           serviceID,
+				Username:            "initial-user",
+				Password:            "initial-password",
+				PMMAgentID:          pmmAgentID,
+				SkipConnectionCheck: true,
+			},
+		})
+		agentID := ProxySQLExporter.ProxysqlExporter.AgentID
+		defer pmmapitests.RemoveAgents(t, agentID)
+
+		// Test password rotation
+		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
+					Password: pointer.ToString("new-rotated-password"),
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "initial-user", changeProxySQLExporterOK.Payload.ProxysqlExporter.Username)
+		assert.False(t, changeProxySQLExporterOK.Payload.ProxysqlExporter.Disabled)
+
+		// Verify password change with username change
+		changeProxySQLExporterOK, err = client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
+					Username: pointer.ToString("new-proxysql-user"),
+					Password: pointer.ToString("another-new-password"),
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		// Get agent to verify changes took effect
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "new-proxysql-user", getAgentRes.Payload.ProxysqlExporter.Username)
+		assert.False(t, getAgentRes.Payload.ProxysqlExporter.Disabled)
+	})
+
+	t.Run("ChangeOnlySpecifiedFields_KeepOthersUnchanged", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
+
+		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for proxysql exporter"))
+		nodeID := node.Remote.NodeID
+		defer pmmapitests.RemoveNodes(t, nodeID)
+
+		service := addService(t, services.AddServiceBody{
+			Proxysql: &services.AddServiceParamsBodyProxysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        6033,
+				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for partial field test"),
+			},
+		})
+		serviceID := service.Proxysql.ServiceID
+		defer pmmapitests.RemoveServices(t, serviceID)
+
+		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
+		pmmAgentID := pmmAgent.PMMAgent.AgentID
+		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+
+		// Create agent with comprehensive initial configuration
+		ProxySQLExporter := addAgent(t, agents.AddAgentBody{
+			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
+				ServiceID:           serviceID,
+				Username:            "original-user",
+				Password:            "original-password",
+				PMMAgentID:          pmmAgentID,
+				SkipConnectionCheck: true,
+				CustomLabels: map[string]string{
+					"env":    "staging",
+					"team":   "database",
+					"region": "us-west",
+				},
+				PushMetrics: true,
+				LogLevel:    pointer.ToString("LOG_LEVEL_INFO"),
+			},
+		})
+		agentID := ProxySQLExporter.ProxysqlExporter.AgentID
+		defer pmmapitests.RemoveAgents(t, agentID)
+
+		// Change only one field (username), others should remain unchanged
+		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
+					Username: pointer.ToString("changed-user"),
+					// Note: password, custom labels, push metrics, and log level are NOT specified
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		// Verify only the specified field changed
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		// Username should be changed
+		assert.Equal(t, "changed-user", getAgentRes.Payload.ProxysqlExporter.Username)
+
+		// Everything else should remain unchanged
+		assert.Equal(t, map[string]string{
+			"env":    "staging",
+			"team":   "database",
+			"region": "us-west",
+		}, getAgentRes.Payload.ProxysqlExporter.CustomLabels)
+		assert.True(t, getAgentRes.Payload.ProxysqlExporter.PushMetricsEnabled)
+		assert.Equal(t, pointer.ToString("LOG_LEVEL_INFO"), getAgentRes.Payload.ProxysqlExporter.LogLevel)
+		assert.False(t, getAgentRes.Payload.ProxysqlExporter.Disabled)
+	})
+
+	t.Run("ChangeAllAvailableFields", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
+
+		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for proxysql exporter change all fields"))
+		nodeID := node.Remote.NodeID
+		defer pmmapitests.RemoveNodes(t, nodeID)
+
+		service := addService(t, services.AddServiceBody{
+			Proxysql: &services.AddServiceParamsBodyProxysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        6033,
+				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for change all fields test"),
+			},
+		})
+		serviceID := service.Proxysql.ServiceID
+		defer pmmapitests.RemoveServices(t, serviceID)
+
+		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
+		pmmAgentID := pmmAgent.PMMAgent.AgentID
+		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+
+		// Create ProxySQL Exporter with initial configuration
+		ProxySQLExporter := addAgent(t, agents.AddAgentBody{
+			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
+				ServiceID:           serviceID,
+				Username:            "initial-user",
+				Password:            "initial-password",
+				PMMAgentID:          pmmAgentID,
+				SkipConnectionCheck: true,
+				CustomLabels: map[string]string{
+					"environment": "staging",
+					"version":     "1.0",
+				},
+				PushMetrics: false,
+				LogLevel:    pointer.ToString("LOG_LEVEL_WARN"),
+			},
+		})
+		agentID := ProxySQLExporter.ProxysqlExporter.AgentID
+		defer pmmapitests.RemoveAgents(t, agentID)
+
+		// Change ALL available fields at once
+		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
+			AgentID: agentID,
+			Body: agents.ChangeAgentBody{
+				ProxysqlExporter: &agents.ChangeAgentParamsBodyProxysqlExporter{
+					Username:          pointer.ToString("new-proxysql-user"),
+					Password:          pointer.ToString("new-proxysql-password"),
+					LogLevel:          pointer.ToString("LOG_LEVEL_ERROR"),
+					EnablePushMetrics: pointer.ToBool(true),
+					DisableCollectors: []string{"mysql_connection_pool", "mysql_connection_list"},
+					CustomLabels: &agents.ChangeAgentParamsBodyProxysqlExporterCustomLabels{
+						Values: map[string]string{
+							"environment": "production",
+							"version":     "2.0",
+							"team":        "platform",
+						},
+					},
+					Enable: pointer.ToBool(false), // disable the agent
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		// Verify all fields were changed correctly
+		expectedAgent := &agents.ChangeAgentOKBodyProxysqlExporter{
+			AgentID:            agentID,
+			ServiceID:          serviceID,
+			PMMAgentID:         pmmAgentID,
+			Username:           "new-proxysql-user",
+			LogLevel:           pointer.ToString("LOG_LEVEL_ERROR"),
+			PushMetricsEnabled: true,
+			DisabledCollectors: []string{"mysql_connection_pool", "mysql_connection_list"},
+			Disabled:           true, // agent was disabled
+			Status:             &AgentStatusUnknown,
+			CustomLabels: map[string]string{
+				"environment": "production",
+				"version":     "2.0",
+				"team":        "platform",
+			},
+		}
+
+		assert.Equal(t, expectedAgent, changeProxySQLExporterOK.Payload.ProxysqlExporter)
+
+		// Also verify by getting the agent independently
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		expectedGetAgent := &agents.GetAgentOKBodyProxysqlExporter{
+			AgentID:            agentID,
+			ServiceID:          serviceID,
+			PMMAgentID:         pmmAgentID,
+			Username:           "new-proxysql-user",
+			LogLevel:           pointer.ToString("LOG_LEVEL_ERROR"),
+			PushMetricsEnabled: true,
+			DisabledCollectors: []string{"mysql_connection_pool", "mysql_connection_list"},
+			Disabled:           true,
+			Status:             &AgentStatusUnknown,
+			CustomLabels: map[string]string{
+				"environment": "production",
+				"version":     "2.0",
+				"team":        "platform",
+			},
+		}
+
+		assert.Equal(t, expectedGetAgent, getAgentRes.Payload.ProxysqlExporter)
+	})
 }

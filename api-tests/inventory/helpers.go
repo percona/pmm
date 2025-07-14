@@ -34,8 +34,8 @@ func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddNodeOKB
 		Body: nodes.AddNodeBody{
 			RemoteRDS: &nodes.AddNodeParamsBodyRemoteRDS{
 				NodeName: nodeName,
-				Address:  "some-address",
-				Region:   "region",
+				Address:  pmmapitests.TestString(t, "rds-address"),
+				Region:   pmmapitests.TestString(t, "rds-region"),
 			},
 		},
 		Context: pmmapitests.Context,
@@ -54,8 +54,8 @@ func addRemoteAzureDatabaseNode(t pmmapitests.TestingT, nodeName string) *nodes.
 		Body: nodes.AddNodeBody{
 			RemoteAzure: &nodes.AddNodeParamsBodyRemoteAzure{
 				NodeName: nodeName,
-				Address:  "some-address",
-				Region:   "region",
+				Address:  pmmapitests.TestString(t, "azure-address"),
+				Region:   pmmapitests.TestString(t, "azure-region"),
 			},
 		},
 		Context: pmmapitests.Context,

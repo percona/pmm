@@ -50,6 +50,7 @@ var serviceTypes = map[inventoryv1.ServiceType]models.ServiceType{
 	inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
 	inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:    models.HAProxyServiceType,
 	inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE:   models.ExternalServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE:     models.ValkeyServiceType,
 }
 
 func serviceType(serviceType inventoryv1.ServiceType) *models.ServiceType {
@@ -81,6 +82,8 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventoryv1.List
 			res.Mongodb = append(res.Mongodb, service)
 		case *inventoryv1.PostgreSQLService:
 			res.Postgresql = append(res.Postgresql, service)
+		case *inventoryv1.ValkeyService:
+			res.Valkey = append(res.Valkey, service)
 		case *inventoryv1.ProxySQLService:
 			res.Proxysql = append(res.Proxysql, service)
 		case *inventoryv1.HAProxyService:
@@ -126,6 +129,8 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventoryv1.GetSer
 		res.Service = &inventoryv1.GetServiceResponse_Mongodb{Mongodb: service}
 	case *inventoryv1.PostgreSQLService:
 		res.Service = &inventoryv1.GetServiceResponse_Postgresql{Postgresql: service}
+	case *inventoryv1.ValkeyService:
+		res.Service = &inventoryv1.GetServiceResponse_Valkey{Valkey: service}
 	case *inventoryv1.ProxySQLService:
 		res.Service = &inventoryv1.GetServiceResponse_Proxysql{Proxysql: service}
 	case *inventoryv1.HAProxyService:
@@ -147,6 +152,8 @@ func (s *servicesServer) AddService(ctx context.Context, req *inventoryv1.AddSer
 		return s.addMongoDBService(ctx, req.GetMongodb())
 	case *inventoryv1.AddServiceRequest_Postgresql:
 		return s.addPostgreSQLService(ctx, req.GetPostgresql())
+	case *inventoryv1.AddServiceRequest_Valkey:
+		return s.addValkeyService(ctx, req.GetValkey())
 	case *inventoryv1.AddServiceRequest_Proxysql:
 		return s.addProxySQLService(ctx, req.GetProxysql())
 	case *inventoryv1.AddServiceRequest_Haproxy:
@@ -154,7 +161,7 @@ func (s *servicesServer) AddService(ctx context.Context, req *inventoryv1.AddSer
 	case *inventoryv1.AddServiceRequest_External:
 		return s.addExternalService(ctx, req.GetExternal())
 	default:
-		return nil, errors.Errorf("invalid request %v", req.Service)
+		return nil, status.Errorf(codes.InvalidArgument, "unsupported service type %T", req.Service)
 	}
 }
 
@@ -183,6 +190,31 @@ func (s *servicesServer) addMySQLService(ctx context.Context, params *inventoryv
 	return res, nil
 }
 
+// addValkeyService adds Valkey Service.
+func (s *servicesServer) addValkeyService(ctx context.Context, params *inventoryv1.AddValkeyServiceParams) (*inventoryv1.AddServiceResponse, error) {
+	service, err := s.s.AddValkey(ctx, &models.AddDBMSServiceParams{
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		Address:        pointer.ToStringOrNil(params.Address),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)), //nolint:gosec // port is not expected to overflow uint16
+		Socket:         pointer.ToStringOrNil(params.Socket),
+		CustomLabels:   params.CustomLabels,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventoryv1.AddServiceResponse{
+		Service: &inventoryv1.AddServiceResponse_Valkey{
+			Valkey: service,
+		},
+	}
+	return res, nil
+}
+
 func (s *servicesServer) addMongoDBService(ctx context.Context, params *inventoryv1.AddMongoDBServiceParams) (*inventoryv1.AddServiceResponse, error) {
 	service, err := s.s.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 		ServiceName:    params.ServiceName,
@@ -191,7 +223,7 @@ func (s *servicesServer) addMongoDBService(ctx context.Context, params *inventor
 		Cluster:        params.Cluster,
 		ReplicationSet: params.ReplicationSet,
 		Address:        pointer.ToStringOrNil(params.Address),
-		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)), //nolint:gosec // port is not expected to overflow uint16
 		Socket:         pointer.ToStringOrNil(params.Socket),
 		CustomLabels:   params.CustomLabels,
 	})
@@ -215,7 +247,7 @@ func (s *servicesServer) addPostgreSQLService(ctx context.Context, params *inven
 		Cluster:        params.Cluster,
 		ReplicationSet: params.ReplicationSet,
 		Address:        pointer.ToStringOrNil(params.Address),
-		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)), //nolint:gosec // port is not expected to overflow uint16
 		Socket:         pointer.ToStringOrNil(params.Socket),
 		CustomLabels:   params.CustomLabels,
 	})
@@ -239,7 +271,7 @@ func (s *servicesServer) addProxySQLService(ctx context.Context, params *invento
 		Cluster:        params.Cluster,
 		ReplicationSet: params.ReplicationSet,
 		Address:        pointer.ToStringOrNil(params.Address),
-		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)), //nolint:gosec // port is not expected to overflow uint16
 		Socket:         pointer.ToStringOrNil(params.Socket),
 		CustomLabels:   params.CustomLabels,
 	})
@@ -330,6 +362,8 @@ func (s *servicesServer) ChangeService(ctx context.Context, req *inventoryv1.Cha
 		res.Service = &inventoryv1.ChangeServiceResponse_Mongodb{Mongodb: service}
 	case *inventoryv1.PostgreSQLService:
 		res.Service = &inventoryv1.ChangeServiceResponse_Postgresql{Postgresql: service}
+	case *inventoryv1.ValkeyService:
+		res.Service = &inventoryv1.ChangeServiceResponse_Valkey{Valkey: service}
 	case *inventoryv1.ProxySQLService:
 		res.Service = &inventoryv1.ChangeServiceResponse_Proxysql{Proxysql: service}
 	case *inventoryv1.HAProxyService:

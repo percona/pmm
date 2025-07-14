@@ -623,9 +623,9 @@ func TestAddPostgreSQL(t *testing.T) {
 				},
 			},
 		}
-		addProxySQLOK, err := client.Default.ManagementService.AddService(params)
+		addPostgreSQLOK, err := client.Default.ManagementService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
-		assert.Nil(t, addProxySQLOK)
+		assert.Nil(t, addPostgreSQLOK)
 	})
 
 	t.Run("With MetricsModePush", func(t *testing.T) {
