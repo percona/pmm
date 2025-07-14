@@ -16,4 +16,4 @@ What this does:
 - prevents orphaned entries on the server
 
 !!! note
-The `--force` flag ensures unregistration even if the PMM Server is unreachable. The PMM Client software remains installed after unregistering.
+    The `--force` flag ensures unregistration even if the PMM Server is unreachable. The PMM Client software remains installed after unregistering.
