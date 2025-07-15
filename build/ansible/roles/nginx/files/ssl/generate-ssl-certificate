@@ -9,22 +9,22 @@ mkdir -p /srv/nginx
 if [ ! -w "/srv/nginx" ]; then
     echo "Directory /srv/nginx is not writable";
     error=false
-    if [ ! -e /srv/nginx/certificate.key ]; then
+    if [ ! -f /srv/nginx/certificate.key ]; then
         echo "The file /srv/nginx/certificate.key does not exist." >&2
         error=true
     fi
 
-    if [ ! -e /srv/nginx/certificate.crt ]; then
+    if [ ! -f /srv/nginx/certificate.crt ]; then
         echo "The file /srv/nginx/certificate.crt does not exist." >&2
         error=true
     fi
 
-    if [ ! -e /srv/nginx/ca-certs.pem ]; then
+    if [ ! -f /srv/nginx/ca-certs.pem ]; then
         echo "The file /srv/nginx/ca-certs.pem does not exist." >&2
         error=true
     fi
 
-    if [ ! -e /srv/nginx/dhparam.pem ]; then
+    if [ ! -f /srv/nginx/dhparam.pem ]; then
         echo "The file /srv/nginx/dhparam.pem does not exist." >&2
         error=true
     fi
@@ -34,30 +34,26 @@ if [ ! -w "/srv/nginx" ]; then
         exit 1;
     fi
 
-    echo "Using user provided certificate.";
-    exit 0;
+    echo "Using user provided certificate."
+    return 0
 fi
 
-if [ ! -e /srv/nginx/dhparam.pem ]; then
+if [ ! -f /srv/nginx/dhparam.pem ]; then
     cp /etc/nginx/ssl/dhparam.pem /srv/nginx/dhparam.pem
 fi
 
-if [ ! -e /srv/nginx/ca-certs.pem ]; then
+if [ ! -f /srv/nginx/ca-certs.pem ]; then
     # Fetch letsencrypt chain
     cp /etc/nginx/ssl/ca-certs.pem /srv/nginx/ca-certs.pem
 fi
 
-if [ ! -e /srv/nginx/certificate.conf ]; then
+if [ ! -f /srv/nginx/certificate.conf ]; then
     cp  /etc/nginx/ssl/certificate.conf /srv/nginx/certificate.conf
 fi
 
-if [ ! -e /srv/nginx/certificate.key ] || [ ! -e /srv/nginx/certificate.crt ]; then
-    if [ ! -e /etc/nginx/ssl/certificate.key ] || [ ! -e /etc/nginx/ssl/certificate.crt ]; then
-        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-            -keyout /etc/nginx/ssl/certificate.key \
-            -out    /etc/nginx/ssl/certificate.crt \
-            -config /etc/nginx/ssl/certificate.conf
-    fi
-    cp /etc/nginx/ssl/certificate.key /srv/nginx/certificate.key
-    cp /etc/nginx/ssl/certificate.crt /srv/nginx/certificate.crt
+if [ ! -f /srv/nginx/certificate.key ] || [ ! -f /srv/nginx/certificate.crt ]; then
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -keyout /srv/nginx/certificate.key \
+        -out    /srv/nginx/certificate.crt \
+        -config /etc/nginx/ssl/certificate.conf
 fi

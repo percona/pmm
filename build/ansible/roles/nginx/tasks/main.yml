@@ -46,13 +46,7 @@
     - "conf.d/pmm-ssl.conf"
     - "conf.d/pmm.conf"
 
-- name: Check if the user-provided certificate exists
-  stat:
-    path: /srv/nginx/certificate.crt
-  register: certificate_file
-
 - name: Generate SSL certificates
-  when: not certificate_file.stat.exists
   command: /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
 
 - name: Find the default nginx config files
@@ -81,8 +75,8 @@
 
 - name: Change permissions of nginx certificate
   file:
-    path: /etc/nginx/ssl/certificate.key
-    mode: 0640  # or 0660 if group write access is required
+    path: /srv/nginx/certificate.key
+    mode: 0640
     group: 0
     owner: pmm
 
