@@ -53,7 +53,7 @@
     shell: "{{ item.shell }}"
     group: "{{ item.group }}"
   loop:
-    - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: 0, }
+    - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: root, }
     - { name: nginx, uid: 1001, comment: "Nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
     - { name: clickhouse, uid: 1002, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/dev/null", group: clickhouse, }
 
@@ -62,7 +62,7 @@
     path: "{{ item }}"
     state: directory
     owner: pmm
-    group: 0
+    group: root
     mode: 0775
   loop:
     - /srv # otherwise it's owned by root
@@ -75,7 +75,7 @@
     path: /usr/share/pmm-server
     state: directory
     owner: pmm
-    group: 0
+    group: root
     mode: 0775
     recurse: yes
 
@@ -85,7 +85,7 @@
     path: /srv/logs
     state: directory
     owner: pmm
-    group: 0
+    group: root
     mode: 0775
 
 - name: Create dirs
@@ -138,7 +138,7 @@
     path: /srv/backup
     state: directory
     owner: pmm
-    group: 0
+    group: root
     mode: 0775
 
 - name: Create a working directory for VictoriaMetrics
@@ -146,7 +146,7 @@
     path: /srv/victoriametrics/data
     state: directory
     owner: pmm
-    group: 0
+    group: root
     mode: 0775
 
 - name: Create an empty configuration file for VictoriaMetrics
@@ -154,7 +154,7 @@
     path: /etc/victoriametrics-promscrape.yml
     state: touch
     owner: pmm
-    group: 0
+    group: root
     mode: 0664
 
 # Launch pmm-managed-init first as it may update supervisord configuration on start

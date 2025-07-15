@@ -24,7 +24,7 @@
     path: "{{ item }}"
     state: directory
     owner: pmm
-    group: 0
+    group: root
     mode: 0755
     recurse: yes
   loop:
@@ -39,7 +39,7 @@
     src: "{{ item }}"
     dest: "/etc/clickhouse-server/{{ item }}"
     owner: pmm
-    group: 0
+    group: root
     mode: 0664
   loop:
     - config.xml

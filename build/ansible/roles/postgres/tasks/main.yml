@@ -24,7 +24,7 @@
     path: /run/postgresql
     state: directory
     owner: pmm
-    group: 0
+    group: root
     mode: 0775  
 
 - name: Create Postgres log file
@@ -32,7 +32,7 @@
     path: /srv/logs/postgresql14.log
     state: touch
     force: yes
-    group: 0
+    group: root
     owner: pmm
     mode: 0664
 
@@ -41,7 +41,7 @@
     path: /srv/postgres14
     state: directory
     owner: pmm
-    group: 0
+    group: root
     mode: 0750
 
 - name: Initialize Postgres database

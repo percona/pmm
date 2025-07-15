@@ -45,7 +45,7 @@
     path: /run/supervisor
     state: directory
     owner: pmm
-    group: 0
+    group: root
     mode: 0770
 
 - name: Create /etc/supervisord.d dir
@@ -53,7 +53,7 @@
     path: /etc/supervisord.d
     state: directory
     owner: pmm
-    group: 0
+    group: root
     mode: 0775
 
 - name: Copy *.ini files for PMM components
@@ -61,7 +61,7 @@
     src: "{{ item }}"
     dest: "/etc/supervisord.d/{{ item }}"
     owner: pmm
-    group: 0
+    group: root
     mode: 0664
   loop:
     - supervisord.ini

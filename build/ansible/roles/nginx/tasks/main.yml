@@ -4,7 +4,7 @@
     path: "{{ item }}"
     state: directory
     owner: pmm
-    group: 0
+    group: root
     mode: 0775
   loop:
     - /usr/share/pmm-server/static/
@@ -63,7 +63,7 @@
   file:
     path: "{{ item }}"
     state: directory
-    group: 0
+    group: root
     owner: pmm
     recurse: yes
   loop:
@@ -74,7 +74,7 @@
   file:
     path: "{{ item }}"
     state: touch
-    group: 0
+    group: root
     owner: pmm
     mode: 0660
   loop:
@@ -85,6 +85,6 @@
   copy:
     src: local-rss.xml
     dest: /usr/share/pmm-server/static/
-    group: 0
+    group: root
     owner: pmm
     mode: 0644
