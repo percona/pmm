@@ -406,6 +406,128 @@ var _ interface {
 	ErrorName() string
 } = PostgreSQLServiceValidationError{}
 
+// Validate checks the field values on ValkeyService with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *ValkeyService) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ValkeyService with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ValkeyServiceMultiError, or
+// nil if none found.
+func (m *ValkeyService) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ValkeyService) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ServiceId
+
+	// no validation rules for ServiceName
+
+	// no validation rules for NodeId
+
+	// no validation rules for Address
+
+	// no validation rules for Port
+
+	// no validation rules for Socket
+
+	// no validation rules for Environment
+
+	// no validation rules for Cluster
+
+	// no validation rules for ReplicationSet
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for Version
+
+	if len(errors) > 0 {
+		return ValkeyServiceMultiError(errors)
+	}
+
+	return nil
+}
+
+// ValkeyServiceMultiError is an error wrapping multiple validation errors
+// returned by ValkeyService.ValidateAll() if the designated constraints
+// aren't met.
+type ValkeyServiceMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ValkeyServiceMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ValkeyServiceMultiError) AllErrors() []error { return m }
+
+// ValkeyServiceValidationError is the validation error returned by
+// ValkeyService.Validate if the designated constraints aren't met.
+type ValkeyServiceValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ValkeyServiceValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ValkeyServiceValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ValkeyServiceValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ValkeyServiceValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ValkeyServiceValidationError) ErrorName() string { return "ValkeyServiceValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ValkeyServiceValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sValkeyService.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ValkeyServiceValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ValkeyServiceValidationError{}
+
 // Validate checks the field values on ProxySQLService with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -1092,6 +1214,40 @@ func (m *ListServicesResponse) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetValkey() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListServicesResponseValidationError{
+						field:  fmt.Sprintf("Valkey[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListServicesResponseValidationError{
+						field:  fmt.Sprintf("Valkey[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListServicesResponseValidationError{
+					field:  fmt.Sprintf("Valkey[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return ListServicesResponseMultiError(errors)
 	}
@@ -1760,6 +1916,47 @@ func (m *GetServiceResponse) validate(all bool) error {
 			}
 		}
 
+	case *GetServiceResponse_Valkey:
+		if v == nil {
+			err := GetServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetValkey()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetServiceResponseValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetServiceResponseValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetValkey()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetServiceResponseValidationError{
+					field:  "Valkey",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -2113,6 +2310,47 @@ func (m *AddServiceRequest) validate(all bool) error {
 			}
 		}
 
+	case *AddServiceRequest_Valkey:
+		if v == nil {
+			err := AddServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetValkey()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetValkey()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceRequestValidationError{
+					field:  "Valkey",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -2460,6 +2698,47 @@ func (m *AddServiceResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return AddServiceResponseValidationError{
 					field:  "External",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddServiceResponse_Valkey:
+		if v == nil {
+			err := AddServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetValkey()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetValkey()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceResponseValidationError{
+					field:  "Valkey",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -2965,6 +3244,144 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddPostgreSQLServiceParamsValidationError{}
+
+// Validate checks the field values on AddValkeyServiceParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddValkeyServiceParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddValkeyServiceParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddValkeyServiceParamsMultiError, or nil if none found.
+func (m *AddValkeyServiceParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddValkeyServiceParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
+		err := AddValkeyServiceParamsValidationError{
+			field:  "ServiceName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
+		err := AddValkeyServiceParamsValidationError{
+			field:  "NodeId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Address
+
+	// no validation rules for Port
+
+	// no validation rules for Socket
+
+	// no validation rules for Environment
+
+	// no validation rules for Cluster
+
+	// no validation rules for ReplicationSet
+
+	// no validation rules for CustomLabels
+
+	if len(errors) > 0 {
+		return AddValkeyServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddValkeyServiceParamsMultiError is an error wrapping multiple validation
+// errors returned by AddValkeyServiceParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddValkeyServiceParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddValkeyServiceParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddValkeyServiceParamsMultiError) AllErrors() []error { return m }
+
+// AddValkeyServiceParamsValidationError is the validation error returned by
+// AddValkeyServiceParams.Validate if the designated constraints aren't met.
+type AddValkeyServiceParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddValkeyServiceParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddValkeyServiceParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddValkeyServiceParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddValkeyServiceParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddValkeyServiceParamsValidationError) ErrorName() string {
+	return "AddValkeyServiceParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddValkeyServiceParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddValkeyServiceParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddValkeyServiceParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddValkeyServiceParamsValidationError{}
 
 // Validate checks the field values on AddProxySQLServiceParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -4010,6 +4427,47 @@ func (m *ChangeServiceResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ChangeServiceResponseValidationError{
 					field:  "External",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeServiceResponse_Valkey:
+		if v == nil {
+			err := ChangeServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetValkey()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeServiceResponseValidationError{
+						field:  "Valkey",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetValkey()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeServiceResponseValidationError{
+					field:  "Valkey",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
