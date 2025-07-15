@@ -1,0 +1,23 @@
+---
+templates:
+  - name: mongodb_down
+    version: 1
+    summary: MongoDB down
+    tiers: [anonymous, registered, paid]
+    expr: |-
+      ((max without (job) (mongodb_up)) == bool 0)
+      or
+      (
+        (
+          max without (job) (last_over_time(mongodb_up[24h]))
+            and on(service_id, node_name, agent_id) pmm_managed_inventory_agents{agent_type="mongodb_exporter", disabled="0"}
+        )
+          unless on(service_id, node_name, agent_id)
+        (max without (job) (mongodb_up))
+      )
+    for: 1m
+    severity: critical
+    annotations:
+      description: |-
+        MongoDB {{ $labels.service_name }} on {{ $labels.node_name }} is down.
+      summary: MongoDB down ({{ $labels.service_name }})
