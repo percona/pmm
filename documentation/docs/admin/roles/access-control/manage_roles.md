@@ -8,11 +8,12 @@ To edit access roles:
 {.power-number}
 
 1. From [main menu](../../../reference/ui/ui_components.md), go to **PMM Configuration > Settings > Advanced Settings** and enable the **Access Roles** option.
+
 2. Go to **Administration > Users and access > Access Roles**.
 
 3. On the role you want to edit, click the **ellipsis (three vertical dots) > edit role** in the **Options** column. The **Edit** role page opens.
 
-    ![!](../../../images/PMM_access_control_edit_role.png)
+    ![PMM Access Control - Edit role](../../../images/lbac/PMM_access_control_edit_role.png)
 
 4. Make the required changes to the role.
 
@@ -26,7 +27,9 @@ To set a role as default, do the following:
 {.power-number}
 
 1. From [main menu](../../../reference/ui/ui_components.md), go to **PMM Configuration > Settings > Advanced Settings** and enable the **Access Roles** option.
+
 2. Go to **Administration > Users and access > Access Roles**.
+
 3. On the role you want to set as default, click the **ellipsis (three vertical dots) → set as default** in the **Options** column.
 
 

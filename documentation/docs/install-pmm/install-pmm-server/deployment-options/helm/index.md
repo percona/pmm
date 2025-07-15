@@ -173,7 +173,6 @@ To enhance security, you have two options:
 
 ## Next steps
 
-- [Register PMM Clients](../../../register-client-node/index.md) with your PMM Server
 - [Back up PMM Server Helm deployment](backup_container_helm.md)
 - [Configure advanced Kubernetes settings](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#advanced-configuration)
 

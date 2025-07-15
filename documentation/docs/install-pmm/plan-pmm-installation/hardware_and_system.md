@@ -52,7 +52,6 @@ To reduce storage usage, consider [disable table statistics](../install-pmm-clie
 - **CPU**: must support the [`SSE4.2`](https://wikipedia.org/wiki/SSE4#SSE4.2), which is required for Query Analytics (QAN).
 - **ARM64**: ensure your system uses a supported ARM64 architecture (such as ARMv8 or later). PMM Server is not currently available as a native ARM64 build. For ARM-based systems, use Docker or Podman to run x86_64 images via emulation. To explicitly force Docker to use the x86_64 image on an ARM system, use: `docker run --platform linux/amd64 ... <your_pmm_server_image>`. 
 
-
 ### PMM Client 
 
 - **Installation storage**: Requires 100 MB of storage for installation
