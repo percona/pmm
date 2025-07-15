@@ -80,22 +80,21 @@ fi
 
 if [ ! -d "/srv/pmm-agent/tmp" ]; then
     echo "Creating pmm-agent temp directory..."
-    mkdir -p /srv/pmm-agent/tmp
-    chmod 770 /srv/pmm-agent/tmp
+    install -d -m 770 /srv/pmm-agent/tmp
 fi
 
 # Initialize /srv if empty
 declare DIST_FILE=/srv/pmm-distribution
 if [ ! -f "$DIST_FILE" ]; then
-    echo "$PMM_DISTRIBUTION_METHOD" > "$DIST_FILE"
+    echo -n "$PMM_DISTRIBUTION_METHOD" > "$DIST_FILE"
     echo "Initializing /srv..."
-    mkdir -p /srv/{backup,clickhouse,grafana,logs,nginx,postgres14,prometheus,victoriametrics}
+    mkdir -p /srv/{backup,clickhouse,grafana,logs,nginx,prometheus,victoriametrics}
     echo "Copying grafana plugins and the VERSION file..."
     mkdir -p /srv/grafana/plugins
     cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
 
     echo "Initializing Postgres..."
-    chmod 750 /srv/postgres14
+    install -d -m 750 /srv/postgres14
     /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust --username=postgres
 
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
