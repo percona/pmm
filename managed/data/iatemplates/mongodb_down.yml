@@ -1,9 +1,8 @@
 ---
 templates:
-  - name: mongodb_down
+  - name: pmm_mongodb_down
     version: 1
     summary: MongoDB down
-    tiers: [anonymous, registered, paid]
     expr: |-
       ((max without (job) (mongodb_up)) == bool 0)
       or
