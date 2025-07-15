@@ -1,10 +1,8 @@
-# About query analytics (QAN)
+# About Query Analytics (QAN)
 
 The Query Analytics dashboard shows how queries are executed and where they spend their time. It helps you analyze database queries over time, optimize database performance, and find and remedy the source of problems.
 
 ![!image](../../images/PMM_Query_Analytics.jpg)
-
-## Supported databases
 
 Query Analytics supports MySQL, MongoDB and PostgreSQL with the following minimum requirements:
 
@@ -37,15 +35,27 @@ Query Analytics supports MySQL, MongoDB and PostgreSQL with the following minimu
 ## Dashboard components
 Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.
 
+## Dashboard layout
 The dashboard contains three panels:
 
 - the [Filters panel](panels/filters.md)
 - the [Overview panel](panels/overview.md)
 - the [Details panel](panels/details.md)
 
+
 ### Data retrieval delays
 
 Query Analytics data retrieval is not instantaneous because metrics are collected once per minute. When collection delays occur, no data is reported and gaps will appear in the sparkline.
+
+## Label-based access control
+
+Query Analytics integrates with PMM's[label-based access control (LBAC)](../../admin/roles/access-control/intro.md) to enforce data security and user permissions. 
+
+When LBAC is enabled:
+
+- users see only queries from databases and services permitted by their assigned roles
+- filter dropdown options are dynamically restricted based on user permissions
+- data visibility is controlled through Prometheus-style label selectors
 
 ## Limitation: Missing query examples in MySQL Performance Schema
 
@@ -85,5 +95,6 @@ PMM Agent includes a configurable **Performance Schema Refresh Rate** that can h
 
 ### Workaround
 
-If you're still missing some query examples, consider [using the slow query log (`slowlog`)](../../../docs/install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source) as the query source instead. 
+If you're still missing some query examples, consider [using the slow query log (`slowlog`)](../../install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source) as the query source instead. 
 The `slowlog` retains actual query texts over time and can help capture examples even when Performance Schema history buffers are exhausted.
+
