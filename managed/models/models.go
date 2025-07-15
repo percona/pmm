@@ -53,18 +53,6 @@ const (
 	RemoveCascade
 )
 
-// getExtraDSNParams deserializes custom DSN parameters from JSON-encoded byte slice.
-func getExtraDSNParams(b []byte) (map[string]string, error) {
-	if len(b) == 0 {
-		return nil, nil //nolint:nilnil
-	}
-	m := make(map[string]string)
-	if err := json.Unmarshal(b, &m); err != nil {
-		return nil, errors.Wrap(err, "failed to decode extra DSN parameters")
-	}
-	return m, nil
-}
-
 // MergeLabels merges unified labels of Node, Service, and Agent (each can be nil).
 func MergeLabels(node *Node, service *Service, agent *Agent) (map[string]string, error) {
 	res := make(map[string]string, 16)
