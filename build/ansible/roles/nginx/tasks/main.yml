@@ -46,9 +46,6 @@
     - "conf.d/pmm-ssl.conf"
     - "conf.d/pmm.conf"
 
-- name: Generate SSL certificates
-  command: /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
-
 - name: Find the default nginx config files
   find:
     paths: /etc/nginx
@@ -73,14 +70,7 @@
     - /etc/nginx
     - /srv/nginx
 
-- name: Change permissions of nginx certificate
-  file:
-    path: /srv/nginx/certificate.key
-    mode: 0640
-    group: 0
-    owner: pmm
-
-- name: Provision empty Nginx configuration files
+- name: Provision Nginx files
   file:
     path: "{{ item }}"
     state: touch
@@ -90,10 +80,6 @@
   loop:
     - /run/nginx.pid
     - /srv/logs/nginx.log
-
-- name: Check nginx configuration
-  command: nginx -t
-  changed_when: false
 
 - name: Copy local-rss.xml file
   copy:

@@ -93,22 +93,28 @@ if [ ! -f "$DIST_FILE" ]; then
     echo "Copying grafana plugins and the VERSION file..."
     mkdir -p /srv/grafana/plugins
     cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
-    
-    echo "Generating self-signed certificates for nginx..."
-    bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
-    
+
     echo "Initializing Postgres..."
     chmod 750 /srv/postgres14
     /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust --username=postgres
-    
+
     echo "Enabling pg_stat_statements extension for PostgreSQL..."
     /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
     /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
     /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
 fi
 
+echo "Generating self-signed certificates for nginx..."
+bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
+
 # Ensure /srv/postgres14 has the correct permissions
 chmod 750 /srv/postgres14 || true
+
+echo "Checking nginx configuration..."
+if ! nginx -t; then
+    echo "Nginx configuration test failed, exiting..."
+    exit 1
+fi
 
 # pmm-managed-init validates environment variables.
 pmm-managed-init

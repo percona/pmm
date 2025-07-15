@@ -31,7 +31,7 @@ if [ ! -w "/srv/nginx" ]; then
 
     if [ "$error" = true ]; then
         echo "Exiting due to missing file(s)." >&2
-        exit 1;
+        exit 1
     fi
 
     echo "Using user provided certificate."
