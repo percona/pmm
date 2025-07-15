@@ -21,7 +21,7 @@ if [ ! -w /srv ]; then
     exit 1
 fi
 
-if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "1000" ]; then
+if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "0" ]; then
     echo "Running as UID:GID $CURRENT_UID:$CURRENT_GID, setting up for arbitrary UID..."
 
     # Try NSS wrapper first if available
