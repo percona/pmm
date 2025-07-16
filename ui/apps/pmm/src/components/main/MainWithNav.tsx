@@ -29,7 +29,9 @@ export const MainWithNav = () => {
       {!kioskMode.active && (
         <>
           <Sidebar />
-          <Outlet />
+          <Stack direction="column">
+            <Outlet />
+          </Stack>
         </>
       )}
       <GrafanaPage />

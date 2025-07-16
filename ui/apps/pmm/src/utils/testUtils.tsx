@@ -1,7 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { UpdatesContext, UpdatesContextProps } from 'contexts/updates';
+import { UserContext, UserContextProps } from 'contexts/user';
 import { ReactElement } from 'react';
 import { UpdateStatus } from 'types/updates.types';
+import { TEST_USER_ADMIN } from './testStubs';
+import { MemoryRouter, MemoryRouterProps } from 'react-router-dom';
 
 export const wrapWithUpdatesProvider = (
   children: ReactElement,
@@ -54,3 +57,26 @@ export const wrapWithQueryProvider = (children: ReactElement) => (
     {children}
   </QueryClientProvider>
 );
+
+export const wrapWithUserProvider = (
+  children: ReactElement,
+  ctx: Partial<UserContextProps> = {}
+) => (
+  <UserContext.Provider
+    value={{
+      isLoading: false,
+      ...ctx,
+      user: {
+        ...TEST_USER_ADMIN,
+        ...ctx.user,
+      },
+    }}
+  >
+    {children}
+  </UserContext.Provider>
+);
+
+export const wrapWithRouter = (
+  children: ReactElement,
+  props?: MemoryRouterProps
+) => <MemoryRouter {...props}>{children}</MemoryRouter>;

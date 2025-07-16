@@ -13,7 +13,12 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
       justifyContent="space-between"
       sx={{
         p: 2,
-        pl: sidebarOpen ? 2 : 3.5,
+        pl: sidebarOpen
+          ? 1
+          : {
+              sm: 3.5,
+              xs: 1.5,
+            },
         pr: 1,
         width: '100%',
       }}

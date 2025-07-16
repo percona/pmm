@@ -2,6 +2,7 @@ import { FC, memo, lazy, Suspense } from 'react';
 import { IconProps } from './Icon.types';
 import { DYNAMIC_ICON_IMPORT_MAP, VIEWBOX_MAP } from './Icon.constants';
 import SvgIcon from '@mui/material/SvgIcon';
+import Box from '@mui/material/Box';
 
 const Icon: FC<IconProps> = memo(({ name, ...props }) => {
   if (!DYNAMIC_ICON_IMPORT_MAP[name]) {
@@ -11,7 +12,17 @@ const Icon: FC<IconProps> = memo(({ name, ...props }) => {
   const Icon = lazy(DYNAMIC_ICON_IMPORT_MAP[name]);
 
   return (
-    <Suspense fallback={null}>
+    <Suspense
+      fallback={
+        <Box
+          sx={{
+            width: props.width || 24,
+            height: props.height || 24,
+            ...props.sx,
+          }}
+        />
+      }
+    >
       <SvgIcon component={Icon} viewBox={VIEWBOX_MAP[name]} {...props} />
     </Suspense>
   );

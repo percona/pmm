@@ -27,12 +27,16 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
       return {
         ...settings.data!,
         frontend: frontendSettings.data!,
+        // check if pmm-compat-app plugin is enabled
+        newUIEnabled: frontendSettings.data.apps['pmm-compat-app']?.preload,
       };
     }
 
     return {
       ...readonlySettings.data!,
       frontend: frontendSettings.data!,
+      // check if pmm-compat-app plugin is enabled
+      newUIEnabled: frontendSettings.data.apps['pmm-compat-app']?.preload,
     };
   }, [user?.isPMMAdmin, settings, readonlySettings, frontendSettings]);
 
