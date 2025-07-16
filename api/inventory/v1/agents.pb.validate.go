@@ -602,6 +602,8 @@ func (m *MySQLdExporter) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for ExtraDsnParams
+
 	if len(errors) > 0 {
 		return MySQLdExporterMultiError(errors)
 	}
@@ -1215,6 +1217,8 @@ func (m *QANMySQLPerfSchemaAgent) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExtraDsnParams
+
 	if len(errors) > 0 {
 		return QANMySQLPerfSchemaAgentMultiError(errors)
 	}
@@ -1352,6 +1356,8 @@ func (m *QANMySQLSlowlogAgent) validate(all bool) error {
 	// no validation rules for ProcessExecPath
 
 	// no validation rules for LogLevel
+
+	// no validation rules for ExtraDsnParams
 
 	if len(errors) > 0 {
 		return QANMySQLSlowlogAgentMultiError(errors)
@@ -7882,6 +7888,8 @@ func (m *AddMySQLdExporterParams) validate(all bool) error {
 	// no validation rules for LogLevel
 
 	// no validation rules for ExposeExporter
+
+	// no validation rules for ExtraDsnParams
 
 	if len(errors) > 0 {
 		return AddMySQLdExporterParamsMultiError(errors)

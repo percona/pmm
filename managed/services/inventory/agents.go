@@ -270,6 +270,9 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 
 	mysqlOptions := models.MySQLOptionsFromRequest(p)
 	mysqlOptions.TableCountTablestatsGroupLimit = p.TablestatsGroupTableLimit
+	if p.ExtraDsnParams != nil {
+		mysqlOptions.ExtraDSNParams = p.ExtraDsnParams
+	}
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
 			PMMAgentID:    p.PmmAgentId,

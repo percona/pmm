@@ -166,6 +166,20 @@ func ParseCustomLabels(labels map[string]string) map[string]string {
 	return result
 }
 
+// ParseExtraDSNParams trims spaces in --extra-dsn-params flag value.
+func ParseExtraDSNParams(params map[string]string) map[string]string {
+	result := make(map[string]string)
+	for k, v := range params {
+		v = strings.TrimSpace(v)
+		if v == "" {
+			continue
+		}
+
+		result[k] = v
+	}
+	return result
+}
+
 // ParseDisableCollectors parses --disable-collectors flag value.
 func ParseDisableCollectors(collectors []string) []string {
 	var disableCollectors []string

@@ -973,6 +973,9 @@ type GetServiceOKBodyMysql struct {
 
 	// MySQL version.
 	Version string `json:"version,omitempty"`
+
+	// Extra parameters to be added to the DSN.
+	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 }
 
 // Validate validates this get service OK body mysql
