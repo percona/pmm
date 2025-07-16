@@ -29,7 +29,7 @@ export const Updates: FC = () => {
   return (
     <Page title={settings?.newUIEnabled ? Messages.titleNewUI : Messages.title}>
       {!settings?.newUIEnabled && (
-        <Card>
+        <Card variant="outlined">
           <CardMedia
             sx={{ height: 140 }}
             image={Welcome}
@@ -48,7 +48,7 @@ export const Updates: FC = () => {
       {settings?.updatesEnabled ? (
         <UpdateCard />
       ) : (
-        <Card>
+        <Card variant="outlined">
           <CardContent>
             <Stack gap={1}>
               <Alert severity="warning">{Messages.disabled.title}</Alert>

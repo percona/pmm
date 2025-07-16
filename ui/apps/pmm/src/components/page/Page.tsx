@@ -40,7 +40,7 @@ export const Page: FC<PageProps> = ({ title, topBar, footer, children }) => {
       {user?.isAuthorized ? (
         children
       ) : (
-        <Card sx={{ p: 2 }}>
+        <Card variant="outlined" sx={{ p: 2 }}>
           <Alert severity="error" sx={{ mb: 1 }}>
             {Messages.noAcccess}
           </Alert>

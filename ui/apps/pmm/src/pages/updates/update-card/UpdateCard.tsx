@@ -55,7 +55,7 @@ export const UpdateCard: FC = () => {
 
   if (isLoading)
     return (
-      <Card>
+      <Card variant="outlined">
         <CardContent>
           <Stack spacing={1}>
             <Skeleton />
@@ -67,7 +67,7 @@ export const UpdateCard: FC = () => {
 
   if (!data || error) {
     return (
-      <Card>
+      <Card variant="outlined">
         <CardContent>
           <Alert severity="error">{Messages.fetchError}</Alert>
         </CardContent>
@@ -86,7 +86,7 @@ export const UpdateCard: FC = () => {
   }
 
   return (
-    <Card sx={{ p: 1 }}>
+    <Card variant="outlined" sx={{ p: 1 }}>
       <CardContent>
         {status === UpdateStatus.UpToDate && (
           <Alert

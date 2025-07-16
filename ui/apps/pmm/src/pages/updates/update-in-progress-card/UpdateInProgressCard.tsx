@@ -23,7 +23,7 @@ export const UpdateInProgressCard: FC<UpdateInProgressCardProps> = ({
   const navigate = useNavigate();
 
   return (
-    <Card>
+    <Card variant="outlined">
       <CardContent>
         <Stack spacing={2}>
           <Stack>

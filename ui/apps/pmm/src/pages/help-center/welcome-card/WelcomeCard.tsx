@@ -25,6 +25,7 @@ const WelcomeCard: FC = () => {
   // todo: figure out conditions when hidden/visible
   return (
     <Card
+      variant="outlined"
       sx={{
         md: 2,
       }}
@@ -62,12 +63,18 @@ const WelcomeCard: FC = () => {
           {WELCOME_CARD_LIST.map(({ icon: Icon, content }, idx) => (
             <ListItem key={idx}>
               <ListItemIcon
-                sx={{
-                  color: 'common.black',
-                  minWidth: 'auto',
-                  ml: -1,
-                  pr: 1.5,
-                }}
+                sx={[
+                  {
+                    color: 'common.black',
+                    minWidth: 'auto',
+                    ml: -1,
+                    pr: 1.5,
+                  },
+                  (theme) =>
+                    theme.applyStyles('dark', {
+                      color: 'common.white',
+                    }),
+                ]}
               >
                 <Icon />
               </ListItemIcon>
