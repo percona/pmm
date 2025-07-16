@@ -10,9 +10,6 @@ sleep 5
 echo "Checking severity mapping results from ClickHouse..."
 docker exec otel-clickhouse clickhouse-client --user=default --password=clickhouse --query "
 SELECT 
-    'Status Code Mapping Summary:' AS summary
-UNION ALL
-SELECT 
     CONCAT(
         'HTTP ', CASE WHEN LogAttributes['status'] = '' THEN 'N/A' ELSE LogAttributes['status'] END, 
         ' -> ', SeverityText, 

@@ -77,6 +77,64 @@ receivers:
         from: attributes.msg
         to: body
 
+  # File log receiver for PMM managed logs
+  filelog/pmm_managed:
+    include: [/srv/logs/pmm-managed.log]
+    operators:
+      - type: key_value_parser
+        parse_from: body
+        parse_to: attributes
+        pair_delimiter: " "
+        key_value_delimiter: "="
+      - type: time_parser
+        parse_from: attributes.time
+        layout: '2006-01-02T15:04:05.000Z07:00'
+        layout_type: gotime
+      - type: severity_parser
+        parse_from: attributes.level
+        preset: none
+        mapping:
+          debug: debug
+          info: info
+          warning: warn
+          warn: warn
+          error: error
+          fatal: fatal
+          panic: fatal
+      # Move the parsed message to body for consistency
+      - type: move
+        from: attributes.msg
+        to: body
+
+  # File log receiver for PMM agent logs
+  filelog/pmm_agent:
+    include: [/srv/logs/pmm-agent.log]
+    operators:
+      - type: key_value_parser
+        parse_from: body
+        parse_to: attributes
+        pair_delimiter: " "
+        key_value_delimiter: "="
+      - type: time_parser
+        parse_from: attributes.time
+        layout: '2006-01-02T15:04:05.000Z07:00'
+        layout_type: gotime
+      - type: severity_parser
+        parse_from: attributes.level
+        preset: none
+        mapping:
+          debug: debug
+          info: info
+          warning: warn
+          warn: warn
+          error: error
+          fatal: fatal
+          panic: fatal
+      # Move the parsed message to body for consistency
+      - type: move
+        from: attributes.msg
+        to: body
+
 processors:
   # Batch processor to optimize performance
   batch:
@@ -99,6 +157,12 @@ processors:
 
       - set(resource.attributes["service.name"], "grafana") where log.attributes["log_file"] == "grafana.log"
       - set(resource.attributes["service.version"], "11.6.1") where log.attributes["log_file"] == "grafana.log"
+
+      - set(resource.attributes["service.name"], "pmm-managed") where log.attributes["log_file"] == "pmm-managed.log"
+      - set(resource.attributes["service.version"], "3.3.0") where log.attributes["log_file"] == "pmm-managed.log"
+
+      - set(resource.attributes["service.name"], "pmm-agent") where log.attributes["log_file"] == "pmm-agent.log"
+      - set(resource.attributes["service.version"], "2.42.0") where log.attributes["log_file"] == "pmm-agent.log"
 
   # Memory limiter to prevent OOM
   memory_limiter:
@@ -129,7 +193,7 @@ exporters:
 service:
   pipelines:
     logs:
-      receivers: [filelog/nginx_access, filelog/nginx_error, filelog/grafana]
+      receivers: [filelog/nginx_access, filelog/nginx_error, filelog/grafana, filelog/pmm_managed, filelog/pmm_agent]
       processors: [memory_limiter, transform, batch]
       exporters: [clickhouse, debug]
 

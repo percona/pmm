@@ -2,7 +2,7 @@
 
 ## Goals
 While the overarching goal it provide a robust logging system that allows users to monitor and troubleshoot their database environments effectively, the specific requirements for the logging functionality in PMM are as follows:
-- ability to collect logs from various sources and in various formats, including logs generated within PMM
+- ability to collect logs from various sources and in various formats
 - integrate with PMM and provide an interface for viewing anf querying the logs
 - support log retention policies to manage disk space
 - support alerting based on log events and notify users via available channels (e.g., email, slack, etc.)

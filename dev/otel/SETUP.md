@@ -168,6 +168,32 @@ Alternatively, you can also change the TTL by running the following query using 
 ALTER TABLE otel.logs MODIFY TTL TimestampTime + INTERVAL 7 DAY;
 ```
 
+### 12. Creating Dashboards
+You can create custom dashboards in PMM to visualize the logs. Use the `ClickHouse-Logs` data source to query the `otel.logs` table and create panels for different log types, such as Nginx access logs, Grafana logs, pmm-managed logs, pmm-agent logs, and more.
+
+#### Example Query for Log Linecount by Service
+Panel Description: Log Linecount by Service
+```sql
+SELECT ServiceName AS service, COUNT(*) as count FROM "otel"."logs" WHERE ( timestamp >= $__fromTime AND timestamp <= $__toTime ) GROUP BY service ORDER BY count DESC;
+```
+
+#### Example Query for Nginx Status by Severity
+Panel Description: Nginx Status by Severity
+```sql
+SELECT
+CASE WHEN LogAttributes['status'] = '' THEN 'N/A' ELSE LogAttributes['status'] END AS mapping, COUNT(*) as count
+FROM otel.logs
+WHERE ( Timestamp >= $__fromTime AND Timestamp <= $__toTime ) AND ServiceName = 'nginx'
+GROUP BY LogAttributes['status'], SeverityNumber
+ORDER BY LogAttributes['status']
+```
+
+#### Example Query for General Logs
+Panel Description: General Logs
+```sql
+SELECT Timestamp as "timestamp", Body as "body", SeverityText as "level", LogAttributes as "labels", TraceId as "traceID" FROM "otel"."logs" WHERE ( timestamp >= $__fromTime AND timestamp <= $__toTime ) ORDER BY timestamp DESC LIMIT 1000
+```
+
 ## Troubleshooting
 
 ### Check Project Setup
