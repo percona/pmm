@@ -1,4 +1,4 @@
-# Connect an external instance
+# Connect an external instance to PMM
 
 ## Add general external services
 
@@ -15,6 +15,33 @@ pmm-admin add external --service-name=<service-name> --listen-port=<listen-port>
 
 ```sh
 pmm-admin add external-serverless --external-name=<external-service-name> --host=<hostname> --listen-port=<listen-port> --metrics-path=<metrics-path> --scheme=<scheme>
+```
+
+## TLS certificate verification
+
+When connecting to external services over HTTPS, PMM performs TLS certificate validation by default to ensure secure connections. However, in some scenarios you may need to skip this validation. Use the `--tls-skip-verify` flag when monitoring services with:
+
+- self-signed certificates
+- development environments where proper certificates aren't configured
+- IP-based endpoints that lack proper certificate Subject Alternative Names (SANs)
+- PostgreSQL Operator deployments with HAProxy that use self-signed certificates
+- encounter errors like `Connection check failed: Get "https://127.0.0.1:8008/metrics": tls: failed to verify certificate: x509: cannot validate certificate for 127.0.0.1 because it doesn't contain any IP SANs`, you can resolve this by adding the `--tls-skip-verify` flag to your command.
+
+
+!!! warning "Security warning"
+    Using `--skip-tls-verify` disables TLS certificate validation and should only be used in development environments or when connecting to trusted services with certificate issues. This makes connections vulnerable to man-in-the-middle attacks.
+
+##  Examples with TLS skip verification
+
+```sh
+# 🆕 External service with TLS verification skipped
+pmm-admin add external --listen-port=8008 --scheme=https --tls-skip-verify
+
+# 🆕 External serverless with TLS verification skipped  
+pmm-admin add external-serverless --host=example.com --listen-port=9093 --scheme=https --tls-skip-verify
+
+# 🆕 HAProxy with TLS verification skipped (useful for PostgreSQL Operator deployments)
+pmm-admin add haproxy --listen-port=8404 --scheme=https --tls-skip-verify
 ```
 
 ## Get data from external exporters
@@ -55,11 +82,9 @@ You can find more exporters on the [official Prometheus page](https://prometheus
 
 ### Custom exporter
 
-You can write a custom external exporter or extend your application to expose metrics in Prometheus format.
+You can create a custom external exporter or extend your application to expose metrics in [Prometheus exposition format](https://prometheus.io/docs/instrumenting/exposition_formats/). This gives you complete control over what metrics are collected and how they're exposed. To learn how to build your own exporter, see [Writing Exporter in the Prometheus Docs](https://prometheus.io/docs/instrumenting/writing_exporters).
 
-For more details see <https://prometheus.io/docs/instrumenting/writing_exporters/>.
-
-??? info "Example"
+??? info "Example: Add an HTTP exporter"
 
     ```sh
     root@mysql1:~# pmm-admin add external --group=processes  --listen-port=9256
@@ -69,9 +94,29 @@ For more details see <https://prometheus.io/docs/instrumenting/writing_exporters
     Group       : processes
     ```
 
-- Add an exporter running on local port 9256 to the group called `processes`.
-- Use the group and host names to automatically generate a service name.
-- Use the default scheme and metrics path.
+    This command: 
+    - adds an exporter running on local port 9256 to the group called `processes`.
+    - automatically generates the service name using the host and group names.
+    - uses the default scheme (http) and metrics path (/metrics).
+
+
+??? info "Example: Add an HTTPS exporter (Skip TLS verification)"
+
+
+    ```sh
+    root@mysql1:~# pmm-admin add external --group=processes --listen-port=8008 --scheme=https --tls-skip-verify
+    External Service added.
+    Service ID  : 7b96c5fe-856c-4efc-9c83-439f411g9c61
+    Service name: mysql1-processes
+    Group       : processes
+    ```
+
+    This command:
+
+    - adds an HTTPS exporter on local port `8008`.
+    - uses the `--tls-skip-verify` flag to bypass TLS certificate validation (for development or testing only!)
+    - automatically generates the service name using the host and group names.
+
 
 ## Add an external service via UI
 
@@ -91,3 +136,6 @@ To add an external service via PMM UI:
     - by parsing required data from a URL string. In this case you only need to pass a valid URL:
 
         ![Parse from URL string](../../../images/PMM_External_Serverless_switcher.png)
+
+3. For HTTPS connections: If your external service uses HTTPS with self-signed certificates or certificates that don't properly validate, check the **Skip TLS certificate and hostname validation** option under **PMM Configuration > PMM Inventory > Services** section.
+

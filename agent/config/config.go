@@ -147,7 +147,7 @@ type Setup struct {
 // Config represents pmm-agent's configuration.
 //
 //nolint:maligned
-type Config struct { //nolint:musttag
+type Config struct {
 	// no config file there
 
 	ID                             string `yaml:"id"`
@@ -164,7 +164,8 @@ type Config struct { //nolint:musttag
 	Debug    bool   `yaml:"debug"`
 	Trace    bool   `yaml:"trace"`
 
-	LogLinesCount uint `json:"log-lines-count"`
+	LogLinesCount         uint   `json:"log-lines-count"`
+	PerfschemaRefreshRate uint16 `yaml:"perfschema-refresh-rate,omitempty"`
 
 	WindowConnectedTime time.Duration `yaml:"window-connected-time"`
 
@@ -218,6 +219,9 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		}
 		if cfg.WindowConnectedTime == 0 {
 			cfg.WindowConnectedTime = time.Hour
+		}
+		if cfg.PerfschemaRefreshRate == 0 {
+			cfg.PerfschemaRefreshRate = 5
 		}
 
 		for sp, v := range map[*string]string{
@@ -346,7 +350,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 // Application returns kingpin application that will parse command-line flags and environment variables
 // (but not configuration file) into cfg except --config-file/PMM_AGENT_CONFIG_FILE that is returned separately.
 func Application(cfg *Config) (*kingpin.Application, *string) {
-	app := kingpin.New("pmm-agent", fmt.Sprintf("Version %s", version.Version))
+	app := kingpin.New("pmm-agent", "Version "+version.Version)
 	app.HelpFlag.Short('h')
 
 	app.Command("run", "Run pmm-agent (default command)").Default()
@@ -428,6 +432,9 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	app.Flag("log-lines-count",
 		"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
 		Envar("PMM_AGENT_LOG_LINES_COUNT").Default("1024").UintVar(&cfg.LogLinesCount)
+	app.Flag("perfschema-refresh-rate",
+		"Change how often PMM scrapes data from Performance Schema (in seconds) [PMM_AGENT_PERFSCHEMA_REFRESH_RATE]").
+		Envar("PMM_AGENT_PERFSCHEMA_REFRESH_RATE").Uint16Var(&cfg.PerfschemaRefreshRate)
 	jsonF := app.Flag("json", "Enable JSON output").Action(func(*kingpin.ParseContext) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
 		return nil
@@ -524,7 +531,7 @@ func loadFromFile(path string) (*Config, error) {
 		return nil, err
 	}
 	cfg := &Config{}
-	if err = yaml.Unmarshal(b, cfg); err != nil {
+	if err = yaml.Unmarshal(b, cfg); err != nil { //nolint:musttag // false positive
 		return nil, err
 	}
 	return cfg, nil
@@ -533,7 +540,7 @@ func loadFromFile(path string) (*Config, error) {
 // SaveToFile saves configuration to file.
 // No special cases.
 func SaveToFile(path string, cfg *Config, comment string) error {
-	b, err := yaml.Marshal(cfg)
+	b, err := yaml.Marshal(cfg) //nolint:musttag // false positive
 	if err != nil {
 		return err
 	}

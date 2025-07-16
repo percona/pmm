@@ -15,7 +15,6 @@
 package connectionuptime
 
 import (
-	"fmt"
 	"math"
 	"sort"
 	"testing"
@@ -147,7 +146,6 @@ func TestConnectionUpTime(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -168,8 +166,7 @@ func TestConnectionUpTime(t *testing.T) {
 
 			service.deleteOldEvents(tt.toTime)
 			got := service.GetConnectedUpTimeUntil(tt.toTime)
-			assert.True(t, compareFloatWithTolerance(tt.expectedUpTime, got),
-				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.expectedUpTime, got))
+			assert.Truef(t, compareFloatWithTolerance(tt.expectedUpTime, got), "expected %f, got %f are not equal within tolerance", tt.expectedUpTime, got)
 		})
 	}
 }
@@ -223,7 +220,6 @@ func TestConnectionUpTimeWithUpdatingConnectionUptime(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -245,8 +241,7 @@ func TestConnectionUpTimeWithUpdatingConnectionUptime(t *testing.T) {
 			// delete expired events
 			service.deleteOldEvents(tt.toTime)
 			got := service.GetConnectedUpTimeUntil(tt.toTime)
-			assert.True(t, compareFloatWithTolerance(tt.expectedUpTime, got),
-				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.expectedUpTime, got))
+			assert.Truef(t, compareFloatWithTolerance(tt.expectedUpTime, got), "expected %f, got %f are not equal within tolerance", tt.expectedUpTime, got)
 
 			// updated window uptime
 			service.SetWindowPeriod(tt.newWindowPeriod)
@@ -254,8 +249,7 @@ func TestConnectionUpTimeWithUpdatingConnectionUptime(t *testing.T) {
 			// delete expired events
 			service.deleteOldEvents(tt.toTime)
 			got = service.GetConnectedUpTimeUntil(tt.toTime)
-			assert.True(t, compareFloatWithTolerance(tt.newExpectedUpTime, got),
-				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.newExpectedUpTime, got))
+			assert.Truef(t, compareFloatWithTolerance(tt.newExpectedUpTime, got), "expected %f, got %f are not equal within tolerance", tt.newExpectedUpTime, got)
 		})
 	}
 }
@@ -338,7 +332,6 @@ func TestCalculationConnectionUpTimeWhenCleanupMethodIsNotCalled(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -358,8 +351,7 @@ func TestCalculationConnectionUpTimeWhenCleanupMethodIsNotCalled(t *testing.T) {
 			}
 
 			got := service.GetConnectedUpTimeUntil(tt.toTime)
-			assert.True(t, compareFloatWithTolerance(tt.expectedUpTime, got),
-				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.expectedUpTime, got))
+			assert.Truef(t, compareFloatWithTolerance(tt.expectedUpTime, got), "expected %f, got %f are not equal within tolerance", tt.expectedUpTime, got)
 		})
 	}
 }

@@ -129,6 +129,7 @@ func TestAddMongoDB(t *testing.T) {
 					Username:           "username",
 					Password:           "password",
 					QANMongodbProfiler: true,
+					QANMongodbMongolog: true,
 
 					SkipConnectionCheck: true,
 				},
@@ -170,6 +171,7 @@ func TestAddMongoDB(t *testing.T) {
 
 		require.Len(t, listAgents.Payload.MongodbExporter, 1)
 		require.Len(t, listAgents.Payload.QANMongodbProfilerAgent, 1)
+		require.Len(t, listAgents.Payload.QANMongodbMongologAgent, 1)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
 			{
 				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
@@ -195,6 +197,17 @@ func TestAddMongoDB(t *testing.T) {
 				LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, listAgents.Payload.QANMongodbProfilerAgent)
+		assert.Equal(t, []*agents.ListAgentsOKBodyQANMongodbMongologAgentItems0{
+			{
+				AgentID:      listAgents.Payload.QANMongodbMongologAgent[0].AgentID,
+				ServiceID:    serviceID,
+				PMMAgentID:   pmmAgentID,
+				Username:     "username",
+				Status:       &AgentStatusUnknown,
+				CustomLabels: map[string]string{},
+				LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+			},
+		}, listAgents.Payload.QANMongodbMongologAgent)
 	})
 
 	t.Run("With labels", func(t *testing.T) {
@@ -898,6 +911,7 @@ func TestRemoveMongoDB(t *testing.T) {
 					Username:           "username",
 					Password:           "password",
 					QANMongodbProfiler: withAgents,
+					QANMongodbMongolog: withAgents,
 
 					SkipConnectionCheck: true,
 				},

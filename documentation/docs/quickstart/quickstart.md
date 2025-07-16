@@ -11,16 +11,16 @@ This is the simplest and most efficient way to install PMM with Docker.
     - [Deploy based on a Docker image](../install-pmm/install-pmm-server/deployment-options/docker/index.md)
     - [Deploy on Virtual Appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)
     - [Deploy on Kubernetes via Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md)
-    - [Run a PMM instance hosted at AWS Marketplace](../install-pmm/install-pmm-server/deployment-options/aws/aws.md)
+   <!--- - [Run a PMM instance hosted at AWS Marketplace](../install-pmm/install-pmm-server/deployment-options/aws/aws.md)-->
 
 #### Prerequisites
 
-Before you start installing PMM, verify that your system meets the compatibility requirements.
+Before you start installing PMM, verify that your system meets the compatibility requirements:
 
 ??? info "Verify system compatibility"
-    - **Disk**: Approximately 1 GB of storage per monitored database node with data retention set to one week. By default, retention is 30 days.
-    - **Memory**: A minimum of 2 GB per monitored database node. The increase in memory usage is not proportional to the number of nodes. For example, the data from 20 nodes should be easily handled with 16 GB.
-    - **Ports**: Your system’s firewall should allow TCP traffic on port 443.
+    - System: Linux-compatible system with `sudo` privileges or `root` access
+    - Network: Internet connectivity to download PMM components
+    - Ports: Your system's firewall should allow TCP traffic on port `443`
 
 ## Install PMM
 
@@ -126,11 +126,11 @@ Once PMM is set up, choose the database or the application that you want it to m
         pmm-admin add mysql --query-source=perfschema --username=pmm --password=<your_password>
         ```
     ??? info "Alternative database connection workflows"
-        While the default instructions above focus on connecting a self-hosted MySQL database, PMM offers the flexibility to connect to various MySQL databases, including [AWS RDS](../install-pmm/install-pmm-client/connect-database/aws.md), [Azure MySQL](../install-pmm/install-pmm-client/connect-database/azure.md) or [Google Cloud MySQL](../install-pmm/install-pmm-client/connect-database/google.md). 
+        While the default instructions above focus on connecting a self-hosted MySQL database, PMM offers the flexibility to connect to various MySQL databases, including [Azure MySQL](../install-pmm/install-pmm-client/connect-database/azure.md) or [Google Cloud MySQL](../install-pmm/install-pmm-client/connect-database/google.md). 
 
         The PMM Client installation also comes with options: in addition to the installation via Package Manager described above, you can also install it as a Docker container or as a binary package. Explore [alternative PMM Client installation options](../install-pmm/install-pmm-client/connect-database/index.md) for more information.
 
-        Additionally, if direct access to the database node isn't available, opt to [Add remote instance via User Interface](../install-pmm/install-pmm-client/connect-database/mysql.md#check-the-service) instead. 
+        Additionally, if direct access to the database node isn't available, opt to [Add remote instance via User Interface](../install-pmm/install-pmm-client/connect-database/mysql/mysql.md#check-the-service) instead. 
 
 === ":simple-postgresql: PostgreSQL"
 

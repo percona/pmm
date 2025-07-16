@@ -20,29 +20,28 @@ import (
 	"fmt"
 
 	qanpb "github.com/percona/pmm/api/qan/v1"
+	"github.com/percona/pmm/qan-api2/models"
 )
 
-// Get implements rpc to get list of available labels.
+// GetFilteredMetricsNames implements rpc to get list of available metrics names.
 //
 //nolint:goconst
 func (s *Service) GetFilteredMetricsNames(ctx context.Context, in *qanpb.GetFilteredMetricsNamesRequest) (*qanpb.GetFilteredMetricsNamesResponse, error) {
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
-		err := fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
-		return nil, err
+		return nil, fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
 	}
 
 	periodStartFromSec := in.PeriodStartFrom.Seconds
 	periodStartToSec := in.PeriodStartTo.Seconds
 	if periodStartFromSec > periodStartToSec {
-		err := fmt.Errorf("from-date %s cannot be bigger then to-date %s", in.PeriodStartFrom, in.PeriodStartTo)
-		return nil, err
+		return nil, fmt.Errorf("from-date %s cannot be later then to-date %s", in.PeriodStartFrom, in.PeriodStartTo)
 	}
 
 	labels := make(map[string][]string)
 	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
-		if isDimension(label.Key) {
+		if models.IsDimension(label.Key) {
 			dimensions[label.Key] = label.Value
 			continue
 		}

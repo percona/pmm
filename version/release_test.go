@@ -53,12 +53,12 @@ func TestFullInfoPlainManaged(t *testing.T) {
 	setupDataForManaged()
 
 	expected := strings.Join([]string{
-		fmt.Sprintf("ProjectName: %s", ProjectName),
-		fmt.Sprintf("Version: %s", Version),
-		fmt.Sprintf("PMMVersion: %s", PMMVersion),
-		fmt.Sprintf("Timestamp: %s", timestampFormatted()),
-		fmt.Sprintf("FullCommit: %s", FullCommit),
-		fmt.Sprintf("Branch: %s", Branch),
+		fmt.Sprintf("ProjectName: %s", ProjectName),        //nolint:errcheck
+		fmt.Sprintf("Version: %s", Version),                //nolint:errcheck
+		fmt.Sprintf("PMMVersion: %s", PMMVersion),          //nolint:errcheck
+		fmt.Sprintf("Timestamp: %s", timestampFormatted()), //nolint:errcheck
+		fmt.Sprintf("FullCommit: %s", FullCommit),          //nolint:errcheck
+		fmt.Sprintf("Branch: %s", Branch),                  //nolint:errcheck
 	}, "\n")
 	actual := FullInfo()
 	if expected != actual {

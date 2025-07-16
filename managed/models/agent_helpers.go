@@ -37,7 +37,7 @@ const (
 )
 
 // MySQLOptionsParams contains methods to create MySQLOptions object.
-type MySQLOptionsParams interface {
+type MySQLOptionsParams interface { //nolint:iface
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
@@ -53,7 +53,7 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) MySQLOptions {
 }
 
 // PostgreSQLOptionsParams contains methods to create PostgreSQLOptions object.
-type PostgreSQLOptionsParams interface {
+type PostgreSQLOptionsParams interface { //nolint:iface
 	GetTlsCa() string
 	GetTlsCert() string
 	GetTlsKey() string
@@ -639,15 +639,16 @@ func CreateNodeExporter(q *reform.Querier,
 
 // CreateExternalExporterParams params for add external exporter.
 type CreateExternalExporterParams struct {
-	RunsOnNodeID string
-	ServiceID    string
-	Username     string
-	Password     string
-	Scheme       string
-	MetricsPath  string
-	ListenPort   uint32
-	CustomLabels map[string]string
-	PushMetrics  bool
+	RunsOnNodeID  string
+	ServiceID     string
+	Username      string
+	Password      string
+	Scheme        string
+	MetricsPath   string
+	ListenPort    uint32
+	CustomLabels  map[string]string
+	PushMetrics   bool
+	TLSSkipVerify bool
 }
 
 // CreateExternalExporter creates ExternalExporter.
@@ -708,6 +709,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 			MetricsPath:   metricsPath,
 			MetricsScheme: scheme,
 		},
+		TLSSkipVerify: params.TLSSkipVerify,
 	}
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
@@ -780,6 +782,9 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 			MongoDBServiceType,
 		},
 		QANMongoDBProfilerAgentType: {
+			MongoDBServiceType,
+		},
+		QANMongoDBMongologAgentType: {
 			MongoDBServiceType,
 		},
 		PostgresExporterType: {

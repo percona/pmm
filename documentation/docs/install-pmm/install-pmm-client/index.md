@@ -1,38 +1,43 @@
-# About PMM Client installation
+# PMM Client installation overview
 
-There are different ways to install PMM Client on a node and register it with PMM Server. Choose from:
+PMM Client is the component of Percona Monitoring and Management (PMM) that collects metrics from your database servers and sends them to PMM Server for analysis and visualization.
 
-- [Docker](docker.md): Run PMM Client as a Docker container.
+??? info "Common installation process at a glance"
+    While specific steps vary by deployment method, the general installation process includes:
+    {.power-number}
+    
+    1. Install PMM Client using your preferred method and register the Client node with your PMM Server.
+    2. Add database services for monitoring.
+    3. Verify monitoring data in the PMM web interface.
 
-- [Package manager](package_manager.md):
-    - On Debian or Red Hat Linux, install `percona-release` and use a Linux package manager (`apt`/`dnf`) to install PMM Client.
-    - On Debian or Red Hat, download `.deb`/`.rpm` PMM Client packages and manually install them.
+## Prerequisites
 
-!!! hint alert "Binary is only way to install PMM client without root permissions"
-    - [Binary package](binary_package.md): For other Linux distributions, download and unpack generic PMM Client Linux binaries. Ensure you choose the correct package for your architecture (x86_64 or ARM64).
+Complete these steps to prepare your system for PMM installation:
 
-When you have installed PMM Client, you must:
+- [Check system requirements](prerequisites.md) to ensure your environment meets the minimum criteria.
 
-- [Register the node with PMM Server](../register-client-node/index.md).
-- [Configure and add services according to type](connect-database/index.md).
+- [Install and configure PMM Server](../install-pmm-server/index.md) using your preferred deployment method. You'll need PMM Server's IP address or hostname to configure PMM Client.
 
-If you need to, you can [unregister](../../uninstall-pmm/unregister_client.md), [remove services](../install-pmm-client/connect-database/remove-services/index.md) or [remove PMM Client](../../uninstall-pmm/uninstall_docker.md).
+- [Set up firewall rules](../plan-pmm-installation/network_and_firewall.md) to allow communication between PMM Client and PMM Server.
+- Create monitoring users with necessary permissions for your database
 
----
+- Check that you have administrator access to install PMM Client
 
-Here's an overview of the choices.
+## Deployment options
 
-![!image](../../images/PMM_Client_Setup.png)
+Install PMM Client using one of the following deployment methods:
 
-## Before you start
-
-Before installing the PMM client, check [Prerequisites to install PMM client](./prerequisites.md).
+| **Your setup** | **Recommended deployment** |
+|----------------|----------------------------|
+| **Production** environments on supported Linux distributions | **[Package Manager →](package_manager.md)** |
+| Unsupported Linux distributions or **non-root** installation | **[Binary Package →](binary_package.md)** |
+| **Containerized** environments or testing | **[Docker →](docker.md)** |
 
 ## Connect services
 
 Each database service requires specific configuration parameters. Configure your service according to its service type:
 
-- [MySQL](connect-database/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
+- [MySQL](connect-database/mysql/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
 - [MongoDB](connect-database/mongodb.md)
 - [PostgreSQL](connect-database/postgresql.md)
 - [ProxySQL](connect-database/proxysql.md)
@@ -44,6 +49,11 @@ Each database service requires specific configuration parameters. Configure your
 - [HAProxy](connect-database/haproxy.md)
 - [Remote instances](connect-database/remote.md)
 
-!!! hint alert alert-success "Tip"
-    To change the parameters of a previously-added service, remove the service and re-add it with new parameters.
+### Modifying service configurations
 
+If you need to modify the configuration of a service you've already added, you'll need to [remove the service](../../use/remove-services.md) and re-add it with the new parameters.
+
+## Next steps
+
+- [Connect database services](connect-database/index.md) for monitoring
+- [Configure optimization settings](connect-database/mysql/improve_perf.md) for specific database types

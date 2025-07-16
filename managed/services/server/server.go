@@ -96,6 +96,7 @@ type Params struct {
 	GrafanaClient        grafanaClient
 	Updater              *Updater
 	Dus                  *distribution.Service
+	HAService            haService
 	Nomad                nomadService
 }
 
@@ -119,6 +120,7 @@ func NewServer(params *Params) (*Server, error) {
 		telemetryService:     params.TelemetryService,
 		grafanaClient:        params.GrafanaClient,
 		updater:              params.Updater,
+		haService:            params.HAService,
 		nomad:                params.Nomad,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
@@ -306,7 +308,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 }
 
 // ListChangeLogs lists PMM versions between currently installed version and the latest one.
-func (s *Server) ListChangeLogs(ctx context.Context, req *serverv1.ListChangeLogsRequest) (*serverv1.ListChangeLogsResponse, error) {
+func (s *Server) ListChangeLogs(ctx context.Context, _ *serverv1.ListChangeLogsRequest) (*serverv1.ListChangeLogsResponse, error) {
 	versions, err := s.updater.ListUpdates(ctx)
 	if err != nil {
 		// if we got a grpc error, return as it is.
@@ -355,9 +357,8 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 		} else if latest == nil {
 			s.l.Info("No new version to update to.")
 			return nil, status.Error(codes.FailedPrecondition, "No new version to update to.")
-		} else {
-			newImage = latest.DockerImage
 		}
+		newImage = latest.DockerImage
 	}
 	err := s.updater.StartUpdate(ctx, newImage)
 	if err != nil {
@@ -654,7 +655,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		if req.SshKey != nil {
 			if err = s.writeSSHKey(pointer.GetString(req.SshKey)); err != nil {
 				s.l.Error(errors.WithStack(err))
-				return status.Error(codes.Internal, err.Error())
+				return status.Errorf(codes.Internal, "failed to write SSH key: %s", err.Error())
 			}
 		}
 
