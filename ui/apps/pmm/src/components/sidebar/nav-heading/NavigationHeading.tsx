@@ -69,13 +69,15 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
             }}
           />
         )}
-        <IconButton
-          className="shown-on-hover"
-          onClick={onToggleSidebar}
-          data-testid="sidebar-open-button"
-        >
-          <KeyboardDoubleArrowRightIcon />
-        </IconButton>
+        {!sidebarOpen && (
+          <IconButton
+            className="shown-on-hover"
+            onClick={onToggleSidebar}
+            data-testid="sidebar-open-button"
+          >
+            <KeyboardDoubleArrowRightIcon />
+          </IconButton>
+        )}
       </Stack>
       {sidebarOpen && (
         <IconButton

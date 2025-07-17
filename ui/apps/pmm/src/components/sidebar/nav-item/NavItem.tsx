@@ -45,6 +45,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
           sx={[styles.listItemButton, styles.listItemButtonCollapsible]}
           onClick={() => setIsOpen(!open)}
           data-testid={dataTestid}
+          data-navlevel={level}
         >
           {item.icon && (
             <ListItemIcon sx={styles.listItemIcon}>
@@ -64,7 +65,11 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
             />
           </Stack>
         </ListItemButton>
-        <Collapse in={open} timeout="auto">
+        <Collapse
+          in={open}
+          timeout="auto"
+          data-testid={`${dataTestid}-collapse`}
+        >
           <List component="div" disablePadding sx={styles.listCollapsible}>
             {children.map((item) => (
               <NavItem
@@ -96,6 +101,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
         selected={active}
         {...linkProps}
         data-testid={dataTestid}
+        data-navlevel={level}
       >
         {item.icon && (
           <ListItemIcon sx={styles.listItemIcon}>

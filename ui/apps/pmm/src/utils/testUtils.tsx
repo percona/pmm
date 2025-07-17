@@ -5,6 +5,8 @@ import { ReactElement } from 'react';
 import { UpdateStatus } from 'types/updates.types';
 import { TEST_USER_ADMIN } from './testStubs';
 import { MemoryRouter, MemoryRouterProps } from 'react-router-dom';
+import { SettingsContext, SettingsContextProps } from 'contexts/settings';
+import { FrontendSettings, Settings } from 'types/settings.types';
 
 export const wrapWithUpdatesProvider = (
   children: ReactElement,
@@ -42,9 +44,13 @@ export const wrapWithUpdatesProvider = (
   </UpdatesContext.Provider>
 );
 
-export const wrapWithQueryProvider = (children: ReactElement) => (
+export const wrapWithQueryProvider = (
+  children: ReactElement,
+  client?: QueryClient
+) => (
   <QueryClientProvider
     client={
+      client ??
       new QueryClient({
         defaultOptions: {
           queries: {
@@ -78,5 +84,48 @@ export const wrapWithUserProvider = (
 
 export const wrapWithRouter = (
   children: ReactElement,
-  props?: MemoryRouterProps
+  props?: Partial<MemoryRouterProps>
 ) => <MemoryRouter {...props}>{children}</MemoryRouter>;
+
+export const wrapWithSettings = (
+  children: ReactElement,
+  props?: {
+    isLoading?: boolean;
+    settings?: Partial<Settings>;
+    frontend?: Partial<FrontendSettings>;
+  }
+) => (
+  <SettingsContext.Provider
+    value={{
+      isLoading: props?.isLoading ?? false,
+      settings: {
+        newUIEnabled: true,
+        updatesEnabled: false,
+        telemetryEnabled: false,
+        advisorEnabled: false,
+        alertingEnabled: false,
+        pmmPublicAddress: '',
+        backupManagementEnabled: false,
+        azurediscoverEnabled: false,
+        enableAccessControl: false,
+        ...props?.settings,
+        frontend: {
+          anonymousEnabled: false,
+          appSubUrl: '',
+          apps: {},
+          buildInfo: {
+            version: '',
+            versionString: '',
+          },
+          exploreEnabled: false,
+          featureToggles: {
+            exploreMetrics: false,
+          },
+          ...props?.frontend,
+        },
+      },
+    }}
+  >
+    {children}
+  </SettingsContext.Provider>
+);
