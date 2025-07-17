@@ -11,7 +11,7 @@ This is the simplest and most efficient way to install PMM with Docker.
     - [Deploy based on a Docker image](../install-pmm/install-pmm-server/deployment-options/docker/index.md)
     - [Deploy on Virtual Appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)
     - [Deploy on Kubernetes via Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md)
-   <!--- - [Run a PMM instance hosted at AWS Marketplace](../install-pmm/install-pmm-server/deployment-options/aws/aws.md)-->
+    - [Run a PMM instance hosted at AWS Marketplace](../install-pmm/install-pmm-server/deployment-options/aws/aws.md)
 
 #### Prerequisites
 
