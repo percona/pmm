@@ -64,7 +64,7 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiCssBaseline: {
         styleOverrides: {
           body: {
-            backgroundColor: mode === 'light' ? '#F0F1F4' : '#3A4151',
+            backgroundColor: mode === 'light' ? undefined : '#3A4151',
           },
         },
       },

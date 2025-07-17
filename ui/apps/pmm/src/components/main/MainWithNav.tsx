@@ -4,10 +4,12 @@ import { useBootstrap } from 'hooks/utils/useBootstrap';
 import { Sidebar } from 'components/sidebar';
 import { GrafanaPage } from 'pages/grafana';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
+import { useGrafana } from 'contexts/grafana';
 
 export const MainWithNav = () => {
   const { isReady } = useBootstrap();
   const kioskMode = useKioskMode();
+  const { isOnGrafanaPage } = useGrafana();
 
   if (!isReady) {
     return (
@@ -29,7 +31,7 @@ export const MainWithNav = () => {
       {!kioskMode.active && (
         <>
           <Sidebar />
-          <Stack direction="column">
+          <Stack flex={isOnGrafanaPage ? 0 : 1} direction="column">
             <Outlet />
           </Stack>
         </>
