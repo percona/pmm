@@ -43,10 +43,10 @@ gobuild_component() {
         result_file=${result_file/_metrics/}
     fi
 
-    # if [ -x "${binary_dir}/${result_file}" ]; then
-    #     echo skip build
-    #     return
-    # fi
+    if [ -x "${binary_dir}/${result_file}" ]; then
+        echo skip build
+        return
+    fi
 
     if [ ${component} = 'pmm-admin' ]; then
         build_command="cd /tmp/go/src/${extract_path}/${component_path} && make release"
@@ -127,6 +127,7 @@ copy_component() {
 }
 
 main() {
+    rm -rf "${source_dir}" "${binary_dir}"
     extract_source_tarball
 
     gobuild_component "vmagent" "" "github.com/VictoriaMetrics/VictoriaMetrics" "app/vmagent"
