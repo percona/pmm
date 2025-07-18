@@ -636,12 +636,13 @@ export const NAV_ACCOUNT: NavItem = {
       text: 'Notification history',
       url: PMM_NEW_NAV_GRAFANA_PATH + '/profile/notifications',
     },
-    {
-      id: 'password-change',
-      text: 'Change password',
-      url: PMM_NEW_NAV_GRAFANA_PATH + '/profile/password',
-    },
   ],
+};
+
+export const NAV_CHANGE_PASSWORD: NavItem = {
+  id: 'password-change',
+  text: 'Change password',
+  url: PMM_NEW_NAV_GRAFANA_PATH + '/profile/password',
 };
 
 export const NAV_THEME_TOGGLE: NavItem = {

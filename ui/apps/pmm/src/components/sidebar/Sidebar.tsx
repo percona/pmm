@@ -23,7 +23,7 @@ export const Sidebar: FC = () => {
       <NavigationHeading sidebarOpen={open} onToggleSidebar={toggleSidebar} />
       <List disablePadding sx={{ width: '100%', overflowY: 'auto' }}>
         {navTree.map((item) => (
-          <NavItem key={item.url} item={item} drawerOpen={open} />
+          <NavItem key={item.id} item={item} drawerOpen={open} />
         ))}
       </List>
     </Drawer>

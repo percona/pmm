@@ -1,4 +1,4 @@
-import { CSSObject, Theme } from '@mui/material';
+import { CSSObject, Theme } from '@mui/material/styles';
 
 export const DRAWER_WIDTH = 310;
 

@@ -1,14 +1,3 @@
-import {
-  ListItemButton,
-  ListItemText,
-  Stack,
-  Collapse,
-  List,
-  ListItem,
-  ListItemIcon,
-  Divider,
-  useTheme,
-} from '@mui/material';
 import { useLinkWithVariables } from 'hooks/utils/useLinkWithVariables';
 import { isActive } from 'lib/utils/navigation.utils';
 import { FC, useEffect, useState } from 'react';
@@ -18,6 +7,15 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Icon } from 'components/icon';
 import { getLinkProps } from './NavItem.utils';
 import { getStyles } from './NavItem.styles';
+import { useTheme } from '@mui/material/styles';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Stack from '@mui/material/Stack';
+import ListItem from '@mui/material/ListItem';
+import List from '@mui/material/List';
+import Collapse from '@mui/material/Collapse';
+import Divider from '@mui/material/Divider';
 
 const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
   const location = useLocation();

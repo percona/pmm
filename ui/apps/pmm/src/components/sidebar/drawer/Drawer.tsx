@@ -1,5 +1,6 @@
-import { Drawer as MuiDrawer, styled } from '@mui/material';
+import MuiDrawer from '@mui/material/Drawer';
 import { closedMixin, DRAWER_WIDTH, openedMixin } from './Drawer.styles';
+import { styled } from '@mui/material/styles';
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== 'open',

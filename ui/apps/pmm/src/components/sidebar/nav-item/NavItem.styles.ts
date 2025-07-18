@@ -1,9 +1,7 @@
-import {
-  buttonBaseClasses,
-  listItemIconClasses,
-  Theme,
-  typographyClasses,
-} from '@mui/material';
+import { buttonBaseClasses } from '@mui/material/ButtonBase';
+import { listItemIconClasses } from '@mui/material/ListItemIcon';
+import { typographyClasses } from '@mui/material/Typography';
+import { Theme } from '@mui/material/styles';
 
 export const getStyles = (
   theme: Theme,

@@ -148,6 +148,14 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
           variant: 'outlined',
         },
       },
+      MuiButton: {
+        styleOverrides: {
+          textSizeMedium: {
+            padding: '11px 16px',
+            height: '42px',
+          },
+        },
+      },
     },
   };
 

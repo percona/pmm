@@ -16,6 +16,7 @@ import {
   NAV_ALERTS_NOTIFICATION_POLICIES,
   NAV_ALERTS_SETTINGS,
   NAV_ALERTS_TEMPLATES,
+  NAV_CHANGE_PASSWORD,
   NAV_DASHBOARDS,
   NAV_DASHBOARDS_BROWSE,
   NAV_DASHBOARDS_LIBRARY_PANELS,
@@ -36,6 +37,8 @@ import {
   NAV_SIGN_OUT,
   NAV_THEME_TOGGLE,
 } from './navigation.constants';
+import { CombinedSettings } from 'contexts/settings';
+import { capitalize } from 'utils/textUtils';
 
 export const addAllDashboardItem = (
   types: ServiceType[],
@@ -134,7 +137,7 @@ export const addAdvisors = (advisors: Advisor[]): NavItem => {
   for (const category of Object.keys(categories)) {
     children.push({
       id: `advisors-${category}`,
-      text: `${category[0].toUpperCase()}${category.substring(1)} Advisors`,
+      text: `${capitalize(category)} Advisors`,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/${category}`,
     });
   }
@@ -145,11 +148,21 @@ export const addAdvisors = (advisors: Advisor[]): NavItem => {
 export const addAccount = (
   user: User,
   colorMode: ColorMode,
-  toggleMode: () => void
+  toggleMode: () => void,
+  settings?: CombinedSettings
 ): NavItem => {
   const name = (user.name || '').split(' ')[0];
   const children = [...(NAV_ACCOUNT.children || [])];
   const targetTheme = colorMode === 'light' ? 'Dark' : 'Light';
+
+  if (
+    !(
+      settings?.frontend.disableLoginForm ||
+      settings?.frontend.auth.disableLogin
+    )
+  ) {
+    children.push(NAV_CHANGE_PASSWORD);
+  }
 
   children.push({
     ...NAV_THEME_TOGGLE,

@@ -22,6 +22,10 @@ import { useUser } from 'contexts/user';
 const WelcomeCard: FC = () => {
   const { user } = useUser();
 
+  if (!user) {
+    return null;
+  }
+
   // todo: figure out conditions when hidden/visible
   return (
     <Card
@@ -85,7 +89,9 @@ const WelcomeCard: FC = () => {
         <Typography variant="h6" mb={1}>
           {Messages.ready}
         </Typography>
-        <Typography>{Messages.tour}</Typography>
+        <Typography>
+          {user?.isPMMAdmin ? Messages.tour : Messages.tourNonAdmin}
+        </Typography>
       </CardContent>
       <CardActions sx={{ pb: 3 }}>
         <Button
@@ -98,7 +104,6 @@ const WelcomeCard: FC = () => {
         {user?.isPMMAdmin && (
           <Button
             startIcon={<AddIcon />}
-            variant="outlined"
             component={Link}
             to={ADD_SERVICE_LINK}
             data-testid="welcome-card-add-service"
@@ -106,6 +111,9 @@ const WelcomeCard: FC = () => {
             {Messages.addService}
           </Button>
         )}
+        <Button variant="text" data-testid="welcome-card-dismiss">
+          {Messages.dismiss}
+        </Button>
       </CardActions>
     </Card>
   );

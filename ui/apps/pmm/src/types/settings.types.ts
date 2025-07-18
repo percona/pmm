@@ -30,6 +30,11 @@ export interface GetFrontendSettingsResponse {
   featureToggles: {
     exploreMetrics: boolean;
   };
+  unifiedAlertingEnabled: boolean;
+  disableLoginForm: boolean;
+  auth: {
+    disableLogin: boolean;
+  };
 }
 
 export interface GrafanaBuildInfo {

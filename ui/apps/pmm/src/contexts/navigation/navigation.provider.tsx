@@ -48,12 +48,13 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     if (user && settings) {
       items.push(NAV_QAN);
 
-      // todo: check if editor is correct
       if (settings.frontend.exploreEnabled && user.isEditor) {
         items.push(addExplore(settings.frontend));
       }
 
-      items.push(addAlerting(settings?.alertingEnabled, user));
+      if (settings.frontend.unifiedAlertingEnabled) {
+        items.push(addAlerting(settings?.alertingEnabled, user));
+      }
 
       if (user.isEditor) {
         items.push(addIntelligence(settings, advisors || []));

@@ -16,6 +16,6 @@ export const getLinkProps = (item: NavItem, url?: string) => {
   return {
     to: url,
     relative: false,
-    LinkComponent: Link,
+    component: Link,
   };
 };

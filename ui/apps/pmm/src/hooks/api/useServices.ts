@@ -1,5 +1,5 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { getServiceTypes } from 'api/inventory';
+import { getServiceTypes } from 'api/services';
 import { ListTypesResponse } from 'types/services.types';
 
 export const useServiceTypes = (

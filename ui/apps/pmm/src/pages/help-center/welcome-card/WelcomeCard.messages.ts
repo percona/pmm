@@ -10,6 +10,9 @@ export const Messages = {
   },
   ready: 'Ready to begin?',
   tour: 'Take the PMM tour to learn your way around. For immediate value, add your first database service and explore our Help Center resources below.',
+  tourNonAdmin:
+    'Take the PMM tour to learn your way around or explore our Help Center resources below.',
   startTour: 'Start PMM tour',
   addService: 'Add service',
+  dismiss: 'Dismiss message',
 };
