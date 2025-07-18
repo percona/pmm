@@ -21,7 +21,10 @@ export const Sidebar: FC = () => {
       data-testid="pmm-sidebar"
     >
       <NavigationHeading sidebarOpen={open} onToggleSidebar={toggleSidebar} />
-      <List disablePadding sx={{ width: '100%', overflowY: 'auto' }}>
+      <List
+        disablePadding
+        sx={{ width: '100%', overflowY: 'auto', overflowX: 'hidden' }}
+      >
         {navTree.map((item) => (
           <NavItem key={item.id} item={item} drawerOpen={open} />
         ))}

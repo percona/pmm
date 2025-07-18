@@ -52,7 +52,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
           )}
           <ListItemText
             primary={item.text}
-            primaryTypographyProps={{ style: styles.text }}
+            primaryTypographyProps={level > 0 ? { style: styles.text } : {}}
           />
           <Stack pl={2} pr={2}>
             <KeyboardArrowDownIcon
@@ -109,7 +109,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
         {drawerOpen && (
           <ListItemText
             primary={item.text}
-            primaryTypographyProps={{ style: styles.text }}
+            primaryTypographyProps={level > 0 ? { style: styles.text } : {}}
           />
         )}
       </ListItemButton>
