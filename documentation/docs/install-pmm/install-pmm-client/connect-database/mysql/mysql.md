@@ -13,7 +13,6 @@ Get your MySQL instance connected to PMM in just a few steps:
     -- Create PMM user with required permissions
     CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'StrongPassword123!' WITH MAX_USER_CONNECTIONS 10;
     GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
-    FLUSH PRIVILEGES;
     ```
 
 2. Register your MySQL instance with PMM:
