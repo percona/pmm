@@ -3,11 +3,11 @@ import { Outlet } from 'react-router-dom';
 import { useBootstrap } from 'hooks/utils/useBootstrap';
 import { Sidebar } from 'components/sidebar';
 import { GrafanaPage } from 'pages/grafana';
-import { useKioskMode } from 'hooks/utils/useKioskMode';
+import { useGrafana } from 'contexts/grafana';
 
 export const MainWithNav = () => {
   const { isReady } = useBootstrap();
-  const kioskMode = useKioskMode();
+  const { isOnGrafanaPage, isFullScreen } = useGrafana();
 
   if (!isReady) {
     return (
@@ -26,10 +26,12 @@ export const MainWithNav = () => {
 
   return (
     <Stack direction="row" flex={1}>
-      {!kioskMode.active && (
+      {!isFullScreen && (
         <>
           <Sidebar />
-          <Outlet />
+          <Stack flex={isOnGrafanaPage ? 0 : 1} direction="column">
+            <Outlet />
+          </Stack>
         </>
       )}
       <GrafanaPage />

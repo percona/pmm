@@ -1,5 +1,11 @@
 import { locationService } from '@grafana/runtime';
-import { CrossFrameMessenger, DashboardVariablesMessage, HistoryAction, LocationChangeMessage } from '@pmm/shared';
+import {
+  ChangeThemeMessage,
+  CrossFrameMessenger,
+  DashboardVariablesMessage,
+  HistoryAction,
+  LocationChangeMessage,
+} from '@pmm/shared';
 import {
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
   GRAFANA_LOGIN_PATH,
@@ -20,6 +26,17 @@ export const initialize = () => {
   }
 
   const messenger = new CrossFrameMessenger('GRAFANA').setTargetWindow(window.top!).register();
+
+  messenger.addListener({
+    type: 'CHANGE_THEME',
+    onMessage: (msg: ChangeThemeMessage) => {
+      if (!msg.payload) {
+        return;
+      }
+
+      changeTheme(msg.payload.theme);
+    },
+  });
 
   messenger.sendMessage({
     type: 'MESSENGER_READY',

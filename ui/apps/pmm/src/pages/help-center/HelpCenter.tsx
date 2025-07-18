@@ -1,10 +1,11 @@
-import { Box } from '@mui/material';
+import Box from '@mui/material/Box';
 import { Page } from 'components/page';
 import { FC } from 'react';
 import { Messages } from './HelpCenter.messages';
 import { CARDS_DATA } from './HelpCenter.constants';
 import { useUser } from 'contexts/user';
 import { HelpCenterCard } from './help-center-card/HelpCenterCard';
+import WelcomeCard from './welcome-card/WelcomeCard';
 
 export const HelpCenter: FC = () => {
   const { user } = useUser();
@@ -13,7 +14,7 @@ export const HelpCenter: FC = () => {
   );
 
   return (
-    <Page title={Messages.pageTitle}>
+    <Page topBar={<WelcomeCard />} title={Messages.pageTitle}>
       <Box
         sx={{
           display: 'grid',

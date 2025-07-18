@@ -5,6 +5,7 @@ export const LOCATORS = {
   searchButton: 'header button[aria-label="Search or jump to..."]',
   profileButton: 'header button[aria-label="Profile"]',
   commandPaletteTrigger: 'header div[data-testid="data-testid Command palette trigger"]',
+  toolbarSignIn: 'header > div:first-child > div:nth-child(2) > a[target="_self"]',
 };
 
 export const GRAFANA_SUB_PATH = '/graph';

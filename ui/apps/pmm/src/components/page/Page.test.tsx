@@ -2,14 +2,20 @@ import { screen, render } from '@testing-library/react';
 import { Page } from './Page';
 import { TestWrapper } from 'utils/testWrapper';
 import { UserContext } from 'contexts/user';
-import { OrgRole } from 'types/user.types';
+import { OrgRole, User } from 'types/user.types';
 import { Messages } from './Page.messages';
 
-const MOCK_USER = {
+const MOCK_USER: User = {
   id: 1,
   isAuthorized: true,
-  isPMMAdmin: true,
+  orgId: 1,
   orgRole: OrgRole.Admin,
+  name: 'admin',
+  login: 'admin',
+  isViewer: true,
+  isEditor: true,
+  isPMMAdmin: true,
+  orgs: [],
 };
 
 describe('Page', () => {

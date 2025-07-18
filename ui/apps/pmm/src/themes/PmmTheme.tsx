@@ -64,7 +64,7 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiCssBaseline: {
         styleOverrides: {
           body: {
-            backgroundColor: '#F0F1F4',
+            backgroundColor: mode === 'light' ? undefined : '#3A4151',
           },
         },
       },
@@ -140,6 +140,19 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
           colorError: {
             color: '#920000',
             backgroundColor: '#FFECE9',
+          },
+        },
+      },
+      MuiCard: {
+        defaultProps: {
+          variant: 'outlined',
+        },
+      },
+      MuiButton: {
+        styleOverrides: {
+          textSizeMedium: {
+            padding: '11px 16px',
+            height: '42px',
           },
         },
       },

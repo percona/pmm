@@ -8,9 +8,15 @@ export enum OrgRole {
 
 export interface User {
   id: number;
+  name: string;
+  login: string;
+  orgId: number;
   orgRole: OrgRole | '';
-  isPMMAdmin: boolean;
   isAuthorized: boolean;
+  isViewer: boolean;
+  isEditor: boolean;
+  isPMMAdmin: boolean;
+  orgs: UserOrg[];
 }
 
 // comes from grafana
@@ -20,11 +26,21 @@ export interface GetUserResponse {
   name: string;
   login: string;
   createdAt: string;
-  orgRole: OrgRole;
+  orgId: number;
   isDisabled: boolean;
   isExternal: boolean;
   isExtarnallySynced: boolean;
   isGrafanaAdmin: boolean;
   isGrafanaAdminExternallySynced: boolean;
   theme: 'dark' | 'light' | 'system' | '';
+}
+
+export interface UserOrg {
+  orgId: number;
+  name: string;
+  role: OrgRole;
+}
+
+export interface UpdatePreferencesBody {
+  theme: 'light' | 'dark';
 }
