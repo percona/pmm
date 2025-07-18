@@ -22,6 +22,7 @@ import {
   NAV_HOME_PAGE,
   NAV_INVENTORY,
   NAV_QAN,
+  NAV_SIGN_IN,
   NAV_USERS_AND_ACCESS,
 } from './navigation.constants';
 
@@ -79,6 +80,8 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
       items.push(addAccount(user, colorMode, toggleColorMode));
 
       items.push(NAV_HELP);
+    } else {
+      items.push(NAV_SIGN_IN);
     }
 
     return items;

@@ -4,7 +4,6 @@ import { FC, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { NavItemProps } from './NavItem.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { Icon } from 'components/icon';
 import { getLinkProps } from './NavItem.utils';
 import { getStyles } from './NavItem.styles';
 import { useTheme } from '@mui/material/styles';
@@ -16,6 +15,7 @@ import ListItem from '@mui/material/ListItem';
 import List from '@mui/material/List';
 import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
+import NavItemIcon from './nav-item-icon/NavItemIcon';
 
 const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
   const location = useLocation();
@@ -47,7 +47,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
         >
           {item.icon && (
             <ListItemIcon sx={styles.listItemIcon}>
-              <Icon name={item.icon} />
+              <NavItemIcon icon={item.icon} />
             </ListItemIcon>
           )}
           <ListItemText
@@ -103,7 +103,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
       >
         {item.icon && (
           <ListItemIcon sx={styles.listItemIcon}>
-            <Icon name={item.icon} />
+            <NavItemIcon icon={item.icon} />
           </ListItemIcon>
         )}
         {drawerOpen && (

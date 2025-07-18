@@ -1,4 +1,5 @@
 import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
+import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import { NavItem } from 'lib/types';
 
 export const NAV_DIVIDERS = {
@@ -663,4 +664,12 @@ export const NAV_HELP: NavItem = {
   icon: 'help',
   text: 'Help',
   url: `${PMM_NEW_NAV_PATH}/help`,
+};
+
+export const NAV_SIGN_IN: NavItem = {
+  id: 'sign-in',
+  icon: LoginOutlinedIcon,
+  text: 'Sign in',
+  url: '/graph/login',
+  target: '_self',
 };
