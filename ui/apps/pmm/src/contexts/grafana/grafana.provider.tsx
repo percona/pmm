@@ -11,6 +11,7 @@ import messenger from 'lib/messenger';
 import { getLocationUrl } from './grafana.utils';
 import { updateDocumentTitle } from 'lib/utils/document.utils';
 import { useColorMode } from 'hooks/theme';
+import { useKioskMode } from 'hooks/utils/useKioskMode';
 
 export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const navigationType = useNavigationType();
@@ -21,6 +22,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const { colorMode } = useColorMode();
   const frameRef = useRef<HTMLIFrameElement>(null);
   const navigate = useNavigate();
+  const kioskMode = useKioskMode();
 
   useEffect(() => {
     if (isGrafanaPage) {
@@ -112,6 +114,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
         frameRef,
         isFrameLoaded: isLoaded,
         isOnGrafanaPage: isGrafanaPage,
+        isFullScreen: kioskMode.active,
       }}
     >
       {children}

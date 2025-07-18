@@ -1,13 +1,13 @@
 import { Box, CircularProgress, Stack } from '@mui/material';
 import { useGrafana } from 'contexts/grafana';
-import { useKioskMode } from 'hooks/utils/useKioskMode';
 import { PMM_BASE_PATH, PMM_HOME_URL } from 'lib/constants';
 import messenger from 'lib/messenger';
 import { constructUrl } from 'lib/utils/link.utils';
 import { FC, useEffect, useMemo, useState } from 'react';
 
 export const GrafanaPage: FC = () => {
-  const { isFrameLoaded, isOnGrafanaPage, frameRef } = useGrafana();
+  const { isFrameLoaded, isOnGrafanaPage, frameRef, isFullScreen } =
+    useGrafana();
   const src = useMemo(
     // load specific grafana page as the first one
     () =>
@@ -20,7 +20,6 @@ export const GrafanaPage: FC = () => {
     [isFrameLoaded]
   );
   const [loading, setLoading] = useState(true);
-  const kioskMode = useKioskMode();
 
   useEffect(() => {
     if (isFrameLoaded) {
@@ -60,7 +59,7 @@ export const GrafanaPage: FC = () => {
           src={src}
           component="iframe"
           sx={
-            kioskMode.active
+            isFullScreen
               ? {
                   border: 'none',
                   flex: 1,
