@@ -5,7 +5,7 @@ import { ReactElement } from 'react';
 import { UpdateStatus } from 'types/updates.types';
 import { TEST_USER_ADMIN } from './testStubs';
 import { MemoryRouter, MemoryRouterProps } from 'react-router-dom';
-import { SettingsContext, SettingsContextProps } from 'contexts/settings';
+import { SettingsContext } from 'contexts/settings';
 import { FrontendSettings, Settings } from 'types/settings.types';
 
 export const wrapWithUpdatesProvider = (
@@ -117,9 +117,14 @@ export const wrapWithSettings = (
             version: '',
             versionString: '',
           },
-          exploreEnabled: false,
+          exploreEnabled: true,
+          disableLoginForm: false,
+          unifiedAlertingEnabled: true,
+          auth: {
+            disableLogin: false,
+          },
           featureToggles: {
-            exploreMetrics: false,
+            exploreMetrics: true,
           },
           ...props?.frontend,
         },
