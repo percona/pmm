@@ -7,6 +7,7 @@ import { TEST_USER_ADMIN } from './testStubs';
 import { MemoryRouter, MemoryRouterProps } from 'react-router-dom';
 import { SettingsContext } from 'contexts/settings';
 import { FrontendSettings, Settings } from 'types/settings.types';
+import { GrafanaContext, GrafanaContextProps } from 'contexts/grafana';
 
 export const wrapWithUpdatesProvider = (
   children: ReactElement,
@@ -133,4 +134,20 @@ export const wrapWithSettings = (
   >
     {children}
   </SettingsContext.Provider>
+);
+
+export const wrapWithGrafana = (
+  children: ReactElement,
+  props: Partial<GrafanaContextProps> = {}
+) => (
+  <GrafanaContext.Provider
+    value={{
+      isFrameLoaded: true,
+      isFullScreen: false,
+      isOnGrafanaPage: true,
+      ...props,
+    }}
+  >
+    {children}
+  </GrafanaContext.Provider>
 );
