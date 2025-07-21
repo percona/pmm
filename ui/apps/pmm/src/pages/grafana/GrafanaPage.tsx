@@ -64,13 +64,10 @@ export const GrafanaPage: FC = () => {
                   border: 'none',
                   flex: 1,
                 }
-              : (theme) => ({
-                  borderStyle: 'solid',
-                  borderColor: theme.palette.divider,
-                  borderRadius: theme.shape.borderRadius,
+              : {
                   flex: 1,
-                  m: 1,
-                })
+                  border: 0,
+                }
           }
         />
       </Stack>

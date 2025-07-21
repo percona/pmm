@@ -62,11 +62,17 @@ const perconaThemeOptions = (mode: PaletteMode): ThemeOptions => {
     },
     components: {
       MuiCssBaseline: {
-        styleOverrides: {
+        styleOverrides: (theme) => ({
+          html: {
+            backgroundColor: mode === 'light' ? undefined : '#3A4151',
+            scrollbarColor: `${theme.palette.divider} ${theme.palette.background.paper}`,
+          },
           body: {
             backgroundColor: mode === 'light' ? undefined : '#3A4151',
+
+            scrollbarColor: `${theme.palette.divider} ${theme.palette.background.paper}`,
           },
-        },
+        }),
       },
       MuiIconButton: {
         defaultProps: {
