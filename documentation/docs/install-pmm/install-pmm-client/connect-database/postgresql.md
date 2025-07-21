@@ -24,7 +24,7 @@ For monitoring Amazon RDS PostgreSQL instances, see [Connect Amazon RDS instance
 Check that:
 
 - [PMM Server is installed](../../install-pmm-server/index.md) and running with a known IP address accessible from the client node.
-- [PMM Client is installed](../../install-pmm-client/index.md) and the [nodes are registered with PMM Server](../../register-client-node/index.md).
+- [PMM Client is installed](../../install-pmm-client/index.md) and the nodes are registered with PMM Server.
 - You have superuser (root) access on the client host.
 - You have superuser access to any database servers that you want to monitor.
 
