@@ -70,6 +70,7 @@ export const ReleaseNotes: FC<ReleaseNotesProps> = ({ content }) => {
       <Markdown
         rehypePlugins={[rehypeRaw, remarkGfm]}
         components={{
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           a: ({ ref, ...props }) => <Link {...props} />,
           i: ({ className }) => (className ? IconMap[className] || null : null),
           code: ({ children }) => <CodeBlock>{children}</CodeBlock>,
