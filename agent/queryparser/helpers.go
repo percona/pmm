@@ -16,169 +16,88 @@
 package queryparser
 
 import (
-	"bufio"
-	"fmt"
 	"regexp"
 	"strings"
 	"sync"
 )
 
 var (
-	spaceRegexp *regexp.Regexp
-	spaceOnce   sync.Once
-	errSpace    error
+	mySQLQuotedRegexp *regexp.Regexp
+	mySQLQuotedOnce   sync.Once
+	errMySQLQuoted    error
 
-	multilineRegexp *regexp.Regexp
-	multilineOnce   sync.Once
-	errMultiline    error
+	mySQLCommentRegexp *regexp.Regexp
+	mySQLCommentOnce   sync.Once
+	errMySQLComment    error
 
-	dashRegexp *regexp.Regexp
-	dashOnce   sync.Once
-	errDash    error
+	pgQuotedRegexp *regexp.Regexp
+	pgQuotedOnce   sync.Once
+	errPGQuoted    error
 
-	hashRegexp *regexp.Regexp
-	hashOnce   sync.Once
-	errHash    error
+	pgCommentRegexp *regexp.Regexp
+	pgCommentOnce   sync.Once
+	errPGComment    error
 
 	keyValueRegexp *regexp.Regexp
 	keyValueOnce   sync.Once
 	errKeyValue    error
 )
 
-func parseMySQLComments(q string) (map[string]bool, error) {
-	if err := prepareMultilineRegexp(); err != nil {
+func parseMySQLComments(query string) (map[string]bool, error) {
+	if err := prepareMySQLComments(); err != nil {
 		return nil, err
 	}
 
-	// comments using comment as a key to avoid duplicates
-	comments := make(map[string]bool)
-	for _, v := range multilineRegexp.FindAllStringSubmatch(q, -1) {
-		if len(v) < 2 {
-			continue
-		}
-
-		value := removeFormatting(v[1])
-
-		var err error
-		value, err = removeSpaces(value)
-		if err != nil {
-			return nil, err
-		}
-
-		parsed, err := parseKeyValueFromComment(value)
-		if err != nil {
-			continue
-		}
-		for k := range parsed {
-			comments[k] = true
-		}
-	}
-
-	hashComments, err := parseSinglelineComments(q, "#")
-	if err != nil {
-		return nil, err
-	}
-	for c := range hashComments {
-		parsed, err := parseKeyValueFromComment(c)
-		if err != nil {
-			continue
-		}
-		for k := range parsed {
-			comments[k] = true
-		}
-	}
-
-	dashComments, err := parseSinglelineComments(q, "--")
-	if err != nil {
-		return nil, err
-	}
-	for c := range dashComments {
-		parsed, err := parseKeyValueFromComment(c)
-		if err != nil {
-			continue
-		}
-		for k := range parsed {
-			comments[k] = true
-		}
-	}
-
-	return comments, nil
+	return parseComments(query, mySQLQuotedRegexp, mySQLCommentRegexp)
 }
 
-func parsePostgreSQLComments(q string) (map[string]bool, error) {
-	if err := prepareMultilineRegexp(); err != nil {
+func parsePGComments(query string) (map[string]bool, error) {
+	if err := preparePGComments(); err != nil {
 		return nil, err
 	}
 
-	// comments using comment as a key to avoid duplicates
-	comments := make(map[string]bool)
-	for _, v := range multilineRegexp.FindAllStringSubmatch(q, -1) {
-		if len(v) < 2 {
-			continue
-		}
-
-		value := removeFormatting(v[1])
-
-		var err error
-		value, err = removeSpaces(strings.ReplaceAll(value, "*", ""))
-		if err != nil {
-			return nil, err
-		}
-
-		parsed, err := parseKeyValueFromComment(value)
-		if err != nil {
-			continue
-		}
-		for k := range parsed {
-			comments[k] = true
-		}
-	}
-
-	dashComments, err := parseSinglelineComments(q, "--")
-	if err != nil {
-		return nil, err
-	}
-	for c := range dashComments {
-		parsed, err := parseKeyValueFromComment(c)
-		if err != nil {
-			continue
-		}
-		for k := range parsed {
-			comments[k] = true
-		}
-	}
-
-	return comments, nil
+	return parseComments(query, pgQuotedRegexp, pgCommentRegexp)
 }
 
-func parseSinglelineComments(q, startChar string) (map[string]bool, error) {
-	var r *regexp.Regexp
-	switch startChar {
-	case "--":
-		if err := prepareDashRegexp(); err != nil {
-			return nil, err
+func parseComments(query string, quotedRegexp *regexp.Regexp, commentRegexp *regexp.Regexp) (map[string]bool, error) {
+	result := make(map[string]bool)
+	comments := extractComments(query, quotedRegexp, commentRegexp)
+	for _, v := range comments {
+		parsed, err := parseKeyValueFromComment(string(v))
+		if err != nil {
+			continue
 		}
-		r = dashRegexp
-	case "#":
-		if err := prepareHashRegexp(); err != nil {
-			return nil, err
-		}
-		r = hashRegexp
-	}
-
-	// comments using comment as a key to avoid duplicates
-	comments := make(map[string]bool)
-	lines, err := stringToLines(q)
-	if err != nil {
-		return nil, err
-	}
-	for _, l := range lines {
-		for _, v := range r.FindStringSubmatch(l) {
-			comments[strings.TrimLeft(v, fmt.Sprintf("%s ", startChar))] = true
+		for k := range parsed {
+			result[k] = true
 		}
 	}
 
-	return comments, nil
+	return result, nil
+}
+
+func extractComments(query string, quotedRegexp, commentRegexp *regexp.Regexp) []string {
+	// Find quoted spans to ignore comments inside
+	quotedSpans := quotedRegexp.FindAllStringIndex(query, -1)
+
+	isInsideQuotes := func(pos int) bool {
+		for _, span := range quotedSpans {
+			if pos >= span[0] && pos < span[1] {
+				return true
+			}
+		}
+		return false
+	}
+
+	matches := commentRegexp.FindAllStringIndex(query, -1)
+	comments := []string{}
+	for _, m := range matches {
+		if !isInsideQuotes(m[0]) {
+			// Clean comment: trim trailing spaces and newlines
+			comment := strings.TrimSpace(query[m[0]:m[1]])
+			comments = append(comments, comment)
+		}
+	}
+	return comments
 }
 
 func parseKeyValueFromComment(s string) (map[string]bool, error) {
@@ -187,7 +106,7 @@ func parseKeyValueFromComment(s string) (map[string]bool, error) {
 	}
 
 	res := make(map[string]bool)
-	matches := keyValueRegexp.FindAllStringSubmatch(removeFormatting(s), -1)
+	matches := keyValueRegexp.FindAllStringSubmatch(s, -1)
 	for _, v := range matches {
 		if len(v) < 2 {
 			continue
@@ -198,49 +117,39 @@ func parseKeyValueFromComment(s string) (map[string]bool, error) {
 	return res, nil
 }
 
-func prepareMultilineRegexp() error {
+func prepareMySQLComments() error {
 	// to compile regexp only once
-	multilineOnce.Do(func() {
-		multilineRegexp, errMultiline = regexp.Compile(`(?s)\/\*(.*?)\*\/`) //nolint:gocritic
+	mySQLQuotedOnce.Do(func() {
+		mySQLQuotedRegexp, errMySQLQuoted = regexp.Compile(`'([^'\\]|\\.)*'|"([^"\\]|\\.)*"`) //nolint:gocritic
 	})
-	if errMultiline != nil {
-		return errMultiline
+	if errMySQLQuoted != nil {
+		return errMySQLQuoted
+	}
+
+	mySQLCommentOnce.Do(func() {
+		mySQLCommentRegexp, errMySQLComment = regexp.Compile(`(?m)--.*$|#.*$|(?s)/\*.*?\*/`) //nolint:gocritic
+	})
+	if errMySQLComment != nil {
+		return errMySQLComment
 	}
 
 	return nil
 }
 
-func prepareSpaceRegexp() error {
+func preparePGComments() error {
 	// to compile regexp only once
-	spaceOnce.Do(func() {
-		spaceRegexp, errSpace = regexp.Compile(`\s+`) //nolint:gocritic
+	pgQuotedOnce.Do(func() {
+		pgQuotedRegexp, errPGQuoted = regexp.Compile(`'([^'\\]|\\.)*'|"([^"\\]|\\.)*"|\$\$.*?\$\$`) //nolint:gocritic
 	})
-	if errSpace != nil {
-		return errSpace
+	if errPGQuoted != nil {
+		return errPGQuoted
 	}
 
-	return nil
-}
-
-func prepareDashRegexp() error {
-	// to compile regexp only once
-	dashOnce.Do(func() {
-		dashRegexp, errDash = regexp.Compile(`--.*`) //nolint:gocritic
+	pgCommentOnce.Do(func() {
+		pgCommentRegexp, errPGComment = regexp.Compile(`(?m)--.*$|(?s)/\*.*?\*/`) //nolint:gocritic
 	})
-	if errDash != nil {
-		return errDash
-	}
-
-	return nil
-}
-
-func prepareHashRegexp() error {
-	// to compile regexp only once
-	hashOnce.Do(func() {
-		hashRegexp, errHash = regexp.Compile(`#.*`) //nolint:gocritic
-	})
-	if errHash != nil {
-		return errHash
+	if errPGComment != nil {
+		return errPGComment
 	}
 
 	return nil
@@ -256,30 +165,4 @@ func prepareKeyValueRegexp() error {
 	}
 
 	return nil
-}
-
-func removeFormatting(s string) string {
-	value := strings.ReplaceAll(s, "\n", "")
-	return strings.ReplaceAll(value, "\t", "")
-}
-
-func removeSpaces(s string) (string, error) {
-	if err := prepareSpaceRegexp(); err != nil {
-		return "", err
-	}
-
-	value := spaceRegexp.ReplaceAllString(s, " ")
-	value = strings.TrimLeft(value, " ")
-	return strings.TrimRight(value, " "), nil
-}
-
-func stringToLines(s string) ([]string, error) {
-	var lines []string
-	scanner := bufio.NewScanner(strings.NewReader(s))
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	err := scanner.Err()
-
-	return lines, err
 }

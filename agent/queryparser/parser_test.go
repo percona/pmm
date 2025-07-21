@@ -104,6 +104,11 @@ func TestMySQLComments(t *testing.T) {
 			},
 		},
 		{
+			Name:     "Dash in value",
+			Query:    `SELECT * FROM people WHERE name = '-- web-framework='Django', controller='unknown''`,
+			Comments: make(map[string]string),
+		},
+		{
 			Name: "Hash comment",
 			Query: `SELECT * FROM people # framework='Django'
 			WHERE name = 'John'
@@ -111,6 +116,12 @@ func TestMySQLComments(t *testing.T) {
 			Comments: map[string]string{
 				"framework": "Django",
 			},
+		},
+		{
+			Name: "Hash in value",
+			Query: `SELECT * FROM people WHERE name = "# framework='Django'"
+			`,
+			Comments: make(map[string]string),
 		},
 		{
 			Name: "Multiline comment with new line",
