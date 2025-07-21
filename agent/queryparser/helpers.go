@@ -92,7 +92,6 @@ func extractComments(query string, quotedRegexp, commentRegexp *regexp.Regexp) [
 	comments := []string{}
 	for _, m := range matches {
 		if !isInsideQuotes(m[0]) {
-			// Clean comment: trim trailing spaces and newlines
 			comment := strings.TrimSpace(query[m[0]:m[1]])
 			comments = append(comments, comment)
 		}
