@@ -464,7 +464,7 @@ func makeBuckets(
 		}
 
 		if !disableCommentsParsing {
-			comments, err := queryparser.MySQLComments(fingerprint)
+			comments, err := queryparser.MySQLComments(q)
 			if err != nil {
 				l.Infof("cannot parse comments from query: %s", q)
 			}
