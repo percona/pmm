@@ -21,6 +21,7 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
             },
         pr: 1,
         width: '100%',
+        position: 'relative',
       }}
     >
       <Stack
@@ -29,22 +30,20 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
             width: '150px',
             height: '40px',
 
-            '.hidden-on-hover': {
-              display: 'flex',
-            },
             '.shown-on-hover': {
-              display: 'none',
+              position: 'absolute',
+              left: -999,
             },
           },
           !sidebarOpen && {
             width: '40px',
 
-            '&:hover': {
+            '&:hover, &:focus-within': {
               '.hidden-on-hover': {
                 display: 'none',
               },
               '.shown-on-hover': {
-                display: 'flex',
+                inset: 0,
               },
             },
           },
@@ -70,13 +69,18 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
           />
         )}
         {!sidebarOpen && (
-          <IconButton
+          <Stack
             className="shown-on-hover"
-            onClick={onToggleSidebar}
-            data-testid="sidebar-open-button"
+            alignItems="center"
+            justifyContent="center"
           >
-            <KeyboardDoubleArrowRightIcon />
-          </IconButton>
+            <IconButton
+              onClick={onToggleSidebar}
+              data-testid="sidebar-open-button"
+            >
+              <KeyboardDoubleArrowRightIcon />
+            </IconButton>
+          </Stack>
         )}
       </Stack>
       {sidebarOpen && (
