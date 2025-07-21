@@ -364,7 +364,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 				}
 
 				if !m.disableCommentsParsing {
-					comments, err := queryparser.MySQLComments(*esh.SQLText)
+					comments, err := queryparser.MySQLComments(*esh.DigestText)
 					if err != nil {
 						m.l.Infof("cannot parse comments from query: %s", *esh.SQLText)
 					}

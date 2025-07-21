@@ -36,9 +36,9 @@ var (
 	dashOnce   sync.Once
 	errDash    error
 
-	sharpRegexp *regexp.Regexp
-	sharpOnce   sync.Once
-	errSharp    error
+	hashRegexp *regexp.Regexp
+	hashOnce   sync.Once
+	errHash    error
 
 	keyValueRegexp *regexp.Regexp
 	keyValueOnce   sync.Once
@@ -160,10 +160,10 @@ func parseSinglelineComments(q, startChar string) (map[string]bool, error) {
 		}
 		r = dashRegexp
 	case "#":
-		if err := prepareSharpRegexp(); err != nil {
+		if err := prepareHashRegexp(); err != nil {
 			return nil, err
 		}
-		r = sharpRegexp
+		r = hashRegexp
 	}
 
 	// comments using comment as a key to avoid duplicates
@@ -234,13 +234,13 @@ func prepareDashRegexp() error {
 	return nil
 }
 
-func prepareSharpRegexp() error {
+func prepareHashRegexp() error {
 	// to compile regexp only once
-	sharpOnce.Do(func() {
-		sharpRegexp, errSharp = regexp.Compile(`#.*`) //nolint:gocritic
+	hashOnce.Do(func() {
+		hashRegexp, errHash = regexp.Compile(`#.*`) //nolint:gocritic
 	})
-	if errSharp != nil {
-		return errSharp
+	if errHash != nil {
+		return errHash
 	}
 
 	return nil
