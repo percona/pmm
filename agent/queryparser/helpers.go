@@ -62,8 +62,8 @@ func parsePGComments(query string) (map[string]bool, error) {
 func parseComments(query string, quotedRegexp *regexp.Regexp, commentRegexp *regexp.Regexp) (map[string]bool, error) {
 	result := make(map[string]bool)
 	comments := extractComments(query, quotedRegexp, commentRegexp)
-	for _, v := range comments {
-		parsed, err := parseKeyValueFromComment(string(v))
+	for _, c := range comments {
+		parsed, err := parseKeyValueFromComment(c)
 		if err != nil {
 			continue
 		}
