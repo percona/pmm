@@ -25,11 +25,13 @@ import {
   NAV_SIGN_IN,
   NAV_USERS_AND_ACCESS,
 } from './navigation.constants';
+import { useFolders } from 'hooks/api/useFolders';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { data: serviceTypes } = useServiceTypes();
   const { settings } = useSettings();
   const { data: advisors } = useAdvisors();
+  const { data: folders = [] } = useFolders();
   const { colorMode, toggleColorMode } = useColorMode();
   const { user } = useUser();
 
@@ -44,7 +46,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     items.push(NAV_DIVIDERS.home);
 
-    items.push(...addDashboardItems(currentServiceTypes, user));
+    items.push(...addDashboardItems(currentServiceTypes, folders, user));
 
     if (user && settings) {
       items.push(NAV_QAN);
@@ -85,7 +87,15 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     }
 
     return items;
-  }, [serviceTypes, user, settings, advisors, colorMode, toggleColorMode]);
+  }, [
+    serviceTypes,
+    folders,
+    user,
+    settings,
+    advisors,
+    colorMode,
+    toggleColorMode,
+  ]);
 
   return (
     <NavigationContext.Provider

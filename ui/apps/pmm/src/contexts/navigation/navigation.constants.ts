@@ -673,3 +673,20 @@ export const NAV_SIGN_IN: NavItem = {
   url: '/graph/login',
   target: '_self',
 };
+
+/**
+ * Mapping of menu items id to folders name.
+ *
+ * Folders are created based on the folder name in grafana-dashboards.
+ */
+export const NAV_FOLDER_MAP: Record<string, string> = {
+  system: 'OS',
+  mysql: 'MySQL',
+  mongo: 'MongoDB',
+  postgre: 'PostgreSQL',
+};
+
+export const NAV_OTHER_DASHBOARDS_TEMPLATE: Partial<NavItem> = {
+  icon: 'search',
+  text: 'Other dashboards',
+};

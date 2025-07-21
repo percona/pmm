@@ -32,6 +32,7 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   percona: () => import('icons/percona.svg?react'),
   check: () => import('icons/check.svg?react'),
   'knowledge-base': () => import('icons/knowledge-base.svg?react'),
+  search: () => import('icons/search.svg?react'),
 };
 
 export const VIEWBOX_MAP: Partial<

@@ -26,12 +26,14 @@ import {
   NAV_EXPLORE,
   NAV_EXPLORE_BUILDER,
   NAV_EXPLORE_METRICS,
+  NAV_FOLDER_MAP,
   NAV_HAPROXY,
   NAV_INTELLIGENCE,
   NAV_INTELLIGENCE_TEMPLATES,
   NAV_MONGO,
   NAV_MYSQL,
   NAV_OS,
+  NAV_OTHER_DASHBOARDS_TEMPLATE,
   NAV_POSTGRESQL,
   NAV_PROXYSQL,
   NAV_SIGN_OUT,
@@ -39,6 +41,26 @@ import {
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/textUtils';
+import { DashboardFolder } from 'types/folders.types';
+
+export const addOtherDashboardsItem = (
+  rootNode: NavItem,
+  folders: DashboardFolder[]
+) => {
+  const id = rootNode.id + '-other-dashboards';
+  const folder = folders.find(
+    (f) => rootNode.id && NAV_FOLDER_MAP[rootNode.id] === f.title
+  );
+  const exists = rootNode.children?.some((i) => i.id === id);
+
+  if (folder && !exists) {
+    rootNode.children?.push({
+      ...NAV_OTHER_DASHBOARDS_TEMPLATE,
+      id,
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards/f/${folder.uid}/${rootNode.id}`,
+    });
+  }
+};
 
 export const addAllDashboardItem = (
   types: ServiceType[],
@@ -66,22 +88,27 @@ export const addAllDashboardItem = (
 
 export const addDashboardItems = (
   types: ServiceType[],
+  folders: DashboardFolder[],
   user?: User
 ): NavItem[] => {
   const children: NavItem[] = [];
 
   if (types.includes(ServiceType.mysql)) {
+    addOtherDashboardsItem(NAV_MYSQL, folders);
     children.push(NAV_MYSQL);
   }
 
   if (types.includes(ServiceType.mongodb)) {
+    addOtherDashboardsItem(NAV_MONGO, folders);
     children.push(NAV_MONGO);
   }
 
   if (types.includes(ServiceType.posgresql)) {
+    addOtherDashboardsItem(NAV_POSTGRESQL, folders);
     children.push(NAV_POSTGRESQL);
   }
 
+  addOtherDashboardsItem(NAV_OS, folders);
   children.push(NAV_OS);
 
   children.push(addAllDashboardItem(types, user));
