@@ -96,9 +96,8 @@ func TestBuildMyCnfConfig(t *testing.T) {
 			Expected: "[client]\n\n\nuser=王华\npassword=&#34;\n\n",
 		},
 		{
-			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Socket: "/tmp/mysqld.sock", Username: "test-user\r", Password: "test-password"},
-			Expected: "[client]\n\n\nuser=test-user\npassword=test-password;\n\n",
-			WantErr:  fmt.Errorf("invalid parameters: %w", ErrInvalidCharacter),
+			Params:  &agentv1.StartActionRequest_PTMySQLSummaryParams{Socket: "/tmp/mysqld.sock", Username: "test-user\r", Password: "test-password"},
+			WantErr: fmt.Errorf("invalid parameters: %w", ErrInvalidCharacter),
 		},
 	}
 
