@@ -24,9 +24,9 @@ import (
 var listNodesResultT = commands.ParseTemplate(`
 Nodes list.
 
-{{ printf "%-13s" "Node type" }} {{ printf "%-20s" "Node name" }} {{ printf "%-17s" "Address" }} {{ "Node ID" }}
+{{ printf "%-25s" "Node type" }} {{ printf "%-25s" "Node name" }} {{ printf "%-17s" "Address" }} {{ "Node ID" }}
 {{ range .Nodes }}
-{{- printf "%-13s" .NodeType }} {{ printf "%-20s" .NodeName }} {{ printf "%-17s" .Address }} {{ .NodeID }}
+{{- printf "%-25s" .NodeType }} {{ printf "%-25s" .NodeName }} {{ printf "%-17s" .Address }} {{ .NodeID }}
 {{ end }}
 `)
 
