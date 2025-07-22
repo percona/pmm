@@ -13,220 +13,217 @@ Before proceeding with restoration, ensure you have one of the following:
 Choose the restoration method that matches how your backup was created:
 
 === "Volume-to-volume backup"
-**Most common method** - Restore from a backup volume created using the volume-to-volume method:
+    Restore from a backup volume created using the volume-to-volume method:
+    {.power-number}
 
-{.power-number}
+    1. Stop the current PMM Server container:
+        ```sh
+        docker stop pmm-server
+        ```
 
-1. Stop the current PMM Server container:
-    ```sh
-    docker stop pmm-server
-    ```
+    2. Remove the current container:
+        ```sh
+        docker rm pmm-server
+        ```
+    4. Choose a restauration option:
+        - Replace current volume with backup volume:
+            ```sh
+            # Remove current volume (WARNING: This deletes current data)
+            docker volume rm pmm-data
 
-2. Remove the current container:
-    ```sh
-    docker rm pmm-server
-    ```
+            # Restore from backup volume to new pmm-data volume
+            docker volume create pmm-data
+            sudo docker run --rm -v <backup-volume-name>:/from -v pmm-data:/to alpine ash -c 'cd /from ; cp -av . /to'
+            ```
+        - Use backup volume directly:
+            ```sh
+            # Start PMM Server using backup volume directly
+            docker run -d \
+            --publish 443:8443 \
+            --volume <backup-volume-name>:/srv \
+            --name pmm-server \
+            --restart always \
+            percona/pmm-server:3
+            ```
 
-3. **Option A: Replace current volume with backup volume**
-    ```sh
-    # Remove current volume (WARNING: This deletes current data)
-    docker volume rm pmm-data
-
-    # Restore from backup volume to new pmm-data volume
-    docker volume create pmm-data
-    sudo docker run --rm -v <backup-volume-name>:/from -v pmm-data:/to alpine ash -c 'cd /from ; cp -av . /to'
-    ```
-
-4. **Option B: Use backup volume directly**
-    ```sh
-    # Start PMM Server using backup volume directly
-    docker run -d \
-      --publish 443:8443 \
-      --volume <backup-volume-name>:/srv \
-      --name pmm-server \
-      --restart always \
-      percona/pmm-server:3
-    ```
-
-5. Verify the restored PMM Server is working correctly:
-    ```sh
-    docker logs pmm-server
-    ```
+    4. Verify the restored PMM Server is working correctly:
+        ```sh
+        docker logs pmm-server
+        ```
 
 === "Archive backup"
-Restore from a compressed archive backup (.tar.gz file):
+    Restore from a compressed archive backup (.tar.gz file):
+    {.power-number}
 
-{.power-number}
+    1. Stop the current PMM Server container:
+        ```sh
+        docker stop pmm-server
+        ```
 
-1. Stop the current PMM Server container:
-    ```sh
-    docker stop pmm-server
-    ```
+    2. Remove the current container:
+        ```sh
+        docker rm pmm-server
+        ```
 
-2. Remove the current container:
-    ```sh
-    docker rm pmm-server
-    ```
+    3. Create a temporary volume and extract archive:
+        ```sh
+        # Create temporary restore volume
+        docker volume create pmm-restore-temp
+        
+        # Extract archive to volume
+        docker run --rm -v $(pwd):/backup -v pmm-restore-temp:/restore alpine sh -c 'cd /restore && tar xzf /backup/pmm-data-backup-*.tar.gz'
+        ```
 
-3. Create a temporary volume and extract archive:
-    ```sh
-    # Create temporary restore volume
-    docker volume create pmm-restore-temp
-    
-    # Extract archive to volume
-    docker run --rm -v $(pwd):/backup -v pmm-restore-temp:/restore alpine sh -c 'cd /restore && tar xzf /backup/pmm-data-backup-*.tar.gz'
-    ```
+    4. Copy restored data to PMM data volume:
+        ```sh
+        # Remove current volume (WARNING: This deletes current data)
+        docker volume rm pmm-data
+        
+        # Create new pmm-data volume
+        docker volume create pmm-data
+        
+        # Copy restored data
+        sudo docker run --rm -v pmm-restore-temp:/from -v pmm-data:/to alpine ash -c 'cd /from ; cp -av . /to'
+        
+        # Clean up temporary volume
+        docker volume rm pmm-restore-temp
+        ```
 
-4. Copy restored data to PMM data volume:
-    ```sh
-    # Remove current volume (WARNING: This deletes current data)
-    docker volume rm pmm-data
-    
-    # Create new pmm-data volume
-    docker volume create pmm-data
-    
-    # Copy restored data
-    sudo docker run --rm -v pmm-restore-temp:/from -v pmm-data:/to alpine ash -c 'cd /from ; cp -av . /to'
-    
-    # Clean up temporary volume
-    docker volume rm pmm-restore-temp
-    ```
+    5. Start the restored PMM Server:
+        ```sh
+        docker run -d \
+        --publish 443:8443 \
+        --volume pmm-data:/srv \
+        --name pmm-server \
+        --restart always \
+        percona/pmm-server:3
+        ```
 
-5. Start the restored PMM Server:
-    ```sh
-    docker run -d \
-      --publish 443:8443 \
-      --volume pmm-data:/srv \
-      --name pmm-server \
-      --restart always \
-      percona/pmm-server:3
-    ```
+=== "Directory backup"
+    Restore from a host directory backup:
+    {.power-number}
 
-=== "Directory Backup"
-Restore from a host directory backup:
+    1. Stop the current PMM Server container:
+        ```sh
+        docker stop pmm-server
+        ```
 
-{.power-number}
+    2. Remove the current container:
+        ```sh
+        docker rm pmm-server
+        ```
 
-1. Stop the current PMM Server container:
-    ```sh
-    docker stop pmm-server
-    ```
+    3. Copy backup data to PMM volume:
+        ```sh
+        # Remove current volume (WARNING: This deletes current data)
+        docker volume rm pmm-data
+        
+        # Create new pmm-data volume
+        docker volume create pmm-data
+        
+        # Copy directory backup to volume
+        docker run --rm -v $(pwd)/<backup-directory>/srv:/backup -v pmm-data:/srv alpine sh -c 'cp -r /backup/* /srv/'
+        ```
 
-2. Remove the current container:
-    ```sh
-    docker rm pmm-server
-    ```
+    4. Fix ownership of restored files:
+        ```sh
+        docker run --rm -v pmm-data:/srv -t percona/pmm-server:3 chown -R pmm:pmm /srv
+        ```
 
-3. Copy backup data to PMM volume:
-    ```sh
-    # Remove current volume (WARNING: This deletes current data)
-    docker volume rm pmm-data
-    
-    # Create new pmm-data volume
-    docker volume create pmm-data
-    
-    # Copy directory backup to volume
-    docker run --rm -v $(pwd)/<backup-directory>/srv:/backup -v pmm-data:/srv alpine sh -c 'cp -r /backup/* /srv/'
-    ```
-
-4. Fix ownership of restored files:
-    ```sh
-    docker run --rm -v pmm-data:/srv -t percona/pmm-server:3 chown -R pmm:pmm /srv
-    ```
-
-5. Start the restored PMM Server:
-    ```sh
-    docker run -d \
-      --publish 443:8443 \
-      --volume pmm-data:/srv \
-      --name pmm-server \
-      --restart always \
-      percona/pmm-server:3
-    ```
+    5. Start the restored PMM Server:
+        ```sh
+        docker run -d \
+        --publish 443:8443 \
+        --volume pmm-data:/srv \
+        --name pmm-server \
+        --restart always \
+        percona/pmm-server:3
+        ```
 
 === "Migration rollback"
-**Rollback from PMM 3 to PMM 2** using automated migration backup:
+    Rollback from PMM 3 to PMM 2 using automated migration backup:
+    {.power-number}
 
-{.power-number}
+    1. Stop the current PMM v3 container:
+        ```sh
+        docker stop pmm-server
+        ```
 
-1. Stop the current PMM v3 container:
-    ```sh
-    docker stop pmm-server
-    ```
+    2. Remove the PMM v3 container:
+        ```sh
+        docker rm pmm-server
+        ```
 
-2. Remove the PMM v3 container:
-    ```sh
-    docker rm pmm-server
-    ```
+    3. Start a PMM v2 container using your backup volume:
+        ```sh
+        docker run -d \
+        -p 443:443 \
+        --volume <backup-volume-name>:/srv \
+        --name pmm-server \
+        --restart always \
+        percona/pmm-server:2.44.0
+        ```
+        
+        Replace `<backup-volume-name>` with your PMM v2 backup volume name (e.g., `pmm-data-2025-01-16-165135`).
 
-3. Start a PMM v2 container using your backup volume:
-    ```sh
-    docker run -d \
-      -p 443:443 \
-      --volume <backup-volume-name>:/srv \
-      --name pmm-server \
-      --restart always \
-      percona/pmm-server:2.44.0
-    ```
-    
-    Replace `<backup-volume-name>` with your PMM v2 backup volume name (e.g., `pmm-data-2025-01-16-165135`).
-
-4. Verify that your PMM v2 instance is running correctly:
-    ```sh
-    docker logs pmm-server
-    # Check that all your data is accessible via the web interface
-    ```
+    4. Verify that your PMM v2 instance is running correctly:
+        ```sh
+        docker logs pmm-server
+        # Check that all your data is accessible via the web interface
+        ```
 
 === "Universal container restore"
-Use this when you have a backup created by copying files directly from a container (fallback method). Use this method when:
+    Use this as a fallback method when:
 
-- you created a backup using `docker cp pmm-server-backup:/srv .`  
-- you have a backup directory with an `srv/` folder containing PMM data
-- you used the  [**Universal container copy** backup option](../docker/backup_container.md)
-- other restore methods don't match your backup type
-{.power-number}
+    - you created a backup using `docker cp pmm-server-backup:/srv .`  
+    - you have a backup directory with an `srv/` folder containing PMM data
+    - you used the [**Universal container copy** backup option](../docker/backup_container.md)
+    - other restore methods don't match your backup type
 
-1. Stop the current PMM Server container:
-    ```sh
-    docker stop pmm-server
-    ```
+    To restore from a universal container:
+    {.power-number}
 
-2. Remove the container:
-    ```sh
-    docker rm pmm-server
-    ```
+    1. Stop the current PMM Server container:
+        ```sh
+        docker stop pmm-server
+        ```
 
-3. Restore the renamed backup container:
-    ```sh
-    docker rename pmm-server-backup pmm-server
-    ```
+    2. Remove the container:
+        ```sh
+        docker rm pmm-server
+        ```
 
-4. Navigate to the backup directory:
-    ```sh
-    cd pmm-data-backup-YYYYMMDD-HHMMSS
-    ```
+    3. Restore the renamed backup container:
+        ```sh
+        docker rename pmm-server-backup pmm-server
+        ```
 
-5. Copy the backup data to the PMM data volume:
-    ```sh
-    docker run --rm -v $(pwd)/srv:/backup -v pmm-data:/srv -t percona/pmm-server:3 cp -r /backup/* /srv
-    ```
+    4. Navigate to the backup directory:
+        ```sh
+        cd pmm-data-backup-YYYYMMDD-HHMMSS
+        ```
 
-6. Fix ownership of the restored files:
-    ```sh
-    docker run --rm -v pmm-data:/srv -t percona/pmm-server:3 chown -R pmm:pmm /srv
-    ```
+    5. Copy the backup data to the PMM data volume:
+        ```sh
+        docker run --rm -v $(pwd)/srv:/backup -v pmm-data:/srv -t percona/pmm-server:3 cp -r /backup/* /srv
+        ```
 
-7. Start the restored PMM Server container:
-    ```sh
-    docker start pmm-server
-    ```   
+    6. Fix ownership of the restored files:
+        ```sh
+        docker run --rm -v pmm-data:/srv -t percona/pmm-server:3 chown -R pmm:pmm /srv
+        ```
+
+    7. Start the restored PMM Server container:
+        ```sh
+        docker start pmm-server
+        ```   
 
 ## Find your backup volume name
 
 If you're restoring from an automated migration backup and don't know the volume name:
 
-- Your backup volume name was displayed during the [automated upgrade process](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3).
-- To list all available Docker volumes, use the following command and look for volumes with names like `pmm-data-YYYY-MM-DD-HHMMSS`:
+- your backup volume name was displayed during the [automated upgrade process](../../../../pmm-upgrade/migrating_from_pmm_2.md#step-2-migrate-pmm-2-server-to-pmm-3).
+- to list all available Docker volumes, use the following command and look for volumes with names like `pmm-data-YYYY-MM-DD-HHMMSS`:
 
     ```sh
     docker volume ls       

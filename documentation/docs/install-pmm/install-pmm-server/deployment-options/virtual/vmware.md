@@ -15,7 +15,7 @@ Import the PMM Server OVA file into VMware products including ESXi, vSphere, Wor
     To import downloaded file using the command-line interface:
     {.power-number}
 
-    1. Install [`ovftool`][OVFTool]. (You need to register.)
+    1. Install [`ovftool`][OVFTool]. You will need to register.
     2. Import and convert the OVA file using one of these methods:
 
         * To download and import the OVA file directly:
