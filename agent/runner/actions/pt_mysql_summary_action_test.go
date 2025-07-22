@@ -59,6 +59,7 @@ func TestBuildMyCnfConfig(t *testing.T) {
 	type testParams struct {
 		Params   *agentv1.StartActionRequest_PTMySQLSummaryParams
 		Expected string
+		WantErr  error
 	}
 
 	testCases := []testParams{
@@ -94,14 +95,24 @@ func TestBuildMyCnfConfig(t *testing.T) {
 			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 0, Socket: "", Username: "王华", Password: `"`},
 			Expected: "[client]\n\n\nuser=王华\npassword=&#34;\n\n",
 		},
+		{
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Socket: "/tmp/mysqld.sock", Username: "test-user\r", Password: "test-password"},
+			Expected: "[client]\n\n\nuser=test-user\npassword=test-password;\n\n",
+			WantErr:  fmt.Errorf("invalid parameters: %w", ErrInvalidCharacter),
+		},
 	}
 
 	for i, tc := range testCases {
 		a := ptMySQLSummaryAction{
 			params: tc.Params,
 		}
-		t.Run(fmt.Sprintf("TestBuildMyCnfConfig %d", i), func(t *testing.T) {
+		t.Run(fmt.Sprintf(t.Name()+" %d", i), func(t *testing.T) {
 			s, err := a.buildMyCnfConfig()
+			if tc.WantErr != nil {
+				require.Error(t, err)
+				assert.Equal(t, tc.WantErr.Error(), err.Error())
+				return
+			}
 			require.NoError(t, err)
 			assert.Equal(t, tc.Expected, s)
 		})

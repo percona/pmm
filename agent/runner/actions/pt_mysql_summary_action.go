@@ -40,7 +40,7 @@ type ptMySQLSummaryAction struct {
 	params  *agentv1.StartActionRequest_PTMySQLSummaryParams
 }
 
-var ErrInvalidCharacter = errors.New("invalid character in parameter")
+var ErrInvalidCharacter = errors.New("parameter contains invalid character(s)")
 
 // NewPTMySQLSummaryAction creates a new process Action.
 //
@@ -169,7 +169,7 @@ func checkArgs(args ...string) error {
 		if s == "" {
 			continue
 		}
-		if strings.Contains(s, "\n") {
+		if strings.ContainsAny(s, "\n\r") {
 			return ErrInvalidCharacter
 		}
 	}
