@@ -120,4 +120,4 @@ After successfully importing and starting the PMM Server VM:
 [OVF]: https://wikipedia.org/wiki/Open_Virtualization_Format
 [VirtualBox]: https://www.virtualbox.org/
 [VMware]: https://www.vmware.com/products/
-[OVFTool]: https://code.vmware.com/tool/ovf
+[OVFTool]: https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest

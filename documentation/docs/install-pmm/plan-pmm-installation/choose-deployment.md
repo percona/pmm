@@ -27,6 +27,8 @@ For detailed hardware and network specifications, see:
 - Evaluate TLS certificate requirements (self-signed vs custom certificates)
 - For high-security environments, consider Podman's rootless container capabilities
 - Both binary installation and Docker containers can be run without `root` privileges, enhancing security
+- Plan backup strategy early. Different deployment methods have different backup requirements and capabilities.
+
 
 For information on PMM's architecture, see [PMM architecture](../../reference/index.md). 
 
