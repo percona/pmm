@@ -40,6 +40,7 @@ type ptMySQLSummaryAction struct {
 	params  *agentv1.StartActionRequest_PTMySQLSummaryParams
 }
 
+// ErrInvalidCharacter is returned when a parameter contains invalid characters.
 var ErrInvalidCharacter = errors.New("parameter contains invalid character(s)")
 
 // NewPTMySQLSummaryAction creates a new process Action.
