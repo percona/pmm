@@ -18,28 +18,22 @@ gobuild_component() {
     local extract_path=${3:-"github.com/percona/$parent_component"}
     local component_path=$4
     local result_file=${5:-bin/$(basename ${component_path:-$extract_path})}
-
+    local src_dir=/home/builder/tmp/source/pmm-client-${pmm_version}
+    local bin_dir=/home/builder/tmp/binary/pmm-client-${pmm_version}
+    local target build_command archive
     local volume_mounts="-v ${tmp_dir}:/home/builder/tmp -v ${tmp_dir}/go:/tmp/go"
     volume_mounts+=" -v pmm-gobuild:/home/builder/.cache/go-build"
     volume_mounts+=" -v pmm-gomod:/home/builder/go/pkg/mod"
     volume_mounts+=" -v pmm-dnf:/var/cache/dnf"
 
-    # Set target for Nomad accordingly
-    local target
+    # Set target for Nomad
     case "$(uname -m)" in
-        x86_64)
-            target="linux_amd64"
-            ;;
-        aarch64)
-            target="linux_arm64"
-            ;;
-        *)
-            echo "Unsupported architecture: $(uname -m)"
-            exit 1
-            ;;
+        x86_64) target="linux_amd64" ;;
+        aarch64) target="linux_arm64" ;;
+        *) echo "Unsupported architecture: $(uname -m)"; exit 1 ;;
     esac
 
-    if [ ${component} = 'azure_metrics_exporter' ]; then
+    if [ "${component}" = azure_metrics_exporter ]; then
         result_file=${result_file/_metrics/}
     fi
 
@@ -47,22 +41,25 @@ gobuild_component() {
         echo skip build
         return
     fi
-    if [ ${component} = 'pmm-admin' -o ${component} = 'pmm-agent' ]; then
+    
+    archive=$(ls "${source_dir}" | grep -e "${parent_component}-\w*\.tar\.gz")
+
+    if [[ "${component}" =~ ^pmm-admin$|^pmm-agent$ ]]; then
         build_command="cd /tmp/go/src/${extract_path}/${component_path} && make release"
-    elif [ ${component} = 'mongodb_exporter' ]; then
-        build_command="cd /tmp/go/src/${extract_path} && make build"
-    elif [ ${component} = 'node_exporter' ] || [ ${component} = 'mysqld_exporter' ] || \
-         [ ${component} = 'proxysql_exporter' ] || [ ${component} = 'rds_exporter' ] || \
-         [ ${component} = 'postgres_exporter' ] || [ ${component} = 'azure_metrics_exporter' ]; then
+    elif [ "${component}" = mongodb_exporter ]; then
+        build_command="cd /tmp/go/src/${extract_path} && make build"      
+    elif [[ "${component}" =~ (node|mysqld|proxysql|rds|postgres|azure_metrics)_exporter ]]; then
         build_command="cd /tmp/go/src/${extract_path} && make release"
-    elif [ ${component} = 'percona-toolkit' ]; then
-        build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o \${binary_dir}/${result_file} ."
-    elif [ ${component} = 'nomad' ]; then
+    elif [ "${component}" = percona-toolkit ]; then
+        build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o ${bin_dir}/${result_file} ."
+    elif [ "${component}" = nomad ]; then
         build_command="cd /tmp/go/src/${extract_path} && TARGETS=${target} make deps release"
     else
-        build_command="go build -o \${binary_dir}/${result_file} ./src/${extract_path}/${component_path}"
+        build_command="go build -o ${bin_dir}/${result_file} ./src/${extract_path}/${component_path}"
     fi
-    docker run --rm ${volume_mounts} ${rpmbuild_docker_image} sh -c "
+
+    docker run --rm ${volume_mounts} \
+    "${rpmbuild_docker_image}" sh -c "
         set -o errexit
         set -o xtrace
         export GOOS=${GOOS:-linux}
@@ -73,26 +70,24 @@ gobuild_component() {
         # for 'make release'
         export PMM_RELEASE_VERSION=${full_pmm_version}
         export PMM_RELEASE_TIMESTAMP=$(date '+%s')
-        export PMM_RELEASE_FULLCOMMIT=$(cd sources/${parent_component}/src/${extract_path} && git rev-parse HEAD)
-        export COMPONENT_VERSION=$(cd sources/${parent_component}/src/${extract_path} && git describe --abbrev=0 --always)
-        export COMPONENT_BRANCH=$(cd sources/${parent_component}/src/${extract_path} && git describe --always --contains --all)
+        export PMM_RELEASE_FULLCOMMIT=$(git -C sources/${parent_component}/src/${extract_path} rev-parse HEAD)
+        export COMPONENT_VERSION=$(git -C sources/${parent_component}/src/${extract_path} describe --abbrev=0 --always)
+        export COMPONENT_BRANCH=$(git -C sources/${parent_component}/src/${extract_path} describe --always --contains --all)
         export PMM_RELEASE_BRANCH=""
         sudo chown -R builder:builder /home/builder/tmp
 
-        source_dir=/home/builder/tmp/source/pmm-client-${pmm_version}
-        binary_dir=/home/builder/tmp/binary/pmm-client-${pmm_version}
-        export PMM_RELEASE_PATH=\${binary_dir}/bin
+        export PMM_RELEASE_PATH=${bin_dir}/bin
 
-        mkdir -p \$binary_dir/bin
-
+        mkdir -p ${bin_dir}/bin
         mkdir -p /tmp/go/src/${extract_path}
-        archive=$(ls ${source_dir} | grep -e "${parent_component}-\w*\.tar\.gz")
-        tar -C /tmp/go/src/${extract_path} --strip-components=1 -zxpf \${source_dir}/\$archive
+
+        tar -C /tmp/go/src/${extract_path} --strip-components=1 -zxpf ${src_dir}/${archive}
         pushd /tmp/go
             export GOPATH=\$(pwd -P)
             export PATH=$PATH:\$(go env GOPATH)/bin
             ${build_command}
-        popd
+        popd        
+
         sudo chown -R $(id -u):$(id -g) /home/builder/tmp
     "
 }
@@ -106,8 +101,7 @@ copy_component() {
 
     if [ ! -d "${component_dir}" ]; then
         mkdir -p ${component_dir}
-        tar \
-            -C ${component_dir} \
+        tar -C ${component_dir} \
             --strip-components=1 \
             -zxpf "$archive"
     fi
