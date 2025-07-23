@@ -59,6 +59,8 @@ gobuild_component() {
         build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o \${binary_dir}/${result_file} ."
     elif [ ${component} = 'nomad' ]; then
         build_command="cd /tmp/go/src/${extract_path} && TARGETS=${target} make deps release"
+    elif [ ${component} = 'redis_exporter' ]; then
+        build_command="cd /tmp/go/src/${extract_path} && go build ."
     else
         build_command="go build -o \${binary_dir}/${result_file} ./src/${extract_path}/${component_path}"
     fi
@@ -120,6 +122,7 @@ main() {
 
     gobuild_component "vmagent" "" "github.com/VictoriaMetrics/VictoriaMetrics" "app/vmagent"
     gobuild_component "nomad" "" "github.com/hashicorp/nomad"
+    gobuild_component "redis_exporter" "" "github.com/oliver006/redis_exporter"
     gobuild_component "node_exporter" "" "github.com/prometheus/node_exporter"
     gobuild_component "mysqld_exporter"
     gobuild_component "postgres_exporter" "" "" "cmd/postgres_exporter"
@@ -152,6 +155,7 @@ main() {
     gobuild_component "percona-toolkit" "" "github.com/percona/percona-toolkit" "src/go/pt-pg-summary"
 
     cp -r ${tmp_dir}/go/src/github.com/hashicorp/nomad/pkg/linux_*/nomad ${binary_dir}/bin/nomad
+    cp -r ${tmp_dir}/go/src/github.com/oliver006/redis_exporter/redis_exporter ${binary_dir}/bin/valkey_exporter
 
     rm -rf ${binary_tarball}
     mkdir -p $(dirname ${binary_tarball}) || :

@@ -16,12 +16,13 @@
 package inventoryv1
 
 import (
-	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/utils/enums"
 )
 
 // LogLevelAPIValue converts a string to a LogLevel enum value.
 func LogLevelAPIValue(l *string) LogLevel {
-	return LogLevel(LogLevel_value[enums.ConvertEnum("LOG_LEVEL", pointer.Get(l))])
+	if l == nil {
+		return LogLevel_LOG_LEVEL_UNSPECIFIED
+	}
+	return LogLevel(LogLevel_value[enums.ConvertEnum("LOG_LEVEL", *l)])
 }

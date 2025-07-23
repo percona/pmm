@@ -119,7 +119,7 @@ func (cmd *AddPostgreSQLCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddPostgreSQLCommand.
 func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 
 	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
@@ -195,7 +195,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 				Environment:    cmd.Environment,
 				Cluster:        cmd.Cluster,
 				ReplicationSet: cmd.ReplicationSet,
-				CustomLabels:   customLabels,
+				CustomLabels:   *customLabels,
 
 				QANPostgresqlPgstatementsAgent:  usePgStatements,
 				QANPostgresqlPgstatmonitorAgent: usePgStatMonitor,

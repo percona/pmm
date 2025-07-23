@@ -62,7 +62,7 @@ type AddServiceMySQLCommand struct {
 
 // RunCmd runs the command for AddServiceMySQLCommand.
 func (cmd *AddServiceMySQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
+	customLabels := commands.ParseCustomLabels(&cmd.CustomLabels)
 	params := &services.AddServiceParams{
 		Body: services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
@@ -74,7 +74,7 @@ func (cmd *AddServiceMySQLCommand) RunCmd() (commands.Result, error) {
 				Environment:    cmd.Environment,
 				Cluster:        cmd.Cluster,
 				ReplicationSet: cmd.ReplicationSet,
-				CustomLabels:   customLabels,
+				CustomLabels:   *customLabels,
 			},
 		},
 		Context: commands.Ctx,
