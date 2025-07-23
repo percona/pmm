@@ -4,10 +4,10 @@ import { NavItem } from 'lib/types';
 import { useServiceTypes } from 'hooks/api/useServices';
 import {
   addAccount,
+  addAdvisors,
   addAlerting,
   addDashboardItems,
   addExplore,
-  addIntelligence,
 } from './navigation.utils';
 import { useUser } from 'contexts/user';
 import { useAdvisors } from 'hooks/api/useAdvisors';
@@ -59,8 +59,8 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         items.push(addAlerting(settings?.alertingEnabled, user));
       }
 
-      if (user.isEditor) {
-        items.push(addIntelligence(settings, advisors || []));
+      if (user.isEditor && settings.advisorEnabled) {
+        items.push(addAdvisors(advisors || []));
       }
 
       if (user.isPMMAdmin) {

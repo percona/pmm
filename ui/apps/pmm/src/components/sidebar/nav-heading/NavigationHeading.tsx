@@ -10,17 +10,11 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
   ({ sidebarOpen, onToggleSidebar }) => (
     <Stack
       direction="row"
-      justifyContent="space-between"
+      justifyContent={sidebarOpen ? 'space-between' : 'center'}
+      alignItems="center"
       sx={{
-        p: 2,
-        pl: sidebarOpen
-          ? 1
-          : {
-              sm: 3.5,
-              xs: 1.5,
-            },
-        pr: 1,
-        width: '100%',
+        p: sidebarOpen ? 2 : 1,
+        pl: sidebarOpen ? 1 : {},
         position: 'relative',
       }}
     >

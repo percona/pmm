@@ -11,7 +11,8 @@ export const getStyles = (
 ) => ({
   listItemButton: {
     pl: drawerOpen ? levelPadding[level] || 0 : 0,
-    borderRadius: drawerOpen ? 50 : 0,
+    ml: drawerOpen ? levelMargin[level] || 0 : 0,
+    borderRadius: drawerOpen ? levelBorderRadius[level] : 0,
 
     [`.${typographyClasses.root}`]: {
       fontWeight: 600,
@@ -21,21 +22,23 @@ export const getStyles = (
       color: active ? theme.palette.primary.main : theme.palette.text.primary,
     },
 
-    [`&:hover, &:hover .${listItemIconClasses.root} svg`]: {
-      color: 'primary.main',
-    },
-
     justifyContent: drawerOpen ? undefined : 'center',
   },
   listItemButtonCollapsible: {
-    backgroundColor: 'initial',
+    backgroundColor: active
+      ? theme.components?.MuiListItem?.styleOverrides?.selected
+      : 'initial',
   },
   listCollapsible:
     level !== 1
-      ? { ml: 1.5 }
+      ? {
+          ml: 1.5,
+          mb: 2,
+        }
       : {
           pl: 1,
           ml: 6,
+          mb: 2,
           borderLeft: 1,
           borderColor: theme.palette.divider,
 
@@ -68,6 +71,19 @@ export const getStyles = (
 
 const levelPadding: Record<number, number> = {
   0: 3,
-  1: 5.5,
+  1: 2.5,
   3: 3.5,
+};
+
+const levelMargin: Record<number, number> = {
+  1: 3,
+};
+
+const levelBorderRadius: Record<number, any> = {
+  0: {
+    borderTopRightRadius: 50,
+    borderBottomRightRadius: 50,
+  },
+  1: 50,
+  2: 50,
 };

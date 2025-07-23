@@ -28,8 +28,6 @@ import {
   NAV_EXPLORE_METRICS,
   NAV_FOLDER_MAP,
   NAV_HAPROXY,
-  NAV_INTELLIGENCE,
-  NAV_INTELLIGENCE_TEMPLATES,
   NAV_MONGO,
   NAV_MYSQL,
   NAV_OS,
@@ -142,19 +140,6 @@ export const addExplore = (frontendSettings: FrontendSettings): NavItem => {
   }
 
   return { ...NAV_EXPLORE, children };
-};
-
-export const addIntelligence = (
-  settings: Settings,
-  advisors: Advisor[]
-): NavItem => {
-  const children: NavItem[] = [NAV_INTELLIGENCE_TEMPLATES];
-
-  if (settings.advisorEnabled) {
-    children.push(addAdvisors(advisors));
-  }
-
-  return { ...NAV_INTELLIGENCE, children };
 };
 
 export const addAdvisors = (advisors: Advisor[]): NavItem => {

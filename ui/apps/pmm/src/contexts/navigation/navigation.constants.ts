@@ -429,23 +429,9 @@ export const NAV_ALERTS: NavItem = {
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alerts`,
 };
 
-//
-// Percona Intelligence
-//
-export const NAV_INTELLIGENCE_TEMPLATES = {
-  ...NAV_ALERTS_TEMPLATES,
-  id: 'intelligence-alerts-templates',
-};
-
-export const NAV_INTELLIGENCE: NavItem = {
-  id: 'percona-intelligence',
-  icon: 'intelligence',
-  text: 'Percona Intelligence',
-  url: NAV_INTELLIGENCE_TEMPLATES.url,
-};
-
-export const NAV_ADVISORS = {
+export const NAV_ADVISORS: NavItem = {
   id: 'advisors',
+  icon: 'intelligence',
   text: 'Percona Advisors',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors`,
 };

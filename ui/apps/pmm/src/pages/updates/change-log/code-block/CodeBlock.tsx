@@ -1,4 +1,5 @@
 import { Typography } from '@mui/material';
+import { PEAK_DARK_THEME, PEAK_LIGHT_THEME } from '@pmm/shared';
 import { FC, PropsWithChildren } from 'react';
 
 export const CodeBlock: FC<PropsWithChildren> = ({ children }) => {
@@ -8,19 +9,26 @@ export const CodeBlock: FC<PropsWithChildren> = ({ children }) => {
   return (
     <Typography
       sx={[
-        (theme) => ({
-          p: isSingleLine ? undefined : 1,
-          display: isSingleLine ? 'inline-block' : undefined,
-          border: isSingleLine ? undefined : 1,
-          borderColor: isSingleLine ? undefined : theme.palette.divider,
-          borderRadius: isSingleLine ? 'none' : theme.shape.borderRadius / 4,
+        {
+          backgroundColor: PEAK_LIGHT_THEME.action.hover,
           fontFamily: 'Roboto Mono, monospace',
           whiteSpace: 'pre',
-          backgroundColor: theme.palette.grey[200],
-        }),
+        },
+        (theme) =>
+          isSingleLine
+            ? {
+                display: 'inline-block',
+              }
+            : {
+                py: 1,
+                px: 1.5,
+                border: 2,
+                borderColor: theme.palette.divider,
+                borderRadius: theme.shape.borderRadius / 4,
+              },
         (theme) =>
           theme.applyStyles('dark', {
-            backgroundColor: theme.palette.surfaces?.high,
+            backgroundColor: PEAK_DARK_THEME.action.hover,
           }),
       ]}
     >

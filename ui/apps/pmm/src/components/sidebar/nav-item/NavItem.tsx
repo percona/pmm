@@ -1,7 +1,7 @@
 import { useLinkWithVariables } from 'hooks/utils/useLinkWithVariables';
 import { isActive } from 'lib/utils/navigation.utils';
-import { FC, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { FC, useCallback, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { NavItemProps } from './NavItem.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { getLinkProps } from './NavItem.utils';
@@ -16,6 +16,7 @@ import List from '@mui/material/List';
 import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import NavItemIcon from './nav-item-icon/NavItemIcon';
+import IconButton from '@mui/material/IconButton';
 
 const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
   const location = useLocation();
@@ -27,42 +28,62 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
   const styles = getStyles(theme, active, drawerOpen, level);
   const children = item.children?.filter((i) => !i.hidden);
   const dataTestid = `navitem-${item.id}`;
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (active) {
-      setIsOpen(true);
+  const handleToggle = useCallback(() => {
+    setIsOpen((open) => !open);
+  }, []);
+
+  const handleOpenCollapsible = () => {
+    const firstChild = (item.children || [])[0];
+    setIsOpen(true);
+
+    if (firstChild?.url) {
+      navigate(firstChild?.url);
     }
-  }, [active]);
+  };
 
   if (children?.length && drawerOpen) {
     return (
       <>
-        <ListItemButton
-          color="primary.main"
-          disableGutters
-          sx={[styles.listItemButton, styles.listItemButtonCollapsible]}
-          onClick={() => setIsOpen(!open)}
-          data-testid={dataTestid}
-          data-navlevel={level}
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
         >
-          {item.icon && (
-            <ListItemIcon sx={styles.listItemIcon}>
-              <NavItemIcon icon={item.icon} />
-            </ListItemIcon>
-          )}
-          <ListItemText
-            primary={item.text}
-            primaryTypographyProps={level > 0 ? { style: styles.text } : {}}
-          />
-          <Stack pl={2} pr={2}>
+          <ListItemButton
+            color="primary.main"
+            disableGutters
+            selected={active}
+            sx={styles.listItemButton}
+            onClick={handleOpenCollapsible}
+            data-testid={dataTestid}
+            data-navlevel={level}
+          >
+            {item.icon && (
+              <ListItemIcon sx={styles.listItemIcon}>
+                <NavItemIcon icon={item.icon} />
+              </ListItemIcon>
+            )}
+            <ListItemText
+              primary={item.text}
+              primaryTypographyProps={level > 0 ? { style: styles.text } : {}}
+            />
+          </ListItemButton>
+          <IconButton
+            onClick={handleToggle}
+            sx={{
+              mr: 1,
+            }}
+          >
             <KeyboardArrowDownIcon
               sx={(theme) => ({
                 rotate: open ? '180deg' : 0,
                 transition: theme.transitions.create('rotate'),
               })}
             />
-          </Stack>
-        </ListItemButton>
+          </IconButton>
+        </Stack>
         <Collapse
           in={open}
           timeout="auto"

@@ -8,6 +8,7 @@ export const CARD_IDS = {
   pmmDump: 'pmm-dump',
   pmmLogs: 'pmm-logs',
   tips: 'tips',
+  nextChapter: 'next-chapter',
 };
 
 export const START_ICON = {
@@ -94,12 +95,27 @@ export const CARDS_DATA: HelpCard[] = [
     id: CARD_IDS.tips,
     title: 'Useful Tips',
     description:
-      'Need a refresher? Access the onboarding tour tips or the keyboard shortcuts.',
+      'Need a refresher? Start the onboarding tour again for useful tips.',
     adminOnly: false,
     buttons: [
       {
         text: 'Start PMM tour',
         startIconName: START_ICON.map,
+      },
+    ],
+  },
+  {
+    id: CARD_IDS.nextChapter,
+    title: 'Help Shape PMM’s Next Chapter',
+    description:
+      "We'd love your thoughts on PMM 3 to guide its future development. This is a short survey with 4 questions (Google Form) that will help us drive the next wave of improvements.",
+    adminOnly: false,
+    buttons: [
+      {
+        text: 'Share your thoughts',
+        target: '_blank',
+        // TODO: add survey url
+        url: '',
       },
     ],
   },
