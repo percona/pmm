@@ -127,7 +127,7 @@ copy_component() {
 }
 
 main() {
-    rm -rf "${source_dir}" "${binary_dir}"
+    rm -rf "${binary_dir}"
     extract_source_tarball
 
     gobuild_component "vmagent" "" "github.com/VictoriaMetrics/VictoriaMetrics" "app/vmagent"
