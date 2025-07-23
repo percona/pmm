@@ -105,7 +105,7 @@ func TestMySQLComments(t *testing.T) {
 		},
 		{
 			Name:     "Dash in value",
-			Query:    `SELECT * FROM people WHERE name = '-- web-framework='Django', controller='unknown''`,
+			Query:    `SELECT * FROM people WHERE name = "-- web-framework='Django', controller='unknown'"`,
 			Comments: make(map[string]string),
 		},
 		{
