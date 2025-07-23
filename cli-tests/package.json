@@ -16,7 +16,7 @@
     "@types/luxon": "^3.6.2",
     "dotenv": "^17.2.0",
     "luxon": "^3.7.1",
-    "playwright": "^1.51.1",
+    "playwright": "^1.54.1",
     "promise-retry": "^2.0.1",
     "shelljs": "^0.10.0",
     "typescript": "^5.8.2"
