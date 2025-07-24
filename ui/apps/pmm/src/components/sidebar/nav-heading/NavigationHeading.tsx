@@ -14,7 +14,7 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
       alignItems="center"
       sx={{
         p: sidebarOpen ? 2 : 1,
-        pl: sidebarOpen ? 1 : {},
+        pl: sidebarOpen ? 0 : 1,
         position: 'relative',
       }}
     >
