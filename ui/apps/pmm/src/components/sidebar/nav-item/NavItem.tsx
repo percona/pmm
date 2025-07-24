@@ -55,7 +55,10 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
             color="primary.main"
             disableGutters
             selected={active}
-            sx={styles.listItemButton}
+            sx={[
+              styles.listItemButton,
+              level === 0 && styles.navItemRootCollapsible,
+            ]}
             onClick={handleOpenCollapsible}
             data-testid={dataTestid}
             data-navlevel={level}
@@ -116,7 +119,7 @@ const NavItem: FC<NavItemProps> = ({ item, drawerOpen, level = 0 }) => {
     <ListItem key={item.url} disablePadding>
       <ListItemButton
         disableGutters
-        sx={styles.listItemButton}
+        sx={[styles.listItemButton, level === 0 && styles.navItemRoot]}
         selected={active}
         {...linkProps}
         data-testid={dataTestid}

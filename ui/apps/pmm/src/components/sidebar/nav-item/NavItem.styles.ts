@@ -1,4 +1,3 @@
-import { buttonBaseClasses } from '@mui/material/ButtonBase';
 import { listItemIconClasses } from '@mui/material/ListItemIcon';
 import { typographyClasses } from '@mui/material/Typography';
 import { Theme } from '@mui/material/styles';
@@ -9,9 +8,15 @@ export const getStyles = (
   drawerOpen: boolean,
   level: number
 ) => ({
+  navItemRoot: {
+    borderRadius: 0,
+  },
+  navItemRootCollapsible: {
+    borderRadius: drawerOpen ? levelBorderRadius[level] : 0,
+  },
   listItemButton: {
-    pl: drawerOpen ? levelPadding[level] || 0 : 0,
-    ml: drawerOpen ? levelMargin[level] || 0 : 0,
+    px: 2,
+
     borderRadius: drawerOpen ? levelBorderRadius[level] : 0,
 
     [`.${typographyClasses.root}`]: {
@@ -30,54 +35,34 @@ export const getStyles = (
       : 'initial',
   },
   listCollapsible:
-    level !== 1
+    level === 0
       ? {
-          ml: 1.5,
-          mb: 2,
+          pl: 4,
+          pb: 2,
         }
-      : {
-          pl: 1,
-          ml: 6,
-          mb: 2,
-          borderLeft: 1,
-          borderColor: theme.palette.divider,
-
-          [`.${buttonBaseClasses.root}`]: {
-            px: 2.5,
-          },
-        },
+      : level === 1
+        ? {
+            ml: 2.5,
+            pl: '11px',
+            pb: 2,
+            borderLeft: 1,
+            borderColor: theme.palette.divider,
+          }
+        : {},
   listItemIcon: {
     minWidth: 'auto',
     pr: drawerOpen ? 1 : 0,
   },
-  listItemDivider: drawerOpen
-    ? {}
-    : {
-        justifyContent: 'center',
-      },
-  divider: drawerOpen
-    ? {
-        mr: 1,
-        ml: 2,
-        flex: 1,
-      }
-    : {
-        flex: 1,
-      },
+  listItemDivider: {
+    px: 2,
+  },
+  divider: {
+    flex: 1,
+  },
   text: {
     whiteSpace: 'normal',
   },
 });
-
-const levelPadding: Record<number, number> = {
-  0: 3,
-  1: 2.5,
-  3: 3.5,
-};
-
-const levelMargin: Record<number, number> = {
-  1: 3,
-};
 
 const levelBorderRadius: Record<number, any> = {
   0: {
