@@ -1,7 +1,7 @@
 import { NavItem } from 'lib/types';
 import { ServiceType } from 'types/services.types';
 import { User } from 'types/user.types';
-import { FrontendSettings, Settings } from 'types/settings.types';
+import { FrontendSettings } from 'types/settings.types';
 import { Advisor } from 'types/advisors.types';
 import { groupAdvisorsIntoCategories } from 'lib/utils/advisors.utils';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
